@@ -831,6 +831,7 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         # Face frame members
         'TOP_RAIL', 'BOTTOM_RAIL', 'LEFT_STILE', 'RIGHT_STILE', 'MID_STILE',
         'MID_RAIL', 'BAY_MID_RAIL', 'BAY_MID_STILE',
+        'INTERIOR_FF_RAIL', 'INTERIOR_FF_STILE',
         # Fronts
         'DOOR', 'DRAWER_FRONT', 'PULLOUT_FRONT', 'FALSE_FRONT', 'INSET_PANEL',
         # Visible toe kick parts
@@ -2817,6 +2818,26 @@ class Face_Frame_Split_Props(PropertyGroup):
     )  # type: ignore
 
 
+def _update_interior_add_face_frame(self, context):
+    """Toggle callback for the optional interior face frame part.
+    The first time the toggle is enabled, seed face_frame_width from
+    the cabinet mid rail (H-split) or mid stile (V-split) width so
+    the width field opens on the cabinet default; 0.0 marks it
+    unseeded. Writing face_frame_width fires its own recalc, so the
+    seed path returns without a second _update_cabinet_dim call.
+    """
+    if self.add_face_frame and self.face_frame_width <= 0.0:
+        from . import types_face_frame
+        cab = types_face_frame.find_cabinet_root(self.id_data)
+        if cab is not None:
+            cp = cab.face_frame_cabinet
+            self.face_frame_width = (cp.bay_mid_rail_width
+                                     if self.axis == 'H'
+                                     else cp.bay_mid_stile_width)
+            return
+    _update_cabinet_dim(self, context)
+
+
 class Face_Frame_Interior_Split_Props(PropertyGroup):
     """Per-interior-split-node state. Attached to each interior split
     node Empty as bpy.types.Object.face_frame_interior_split.
@@ -2853,6 +2874,23 @@ class Face_Frame_Interior_Split_Props(PropertyGroup):
         name="Divider Thickness",
         description="Thickness of the fixed shelf or division at this split",
         default=units.inch(0.75), unit='LENGTH', precision=4,
+        update=_update_cabinet_dim,
+    )  # type: ignore
+
+    add_face_frame: BoolProperty(
+        name="Add Face Frame",
+        description="Add a face frame rail (fixed shelf) or stile "
+                    "(division) inline with the cabinet face frame at "
+                    "this split. Sits behind the doors and does not "
+                    "split the door fronts",
+        default=False, update=_update_interior_add_face_frame,
+    )  # type: ignore
+    face_frame_width: FloatProperty(
+        name="Face Frame Width",
+        description="Width of the optional face frame part at this "
+                    "split. Seeded from the cabinet mid rail / mid "
+                    "stile width when first enabled",
+        default=0.0, unit='LENGTH', precision=4,
         update=_update_cabinet_dim,
     )  # type: ignore
 

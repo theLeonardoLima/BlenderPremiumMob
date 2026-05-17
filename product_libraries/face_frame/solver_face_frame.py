@@ -3111,6 +3111,16 @@ def _walk_interior_node(node, rect, origin_offset,
     cage_y = rect['cage_dim_y']
     cage_z = rect['cage_dim_z']
 
+    # Face frame reveals for this region. The opening rect carries
+    # all four; nested child rects built below inherit a reveal
+    # only on edges coinciding with the opening boundary (0 on
+    # edges shared with a sibling region). Optional FF parts inset
+    # by these so they fit the FF opening, not the interior rect.
+    rev_l = rect.get('reveal_left', 0.0)
+    rev_r = rect.get('reveal_right', 0.0)
+    rev_t = rect.get('reveal_top', 0.0)
+    rev_b = rect.get('reveal_bottom', 0.0)
+
     # Both children's sizes are honored directly. The recalc-time
     # redistribution pass guarantees that for any unlocked sibling
     # the stored size already equals the remainder, so the walker
@@ -3130,10 +3140,34 @@ def _walk_interior_node(node, rect, origin_offset,
             'position':     (ox, oy, oz + size_a),
             'dims':         (cage_x, cage_y, div_t),
         })
+        if sp.add_face_frame and sp.face_frame_width > 0.0:
+            ffw = sp.face_frame_width
+            # Rail inline with the FF plane; its top face is flush
+            # with the shelf board's top, so it extends down by
+            # ffw. Length inset by the left/right reveals so it
+            # fits the FF opening.
+            out.append({
+                'kind':         'INTERIOR_FF_RAIL',
+                'role':         'INTERIOR_FF_RAIL',
+                'name':         f'Shelf Rail {len(out) + 1}',
+                'orientation':  'HORIZONTAL',
+                'position':     (ox + rev_l,
+                                 _ff_front_y_bay_local(layout),
+                                 oz + size_a + div_t - ffw),
+                'dims':         (cage_x - rev_l - rev_r, ffw,
+                                 layout.fft),
+            })
+        # Children stack in Z: left/right reveals pass through to
+        # both; the bottom child keeps the bottom reveal (0 on
+        # top, shared with the divider), the top child the top.
         lower_rect = {'cage_dim_x': cage_x, 'cage_dim_y': cage_y,
-                      'cage_dim_z': size_a}
+                      'cage_dim_z': size_a,
+                      'reveal_left': rev_l, 'reveal_right': rev_r,
+                      'reveal_top': 0.0, 'reveal_bottom': rev_b}
         upper_rect = {'cage_dim_x': cage_x, 'cage_dim_y': cage_y,
-                      'cage_dim_z': size_b}
+                      'cage_dim_z': size_b,
+                      'reveal_left': rev_l, 'reveal_right': rev_r,
+                      'reveal_top': rev_t, 'reveal_bottom': 0.0}
         _walk_interior_node(children[0], lower_rect, origin_offset,
                             layout, cab_props, out)
         upper_origin = (ox, oy, oz + size_a + div_t)
@@ -3153,10 +3187,34 @@ def _walk_interior_node(node, rect, origin_offset,
             'position':     (ox + size_a, oy + cage_y, oz),
             'dims':         (cage_z, cage_y, div_t),
         })
+        if sp.add_face_frame and sp.face_frame_width > 0.0:
+            ffw = sp.face_frame_width
+            # Stile inline with the FF plane, centered on the
+            # division board's thickness centerline. Length inset
+            # by the top/bottom reveals so it fits the FF opening.
+            stile_x = ox + size_a + div_t / 2.0 - ffw / 2.0
+            out.append({
+                'kind':         'INTERIOR_FF_STILE',
+                'role':         'INTERIOR_FF_STILE',
+                'name':         f'Division Stile {len(out) + 1}',
+                'orientation':  'VERTICAL',
+                'position':     (stile_x,
+                                 _ff_front_y_bay_local(layout),
+                                 oz + rev_b),
+                'dims':         (cage_z - rev_t - rev_b, ffw,
+                                 layout.fft),
+            })
+        # Children stack in X: top/bottom reveals pass through to
+        # both; the left child keeps the left reveal (0 on right,
+        # shared with the divider), the right child the right.
         left_rect = {'cage_dim_x': size_a, 'cage_dim_y': cage_y,
-                     'cage_dim_z': cage_z}
+                     'cage_dim_z': cage_z,
+                     'reveal_left': rev_l, 'reveal_right': 0.0,
+                     'reveal_top': rev_t, 'reveal_bottom': rev_b}
         right_rect = {'cage_dim_x': size_b, 'cage_dim_y': cage_y,
-                      'cage_dim_z': cage_z}
+                      'cage_dim_z': cage_z,
+                      'reveal_left': 0.0, 'reveal_right': rev_r,
+                      'reveal_top': rev_t, 'reveal_bottom': rev_b}
         _walk_interior_node(children[0], left_rect, origin_offset,
                             layout, cab_props, out)
         right_origin = (ox + size_a + div_t, oy, oz)

@@ -430,6 +430,18 @@ def _walk_tree_leaves(opening_obj):
             yield from _recurse(c, 0)
 
 
+def _draw_split_face_frame_props(layout, sp):
+    """Optional inline face frame member for an interior split. The
+    width field is enabled only while the toggle is on; the width
+    seeds itself from the cabinet mid rail / mid stile width the first
+    time the toggle is enabled.
+    """
+    layout.prop(sp, 'add_face_frame')
+    width_row = layout.row(align=True)
+    width_row.enabled = sp.add_face_frame
+    width_row.prop(sp, 'face_frame_width', text="Face Frame Width")
+
+
 def _draw_interior_tree_inline(layout, opening_obj):
     """Render every leaf of the opening's interior tree as an inline
     sub-section. Used by the opening's modal popup so the user can
@@ -480,6 +492,7 @@ def _draw_interior_tree_inline(layout, opening_obj):
 
         col = box.column(align=True)
         col.prop(sp, 'divider_thickness', text="Divider Thickness")
+        _draw_split_face_frame_props(col, sp)
 
         # Both children carry an editable size now that sibling
         # redistribution honors locks. Editing either side moves the
@@ -541,6 +554,7 @@ def draw_interior_region_properties(layout, leaf_obj, opening_obj):
     axis_label = "Fixed Shelf" if sp.axis == 'H' else "Division"
     col.label(text=f"Parent Split: {axis_label}")
     col.prop(sp, 'divider_thickness', text="Divider Thickness")
+    _draw_split_face_frame_props(col, sp)
 
     size_row = col.row(align=True)
     field = size_row.row(align=True)

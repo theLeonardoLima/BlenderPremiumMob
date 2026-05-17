@@ -254,6 +254,10 @@ PART_ROLE_ACCESSORY_LABEL = 'ACCESSORY_LABEL'
 # Interior tree dividers: physical parts at split-node boundaries.
 PART_ROLE_INTERIOR_DIVISION = 'INTERIOR_DIVISION'
 PART_ROLE_INTERIOR_FIXED_SHELF = 'INTERIOR_FIXED_SHELF'
+# Optional face frame member (rail / stile) inline with the
+# cabinet face frame at an interior split node.
+PART_ROLE_INTERIOR_FF_RAIL = 'INTERIOR_FF_RAIL'
+PART_ROLE_INTERIOR_FF_STILE = 'INTERIOR_FF_STILE'
 
 INTERIOR_PART_ROLES = frozenset({
     PART_ROLE_ADJUSTABLE_SHELF,
@@ -269,6 +273,8 @@ INTERIOR_PART_ROLES = frozenset({
     PART_ROLE_ACCESSORY_LABEL,
     PART_ROLE_INTERIOR_DIVISION,
     PART_ROLE_INTERIOR_FIXED_SHELF,
+    PART_ROLE_INTERIOR_FF_RAIL,
+    PART_ROLE_INTERIOR_FF_STILE,
 })
 
 # Maps a Face_Frame_Interior_Item.kind to the *primary* part role its
@@ -3326,6 +3332,10 @@ class FaceFrameCabinet(GeoNodeCage):
                 self._create_accessory_label(opening_obj, desc)
             elif kind == 'ROLLOUT_BOX':
                 self._create_rollout_box(opening_obj, desc)
+            elif kind in ('INTERIOR_FF_RAIL', 'INTERIOR_FF_STILE'):
+                self._create_interior_face_frame_part(
+                    opening_obj, desc,
+                )
             else:
                 # All remaining mesh-based interior parts route through
                 # the generic factory; orientation in the descriptor
@@ -3596,6 +3606,41 @@ class FaceFrameCabinet(GeoNodeCage):
             part.set_input('Mirror Y', True)
             part.set_input('Mirror Z', True)
         # HORIZONTAL falls through with default rotation/mirror.
+
+        length, width, thickness = desc['dims']
+        part.set_input('Length', length)
+        part.set_input('Width', width)
+        part.set_input('Thickness', thickness)
+        return part
+
+    def _create_interior_face_frame_part(self, opening_obj, desc):
+        """Optional face frame member at an interior split node - a rail
+        for a fixed shelf (kind INTERIOR_FF_RAIL) or a stile for a
+        division (kind INTERIOR_FF_STILE). Rotation / mirror conventions
+        match the bay mid rail and mid stile so the part lands inline
+        with the cabinet face frame plane. Parented to the opening cage
+        in opening-local coords and tagged IS_FACE_FRAME_INTERIOR_PART
+        so the interior wipe pass rebuilds it each recalc.
+        """
+        part = CabinetPart()
+        part.create(desc['name'])
+        part.obj.parent = opening_obj
+        part.obj['hb_part_role'] = desc['role']
+        part.obj['CABINET_PART'] = True
+        part.obj['IS_FACE_FRAME_INTERIOR_PART'] = True
+        part.obj['MENU_ID'] = 'HOME_BUILDER_MT_face_frame_interior_part_commands'
+        part.obj.location = desc['position']
+
+        if desc['kind'] == 'INTERIOR_FF_STILE':
+            # Mid-stile orientation: Length+Z, Width+X, Thickness+Y.
+            part.obj.rotation_euler.y = math.radians(-90)
+            part.obj.rotation_euler.z = math.radians(90)
+            part.set_input('Mirror Y', True)
+            part.set_input('Mirror Z', True)
+        else:
+            # Mid-rail orientation: Length+X, Width+Z, Thickness+Y.
+            part.obj.rotation_euler.x = math.radians(90)
+            part.set_input('Mirror Z', True)
 
         length, width, thickness = desc['dims']
         part.set_input('Length', length)
