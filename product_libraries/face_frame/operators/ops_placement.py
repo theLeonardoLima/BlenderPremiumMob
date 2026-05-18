@@ -1089,6 +1089,11 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
         # subclasses like SinkFaceFrameCabinet.
         cls_inst = cls()
         self._single_placement = bool(getattr(cls_inst, 'single_placement', False))
+        # Cage depth/height come straight from the cabinet class so the
+        # preview matches subclasses with non-standard dims (e.g. the
+        # 12"-deep Bookcase) instead of a cabinet_type approximation.
+        self._cabinet_depth = cls_inst.default_depth
+        self._cabinet_height = cls_inst.default_height
         if self._single_placement:
             self._cabinet_width = cls_inst.default_width
             self._auto_bay_qty = False
@@ -1253,15 +1258,13 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
         the cursor can't catch on the cage and trigger self-snap.
         """
         scene_props = context.scene.hb_face_frame
-        cabinet_type = _cabinet_type_for_name(self.cabinet_name)
-        depth, height = _cage_dimensions(scene_props, cabinet_type)
         cabinet_width = scene_props.default_cabinet_width
 
         cage = hb_types.GeoNodeCage()
         cage.create('FaceFramePlacementPreview')
         cage.set_input('Dim X', cabinet_width / max(self.bay_qty, 1))
-        cage.set_input('Dim Y', depth)
-        cage.set_input('Dim Z', height)
+        cage.set_input('Dim Y', self._cabinet_depth)
+        cage.set_input('Dim Z', self._cabinet_height)
         cage.set_input('Mirror Y', True)
 
         mod = cage.obj.modifiers.new(name='BayQty', type='ARRAY')

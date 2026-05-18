@@ -3843,6 +3843,22 @@ class RefrigeratorCabinet(TallFaceFrameCabinet):
                 bay_obj.face_frame_bay.remove_bottom = True
 
 
+class BookcaseFaceFrameCabinet(TallFaceFrameCabinet):
+    """Bookcase: a tall cabinet at a fixed 12" depth with a single open
+    bay of adjustable shelves. Depth is locked here rather than pulled
+    from tall_cabinet_depth so the bookcase stays shallow regardless of
+    the tall-cabinet default; the open-with-shelves bay is applied by
+    the placement operator via default_bay_config.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.default_depth = inch(12.0)
+
+    def create(self, name="Bookcase", bay_qty=1):
+        super().create(name, bay_qty=bay_qty)
+
+
 class LapDrawerFaceFrameCabinet(FaceFrameCabinet):
     """Lap drawer cabinet: a base cabinet configured to float above the
     counter with a single drawer bay. Built on the BASE construction
@@ -3915,6 +3931,7 @@ CABINET_NAME_DISPATCH = {
     "Tall Stacked": TallFaceFrameCabinet,
     "Refrigerator Cabinet": RefrigeratorCabinet,
     "Panel": PanelFaceFrameCabinet,
+    "Bookcase": BookcaseFaceFrameCabinet,
 }
 
 

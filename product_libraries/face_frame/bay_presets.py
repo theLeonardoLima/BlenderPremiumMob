@@ -71,6 +71,29 @@ BASE_PRESETS = {
                                  L('RIGHT_DOOR')),
     'FALSE_FRONT_DOUBLE_DOOR': H(L('FALSE_FRONT', size_role='TOP_DRAWER'),
                                  L('DOUBLE_DOOR')),
+    # Vanity Special: false front apron over a door beside a stack of two
+    # drawers. The apron pins to top_drawer_opening_height like the other
+    # false-front presets.
+    'VANITY_SPECIAL':          H(L('FALSE_FRONT', size_role='TOP_DRAWER'),
+                                 V(L('LEFT_DOOR'),
+                                   H(L('DRAWER'), L('DRAWER')))),
+    # Vanity Combination: a top row of drawer / sink false front / drawer
+    # over a double door. The false front pins to a fixed sink width
+    # (VANITY_SINK_WIDTH); the flanking drawers absorb width changes. The
+    # top row height pins to top_drawer_opening_height via the V node.
+    'VANITY_COMBINATION':      H(V(L('DRAWER'),
+                                   L('FALSE_FRONT', size_role='VANITY_SINK_WIDTH'),
+                                   L('DRAWER'),
+                                   size_role='TOP_DRAWER'),
+                                 L('DOUBLE_DOOR')),
+    # Vanity Deluxe: the Combination's drawer / sink false front / drawer
+    # top row over a bottom row of a door beside a stack of two drawers.
+    'VANITY_DELUXE':           H(V(L('DRAWER'),
+                                   L('FALSE_FRONT', size_role='VANITY_SINK_WIDTH'),
+                                   L('DRAWER'),
+                                   size_role='TOP_DRAWER'),
+                                 V(L('LEFT_DOOR'),
+                                   H(L('DRAWER'), L('DRAWER')))),
     'TWO_DRAWERS_DOUBLE_DOOR': H(V(L('DRAWER'), L('DRAWER'),
                                    size_role='TOP_DRAWER'),
                                  L('DOUBLE_DOOR')),
@@ -299,6 +322,27 @@ def default_bay_config(cabinet_name, bay_width):
         return 'DOUBLE_STACKED_DOOR' if is_wide else 'LEFT_STACKED_DOOR'
     if cabinet_name == 'Refrigerator Cabinet':
         return 'BUILT_IN_REFRIGERATOR'
+    if cabinet_name == 'Built in Tall':
+        # Tall cabinet with a built-in appliance opening: doors above and
+        # below an open APPLIANCE zone. Same recipe as the Change Bay
+        # menu's "Built In Appliance" option.
+        return 'BUILT_IN_APPLIANCE'
     if cabinet_name == 'Sink':
         return 'FALSE_FRONT_DOUBLE_DOOR' if is_wide else 'FALSE_FRONT_DOOR'
+    if cabinet_name == 'Special':
+        # Vanity "Special": a standard base cabinet with the VANITY_SPECIAL
+        # bay configuration.
+        return 'VANITY_SPECIAL'
+    if cabinet_name == 'Combination':
+        # Vanity "Combination": a standard base cabinet with the
+        # VANITY_COMBINATION bay configuration.
+        return 'VANITY_COMBINATION'
+    if cabinet_name == 'Deluxe':
+        # Vanity "Deluxe": a standard base cabinet with the VANITY_DELUXE
+        # bay configuration.
+        return 'VANITY_DELUXE'
+    if cabinet_name == 'Bookcase':
+        # Bookcase: a 12" deep tall cabinet with a single open bay of
+        # adjustable shelves.
+        return 'OPEN_WITH_SHELVES'
     return None

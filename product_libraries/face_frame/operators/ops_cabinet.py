@@ -1679,8 +1679,9 @@ def _build_recipe_into(recipe, parent_obj, child_index,
 
     def apply_size_role(props):
         """Pin a node's size + unlock_size based on its size_role.
-        New roles get added here; the cabinet-level value they map to
-        lives on Face_Frame_Cabinet_Props.
+        New roles get added here; the value they map to is a scene-level
+        preference or, where no meaningful preference exists, a fixed
+        constant.
 
         Order matters: unlock_size MUST be written before size. Each
         prop write fires a recalc, and a recalc with this node still
@@ -1707,6 +1708,13 @@ def _build_recipe_into(recipe, parent_obj, child_index,
             # door zone above flexes with the cabinet height.
             props.unlock_size = True
             props.size = bpy.context.scene.hb_face_frame.refrigerator_height
+        elif size_role == 'VANITY_SINK_WIDTH':
+            # Pins a vanity sink false front to a fixed 20" width so the
+            # flanking drawers absorb the bay's width changes. A constant
+            # rather than a preference - the false front stays adjustable
+            # per-cabinet after placement.
+            props.unlock_size = True
+            props.size = 0.508  # 20"
 
     if kind == 'leaf':
         config = recipe[1]

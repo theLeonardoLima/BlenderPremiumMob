@@ -8,6 +8,7 @@ from . import ops_styles
 from . import op_modify_cabinet
 from . import op_open_mode
 from . import ops_part_commands
+from . import ops_thumbnails
 
 
 def register():
@@ -21,9 +22,11 @@ def register():
     op_modify_cabinet.register()
     op_open_mode.register()
     ops_part_commands.register()
+    ops_thumbnails.register()
 
 
 def unregister():
+    ops_thumbnails.unregister()
     ops_part_commands.unregister()
     op_open_mode.unregister()
     op_modify_cabinet.unregister()
