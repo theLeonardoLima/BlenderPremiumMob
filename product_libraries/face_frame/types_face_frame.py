@@ -22,6 +22,7 @@ from mathutils import Vector
 
 from ...hb_types import GeoNodeCage, GeoNodeCutpart, GeoNodeDrawerBox
 from ...units import inch
+from ...hb_details import apply_label_style
 from ..common import types_appliances
 from ..frameless.types_frameless import CabinetPart
 from . import solver_face_frame as solver
@@ -3402,10 +3403,16 @@ class FaceFrameCabinet(GeoNodeCage):
         font_curve.align_y = 'CENTER'
         text_obj = bpy.data.objects.new(desc['name'], font_curve)
         bpy.context.scene.collection.objects.link(text_obj)
+        # Resolved annotation font + color (Calibri by default).
+        apply_label_style(text_obj, bpy.context.scene)
         text_obj.parent = opening_obj
         text_obj.location = desc['position']
         text_obj.rotation_euler = desc['rotation']
         text_obj['hb_part_role'] = desc['role']
+        # Annotation tag so the end-of-recalc cabinet-style pass
+        # (toggle_cabinet_color) colors it as annotation text rather
+        # than repainting it the default white.
+        text_obj['IS_2D_ANNOTATION'] = True
         return text_obj
 
     def _redistribute_interior_split_tree(self, opening_obj, rect):

@@ -1823,7 +1823,7 @@ def apply_opening_preset(opening_obj, config, **overrides):
         if not has_accessory:
             new_item = op_props.interior_items.add()
             new_item.kind = 'ACCESSORY'
-            new_item.accessory_label = "Appliance"
+            new_item.accessory_label = "APPLIANCE"
 
     op_props.front_type = preset['front_type']
     if 'hinge_side' in preset:

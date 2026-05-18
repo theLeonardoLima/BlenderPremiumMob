@@ -106,7 +106,7 @@ BASE_PRESETS = {
     'FALSE_FRONT':             L('FALSE_FRONT'),
     'PULLOUT':                 L('PULLOUT'),
     'PULLOUT_WITH_DRAWER':     H(L('DRAWER'), L('PULLOUT')),
-    'MICROWAVE_WITH_DRAWER':   H(L('APPLIANCE', accessory_label='Microwave'),
+    'MICROWAVE_WITH_DRAWER':   H(L('APPLIANCE', accessory_label='MICROWAVE'),
                                  L('DRAWER')),
     'OPEN_WITH_SHELVES':       L('OPEN_WITH_SHELVES'),
     'OPEN':                    L('OPEN'),
@@ -141,7 +141,7 @@ TALL_PRESETS = {
     # to refrigerator_height so the door zone flexes with cabinet height.
     'BUILT_IN_REFRIGERATOR':      H(L('DOUBLE_DOOR'),
                                     L('APPLIANCE', size_role='REFRIGERATOR',
-                                      accessory_label='Refrigerator')),
+                                      accessory_label='REFRIGERATOR')),
     'DOORS_WITH_TALL_PULLOUT':    H(L('DOUBLE_DOOR'), L('PULLOUT')),
     'TALL_PULLOUT':               L('PULLOUT'),
     'OPEN_WITH_SHELVES':          L('OPEN_WITH_SHELVES'),

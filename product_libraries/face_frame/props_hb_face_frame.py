@@ -2807,7 +2807,7 @@ class Face_Frame_Interior_Item(bpy.types.PropertyGroup):
 
     # ACCESSORY: free-text label (e.g., 'Lazy Susan', 'Trash Pullout').
     accessory_label: StringProperty(
-        name="Accessory Label", default="Accessory",
+        name="Accessory Label", default="ACCESSORY",
         update=_update_cabinet_dim,
     )  # type: ignore
 

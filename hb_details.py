@@ -1,5 +1,6 @@
 import bpy
 import math
+import os
 from mathutils import Vector, Matrix, Euler
 from . import hb_types
 from . import units
@@ -293,6 +294,89 @@ class GeoNodeCircle(hb_types.GeoNodeObject):
         """Get the current radius."""
         return getattr(self, '_radius', 1.0)
 
+# =============================================================================
+# LABEL TEXT STYLING - shared font / color resolution
+# =============================================================================
+
+# Shared material for all annotation / label text. One datablock keeps a
+# per-recalc label rebuild from accumulating orphaned materials, and a
+# single color edit updates every label at once.
+_LABEL_MAT_NAME = "HB Label Text"
+
+
+def _find_calibri():
+    """Locate calibri.ttf in the Windows font directories. Returns the
+    first existing path, or None on non-Windows / if Calibri is gone.
+    """
+    candidates = []
+    windir = os.environ.get('WINDIR')
+    if windir:
+        candidates.append(os.path.join(windir, 'Fonts', 'calibri.ttf'))
+    local = os.environ.get('LOCALAPPDATA')
+    if local:
+        candidates.append(os.path.join(
+            local, 'Microsoft', 'Windows', 'Fonts', 'calibri.ttf'))
+    for path in candidates:
+        if os.path.exists(path):
+            return path
+    return None
+
+
+def get_label_font(scene):
+    """Resolve the font for annotation / label text.
+
+    home_builder.annotation_font wins when the user has set one. With no
+    font set, Calibri is loaded from the system font directory -
+    load(check_existing=True) reuses an already-loaded datablock instead
+    of duplicating it. When Calibri isn't available (non-Windows, or
+    uninstalled) None is returned and the caller leaves the FONT curve's
+    default Bfont in place.
+    """
+    hb = getattr(scene, 'home_builder', None)
+    if hb is not None and hb.annotation_font is not None:
+        return hb.annotation_font
+    path = _find_calibri()
+    if path is not None:
+        try:
+            return bpy.data.fonts.load(path, check_existing=True)
+        except RuntimeError:
+            pass
+    return None
+
+
+def apply_label_style(text_obj, scene):
+    """Apply the resolved annotation font and color to a FONT object.
+
+    Font comes from get_label_font (user preference -> Calibri ->
+    Bfont). Color comes from home_builder.annotation_text_color, written
+    to both the object color and a shared Principled material so the
+    text reads correctly in every shading mode.
+    """
+    if text_obj is None or text_obj.type != 'FONT':
+        return
+
+    font = get_label_font(scene)
+    if font is not None:
+        text_obj.data.font = font
+
+    hb = getattr(scene, 'home_builder', None)
+    if hb is not None:
+        color = tuple(hb.annotation_text_color) + (1.0,)
+    else:
+        color = (0.0, 0.0, 0.0, 1.0)
+    text_obj.color = color
+
+    mat = bpy.data.materials.get(_LABEL_MAT_NAME)
+    if mat is None:
+        mat = bpy.data.materials.new(_LABEL_MAT_NAME)
+        mat.use_nodes = True
+    bsdf = mat.node_tree.nodes.get("Principled BSDF")
+    if bsdf:
+        bsdf.inputs["Base Color"].default_value = color
+    if mat.name not in (m.name for m in text_obj.data.materials if m):
+        text_obj.data.materials.append(mat)
+
+
 class GeoNodeText(hb_types.GeoNodeObject):
     """Text annotation for 2D details."""
     
@@ -309,18 +393,12 @@ class GeoNodeText(hb_types.GeoNodeObject):
         self.obj = bpy.data.objects.new(name, text_data)
         self.obj['IS_DETAIL_TEXT'] = True
         self.obj['IS_2D_ANNOTATION'] = True
-        self.obj.color = (0, 0, 0, 1)
-        
+
         bpy.context.scene.collection.objects.link(self.obj)
-        
-        # Create black material
-        mat = bpy.data.materials.new(f"{name}_Mat")
-        mat.use_nodes = True
-        bsdf = mat.node_tree.nodes.get("Principled BSDF")
-        if bsdf:
-            bsdf.inputs["Base Color"].default_value = (0, 0, 0, 1)
-        text_data.materials.append(mat)
-        
+
+        # Resolved annotation font + color (Calibri by default).
+        apply_label_style(self.obj, bpy.context.scene)
+
         # Set extrude for visibility (thin 3D text)
         text_data.extrude = 0.001
         
