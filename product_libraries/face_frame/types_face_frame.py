@@ -1174,6 +1174,26 @@ class FaceFrameCabinet(GeoNodeCage):
         finally:
             _DISTRIBUTING_WIDTHS.discard(id(self.obj))
 
+    def _distribute_bay_rails(self):
+        """Sync each bay's top / bottom rail width to the cabinet defaults
+        unless the bay has the matching unlock_*_rail flag set. Mirrors
+        _distribute_bay_depths: a locked bay follows the cabinet default,
+        an unlocked bay holds its own per-bay rail override.
+        """
+        cab_props = self.obj.face_frame_cabinet
+        bays = sorted(
+            [c for c in self.obj.children if c.get(TAG_BAY_CAGE)],
+            key=lambda c: c.get('hb_bay_index', 0),
+        )
+        for bay_obj in bays:
+            bp = bay_obj.face_frame_bay
+            if not bp.unlock_top_rail:
+                if abs(bp.top_rail_width - cab_props.top_rail_width) > 1e-6:
+                    bp.top_rail_width = cab_props.top_rail_width
+            if not bp.unlock_bottom_rail:
+                if abs(bp.bottom_rail_width - cab_props.bottom_rail_width) > 1e-6:
+                    bp.bottom_rail_width = cab_props.bottom_rail_width
+
     def _distribute_bay_widths(self):
         """Redistribute available width among bays whose unlock_width is False.
 
@@ -1385,6 +1405,8 @@ class FaceFrameCabinet(GeoNodeCage):
         self._distribute_bay_depths()
         self._distribute_bay_heights()
         self._distribute_bay_kick_heights()
+        # Rail widths follow the cabinet default unless a bay is unlocked.
+        self._distribute_bay_rails()
         # Then the width calculator before the solver reads bay widths.
         self._distribute_bay_widths()
         # Then redistribute sizes inside each bay's tree of openings /
@@ -3843,6 +3865,24 @@ class RefrigeratorCabinet(TallFaceFrameCabinet):
                 bay_obj.face_frame_bay.remove_bottom = True
 
 
+class BuiltInTallFaceFrameCabinet(TallFaceFrameCabinet):
+    """Tall cabinet for a built-in range / oven. Placed like a
+    refrigerator: dropped at a fixed width instead of filling the wall
+    gap (single_placement). Width is seeded from the scene range_width
+    and stays editable during placement (type a width) and from the
+    cabinet prompts afterward. The built-in appliance bay layout is
+    applied by name via bay_presets.default_bay_config.
+    """
+
+    single_placement = True
+
+    def __init__(self):
+        super().__init__()
+        scene = bpy.context.scene
+        if hasattr(scene, 'hb_face_frame'):
+            self.default_width = scene.hb_face_frame.range_width
+
+
 class BookcaseFaceFrameCabinet(TallFaceFrameCabinet):
     """Bookcase: a tall cabinet at a fixed 12" depth with a single open
     bay of adjustable shelves. Depth is locked here rather than pulled
@@ -3930,6 +3970,7 @@ CABINET_NAME_DISPATCH = {
     "Tall": TallFaceFrameCabinet,
     "Tall Stacked": TallFaceFrameCabinet,
     "Refrigerator Cabinet": RefrigeratorCabinet,
+    "Built in Tall": BuiltInTallFaceFrameCabinet,
     "Panel": PanelFaceFrameCabinet,
     "Bookcase": BookcaseFaceFrameCabinet,
 }
@@ -4070,6 +4111,8 @@ WRAP_CLASS_REGISTRY.update({
     'UpperFaceFrameCabinet': UpperFaceFrameCabinet,
     'TallFaceFrameCabinet': TallFaceFrameCabinet,
     'RefrigeratorCabinet': RefrigeratorCabinet,
+    'BuiltInTallFaceFrameCabinet': BuiltInTallFaceFrameCabinet,
+    'BookcaseFaceFrameCabinet': BookcaseFaceFrameCabinet,
     'LapDrawerFaceFrameCabinet': LapDrawerFaceFrameCabinet,
     'PanelFaceFrameCabinet': PanelFaceFrameCabinet,
 })

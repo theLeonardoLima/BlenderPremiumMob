@@ -236,6 +236,20 @@ def draw_face_frame_defaults(layout, cab_props):
     col.prop(cab_props, 'default_right_overlay', text="Right")
 
 
+def _draw_locked_rail_row(layout, bp, attr, unlock_attr, text):
+    """Draw a bay rail-width field with a lock toggle. Locked
+    (default): field disabled, value follows the cabinet rail
+    default via _distribute_bay_rails. Unlocked: field editable,
+    the bay holds its own per-bay override."""
+    unlocked = getattr(bp, unlock_attr)
+    row = layout.row(align=True)
+    field = row.row(align=True)
+    field.enabled = unlocked
+    field.prop(bp, attr, text=text)
+    row.prop(bp, unlock_attr, text="",
+             icon='UNLOCKED' if unlocked else 'LOCKED')
+
+
 def draw_bay_properties(layout, bay_obj):
     """All editable properties of a single bay. Used by both the
     sidebar Selection sub-panel and the bay_prompts popup. Includes a
@@ -299,8 +313,10 @@ def draw_bay_properties(layout, bay_obj):
     if cab_type == 'UPPER':
         col.prop(bp, 'top_offset', text="Top Offset")
     col.separator()
-    col.prop(bp, 'top_rail_width', text="Top Rail Width")
-    col.prop(bp, 'bottom_rail_width', text="Bottom Rail Width")
+    _draw_locked_rail_row(col, bp, 'top_rail_width',
+                          'unlock_top_rail', "Top Rail Width")
+    _draw_locked_rail_row(col, bp, 'bottom_rail_width',
+                          'unlock_bottom_rail', "Bottom Rail Width")
     col.separator()
     col.prop(bp, 'remove_bottom', text="Remove Bottom")
     col.prop(bp, 'remove_carcass', text="Remove Carcass")
@@ -678,7 +694,8 @@ def draw_rail_properties(layout, root, rail_obj, role):
     label = "Top Rail" if is_top else "Bottom Rail"
     attr = 'top_rail_width' if is_top else 'bottom_rail_width'
     layout.label(text=f"{label} (Bay {seg_start + 1})", icon='SNAP_EDGE')
-    layout.prop(bp, attr, text="Width")
+    unlock_attr = 'unlock_top_rail' if is_top else 'unlock_bottom_rail'
+    _draw_locked_rail_row(layout, bp, attr, unlock_attr, "Width")
 
 
 def draw_blind_corners(layout, cab_props):
@@ -811,8 +828,10 @@ def draw_bay_in_prompts(layout, bay_obj):
     if cab_type == 'UPPER':
         col.prop(bp, 'top_offset', text="Top Offset")
     col.separator()
-    col.prop(bp, 'top_rail_width', text="Top Rail Width")
-    col.prop(bp, 'bottom_rail_width', text="Bottom Rail Width")
+    _draw_locked_rail_row(col, bp, 'top_rail_width',
+                          'unlock_top_rail', "Top Rail Width")
+    _draw_locked_rail_row(col, bp, 'bottom_rail_width',
+                          'unlock_bottom_rail', "Bottom Rail Width")
     col.separator()
     col.prop(bp, 'remove_bottom', text="Remove Bottom")
     col.prop(bp, 'remove_carcass', text="Remove Carcass")

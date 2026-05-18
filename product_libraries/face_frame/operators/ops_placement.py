@@ -139,7 +139,9 @@ def _appliance_dimensions(scene_props, appliance_name):
         ceiling = bpy.context.scene.home_builder.ceiling_height
         mount_z = _appliance_z_location(scene_props, appliance_name)
         height = max(ceiling - mount_z, cls.height)
-        return (cls.width, height, cls.depth)
+        # Width follows range_width so the hood opens sized to the range
+        # below it; the user can type a width override during placement.
+        return (scene_props.range_width, height, cls.depth)
     return (cls.width, cls.height, cls.depth)
 
 
@@ -295,6 +297,60 @@ def _auto_bay_qty(cabinet_width):
     eps = units.inch(0.0625)
     qty = math.ceil((cabinet_width - eps) / _MAX_BAY_WIDTH)
     return max(_BAY_QTY_MIN, min(qty, _BAY_QTY_MAX))
+
+
+def _range_under_cursor(hit_object):
+    """Walk up from a raycast hit; return the Range appliance the
+    cursor is over, or None. Used to trigger the sink-facing-range
+    island placement layout.
+    """
+    current = hit_object
+    while current is not None:
+        if (current.get('IS_APPLIANCE')
+                and current.get('APPLIANCE_TYPE') == 'RANGE'):
+            return current
+        current = current.parent
+    return None
+
+
+def _cabinet_under_cursor(hit_object):
+    """Walk up from a raycast hit; return the face frame cabinet root
+    the cursor is over, or None. A plain parent-walk, so it resolves
+    wall-mounted cabinets too (snap helpers stop the chain at walls).
+    """
+    current = hit_object
+    while current is not None:
+        if current.get(types_face_frame.TAG_CABINET_CAGE):
+            return current
+        current = current.parent
+    return None
+
+
+def _bay_under_cursor(hit_object):
+    """Walk up from a raycast hit; return the face frame bay cage the
+    cursor is over, or None when the hit isn't on a bay (e.g. an end
+    stile or another cabinet-level part).
+    """
+    current = hit_object
+    while current is not None:
+        if current.get(types_face_frame.TAG_BAY_CAGE):
+            return current
+        current = current.parent
+    return None
+
+
+def _facing_axes(obj):
+    """World front (-Y) and width (+X) axes of a Mirror-Y cage,
+    flattened to the floor plane and normalized.
+    """
+    m3 = obj.matrix_world.to_3x3()
+    front_dir = m3 @ Vector((0.0, -1.0, 0.0))
+    front_dir.z = 0.0
+    front_dir.normalize()
+    width_dir = m3 @ Vector((1.0, 0.0, 0.0))
+    width_dir.z = 0.0
+    width_dir.normalize()
+    return front_dir, width_dir
 
 
 def _detect_wall(op, context):
@@ -1508,6 +1564,28 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
             # cage where it is (don't jump to a stale or zero location).
             return
 
+        # Sink + cursor on a Range -> island layout (sink facing the
+        # range across a 48" aisle). Checked before wall detection: a
+        # direct raycast hit on the range is a stronger signal than the
+        # nearest-wall floor-projection fallback, which would otherwise
+        # grab the wall the range sits against.
+        if self.cabinet_name == 'Sink':
+            range_obj = _range_under_cursor(self.hit_object)
+            if range_obj is not None:
+                self._position_facing_range(context, range_obj)
+                return
+            # Cursor on the FRONT face of a face frame cabinet -> center
+            # the sink on the bay under the cursor, facing it across the
+            # aisle. LEFT / RIGHT / BACK faces fall through to the
+            # existing wall, side-snap, and island-back behaviors.
+            hit_cab = _cabinet_under_cursor(self.hit_object)
+            if (hit_cab is not None
+                    and _hit_face_of_cabinet(
+                        hit_cab, self.hit_location) == 'FRONT'):
+                self._position_facing_bay(
+                    context, hit_cab, _bay_under_cursor(self.hit_object))
+                return
+
         wall = _detect_wall(self, context)
         if wall is not None:
             self._position_on_wall(context, wall)
@@ -1828,6 +1906,108 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
 
         if context.area is not None:
             context.area.tag_redraw()
+
+    def _apply_facing_placement(self, context, front_center,
+                                front_dir, width_dir, floor_z):
+        """Place the sink cage facing a surface: laterally centered on
+        front_center, rotated so its front points at -front_dir, and set
+        back so 48" of clear floor separates the two front faces. Shared
+        by the range-facing and bay-facing snaps.
+
+        front_dir / width_dir are the faced object's world -Y (front)
+        and +X (width) axes; front_center is the point on the faced
+        front face at the chosen lateral center, at floor level.
+        """
+        cage_obj = self._preview_cage.obj
+
+        # Off-wall placement: drop any wall-gap / offset / snap state.
+        if self._gap_wall is not None or self._position_locked:
+            self._gap_wall = None
+            self._left_offset = None
+            self._right_offset = None
+            self._position_locked = False
+        self._center_snap_state = None
+        self._cabinet_snap_side = None
+
+        # Detach the cage from any previous parent into world coords.
+        if cage_obj.parent is not None:
+            world = cage_obj.matrix_world.copy()
+            cage_obj.parent = None
+            cage_obj.matrix_world = world
+
+        gap = units.inch(48.0)
+        sink_w = self._cabinet_width
+        sink_d = self._cabinet_depth
+
+        # Sink origin = back-left-floor corner. front_dir * (gap +
+        # sink_d) sets the sink's own front face one aisle width off the
+        # faced front face; width_dir * sink_w/2 re-centers the sink's
+        # mid-width onto front_center (the sink's local +X runs opposite
+        # width_dir once rotated, so the two cancel exactly).
+        sink_loc = (
+            front_center
+            + front_dir * (gap + sink_d)
+            + width_dir * (sink_w / 2.0)
+        )
+        sink_loc.z = floor_z
+
+        # Face the surface: the cage's -Y must point at -front_dir.
+        cage_rot_z = math.atan2(-front_dir.x, front_dir.y)
+
+        cage_obj.location = sink_loc
+        cage_obj.rotation_euler = (0.0, 0.0, cage_rot_z)
+
+        self._gap_wall = None  # not a wall
+        self._placement_dim_specs = []  # dim overlay TBD
+
+        if context.area is not None:
+            context.area.tag_redraw()
+
+    def _position_facing_range(self, context, range_obj):
+        """Place the sink facing a Range across a 48" aisle, centered on
+        the range's width. range_obj is the Range appliance under the
+        cursor.
+        """
+        range_geo = hb_types.GeoNodeObject(range_obj)
+        range_w = range_geo.get_input('Dim X') or 0.0
+        range_d = range_geo.get_input('Dim Y') or 0.0
+        front_dir, width_dir = _facing_axes(range_obj)
+        # Center of the range's front face, at floor level.
+        front_center = range_obj.matrix_world @ Vector(
+            (range_w / 2.0, -range_d, 0.0))
+        self._apply_facing_placement(
+            context, front_center, front_dir, width_dir,
+            range_obj.matrix_world.translation.z)
+
+    def _position_facing_bay(self, context, cab_obj, bay_obj):
+        """Place the sink facing a face frame cabinet across a 48"
+        aisle, centered on bay_obj. bay_obj is the bay cage under the
+        cursor, or None to center on the cabinet as a whole.
+
+        The aisle is measured to the cabinet's front face; only the
+        lateral center comes from the bay.
+        """
+        cab_geo = hb_types.GeoNodeObject(cab_obj)
+        cab_d = cab_geo.get_input('Dim Y') or 0.0
+        front_dir, width_dir = _facing_axes(cab_obj)
+
+        # Lateral center: the bay's mid-width in cabinet-local X, or the
+        # cabinet's own mid-width when the cursor isn't over a bay.
+        if bay_obj is not None:
+            bay_w = hb_types.GeoNodeObject(bay_obj).get_input('Dim X') or 0.0
+            bay_center_world = bay_obj.matrix_world @ Vector(
+                (bay_w / 2.0, 0.0, 0.0))
+            center_x = (cab_obj.matrix_world.inverted()
+                        @ bay_center_world).x
+        else:
+            cab_w = cab_geo.get_input('Dim X') or 0.0
+            center_x = cab_w / 2.0
+
+        front_center = cab_obj.matrix_world @ Vector(
+            (center_x, -cab_d, 0.0))
+        self._apply_facing_placement(
+            context, front_center, front_dir, width_dir,
+            cab_obj.matrix_world.translation.z)
 
     def _position_free(self, context):
         """Drop the cage at the world hit point, snapping flush to an
@@ -2297,6 +2477,7 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
     _appliance_width: float = 0.0
     _appliance_height: float = 0.0
     _appliance_depth: float = 0.0
+    _variable_width: bool = False   # True enables a typed width override
     _place_on_front: bool = True
     _gap_snap = None
     _center_snap_state = None       # None | 'WINDOW' | 'BAY' | 'PRODUCT'
@@ -2326,6 +2507,8 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
         self._appliance_width = w
         self._appliance_height = h
         self._appliance_depth = d
+        cls = types_face_frame.APPLIANCE_NAME_DISPATCH.get(self.appliance_name)
+        self._variable_width = bool(getattr(cls, 'variable_width', False))
         self._place_on_front = True
         self._gap_snap = None
         self._center_snap_state = None
@@ -2370,6 +2553,26 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
         # ESC (cancel typing) and ENTER (commit) - otherwise our own
         # ESC would eat the event and cancel the whole modal.
         if self.placement_state == hb_placement.PlacementState.TYPING:
+            if self.handle_typing_event(event):
+                self._update_header(context)
+                return {'RUNNING_MODAL'}
+
+        # 'W' starts a typed width override for variable-width
+        # appliances (the range hood). Fixed-size appliances ignore it.
+        if (event.type == 'W' and event.value == 'PRESS'
+                and self._variable_width
+                and self.placement_state == hb_placement.PlacementState.PLACING):
+            self.start_typing(hb_placement.TypingTarget.WIDTH)
+            self._update_header(context)
+            return {'RUNNING_MODAL'}
+
+        # Bare number keys auto-start typing too; for variable-width
+        # appliances get_default_typing_target makes that a width, so
+        # the user can drop a range and type its width without W.
+        if (event.type in hb_placement.NUMBER_KEYS
+                and event.value == 'PRESS'
+                and self._variable_width
+                and self.placement_state == hb_placement.PlacementState.PLACING):
             if self.handle_typing_event(event):
                 self._update_header(context)
                 return {'RUNNING_MODAL'}
@@ -2432,6 +2635,7 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
         if self.placement_state == hb_placement.PlacementState.TYPING:
             typed = self.get_typed_display_string()
             label = {
+                hb_placement.TypingTarget.WIDTH: "Width",
                 hb_placement.TypingTarget.OFFSET_X: "Offset (←)",
                 hb_placement.TypingTarget.OFFSET_RIGHT: "Offset (→)",
             }.get(self.typing_target, "Value")
@@ -2452,26 +2656,39 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
             offset_hint += (
                 f"  R:{units.unit_to_string(context.scene.unit_settings, self._right_offset)}"
             )
+        width_key = "   W: width" if self._variable_width else ""
         hb_placement.draw_header_text(
             context,
             f"{self.appliance_name}  -  width: {width_in:.1f}\""
             f"  -  side: {side}{offset_hint}  -  "
-            "←/→: gap offset   Click: place   Esc: cancel"
+            f"←/→: gap offset{width_key}   Click: place   Esc: cancel"
         )
 
     # ---------------- typed-input handlers ----------------
 
     def get_default_typing_target(self):
-        # Appliances don't have a typed width; arrows are the only
-        # way to enter typing mode and they set the target explicitly.
+        # Variable-width appliances (the range, the hood) default to
+        # WIDTH so a bare number types a width - matching cabinet
+        # placement. Fixed-size appliances only type gap offsets,
+        # entered explicitly via the arrow keys.
+        if self._variable_width:
+            return hb_placement.TypingTarget.WIDTH
         return hb_placement.TypingTarget.OFFSET_X
 
     def on_typed_value_changed(self):
-        """Live preview offset typing - apply, render, restore."""
+        """Live preview typing - WIDTH resizes the cage; OFFSET_X /
+        OFFSET_RIGHT preview a gap-edge offset (apply, render, restore).
+        """
         if not self.typed_value:
             return
         parsed = self.parse_typed_distance()
-        if parsed is None or parsed < 0:
+        if parsed is None:
+            return
+        if self.typing_target == hb_placement.TypingTarget.WIDTH:
+            if parsed > 0:
+                self._apply_appliance_width(parsed)
+            return
+        if parsed < 0:
             return
         if self._gap_wall is None:
             return
@@ -2487,8 +2704,15 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
             self._right_offset = old_val
 
     def apply_typed_value(self):
-        """Commit offset on Enter and lock the position."""
+        """Commit the typed value on Enter. WIDTH resizes the appliance;
+        OFFSET_X / OFFSET_RIGHT lock it to a gap-edge offset.
+        """
         parsed = self.parse_typed_distance()
+        if self.typing_target == hb_placement.TypingTarget.WIDTH:
+            if parsed is not None and parsed > 0:
+                self._apply_appliance_width(parsed)
+            self.stop_typing()
+            return
         if (parsed is not None and parsed >= 0
                 and self._gap_wall is not None):
             if self.typing_target == hb_placement.TypingTarget.OFFSET_X:
@@ -2502,6 +2726,17 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
                 self._position_locked = True
                 self._reposition_with_offsets(bpy.context)
         self.stop_typing()
+
+    def _apply_appliance_width(self, width):
+        """Resize the preview cage to a typed width and reposition.
+        Reached only for variable-width appliances (the range hood);
+        _finalize reads _appliance_width so the placed appliance keeps
+        the typed value.
+        """
+        self._appliance_width = width
+        if self._preview_cage is not None:
+            self._preview_cage.set_input('Dim X', width)
+        self._position_from_hit(bpy.context)
 
     # ---------------- offset-driven positioning ----------------
 

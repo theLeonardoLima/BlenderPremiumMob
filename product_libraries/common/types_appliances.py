@@ -12,6 +12,10 @@ class Appliance(GeoNodeCage):
     width = inch(30)
     height = inch(36)
     depth = inch(24)
+    # True for appliances whose width is meant to vary (e.g. a range
+    # hood spanning the range below it). Placement enables a typed
+    # width override only for these; fixed-size appliances ignore it.
+    variable_width = False
     
     def create_appliance(self, name, appliance_type):
         """Create an appliance with standard setup.
@@ -53,6 +57,7 @@ class Range(Appliance):
     width = inch(30)
     height = inch(36)
     depth = inch(25)
+    variable_width = True
     
     def create(self, name="Range"):
         self.create_appliance(name, 'RANGE')
@@ -161,6 +166,7 @@ class Hood(Appliance):
     width = inch(30)
     height = inch(6)
     depth = inch(20)
+    variable_width = True
     
     def create(self, name="Hood"):
         self.create_appliance(name, 'HOOD')

@@ -1090,23 +1090,12 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         props.left_stile_width = self._ff_size_for(left_row, col)
         props.right_stile_width = self._ff_size_for(right_row, col)
 
-        # Bay-level top/bottom rail widths: bays carry their own copies
-        # of these (Face_Frame_Bay_Props), construction reads from the
-        # bay, so writing only at the cabinet level leaves visible rails
-        # unchanged for any bay whose values were seeded at creation
-        # time.
-        top_rail_w = self._ff_size_for('top_rail', col)
-        bottom_rail_w = self._ff_size_for('bottom_rail', col)
-        # Materialize the bay list before writing - even with recalcs
-        # suspended, this is the safer pattern.
-        bays = [
-            child for child in cabinet_obj.children_recursive
-            if child.get('IS_FACE_FRAME_BAY_CAGE')
-        ]
-        for bay_obj in bays:
-            bay = bay_obj.face_frame_bay
-            bay.top_rail_width = top_rail_w
-            bay.bottom_rail_width = bottom_rail_w
+        # Bay-level rail widths are intentionally NOT written here. Each
+        # bay carries its own top/bottom rail copy with an unlock flag;
+        # the recalc that follows this apply runs _distribute_bay_rails,
+        # which pushes the cabinet rail width into locked bays and leaves
+        # an unlocked bay's per-bay override intact. Writing every bay
+        # directly here would clobber that override.
 
         # Mid rail / mid stile widths cascade in THREE places:
         #
@@ -1120,6 +1109,8 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         #    bay mid rail / mid stile parts read THAT value at construction
         #    time. H-axis splits produce mid rails, V-axis splits produce
         #    mid stiles, so the per-split value picks from a different row.
+        #    A split whose unlock_splitter_width is set is left alone,
+        #    mirroring the per-stile unlock handling in (3).
         #
         # 3. The cabinet's mid_stile_widths CollectionProperty stores the
         #    width of each BETWEEN-BAYS mid stile (PART_ROLE_MID_STILE).
@@ -1138,6 +1129,8 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         ]
         for split_obj in split_nodes:
             sp = split_obj.face_frame_split
+            if sp.unlock_splitter_width:
+                continue
             sp.splitter_width = mid_rail_w if sp.axis == 'H' else mid_stile_w
 
         for entry in props.mid_stile_widths:
@@ -2984,6 +2977,11 @@ class Face_Frame_Split_Props(PropertyGroup):
         default=units.inch(1.5), unit='LENGTH', precision=4,
         update=_update_cabinet_dim,
     )  # type: ignore
+    unlock_splitter_width: BoolProperty(
+        name="Unlock Splitter Width",
+        description="Hold this split's mid rail / mid stile width when a cabinet style is applied",
+        default=False, update=_update_cabinet_dim,
+    )  # type: ignore
 
     # Carcass part rendered BEHIND each splitter member. The KIND of
     # backing is implied by the split's axis: H-splits (mid rails)
@@ -3701,12 +3699,6 @@ class Face_Frame_Scene_Props(PropertyGroup):
         row = layout.row()
         row.label(text="Upper Stacked Top Height:")
         row.prop(self, 'upper_top_stacked_cabinet_height', text="")
-
-        layout.separator()
-
-        row = layout.row()
-        row.prop(self, 'fill_cabinets', text="Fill Available Space")
-        row.prop(self, 'default_cabinet_width', text="Default Width")
 
     # =====================================================================
     # UI: shared helper - draw a grid of catalog buttons

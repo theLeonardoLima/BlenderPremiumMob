@@ -193,9 +193,9 @@ def _flip_unlock_for_role(obj, role, root):
     re-split the rail by writing the cabinet default into the middle
     bays.
 
-    Bay-internal splitters have no unlock prop (per-split splitter_width
-    is overwritten unconditionally by the style cascade); nothing to
-    flip for those roles.
+    Bay-internal splitters (mid rails / mid stiles) flip
+    unlock_splitter_width on their owning split node so the style
+    cascade leaves the per-split width alone.
     """
     cab = root.face_frame_cabinet
     if role == types_face_frame.PART_ROLE_LEFT_STILE:
@@ -221,6 +221,12 @@ def _flip_unlock_for_role(obj, role, root):
             bay = bays.get(idx)
             if bay is not None:
                 setattr(bay.face_frame_bay, unlock_attr, True)
+        return
+    if role in (types_face_frame.PART_ROLE_BAY_MID_RAIL,
+                types_face_frame.PART_ROLE_BAY_MID_STILE):
+        split = _find_owning_split_node(obj)
+        if split is not None:
+            split.face_frame_split.unlock_splitter_width = True
 
 
 def _fan_out_value(obj, role, root, value):
@@ -269,9 +275,10 @@ def _on_value_update(self, context):
     user changing the active object mid-drag doesn't strand the
     operator), then fans the new value out through one suspended
     recalc.
+
+    Bails when source_obj_name is empty - invoke() relies on this to
+    seed the dialog value without triggering a fanout / recalc.
     """
-    if getattr(self, '_suppress_update', False):
-        return
     obj = bpy.data.objects.get(self.source_obj_name)
     if obj is None:
         return
@@ -353,21 +360,25 @@ class hb_face_frame_OT_set_part_width(bpy.types.Operator):
             self.report({'WARNING'}, "No cabinet root found")
             return {'CANCELLED'}
 
+        # Seed the dialog value BEFORE source_obj_name is set. The
+        # value prop's update callback (_on_value_update) bails while
+        # source_obj_name is empty, so the seed write cannot fan out or
+        # trigger a recalc. An operator-instance flag did not survive
+        # into the callback reliably, hence the empty-name approach.
+        target, attr = _resolve_width_target(obj, role, root)
+        self.value = getattr(target, attr) if target is not None else 0.0
+
         self.source_obj_name = obj.name
 
-        # Pre-flip unlocks so a later style apply leaves the user's value
-        # alone. For rails, flips on every bay in the current segment so
-        # the cascade can't re-split the rail.
+        # Flip unlocks LAST so a later style apply leaves the user's
+        # value alone. For rails this flips every bay in the current
+        # segment so the cascade can't re-split the rail. For bay-
+        # internal mid rails / stiles the flag write fires a recalc that
+        # rebuilds the bay and invalidates `obj` - so nothing may read
+        # `obj` past this point. draw() and _on_value_update both
+        # re-resolve from source_obj_name, whose name is stable across
+        # recalc.
         _flip_unlock_for_role(obj, role, root)
-
-        # Seed value from the current width without firing the fanout
-        # (which would be a no-op write but still kick off a recalc).
-        target, attr = _resolve_width_target(obj, role, root)
-        self._suppress_update = True
-        try:
-            self.value = getattr(target, attr) if target is not None else 0.0
-        finally:
-            self._suppress_update = False
 
         return context.window_manager.invoke_props_dialog(self, width=260)
 
