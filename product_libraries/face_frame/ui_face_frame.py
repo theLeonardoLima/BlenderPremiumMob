@@ -100,6 +100,7 @@ def draw_dimensions(layout, root):
         col.separator()
         col.prop(cab_props, 'left_depth', text="Left Depth")
         col.prop(cab_props, 'right_depth', text="Right Depth")
+        col.prop(cab_props, 'clip_back_amount', text="Clip Back")
         col.separator()
         if cab_props.corner_type == 'PIE_CUT':
             col.label(text="Pie Cut Options")

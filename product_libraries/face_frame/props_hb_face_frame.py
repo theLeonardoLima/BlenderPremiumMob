@@ -872,6 +872,7 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         'CORNER_LEFT_SIDE', 'CORNER_RIGHT_SIDE',
         'CORNER_LEFT_KICK', 'CORNER_RIGHT_KICK', 'DIAGONAL_KICK',
         'CORNER_PARTITION', 'CORNER_TRAY_DIVIDER', 'CORNER_SHELF',
+        'CORNER_ANGLED_BACK',
     }
 
     # Roles that read materials from the 5-piece door modifier instead
@@ -2535,6 +2536,12 @@ class Face_Frame_Cabinet_Props(PropertyGroup):
         description="Stacked-section layout of a diagonal corner cabinet front",
         items=_exterior_config_items,
         update=_update_exterior_config,
+    )  # type: ignore
+    clip_back_amount: FloatProperty(
+        name="Clip Back",
+        description="Length of the 45 degree clip taken off each wall side at the rear corner (0 = no clip)",
+        default=units.inch(6.0), min=0.0, unit='LENGTH', precision=4,
+        update=_update_cabinet_dim,
     )  # type: ignore
 
     mid_stile_widths: CollectionProperty(type=Face_Frame_Mid_Stile_Width)  # type: ignore

@@ -49,6 +49,12 @@ PART_ROLE_CORNER_TRAY_DIVIDER = 'CORNER_TRAY_DIVIDER'
 PART_ROLE_CORNER_MID_RAIL = 'CORNER_MID_RAIL'
 PART_ROLE_CORNER_FALSE_FRONT = 'CORNER_FALSE_FRONT'
 PART_ROLE_CORNER_SHELF = 'CORNER_SHELF'
+# Clip-back: a uniform 45 degree chamfer on the rear (wall-corner)
+# of any corner cabinet. A GeoNodeCage cutter carves the rear
+# corner off the bottom, top, and both backs; an angled back
+# panel closes the clip face.
+PART_ROLE_CORNER_BACK_CUTTER = 'CORNER_BACK_CUTTER'
+PART_ROLE_CORNER_ANGLED_BACK = 'CORNER_ANGLED_BACK'
 
 CORNER_PART_ROLES = frozenset({
     PART_ROLE_CORNER_BOTTOM,
@@ -66,6 +72,8 @@ CORNER_PART_ROLES = frozenset({
     PART_ROLE_DIAGONAL_KICK,
     PART_ROLE_CORNER_INTERIOR,
     PART_ROLE_CORNER_PARTITION,
+    PART_ROLE_CORNER_BACK_CUTTER,
+    PART_ROLE_CORNER_ANGLED_BACK,
 })
 
 
@@ -236,6 +244,12 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
         are written by _recalculate_pie_cut so per-prop updates keep
         them in sync.
         """
+        # Clear any stale section signature. create_cabinet_root sets
+        # left_depth / right_depth before the carcass is built, and those
+        # prop updates fire a recalc whose section reconcile runs with no
+        # parts present. Clearing the signature here forces the real
+        # post-build recalc to reconcile sections from scratch.
+        self.obj['hb_pie_section_sig'] = ''
         # Bottom: solid panel + corner-notch boolean for the L-cut.
         bottom = CabinetPart()
         bottom.create('Bottom')
@@ -466,6 +480,8 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
             div.obj.hide_viewport = True
             div.obj.hide_render = True
 
+        self._build_clip_back_parts()
+
     # -----------------------------------------------------------------
     # Diagonal corner: build
     # -----------------------------------------------------------------
@@ -477,6 +493,13 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
         wall planes and aren't cut. Slice 1 scope: carcass-only - face
         frame, doors, kicks, interior come in subsequent slices.
         """
+        # Clear any stale section signature. create_cabinet_root sets
+        # left_depth / right_depth before the carcass is built, and those
+        # prop updates fire a recalc whose section reconcile runs with no
+        # cutters present (shelves end up with no clip booleans). Clearing
+        # the signature here forces the real post-build recalc to wipe
+        # those premature parts and reconcile from scratch.
+        self.obj['hb_diag_section_sig'] = ''
         # Cutter must exist before the parts that reference it.
         cutter = GeoNodeCage()
         cutter.create('Diagonal Cutter')
@@ -660,6 +683,139 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
         # Doors, mid rails, and per-section content are reconciled by
         # _reconcile_diagonal_sections from cab_props.corner_sections;
         # the build creates only the fixed carcass / face frame parts.
+
+        self._build_clip_back_parts()
+
+    def _recalculate_clip_back(self, cab_props, z_back_floor):
+        """Position the clip-back cutter and angled back panel.
+
+        The clip is a uniform 45 degree chamfer at the rear (0,0) wall
+        corner; clip_back_amount is the leg cut off each wall. The cutter
+        is a box whose near face lies on the clip line from (clip, 0) to
+        (0, -clip) and which extends toward the corner. When the amount
+        is 0 the four clip booleans are disabled and the angled back is
+        hidden, so the cabinet is unchanged.
+        """
+        clip = cab_props.clip_back_amount
+        height = cab_props.height
+        t = cab_props.material_thickness
+        active = clip > 0.0
+
+        # Enable / disable the clip boolean on every part that carries
+        # one: the four fixed crossing parts plus any open-section
+        # shelves (which span the full carcass and reach the rear
+        # corner). Shelves are multi-instance, so match by role on all
+        # children rather than the fixed-roles one-per-role lookup.
+        clip_roles = {
+            PART_ROLE_CORNER_BOTTOM, PART_ROLE_CORNER_TOP,
+            PART_ROLE_CORNER_LEFT_BACK, PART_ROLE_CORNER_RIGHT_BACK,
+            PART_ROLE_CORNER_SHELF,
+        }
+        for part in self.obj.children:
+            if part.get('hb_part_role') not in clip_roles:
+                continue
+            mod = part.modifiers.get('Clip Back Cut')
+            if mod is not None:
+                mod.show_viewport = active
+                mod.show_render = active
+
+        cutter = next((c for c in self.obj.children
+                       if c.get('hb_part_role')
+                       == PART_ROLE_CORNER_BACK_CUTTER), None)
+        angled = next((c for c in self.obj.children
+                       if c.get('hb_part_role')
+                       == PART_ROLE_CORNER_ANGLED_BACK), None)
+
+        if not active:
+            if angled is not None:
+                angled.hide_viewport = True
+                angled.hide_render = True
+            return
+
+        inv = 1.0 / math.sqrt(2.0)
+        clip_len = clip * math.sqrt(2.0)
+        margin = inch(2.0)
+
+        # Cutter: box rotated 45 deg, near face on the clip line, growing
+        # in local -X along the line and local +Y toward the rear corner.
+        if cutter is not None:
+            origin_x = clip + margin * inv
+            origin_y = margin * inv
+            cage_x = clip_len + 2.0 * margin
+            cage_y = clip * inv + margin
+            cage_z = height + 2.0 * margin
+            cutter.location = (origin_x, origin_y, -margin)
+            cutter.rotation_euler = (0.0, 0.0, math.radians(45.0))
+            _set_mod_inputs(cutter, cutter.home_builder.mod_name, (
+                ('Dim X', cage_x),
+                ('Dim Y', cage_y),
+                ('Dim Z', cage_z),
+                ('Mirror X', True),
+                ('Mirror Y', False),
+                ('Mirror Z', False),
+                ('Show Cage', True),
+            ))
+
+        # Angled back: vertical panel on the clip line. Built like the
+        # wall-side backs (Length along Z); the -45 deg Z rotation aligns
+        # Width with the clip line. Anchored at P1 = (clip, 0); Thickness
+        # extends into the cabinet body.
+        if angled is not None:
+            angled.hide_viewport = False
+            angled.hide_render = False
+            back_height = height - z_back_floor - t
+            angled.location = (clip, 0.0, z_back_floor)
+            angled.rotation_euler.z = math.radians(-45.0)
+            _set_mod_inputs(angled, angled.home_builder.mod_name, (
+                ('Length', back_height),
+                ('Width', clip_len),
+                ('Thickness', t),
+            ))
+
+    def _build_clip_back_parts(self):
+        """Create the clip-back cutter and angled back panel, and attach
+        the clip boolean to the four parts that cross the rear corner.
+
+        Shared by pie cut and diagonal: the rear corner is the (0,0)
+        wall corner for both shapes. The cutter is a GeoNodeCage child
+        of the cabinet root; Bottom, Top, and both Backs get a Boolean
+        DIFFERENCE referencing it. recalc sizes the cutter from
+        clip_back_amount and disables the whole feature when it is 0.
+        """
+        cutter = GeoNodeCage()
+        cutter.create('Clip Back Cutter')
+        cutter.obj.parent = self.obj
+        cutter.obj['hb_part_role'] = PART_ROLE_CORNER_BACK_CUTTER
+        cutter.set_input('Show Cage', True)
+        cutter.obj.hide_viewport = True
+        cutter_obj = cutter.obj
+
+        # Angled back panel closing the clip face. Same orientation as
+        # the wall-side backs (vertical, Length along Z); recalc adds the
+        # 45 degree rotation and positions it on the clip line.
+        angled = CabinetPart()
+        angled.create('Angled Back')
+        angled.obj.parent = self.obj
+        angled.obj['hb_part_role'] = PART_ROLE_CORNER_ANGLED_BACK
+        angled.obj['CABINET_PART'] = True
+        angled.obj.rotation_euler.y = math.radians(-90)
+        angled.set_input('Mirror Y', True)
+        angled.set_input('Mirror Z', True)
+        angled.obj.hide_viewport = True
+        angled.obj.hide_render = True
+
+        # Clip boolean on the four parts crossing the rear corner. The
+        # sides sit at the front of each arm and are untouched.
+        for role in (PART_ROLE_CORNER_BOTTOM, PART_ROLE_CORNER_TOP,
+                     PART_ROLE_CORNER_LEFT_BACK,
+                     PART_ROLE_CORNER_RIGHT_BACK):
+            part = next((c for c in self.obj.children
+                         if c.get('hb_part_role') == role), None)
+            if part is None:
+                continue
+            mod = part.modifiers.new(name='Clip Back Cut', type='BOOLEAN')
+            mod.operation = 'DIFFERENCE'
+            mod.object = cutter_obj
 
     def _clear_door_pull(self, door_obj):
         """Remove any pull instances parented to a corner door."""
@@ -1326,6 +1482,8 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
                         ))
                 z_cursor += mrw
 
+        self._recalculate_clip_back(cab_props, z_back_floor)
+
     # -----------------------------------------------------------------
     # Diagonal corner: recalculate
     # -----------------------------------------------------------------
@@ -1404,11 +1562,15 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
         # OPEN section: a stack of shelves following the carcass. Each
         # shelf is a full L-bounding panel carved to the pentagon
         # silhouette by the same diagonal boolean cutter the Bottom and
-        # Top panels use - found here by role and referenced from a
-        # BOOLEAN DIFFERENCE modifier on each shelf.
+        # Top panels use, and clipped at the rear corner by the clip-back
+        # cutter - both found here by role and referenced from BOOLEAN
+        # DIFFERENCE modifiers on each shelf.
         cutter_obj = next(
             (c for c in self.obj.children
              if c.get('hb_part_role') == PART_ROLE_DIAGONAL_CUTTER), None)
+        back_cutter_obj = next(
+            (c for c in self.obj.children
+             if c.get('hb_part_role') == PART_ROLE_CORNER_BACK_CUTTER), None)
         for i, sec in enumerate(sections):
             if sec.content != 'OPEN':
                 continue
@@ -1427,6 +1589,11 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
                         name='Diagonal Cut', type='BOOLEAN')
                     cut.operation = 'DIFFERENCE'
                     cut.object = cutter_obj
+                if back_cutter_obj is not None:
+                    clip = shelf.obj.modifiers.new(
+                        name='Clip Back Cut', type='BOOLEAN')
+                    clip.operation = 'DIFFERENCE'
+                    clip.object = back_cutter_obj
         self.obj['hb_diag_section_sig'] = sig
 
     def _recalculate_diagonal(self):
@@ -1879,6 +2046,8 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
                 ('Mirror Z', False),
                 ('Show Cage', True),
             ))
+
+        self._recalculate_clip_back(cab_props, z_back_floor)
 
 
 # ---------------------------------------------------------------------------
