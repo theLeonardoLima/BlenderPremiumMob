@@ -4577,6 +4577,45 @@ def merge_cabinets(anchor, absorbed, side):
                     True if absorbed_was_single else original_unlock[bay.name]
                 )
 
+        # Toe-kick construction reconciliation. toe_kick_type and
+        # toe_kick_height are cabinet-level, so the merge - which keeps
+        # the anchor's cabinet props and deletes absorbed - would render
+        # absorbed's bays with the anchor's kick. Express any difference
+        # per bay instead: a bay built FLOATING (lap drawer, floating
+        # base) carries floating_bay so the solver lifts it regardless
+        # of the merged cabinet type, and any bay whose recess differs
+        # from the merged default is unlocked so _distribute_bay_kick_
+        # heights leaves it alone (e.g. a 27\" lap-drawer lift would
+        # otherwise snap to the anchor's 4\").
+        a_tk, b_tk = a_props.toe_kick_type, b_props.toe_kick_type
+        if a_tk != b_tk:
+            # Grounded type wins as the cabinet-level default for
+            # unflagged bays: NOTCH over FLUSH over FLOATING.
+            if 'NOTCH' in (a_tk, b_tk):
+                merged_tk = 'NOTCH'
+            elif 'FLUSH' in (a_tk, b_tk):
+                merged_tk = 'FLUSH'
+            else:
+                merged_tk = 'FLOATING'
+            if merged_tk != 'FLOATING':
+                if a_tk == 'FLOATING':
+                    for bay in anchor_bays:
+                        bay.face_frame_bay.floating_bay = True
+                if b_tk == 'FLOATING':
+                    for bay in absorbed_bays:
+                        bay.face_frame_bay.floating_bay = True
+            a_props.toe_kick_type = merged_tk
+
+        # Bays seed kick_height from their origin cabinet's
+        # toe_kick_height; after the merge the cabinet-level default is
+        # the anchor's. Unlock any bay that differs so it holds its own
+        # recess / lift rather than being resynced to that default.
+        merged_kh = a_props.toe_kick_height
+        for bay in final_bays:
+            bp = bay.face_frame_bay
+            if abs(bp.kick_height - merged_kh) > eps:
+                bp.unlock_kick_height = True
+
         _propagate_far_side_props(b_props, a_props, side)
 
         # Reparent absorbed's mid parts under anchor with new indices.
