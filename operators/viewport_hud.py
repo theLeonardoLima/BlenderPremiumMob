@@ -607,9 +607,16 @@ def _start_listener():
 
 def ensure_listener():
     """Re-arm the click listener. Called on file load -- modal operators do
-    not survive a .blend load, so the listener must be restarted."""
+    not survive a .blend load, but _active_gen is a module global and still
+    points at the dead listener, so _start_listener would treat it as live
+    and no-op. Bump the generation (any handler that did survive retires
+    itself on its next event via the _gen mismatch) and clear the gate so
+    the timer actually starts a fresh listener."""
+    global _generation, _active_gen
     if _hud_shutdown:
         return
+    _generation += 1
+    _active_gen = None
     if not bpy.app.timers.is_registered(_start_listener):
         bpy.app.timers.register(_start_listener, first_interval=0.1)
 
