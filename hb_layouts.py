@@ -1437,23 +1437,58 @@ class MultiView(LayoutView):
         """
         wall_obj = self.source_obj
         
-        # Force depsgraph evaluation. On fresh file load (e.g. user just
-        # restarted Blender and immediately ran the operator) child object
-        # matrix_world values can be stale until the depsgraph evaluates
-        # drivers / constraints / geometry-node updates. Without this,
-        # _compute_recursive_bbox sometimes reads default (0,0,0) child
-        # positions, which transform through wall.matrix_world.inverted()
-        # into wall-local coordinates that look like -W.t.y instead of the
-        # true cabinet protrusion — producing a wildly wrong plan offset.
-        bpy.context.view_layer.update()
-        
-        # Wall canonical dimensions (used for elevation framing and plan offset).
-        wall = hb_types.GeoNodeWall(wall_obj)
-        wall_length = wall.get_input('Length')
-        wall_height = wall.get_input('Height')
-        
-        # Recursive bbox in wall-local frame — includes cabinet protrusion.
-        bb_min, bb_max = self._compute_recursive_bbox(wall_obj)
+        # ------------------------------------------------------------------
+        # READ PASS — must run against the source scene's depsgraph.
+        #
+        # By the time we're called, create_scene() has already switched
+        # bpy.context.window.scene to the new (empty) layout scene. That
+        # means bpy.context.view_layer.update() and
+        # bpy.context.evaluated_depsgraph_get() both operate on the layout
+        # scene's view layer / depsgraph — which does NOT contain wall_obj
+        # or any of its descendants.
+        #
+        # When _compute_recursive_bbox calls obj.evaluated_get(depsgraph)
+        # for descendants that aren't in that depsgraph, Blender falls back
+        # to the unevaluated copy whose parent-chain transforms haven't
+        # been applied. Their matrix_world reads as identity, so their
+        # bound_box corners sit at world (0,0,0). After we multiply by
+        # wall.matrix_world.inverted(), that polluted origin becomes a
+        # wall-local point at (-W.t.x, -W.t.y, 0) — i.e. it scales with
+        # the wall's world position. bb_min[1] (cabinet front protrusion)
+        # gets clobbered to -W.t.y whenever the wall sits at +Y in world
+        # space, and the plan view ends up rendered with an offset that
+        # tracks the wall's world Y instead of the true protrusion.
+        #
+        # Fix: switch the active window scene back to the source scene
+        # (the one that actually contains wall_obj) for the duration of
+        # the depsgraph-sensitive reads, then restore the layout scene
+        # before any writes. The layout scene's contents haven't been
+        # populated yet, so swapping it out here is safe.
+        # ------------------------------------------------------------------
+        prev_window_scene = bpy.context.window.scene if bpy.context.window else None
+        source_scene = next(
+            (s for s in bpy.data.scenes
+             if not s.get('IS_LAYOUT_VIEW') and wall_obj.name in s.objects),
+            None,
+        )
+        if (source_scene is not None and bpy.context.window
+                and source_scene is not prev_window_scene):
+            bpy.context.window.scene = source_scene
+        try:
+            bpy.context.view_layer.update()
+            
+            # Wall canonical dimensions (used for elevation framing and plan offset).
+            wall = hb_types.GeoNodeWall(wall_obj)
+            wall_length = wall.get_input('Length')
+            wall_height = wall.get_input('Height')
+            
+            # Recursive bbox in wall-local frame — includes cabinet protrusion.
+            bb_min, bb_max = self._compute_recursive_bbox(wall_obj)
+        finally:
+            if (source_scene is not None and bpy.context.window
+                    and bpy.context.window.scene is not prev_window_scene
+                    and prev_window_scene is not None):
+                bpy.context.window.scene = prev_window_scene
         bb_w = bb_max[0] - bb_min[0]
         bb_d = bb_max[1] - bb_min[1]
         bb_h = bb_max[2] - bb_min[2]
