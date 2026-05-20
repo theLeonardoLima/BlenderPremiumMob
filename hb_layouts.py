@@ -1287,11 +1287,17 @@ class MultiView(LayoutView):
         # Add source object and children to collection
         self._add_object_to_collection(source_obj, self.content_collection)
         
-        # Get source object location and rotation to offset instances
-        # This ensures layout works regardless of where source object is positioned/rotated
-        source_loc = source_obj.location.copy()
-        source_rot = source_obj.rotation_euler.copy()
-        source_rot_matrix = source_rot.to_matrix()
+        # Get source object's WORLD location and rotation to offset instances.
+        # Use matrix_world (not .location/.rotation_euler) so we capture every
+        # source of transform: parents, constraints (e.g. Copy Location used by
+        # HB5's wall placement), delta transforms, drivers. Reading .location
+        # directly misses all of those and breaks the layout when the wall is
+        # placed far from origin or rotated via constraint.
+        # decompose() also conveniently splits off scale, so we operate on
+        # pure rotation regardless of object scale.
+        _swl, _swr, _sws = source_obj.matrix_world.decompose()
+        source_loc = _swl.copy()
+        source_rot_matrix = _swr.to_matrix()
         source_rot_matrix_inv = source_rot_matrix.inverted()
         
         # Spacing between views
