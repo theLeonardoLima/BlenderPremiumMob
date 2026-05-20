@@ -1415,159 +1415,262 @@ class MultiView(LayoutView):
         
         return self.scene
     
-    def _create_iso_left(self, views, obj_w, obj_d, obj_h, gap,
-                         source_loc, source_rot_inv, view_name):
-        """Build an iso-left multi-view page.
+    def _create_iso_left(self, views, obj_w, obj_d, obj_h, gap_unused,
+                         source_loc_unused, source_rot_inv_unused, view_name):
+        """Build a compact-room shop drawing page (elevation + plan + iso).
         
-        Layout:
+        The camera looks HORIZONTALLY at the wall (Rx 90 deg), exactly
+        like a standalone elevation. The elevation renders at the wall's
+        native world position with no transform — which is why standalone
+        elevations always look perfect. The plan and iso views are added as
+        rotated collection instances positioned at fixed wall-local offsets
+        from the elevation:
+        
             [ Iso ]   [ Plan ]
                       [ Elev ]
         
-        Supports ISO, PLAN and FRONT view types. Other types are ignored in
-        this layout. The ISO rotation Rx(iso_x_angle_deg) @ Rz(-45 deg) shows
-        the source's +X (right end), -Y (cabinet/front side per HB5 wall
-        convention) and +Z (top) faces, with +Z preserved as page-up.
-        iso_x_angle_deg controls the top-vs-front balance — see inline comments.
+        Because all positions are expressed in WALL-LOCAL coordinates, the
+        layout is identical across rooms regardless of where the wall sits
+        in world space or how it's rotated. The wall's matrix_world is
+        applied once at the end (camera position; instance matrices) to put
+        everything in world frame.
         """
-        bb_min, bb_max = self._compute_recursive_bbox(self.source_obj)
+        wall_obj = self.source_obj
+        
+        # Force depsgraph evaluation. On fresh file load (e.g. user just
+        # restarted Blender and immediately ran the operator) child object
+        # matrix_world values can be stale until the depsgraph evaluates
+        # drivers / constraints / geometry-node updates. Without this,
+        # _compute_recursive_bbox sometimes reads default (0,0,0) child
+        # positions, which transform through wall.matrix_world.inverted()
+        # into wall-local coordinates that look like -W.t.y instead of the
+        # true cabinet protrusion — producing a wildly wrong plan offset.
+        bpy.context.view_layer.update()
+        
+        # Wall canonical dimensions (used for elevation framing and plan offset).
+        wall = hb_types.GeoNodeWall(wall_obj)
+        wall_length = wall.get_input('Length')
+        wall_height = wall.get_input('Height')
+        
+        # Recursive bbox in wall-local frame — includes cabinet protrusion.
+        bb_min, bb_max = self._compute_recursive_bbox(wall_obj)
         bb_w = bb_max[0] - bb_min[0]
         bb_d = bb_max[1] - bb_min[1]
         bb_h = bb_max[2] - bb_min[2]
         
-        right_left = 0
-        elev_bottom = 0
-        elev_top = elev_bottom + bb_h
-        elev_right = right_left + bb_w
-        plan_bottom = elev_top + gap
-        plan_top = plan_bottom + bb_d
-        plan_right = right_left + bb_w
-        right_col_height = plan_top - elev_bottom
-        
-        # Iso rotation Rx(theta) @ Rz(-45 deg). theta controls the
-        # top-vs-front balance:
-        #   -35.26 deg = classic isometric (equal top and front)
-        #   more negative (toward -90) = more front, less top
-        #   less negative (toward   0) = more top,   less front
-        # The Rz(-45 deg) is fixed: it picks which front corner of the
-        # source faces the viewer (here, the right-front corner).
+        # ----------------------------------------------------------------
+        # Iso rotation in the +Y-looking camera frame.
+        # In the look-down (-Z) frame, iso = Rx(theta) @ Rz(-45 deg).
+        # The look-+Y camera is rotated by Rx(+90 deg) relative to look-down,
+        # so the equivalent rotation in this frame is:
+        #   Rx(+90) @ Rx(theta) @ Rz(-45) = Rx(90 + theta) @ Rz(-45)
+        # For theta = -60 deg (front-heavy iso): Rx(30) @ Rz(-45).
+        # iso_x_angle_deg controls the top-vs-front balance, same as before.
+        # ----------------------------------------------------------------
         iso_x_angle_deg = -60.0
-        iso_gap_inches = 30.0  # extra horizontal space between iso column and elev/plan column
-        iso_x_rad = math.radians(iso_x_angle_deg)
-        iso_cos = math.cos(iso_x_rad)
-        iso_sin = math.sin(iso_x_rad)
-        SQRT_HALF = 0.707106781  # cos(45 deg) = sin(45 deg)
+        iso_x_rad_local = math.radians(90.0 + iso_x_angle_deg)
+        iso_cos = math.cos(iso_x_rad_local)
+        iso_sin = math.sin(iso_x_rad_local)
+        SQRT_HALF = 0.707106781
         
-        # Iso projection of source-local (x, y, z) onto page (camera at +Z):
-        #   page_X = SQRT_HALF * (x + y)
-        #   page_Y = SQRT_HALF * iso_cos * (-x + y) - iso_sin * z
-        # iso_sin is negative for theta in (-90, 0), so the -iso_sin * bb_h
-        # height contribution is positive.
+        # Iso projection of wall-local (x, y, z), with camera looking +Y:
+        #   screen_X = world_x = SQRT_HALF * (x + y)
+        #   screen_Y = world_z = SQRT_HALF * iso_sin * (-x + y) + iso_cos * z
+        # iso_sin > 0 and iso_cos > 0 for iso_x_rad_local in (0, 90).
         iso_view_w = SQRT_HALF * (bb_w + bb_d)
-        iso_view_h = SQRT_HALF * iso_cos * (bb_w + bb_d) + (-iso_sin) * bb_h
-        iso_right_edge = right_left - units.inch(iso_gap_inches)
-        iso_left_edge = iso_right_edge - iso_view_w
-        iso_bottom = elev_bottom + (right_col_height - iso_view_h) / 2.0
-        iso_top = iso_bottom + iso_view_h
+        iso_view_h = SQRT_HALF * iso_sin * (bb_w + bb_d) + iso_cos * bb_h
         
-        iso_view_matrix = (
-            Matrix.Rotation(iso_x_rad, 3, 'X')
-            @ Matrix.Rotation(math.radians(-45), 3, 'Z')
+        # ----------------------------------------------------------------
+        # Paper-space layout parameters (all in paper-inches).
+        # ----------------------------------------------------------------
+        iso_gap_inches = 1.0       # gap between iso column and elevation
+        plan_gap_inches = 0.5      # gap between elevation and plan above
+        margin_left_inches = 0.5
+        margin_right_inches = 0.5
+        margin_top_inches = 0.5
+        margin_bottom_inches = 1.5  # title block area
+        
+        paper_size = self.paper_size or 'LETTER'
+        landscape = self.landscape if hasattr(self, 'landscape') else True
+        
+        from .operators import layouts as _layouts_ops
+        
+        if paper_size not in _layouts_ops.PAPER_SIZES_INCHES:
+            paper_size = 'LETTER'
+        paper_w_in, paper_h_in = _layouts_ops.PAPER_SIZES_INCHES[paper_size]
+        if landscape:
+            paper_w_in, paper_h_in = paper_h_in, paper_w_in
+        page_long_in = max(paper_w_in, paper_h_in)
+        page_short_in = min(paper_w_in, paper_h_in)
+        
+        # Pick the largest scale where composed content fits inside the
+        # printable page area (page minus margins).
+        scale_ladder = ('3/8"=1\'', '1/4"=1\'', '3/16"=1\'', '1/8"=1\'')
+        chosen_scale = None
+        for scale_str in scale_ladder:
+            iso_gap_m = _layouts_ops.paper_to_world(iso_gap_inches, scale_str)
+            plan_gap_m = _layouts_ops.paper_to_world(plan_gap_inches, scale_str)
+            
+            composed_w = iso_view_w + iso_gap_m + wall_length
+            composed_h = max(iso_view_h, wall_height + plan_gap_m + bb_d)
+            
+            avail_w = _layouts_ops.paper_to_world(
+                page_long_in - margin_left_inches - margin_right_inches, scale_str)
+            avail_h = _layouts_ops.paper_to_world(
+                page_short_in - margin_top_inches - margin_bottom_inches, scale_str)
+            
+            if composed_w <= avail_w and composed_h <= avail_h:
+                chosen_scale = scale_str
+                break
+        if chosen_scale is None:
+            chosen_scale = scale_ladder[-1]
+        
+        iso_gap = _layouts_ops.paper_to_world(iso_gap_inches, chosen_scale)
+        plan_gap = _layouts_ops.paper_to_world(plan_gap_inches, chosen_scale)
+        
+        # ----------------------------------------------------------------
+        # Wall-local offsets for the three views.
+        # Elevation: no offset, no rotation — wall stays at its native pos.
+        # Plan:      Rx(+90 deg), translated +Z so cabinet faces sit just
+        #            above the elevation top.
+        # Iso:       Rx(iso_x_rad_local) @ Rz(-45 deg), translated -X and +Z
+        #            so the iso's right edge sits just left of elevation
+        #            and its bottom aligns with elevation bottom (z=0).
+        # ----------------------------------------------------------------
+        # Plan: after Rx(+90), wall point (x,y,z) -> (x, -z, y). Plan content
+        # screen-Y (= world-Z) range becomes [bb_min.y, bb_max.y]. To put the
+        # cabinet faces (bb_min.y, most negative) at z = wall_height + plan_gap:
+        plan_offset_z = wall_height + plan_gap - bb_min[1]
+        
+        # Iso: anchor right edge at world-X = -iso_gap, bottom at world-Z = 0.
+        iso_offset_x = -iso_gap - SQRT_HALF * (bb_max[0] + bb_max[1])
+        # Iso unshifted min screen-Y = SQRT_HALF*iso_sin*(bb_min.y-bb_max.x) + iso_cos*bb_min.z
+        iso_offset_z = -(SQRT_HALF * iso_sin * (bb_min[1] - bb_max[0])
+                         + iso_cos * bb_min[2])
+        
+        # ----------------------------------------------------------------
+        # Build instance matrices.
+        # The content_collection holds the wall + children with their
+        # original world matrices. To make the wall content appear at a
+        # transformed position W_target, the instance matrix is:
+        #   M_E = W_target @ W^-1
+        # where W_target = W @ M_local for a given view's wall-local
+        # transform M_local. So:
+        #   M_E = W @ M_local @ W^-1
+        # For M_local = identity (elevation), M_E = identity.
+        # ----------------------------------------------------------------
+        W = wall_obj.matrix_world.copy()
+        W_inv = W.inverted()
+        
+        M_elev_local = Matrix.Identity(4)
+        M_plan_local = (Matrix.Translation(Vector((0.0, 0.0, plan_offset_z)))
+                        @ Matrix.Rotation(math.radians(90.0), 4, 'X'))
+        M_iso_local = (Matrix.Translation(Vector((iso_offset_x, 0.0, iso_offset_z)))
+                       @ Matrix.Rotation(iso_x_rad_local, 4, 'X')
+                       @ Matrix.Rotation(math.radians(-45.0), 4, 'Z'))
+        
+        instance_specs = (
+            ('FRONT', self.VIEW_TYPES['FRONT'][0], M_elev_local),
+            ('PLAN',  self.VIEW_TYPES['PLAN'][0],  M_plan_local),
+            ('ISO',   self.VIEW_TYPES['ISO'][0],   M_iso_local),
         )
         
-        visible_bounds = []
-        
-        for view_type in views:
-            if view_type == 'ISO':
-                view_label = self.VIEW_TYPES['ISO'][0]
-                view_matrix = iso_view_matrix
-                # Land projection's min-X corner at iso_left_edge and
-                # min-Y corner at iso_bottom. Using the formulas above:
-                #   min page_X at (x_min, y_min, *)
-                #   min page_Y at (x_max, y_min, z_min)
-                base_pos = Vector((
-                    iso_left_edge - SQRT_HALF * (bb_min[0] + bb_min[1]),
-                    iso_bottom
-                    + SQRT_HALF * iso_cos * (bb_max[0] - bb_min[1])
-                    + iso_sin * bb_min[2],
-                    0.0,
-                ))
-                visible_bounds.append((iso_left_edge, iso_bottom,
-                                       iso_right_edge, iso_top))
-            elif view_type == 'PLAN':
-                view_label, base_rotation = self.VIEW_TYPES['PLAN']
-                view_matrix = Euler(base_rotation, 'XYZ').to_matrix()
-                base_pos = Vector((right_left - bb_min[0],
-                                   plan_bottom - bb_min[1], 0.0))
-                visible_bounds.append((right_left, plan_bottom,
-                                       plan_right, plan_top))
-            elif view_type == 'FRONT':
-                view_label, base_rotation = self.VIEW_TYPES['FRONT']
-                view_matrix = Euler(base_rotation, 'XYZ').to_matrix()
-                base_pos = Vector((right_left - bb_min[0],
-                                   elev_bottom - bb_min[2],
-                                   bb_min[1]))
-                visible_bounds.append((right_left, elev_bottom,
-                                       elev_right, elev_top))
-            else:
+        for view_type, label, M_local in instance_specs:
+            if view_type not in views:
                 continue
-            
-            instance = bpy.data.objects.new(f"{view_label} Instance", None)
+            instance = bpy.data.objects.new(f"{label} Instance", None)
             instance.empty_display_size = 0.01
             instance.instance_type = 'COLLECTION'
             instance.instance_collection = self.content_collection
             self.scene.collection.objects.link(instance)
-            
-            combined_matrix = view_matrix @ source_rot_inv
-            instance.rotation_euler = combined_matrix.to_euler('XYZ')
-            offset = combined_matrix @ source_loc
-            instance.location = base_pos - offset
+            instance.matrix_world = W @ M_local @ W_inv
             self.view_instances.append(instance)
         
-        if not visible_bounds:
-            return self.scene
+        # ----------------------------------------------------------------
+        # Camera positioning: anchor to the WALL, not to visible content.
+        # The elevation's right edge always lands at page_right - margin_r,
+        # and the elevation's bottom always lands at page_bottom + margin_b,
+        # for every room at the chosen scale. Different wall sizes extend
+        # MORE content leftward (toward iso) and upward (toward plan), but
+        # the elevation anchor points themselves never move.
+        # ----------------------------------------------------------------
+        # Page dimensions in world meters at the chosen scale.
+        ortho_w_world = _layouts_ops.paper_to_world(page_long_in, chosen_scale)
+        ortho_h_world = _layouts_ops.paper_to_world(page_short_in, chosen_scale)
+        margin_l_world = _layouts_ops.paper_to_world(margin_left_inches, chosen_scale)
+        margin_r_world = _layouts_ops.paper_to_world(margin_right_inches, chosen_scale)
+        margin_t_world = _layouts_ops.paper_to_world(margin_top_inches, chosen_scale)
+        margin_b_world = _layouts_ops.paper_to_world(margin_bottom_inches, chosen_scale)
         
-        min_x = min(b[0] for b in visible_bounds)
-        min_y = min(b[1] for b in visible_bounds)
-        max_x = max(b[2] for b in visible_bounds)
-        max_y = max(b[3] for b in visible_bounds)
+        # Camera frames the page from camera_x - ortho_w/2 to camera_x + ortho_w/2
+        # in wall-local X, similarly in Z. To put elevation right edge
+        # (wall-local x = wall_length) at page right minus margin:
+        #   wall_length = camera_x + ortho_w/2 - margin_r_world
+        # => camera_x = wall_length - ortho_w/2 + margin_r_world
+        # To put elevation bottom (wall-local z = 0) at page bottom plus
+        # margin_b (title block area):
+        #   0 = camera_z - ortho_h/2 + margin_b_world
+        # => camera_z = ortho_h/2 - margin_b_world
+        camera_local_x = wall_length - ortho_w_world / 2.0 + margin_r_world
+        camera_local_z = ortho_h_world / 2.0 - margin_b_world
         
-        total_w = max_x - min_x
-        total_h = max_y - min_y
-        cx = (min_x + max_x) / 2.0
-        cy = (min_y + max_y) / 2.0
+        # Camera distance from wall along -Y in wall-local (orthographic, so
+        # only matters for the camera clip range, not for projection).
+        camera_distance = 10.0
+        camera_local_pos = Vector((camera_local_x, -camera_distance, camera_local_z))
+        camera_world_pos = W @ camera_local_pos
         
-        margin = units.inch(6)
-        ortho_scale = max(total_w, total_h) + margin * 2
+        # Camera rotation in world: extract wall's Z-rotation from matrix_world
+        # so constraints / parents / driven rotations are respected.
+        wall_rotation_z = W.to_euler('XYZ').z
+        camera_rotation = (math.radians(90.0), 0.0, wall_rotation_z)
         
         cam_data = bpy.data.cameras.new(f"{view_name} Camera")
         cam_data.type = 'ORTHO'
-        cam_data.ortho_scale = ortho_scale
-        
         self.camera = bpy.data.objects.new(f"{view_name} Camera", cam_data)
         self.scene.collection.objects.link(self.camera)
         self.scene.camera = self.camera
-        self.camera.scale = (ortho_scale, ortho_scale, ortho_scale)
-        self.camera.location = (cx, cy, 10)
-        self.camera.rotation_euler = (0, 0, 0)
+        # Build the camera transform as a matrix and assign matrix_world directly.
+        # Going through .location + .rotation_euler updates matrix_basis but NOT
+        # matrix_world (the depsgraph hasn't evaluated yet at this point in the
+        # create flow), and Blender renders using matrix_world. The result is
+        # the camera renders from world origin instead of where it should be.
+        camera_matrix_world = (Matrix.Translation(camera_world_pos)
+                               @ Euler(camera_rotation, 'XYZ').to_matrix().to_4x4())
+        self.camera.matrix_world = camera_matrix_world
         
+        # Pin drawing scale; update_layout_scale callback handles ortho_scale,
+        # resolution and title block border.
+        self.scene.hb_paper_size = paper_size
+        self.scene.hb_paper_landscape = landscape
+        self.scene.hb_layout_scale = chosen_scale
+        
+        # Freestyle
         solid_collection = self.get_freestyle_collection('SOLID')
         if solid_collection:
             for instance in self.view_instances:
                 if instance.name not in solid_collection.objects:
                     solid_collection.objects.link(instance)
         
+        # Title block — after hb_layout_scale set so border sizing is right.
         self.title_block = TitleBlock()
         self.title_block.create(self.scene, self.camera)
         
         return self.scene
-    
+
     def _compute_recursive_bbox(self, source_obj):
         """Compute bbox of source_obj plus renderable descendants in
         source_obj's local coords. Cage and helper objects are skipped.
         
+        Uses the evaluated depsgraph so matrix_world reads reflect any
+        drivers / constraints / geometry-node updates, not the raw stored
+        values which can be stale on a freshly-loaded file.
+        
         Returns (bb_min, bb_max) as Vectors.
         """
-        obj_matrix_inv = source_obj.matrix_world.inverted()
+        depsgraph = bpy.context.evaluated_depsgraph_get()
+        source_eval = source_obj.evaluated_get(depsgraph)
+        obj_matrix_inv = source_eval.matrix_world.inverted()
         mn = [float('inf')] * 3
         mx = [float('-inf')] * 3
         
@@ -1575,8 +1678,10 @@ class MultiView(LayoutView):
             if not is_cage_object(o) and not is_helper_object(o):
                 try:
                     if hasattr(o, 'bound_box') and o.type != 'EMPTY':
+                        o_eval = o.evaluated_get(depsgraph)
+                        mw = o_eval.matrix_world
                         for c in o.bound_box:
-                            world = o.matrix_world @ Vector(c)
+                            world = mw @ Vector(c)
                             local = obj_matrix_inv @ world
                             for i in range(3):
                                 if local[i] < mn[i]: mn[i] = local[i]
