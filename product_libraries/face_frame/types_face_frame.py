@@ -2117,7 +2117,13 @@ class FaceFrameCabinet(GeoNodeCage):
                 continue
 
             thickness = inch(0.25)
-            bottom_z = solver.bay_bottom_z(layout, bay_index)
+            # Run the strip the full height of the cabinet side. For
+            # NOTCH / FLUSH toe kicks side_bottom_z is the floor (0.0),
+            # so the strip drops to the floor like the carcass side it
+            # covers instead of stopping at the top of the kick. FLOATING
+            # / uppers keep it at the bay bottom (side_bottom_z ==
+            # bay_bottom_z there), preserving the old behavior.
+            bottom_z = solver.side_bottom_z(layout, bay_index, side)
             top_z = (solver.left_side_top_z(layout)
                      if side == 'LEFT'
                      else solver.right_side_top_z(layout))
@@ -2154,6 +2160,62 @@ class FaceFrameCabinet(GeoNodeCage):
             part.set_input('Length',    length)
             part.set_input('Width',     amount)
             part.set_input('Thickness', thickness)
+            self._drive_flush_x_notch(strip, layout, side, bay_index, thickness)
+
+    def _drive_flush_x_notch(self, strip, layout, side, bay_index, thickness):
+        """Drive a FLUSH_X strip's 'Notch Front Bottom' modifier so a
+        full-height strip clears the toe-kick recess on base / tall
+        cabinets, mirroring _update_side_corner_notch for the carcass
+        side it covers. Active only for a NOTCH toe kick when the strip
+        actually reaches the floor - not when that side is stile-to-floor,
+        kick-inset, a floating bay, or FLUSH / FLOATING / uppers. The
+        modifier is added lazily so strips built before notch support are
+        upgraded in place on the next recalc. Route Depth cuts the full
+        1/4\" strip thickness; the strip shares the side's Mirror Y so
+        Flip Y = True targets the front face and Flip X = False the bottom.
+        """
+        mod = strip.modifiers.get('Notch Front Bottom')
+        if mod is None:
+            cpm = GeoNodeCutpart(strip).add_part_modifier(
+                'CPM_CORNERNOTCH', 'Notch Front Bottom')
+            cpm.set_input('Flip X', False)
+            cpm.set_input('Flip Y', True)
+            mod = cpm.mod
+        if mod.node_group is None:
+            return
+        if side == 'LEFT':
+            stile_to_floor = solver.left_stile_to_floor(layout)
+            has_inset = layout.kick_inset_left > 0
+        else:
+            stile_to_floor = solver.right_stile_to_floor(layout)
+            has_inset = layout.kick_inset_right > 0
+        bay_floating = (
+            0 <= bay_index < len(layout.bays)
+            and bool(layout.bays[bay_index].get('floating_bay'))
+        )
+        active = (layout.has_toe_kick
+                  and layout.toe_kick_type == 'NOTCH'
+                  and not stile_to_floor
+                  and not has_inset
+                  and not bay_floating
+                  and 0 <= bay_index < len(layout.bays))
+        if active:
+            kick = layout.bays[bay_index]['kick_height']
+            setback = self.obj.face_frame_cabinet.toe_kick_setback
+            route = thickness
+        else:
+            kick = setback = route = 0.0
+        ng = mod.node_group
+        for input_name, value in (
+            ('X', kick),
+            ('Y', setback),
+            ('Route Depth', route),
+        ):
+            node_input = ng.interface.items_tree.get(input_name)
+            if node_input is not None:
+                mod[node_input.identifier] = value
+        mod.show_viewport = active
+        mod.show_render = active
 
     # =====================================================================
     # Applied textured panels (BEADBOARD / SHIPLAP, 1/4 flat parts)

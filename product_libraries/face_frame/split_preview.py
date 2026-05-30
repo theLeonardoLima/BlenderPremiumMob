@@ -74,17 +74,47 @@ def _cage_dims(obj):
 
 
 def _world_matrix(obj):
-    """Reconstruct obj's world matrix from stored local matrices.
-    obj.matrix_world is unreliable for a cage that has never been
-    depsgraph-evaluated - one created while hidden in Bay selection
-    mode reads as identity. matrix_basis and matrix_parent_inverse are
-    stored values, valid regardless. Assumes plain OBJECT parenting
-    with no constraints, which is what the cage hierarchy uses."""
-    if obj.parent is None:
-        return obj.matrix_basis.copy()
-    return (_world_matrix(obj.parent)
-            @ obj.matrix_parent_inverse
-            @ obj.matrix_basis)
+    """Reconstruct obj's world matrix for the opening cage being previewed.
+
+    Two transforms in the chain need different treatment:
+
+    - The opening / split-node / bay cages BELOW the cabinet root can be
+      created while hidden in Bay selection mode and never get
+      depsgraph-evaluated, so their own matrix_world reads as identity.
+      Their matrix_basis / matrix_parent_inverse are stored values and
+      stay valid, so we rebuild from those.
+    - The cabinet root's placement on a wall is NOT stored in loc/rot/
+      scale: HB5 walls in a chain are constraint-driven, so the wall's
+      offset lives in matrix_world only. Rebuilding the whole chain from
+      matrix_basis silently drops that offset and the preview lands ~2ft
+      off the cabinet (the original bug this guards against).
+
+    So: anchor on the cabinet ROOT cage's matrix_world - it is always
+    visible / evaluated and already bakes in any constraint-driven wall
+    placement above it - then walk back DOWN through the cage hierarchy
+    using matrix_parent_inverse @ matrix_basis. Falls back to the
+    topmost ancestor's matrix_world when no cabinet root is in the chain.
+    """
+    from . import types_face_frame
+    tag_root = types_face_frame.TAG_CABINET_CAGE
+
+    chain = []
+    node = obj
+    while node is not None and not node.get(tag_root):
+        chain.append(node)
+        node = node.parent
+    if node is None:
+        # No cabinet root in the chain - anchor on the topmost ancestor.
+        node = obj
+        chain = []
+        while node.parent is not None:
+            chain.append(node)
+            node = node.parent
+
+    mw = node.matrix_world.copy()
+    for child in reversed(chain):
+        mw = mw @ child.matrix_parent_inverse @ child.matrix_basis
+    return mw
 
 
 def _cage_face(obj):
@@ -158,6 +188,15 @@ def _render(bands, outlines):
     sub-openings as outlines."""
     shader = gpu.shader.from_builtin('UNIFORM_COLOR')
     gpu.state.blend_set('ALPHA')
+    # Draw on top: the opening cage's front face sits ~3/4" BEHIND the
+    # proud door / drawer fronts and face-frame plane, so a depth-tested
+    # overlay gets occluded by those solids whenever they're shown - the
+    # preview then appears only when the fronts happen to be hidden. The
+    # 3mm _FACE_OFFSET nudge can't clear the fronts reliably (door/FF
+    # thickness varies), so disable depth testing instead and let the
+    # band/outline always paint on the face. The dialog is modal (no
+    # orbit), so drawing on top reads correctly without parallax.
+    gpu.state.depth_test_set('NONE')
     gpu.state.line_width_set(2.0)
 
     shader.uniform_float("color", _SPLITTER_COLOR)

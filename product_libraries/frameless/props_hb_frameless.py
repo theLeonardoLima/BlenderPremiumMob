@@ -565,7 +565,7 @@ class Frameless_Cabinet_Style(PropertyGroup):
         name="Interior Material",
         description="Material for cabinet interior",
         items=[
-            ('MAPLE_PLY', "Maple Plywood", "Maple veneer plywood"),
+            ('MAPLE_PLY', "UV Plywood", "UV plywood"),
             ('MATCHING', "Matching Exterior", "Use the same material as the exterior"),
             ('CUSTOM', "Custom Material", "Use a custom material from the file"),
         ],

@@ -159,6 +159,13 @@ class HOME_BUILDER_MT_face_frame_part_commands(bpy.types.Menu):
                             text="Toggle Stile to Floor",
                             icon='TRIA_DOWN_BAR')
 
+        # Bottom rail can be removed. The rail spans the bays in its
+        # segment; the operator sets Remove Bottom across that whole span
+        # so the rail the user clicked goes away as one piece.
+        if role == types_face_frame.PART_ROLE_BOTTOM_RAIL:
+            layout.operator("hb_face_frame.remove_bottom_rail",
+                            text="Remove Bottom Rail", icon='X')
+
         # Mid stiles keep their deeper properties popup (extend up /
         # down) as an additional item.
         if role == types_face_frame.PART_ROLE_MID_STILE:

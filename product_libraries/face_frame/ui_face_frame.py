@@ -18,6 +18,7 @@ sidebar sub-panels and the popups call the same draw_* helper.
 import bpy
 
 from . import types_face_frame
+from ... import units
 
 
 # ---------------------------------------------------------------------------
@@ -324,6 +325,30 @@ def draw_bay_properties(layout, bay_obj):
         col.prop(bp, 'floating_bay', text="Floating")
 
 
+def _root_opening_size(opening_obj):
+    """FF opening height for a bay's ROOT opening (a full-height opening
+    that fills its bay), or None if it can't be resolved or the opening
+    is a split child.
+
+    A root opening's `size` prop is ignored by the redistributor (it
+    fills the bay), so the stored value is meaningless. This returns the
+    real opening height the solver builds - cage height minus the top /
+    bottom reveals - so the UI can show the correct size read-only."""
+    bay = opening_obj.parent
+    if bay is None or not bay.get(types_face_frame.TAG_BAY_CAGE):
+        return None  # split child (or detached) - its own size is real
+    root = types_face_frame.find_cabinet_root(opening_obj)
+    bi = bay.get('hb_bay_index')
+    if root is None or bi is None:
+        return None
+    from . import solver_face_frame
+    layout = solver_face_frame.FaceFrameLayout(root)
+    for lf in solver_face_frame.bay_openings(layout, bi).get('leaves', []):
+        if lf['obj_name'] == opening_obj.name:
+            return lf['cage_dim_z'] - lf['reveal_top'] - lf['reveal_bottom']
+    return None
+
+
 def draw_opening_properties(layout, opening_obj):
     """All editable properties of a single opening: front type, hinge
     side, and the four per-side overlays. Each overlay row has an
@@ -334,15 +359,24 @@ def draw_opening_properties(layout, opening_obj):
     layout.label(text=f"Opening {op.opening_index + 1}", icon='MESH_PLANE')
     col = layout.column(align=True)
 
-    # Size + unlock - meaningful when the opening is a child of a split
-    # node. For the bay's root opening this still shows but is ignored
-    # by the redistributor (root fills the bay).
-    size_row = col.row(align=True)
-    field = size_row.row(align=True)
-    field.enabled = op.unlock_size
-    field.prop(op, 'size', text="Size")
-    lock_icon = 'UNLOCKED' if op.unlock_size else 'LOCKED'
-    size_row.prop(op, 'unlock_size', text="", icon=lock_icon)
+    # Size + unlock - meaningful only when the opening is a child of a
+    # split node (the redistributor uses it). A bay's ROOT opening fills
+    # the bay, so its size is bay-driven and not adjustable here; show the
+    # real opening height read-only instead of the stale, ignored prop.
+    root_size = _root_opening_size(opening_obj)
+    if root_size is not None:
+        size_row = col.row(align=True)
+        size_row.enabled = False
+        size_row.label(
+            text="Size:  " + units.unit_to_string(
+                bpy.context.scene.unit_settings, root_size))
+    else:
+        size_row = col.row(align=True)
+        field = size_row.row(align=True)
+        field.enabled = op.unlock_size
+        field.prop(op, 'size', text="Size")
+        lock_icon = 'UNLOCKED' if op.unlock_size else 'LOCKED'
+        size_row.prop(op, 'unlock_size', text="", icon=lock_icon)
     col.separator()
 
     col.prop(op, 'front_type', text="Front Type")
@@ -696,6 +730,12 @@ def draw_rail_properties(layout, root, rail_obj, role):
     layout.label(text=f"{label} (Bay {seg_start + 1})", icon='SNAP_EDGE')
     unlock_attr = 'unlock_top_rail' if is_top else 'unlock_bottom_rail'
     _draw_locked_rail_row(layout, bp, attr, unlock_attr, "Width")
+    # Bottom rail can be removed outright (drops Remove Bottom across the
+    # rail's bay span). Restore via Remove Bottom in the bay properties.
+    if not is_top:
+        layout.separator()
+        layout.operator("hb_face_frame.remove_bottom_rail",
+                        text="Remove Bottom Rail", icon='X')
 
 
 def draw_blind_corners(layout, cab_props):

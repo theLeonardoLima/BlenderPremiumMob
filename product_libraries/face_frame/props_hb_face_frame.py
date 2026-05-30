@@ -214,8 +214,8 @@ def get_door_style_enum_items(self, context):
 # correct, compatibility-filtered choices -- wood -> color -> varnish/glaze,
 # overlay -> hinge, and front series -> shape -> panel -- WITHOUT yet driving
 # geometry or material. The existing wood_species / door_overlay_type enums
-# still own rendering + face-frame sizing; wiring these to material / sizing /
-# pricing is a deliberate later pass.
+# still own rendering + face-frame sizing; wiring these to material /
+# sizing is a deliberate later pass.
 #
 # Enum item-tuples are built ONCE at module load into module-level dicts. That
 # doubles as the keepalive Blender needs (a callback returning freshly built
@@ -606,6 +606,39 @@ def update_include_drawer_boxes(self, context):
 # ---------------------------------------------------------------------------
 # Cabinet Style (placeholder shell, full implementation in Phase 4)
 # ---------------------------------------------------------------------------
+class Face_Frame_Millwork_Item(PropertyGroup):
+    """One millwork line item on a cabinet style's Style Section.
+
+    Shown on the Style Section page as ``name`` + ``quantity`` (always in
+    FEET). ``product_code`` is stored for later pricing. ``auto_collected``
+    flags items added by the Collect Millwork scan so a re-collect can replace
+    just those while leaving hand-typed items alone.
+    """
+    name: StringProperty(
+        name="Name",
+        description="Millwork item name (e.g. 'Finish Toe Kick', '51 Crown')",
+        default="Millwork",
+    )  # type: ignore
+    quantity: FloatProperty(
+        name="Quantity (ft)",
+        description="Linear quantity in feet",
+        default=0.0,
+        min=0.0,
+        precision=1,
+    )  # type: ignore
+    product_code: StringProperty(
+        name="Product Code",
+        description="Millwork product code (used for pricing)",
+        default="",
+    )  # type: ignore
+    auto_collected: BoolProperty(
+        name="Auto Collected",
+        description="True when added by the Collect Millwork scan (replaced on "
+                    "re-collect; hand-typed items are kept)",
+        default=False,
+    )  # type: ignore
+
+
 class Face_Frame_Cabinet_Style(PropertyGroup):
     """Face frame cabinet style: wood species, finish color, interior
     material, door overlay, and references to a door style + drawer front
@@ -628,12 +661,6 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         default=False,
     )  # type: ignore
 
-    # ---- 2D drawing presentation ----
-    # Per-style fill colour for 2D layout / shop-drawing views. Cabinets
-    # resolve their style via the STYLE_NAME tag; 2D views tint each
-    # cabinet's elevation / multi-view instance with this colour. Lives on
-    # the style so the colour rides with it across every room sharing the
-    # global pool. Default white = no tint.
     color_in_2d_drawings: FloatVectorProperty(
         name="2D Drawing Color",
         description="Fill color for cabinets of this style in 2D shop drawings",
@@ -720,7 +747,7 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         name="Interior Material",
         description="Material for cabinet interior",
         items=[
-            ('MAPLE_PLY', "Maple Plywood", "Maple veneer plywood"),
+            ('MAPLE_PLY', "UV Plywood", "UV plywood"),
             ('MATCHING', "Matching Exterior", "Use the same material as the exterior"),
             ('CUSTOM', "Custom Material", "Use a custom material from the file"),
         ],
@@ -887,6 +914,110 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         description="Door style applied to drawer fronts on cabinets carrying this style",
         items=get_door_style_enum_items,
         update=_propagate_cabinet_style,
+    )  # type: ignore
+
+    # ---- Style-section descriptors (free text shown on the Style Section
+    # page). These have no geometric effect -- they're presentation fields the
+    # dealer types in. Defaults mirror common CWP selections so a fresh style
+    # reads sensibly. Editable from the Style Sections panel.
+    ss_corner_treatment: StringProperty(
+        name="Corner Treatment",
+        description="Corner treatment descriptor for the style section page",
+        default="1/8 Radius",
+    )  # type: ignore
+    ss_fin_opening_edge: StringProperty(
+        name="Fin Opening Edge",
+        description="Finished opening edge treatment for the style section page",
+        default="1/8 Radius",
+    )  # type: ignore
+    ss_drawer_grain: StringProperty(
+        name="Drawer Grain",
+        description="Drawer front grain direction for the style section page",
+        default="Vertical",
+    )  # type: ignore
+    ss_drawer_top_opening_height: StringProperty(
+        name="Top Opening Height",
+        description="Top drawer opening height for the style section page",
+        default="5\"",
+    )  # type: ignore
+    ss_drawer_slides: StringProperty(
+        name="Drawer Slides",
+        description="Drawer slide hardware for the style section page",
+        default="Tandem Blumotion",
+    )  # type: ignore
+    ss_drawer_box_construction: StringProperty(
+        name="Box Construction",
+        description="Drawer box construction for the style section page",
+        default="French Dovetail",
+    )  # type: ignore
+
+    # ---- Style-section OVERRIDES for the catalog-backed fields ----
+    # Each is blank by default: blank => the page shows the catalog/derived
+    # value (wood, color, overlay, hinge, the composed door/drawer name, edge
+    # profile); type anything in to OVERRIDE what prints for that style. This
+    # lets a dealer hand-correct a single line without changing the cabinet's
+    # actual catalog selection. Resolved by ``style_section_value``.
+    ss_wood: StringProperty(
+        name="Wood (override)",
+        description="Override the wood text on the style section page (blank = catalog value)",
+        default="",
+    )  # type: ignore
+    ss_interior: StringProperty(
+        name="Interior (override)",
+        description="Override the interior text (blank = catalog value)",
+        default="",
+    )  # type: ignore
+    ss_overlay: StringProperty(
+        name="Overlay (override)",
+        description="Override the overlay text (blank = catalog value)",
+        default="",
+    )  # type: ignore
+    ss_color: StringProperty(
+        name="Color (override)",
+        description="Override the color text (blank = catalog value)",
+        default="",
+    )  # type: ignore
+    ss_varnish: StringProperty(
+        name="Varnish (override)",
+        description="Override the varnish text (blank = catalog value)",
+        default="",
+    )  # type: ignore
+    ss_glaze: StringProperty(
+        name="Glaze (override)",
+        description="Override the glaze text (blank = catalog value)",
+        default="",
+    )  # type: ignore
+    ss_door: StringProperty(
+        name="Door Style (override)",
+        description="Override the door style text (blank = composed catalog name)",
+        default="",
+    )  # type: ignore
+    ss_hinge: StringProperty(
+        name="Hinge (override)",
+        description="Override the hinge text (blank = catalog value)",
+        default="",
+    )  # type: ignore
+    ss_drawer: StringProperty(
+        name="Drawer Style (override)",
+        description="Override the drawer style text (blank = composed catalog name)",
+        default="",
+    )  # type: ignore
+    ss_edge_profile: StringProperty(
+        name="Edge Profile (override)",
+        description="Override the edge profile text (blank = door style's edge profile)",
+        default="",
+    )  # type: ignore
+
+    # ---- Style-section millwork (per-style list shown under the column on the
+    # Style Section page). Each item is name + quantity(ft) + product_code.
+    # Populated by hand and/or the Collect Millwork scan.
+    millwork_items: CollectionProperty(
+        name="Millwork Items",
+        type=Face_Frame_Millwork_Item,
+    )  # type: ignore
+    millwork_index: IntProperty(
+        name="Millwork Index",
+        default=0,
     )  # type: ignore
 
     # ---- Cached materials (lazy-loaded from face_frame_assets/materials/cabinet_material.blend) ----
@@ -1124,6 +1255,11 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         # Blind ends + finished back + flush skins / decorative panels
         'BLIND_PANEL_LEFT', 'BLIND_PANEL_RIGHT',
         'FINISHED_BACK', 'FLUSH_X', 'BEADBOARD', 'SHIPLAP',
+        # Partition skins fill the exposed step between bays of differing
+        # height / depth (added when a bay's height is adjusted) and are
+        # visible through the opening, so they take the exterior finish
+        # material, not the interior material.
+        'PARTITION_SKIN',
     }
 
     # Hidden surfaces (interior material on top + bottom + edges).
@@ -1137,7 +1273,7 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         'FRONT_STRETCHER', 'REAR_STRETCHER', 'BACK',
         'TOE_KICK_SUBFRONT',
         # Internal dividers / shelves
-        'BAY_DIVISION', 'BAY_SHELF', 'MID_DIVISION', 'PARTITION_SKIN',
+        'BAY_DIVISION', 'BAY_SHELF', 'MID_DIVISION',
         # Drawer box
         'DRAWER_BOX',
         # Interior items
@@ -1518,7 +1654,6 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         """
         box = layout.box()
         box.prop(self, "name", text="Style Name")
-        box.prop(self, "color_in_2d_drawings", text="2D Color")
 
         # Catalog finish spec (compatibility-filtered cascade; drives the
         # procedural wood material via finish_wood / finish_color).
@@ -1929,6 +2064,53 @@ def _update_cabinet_dim(self, context):
     """
     from . import types_face_frame
     types_face_frame.recalculate_face_frame_cabinet(self.id_data)
+
+
+def _update_remove_bottom(self, context):
+    """Update callback for a bay's remove_bottom toggle.
+
+    Removing the bottom rail makes the opening grow down into the rail's
+    space (see solver.effective_bottom_rail_width). The door that sat on
+    that rail then has no rail to overlay, so we default it flush:
+    unlock the opening's bottom overlay and set it to 0. The value stays
+    editable - the user can dial in a bottom overlay afterwards in the
+    opening properties and it will be honored (unlocked wins over the
+    cabinet default). Restoring the rail re-locks the override so the
+    bottom overlay follows the cabinet default again.
+
+    The affected openings are the bay's bottom-perimeter leaves: the
+    lowest opening of an H-split, or every opening of a V-split. They are
+    identified geometrically as the leaves at the lowest bay-local cage Z,
+    which holds regardless of split layout.
+    """
+    from . import types_face_frame, solver_face_frame
+    bay_obj = self.id_data
+    bi = bay_obj.get('hb_bay_index')
+    removing = self.remove_bottom
+    # One suspend so the overlay writes + the dimension recalc coalesce
+    # into a single cabinet recalc when this callback returns.
+    with types_face_frame.suspend_recalc():
+        root = types_face_frame.find_cabinet_root(bay_obj)
+        if root is not None and bi is not None:
+            layout = solver_face_frame.FaceFrameLayout(root)
+            leaves = solver_face_frame.bay_openings(layout, bi).get('leaves', [])
+            if leaves:
+                min_z = min(lf['cage_z'] for lf in leaves)
+                for lf in leaves:
+                    if abs(lf['cage_z'] - min_z) > 1e-5:
+                        continue  # not a bottom-perimeter opening
+                    opening = bpy.data.objects.get(lf['obj_name'])
+                    if opening is None:
+                        continue
+                    op = opening.face_frame_opening
+                    if removing:
+                        op.unlock_bottom_overlay = True
+                        op.bottom_overlay = 0.0
+                    else:
+                        op.unlock_bottom_overlay = False
+        # Always recalc - even when there were no openings to adjust the
+        # rail removal still changes the carcass / face frame.
+        types_face_frame.recalculate_face_frame_cabinet(bay_obj)
 
 
 # When the user edits a finished-end-condition enum from the UI, flip the
@@ -2867,7 +3049,7 @@ class Face_Frame_Bay_Props(PropertyGroup):
 
     remove_bottom: BoolProperty(
         name="Remove Bottom", default=False,
-        update=_update_cabinet_dim,
+        update=_update_remove_bottom,
     )  # type: ignore
     remove_carcass: BoolProperty(
         name="Remove Carcass", default=False,
@@ -4466,6 +4648,7 @@ class Face_Frame_Scene_Props(PropertyGroup):
 # Module registration
 # ---------------------------------------------------------------------------
 classes = (
+    Face_Frame_Millwork_Item,
     Face_Frame_Cabinet_Style,
     HB_UL_face_frame_cabinet_styles,
     Face_Frame_Door_Style,

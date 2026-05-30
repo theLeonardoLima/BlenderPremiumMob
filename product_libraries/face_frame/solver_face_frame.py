@@ -412,6 +412,23 @@ def bay_top_z(layout, bay_index):
     return bay['height']
 
 
+def effective_bottom_rail_width(layout, bay_index):
+    """Bottom-rail width the FACE FRAME OPENING should reserve at the
+    bottom of the bay.
+
+    Normally this is the bay's bottom_rail_width: the opening starts one
+    rail-width up from the bay bottom. When the bay's bottom rail is
+    removed (remove_bottom), there is no rail to leave room for, so the
+    opening / bay cage grows DOWN into that band to take up the freed
+    space - this returns 0 in that case. Drives the cage position, cage
+    height, and root reveals so the opening, its cage, and any
+    bay-internal splitters all extend to the bay bottom together."""
+    bay = layout.bays[bay_index]
+    if bay.get('remove_bottom'):
+        return 0.0
+    return bay['bottom_rail_width']
+
+
 def side_bottom_z(layout, bay_index, side='LEFT'):
     """Z of the carcass side panel's bottom edge.
 
@@ -1898,11 +1915,11 @@ def bay_cage_position(layout, bay_index):
     if layout.cabinet_type == 'PANEL':
         x = bay_x_position(layout, bay_index)
         y = -layout.dim_y
-        z = bay_bottom_z(layout, bay_index) + bay['bottom_rail_width']
+        z = bay_bottom_z(layout, bay_index) + effective_bottom_rail_width(layout, bay_index)
         return (x, y, z)
 
     left_x, _ = _cage_x_bounds(layout, bay_index)
-    z = bay_bottom_z(layout, bay_index) + bay['bottom_rail_width']
+    z = bay_bottom_z(layout, bay_index) + effective_bottom_rail_width(layout, bay_index)
     # In angled mode the cage rotates around Z by face_frame_angle so
     # bay-local +X aligns with the FF direction. The anchor sits at
     # FF-distance left_x from the left endpoint on the FF inner plane;
@@ -1933,7 +1950,8 @@ def bay_cage_dims(layout, bay_index):
     bay = layout.bays[bay_index]
     if layout.cabinet_type == 'PANEL':
         ff_opening_height = (
-            bay['height'] - bay['top_rail_width'] - bay['bottom_rail_width']
+            bay['height'] - bay['top_rail_width']
+            - effective_bottom_rail_width(layout, bay_index)
         )
         return (bay['width'], layout.dim_y, ff_opening_height)
 
@@ -1942,7 +1960,7 @@ def bay_cage_dims(layout, bay_index):
     cage_dim_y = bay['depth'] - layout.fft - back_thickness(layout)
     top_thickness = layout.stretcher_t if layout.uses_stretchers else layout.mt
     cage_top_z = carcass_top_z(layout, bay_index) - top_thickness
-    cage_bottom_z = bay_bottom_z(layout, bay_index) + bay['bottom_rail_width']
+    cage_bottom_z = bay_bottom_z(layout, bay_index) + effective_bottom_rail_width(layout, bay_index)
     cage_dim_z = cage_top_z - cage_bottom_z
     return (cage_dim_x, cage_dim_y, cage_dim_z)
 
@@ -2003,7 +2021,7 @@ def _bay_root_reveals(layout, bay_index):
     ff_opening_height = (
         bay['height']
         - bay['top_rail_width']
-        - bay['bottom_rail_width']
+        - effective_bottom_rail_width(layout, bay_index)
         - bay['kick_height']
     )
 
@@ -2335,6 +2353,7 @@ def resolved_overlay(cab_props, opening_props, side):
     if getattr(opening_props, f'unlock_{side}_overlay'):
         return getattr(opening_props, f'{side}_overlay')
     return getattr(cab_props, f'default_{side}_overlay')
+
 
 
 # Construction constants for visual open state. Cabinet-level
@@ -3523,7 +3542,7 @@ def intra_bay_boundaries(cabinet_obj, layout, bay_index):
         return
     bay = layout.bays[bay_index]
     cage_left_x, _ = _cage_x_bounds(layout, bay_index)
-    cage_bottom_z = bay_bottom_z(layout, bay_index) + bay['bottom_rail_width']
+    cage_bottom_z = bay_bottom_z(layout, bay_index) + effective_bottom_rail_width(layout, bay_index)
 
     for s in splitters:
         node_name = s.get('split_node_name')

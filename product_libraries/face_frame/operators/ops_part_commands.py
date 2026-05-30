@@ -478,6 +478,48 @@ class hb_face_frame_OT_toggle_stile_to_floor(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class hb_face_frame_OT_remove_bottom_rail(bpy.types.Operator):
+    """Remove the bottom rail the user clicked.
+
+    The bottom rail is a single segment object that can span several
+    bays; removal is driven by the per-bay `remove_bottom` flag (the
+    same flag exposed in the bay properties), so we set it on EVERY bay
+    in the clicked rail's current segment. That drops the whole rail the
+    user is looking at rather than fragmenting it at a single bay edge.
+    Restore it later via Remove Bottom in the bay properties.
+    """
+    bl_idname = "hb_face_frame.remove_bottom_rail"
+    bl_label = "Remove Bottom Rail"
+    bl_description = "Remove this bottom rail (sets Remove Bottom on its bay span)"
+    bl_options = {'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        obj = context.active_object
+        return (obj is not None
+                and obj.get('hb_part_role')
+                == types_face_frame.PART_ROLE_BOTTOM_RAIL)
+
+    def execute(self, context):
+        obj = context.active_object
+        root = types_face_frame.find_cabinet_root(obj)
+        if root is None:
+            self.report({'WARNING'}, "No cabinet root found")
+            return {'CANCELLED'}
+        start = obj.get('hb_segment_start_bay', 0)
+        indices = _rail_segment_bay_indices(
+            root, start, types_face_frame.PART_ROLE_BOTTOM_RAIL)
+        bays = _bays_by_index(root)
+        # One suspend so the per-bay flag writes coalesce into a single
+        # recalc - remove_bottom fires _update_cabinet_dim on each write.
+        with types_face_frame.suspend_recalc():
+            for idx in indices:
+                bay = bays.get(idx)
+                if bay is not None:
+                    bay.face_frame_bay.remove_bottom = True
+        return {'FINISHED'}
+
+
 # ---------------------------------------------------------------------------
 # Registration
 # ---------------------------------------------------------------------------
@@ -486,6 +528,7 @@ classes = (
     hb_face_frame_OT_set_part_width,
     hb_face_frame_OT_set_part_scribe,
     hb_face_frame_OT_toggle_stile_to_floor,
+    hb_face_frame_OT_remove_bottom_rail,
 )
 
 
