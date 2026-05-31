@@ -191,18 +191,11 @@ CATALOG = [
     # =======================================================================
     # Parts
     # =======================================================================
-    _e('parts', 'Loose Stile',
-       'Loose stile.',
-       _todo('Loose Stile'), tags=['stile']),
-    _e('parts', 'End Leg - Left',
-       'Left-side end leg.',
-       _todo('End Leg (Left)'), tags=['leg', 'end']),
-    _e('parts', 'End Leg - Right',
-       'Right-side end leg.',
-       _todo('End Leg (Right)'), tags=['leg', 'end']),
-    _e('parts', 'Intermediate Leg',
-       'Intermediate leg.',
-       _todo('Intermediate Leg'), tags=['leg']),
+    _e('parts', 'Leg Product',
+       'Face-frame leg / post / filler. Loose-stile, end-leg, and '
+       'intermediate-leg behaviour are all options on its prompts '
+       '(Finish Type / Only Stile).',
+       _ff('Leg Product'), tags=['leg', 'stile', 'end']),
     _e('parts', 'Vanity End Leg Assembly',
        'Vanity end leg assembly.',
        _todo('Vanity End Leg Assembly'), tags=['vanity', 'leg']),

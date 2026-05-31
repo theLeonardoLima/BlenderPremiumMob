@@ -291,8 +291,22 @@ class HOME_BUILDER_MT_face_frame_change_bay(bpy.types.Menu):
             op.config = config
 
 
+class HOME_BUILDER_MT_face_frame_leg_product_commands(bpy.types.Menu):
+    """Right-click menu for a leg product root."""
+    bl_label = "Leg Product Commands"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.operator("hb_face_frame.leg_product_prompts",
+                        text="Leg Properties...", icon='WINDOW')
+        layout.separator()
+        layout.operator("hb_face_frame.delete_cabinet",
+                        text="Delete Leg", icon='X')
+
+
 classes = (
     HOME_BUILDER_MT_face_frame_cabinet_commands,
+    HOME_BUILDER_MT_face_frame_leg_product_commands,
     HOME_BUILDER_MT_face_frame_cabinet_group_commands,
     HOME_BUILDER_MT_face_frame_bay_commands,
     HOME_BUILDER_MT_face_frame_part_commands,

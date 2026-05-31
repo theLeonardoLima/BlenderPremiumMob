@@ -2423,6 +2423,35 @@ class hb_face_frame_OT_create_cabinet_group(bpy.types.Operator):
         return (location, rotation, overall_w, overall_d, overall_h)
 
 
+class hb_face_frame_OT_leg_product_prompts(bpy.types.Operator):
+    """Popup properties dialog for a leg product (right-click entry)."""
+    bl_idname = "hb_face_frame.leg_product_prompts"
+    bl_label = "Leg Properties"
+    bl_description = "Edit the leg product's dimensions and options"
+    bl_options = {'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        root = types_face_frame.find_cabinet_root(context.active_object)
+        return root is not None and bool(root.get('IS_LEG_PRODUCT'))
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self, width=320)
+
+    def execute(self, context):
+        return {'FINISHED'}
+
+    def draw(self, context):
+        from .. import ui_face_frame
+        root = types_face_frame.find_cabinet_root(context.active_object)
+        if root is None:
+            self.layout.label(text="No leg product selected", icon='INFO')
+            return
+        ui_face_frame.draw_identity(self.layout, root)
+        self.layout.separator()
+        ui_face_frame.draw_leg_product(self.layout, root)
+
+
 classes = (
     hb_face_frame_OT_draw_cabinet,
     hb_face_frame_OT_create_cabinet_group,
@@ -2433,6 +2462,7 @@ classes = (
     hb_face_frame_OT_break_cabinet_both,
     hb_face_frame_OT_toggle_mode,
     hb_face_frame_OT_cabinet_prompts,
+    hb_face_frame_OT_leg_product_prompts,
     hb_face_frame_OT_bay_prompts,
     hb_face_frame_OT_opening_prompts,
     hb_face_frame_OT_split_opening,

@@ -398,6 +398,47 @@ def _find_immediate_face_frame_neighbors_of_point(parent_obj, target_x):
     return hits
 
 
+def auto_leg_finish_type(leg_obj):
+    """Pick a leg product's finish_type from its left/right exposure.
+
+    Rules, in order:
+    - A dishwasher beside the leg wins: finish the side OPPOSITE it
+      (the dishwasher butts against the leg, so the show face points
+      away). One dishwasher -> a single finished side; a dishwasher on
+      each side -> FINISH_BOTH.
+    - Otherwise a side counts as open (needs finish) when EXPOSED /
+      PARTIAL; UNEXPOSED behind a cabinet / wall does not. Both open ->
+      FINISH_BOTH, one open -> finish that side, neither -> INTERMEDIATE
+      (a filler buried between cabinets).
+
+    Uses the same sibling-abutment scan as cabinet side exposure, so it
+    only sees neighbours on a shared parent wall; a free-standing
+    (unparented) leg reports both sides exposed -> FINISH_BOTH.
+    """
+    le_state, le_dishwasher, _ = _side_exposure(leg_obj, 'left')
+    re_state, re_dishwasher, _ = _side_exposure(leg_obj, 'right')
+
+    # Dishwasher takes priority: the dishwasher butts against the leg
+    # on that side, so the visible finished panel faces AWAY from it -
+    # finish the OPPOSITE side. A dishwasher on each side -> FINISH_BOTH.
+    if le_dishwasher or re_dishwasher:
+        if le_dishwasher and re_dishwasher:
+            return 'FINISH_BOTH'
+        return 'FINISH_RIGHT' if le_dishwasher else 'FINISH_LEFT'
+
+    # No dishwasher: open sides (EXPOSED / PARTIAL) get finished;
+    # UNEXPOSED (cabinet / wall) doesn't.
+    left_open = le_state != 'UNEXPOSED'
+    right_open = re_state != 'UNEXPOSED'
+    if left_open and right_open:
+        return 'FINISH_BOTH'
+    if left_open:
+        return 'FINISH_LEFT'
+    if right_open:
+        return 'FINISH_RIGHT'
+    return 'INTERMEDIATE'
+
+
 def recalc_with_neighbors(cab_obj):
     """Placement convenience: recalc this cabinet, the immediate L/R
     face-frame neighbors whose facing side just changed coverage, and

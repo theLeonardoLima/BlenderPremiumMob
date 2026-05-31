@@ -769,6 +769,11 @@ def _try_auto_merge_with_neighbor(context, cab_obj):
     if cab_obj.face_frame_cabinet.cabinet_type == 'TALL':
         return None
 
+    # Leg products are fillers / posts, never part of a cabinet run -
+    # they abut cabinets but must stay independent objects (no merge).
+    if cab_obj.get('IS_LEG_PRODUCT'):
+        return None
+
     # Force a depsgraph update so cab_obj.matrix_world reflects the
     # parent + location assignments _finalize just made. Without this,
     # the Z-match check in merge_cabinets sees a stale world Z (often
@@ -811,6 +816,10 @@ def _try_auto_merge_with_neighbor(context, cab_obj):
         if not sib.get(types_face_frame.TAG_CABINET_CAGE):
             continue
         if sib.face_frame_cabinet.cabinet_type == 'TALL':
+            continue
+        # A leg product is a filler / post, never a merge target - a
+        # cabinet placed against a leg stays independent.
+        if sib.get('IS_LEG_PRODUCT'):
             continue
         sib_run = sib.matrix_world.to_3x3() @ Vector((1.0, 0.0, 0.0))
         sib_run.z = 0.0
@@ -1313,12 +1322,14 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
         HB_CURRENT_DRAW_OBJ excludes the cage from hb_snap raycasts so
         the cursor can't catch on the cage and trigger self-snap.
         """
-        scene_props = context.scene.hb_face_frame
-        cabinet_width = scene_props.default_cabinet_width
-
+        # Use self._cabinet_width (the single source of truth set in
+        # invoke) so the initial preview matches single-placement
+        # products' default_width (e.g. the 2" leg) instead of the
+        # generic scene default. Fill cabinets set _cabinet_width to
+        # default_cabinet_width in invoke, so they're unchanged.
         cage = hb_types.GeoNodeCage()
         cage.create('FaceFramePlacementPreview')
-        cage.set_input('Dim X', cabinet_width / max(self.bay_qty, 1))
+        cage.set_input('Dim X', self._cabinet_width / max(self.bay_qty, 1))
         cage.set_input('Dim Y', self._cabinet_depth)
         cage.set_input('Dim Z', self._cabinet_height)
         cage.set_input('Mirror Y', True)
@@ -2373,6 +2384,15 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
         # is already in its final visual state by the time the user
         # sees it.
         exposure.recalc_with_neighbors(selection_target)
+
+        # Auto-pick a leg product's finish from its placed position:
+        # open sides get finished, sides covered by an abutting cabinet
+        # / wall don't. view_layer.update() first so the just-set parent
+        # + location are reflected in the sibling-abutment scan.
+        if selection_target.get('IS_LEG_PRODUCT'):
+            context.view_layer.update()
+            selection_target.leg_product.finish_type = \
+                exposure.auto_leg_finish_type(selection_target)
 
         # Apply the active cabinet style to this fresh placement. Skip
         # when a merge absorbed cab_obj into a neighbor - the survivor

@@ -238,6 +238,69 @@ def draw_wedge(layout, root):
         box.operator("hb_face_frame.add_refrigerator_wedge", icon='MOD_BEVEL')
 
 
+def _is_leg_product(obj):
+    """True when obj (or its cabinet root) is a leg product."""
+    root = types_face_frame.find_cabinet_root(obj)
+    return root is not None and bool(root.get('IS_LEG_PRODUCT'))
+
+
+def draw_leg_product(layout, root):
+    """Leg product prompts: dimensions + the leg_product options.
+
+    Shown in the sidebar (HB_FACE_FRAME_PT_leg_product) and the
+    right-click "Leg Properties..." popup. finish_type covers the old
+    loose-stile / end-leg / intermediate-leg variants; only_stile drops
+    everything but the stile; column removes the toe kick.
+    """
+    cab = root.face_frame_cabinet
+    leg = root.leg_product
+
+    col = layout.column(align=True)
+    col.prop(cab, 'width', text="Width")
+    col.prop(cab, 'height', text="Height")
+    col.prop(cab, 'depth', text="Depth")
+
+    box = layout.box()
+    box.label(text="Leg Options")
+    box.prop(leg, 'finish_type', text="Finish")
+    row = box.row(align=True)
+    row.prop(leg, 'only_stile', text="Only Stile", toggle=True)
+    row.prop(leg, 'is_column', text="Column", toggle=True)
+    vrow = box.row(align=True)
+    vrow.prop(leg, 'is_appliance_leg', text="Appliance", toggle=True)
+    vrow.prop(leg, 'is_island_leg', text="Island", toggle=True)
+
+    col = layout.column(align=True)
+    col.prop(leg, 'material_thickness', text="Material Thickness")
+    col.prop(leg, 'face_frame_thickness', text="Face Frame Thickness")
+    sub = col.column(align=True)
+    sub.enabled = not leg.is_column
+    sub.prop(leg, 'toe_kick_height', text="Toe Kick Height")
+    sub.prop(leg, 'toe_kick_setback', text="Toe Kick Setback")
+
+    dbox = layout.box()
+    dbox.label(text="Panel Depth Overrides")
+    dcol = dbox.column(align=True)
+    dcol.prop(leg, 'override_left_panel_depth', text="Left (0 = auto)")
+    dcol.prop(leg, 'override_right_panel_depth', text="Right (0 = auto)")
+
+    nbox = layout.box()
+    nbox.label(text="Back & Nailers")
+    nrow = nbox.row(align=True)
+    nrow.prop(leg, 'include_back_left_nailer', text="Left Nailer", toggle=True)
+    nrow.prop(leg, 'include_back_right_nailer', text="Right Nailer", toggle=True)
+    nsub = nbox.column(align=True)
+    nsub.enabled = leg.include_back_left_nailer or leg.include_back_right_nailer
+    nsub.prop(leg, 'back_width', text="Back Width")
+    nsub.prop(leg, 'back_thickness', text="Back Thickness")
+    nsub.prop(leg, 'nailer_width', text="Nailer Width")
+    nsub.prop(leg, 'nailer_thickness', text="Nailer Thickness")
+
+    fbox = layout.box()
+    fbox.label(text="Finish-X Bands")
+    fbox.prop(leg, 'flush_x_panel_width', text="Band Width")
+
+
 def draw_face_frame_defaults(layout, cab_props):
     """Default stile and rail widths + per-side overlay defaults.
     Per-opening overrides live on each opening object."""
@@ -1012,6 +1075,11 @@ class HB_FACE_FRAME_PT_dimensions(bpy.types.Panel):
     bl_category = "Home Builder"
     bl_parent_id = "HB_FACE_FRAME_PT_active_cabinet"
 
+    @classmethod
+    def poll(cls, context):
+        root = types_face_frame.find_cabinet_root(context.active_object)
+        return root is not None and not root.get('IS_LEG_PRODUCT')
+
     def draw(self, context):
         root = types_face_frame.find_cabinet_root(context.active_object)
         if root is None:
@@ -1027,6 +1095,11 @@ class HB_FACE_FRAME_PT_construction(bpy.types.Panel):
     bl_category = "Home Builder"
     bl_parent_id = "HB_FACE_FRAME_PT_active_cabinet"
     bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        root = types_face_frame.find_cabinet_root(context.active_object)
+        return root is not None and not root.get('IS_LEG_PRODUCT')
 
     def draw(self, context):
         root = types_face_frame.find_cabinet_root(context.active_object)
@@ -1044,6 +1117,11 @@ class HB_FACE_FRAME_PT_face_frame_defaults(bpy.types.Panel):
     bl_category = "Home Builder"
     bl_parent_id = "HB_FACE_FRAME_PT_active_cabinet"
     bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        root = types_face_frame.find_cabinet_root(context.active_object)
+        return root is not None and not root.get('IS_LEG_PRODUCT')
 
     def draw(self, context):
         root = types_face_frame.find_cabinet_root(context.active_object)
@@ -1094,6 +1172,11 @@ class HB_FACE_FRAME_PT_all_bays(bpy.types.Panel):
     bl_parent_id = "HB_FACE_FRAME_PT_active_cabinet"
     bl_options = {'DEFAULT_CLOSED'}
 
+    @classmethod
+    def poll(cls, context):
+        root = types_face_frame.find_cabinet_root(context.active_object)
+        return root is not None and not root.get('IS_LEG_PRODUCT')
+
     def draw(self, context):
         root = types_face_frame.find_cabinet_root(context.active_object)
         if root is None:
@@ -1101,8 +1184,31 @@ class HB_FACE_FRAME_PT_all_bays(bpy.types.Panel):
         draw_all_bays_summary(self.layout, root)
 
 
+class HB_FACE_FRAME_PT_leg_product(bpy.types.Panel):
+    """Leg product options. Shown only when the active object is a leg;
+    the bay/construction sub-panels are hidden for legs (they have no
+    bays). Mirrors the right-click "Leg Properties..." popup."""
+    bl_label = "Leg Product"
+    bl_idname = "HB_FACE_FRAME_PT_leg_product"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = "Home Builder"
+    bl_parent_id = "HB_FACE_FRAME_PT_active_cabinet"
+
+    @classmethod
+    def poll(cls, context):
+        return _is_leg_product(context.active_object)
+
+    def draw(self, context):
+        root = types_face_frame.find_cabinet_root(context.active_object)
+        if root is None:
+            return
+        draw_leg_product(self.layout, root)
+
+
 classes = (
     HB_FACE_FRAME_PT_active_cabinet,
+    HB_FACE_FRAME_PT_leg_product,
     HB_FACE_FRAME_PT_dimensions,
     HB_FACE_FRAME_PT_construction,
     HB_FACE_FRAME_PT_face_frame_defaults,

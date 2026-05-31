@@ -116,6 +116,22 @@ PART_ROLE_LOOSE_KICK_FRONT = 'LOOSE_KICK_FRONT'
 PART_ROLE_LOOSE_KICK_REAR = 'LOOSE_KICK_REAR'
 PART_ROLE_LOOSE_KICK_END_LEFT = 'LOOSE_KICK_END_LEFT'
 PART_ROLE_LOOSE_KICK_END_RIGHT = 'LOOSE_KICK_END_RIGHT'
+
+# Leg product (slim face-frame post / filler). Built by a dedicated
+# product class that bypasses the bay/solver pipeline; all parts are
+# finished-material.
+LEG_PRODUCT_TAG = 'IS_LEG_PRODUCT'
+PART_ROLE_LEG_PANEL_LEFT = 'LEG_PANEL_LEFT'
+PART_ROLE_LEG_PANEL_RIGHT = 'LEG_PANEL_RIGHT'
+PART_ROLE_LEG_STILE = 'LEG_STILE'
+PART_ROLE_LEG_TK_STILE = 'LEG_TK_STILE'
+PART_ROLE_LEG_TK_FILLER = 'LEG_TK_FILLER'
+# Leg product v2: finished front bands + interior back / nailers.
+PART_ROLE_LEG_FINISH_X_LEFT = 'LEG_FINISH_X_LEFT'
+PART_ROLE_LEG_FINISH_X_RIGHT = 'LEG_FINISH_X_RIGHT'
+PART_ROLE_LEG_BACK = 'LEG_BACK'
+PART_ROLE_LEG_NAILER_LEFT = 'LEG_NAILER_LEFT'
+PART_ROLE_LEG_NAILER_RIGHT = 'LEG_NAILER_RIGHT'
 PART_ROLE_BLIND_PANEL_LEFT = 'BLIND_PANEL_LEFT'
 PART_ROLE_BLIND_PANEL_RIGHT = 'BLIND_PANEL_RIGHT'
 
@@ -1940,8 +1956,17 @@ class FaceFrameCabinet(GeoNodeCage):
             cutter_obj = self._ensure_wedge_cutter()
             self._position_wedge_cutter(cutter_obj, length, height)
             self._apply_wedge_cuts(cutter_obj)
+            # Publish the computed dims on the cabinet root (meters) as
+            # id props so downstream consumers (e.g. drawing / annotation
+            # layers) can read them without recomputing. Cleared when the
+            # wedge is removed.
+            self.obj['WEDGE_LENGTH'] = length
+            self.obj['WEDGE_HEIGHT'] = height
         else:
             self._cleanup_wedge_cutter_and_cuts()
+            for _k in ('WEDGE_LENGTH', 'WEDGE_HEIGHT'):
+                if _k in self.obj:
+                    del self.obj[_k]
 
     # =====================================================================
     # Angled cabinet cutter (single-bay, unlock_left/right_depth on)
@@ -4472,6 +4497,278 @@ class PanelFaceFrameCabinet(FaceFrameCabinet):
         self.create_carcass(has_toe_kick=False, bay_qty=bay_qty)
 
 
+class LegProductFaceFrameCabinet(FaceFrameCabinet):
+    """Slim face-frame post / filler ("leg product").
+
+    NOT a bay/opening product: a fixed parameterized assembly built from
+    its own parts, parameterized by the cage width/height/depth plus the
+    ``leg_product`` propgroup. Overrides ``recalculate()`` to build and
+    lay out its parts directly instead of running bay reconciliation, so
+    none of the carcass / solver machinery applies.
+
+    Parts: left + right side panels (finished, with a front-bottom
+    toe-kick notch), finished front Finish-X bands, an interior back +
+    left/right nailers, a full-width face-frame stile, and a toe-kick
+    stile + filler. ``finish_type`` drives which panels show / are
+    finished; ``only_stile`` keeps just the stile; ``is_column`` drops
+    the toe kick; the per-panel depth overrides and nailer toggles size
+    the back. ``is_appliance_leg`` / ``is_island_leg`` are placement
+    metadata only (no geometry effect yet).
+    """
+    single_placement = True
+    default_cabinet_type = 'BASE'
+
+    def __init__(self):
+        super().__init__()
+        self.default_width = inch(2.0)
+
+    def _has_toe_kick(self):
+        return False
+
+    def _has_carcass(self):
+        return False
+
+    def create(self, name="Leg", bay_qty=1):
+        # create_cabinet_root writes width/height/depth, which fire the
+        # update callback -> recalculate(); CLASS_NAME is already set by
+        # then, so the obj wraps as this class and our recalculate() runs
+        # (ensuring + laying out parts). The explicit recalculate() below
+        # is a harmless belt-and-suspenders for the LEG_PRODUCT_TAG write.
+        self.create_cabinet_root(name)
+        self.obj[LEG_PRODUCT_TAG] = True
+        # Use the leg-specific right-click menu rather than the default
+        # cabinet command menu (no bays / joins / wedge for a leg).
+        self.obj['MENU_ID'] = 'HOME_BUILDER_MT_face_frame_leg_product_commands'
+        self.recalculate()
+
+    # ------------------------------------------------------------------
+    # Part lifecycle
+    # ------------------------------------------------------------------
+    def _ensure_leg_part(self, role, name, add_notch=False):
+        """Lazily create one leg CabinetPart keyed by role. Side panels
+        get a front-bottom corner-notch modifier for the toe-kick recess."""
+        for child in self.obj.children:
+            if child.get('hb_part_role') == role:
+                return child
+        part = CabinetPart()
+        part.create(name)
+        part.obj.parent = self.obj
+        part.obj['hb_part_role'] = role
+        part.obj['CABINET_PART'] = True
+        if add_notch:
+            # Front-bottom toe-kick notch. Flip orientation matches the
+            # carcass side's "Notch Front Bottom"; verify against the
+            # rendered panel and flip if the notch lands on the wrong
+            # corner (the panels are rotated Ry=-90).
+            cpm = part.add_part_modifier('CPM_CORNERNOTCH', 'Front Notch')
+            cpm.set_input('Flip X', False)
+            cpm.set_input('Flip Y', True)
+        return part.obj
+
+    def _ensure_leg_parts(self):
+        """Ensure all leg parts exist. Returns a role -> object map. The
+        finished front bands (Finish-X) carry a toe-kick notch like the
+        side panels; the interior back / nailers do not."""
+        spec = (
+            (PART_ROLE_LEG_PANEL_LEFT, 'Leg Panel Left', True),
+            (PART_ROLE_LEG_PANEL_RIGHT, 'Leg Panel Right', True),
+            (PART_ROLE_LEG_FINISH_X_LEFT, 'Leg Finish Left X', True),
+            (PART_ROLE_LEG_FINISH_X_RIGHT, 'Leg Finish Right X', True),
+            (PART_ROLE_LEG_BACK, 'Leg Back', False),
+            (PART_ROLE_LEG_NAILER_LEFT, 'Leg Nailer Left', False),
+            (PART_ROLE_LEG_NAILER_RIGHT, 'Leg Nailer Right', False),
+            (PART_ROLE_LEG_STILE, 'Leg Stile', False),
+            (PART_ROLE_LEG_TK_STILE, 'Leg Toe Kick Stile', False),
+            (PART_ROLE_LEG_TK_FILLER, 'Leg Toe Kick Filler', False),
+        )
+        return {role: self._ensure_leg_part(role, name, add_notch)
+                for role, name, add_notch in spec}
+
+    @staticmethod
+    def _set_notch(panel_obj, active, x, y, route_depth):
+        """Drive a side panel's 'Front Notch' CPM_CORNERNOTCH inputs +
+        visibility. No-op if the modifier is missing."""
+        mod = panel_obj.modifiers.get('Front Notch')
+        if mod is None or mod.node_group is None:
+            return
+        ng = mod.node_group
+        for input_name, value in (('X', x), ('Y', y), ('Route Depth', route_depth)):
+            node_input = ng.interface.items_tree.get(input_name)
+            if node_input is not None:
+                mod[node_input.identifier] = value
+        mod.show_viewport = active
+        mod.show_render = active
+
+    # ------------------------------------------------------------------
+    # Recalc (bespoke; bypasses the bay solver)
+    # ------------------------------------------------------------------
+    def recalculate(self):
+        cab = self.obj.face_frame_cabinet
+        leg = self.obj.leg_product
+
+        width = cab.width
+        height = cab.height
+        depth = cab.depth
+        # Keep the wireframe cage in sync, same as the base recalc.
+        self.set_input('Dim X', width)
+        self.set_input('Dim Y', depth)
+        self.set_input('Dim Z', height)
+
+        mt = leg.material_thickness
+        fft = leg.face_frame_thickness
+        tks = leg.toe_kick_setback
+        tkh = 0.0 if leg.is_column else leg.toe_kick_height
+        finish = leg.finish_type
+        only_stile = leg.only_stile
+        # v2 reads
+        olp = leg.override_left_panel_depth
+        orp = leg.override_right_panel_depth
+        ibln = leg.include_back_left_nailer
+        ibrn = leg.include_back_right_nailer
+        has_back = ibln or ibrn
+        b_width = leg.back_width
+        bt = leg.back_thickness
+        nt = leg.nailer_thickness
+        nw = leg.nailer_width
+        fx_width = leg.flush_x_panel_width
+
+        parts = self._ensure_leg_parts()
+        L = parts[PART_ROLE_LEG_PANEL_LEFT]
+        R = parts[PART_ROLE_LEG_PANEL_RIGHT]
+        FXL = parts[PART_ROLE_LEG_FINISH_X_LEFT]
+        FXR = parts[PART_ROLE_LEG_FINISH_X_RIGHT]
+        BACK = parts[PART_ROLE_LEG_BACK]
+        NL = parts[PART_ROLE_LEG_NAILER_LEFT]
+        NR = parts[PART_ROLE_LEG_NAILER_RIGHT]
+        STILE = parts[PART_ROLE_LEG_STILE]
+        TKS = parts[PART_ROLE_LEG_TK_STILE]
+        TKF = parts[PART_ROLE_LEG_TK_FILLER]
+
+        # Back shifts the side panels forward by its thickness.
+        back_off = bt if has_back else 0.0
+
+        def place(obj, length, w, thickness, loc, rot, mirror):
+            gn = GeoNodeCutpart(obj)
+            gn.set_input('Length', length)
+            gn.set_input('Width', w)
+            gn.set_input('Thickness', thickness)
+            obj.location = loc
+            obj.rotation_euler = rot
+            for k, v in mirror.items():
+                gn.set_input(k, v)
+
+        # --- Left side panel ---
+        if finish == 'INTERMEDIATE':
+            l_x = width / 2.0 - mt / 2.0
+        elif finish == 'FINISH_RIGHT':
+            l_x = width - mt
+        else:  # FINISH_LEFT / FINISH_BOTH
+            l_x = 0.0
+        l_depth = olp if olp > 0.0 else depth - fft
+        l_y = (0.0 if olp <= 0.0 else -depth + olp + fft) - back_off
+        place(L, height, l_depth, mt, (l_x, l_y, 0.0),
+              (0.0, math.radians(-90), 0.0),
+              {'Mirror Y': True, 'Mirror Z': True})
+        l_visible = not (finish == 'FINISH_RIGHT' or only_stile)
+        L.hide_viewport = not l_visible
+        L.hide_render = not l_visible
+        L['IS_FINISHED'] = (finish != 'INTERMEDIATE')
+
+        # --- Right side panel ---
+        r_depth = orp if orp > 0.0 else depth - fft
+        r_y = (0.0 if orp <= 0.0 else -depth + orp + fft) - back_off
+        place(R, height, r_depth, mt, (width, r_y, 0.0),
+              (0.0, math.radians(-90), 0.0),
+              {'Mirror Y': True, 'Mirror Z': False})
+        r_visible = finish in ('FINISH_RIGHT', 'FINISH_BOTH') and not only_stile
+        R.hide_viewport = not r_visible
+        R.hide_render = not r_visible
+        R['IS_FINISHED'] = True
+
+        # --- Toe-kick notch on the visible panels ---
+        notch_on = (not leg.is_column) and (not only_stile) and tkh > 0.0
+        self._set_notch(L, notch_on and l_visible, tkh, tks - fft, mt)
+        self._set_notch(R, notch_on and r_visible, tkh, tks - fft, mt)
+
+        # --- Face-frame stile (full width across the front) ---
+        place(STILE, height - tkh, width, fft, (0.0, -depth, tkh),
+              (0.0, math.radians(-90), math.radians(90)),
+              {'Mirror Y': True, 'Mirror Z': True})
+        STILE['IS_FINISHED'] = True
+
+        # --- Toe-kick stile + filler (between the side panels) ---
+        tk_width = width - (0.0 if only_stile else mt * 2.0)
+        tk_x = 0.0 if only_stile else mt
+        tk_visible = (not leg.is_column) and (only_stile or finish == 'FINISH_BOTH')
+
+        place(TKS, tkh, tk_width, fft, (tk_x, -depth + tks, 0.0),
+              (0.0, math.radians(-90), math.radians(90)),
+              {'Mirror Y': True, 'Mirror Z': True})
+        TKS.hide_viewport = not tk_visible
+        TKS.hide_render = not tk_visible
+        TKS['IS_FINISHED'] = True
+
+        place(TKF, tks, tk_width, fft, (tk_x, -depth + tks + fft, tkh),
+              (0.0, 0.0, math.radians(90)),
+              {'Mirror Y': True, 'Mirror X': True})
+        TKF.hide_viewport = not tk_visible
+        TKF.hide_render = not tk_visible
+        TKF['IS_FINISHED'] = True
+
+        # --- Finished front bands (Finish-X) -------------------------
+        # A finished band covering the front fx_width inches on the
+        # side whose panel is NOT the primary finished face. Its
+        # "thickness" (set_input Thickness) is the band's X extent.
+        notch_route_ext = inch(0.1)
+
+        # Left band: shown for INTERMEDIATE / FINISH_RIGHT.
+        fxl_t = (width - mt) if finish == 'FINISH_RIGHT' else (width / 2.0 - mt / 2.0)
+        place(FXL, height, fx_width, fxl_t, (0.0, -depth + fft + fx_width, 0.0),
+              (0.0, math.radians(-90), 0.0),
+              {'Mirror Y': True, 'Mirror Z': True})
+        fxl_vis = finish in ('INTERMEDIATE', 'FINISH_RIGHT') and not only_stile
+        FXL.hide_viewport = not fxl_vis
+        FXL.hide_render = not fxl_vis
+        FXL['IS_FINISHED'] = True
+        self._set_notch(FXL, notch_on and fxl_vis, tkh, tks - fft, fxl_t + notch_route_ext)
+
+        # Right band: shown for FINISH_LEFT / INTERMEDIATE.
+        fxr_t = (width - mt) if finish == 'FINISH_LEFT' else (width / 2.0 - mt / 2.0)
+        place(FXR, height, fx_width, fxr_t, (width, -depth + fft + fx_width, 0.0),
+              (0.0, math.radians(-90), 0.0),
+              {'Mirror Y': True, 'Mirror Z': False})
+        fxr_vis = finish in ('FINISH_LEFT', 'INTERMEDIATE') and not only_stile
+        FXR.hide_viewport = not fxr_vis
+        FXR.hide_render = not fxr_vis
+        FXR['IS_FINISHED'] = True
+        self._set_notch(FXR, notch_on and fxr_vis, tkh, tks - fft, fxr_t + notch_route_ext)
+
+        # --- Interior back + nailers ---------------------------------
+        # Back spans only the included nailer side(s); it sits at y=0
+        # (the very back) and the side panels were shifted forward to
+        # clear it.
+        back_w = (b_width if ibln else 0.0) + (b_width if ibrn else 0.0)
+        back_x = width / 2.0 + (b_width if ibrn else 0.0)
+        place(BACK, height, back_w, bt, (back_x, 0.0, 0.0),
+              (0.0, math.radians(-90), math.radians(-90)),
+              {'Mirror Y': True, 'Mirror Z': True})
+        BACK.hide_viewport = not has_back
+        BACK.hide_render = not has_back
+
+        # Horizontal nailers at the top back, one per included side.
+        place(NL, b_width, nw, nt, (width / 2.0, 0.0, height),
+              (math.radians(90), 0.0, 0.0),
+              {'Mirror X': True, 'Mirror Y': True})
+        NL.hide_viewport = not ibln
+        NL.hide_render = not ibln
+
+        place(NR, b_width, nw, nt, (width / 2.0, 0.0, height),
+              (math.radians(90), 0.0, 0.0),
+              {'Mirror X': False, 'Mirror Y': True})
+        NR.hide_viewport = not ibrn
+        NR.hide_render = not ibrn
+
+
 CABINET_NAME_DISPATCH = {
     "Base Door": BaseFaceFrameCabinet,
     "Base Door Drw": BaseFaceFrameCabinet,
@@ -4487,6 +4784,7 @@ CABINET_NAME_DISPATCH = {
     "Built in Tall": BuiltInTallFaceFrameCabinet,
     "Panel": PanelFaceFrameCabinet,
     "Bookcase": BookcaseFaceFrameCabinet,
+    "Leg Product": LegProductFaceFrameCabinet,
 }
 
 
@@ -4629,6 +4927,7 @@ WRAP_CLASS_REGISTRY.update({
     'BookcaseFaceFrameCabinet': BookcaseFaceFrameCabinet,
     'LapDrawerFaceFrameCabinet': LapDrawerFaceFrameCabinet,
     'PanelFaceFrameCabinet': PanelFaceFrameCabinet,
+    'LegProductFaceFrameCabinet': LegProductFaceFrameCabinet,
 })
 
 

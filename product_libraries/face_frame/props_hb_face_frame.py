@@ -1255,6 +1255,10 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         # Loose ladder sub-base boards - finished material
         'LOOSE_KICK_FRONT', 'LOOSE_KICK_REAR',
         'LOOSE_KICK_END_LEFT', 'LOOSE_KICK_END_RIGHT',
+        # Leg product boards - finished material
+        'LEG_PANEL_LEFT', 'LEG_PANEL_RIGHT', 'LEG_STILE',
+        'LEG_TK_STILE', 'LEG_TK_FILLER',
+        'LEG_FINISH_X_LEFT', 'LEG_FINISH_X_RIGHT',
         # Blind ends + finished back + flush skins / decorative panels
         'BLIND_PANEL_LEFT', 'BLIND_PANEL_RIGHT',
         'FINISHED_BACK', 'FLUSH_X', 'BEADBOARD', 'SHIPLAP',
@@ -1279,6 +1283,8 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         'TOP', 'BOTTOM',
         'FRONT_STRETCHER', 'REAR_STRETCHER', 'BACK',
         'TOE_KICK_SUBFRONT',
+        # Leg product back + nailers
+        'LEG_BACK', 'LEG_NAILER_LEFT', 'LEG_NAILER_RIGHT',
         # Internal dividers / shelves
         'BAY_DIVISION', 'BAY_SHELF', 'MID_DIVISION',
         # Drawer box
@@ -4382,7 +4388,7 @@ class Face_Frame_Scene_Props(PropertyGroup):
     def draw_part_library_ui(self, layout, context):
         self._draw_catalog_grid(layout, [
             "Panel",
-            "Loose Stile", "End Leg", "Intermediate Leg",
+            "Leg Product",
             "Vanity End Leg Assembly", "Vanity Support Leg",
             "Vanity Fixed Shelf", "Floating Shelves",
         ], columns=3)
@@ -4779,7 +4785,116 @@ class Face_Frame_Scene_Props(PropertyGroup):
 # ---------------------------------------------------------------------------
 # Module registration
 # ---------------------------------------------------------------------------
+class Face_Frame_Leg_Props(PropertyGroup):
+    """Options for the Leg Product (a slim face-frame post / filler).
+
+    Lives on the leg's cage object alongside face_frame_cabinet. The leg's
+    recalculate() override reads these to build its parts; width / height /
+    depth still come from face_frame_cabinet (the cage Dim X/Z/Y). All
+    fields reuse _update_cabinet_dim so an edit re-runs the leg recalc
+    through the standard cabinet recalc entry point.
+
+    v1 covers the core post (two finished side panels + stile + toe kick).
+    Back / nailers, Finish-X bands, and the column / appliance / island
+    variants are deferred to a later pass.
+    """
+    finish_type: EnumProperty(
+        name="Finish Type",
+        items=[
+            ('FINISH_LEFT', "Finish Left",
+             "Finished panel on the left face only"),
+            ('INTERMEDIATE', "Intermediate",
+             "Unfinished filler post between cabinets"),
+            ('FINISH_RIGHT', "Finish Right",
+             "Finished panel on the right face only"),
+            ('FINISH_BOTH', "Finish Both",
+             "Finished panels on both faces"),
+        ],
+        default='FINISH_LEFT',
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    only_stile: BoolProperty(
+        name="Only Include Stile", default=False,
+        description="Drop the side panels and toe-kick filler; keep just "
+                    "the face-frame stile",
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    is_column: BoolProperty(
+        name="Column", default=False,
+        description="Column variant: no toe kick (runs full height)",
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    material_thickness: FloatProperty(
+        name="Material Thickness", default=units.inch(0.75),
+        unit='LENGTH', precision=4, update=_update_cabinet_dim,
+    )  # type: ignore
+    face_frame_thickness: FloatProperty(
+        name="Face Frame Thickness", default=units.inch(0.75),
+        unit='LENGTH', precision=4, update=_update_cabinet_dim,
+    )  # type: ignore
+    toe_kick_height: FloatProperty(
+        name="Toe Kick Height", default=units.inch(4.0),
+        unit='LENGTH', precision=4, update=_update_cabinet_dim,
+    )  # type: ignore
+    toe_kick_setback: FloatProperty(
+        name="Toe Kick Setback", default=units.inch(3.0),
+        unit='LENGTH', precision=4, update=_update_cabinet_dim,
+    )  # type: ignore
+
+    # --- v2 fields ---
+    # Per-panel depth overrides: 0 means "use depth - face frame thickness".
+    override_left_panel_depth: FloatProperty(
+        name="Override Left Panel Depth", default=0.0,
+        unit='LENGTH', precision=4, update=_update_cabinet_dim,
+    )  # type: ignore
+    override_right_panel_depth: FloatProperty(
+        name="Override Right Panel Depth", default=0.0,
+        unit='LENGTH', precision=4, update=_update_cabinet_dim,
+    )  # type: ignore
+    # Back + nailers (interior). The back spans only the included
+    # nailer side(s); panels shift forward by the back thickness when a
+    # back is present.
+    include_back_left_nailer: BoolProperty(
+        name="Include Back Left Nailer", default=False,
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    include_back_right_nailer: BoolProperty(
+        name="Include Back Right Nailer", default=False,
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    back_width: FloatProperty(
+        name="Back Width", default=units.inch(18.0),
+        unit='LENGTH', precision=4, update=_update_cabinet_dim,
+    )  # type: ignore
+    back_thickness: FloatProperty(
+        name="Back Thickness", default=units.inch(0.25),
+        unit='LENGTH', precision=4, update=_update_cabinet_dim,
+    )  # type: ignore
+    nailer_thickness: FloatProperty(
+        name="Nailer Thickness", default=units.inch(0.75),
+        unit='LENGTH', precision=4, update=_update_cabinet_dim,
+    )  # type: ignore
+    nailer_width: FloatProperty(
+        name="Nailer Width", default=units.inch(1.5),
+        unit='LENGTH', precision=4, update=_update_cabinet_dim,
+    )  # type: ignore
+    # Finished band covering the front X inches on the unfinished side(s).
+    flush_x_panel_width: FloatProperty(
+        name="Flush X Panel Width", default=units.inch(4.0),
+        unit='LENGTH', precision=4, update=_update_cabinet_dim,
+    )  # type: ignore
+    # Placement / labeling metadata variants (no geometry effect today;
+    # parity with the reference for downstream routing).
+    is_appliance_leg: BoolProperty(
+        name="Appliance Leg", default=False, update=_update_cabinet_dim,
+    )  # type: ignore
+    is_island_leg: BoolProperty(
+        name="Island Leg", default=False, update=_update_cabinet_dim,
+    )  # type: ignore
+
+
 classes = (
+    Face_Frame_Leg_Props,
     Face_Frame_Millwork_Item,
     Face_Frame_Cabinet_Style,
     HB_UL_face_frame_cabinet_styles,
@@ -4808,6 +4923,7 @@ def register():
     # their state on the cage object directly. Only objects that get tagged
     # by the construction code populate these.
     bpy.types.Object.face_frame_cabinet = PointerProperty(type=Face_Frame_Cabinet_Props)
+    bpy.types.Object.leg_product = PointerProperty(type=Face_Frame_Leg_Props)
     bpy.types.Object.face_frame_bay = PointerProperty(type=Face_Frame_Bay_Props)
     bpy.types.Object.face_frame_opening = PointerProperty(type=Face_Frame_Opening_Props)
     bpy.types.Object.face_frame_split = PointerProperty(type=Face_Frame_Split_Props)
@@ -4830,6 +4946,8 @@ def unregister():
         del bpy.types.Object.face_frame_opening
     if hasattr(bpy.types.Object, 'face_frame_bay'):
         del bpy.types.Object.face_frame_bay
+    if hasattr(bpy.types.Object, 'leg_product'):
+        del bpy.types.Object.leg_product
     if hasattr(bpy.types.Object, 'face_frame_cabinet'):
         del bpy.types.Object.face_frame_cabinet
 
