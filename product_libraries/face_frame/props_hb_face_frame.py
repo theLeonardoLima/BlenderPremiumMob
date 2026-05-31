@@ -1252,6 +1252,9 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         'CORNER_MID_RAIL', 'CORNER_FALSE_FRONT',
         'FINISH_TOE_KICK', 'CORNER_LEFT_FINISH_KICK', 'CORNER_RIGHT_FINISH_KICK',
         'LEFT_KICK_RETURN', 'RIGHT_KICK_RETURN',
+        # Loose ladder sub-base boards - finished material
+        'LOOSE_KICK_FRONT', 'LOOSE_KICK_REAR',
+        'LOOSE_KICK_END_LEFT', 'LOOSE_KICK_END_RIGHT',
         # Blind ends + finished back + flush skins / decorative panels
         'BLIND_PANEL_LEFT', 'BLIND_PANEL_RIGHT',
         'FINISHED_BACK', 'FLUSH_X', 'BEADBOARD', 'SHIPLAP',
@@ -2890,8 +2893,12 @@ class Face_Frame_Cabinet_Props(PropertyGroup):
             ('FLUSH', "Flush (Wide Bottom Rail)",
              "No recess; the face frame's bottom rail extends to the floor"),
             ('FLOATING', "Floating",
-             "Sides start above the floor by toe_kick_height; toe kick is a "
-             "separate base assembly the cabinet sits on"),
+             "Sides start above the floor by toe_kick_height; the kick is "
+             "left open for a separate base the user supplies"),
+            ('LOOSE', "Loose (Ladder Base)",
+             "Sides float by toe_kick_height; a separate ladder sub-base "
+             "(front + rear rail + two end boards) is built on the floor "
+             "for the cabinet to sit on"),
         ],
         default='NOTCH',
         update=_update_cabinet_dim,

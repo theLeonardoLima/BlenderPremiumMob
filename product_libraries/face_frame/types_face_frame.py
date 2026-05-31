@@ -108,6 +108,13 @@ PART_ROLE_LEFT_CORNER_FINISH_KICK = 'LEFT_CORNER_FINISH_KICK'
 PART_ROLE_RIGHT_CORNER_FINISH_KICK = 'RIGHT_CORNER_FINISH_KICK'
 PART_ROLE_LEFT_KICK_RETURN = 'LEFT_KICK_RETURN'
 PART_ROLE_RIGHT_KICK_RETURN = 'RIGHT_KICK_RETURN'
+# Loose toe kick ladder sub-base (toe_kick_type == 'LOOSE'): a freestanding
+# frame the floated carcass sits on - front + rear rail spanning between two
+# front-to-back end boards. All four are finished-material parts.
+PART_ROLE_LOOSE_KICK_FRONT = 'LOOSE_KICK_FRONT'
+PART_ROLE_LOOSE_KICK_REAR = 'LOOSE_KICK_REAR'
+PART_ROLE_LOOSE_KICK_END_LEFT = 'LOOSE_KICK_END_LEFT'
+PART_ROLE_LOOSE_KICK_END_RIGHT = 'LOOSE_KICK_END_RIGHT'
 PART_ROLE_BLIND_PANEL_LEFT = 'BLIND_PANEL_LEFT'
 PART_ROLE_BLIND_PANEL_RIGHT = 'BLIND_PANEL_RIGHT'
 
@@ -1463,6 +1470,22 @@ class FaceFrameCabinet(GeoNodeCage):
                 self._ensure_kick_return(
                     PART_ROLE_RIGHT_KICK_RETURN, 'Toe Kick Return Right',
                     mirror_z=False)
+                # Loose ladder sub-base. Always ensured (hidden in the
+                # dispatch loop unless toe_kick_type == 'LOOSE'), so a
+                # toe-kick-type change toggles visibility without
+                # creating / destroying parts.
+                self._ensure_loose_kick_part(
+                    PART_ROLE_LOOSE_KICK_FRONT, 'Loose Kick Front',
+                    kind='RAIL', mirror_z=True)
+                self._ensure_loose_kick_part(
+                    PART_ROLE_LOOSE_KICK_REAR, 'Loose Kick Rear',
+                    kind='RAIL', mirror_z=True)
+                self._ensure_loose_kick_part(
+                    PART_ROLE_LOOSE_KICK_END_LEFT, 'Loose Kick End Left',
+                    kind='END', mirror_z=True)
+                self._ensure_loose_kick_part(
+                    PART_ROLE_LOOSE_KICK_END_RIGHT, 'Loose Kick End Right',
+                    kind='END', mirror_z=False)
             else:
                 kick_subfront_segs = []
                 finish_kick_segs = []
@@ -1724,6 +1747,55 @@ class FaceFrameCabinet(GeoNodeCage):
                 part.set_input('Length', length)
                 part.set_input('Width', width)
                 part.set_input('Thickness', thickness)
+
+            # ---- Loose toe kick ladder (visible only for LOOSE) ----
+            elif role == PART_ROLE_LOOSE_KICK_FRONT:
+                visible = solver.has_loose_kick(layout)
+                child.hide_viewport = not visible
+                child.hide_render = not visible
+                if not visible:
+                    continue
+                seg = solver.loose_kick_front_rail(layout)
+                child.location = (seg['x'], seg['y'], seg['z'])
+                part.set_input('Length', seg['length'])
+                part.set_input('Width', seg['width'])
+                part.set_input('Thickness', seg['thickness'])
+
+            elif role == PART_ROLE_LOOSE_KICK_REAR:
+                visible = solver.has_loose_kick(layout)
+                child.hide_viewport = not visible
+                child.hide_render = not visible
+                if not visible:
+                    continue
+                seg = solver.loose_kick_rear_rail(layout)
+                child.location = (seg['x'], seg['y'], seg['z'])
+                part.set_input('Length', seg['length'])
+                part.set_input('Width', seg['width'])
+                part.set_input('Thickness', seg['thickness'])
+
+            elif role == PART_ROLE_LOOSE_KICK_END_LEFT:
+                visible = solver.has_loose_kick(layout)
+                child.hide_viewport = not visible
+                child.hide_render = not visible
+                if not visible:
+                    continue
+                seg = solver.loose_kick_end(layout, 'LEFT')
+                child.location = (seg['x'], seg['y'], seg['z'])
+                part.set_input('Length', seg['length'])
+                part.set_input('Width', seg['width'])
+                part.set_input('Thickness', seg['thickness'])
+
+            elif role == PART_ROLE_LOOSE_KICK_END_RIGHT:
+                visible = solver.has_loose_kick(layout)
+                child.hide_viewport = not visible
+                child.hide_render = not visible
+                if not visible:
+                    continue
+                seg = solver.loose_kick_end(layout, 'RIGHT')
+                child.location = (seg['x'], seg['y'], seg['z'])
+                part.set_input('Length', seg['length'])
+                part.set_input('Width', seg['width'])
+                part.set_input('Thickness', seg['thickness'])
 
             elif role == PART_ROLE_BLIND_PANEL_LEFT:
                 # Visible when the left end is a blind corner stile AND
@@ -2738,6 +2810,31 @@ class FaceFrameCabinet(GeoNodeCage):
         ret.obj.rotation_euler.z = math.radians(-90)
         ret.set_input('Mirror Z', mirror_z)
         return ret.obj
+
+    def _ensure_loose_kick_part(self, role, name, kind, mirror_z):
+        """Lazy-create one board of the loose toe-kick ladder.
+
+        kind 'RAIL' (front / rear): subfront orientation - rotation X=90
+        + Mirror Z, so Length runs along X, Width up in Z, Thickness +Y.
+        kind 'END' (left / right): kick-return orientation - rotation
+        X=90 + Z=-90, so Length runs -Y front-to-back, Width up in Z,
+        Thickness along X (mirror_z flips it +X / -X). Position + dims
+        are written by the dispatch loop from the solver each recalc;
+        the part is hidden when the cabinet isn't a LOOSE kick.
+        """
+        for child in self.obj.children:
+            if child.get('hb_part_role') == role:
+                return child
+        part = CabinetPart()
+        part.create(name)
+        part.obj.parent = self.obj
+        part.obj['hb_part_role'] = role
+        part.obj['CABINET_PART'] = True
+        part.obj.rotation_euler.x = math.radians(90)
+        if kind == 'END':
+            part.obj.rotation_euler.z = math.radians(-90)
+        part.set_input('Mirror Z', mirror_z)
+        return part.obj
 
     def _ensure_blind_panel(self, role, name, mirror_y):
         """Lazy-create a left or right blind panel - a 1/4" vertical

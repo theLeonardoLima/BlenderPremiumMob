@@ -452,7 +452,9 @@ def side_bottom_z(layout, bay_index, side='LEFT'):
     """
     if not layout.has_toe_kick:
         return bay_bottom_z(layout, bay_index)
-    if layout.toe_kick_type == 'FLOATING':
+    # LOOSE floats the carcass exactly like FLOATING - the difference is
+    # that LOOSE also builds a ladder sub-base under the cabinet.
+    if layout.toe_kick_type in ('FLOATING', 'LOOSE'):
         return bay_bottom_z(layout, bay_index)
     if layout.bays[bay_index].get('floating_bay'):
         return bay_bottom_z(layout, bay_index)
@@ -770,6 +772,83 @@ def right_kick_return_dims(layout):
     width = layout.bays[layout.bay_count - 1]['kick_height']
     thickness = layout.tkt
     return (length, width, thickness)
+
+
+# ---------------------------------------------------------------------------
+# Loose toe kick - a freestanding ladder sub-base
+# ---------------------------------------------------------------------------
+# LOOSE floats the carcass (side_bottom_z) and builds a separate ladder on
+# the floor for the cabinet to sit on: a full-width front rail + rear rail
+# spanning between two front-to-back end boards. One ladder per cabinet
+# (mid divisions don't break it). All four boards are tkt thick, tkh tall,
+# set back from the cabinet front by the setback. Straight cabinets only
+# for v1 - angled / corner ladders are deferred.
+def has_loose_kick(layout):
+    """True when this cabinet should build a loose ladder sub-base."""
+    return layout.has_toe_kick and layout.toe_kick_type == 'LOOSE'
+
+
+def loose_kick_x_bounds(layout):
+    """Outer X span of the ladder. End boards sit flush at the cabinet
+    ends by default; kick_inset_left / kick_inset_right push each end
+    inboard."""
+    return (layout.kick_inset_left, layout.dim_x - layout.kick_inset_right)
+
+
+def loose_kick_end(layout, side):
+    """One end board, running front-to-back. Kick-return orientation
+    (rot X=90 + Z=-90): Length runs -Y from the cabinet back to the
+    ladder front face, Width is the kick height (vertical), Thickness is
+    the board thickness mirrored +X (LEFT) / -X (RIGHT via Mirror Z on
+    the part). Spans the full ladder depth so the front + rear rails
+    butt between the two end boards."""
+    x_left, x_right = loose_kick_x_bounds(layout)
+    x = x_left if side == 'LEFT' else x_right
+    return {
+        'x': x, 'y': 0.0, 'z': 0.0,
+        'length': layout.dim_y - layout.tks,
+        'width':  layout.tkh,
+        'thickness': layout.tkt,
+    }
+
+
+def _loose_kick_rail_x_length(layout):
+    """X origin + length for the front / rear rails. They fit BETWEEN
+    the two end boards, so the origin starts one board thickness inboard
+    of the left end and the span drops two thicknesses."""
+    x_left, x_right = loose_kick_x_bounds(layout)
+    return x_left + layout.tkt, (x_right - x_left) - 2.0 * layout.tkt
+
+
+def loose_kick_front_rail(layout):
+    """Front rail. Subfront orientation (rot X=90 + Mirror Z): Length
+    along X between the end boards, Width = kick height (up from the
+    floor), Thickness extends +Y into the cabinet. Front face set back
+    from the cabinet front by the setback."""
+    x0, length = _loose_kick_rail_x_length(layout)
+    return {
+        'x': x0,
+        'y': -layout.dim_y + layout.tks,
+        'z': 0.0,
+        'length': length,
+        'width':  layout.tkh,
+        'thickness': layout.tkt,
+    }
+
+
+def loose_kick_rear_rail(layout):
+    """Rear rail. Same orientation and X span as the front rail; sits at
+    the cabinet back with its outer face flush to y=0 (Thickness extends
+    +Y, so the origin is one thickness forward)."""
+    x0, length = _loose_kick_rail_x_length(layout)
+    return {
+        'x': x0,
+        'y': -layout.tkt,
+        'z': 0.0,
+        'length': length,
+        'width':  layout.tkh,
+        'thickness': layout.tkt,
+    }
 
 
 # ---------------------------------------------------------------------------
