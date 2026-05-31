@@ -1435,8 +1435,14 @@ def carcass_back_segments(layout):
             z_origin = bay_bottom_z(layout, start) + first_bay['bottom_rail_width'] - layout.mt
         # Cabinet-level override: raise the back's bottom edge above
         # the default origin (refrigerator cabinet, etc.). Honored
-        # only when it raises the panel - never lowers it.
-        if layout.back_bottom_inset > z_origin:
+        # only when it raises the panel - never lowers it. The > 0.0
+        # guard matters: the default 0.0 means "no override", so it
+        # must NOT clamp a legitimately negative z_origin up to the
+        # cabinet floor. An upper bay taller than the cabinet box has
+        # bottom_z < 0; its back has to drop with the bottom panel and
+        # sides (which already do), otherwise the lower part of the
+        # bay is left open at the back.
+        if layout.back_bottom_inset > 0.0 and layout.back_bottom_inset > z_origin:
             z_origin = layout.back_bottom_inset
         # Per-bay back: segments break at depth changes (passthrough returns
         # False), so each segment's bays share a single depth -> use start
