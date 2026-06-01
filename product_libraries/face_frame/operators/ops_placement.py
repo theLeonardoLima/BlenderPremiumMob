@@ -880,7 +880,47 @@ def _wall_corner_angle_deg(wall_a_obj, wall_b_obj):
     return math.degrees(math.acos(cos))
 
 
-def _max_intrusion_neighbor(adj_wall_obj, our_wall_obj, side):
+def _parent_wall_length(wall_obj):
+    """Length (m) of a cabinet's parent wall via its GeoNodeWall input,
+    or None if the parent isn't a wall / has no modifier. Used to anchor
+    a cabinet's corner-side edge to the wall's corner end by location.x.
+    """
+    if wall_obj is None or 'IS_WALL_BP' not in wall_obj:
+        return None
+    try:
+        return hb_types.GeoNodeWall(wall_obj).get_input('Length')
+    except Exception:
+        return None
+
+
+def _cabinet_world_z_range(obj):
+    """World-Z span (bottom, top) of a cabinet cage from its origin Z +
+    Dim Z. Returns None if Dim Z can't be read.
+
+    Used to gate blind-corner detection on a real height overlap: a base
+    and an upper that meet at a plan corner do NOT create a blind face
+    because they sit in different height bands. Without this check the
+    placement code flags (or misses) blinds purely on plan intrusion.
+    """
+    try:
+        dim_z = hb_types.GeoNodeObject(obj).get_input('Dim Z')
+    except Exception:
+        return None
+    z0 = obj.matrix_world.translation.z
+    return (z0, z0 + dim_z)
+
+
+def _z_ranges_overlap(range_a, range_b, tol):
+    """True if two (bottom, top) world-Z spans overlap by more than tol.
+    Either range None -> treated as overlapping (fail open, so a missing
+    Dim Z never suppresses an otherwise-valid blind corner).
+    """
+    if range_a is None or range_b is None:
+        return True
+    return (range_a[0] < range_b[1] - tol) and (range_b[0] < range_a[1] - tol)
+
+
+def _max_intrusion_neighbor(adj_wall_obj, our_wall_obj, side, height_ref_range=None):
     """Find the cabinet child on adj_wall_obj whose footprint reaches
     farthest into our_wall_obj's bounds at the requested end ('left'
     or 'right'). Returns (cabinet_obj, intrusion_distance) or None.
@@ -903,6 +943,22 @@ def _max_intrusion_neighbor(adj_wall_obj, our_wall_obj, side):
             child_d = geo.get_input('Dim Y')
         except Exception:
             continue
+        # Require a vertical (height) overlap with the reference
+        # cabinet when one is given. A base on this wall and an upper on
+        # the adjacent wall share a plan corner but no height band, so
+        # they must not register as a blind condition.
+        if height_ref_range is not None:
+            try:
+                child_h = geo.get_input('Dim Z')
+            except Exception:
+                child_h = None
+            if child_h is not None:
+                child_z0 = child.matrix_world.translation.z
+                if not _z_ranges_overlap(
+                        height_ref_range,
+                        (child_z0, child_z0 + child_h),
+                        units.inch(0.25)):
+                    continue
         local_corners = [
             Vector((0.0, 0.0, 0.0)),
             Vector((child_w, 0.0, 0.0)),
@@ -948,10 +1004,20 @@ def _neighbor_blind_side(neighbor_obj, corner_world_pos):
 
 
 def _detect_blind_corner_neighbor(cab_obj):
-    """If cab_obj sits at a 90-degree wall corner with a perpendicular
-    face-frame cabinet at the corner, return the neighbor and which
-    side of the NEIGHBOR becomes blind ('LEFT' or 'RIGHT'). Returns
+    """If cab_obj sits at a wall corner with a face-frame cabinet on the
+    adjacent wall, return how they meet:
+    ``(neighbor, blind_side, corner_kind, interior_deg,
+    placed_corner_end)`` where ``placed_corner_end`` is which end of the
+    PLACED cabinet faces the corner ('LEFT' = its low-x end, 'RIGHT' =
+    its high-x end), and
+    ``corner_kind`` is 'BLIND' (~90 deg square corner -> blind path) or
+    'ANGLED' (any other non-straight inside corner -> void dialog), and
+    ``interior_deg`` is the interior corner angle in degrees. Returns
     None when no qualifying neighbor.
+
+    ``blind_side`` is which side of the NEIGHBOR meets the corner
+    ('LEFT' / 'RIGHT'); it doubles as the meeting side for the angled
+    path.
 
     Two qualifying geometric cases per connected-wall direction:
       (a) Our cabinet's near-end edge sits at the wall corner end
@@ -973,6 +1039,7 @@ def _detect_blind_corner_neighbor(cab_obj):
     cab_props = cab_obj.face_frame_cabinet
     cab_left = cab_obj.location.x
     cab_right = cab_left + cab_props.width
+    cab_range = _cabinet_world_z_range(cab_obj)
 
     EDGE_TOL = units.inch(1.0)
     ANGLE_TOL_DEG = 5.0
@@ -981,16 +1048,24 @@ def _detect_blind_corner_neighbor(cab_obj):
         adj_node = wall_geo.get_connected_wall(direction=direction)
         if adj_node is None:
             continue
-        result = _max_intrusion_neighbor(adj_node.obj, wall, direction)
+        result = _max_intrusion_neighbor(
+            adj_node.obj, wall, direction, height_ref_range=cab_range)
         if result is None:
             continue
         neighbor, intrusion = result
         if 'IS_FACE_FRAME_CABINET_CAGE' not in neighbor:
             continue
 
-        angle_deg = _wall_corner_angle_deg(wall, adj_node.obj)
-        if abs(angle_deg - 90.0) > ANGLE_TOL_DEG:
+        # Axis angle between the two walls. Interior corner angle is its
+        # supplement (90 deg axis angle -> 90 deg square corner; 45 deg
+        # axis angle -> 135 deg interior corner). ~0 / ~180 axis angle is
+        # a straight run, not a corner.
+        axis_deg = _wall_corner_angle_deg(wall, adj_node.obj)
+        interior_deg = 180.0 - axis_deg
+        if axis_deg <= ANGLE_TOL_DEG or axis_deg >= 180.0 - ANGLE_TOL_DEG:
             continue
+        corner_kind = ('BLIND' if abs(axis_deg - 90.0) <= ANGLE_TOL_DEG
+                       else 'ANGLED')
 
         # Case (a): our edge at the wall corner end.
         # Case (b): our far edge at the intrusion boundary.
@@ -1010,7 +1085,9 @@ def _detect_blind_corner_neighbor(cab_obj):
             corner_world = wall.matrix_world @ Vector((wall_length, 0.0, 0.0))
 
         blind_side = _neighbor_blind_side(neighbor, corner_world)
-        return (neighbor, blind_side)
+        placed_corner_end = 'LEFT' if direction == 'left' else 'RIGHT'
+        return (neighbor, blind_side, corner_kind, interior_deg,
+                placed_corner_end)
     return None
 
 
@@ -2463,14 +2540,28 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
         # Skipped silently when nothing qualifies - placement just finishes.
         corner_match = _detect_blind_corner_neighbor(selection_target)
         if corner_match is not None:
-            neighbor, blind_side = corner_match
+            (neighbor, blind_side, corner_kind, interior_deg,
+             placed_corner_end) = corner_match
             try:
-                bpy.ops.hb_face_frame.set_blind_corner_void_amount(
-                    'INVOKE_DEFAULT',
-                    blind_cabinet_name=neighbor.name,
-                    current_cabinet_name=selection_target.name,
-                    blind_side=blind_side,
-                )
+                if corner_kind == 'ANGLED':
+                    # Non-square inside corner: let the user choose how the
+                    # two cabinets meet (notch both back to the bisector or
+                    # leave as-is).
+                    bpy.ops.hb_face_frame.set_angled_corner_void_amount(
+                        'INVOKE_DEFAULT',
+                        angled_cabinet_name=neighbor.name,
+                        current_cabinet_name=selection_target.name,
+                        meeting_side=blind_side,
+                        placed_corner_end=placed_corner_end,
+                        corner_angle_deg=interior_deg,
+                    )
+                else:
+                    bpy.ops.hb_face_frame.set_blind_corner_void_amount(
+                        'INVOKE_DEFAULT',
+                        blind_cabinet_name=neighbor.name,
+                        current_cabinet_name=selection_target.name,
+                        blind_side=blind_side,
+                    )
             except RuntimeError:
                 pass
 
@@ -4063,11 +4154,188 @@ class hb_face_frame_OT_set_blind_corner_void_amount(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class hb_face_frame_OT_set_angled_corner_void_amount(bpy.types.Operator):
+    """Configure how two cabinets meet at an angled (non-square) inside
+    wall corner. The placed cabinet and its neighbor on the adjacent
+    wall can be notched back symmetrically so their fronts meet along
+    the corner's angle bisector, or left as placed.
+
+    Ported from the reference implementation's angled-corner void
+    dialog, adapted to the face-frame width/location model: each
+    cabinet's origin sits at its left edge, so trimming the LEFT end
+    requires both a width reduction and a matching +X location shift,
+    while trimming the RIGHT end only reduces width.
+    """
+    bl_idname = "hb_face_frame.set_angled_corner_void_amount"
+    bl_label = "Set Angled Corner Void Amount"
+    bl_description = "Configure how cabinets meet at an angled wall corner"
+    bl_options = {'UNDO'}
+
+    angled_cabinet_name: bpy.props.StringProperty(
+        name="Angled Cabinet Name", default="",
+    )  # type: ignore
+    current_cabinet_name: bpy.props.StringProperty(
+        name="Placed Cabinet Name", default="",
+    )  # type: ignore
+    # Which side of the NEIGHBOR meets the corner. 'LEFT' = the placed
+    # cabinet sits near the right end of its wall and the neighbor's left
+    # end is at the corner; 'RIGHT' = mirror. The placed cabinet trims
+    # its opposite end (the one facing the corner).
+    meeting_side: bpy.props.EnumProperty(
+        name="Meeting Side",
+        items=[('LEFT', "Left", ""), ('RIGHT', "Right", "")],
+        default='LEFT',
+    )  # type: ignore
+    # Which end of the PLACED cabinet faces the corner: 'LEFT' = its
+    # low-x (origin) end, 'RIGHT' = its high-x end. Drives which edge is
+    # anchored to the corner vertex.
+    placed_corner_end: bpy.props.EnumProperty(
+        name="Placed Corner End",
+        items=[('LEFT', "Left", ""), ('RIGHT', "Right", "")],
+        default='RIGHT',
+    )  # type: ignore
+    corner_angle_deg: bpy.props.FloatProperty(
+        name="Corner Angle (degrees)", default=135.0,
+    )  # type: ignore
+    action: bpy.props.EnumProperty(
+        name="Action",
+        items=[
+            ('VOID', "Create Void",
+             "Notch both cabinets back so their fronts meet at the corner"),
+            ('NONE', "Do Nothing", "Leave the cabinets as placed"),
+        ],
+        default='VOID',
+    )  # type: ignore
+
+    def _depths(self):
+        placed = bpy.data.objects.get(self.current_cabinet_name)
+        angled = bpy.data.objects.get(self.angled_cabinet_name)
+        d_current = placed.face_frame_cabinet.depth if placed else 0.0
+        d_angled = angled.face_frame_cabinet.depth if angled else 0.0
+        return d_current, d_angled
+
+    def _compute_voids(self):
+        """Symmetric V-notch voids (in meters) so both fronts meet along
+        the corner bisector. Derived from the two cabinet depths and the
+        interior corner angle theta:
+            void_current = (d_current * cos(theta) + d_angled) / sin(theta)
+            void_angled  = (d_current + d_angled * cos(theta)) / sin(theta)
+        Negative results (acute angles where the fronts don't actually
+        cross) clamp to 0.
+        """
+        d_current, d_angled = self._depths()
+        theta = math.radians(self.corner_angle_deg)
+        sin_t = math.sin(theta)
+        cos_t = math.cos(theta)
+        if abs(sin_t) < 1e-4:
+            return 0.0, 0.0
+        void_current = (d_current * cos_t + d_angled) / sin_t
+        void_angled = (d_current + d_angled * cos_t) / sin_t
+        return max(void_current, 0.0), max(void_angled, 0.0)
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self, width=420)
+
+    def draw(self, context):
+        layout = self.layout
+        placed = bpy.data.objects.get(self.current_cabinet_name)
+        angled = bpy.data.objects.get(self.angled_cabinet_name)
+        if placed is None or angled is None:
+            layout.label(text="Cabinet reference lost", icon='ERROR')
+            return
+
+        layout.label(text=f"Corner Angle: {self.corner_angle_deg:.1f}°",
+                     icon='DRIVER_ROTATIONAL_DIFFERENCE')
+        row = layout.row(align=True)
+        row.label(text="Action:")
+        row.prop(self, 'action', text="")
+
+        if self.action == 'VOID':
+            vc, va = self._compute_voids()
+            box = layout.box()
+            col = box.column(align=True)
+            col.label(text="The cabinets will be notched back from the corner:")
+            col.label(text=f"  {placed.name}: {vc * 39.37008:.4f} in")
+            col.label(text=f"  {angled.name}: {va * 39.37008:.4f} in")
+            col.label(text="Their fronts will meet at the angle bisector.")
+        else:
+            layout.label(text="No changes will be made to the cabinets.")
+
+    def execute(self, context):
+        if self.action == 'NONE':
+            return {'FINISHED'}
+
+        placed = bpy.data.objects.get(self.current_cabinet_name)
+        angled = bpy.data.objects.get(self.angled_cabinet_name)
+        if placed is None or angled is None:
+            self.report({'WARNING'}, "Cabinet missing; aborting angled setup")
+            return {'CANCELLED'}
+
+        void_current, void_angled = self._compute_voids()
+        if void_current <= 0.0 and void_angled <= 0.0:
+            return {'FINISHED'}
+
+        placed_props = placed.face_frame_cabinet
+        angled_props = angled.face_frame_cabinet
+
+        # Anchor-then-size, position-independent: move the corner-side
+        # edge to (corner_vertex - void) measured along the wall, and
+        # keep the FAR edge where it currently sits (anchored against the
+        # rest of the run / the opposite wall end). Width becomes the new
+        # span between them. Needs no assumption about where the cabinet
+        # was dropped, which is why this fixes both failures we hit:
+        #   - plain in-place width shrink left them NOT MEETING (the
+        #     corner edge was never moved in to corner - void);
+        #   - move-corner-edge while preserving width made them meet but
+        #     left the far edge OVERHANGING (width never adjusted).
+        #
+        # Let L = wall length, w = width, x = location.x (left edge).
+        #   corner at HIGH-x (right) end: far edge = left, fixed at x.
+        #     New right edge -> L - void  =>  new_w = (L - void) - x;
+        #     location.x unchanged.
+        #   corner at LOW-x (left) end: far edge = right, fixed at x + w.
+        #     New left edge -> void  =>  new_w = (x + w) - void;
+        #     location.x = (x + w) - new_w.
+        MIN_W = units.inch(1.0)
+
+        def _resize_to_corner(obj, props, corner_end, void):
+            if void <= 0.0:
+                return
+            wall_len = _parent_wall_length(obj.parent)
+            if wall_len is None:
+                return
+            x = obj.location.x
+            w = props.width
+            if corner_end == 'RIGHT':
+                new_w = max((wall_len - void) - x, MIN_W)
+                props.width = new_w
+            else:  # 'LEFT'
+                far_right = x + w
+                new_w = max(far_right - void, MIN_W)
+                props.width = new_w
+                obj.location.x = far_right - new_w
+
+        # The neighbor's corner end is meeting_side; the placed cabinet's
+        # is placed_corner_end (from the detector's wall-connection
+        # direction).
+        with types_face_frame.suspend_recalc():
+            _resize_to_corner(
+                placed, placed_props, self.placed_corner_end, void_current)
+            _resize_to_corner(
+                angled, angled_props, self.meeting_side, void_angled)
+
+        # Single recalc each, after the batched prop writes.
+        types_face_frame.recalculate_face_frame_cabinet(placed)
+        types_face_frame.recalculate_face_frame_cabinet(angled)
+        return {'FINISHED'}
+
+
 classes = (
     hb_face_frame_OT_place_cabinet,
     hb_face_frame_OT_place_appliance,
     hb_face_frame_OT_place_corner_cabinet,
     hb_face_frame_OT_set_blind_corner_void_amount,
+    hb_face_frame_OT_set_angled_corner_void_amount,
 )
 
 
