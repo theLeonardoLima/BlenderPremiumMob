@@ -2563,6 +2563,8 @@ def resolved_overlay(cab_props, opening_props, side):
 # residential hinge / slide hardware.
 DOOR_MAX_SWING_ANGLE = math.radians(100.0)
 DOUBLE_DOOR_REVEAL = inch(0.125)
+TRIVIEW_DOOR_REVEAL = inch(0.125)   # gap where adjacent mirror doors meet
+TRIVIEW_FRAME_WIDTH = inch(1.25)    # tri-view stile / rail width (spec default)
 # Forward offset of door / drawer front from the face frame face.
 # Mirrors the visible reveal between the back of an overlay door and
 # the front of the frame on real cabinetry.
@@ -2812,6 +2814,77 @@ class _ZeroSwingProxy:
         return getattr(self._inner, name)
 
 
+def _triple_door_leaves(layout, rect, cab_props, opening_props, role):
+    """Three equal leaves for a tri-view medicine cabinet front: three
+    mirror doors butting across ONE opening (no mid-stiles), hinged
+    R / R / L. Each door is a 5-piece frame with TRIVIEW_FRAME_WIDTH
+    stiles / rails - but the two INTERIOR stiles (where mirrors meet) are
+    zeroed so the mirrors run edge-to-edge: the left door drops its right
+    stile, the center door both stiles, the right door its left stile.
+
+    Each descriptor carries a `frame_override` dict (left_stile /
+    right_stile / top_rail / bottom_rail, meters) that the front-creation
+    loop stamps onto the door object so the door-style application sets
+    these per-side widths instead of the uniform style stile_width.
+    """
+    door_thickness = cab_props.door_thickness
+    width, height = _door_panel_size(rect, cab_props, opening_props)
+    left_overlay = resolved_overlay(cab_props, opening_props, 'left')
+    bottom_overlay = resolved_overlay(cab_props, opening_props, 'bottom')
+
+    base_x = rect['reveal_left'] - left_overlay
+    base_y = _ff_front_y_bay_local(layout) - DOOR_TO_FRAME_GAP + cab_props.default_door_inset_amount
+    base_z = rect['reveal_bottom'] - bottom_overlay
+    angle = opening_props.swing_percent * DOOR_MAX_SWING_ANGLE
+
+    leaf_width = (width - 2.0 * TRIVIEW_DOOR_REVEAL) / 3.0
+    fw = TRIVIEW_FRAME_WIDTH
+
+    # left edge (opening-local X) of each leaf, left to right
+    x0 = base_x
+    x1 = x0 + leaf_width + TRIVIEW_DOOR_REVEAL
+    x2 = x1 + leaf_width + TRIVIEW_DOOR_REVEAL
+
+    def _right_hinged(name, x_left, ovr):
+        # pivot on the leaf's RIGHT edge; part extends back in -X
+        return {
+            'role': role, 'name': name,
+            'pivot_position': (x_left + leaf_width, base_y, base_z),
+            'pivot_rotation': (0.0, 0.0, +angle),
+            'part_position':  (-leaf_width, 0.0, 0.0),
+            'part_dims':      (height, leaf_width, door_thickness),
+            'frame_override': ovr,
+        }
+
+    def _left_hinged(name, x_left, ovr):
+        return {
+            'role': role, 'name': name,
+            'pivot_position': (x_left, base_y, base_z),
+            'pivot_rotation': (0.0, 0.0, -angle),
+            'part_position':  (0.0, 0.0, 0.0),
+            'part_dims':      (height, leaf_width, door_thickness),
+            'frame_override': ovr,
+        }
+
+    rails = {'top_rail': fw, 'bottom_rail': fw}
+    # NOTE: the CPM_5PIECEDOOR node's 'Left Stile Width' / 'Right Stile Width'
+    # inputs render on the OPPOSITE sides from their names, so the override
+    # values are swapped here: the left door's OUTER stile is fed via
+    # 'right_stile', and vice versa. Flip-for-now; revisit if the node is
+    # corrected to match its input names.
+    return [
+        # Left door: keep OUTER (left) stile, drop INTERIOR (right)
+        _right_hinged('Door (Left)',   x0,
+                      {'left_stile': 0.0, 'right_stile': fw,  **rails}),
+        # Center door: no stiles (mirror runs full width)
+        _right_hinged('Door (Center)', x1,
+                      {'left_stile': 0.0, 'right_stile': 0.0, **rails}),
+        # Right door: drop INTERIOR (left), keep OUTER (right) stile
+        _left_hinged('Door (Right)',   x2,
+                     {'left_stile': fw,  'right_stile': 0.0, **rails}),
+    ]
+
+
 def front_leaves(layout, rect, cab_props, opening_props):
     """List of leaf descriptors for one opening's front parts.
 
@@ -2843,6 +2916,11 @@ def front_leaves(layout, rect, cab_props, opening_props):
         )]
 
     # DOOR
+    if cab_props.id_data.get('HB_TRIVIEW_DOORS'):
+        # Tri-view medicine cabinet: three mirror doors in one opening.
+        return _triple_door_leaves(
+            layout, rect, cab_props, opening_props, role
+        )
     if opening_props.hinge_side == 'DOUBLE':
         return _double_door_leaves(
             layout, rect, cab_props, opening_props, role

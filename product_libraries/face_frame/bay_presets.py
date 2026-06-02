@@ -338,6 +338,10 @@ def default_bay_config(cabinet_name, bay_width):
         # Medicine cabinet: a single door at the narrow default width
         # (width-based so it still doubles up if widened).
         return 'DOUBLE_DOOR' if is_wide else 'LEFT_SWING_DOOR'
+    if cabinet_name == 'Tri-View Medicine Cabinet':
+        # Single full-width DOOR opening; the three mirror doors come from
+        # the HB_TRIVIEW_DOORS flag in solver.front_leaves, not the preset.
+        return 'LEFT_SWING_DOOR'
     if cabinet_name == 'Medicine Cabinet':
         # Surface-mounted medicine cabinet: standard upper front
         # (width-based door).

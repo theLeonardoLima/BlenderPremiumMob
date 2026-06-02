@@ -4357,6 +4357,24 @@ class FaceFrameCabinet(GeoNodeCage):
             front.set_input('Width', width)
             front.set_input('Thickness', thickness)
 
+            # Per-leaf frame-width override (tri-view mirror doors zero the
+            # interior stiles where mirrors meet). Stamped onto the door
+            # object so assign_style_to_front sets these per-side widths
+            # instead of the uniform door-style stile/rail width. Cleared
+            # when the leaf carries no override so a normal door reverts.
+            _ovr = leaf.get('frame_override')
+            _OVR_KEYS = {
+                'left_stile':  'HB_FRAME_OVR_LEFT_STILE',
+                'right_stile': 'HB_FRAME_OVR_RIGHT_STILE',
+                'top_rail':    'HB_FRAME_OVR_TOP_RAIL',
+                'bottom_rail': 'HB_FRAME_OVR_BOTTOM_RAIL',
+            }
+            for _k, _prop in _OVR_KEYS.items():
+                if _ovr is not None and _k in _ovr:
+                    front.obj[_prop] = _ovr[_k]
+                elif _prop in front.obj:
+                    del front.obj[_prop]
+
             self._create_pull_for_front(front, leaf['role'], leaf)
             self._create_drawer_box_for_front(pivot, leaf, rect)
 
@@ -5305,6 +5323,30 @@ class OverstoolCabinetFaceFrameCabinet(MedicineCabinetFaceFrameCabinet):
         cab.side_front_profile = True
 
 
+class TriViewMedicineCabinetFaceFrameCabinet(MedicineCabinetFaceFrameCabinet):
+    """Tri-view medicine cabinet: a surface-mount upper (6" deep, 36-60"
+    wide) whose SINGLE opening carries three mirror doors butting across the
+    front, hinged R / R / L, with the two interior stiles removed so the
+    mirrors meet edge-to-edge.
+
+    The three-door layout is driven by the HB_TRIVIEW_DOORS custom prop (read
+    by solver.front_leaves) rather than the hinge_side enum - this is the only
+    product with this door layout, so it stays a per-product flag instead of a
+    general hinge option. The interior-stile removal rides on the per-leaf
+    frame-width override the leaf builder stamps onto each door."""
+
+    def create(self, name="Tri-View Medicine Cabinet", bay_qty=1):
+        super().create(name, bay_qty=bay_qty)
+        # Flag the tri-view door layout BEFORE giving the opening a door, so
+        # the recalc that the front_type write triggers builds three leaves.
+        self.obj['HB_TRIVIEW_DOORS'] = True
+        for op in self.obj.children_recursive:
+            fop = getattr(op, 'face_frame_opening', None)
+            if fop is not None and 'Opening' in op.name:
+                fop.front_type = 'DOOR'
+                break
+
+
 class TallFaceFrameCabinet(FaceFrameCabinet):
     """Tall cabinet (pantry, oven, broom). Toe kick present, full-tall."""
     default_cabinet_type = 'TALL'
@@ -5981,6 +6023,7 @@ CABINET_NAME_DISPATCH = {
     "Medicine Cabinet": MedicineCabinetFaceFrameCabinet,
     "Overstool Cabinet": OverstoolCabinetFaceFrameCabinet,
     "Mirror Frame": MirrorFrameFaceFrameCabinet,
+    "Tri-View Medicine Cabinet": TriViewMedicineCabinetFaceFrameCabinet,
     "Tub Skirt": TubSkirtFaceFrameCabinet,
     "Tall": TallFaceFrameCabinet,
     "Tall Stacked": TallFaceFrameCabinet,
@@ -6152,6 +6195,7 @@ WRAP_CLASS_REGISTRY.update({
     'OverstoolCabinetFaceFrameCabinet': OverstoolCabinetFaceFrameCabinet,
     'MirrorFrameFaceFrameCabinet': MirrorFrameFaceFrameCabinet,
     'TubSkirtFaceFrameCabinet': TubSkirtFaceFrameCabinet,
+    'TriViewMedicineCabinetFaceFrameCabinet': TriViewMedicineCabinetFaceFrameCabinet,
 })
 
 

@@ -2032,8 +2032,17 @@ class Face_Frame_Door_Style(PropertyGroup):
         auto_mid_rail_threshold = units.inch(45.5)
         needs_auto_mid_rail = front_length > auto_mid_rail_threshold
 
-        min_width = self.stile_width * 2 + units.inch(1)
-        min_height = self.rail_width * 2 + units.inch(1)
+        # Per-side frame-width overrides (tri-view mirror doors). When the
+        # front object carries an HB_FRAME_OVR_* custom prop, that side's
+        # stile / rail width comes from it (0.0 = no stile, so adjacent
+        # mirrors butt) instead of the uniform door-style width.
+        eff_left_stile  = front_obj.get('HB_FRAME_OVR_LEFT_STILE',  self.stile_width)
+        eff_right_stile = front_obj.get('HB_FRAME_OVR_RIGHT_STILE', self.stile_width)
+        eff_top_rail    = front_obj.get('HB_FRAME_OVR_TOP_RAIL',    self.rail_width)
+        eff_bottom_rail = front_obj.get('HB_FRAME_OVR_BOTTOM_RAIL', self.rail_width)
+
+        min_width = eff_left_stile + eff_right_stile + units.inch(1)
+        min_height = eff_top_rail + eff_bottom_rail + units.inch(1)
         if self.add_mid_rail or needs_auto_mid_rail:
             min_height += self.mid_rail_width
 
@@ -2057,10 +2066,10 @@ class Face_Frame_Door_Style(PropertyGroup):
         else:
             door_style_mod = part.add_part_modifier('CPM_5PIECEDOOR', 'Door Style')
 
-        door_style_mod.set_input("Left Stile Width", self.stile_width)
-        door_style_mod.set_input("Right Stile Width", self.stile_width)
-        door_style_mod.set_input("Top Rail Width", self.rail_width)
-        door_style_mod.set_input("Bottom Rail Width", self.rail_width)
+        door_style_mod.set_input("Left Stile Width", eff_left_stile)
+        door_style_mod.set_input("Right Stile Width", eff_right_stile)
+        door_style_mod.set_input("Top Rail Width", eff_top_rail)
+        door_style_mod.set_input("Bottom Rail Width", eff_bottom_rail)
         door_style_mod.set_input("Panel Thickness", self.panel_thickness)
         door_style_mod.set_input("Panel Inset", self.panel_inset)
 

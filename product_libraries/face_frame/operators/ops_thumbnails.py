@@ -54,6 +54,7 @@ RENDERABLE_CATALOG = (
     "Bookcase Upper",
     "Standard Recessed Medicine Cabinet",
     "Medicine Cabinet",
+    "Tri-View Medicine Cabinet",
     "Overstool Cabinet",
     "Mirror Frame",
     "Tub Skirt",
