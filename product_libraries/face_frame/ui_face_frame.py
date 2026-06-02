@@ -221,6 +221,23 @@ def draw_construction(layout, cab_props):
         col.prop(cab_props, 'furniture_top_thickness', text="Thickness")
         col.prop(cab_props, 'furniture_top_overhang', text="Overhang")
 
+    # Uppers only: drop the left / right sides + end stiles below the box
+    # (hutch look). Left and right are independent.
+    if cab_props.cabinet_type == 'UPPER':
+        box = layout.box()
+        box.label(text="Extend Ends Down")
+        col = box.column(align=True)
+        col.prop(cab_props, 'extend_left_end_down', text="Left")
+        if cab_props.extend_left_end_down:
+            col.prop(cab_props, 'extend_left_end_down_amount', text="Left Drop")
+        col.prop(cab_props, 'extend_right_end_down', text="Right")
+        if cab_props.extend_right_end_down:
+            col.prop(cab_props, 'extend_right_end_down_amount', text="Right Drop")
+        # Finished back closes the recess once a side is dropped.
+        if cab_props.extend_left_end_down or cab_props.extend_right_end_down:
+            box.prop(cab_props, 'hutch_finished_back',
+                     text="Finished Back in Recess")
+
     box = layout.box()
     box.label(text="Finished Ends and Backs")
     draw_finished_ends(box, cab_props)

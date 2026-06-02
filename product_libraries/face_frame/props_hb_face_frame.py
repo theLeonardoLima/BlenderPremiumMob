@@ -1250,6 +1250,8 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         'DOOR', 'DRAWER_FRONT', 'PULLOUT_FRONT', 'FALSE_FRONT', 'INSET_PANEL',
         # Furniture / veneer wood top (dresser products)
         'FURNITURE_TOP',
+        # Finished back closing a hutch upper's dropped-end recess
+        'HUTCH_BACK',
         # Visible toe kick parts
         'CORNER_MID_RAIL', 'CORNER_FALSE_FRONT',
         'FINISH_TOE_KICK', 'CORNER_LEFT_FINISH_KICK', 'CORNER_RIGHT_FINISH_KICK',
@@ -2992,6 +2994,48 @@ class Face_Frame_Cabinet_Props(PropertyGroup):
                     "left, right, and front (the back stays flush)",
         update=_update_cabinet_dim,
     )  # type: ignore
+    extend_left_end_down: BoolProperty(
+        name="Extend Left End Down",
+        default=False,
+        description="Upper cabinets only: drop the LEFT side and left end "
+                    "stile below the box (toward the counter) for a hutch "
+                    "look. Independent of the right end; box / doors / back "
+                    "stay at standard upper height",
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    extend_left_end_down_amount: FloatProperty(
+        name="Left End Drop", default=units.inch(19.5), min=0.0,
+        unit='LENGTH', precision=4,
+        description="How far the left side / end stile drops below the box "
+                    "bottom (defaults to the wall-cabinet mount minus the "
+                    "base-cabinet height - the counter gap)",
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    extend_right_end_down: BoolProperty(
+        name="Extend Right End Down",
+        default=False,
+        description="Upper cabinets only: drop the RIGHT side and right end "
+                    "stile below the box (toward the counter) for a hutch "
+                    "look. Independent of the left end; box / doors / back "
+                    "stay at standard upper height",
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    extend_right_end_down_amount: FloatProperty(
+        name="Right End Drop", default=units.inch(19.5), min=0.0,
+        unit='LENGTH', precision=4,
+        description="How far the right side / end stile drops below the box "
+                    "bottom (defaults to the wall-cabinet mount minus the "
+                    "base-cabinet height - the counter gap)",
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    hutch_finished_back: BoolProperty(
+        name="Finished Back in Recess",
+        default=False,
+        description="When an upper's ends are extended down, add a finished "
+                    "back panel closing the open recess between the dropped "
+                    "sides",
+        update=_update_cabinet_dim,
+    )  # type: ignore
     extend_back_right: FloatProperty(
         name="Extend Back Right X", default=0.0, min=0.0,
         unit='LENGTH', precision=4,
@@ -4459,7 +4503,7 @@ class Face_Frame_Scene_Props(PropertyGroup):
     def draw_bedroom_bookcase_library_ui(self, layout, context):
         self._draw_catalog_grid(layout, [
             "Bookcase", "Bookcase Storage Unit",
-            "Bookcase Upper", "Bookcase Corner",
+            "Bookcase Upper", "Hutch Upper", "Bookcase Corner",
             "Bookcase Corner Upper", "Window Seat",
             "5 Drawer Dresser", "6 Drawer Dresser",
             "Night Stand", "3 Drawer Night Stand",

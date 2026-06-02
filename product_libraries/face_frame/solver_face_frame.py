@@ -79,6 +79,12 @@ class FaceFrameLayout:
                               if self.has_toe_kick else 'FLOATING')
         self.extend_left_stile_to_floor = cab.extend_left_stile_to_floor
         self.extend_right_stile_to_floor = cab.extend_right_stile_to_floor
+        # Hutch option (uppers): left/right sides + end stiles drop below
+        # the box bottom by this amount (see ends_down_drop / side_bottom_z).
+        self.extend_left_end_down = getattr(cab, 'extend_left_end_down', False)
+        self.extend_left_end_down_amount = getattr(cab, 'extend_left_end_down_amount', 0.0)
+        self.extend_right_end_down = getattr(cab, 'extend_right_end_down', False)
+        self.extend_right_end_down_amount = getattr(cab, 'extend_right_end_down_amount', 0.0)
         self.kick_inset_left = (cab.inset_toe_kick_left
                                 if self.has_toe_kick else 0.0)
         self.kick_inset_right = (cab.inset_toe_kick_right
@@ -441,6 +447,24 @@ def effective_bottom_rail_width(layout, bay_index):
     return bay['bottom_rail_width']
 
 
+def ends_down_drop(layout, side='LEFT'):
+    """Distance the given end's carcass side + end stile extends BELOW the
+    box bottom for an upper with the hutch 'extend ends down' option on.
+    Left and right are independent. Zero for non-uppers or when that side's
+    option is off. Drops the end to the countertop while the box / doors
+    stay at standard upper height.
+    """
+    if layout.cabinet_type != 'UPPER':
+        return 0.0
+    if side == 'RIGHT':
+        on = getattr(layout, 'extend_right_end_down', False)
+        amount = getattr(layout, 'extend_right_end_down_amount', 0.0)
+    else:
+        on = getattr(layout, 'extend_left_end_down', False)
+        amount = getattr(layout, 'extend_left_end_down_amount', 0.0)
+    return max(0.0, amount) if on else 0.0
+
+
 def side_bottom_z(layout, bay_index, side='LEFT'):
     """Z of the carcass side panel's bottom edge.
 
@@ -457,7 +481,8 @@ def side_bottom_z(layout, bay_index, side='LEFT'):
     the floor up to the cabinet bottom panel.
     """
     if not layout.has_toe_kick:
-        return bay_bottom_z(layout, bay_index)
+        # Uppers: anchor at the box bottom, dropped by the hutch amount.
+        return bay_bottom_z(layout, bay_index) - ends_down_drop(layout, side)
     # LOOSE floats the carcass exactly like FLOATING - the difference is
     # that LOOSE also builds a ladder sub-base under the cabinet.
     if layout.toe_kick_type in ('FLOATING', 'LOOSE'):
@@ -1073,12 +1098,14 @@ def left_end_stile_position(layout):
     endpoint of the FF outer plane (FF-x = 0); in angled mode that
     sits at world (0, -effective_left_depth) instead of (0, -dim_y).
     """
-    bottom_z = 0.0 if left_stile_to_floor(layout) else bay_bottom_z(layout, 0)
+    bottom_z = (0.0 if left_stile_to_floor(layout)
+                else bay_bottom_z(layout, 0) - ends_down_drop(layout, 'LEFT'))
     return ff_outer_world_pos(layout, 0.0, bottom_z)
 
 
 def left_end_stile_dims(layout):
-    bottom_z = 0.0 if left_stile_to_floor(layout) else bay_bottom_z(layout, 0)
+    bottom_z = (0.0 if left_stile_to_floor(layout)
+                else bay_bottom_z(layout, 0) - ends_down_drop(layout, 'LEFT'))
     top_z = bay_top_z(layout, 0)
     return (top_z - bottom_z, layout.lsw, layout.fft)
 
@@ -1091,14 +1118,14 @@ def right_end_stile_position(layout):
     """
     last = layout.bay_count - 1
     bottom_z = (0.0 if right_stile_to_floor(layout)
-                else bay_bottom_z(layout, last))
+                else bay_bottom_z(layout, last) - ends_down_drop(layout, 'RIGHT'))
     return ff_outer_world_pos(layout, face_frame_length(layout), bottom_z)
 
 
 def right_end_stile_dims(layout):
     last = layout.bay_count - 1
     bottom_z = (0.0 if right_stile_to_floor(layout)
-                else bay_bottom_z(layout, last))
+                else bay_bottom_z(layout, last) - ends_down_drop(layout, 'RIGHT'))
     top_z = bay_top_z(layout, last)
     return (top_z - bottom_z, layout.rsw, layout.fft)
 

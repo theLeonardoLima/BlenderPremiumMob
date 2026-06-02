@@ -378,6 +378,10 @@ WEDGE_CUT_PART_ROLES = frozenset({
 # in _FINISH_EXTERIOR_ROLES so the material walk gives it the cabinet's
 # exterior wood finish.
 PART_ROLE_FURNITURE_TOP = 'FURNITURE_TOP'
+# Finished back panel closing the open recess below an upper whose
+# ends are extended down (hutch). Managed by _apply_hutch_back; in
+# _FINISH_EXTERIOR_ROLES so it gets the cabinet's finish material.
+PART_ROLE_HUTCH_BACK = 'HUTCH_BACK'
 PART_ROLE_BACK_EXT_CUTTER = 'BACK_EXT_CUTTER'
 BACK_EXT_CUT_MOD_NAME = 'Back Extension Trim'
 BACK_EXT_CUT_PART_ROLES = frozenset({
@@ -1994,6 +1998,10 @@ class FaceFrameCabinet(GeoNodeCage):
         # furniture_top is off.
         self._apply_furniture_top(layout)
 
+        # Hutch finished back: close the open recess below an upper
+        # whose ends are extended down. No-op when off / no drop.
+        self._apply_hutch_back(layout)
+
         # Tip-up wedge: chamfer the back-bottom corner when enabled and the
         # cabinet's tip-up diagonal exceeds the ceiling. Re-applied here so
         # it survives part reconciliation, exactly like the angled cutter.
@@ -2240,6 +2248,73 @@ class FaceFrameCabinet(GeoNodeCage):
             self._position_furniture_top(top_obj)
         else:
             self._cleanup_furniture_top()
+
+    # =====================================================================
+    # Hutch finished back (uppers with ends extended down)
+    # =====================================================================
+    def _ensure_hutch_back(self):
+        """Find or lazily create the hutch recess back CabinetPart - a
+        panel mirroring the carcass back's orientation, tagged
+        PART_ROLE_HUTCH_BACK (+ CABINET_PART so the material walk gives it
+        the finish material). Sized / placed by _position_hutch_back."""
+        for child in self.obj.children:
+            if child.get('hb_part_role') == PART_ROLE_HUTCH_BACK:
+                return child
+        back = CabinetPart()
+        back.create('Hutch Back')
+        back.obj.parent = self.obj
+        back.obj['hb_part_role'] = PART_ROLE_HUTCH_BACK
+        back.obj['CABINET_PART'] = True
+        # Same orientation as the carcass back (Length up, Width across X).
+        back.obj.rotation_euler.x = math.radians(90)
+        back.obj.rotation_euler.y = math.radians(-90)
+        back.set_input('Mirror Y', True)
+        return back.obj
+
+    def _position_hutch_back(self, back_obj, layout):
+        """Span the back of the dropped-end recess: same X / Y / thickness
+        as the carcass back, from the box bottom DOWN by the drop (the
+        deeper of the two ends when they differ)."""
+        segs = solver.carcass_back_segments(layout)
+        if not segs:
+            self._cleanup_hutch_back()
+            return
+        left_x = min(s['x'] for s in segs)
+        right_x = max(s['x'] + s['horizontal_length'] for s in segs)
+        drop = max(solver.ends_down_drop(layout, 'LEFT'),
+                   solver.ends_down_drop(layout, 'RIGHT'))
+        box_bottom = solver.bay_bottom_z(layout, 0)
+        bottom_z = box_bottom - drop
+        # Top out at the carcass back's bottom edge (seg z) so the recess
+        # back is continuous with it and reaches the actual underside of
+        # the upper box - bay_bottom_z is only the bottom-rail line, which
+        # sits ~a rail below the bottom panel, leaving a gap.
+        top_z = segs[0]['z']
+        part = GeoNodeCutpart(back_obj)
+        part.set_input('Length', top_z - bottom_z)
+        part.set_input('Width', right_x - left_x)
+        part.set_input('Thickness', segs[0]['thickness'])
+        back_obj.location = (left_x, segs[0]['y'], bottom_z)
+
+    def _cleanup_hutch_back(self):
+        """Remove the hutch recess back (option off / no end dropped)."""
+        for child in list(self.obj.children):
+            if child.get('hb_part_role') == PART_ROLE_HUTCH_BACK:
+                bpy.data.objects.remove(child, do_unlink=True)
+
+    def _apply_hutch_back(self, layout):
+        """Close the open recess below an upper whose ends are extended
+        down with a finished back, when hutch_finished_back is on and at
+        least one end is dropped. Called once per recalc; managed like the
+        other extras."""
+        cab = self.obj.face_frame_cabinet
+        drop = max(solver.ends_down_drop(layout, 'LEFT'),
+                   solver.ends_down_drop(layout, 'RIGHT'))
+        if getattr(cab, 'hutch_finished_back', False) and drop > 0:
+            back_obj = self._ensure_hutch_back()
+            self._position_hutch_back(back_obj, layout)
+        else:
+            self._cleanup_hutch_back()
 
     def _apply_back_extension(self, layout):
         """Reshape the carcass into a trapezoid wider at the back when
@@ -4839,6 +4914,29 @@ class BookcaseUpperFaceFrameCabinet(UpperFaceFrameCabinet):
                 bay_obj.face_frame_bay.remove_bottom = True
 
 
+class HutchUpperFaceFrameCabinet(UpperFaceFrameCabinet):
+    """Upper cabinet whose left/right sides and end stiles drop down to the
+    countertop, leaving an open recess below the box (a hutch). Standard
+    upper body, mount, and height; the 'extend ends down' construction
+    option is turned on at create with the drop defaulted to the gap
+    between the wall-cabinet mount and the base-cabinet top."""
+
+    def create(self, name="Hutch Upper", bay_qty=1):
+        super().create(name, bay_qty=bay_qty)
+        cab = self.obj.face_frame_cabinet
+        cab.extend_left_end_down = True
+        cab.extend_right_end_down = True
+        scene = bpy.context.scene
+        if hasattr(scene, 'hb_face_frame'):
+            props = scene.hb_face_frame
+            # Drop both ends to the counter: the wall-cabinet mount minus the
+            # base-cabinet height. Editable per-side per-cabinet afterward.
+            drop = (props.default_wall_cabinet_location
+                    - props.base_cabinet_height)
+            cab.extend_left_end_down_amount = drop
+            cab.extend_right_end_down_amount = drop
+
+
 class TallFaceFrameCabinet(FaceFrameCabinet):
     """Tall cabinet (pantry, oven, broom). Toe kick present, full-tall."""
     default_cabinet_type = 'TALL'
@@ -5474,6 +5572,7 @@ CABINET_NAME_DISPATCH = {
     "Upper": UpperFaceFrameCabinet,
     "Upper Stacked": UpperFaceFrameCabinet,
     "Bookcase Upper": BookcaseUpperFaceFrameCabinet,
+    "Hutch Upper": HutchUpperFaceFrameCabinet,
     "Tall": TallFaceFrameCabinet,
     "Tall Stacked": TallFaceFrameCabinet,
     "Refrigerator Cabinet": RefrigeratorCabinet,

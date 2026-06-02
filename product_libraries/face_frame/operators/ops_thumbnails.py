@@ -28,6 +28,7 @@ RENDERABLE_CATALOG = (
     "Tall",
     "Upper",
     "Upper Stacked",
+    "Hutch Upper",
     "Lap Drawer",
     "Floating Base Cabinet",
     # Corner cabinets - create() builds them populated with doors, so no
