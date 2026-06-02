@@ -601,6 +601,7 @@ class GeoNodeDimension(GeoNodeObject):
         super().create_curve('GeoNodeDimension',name)
         self.obj['IS_2D_ANNOTATION'] = True  
         self.obj['IS_DIMENSION'] = True  
+        self.obj['MENU_ID'] = 'HOME_BUILDER_MT_dimension_commands'  # right-click commands (ui/menus.py)
         self.set_input("Tick Length",props.annotation_dimension_tick_length)
         self.set_input("Tick Thickness",props.annotation_dimension_tick_thickness)
         self.set_input("Line Thickness",props.annotation_dimension_line_thickness)
