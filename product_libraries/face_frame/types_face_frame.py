@@ -17,6 +17,7 @@ Carcass conventions match frameless (same CabinetPart GeoNode setup):
 import bpy
 import bmesh
 import math
+import os
 from contextlib import contextmanager
 
 from mathutils import Vector
@@ -389,6 +390,73 @@ BACK_EXT_CUT_PART_ROLES = frozenset({
     PART_ROLE_BAY_SHELF,
     PART_ROLE_ADJUSTABLE_SHELF, PART_ROLE_GLASS_SHELF,
 })
+
+# Over-stool side-front profile cut: a decorative silhouette (authored as a
+# closed curve in face_frame_assets/profiles) boolean-subtracted from the
+# bottom-front corner of each extended side panel. See _apply_overstool_profile.
+PART_ROLE_SIDE_PROFILE_CUTTER = 'SIDE_PROFILE_CUTTER'
+SIDE_PROFILE_CUT_MOD_NAME = 'Side Profile Cut'
+PART_ROLE_OVERSTOOL_SHELF = 'OVERSTOOL_SHELF'
+PART_ROLE_OVERSTOOL_TOWEL_BAR = 'OVERSTOOL_TOWEL_BAR'
+# Leg-accessory sizing (effective real-world). Shelf is front-aligned (front
+# edge flush with the leg front, extending back); towel bar is a round rod.
+# Z positions are measured UP from the dropped leg bottom.
+OVERSTOOL_SHELF_DEPTH = inch(2.5)
+OVERSTOOL_SHELF_THICKNESS = inch(0.75)
+OVERSTOOL_SHELF_Z_ABOVE_LEG_BOTTOM = inch(0.0)  # flush with leg bottom
+OVERSTOOL_TOWEL_BAR_DIAMETER = inch(0.75)
+OVERSTOOL_TOWEL_BAR_Z_ABOVE_LEG_BOTTOM = inch(4.0)
+OVERSTOOL_TOWEL_BAR_Y_FROM_FRONT = inch(1.0)
+OVERSTOOL_TOWEL_BAR_SEGMENTS = 16
+# When BOTH accessories are present they rearrange: the shelf raises and the
+# towel bar drops below it + moves back, so the bar tucks under the raised shelf.
+OVERSTOOL_SHELF_Z_COMBO_RAISE = inch(3.0)
+OVERSTOOL_TOWEL_BAR_COMBO_Z_DROP = inch(3.5)
+OVERSTOOL_TOWEL_BAR_COMBO_Y_BACK = inch(2.0)
+_OVERSTOOL_PROFILE_BLEND = ('face_frame_assets', 'profiles', 'Over Stool Profile.blend')
+_OVERSTOOL_PROFILE_CURVE_NAME = 'BézierCurve'
+_OVERSTOOL_PROFILE_POLY_CACHE = None  # list[(x, y)] meters, ordered closed loop
+
+
+def _overstool_profile_poly():
+    """Return the over-stool profile outline as an ordered closed loop of
+    (x, y) points in the profile's LOCAL XY (meters), sampled from the
+    authored Bezier in the profile blend. Cached after the first load.
+
+    Sampled with interpolate_bezier (no depsgraph / scene-link needed) so it
+    is safe to call from a recalc. The loop is the profile silhouette; the
+    cutter prism (in _position_side_profile_cutter) extrudes it through the
+    panel thickness for a boolean DIFFERENCE.
+    """
+    global _OVERSTOOL_PROFILE_POLY_CACHE
+    if _OVERSTOOL_PROFILE_POLY_CACHE is not None:
+        return _OVERSTOOL_PROFILE_POLY_CACHE
+    from mathutils.geometry import interpolate_bezier
+    blend = os.path.join(os.path.dirname(__file__), *_OVERSTOOL_PROFILE_BLEND)
+    before = set(bpy.data.objects)
+    with bpy.data.libraries.load(blend, link=False) as (src, dst):
+        dst.objects = [_OVERSTOOL_PROFILE_CURVE_NAME]
+    obj = next((o for o in bpy.data.objects if o not in before), None)
+    pts = []
+    try:
+        sp = obj.data.splines[0]
+        bp = sp.bezier_points
+        n = len(bp)
+        res = max(8, obj.data.resolution_u)
+        last = n if sp.use_cyclic_u else n - 1
+        for i in range(last):
+            a = bp[i]
+            b = bp[(i + 1) % n]
+            seg = interpolate_bezier(a.co, a.handle_right, b.handle_left, b.co, res)
+            pts.extend((v.x, v.y) for v in seg[:-1])  # drop shared endpoint
+    finally:
+        cu = obj.data if obj else None
+        if obj:
+            bpy.data.objects.remove(obj, do_unlink=True)
+        if cu and cu.users == 0:
+            bpy.data.curves.remove(cu)
+    _OVERSTOOL_PROFILE_POLY_CACHE = pts
+    return pts
 
 # Baseline rotation_euler.z for parts that live in the face frame plane.
 # Recalc adds face_frame_angle on top so they rotate with the angled
@@ -2002,6 +2070,14 @@ class FaceFrameCabinet(GeoNodeCage):
         # whose ends are extended down. No-op when off / no drop.
         self._apply_hutch_back(layout)
 
+        # Over-stool side-front profile: cut the decorative leg profile into
+        # the bottom-front of each extended side. No-op + cleanup when off.
+        self._apply_overstool_profile(layout)
+
+        # Over-stool leg accessories: shelf and/or towel bar between the legs
+        # per the overstool_accessory dropdown. No-op + cleanup when off.
+        self._apply_overstool_accessories(layout)
+
         # Tip-up wedge: chamfer the back-bottom corner when enabled and the
         # cabinet's tip-up diagonal exceeds the ceiling. Re-applied here so
         # it survives part reconciliation, exactly like the angled cutter.
@@ -2538,6 +2614,247 @@ class FaceFrameCabinet(GeoNodeCage):
                 bpy.data.objects.remove(child, do_unlink=True)
                 if mesh is not None and mesh.users == 0:
                     bpy.data.meshes.remove(mesh)
+
+    # =====================================================================
+    # Over-stool side-front profile cut (decorative leg foot)
+    # =====================================================================
+    def _side_part_by_role(self, role):
+        """The carcass side panel (LEFT_SIDE / RIGHT_SIDE) - a direct child
+        of the cabinet root. None if absent (panels / suppressed bays)."""
+        for child in self.obj.children:
+            if child.get('hb_part_role') == role:
+                return child
+        return None
+
+    def _ensure_side_profile_cutter(self, side):
+        """Find or lazily create the per-side profile cutter MESH (one per
+        side, distinguished by hb_profile_side). Hidden; the boolean reads
+        its mesh regardless. Mirrors _ensure_back_ext_cutter."""
+        for child in self.obj.children:
+            if (child.get('hb_part_role') == PART_ROLE_SIDE_PROFILE_CUTTER
+                    and child.get('hb_profile_side') == side):
+                return child
+        name = 'Side Profile Cutter ' + side.title()
+        mesh = bpy.data.meshes.new(name)
+        cutter = bpy.data.objects.new(name, mesh)
+        cutter['hb_part_role'] = PART_ROLE_SIDE_PROFILE_CUTTER
+        cutter['hb_profile_side'] = side
+        cutter.parent = self.obj
+        cutter.display_type = 'WIRE'
+        cutter.hide_render = True
+        cutter.hide_viewport = True
+        for coll in self.obj.users_collection:
+            coll.objects.link(cutter)
+            break
+        return cutter
+
+    def _position_side_profile_cutter(self, cutter, side, layout):
+        """Rebuild the cutter mesh as a prism: the profile silhouette placed
+        with its LOCAL ORIGIN at the side's bottom-front corner (profile X ->
+        cabinet depth/Y, profile Y -> vertical/Z), extruded through the full
+        panel thickness in X. Built in CABINET-LOCAL coords (cutter at
+        identity), the same frame the side position is expressed in.
+
+        Orientation knobs (eyeball / flip if the cut faces the wrong way):
+          DEPTH_SIGN  profile +X -> +Y (toward the back) when +1.
+          UP_SIGN     profile +Y -> +Z (upward) when +1.
+        """
+        poly = _overstool_profile_poly()
+        if not poly:
+            return
+        if side == 'RIGHT':
+            pos = solver.right_side_position(layout)
+            dims = solver.right_side_dims(layout)
+        else:
+            pos = solver.left_side_position(layout)
+            dims = solver.left_side_dims(layout)
+        depth, thickness = dims[1], dims[2]
+        corner_y = pos[1] - depth          # front edge (front = -Y)
+        corner_z = pos[2]                  # dropped side bottom
+        margin = inch(2.0)
+        x0 = pos[0] - thickness - margin   # span the full panel thickness
+        x1 = pos[0] + thickness + margin   # (both directions; panel is thin)
+        DEPTH_SIGN, UP_SIGN = 1.0, 1.0
+        bm = bmesh.new()
+        loop0, loop1 = [], []
+        for (px, py) in poly:
+            y = corner_y + DEPTH_SIGN * px
+            z = corner_z + UP_SIGN * py
+            loop0.append(bm.verts.new((x0, y, z)))
+            loop1.append(bm.verts.new((x1, y, z)))
+        bm.faces.new(loop0)
+        bm.faces.new(list(reversed(loop1)))
+        n = len(poly)
+        for i in range(n):
+            j = (i + 1) % n
+            bm.faces.new((loop0[i], loop0[j], loop1[j], loop1[i]))
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+        bm.to_mesh(cutter.data)
+        bm.free()
+        cutter.location = (0.0, 0.0, 0.0)
+        cutter.rotation_euler = (0.0, 0.0, 0.0)
+
+    def _cleanup_side_profile_cutters(self):
+        """Reverse of _apply_overstool_profile. No-op when nothing to undo."""
+        for role in (PART_ROLE_LEFT_SIDE, PART_ROLE_RIGHT_SIDE):
+            part = self._side_part_by_role(role)
+            if part is None:
+                continue
+            mod = part.modifiers.get(SIDE_PROFILE_CUT_MOD_NAME)
+            if mod is not None:
+                part.modifiers.remove(mod)
+        for child in list(self.obj.children):
+            if child.get('hb_part_role') == PART_ROLE_SIDE_PROFILE_CUTTER:
+                mesh = child.data
+                bpy.data.objects.remove(child, do_unlink=True)
+                if mesh is not None and mesh.users == 0:
+                    bpy.data.meshes.remove(mesh)
+
+    def _apply_overstool_profile(self, layout):
+        """Cut the over-stool decorative profile into the bottom-front corner
+        of each extended side panel. Gated on an UPPER with side_front_profile
+        on AND the sides actually dropped (extend_sides_down > 0). A no-op +
+        full cleanup otherwise, so toggling off restores the square legs."""
+        on = (layout.cabinet_type == 'UPPER'
+              and getattr(layout, 'side_front_profile', False)
+              and getattr(layout, 'extend_sides_down', False)
+              and getattr(layout, 'extend_sides_down_amount', 0.0) > 0.0)
+        if not on:
+            self._cleanup_side_profile_cutters()
+            return
+        for side, role in (('LEFT', PART_ROLE_LEFT_SIDE),
+                           ('RIGHT', PART_ROLE_RIGHT_SIDE)):
+            part = self._side_part_by_role(role)
+            if part is None:
+                continue
+            cutter = self._ensure_side_profile_cutter(side)
+            self._position_side_profile_cutter(cutter, side, layout)
+            mod = part.modifiers.get(SIDE_PROFILE_CUT_MOD_NAME)
+            if mod is None:
+                mod = part.modifiers.new(
+                    name=SIDE_PROFILE_CUT_MOD_NAME, type='BOOLEAN')
+                mod.operation = 'DIFFERENCE'
+                mod.solver = 'EXACT'
+            if mod.object is not cutter:
+                mod.object = cutter
+
+    # =====================================================================
+    # Over-stool leg accessories (shelf / towel bar between the legs)
+    # =====================================================================
+    def _overstool_interior(self, layout):
+        """(left_inner_x, right_inner_x, front_y, leg_bottom_z) for the gap
+        between the two extended legs - shared by the shelf and towel bar.
+        left/right inner = side outer x +/- its thickness; front = leg front
+        edge (y = -depth); leg_bottom = the dropped side bottom z."""
+        lp = solver.left_side_position(layout); ld = solver.left_side_dims(layout)
+        rp = solver.right_side_position(layout); rd = solver.right_side_dims(layout)
+        left_inner = lp[0] + ld[2]
+        right_inner = rp[0] - rd[2]
+        front_y = lp[1] - ld[1]
+        return left_inner, right_inner, front_y, lp[2]
+
+    def _ensure_overstool_shelf(self):
+        """Find or lazily create the leg shelf CabinetPart - a flat slab
+        tagged PART_ROLE_OVERSTOOL_SHELF + CABINET_PART so the material walk
+        gives it the exterior finish. Reused across recalcs."""
+        for child in self.obj.children:
+            if child.get('hb_part_role') == PART_ROLE_OVERSTOOL_SHELF:
+                return child
+        shelf = CabinetPart()
+        shelf.create('Leg Shelf')
+        shelf.obj.parent = self.obj
+        shelf.obj['hb_part_role'] = PART_ROLE_OVERSTOOL_SHELF
+        shelf.obj['CABINET_PART'] = True
+        # Length -> +X (between legs), Width -> -Y (Mirror Y) so the shelf
+        # runs from the back (y=0) forward, Thickness -> +Z (up).
+        shelf.set_input('Mirror Y', True)
+        shelf.set_input('Mirror Z', False)
+        return shelf.obj
+
+    def _position_overstool_shelf(self, shelf_obj, layout):
+        """Span the shelf between the leg inner faces, back-aligned (origin at
+        y=0, Mirror Y runs it forward), 2.5" deep, its bottom flush with the
+        leg bottom (OVERSTOOL_SHELF_Z_ABOVE_LEG_BOTTOM up from it)."""
+        left_inner, right_inner, _front_y, leg_bottom = self._overstool_interior(layout)
+        part = GeoNodeCutpart(shelf_obj)
+        part.set_input('Length', right_inner - left_inner)
+        part.set_input('Width', OVERSTOOL_SHELF_DEPTH)
+        part.set_input('Thickness', OVERSTOOL_SHELF_THICKNESS)
+        z = leg_bottom + OVERSTOOL_SHELF_Z_ABOVE_LEG_BOTTOM
+        if layout.overstool_accessory == 'SHELF_AND_TOWEL_BAR':
+            z += OVERSTOOL_SHELF_Z_COMBO_RAISE   # tuck the bar below the shelf
+        shelf_obj.location = Vector((left_inner, 0.0, z))
+        shelf_obj.rotation_euler = (0.0, 0.0, 0.0)
+
+    def _ensure_overstool_towel_bar(self):
+        """Find or lazily create the towel-bar MESH object (a round rod).
+        Rebuilt each recalc by _position_overstool_towel_bar."""
+        for child in self.obj.children:
+            if child.get('hb_part_role') == PART_ROLE_OVERSTOOL_TOWEL_BAR:
+                return child
+        mesh = bpy.data.meshes.new('Towel Bar')
+        bar = bpy.data.objects.new('Towel Bar', mesh)
+        bar['hb_part_role'] = PART_ROLE_OVERSTOOL_TOWEL_BAR
+        bar['CABINET_PART'] = True
+        bar.parent = self.obj
+        for coll in self.obj.users_collection:
+            coll.objects.link(bar)
+            break
+        return bar
+
+    def _position_overstool_towel_bar(self, bar_obj, layout):
+        """Rebuild the towel bar as a cylinder spanning the leg inner faces,
+        axis along X, OVERSTOOL_TOWEL_BAR_Y_FROM_FRONT back from the leg front
+        and OVERSTOOL_TOWEL_BAR_Z_ABOVE_LEG_BOTTOM up from the leg bottom."""
+        from mathutils import Matrix
+        left_inner, right_inner, front_y, leg_bottom = self._overstool_interior(layout)
+        length = right_inner - left_inner
+        r = OVERSTOOL_TOWEL_BAR_DIAMETER * 0.5
+        bm = bmesh.new()
+        # create_cone builds along local Z; rotate 90 about Y so the axis is X.
+        bmesh.ops.create_cone(
+            bm, cap_ends=True, cap_tris=False,
+            segments=OVERSTOOL_TOWEL_BAR_SEGMENTS,
+            radius1=r, radius2=r, depth=length,
+            matrix=Matrix.Rotation(math.radians(90.0), 4, 'Y'))
+        bm.to_mesh(bar_obj.data)
+        bm.free()
+        # The towel bar always sits low + back (the same spot it takes in the
+        # combo layout), whether or not a shelf is also present.
+        z_above = OVERSTOOL_TOWEL_BAR_Z_ABOVE_LEG_BOTTOM - OVERSTOOL_TOWEL_BAR_COMBO_Z_DROP
+        y_back = OVERSTOOL_TOWEL_BAR_Y_FROM_FRONT + OVERSTOOL_TOWEL_BAR_COMBO_Y_BACK
+        bar_obj.location = Vector(((left_inner + right_inner) * 0.5,
+                                   front_y + y_back,
+                                   leg_bottom + z_above))
+        bar_obj.rotation_euler = (0.0, 0.0, 0.0)
+
+    def _cleanup_overstool_part(self, role):
+        """Remove the shelf or towel bar (accessory not wanted / no legs)."""
+        for child in list(self.obj.children):
+            if child.get('hb_part_role') == role:
+                mesh = child.data if child.type == 'MESH' else None
+                bpy.data.objects.remove(child, do_unlink=True)
+                if mesh is not None and mesh.users == 0:
+                    bpy.data.meshes.remove(mesh)
+
+    def _apply_overstool_accessories(self, layout):
+        """Build / remove the leg shelf and towel bar per overstool_accessory.
+        Only when the cabinet is an upper with the sides actually extended
+        (the accessories hang between the legs). Idempotent + self-cleaning so
+        switching the dropdown adds / removes the right parts."""
+        legs = (layout.cabinet_type == 'UPPER'
+                and getattr(layout, 'extend_sides_down', False)
+                and getattr(layout, 'extend_sides_down_amount', 0.0) > 0.0
+                and self._has_carcass())
+        acc = getattr(layout, 'overstool_accessory', 'SHELF') if legs else None
+        if legs and acc in ('SHELF', 'SHELF_AND_TOWEL_BAR'):
+            self._position_overstool_shelf(self._ensure_overstool_shelf(), layout)
+        else:
+            self._cleanup_overstool_part(PART_ROLE_OVERSTOOL_SHELF)
+        if legs and acc in ('TOWEL_BAR', 'SHELF_AND_TOWEL_BAR'):
+            self._position_overstool_towel_bar(self._ensure_overstool_towel_bar(), layout)
+        else:
+            self._cleanup_overstool_part(PART_ROLE_OVERSTOOL_TOWEL_BAR)
 
     def _ensure_wedge_cutter(self):
         """Find or lazily create the wedge cutter MESH object. Hidden in
@@ -4937,6 +5254,57 @@ class HutchUpperFaceFrameCabinet(UpperFaceFrameCabinet):
             cab.extend_right_end_down_amount = drop
 
 
+class StandardRecessedMedicineCabinet(UpperFaceFrameCabinet):
+    """Recessed medicine cabinet - a shallow wall-mounted upper box
+    (3.75" deep x 16.25" wide x 22.75" tall). No finished ends: it sits
+    recessed in the wall, so the ends aren't exposed (finish-end auto is
+    turned off both sides). Front comes from default_bay_config; a single
+    door at this width."""
+
+    def __init__(self):
+        super().__init__()
+        self.default_width = inch(16.25)
+        self.default_height = inch(22.75)
+        self.default_depth = inch(3.75)
+
+    def create(self, name="Standard Recessed Medicine Cabinet", bay_qty=1):
+        super().create(name, bay_qty=bay_qty)
+        cab = self.obj.face_frame_cabinet
+        # No finished ends - recessed in the wall, ends not exposed.
+        cab.left_finish_end_auto = False
+        cab.right_finish_end_auto = False
+        cab.left_finished_end_condition = 'UNFINISHED'
+        cab.right_finished_end_condition = 'UNFINISHED'
+
+
+class MedicineCabinetFaceFrameCabinet(UpperFaceFrameCabinet):
+    """Surface-mounted medicine cabinet - a standard upper cabinet (same
+    default width / height / mount) at a shallow 6" depth. Ends finish
+    normally (it projects from the wall), unlike the recessed variant."""
+
+    def __init__(self):
+        super().__init__()
+        self.default_depth = inch(6.0)
+
+    def create(self, name="Medicine Cabinet", bay_qty=1):
+        super().create(name, bay_qty=bay_qty)
+
+
+class OverstoolCabinetFaceFrameCabinet(MedicineCabinetFaceFrameCabinet):
+    """Over-the-toilet cabinet: same size as the medicine cabinet (standard
+    upper width / height, 6" deep), but BOTH carcass side panels extend 7"
+    below the box as furniture legs, with a decorative profile cut into the
+    bottom-front corner of each side. Only the sides drop - the face frame,
+    end stiles, doors and box stay at box bottom."""
+
+    def create(self, name="Overstool Cabinet", bay_qty=1):
+        super().create(name, bay_qty=bay_qty)
+        cab = self.obj.face_frame_cabinet
+        cab.extend_sides_down = True
+        cab.extend_sides_down_amount = inch(7.0)
+        cab.side_front_profile = True
+
+
 class TallFaceFrameCabinet(FaceFrameCabinet):
     """Tall cabinet (pantry, oven, broom). Toe kick present, full-tall."""
     default_cabinet_type = 'TALL'
@@ -5116,6 +5484,42 @@ class PanelFaceFrameCabinet(FaceFrameCabinet):
     def create(self, name="Panel", bay_qty=1):
         self.create_cabinet_root(name)
         self.create_carcass(has_toe_kick=False, bay_qty=bay_qty)
+
+
+class MirrorFrameFaceFrameCabinet(PanelFaceFrameCabinet):
+    """Mirror frame: the same flat face-frame panel as the 'Panel' product
+    (no carcass - just rails / stiles), 38" wide x 28" tall x 0.75", hung on
+    the wall and PLACED like an upper cabinet (mounts_as_upper).
+
+    Built at the Panel DEFAULT size then resized - NOT created straight at
+    38x28. A panel created directly at a wide width picks up stray carcass /
+    blind parts (a latent quirk in the wide-bay create path); the normal
+    draw-a-panel flow creates at default then resizes, which stays clean. We
+    reproduce that clean path here."""
+
+    mounts_as_upper = True
+
+    def create(self, name="Mirror Frame", bay_qty=1):
+        super().create(name, bay_qty=bay_qty)   # clean Panel at default size
+        cab = self.obj.face_frame_cabinet
+        cab.width = inch(38.0)
+        cab.height = inch(28.0)
+
+
+class TubSkirtFaceFrameCabinet(PanelFaceFrameCabinet):
+    """Tub skirt: the exact same flat face-frame panel as the 'Panel' product,
+    just 24" tall by default instead of 30". Sits on the floor in front of a
+    tub and is placed like a panel (NOT wall-mounted). Like any panel-derived
+    class it MUST be registered in WRAP_CLASS_REGISTRY so recalc wraps it as a
+    Panel (no carcass); an unregistered panel-derived class falls back to the
+    base carcass cabinet (see Mirror Frame)."""
+
+    def __init__(self):
+        super().__init__()
+        self.default_height = inch(24.0)
+
+    def create(self, name="Tub Skirt", bay_qty=1):
+        super().create(name, bay_qty=bay_qty)
 
 
 class LegProductFaceFrameCabinet(FaceFrameCabinet):
@@ -5573,6 +5977,11 @@ CABINET_NAME_DISPATCH = {
     "Upper Stacked": UpperFaceFrameCabinet,
     "Bookcase Upper": BookcaseUpperFaceFrameCabinet,
     "Hutch Upper": HutchUpperFaceFrameCabinet,
+    "Standard Recessed Medicine Cabinet": StandardRecessedMedicineCabinet,
+    "Medicine Cabinet": MedicineCabinetFaceFrameCabinet,
+    "Overstool Cabinet": OverstoolCabinetFaceFrameCabinet,
+    "Mirror Frame": MirrorFrameFaceFrameCabinet,
+    "Tub Skirt": TubSkirtFaceFrameCabinet,
     "Tall": TallFaceFrameCabinet,
     "Tall Stacked": TallFaceFrameCabinet,
     "Refrigerator Cabinet": RefrigeratorCabinet,
@@ -5726,6 +6135,23 @@ WRAP_CLASS_REGISTRY.update({
     'PanelFaceFrameCabinet': PanelFaceFrameCabinet,
     'LegProductFaceFrameCabinet': LegProductFaceFrameCabinet,
     'FloatingShelfFaceFrameCabinet': FloatingShelfFaceFrameCabinet,
+})
+
+
+# Specialty Bath leaf classes. _wrap_cabinet() (run on every recalc) falls back
+# to the base FaceFrameCabinet for any CLASS_NAME not registered here, and the
+# base reports _has_carcass() == True - so an unregistered PANEL-derived class
+# (Mirror Frame) wrongly rebuilds carcass / blind / top / bottom parts at
+# recalc. Registering it makes recalc wrap it as a Panel (no carcass). The
+# upper-derived bath products wrap to a carcass either way (and resolve
+# _has_toe_kick to Upper's False == the base-wrap value), so listing them here
+# is behavior-neutral - it just makes recalc use their real class.
+WRAP_CLASS_REGISTRY.update({
+    'StandardRecessedMedicineCabinet': StandardRecessedMedicineCabinet,
+    'MedicineCabinetFaceFrameCabinet': MedicineCabinetFaceFrameCabinet,
+    'OverstoolCabinetFaceFrameCabinet': OverstoolCabinetFaceFrameCabinet,
+    'MirrorFrameFaceFrameCabinet': MirrorFrameFaceFrameCabinet,
+    'TubSkirtFaceFrameCabinet': TubSkirtFaceFrameCabinet,
 })
 
 

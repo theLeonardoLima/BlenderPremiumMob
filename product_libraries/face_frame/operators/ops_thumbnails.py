@@ -52,6 +52,11 @@ RENDERABLE_CATALOG = (
     "Bookcase",
     "Bookcase Storage Unit",
     "Bookcase Upper",
+    "Standard Recessed Medicine Cabinet",
+    "Medicine Cabinet",
+    "Overstool Cabinet",
+    "Mirror Frame",
+    "Tub Skirt",
     # Freestanding furniture - flush kick + veneer wood top, built and
     # populated via the bay preset path like the other base products.
     "5 Drawer Dresser",

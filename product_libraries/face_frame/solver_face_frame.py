@@ -85,6 +85,11 @@ class FaceFrameLayout:
         self.extend_left_end_down_amount = getattr(cab, 'extend_left_end_down_amount', 0.0)
         self.extend_right_end_down = getattr(cab, 'extend_right_end_down', False)
         self.extend_right_end_down_amount = getattr(cab, 'extend_right_end_down_amount', 0.0)
+        # Over-stool: drop BOTH sides (not the stiles) - see side_extend_down.
+        self.extend_sides_down = getattr(cab, 'extend_sides_down', False)
+        self.extend_sides_down_amount = getattr(cab, 'extend_sides_down_amount', 0.0)
+        self.side_front_profile = getattr(cab, 'side_front_profile', False)
+        self.overstool_accessory = getattr(cab, 'overstool_accessory', 'SHELF')
         self.kick_inset_left = (cab.inset_toe_kick_left
                                 if self.has_toe_kick else 0.0)
         self.kick_inset_right = (cab.inset_toe_kick_right
@@ -465,6 +470,19 @@ def ends_down_drop(layout, side='LEFT'):
     return max(0.0, amount) if on else 0.0
 
 
+def side_extend_down(layout, side='LEFT'):
+    """Distance BOTH carcass side panels extend BELOW the box bottom for the
+    over-stool / furniture-leg option. Unlike ends_down_drop this moves ONLY
+    the side panels - the end stiles and face frame stay at the box bottom.
+    Both sides share one amount. Zero for non-uppers or when the option is off.
+    """
+    if layout.cabinet_type != 'UPPER':
+        return 0.0
+    on = getattr(layout, 'extend_sides_down', False)
+    amount = getattr(layout, 'extend_sides_down_amount', 0.0)
+    return max(0.0, amount) if on else 0.0
+
+
 def side_bottom_z(layout, bay_index, side='LEFT'):
     """Z of the carcass side panel's bottom edge.
 
@@ -481,8 +499,11 @@ def side_bottom_z(layout, bay_index, side='LEFT'):
     the floor up to the cabinet bottom panel.
     """
     if not layout.has_toe_kick:
-        # Uppers: anchor at the box bottom, dropped by the hutch amount.
-        return bay_bottom_z(layout, bay_index) - ends_down_drop(layout, side)
+        # Uppers: anchor at the box bottom, dropped by the hutch amount
+        # (side + stile) and the over-stool amount (sides only).
+        return (bay_bottom_z(layout, bay_index)
+                - ends_down_drop(layout, side)
+                - side_extend_down(layout, side))
     # LOOSE floats the carcass exactly like FLOATING - the difference is
     # that LOOSE also builds a ladder sub-base under the cabinet.
     if layout.toe_kick_type in ('FLOATING', 'LOOSE'):

@@ -1252,6 +1252,8 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         'FURNITURE_TOP',
         # Finished back closing a hutch upper's dropped-end recess
         'HUTCH_BACK',
+        # Over-stool shelf between the extended legs
+        'OVERSTOOL_SHELF',
         # Visible toe kick parts
         'CORNER_MID_RAIL', 'CORNER_FALSE_FRONT',
         'FINISH_TOE_KICK', 'CORNER_LEFT_FINISH_KICK', 'CORNER_RIGHT_FINISH_KICK',
@@ -3028,6 +3030,42 @@ class Face_Frame_Cabinet_Props(PropertyGroup):
                     "base-cabinet height - the counter gap)",
         update=_update_cabinet_dim,
     )  # type: ignore
+    extend_sides_down: BoolProperty(
+        name="Extend Sides Down",
+        default=False,
+        description="Upper cabinets only: drop BOTH carcass side panels "
+                    "below the box as furniture legs (the over-stool look). "
+                    "Unlike Extend Ends Down, ONLY the sides move - the end "
+                    "stiles, face frame, doors and box stay at box bottom",
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    extend_sides_down_amount: FloatProperty(
+        name="Sides Drop", default=units.inch(7.0), min=0.0,
+        unit='LENGTH', precision=4,
+        description="How far both side panels drop below the box bottom",
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    side_front_profile: BoolProperty(
+        name="Side Front Profile",
+        default=False,
+        description="Cut the over-stool decorative profile into the "
+                    "bottom-front corner of each extended side panel",
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    overstool_accessory: EnumProperty(
+        name="Leg Accessory",
+        items=[
+            ('SHELF', "With Shelf",
+             "A shelf spanning between the extended sides"),
+            ('TOWEL_BAR', "With Towel Bar",
+             "A towel bar spanning between the extended sides"),
+            ('SHELF_AND_TOWEL_BAR', "With Shelf and Towel Bar",
+             "Both a shelf and a towel bar between the extended sides"),
+        ],
+        default='SHELF',
+        description="What hangs between the extended sides (over-stool legs)",
+        update=_update_cabinet_dim,
+    )  # type: ignore
     hutch_finished_back: BoolProperty(
         name="Finished Back in Recess",
         default=False,
@@ -4493,8 +4531,9 @@ class Face_Frame_Scene_Props(PropertyGroup):
     # =====================================================================
     def draw_specialty_bath_library_ui(self, layout, context):
         self._draw_catalog_grid(layout, [
-            "Recessed Medicine Cabinet", "Tri-View Medicine Cabinet",
-            "Overstool", "Mirror Frame", "Tub Skirt",
+            "Standard Recessed Medicine Cabinet", "Medicine Cabinet",
+            "Tri-View Medicine Cabinet",
+            "Overstool Cabinet", "Mirror Frame", "Tub Skirt",
         ], columns=2)
 
     # =====================================================================

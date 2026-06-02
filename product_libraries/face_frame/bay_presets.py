@@ -334,6 +334,18 @@ def default_bay_config(cabinet_name, bay_width):
         # Hutch upper: a standard upper front (width-based door); the
         # dropped ends come from the cabinet class, not the bay preset.
         return 'DOUBLE_DOOR' if is_wide else 'LEFT_SWING_DOOR'
+    if cabinet_name == 'Standard Recessed Medicine Cabinet':
+        # Medicine cabinet: a single door at the narrow default width
+        # (width-based so it still doubles up if widened).
+        return 'DOUBLE_DOOR' if is_wide else 'LEFT_SWING_DOOR'
+    if cabinet_name == 'Medicine Cabinet':
+        # Surface-mounted medicine cabinet: standard upper front
+        # (width-based door).
+        return 'DOUBLE_DOOR' if is_wide else 'LEFT_SWING_DOOR'
+    if cabinet_name == 'Overstool Cabinet':
+        # Over-stool cabinet: standard upper front (width-based door);
+        # the extended legs come from the cabinet class, not the bay.
+        return 'DOUBLE_DOOR' if is_wide else 'LEFT_SWING_DOOR'
     if cabinet_name == 'Upper Stacked':
         return 'DOUBLE_STACKED_DOOR' if is_wide else 'LEFT_STACKED_DOOR'
     if cabinet_name in ('Tall', 'Tall Stacked'):

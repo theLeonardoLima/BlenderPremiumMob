@@ -238,6 +238,17 @@ def draw_construction(layout, cab_props):
             box.prop(cab_props, 'hutch_finished_back',
                      text="Finished Back in Recess")
 
+        # Uppers only: drop BOTH sides below the box as furniture legs
+        # (over-stool look) - decorative front profile + a shelf / towel bar.
+        box = layout.box()
+        box.label(text="Extend Sides Down")
+        col = box.column(align=True)
+        col.prop(cab_props, 'extend_sides_down', text="Extend Sides Down")
+        if cab_props.extend_sides_down:
+            col.prop(cab_props, 'extend_sides_down_amount', text="Sides Drop")
+            col.prop(cab_props, 'side_front_profile', text="Front Profile")
+            col.prop(cab_props, 'overstool_accessory', text="Accessory")
+
     box = layout.box()
     box.label(text="Finished Ends and Backs")
     draw_finished_ends(box, cab_props)
