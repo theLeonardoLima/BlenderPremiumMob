@@ -1222,7 +1222,9 @@ class MultiView(LayoutView):
     
     source_obj: bpy.types.Object = None
     content_collection: bpy.types.Collection = None
+    content_collection_dashed: bpy.types.Collection = None
     view_instances: list = None
+    dashed_instances: list = None
     
     # View type definitions: (type_id, label, rotation_euler)
     # Rotations position the camera to look at the object from that direction
@@ -1238,6 +1240,7 @@ class MultiView(LayoutView):
     def __init__(self, scene=None):
         super().__init__(scene)
         self.view_instances = []
+        self.dashed_instances = []
         if scene:
             # Find source object
             source_name = scene.get('SOURCE_OBJECT')
@@ -1293,6 +1296,14 @@ class MultiView(LayoutView):
         
         # Add source object and children to collection
         self._add_object_to_collection(source_obj, self.content_collection)
+
+        # Interior parts (shelves behind doors) -> dashed-content
+        # collection so each cell can also instance them into DASHED
+        # freestyle (the hidden-line pass ElevationView gets via
+        # _collect_objects_split). Built once; both the cross-layout
+        # and iso-left paths reuse it.
+        self.content_collection_dashed = self._build_dashed_content_collection(
+            source_obj, view_name)
         
         # Get source object's WORLD location and rotation to offset instances.
         # Use matrix_world (not .location/.rotation_euler) so we capture every
@@ -1376,6 +1387,10 @@ class MultiView(LayoutView):
             offset = combined_matrix @ source_loc
             
             instance.location = base_pos - offset
+            # Dashed hidden-line pass only on true elevation cells --
+            # not PLAN / ISO (see _create_iso_left note).
+            if view_type not in ('PLAN', 'ISO'):
+                self._add_dashed_cell_instance(instance, view_label)
             
             self.view_instances.append(instance)
         
@@ -1415,6 +1430,13 @@ class MultiView(LayoutView):
             for instance in self.view_instances:
                 if instance.name not in solid_collection.objects:
                     solid_collection.objects.link(instance)
+
+        # Interior-part dashed siblings -> DASHED freestyle.
+        dashed_collection = self.get_freestyle_collection('DASHED')
+        if dashed_collection:
+            for d in self.dashed_instances:
+                if d.name not in dashed_collection.objects:
+                    dashed_collection.objects.link(d)
         
         # Add title block
         self.title_block = TitleBlock()
@@ -1628,6 +1650,11 @@ class MultiView(LayoutView):
             self.scene.collection.objects.link(instance)
             instance.matrix_world = W @ M_local @ W_inv
             self.view_instances.append(instance)
+            # Dashed hidden-line pass only on true elevation cells --
+            # PLAN (top-down) and ISO show interior shelves edge-on /
+            # in 3D where dashed hidden lines just add clutter.
+            if view_type not in ('PLAN', 'ISO'):
+                self._add_dashed_cell_instance(instance, label)
         
         # ----------------------------------------------------------------
         # Camera positioning: anchor to the WALL, not to visible content.
@@ -1694,12 +1721,118 @@ class MultiView(LayoutView):
             for instance in self.view_instances:
                 if instance.name not in solid_collection.objects:
                     solid_collection.objects.link(instance)
+
+        # Interior-part dashed siblings -> DASHED freestyle.
+        dashed_collection = self.get_freestyle_collection('DASHED')
+        if dashed_collection:
+            for d in self.dashed_instances:
+                if d.name not in dashed_collection.objects:
+                    dashed_collection.objects.link(d)
         
         # Title block — after hb_layout_scale set so border sizing is right.
         self.title_block = TitleBlock()
         self.title_block.create(self.scene, self.camera)
         
         return self.scene
+
+    def _build_dashed_content_collection(self, source_obj, view_name):
+        """Collect the source's INTERIOR parts (shelves and anything else
+        hidden behind doors, tagged IS_FACE_FRAME_INTERIOR_PART /
+        IS_FRAMELESS_INTERIOR_PART) into a dashed-content collection.
+
+        MultiView instances ONE content collection per cell and links
+        every instance into SOLID freestyle, so interior parts -- present
+        in the content but occluded -- get no SOLID strokes and no DASHED
+        pass either, and never draw. ElevationView avoids this by splitting
+        each cabinet into solid / dashed sub-collections
+        (_collect_objects_split). Here we build ONE dashed collection for
+        the whole source and instance it (front elevation cell only) into
+        DASHED freestyle.
+
+        Interior parts are MOVED out of the solid content, not copied.
+        Blender freestyle selects by SOURCE object, so leaving a shared
+        interior part in BOTH the solid content (instanced at every cell)
+        and the dashed content marks that source object 'dashed'
+        EVERYWHERE it's instanced -- the shelves then draw dashed on the
+        plan and iso cells too, not just the elevation. Removing them from
+        solid content (mirroring _collect_objects_split exactly) leaves
+        them only in the front dashed instance. Behind-door parts are
+        hidden on every cell anyway, so the solid cells lose nothing.
+        Only parts behind a real front are moved -- open-shelving
+        parts (open opening) stay in solid content so they remain
+        VISIBLE / solid on the iso and plan cells (see occluded()).
+
+        Returns the collection, or None when the source has no interior
+        parts (callers then skip the dashed instances).
+        """
+        dashed = bpy.data.collections.new(f"{view_name} Content Dashed")
+
+        def occluded(o):
+            """An interior part is hidden-line (dashed) only when its
+            enclosing face-frame opening has a real front. An OPEN
+            opening (front_type 'NONE', open shelving) leaves it
+            VISIBLE, so it must stay in the solid content and draw
+            normally on every cell (incl. the iso) -- otherwise open
+            shelves vanish. Walk up to the opening cage; default to
+            occluded when none is found (e.g. frameless, which has no
+            face-frame opening cage -- preserves prior behavior)."""
+            p = o.parent
+            while p is not None:
+                if p.get('IS_FACE_FRAME_OPENING_CAGE'):
+                    ffo = getattr(p, 'face_frame_opening', None)
+                    ft = getattr(ffo, 'front_type', 'NONE') if ffo else 'NONE'
+                    return ft != 'NONE'
+                p = p.parent
+            return True
+
+        def visit(o):
+            if (not is_cage_object(o) and not is_helper_object(o)
+                    and (o.get('IS_FRAMELESS_INTERIOR_PART')
+                         or o.get('IS_FACE_FRAME_INTERIOR_PART'))
+                    and occluded(o)):
+                if o.name not in dashed.objects:
+                    dashed.objects.link(o)
+            for ch in o.children:
+                visit(ch)
+
+        visit(source_obj)
+        if len(dashed.objects) == 0:
+            bpy.data.collections.remove(dashed)
+            return None
+        # Move (not copy): unlink interior parts from the solid content
+        # collection so they're instanced ONLY by the dashed front cell.
+        # (See docstring: freestyle is source-object based.)
+        if self.content_collection is not None:
+            for o in list(dashed.objects):
+                if o.name in self.content_collection.objects:
+                    self.content_collection.objects.unlink(o)
+        return dashed
+
+    def _add_dashed_cell_instance(self, solid_instance, label):
+        """Create a dashed sibling of a cell's solid instance: same
+        transform, referencing the interior-only dashed-content
+        collection, so the cell's interior parts (shelves behind doors)
+        get the DASHED hidden-line freestyle pass. No-op when the source
+        has no interior parts. Linked to DASHED freestyle by the caller
+        after the cell loop.
+        """
+        if self.content_collection_dashed is None:
+            return None
+        d = bpy.data.objects.new(f"{label} Dashed Instance", None)
+        d.empty_display_size = 0.01
+        d.instance_type = 'COLLECTION'
+        d.instance_collection = self.content_collection_dashed
+        self.scene.collection.objects.link(d)
+        # Copy the solid cell's transform component-wise -- reliable
+        # whether the cell set matrix_world directly (iso-left) or
+        # location + rotation_euler (cross-layout); both are parentless
+        # empties, so location/rotation/scale fully define the transform.
+        d.rotation_mode = solid_instance.rotation_mode
+        d.location = solid_instance.location.copy()
+        d.rotation_euler = solid_instance.rotation_euler.copy()
+        d.scale = solid_instance.scale.copy()
+        self.dashed_instances.append(d)
+        return d
 
     def _compute_recursive_bbox(self, source_obj):
         """Compute bbox of source_obj plus renderable descendants in

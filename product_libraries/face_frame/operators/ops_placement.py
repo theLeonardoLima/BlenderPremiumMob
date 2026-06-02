@@ -932,6 +932,22 @@ def _max_intrusion_neighbor(adj_wall_obj, our_wall_obj, side, height_ref_range=N
     best_obj = None
     best_intrusion = 0.0
 
+    # Corner point in OUR wall-local frame: the wall end that meets the
+    # adjacent wall ('right' -> x=our_length, 'left' -> x=0; y=0 on the
+    # wall-face line). A genuine blind-corner neighbor sits AT this
+    # corner, so one of its footprint corners touches it. Intrusion
+    # alone cannot tell the corner cabinet from a far cabinet on the
+    # SAME adjacent wall - both project to the same length-axis
+    # intrusion (= their depth), because the projection collapses
+    # position ALONG the adjacent wall. The proximity gate below is
+    # what disambiguates them.
+    corner_local = Vector((our_length if side == 'right' else 0.0, 0.0))
+    # 8" sits above a typical wall thickness/reveal offset of the flush
+    # corner cabinet, yet below the smallest standard cabinet width, so
+    # we accept the real corner cabinet but never reach the next cabinet
+    # down the adjacent wall.
+    corner_near_tol = units.inch(8.0)
+
     for child in adj_wall_obj.children:
         if child.get('obj_x') or child.get('IS_2D_ANNOTATION'):
             continue
@@ -966,6 +982,11 @@ def _max_intrusion_neighbor(adj_wall_obj, our_wall_obj, side, height_ref_range=N
             Vector((child_w, -child_d, 0.0)),
         ]
         corners_our = [our_inv @ (child.matrix_world @ c) for c in local_corners]
+        # Gate on corner proximity: skip cabinets that intrude into our
+        # wall's bounds but are not actually AT the corner (e.g. a
+        # cabinet farther down the adjacent wall - see corner_local).
+        if min((c.xy - corner_local).length for c in corners_our) > corner_near_tol:
+            continue
         if side == 'left':
             intrusion = max((c.x for c in corners_our if c.x > 0), default=0.0)
         else:
@@ -4030,18 +4051,12 @@ class hb_face_frame_OT_set_blind_corner_void_amount(bpy.types.Operator):
         default=units.inch(3.0),
         min=0.0, unit='LENGTH', precision=4,
     )  # type: ignore
-    current_cabinet_stile_width: bpy.props.FloatProperty(
-        name="Placed Cabinet Stile Width",
-        default=units.inch(2.0),
-        min=0.0, unit='LENGTH', precision=4,
-    )  # type: ignore
 
     def invoke(self, context, event):
         scene = context.scene
         ff_scene = getattr(scene, 'hb_face_frame', None)
         if ff_scene is not None:
             self.blind_stile_width = ff_scene.ff_blind_stile_width
-            self.current_cabinet_stile_width = ff_scene.ff_end_stile_width
         return context.window_manager.invoke_props_dialog(self, width=420)
 
     def draw(self, context):
@@ -4075,10 +4090,6 @@ class hb_face_frame_OT_set_blind_corner_void_amount(bpy.types.Operator):
         row = layout.row(align=True)
         row.label(text="Exposed Blind Stile Width:")
         row.prop(self, 'blind_stile_width', text="")
-
-        row = layout.row(align=True)
-        row.label(text="Placed Cabinet Stile Width:")
-        row.prop(self, 'current_cabinet_stile_width', text="")
 
     def execute(self, context):
         blind_obj = bpy.data.objects.get(self.blind_cabinet_name)
@@ -4139,7 +4150,12 @@ class hb_face_frame_OT_set_blind_corner_void_amount(bpy.types.Operator):
                 blind_props.blind_amount_left = new_blind_amount
                 blind_props.left_stile_width = final_stile_w
                 placed_props.right_stile_type = 'BLIND'
-                placed_props.right_stile_width = self.current_cabinet_stile_width
+                # The placed cabinet's corner stile reads the SAME exposed
+                # width as the blind cabinet's blind stile, so the two meet
+                # symmetrically at the corner. (The blind stile's extra
+                # 0.75" accept-adjacent add is hidden, so it is NOT included
+                # in the placed stile.)
+                placed_props.right_stile_width = self.blind_stile_width
             else:  # 'RIGHT'
                 # Shrinking from the right edge requires no location
                 # shift since the origin sits at the left edge.
@@ -4149,7 +4165,9 @@ class hb_face_frame_OT_set_blind_corner_void_amount(bpy.types.Operator):
                 blind_props.blind_amount_right = new_blind_amount
                 blind_props.right_stile_width = final_stile_w
                 placed_props.left_stile_type = 'BLIND'
-                placed_props.left_stile_width = self.current_cabinet_stile_width
+                # See the LEFT-branch note: placed corner stile matches the
+                # exposed blind stile width for a symmetric corner.
+                placed_props.left_stile_width = self.blind_stile_width
 
         return {'FINISHED'}
 
