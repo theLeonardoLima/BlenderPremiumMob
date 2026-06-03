@@ -5167,6 +5167,25 @@ class ThreeDrawerNightStandCabinet(FurnitureFaceFrameCabinet):
         self.obj.face_frame_cabinet.furniture_top = True
 
 
+class WindowSeatFaceFrameCabinet(FurnitureFaceFrameCabinet):
+    """18"-tall window seat: a standard BASE cabinet with a flush
+    (wide-bottom-rail) kick. The flush kick comes from
+    FurnitureFaceFrameCabinet (its sole behavior); unlike the dresser /
+    night stand products this one gets NO furniture wood top. Each bay
+    defaults to a recessed inset panel filling the opening - applied by
+    the placement operator via default_bay_config ('INSET_PANEL')."""
+
+    def __init__(self):
+        super().__init__()
+        # Spec height; overrides the inherited base_cabinet_height.
+        self.default_height = inch(18.0)
+
+    def create(self, name="Window Seat", bay_qty=1):
+        # Flush kick is forced by the FurnitureFaceFrameCabinet create;
+        # no furniture_top write here keeps the top open (no veneer slab).
+        super().create(name, bay_qty=bay_qty)
+
+
 class SinkFaceFrameCabinet(BaseFaceFrameCabinet):
     """Standard base cabinet sized for a sink. Default width is pulled
     from sink_cabinet_width; the bay defaults to false-front-over-doors
@@ -6230,6 +6249,7 @@ CABINET_NAME_DISPATCH = {
     "6 Drawer Dresser": SixDrawerDresserCabinet,
     "Night Stand": NightStandFaceFrameCabinet,
     "3 Drawer Night Stand": ThreeDrawerNightStandCabinet,
+    "Window Seat": WindowSeatFaceFrameCabinet,
     "Sink": SinkFaceFrameCabinet,
     "Lap Drawer": LapDrawerFaceFrameCabinet,
     "Upper": UpperFaceFrameCabinet,

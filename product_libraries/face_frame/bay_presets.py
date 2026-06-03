@@ -123,6 +123,9 @@ BASE_PRESETS = {
                                  L('DRAWER')),
     'OPEN_WITH_SHELVES':       L('OPEN_WITH_SHELVES'),
     'OPEN':                    L('OPEN'),
+    # Single opening filled by a recessed 1/4" inset panel (no overlay,
+    # no swing). Default front for the Window Seat product.
+    'INSET_PANEL':             L('INSET_PANEL'),
 }
 
 
@@ -405,4 +408,8 @@ def default_bay_config(cabinet_name, bay_width):
     if cabinet_name == '3 Drawer Night Stand':
         # Furniture night stand: a single column of three equal drawers.
         return 'THREE_DRAWERS_EQUAL'
+    if cabinet_name == 'Window Seat':
+        # Window seat: each bay opening gets a recessed inset panel by
+        # default (flush-kick base; see WindowSeatFaceFrameCabinet).
+        return 'INSET_PANEL'
     return None

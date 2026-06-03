@@ -52,6 +52,9 @@ RENDERABLE_CATALOG = (
     "Bookcase",
     "Bookcase Storage Unit",
     "Bookcase Upper",
+    # Window seat - flush-kick 18" base; bays default to an inset panel
+    # via the bay-preset path, same as the other base products.
+    "Window Seat",
     "Standard Recessed Medicine Cabinet",
     "Medicine Cabinet",
     "Tri-View Medicine Cabinet",
