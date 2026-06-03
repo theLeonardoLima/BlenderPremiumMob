@@ -406,6 +406,10 @@ class hb_face_frame_OT_toggle_mode(bpy.types.Operator):
                 # Appliances live alongside cabinets in the catalog and
                 # should highlight together in Cabinets mode.
                 return True
+            if obj.get(types_face_frame.TAG_PRODUCT_CAGE):
+                # Non-cabinet products (e.g. Half Wall) show their cage and
+                # are the selection target in Cabinets mode, like appliances.
+                return True
             # Applied panels are nested cabinet roots that share
             # TAG_CABINET_CAGE with their host. They get their own
             # Applied Panels mode (reached via the Show Applied Panels
@@ -430,7 +434,8 @@ class hb_face_frame_OT_toggle_mode(bpy.types.Operator):
         # an appliance product, or are generic cabinet parts/cages we
         # know about. Avoids dimming arbitrary scene geometry.
         if (types_face_frame.find_cabinet_root(obj) is None
-                and not obj.get('IS_APPLIANCE')):
+                and not obj.get('IS_APPLIANCE')
+                and not obj.get(types_face_frame.TAG_PRODUCT_CAGE)):
             return
 
         # dont_show_parent=False: the frameless toggle_cabinet_color

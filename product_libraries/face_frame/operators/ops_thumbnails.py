@@ -70,6 +70,10 @@ RENDERABLE_CATALOG = (
     # Bare parts (no cage): a lone cutpart, and a door front + pull.
     "Misc Part",
     "Door",
+    # Misc products. Half Wall / Support Frame reuse the frameless
+    # geometry (no bay preset applies; default_bay_config returns None).
+    "Half Wall",
+    "Support Frame",
 )
 
 

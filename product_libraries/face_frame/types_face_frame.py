@@ -27,6 +27,8 @@ from ...units import inch
 from ...hb_details import apply_label_style
 from ..common import types_appliances
 from ..frameless.types_frameless import CabinetPart
+from ..frameless.types_products import HalfWall as _FramelessHalfWall
+from ..frameless.types_products import SupportFrame as _FramelessSupportFrame
 from . import solver_face_frame as solver
 from . import pulls
 
@@ -38,6 +40,13 @@ TAG_CABINET_CAGE = 'IS_FACE_FRAME_CABINET_CAGE'
 TAG_BAY_CAGE = 'IS_FACE_FRAME_BAY_CAGE'
 TAG_OPENING_CAGE = 'IS_FACE_FRAME_OPENING_CAGE'
 TAG_SPLIT_NODE = 'IS_FACE_FRAME_SPLIT_NODE'
+# Non-cabinet face-frame PRODUCTS (e.g. the Half Wall) that should still
+# behave like a cabinet for selection purposes: their cage shows + is the
+# selection target in 'Cabinets' selection mode. They are NOT TAG_CABINET_CAGE
+# (that would route them through the cabinet recalc / modify / carcass
+# machinery, which would wreck their custom geometry) - the selection mode
+# operator special-cases this tag the same way it does IS_APPLIANCE.
+TAG_PRODUCT_CAGE = 'IS_FACE_FRAME_PRODUCT_CAGE'
 # Interior tree tags. Internal nodes carry TAG_INTERIOR_SPLIT_NODE; leaves
 # carry TAG_INTERIOR_REGION. Both live as cage children of an opening.
 TAG_INTERIOR_SPLIT_NODE = 'IS_INTERIOR_SPLIT_NODE'
@@ -6117,6 +6126,40 @@ def apply_active_door_style_to_part(door_obj):
         door_obj['STYLE_NAME'] = ff.cabinet_styles[ff.active_cabinet_style_index].name
 
 
+def apply_active_finish_to_product(product_obj):
+    """Assign the project's ACTIVE cabinet style's exterior FINISH material
+    to every cutpart under a non-cabinet face-frame PRODUCT (e.g. a Half
+    Wall) and record the source style as STYLE_NAME.
+
+    A product built from the frameless part primitives carries no
+    hb_part_role, so the cabinet material walk (_apply_materials_to_cabinet,
+    which dispatches by role and reads face_frame_cabinet side conditions)
+    skips it entirely. A half wall is a single finished element, so the
+    faithful behavior is the style's finish on every surface - surface =
+    finish, edges = the rotated variant, mirroring the cabinet exterior-role
+    branch. No-op if no style resolves or the finish is unresolved (e.g.
+    CUSTOM species with no custom_material picked yet)."""
+    from . import props_hb_face_frame as props
+    ff = props.get_style_props()
+    if ff is None:
+        return
+    idx = ff.active_cabinet_style_index
+    if not (0 <= idx < len(ff.cabinet_styles)):
+        return
+    cs = ff.cabinet_styles[idx]
+    finish_mat, finish_mat_rotated = cs.get_finish_material()
+    if finish_mat is None:
+        return
+    for child in product_obj.children_recursive:
+        if child.type != 'MESH':
+            continue
+        # _set_part_surfaces wraps the obj as a GeoNodeCutpart and plugs the
+        # Top/Bottom Surface + edge inputs; it silently no-ops on any object
+        # that isn't a cutpart, so the MESH guard is enough.
+        cs._set_part_surfaces(child, finish_mat, finish_mat_rotated)
+    product_obj['STYLE_NAME'] = cs.name
+
+
 def position_door_part_pull(door_obj):
     """Create or reposition a scene-settings door pull on a Door Part.
 
@@ -6240,6 +6283,95 @@ class DoorPart(CabinetPart):
         position_door_part_pull(self.obj)
 
 
+class HalfWallFaceFrameProduct(_FramelessHalfWall):
+    """Half wall (pony / knee wall) for the Face Frame catalog's Misc
+    section. Migrated by REUSING the frameless HalfWall geometry verbatim
+    (studs + skins + finished end caps) - the face frame library already
+    depends on the frameless part primitives (see the CabinetPart import
+    above), so this thin subclass only routes the product through the face
+    frame placement modal.
+
+    It is NOT a face frame cabinet (no bays / openings / face frame), so it
+    rides place_cabinet's bare-product branch in _finalize - the same path
+    Misc Part / Door use. The frameless IS_FRAMELESS_PRODUCT_CAGE tag and
+    PART_TYPE='HALF_WALL' set by the inherited create() are deliberately
+    KEPT: the existing frameless right-click prompts (stud spacing, end
+    caps, size) and delete key off those, so editing works unchanged.
+    """
+    single_placement = True          # one fixed-size piece, like Misc Part
+    placement_stand_rotation = None  # built standing (Dim Z = height); no reorient
+
+    def __init__(self):
+        super().__init__()
+        # Feed the placement modal's preview cage. The frameless HalfWall
+        # seeds width / height / depth as instance attrs in its __init__;
+        # mirror them onto the default_* names the face frame modal reads.
+        self.default_width = self.width
+        self.default_height = self.height
+        self.default_depth = self.depth
+
+    def create(self, name="Half Wall", bay_qty=1):
+        # bay_qty is accepted (place_cabinet._finalize always passes it) but
+        # ignored - a half wall has no bays. The inherited create builds the
+        # full stud / skin geometry and tags the product cage.
+        super().create(name)
+        # Mark it a face-frame product cage so the Cabinets selection mode
+        # shows its cage + makes it the selection target (see TAG_PRODUCT_CAGE
+        # and hb_face_frame_OT_toggle_mode). NOT a cabinet cage by design.
+        self.obj[TAG_PRODUCT_CAGE] = True
+        # Pick up the project's active face-frame cabinet style's finish
+        # material (the frameless geometry otherwise carries no face-frame
+        # finish). Stamps STYLE_NAME so the source style is recorded.
+        apply_active_finish_to_product(self.obj)
+
+    def apply_placement_width(self, width):
+        """The cage width maps to the product's X span = its 'Dim X' input
+        (the studs / skins / top / bottom are all driver-bound to Dim X)."""
+        self.set_input('Dim X', width)
+
+
+class SupportFrameFaceFrameProduct(_FramelessSupportFrame):
+    """Support frame (open rectangular frame + corner legs) for the Face
+    Frame catalog's Misc section. Same migration shape as the Half Wall:
+    REUSE the frameless SupportFrame geometry verbatim and add only the
+    face frame placement + integration hooks.
+
+    Not a face frame cabinet (no bays / openings), so it rides
+    place_cabinet's bare-product branch in _finalize. The frameless
+    IS_FRAMELESS_PRODUCT_CAGE tag + PART_TYPE='SUPPORT_FRAME' set by the
+    inherited create() are KEPT so the existing frameless right-click
+    prompts (support spacing, per-corner legs + types, leg sizes) and
+    delete operate on it unchanged. TAG_PRODUCT_CAGE is added so it shows
+    its cage / is the selection target in Cabinets selection mode, and the
+    active style's finish material is applied to its parts.
+    """
+    single_placement = True          # one fixed-size piece, like the Half Wall
+    placement_stand_rotation = None  # built in real orientation; no reorient
+
+    def __init__(self):
+        super().__init__()
+        # Feed the placement modal's preview cage. The frameless SupportFrame
+        # seeds width / height / depth in its __init__; mirror them onto the
+        # default_* names the face frame modal reads.
+        self.default_width = self.width
+        self.default_height = self.height
+        self.default_depth = self.depth
+
+    def create(self, name="Support Frame", bay_qty=1):
+        # bay_qty accepted (the modal always passes it) but ignored. The
+        # inherited create builds the full frame + legs and tags the cage.
+        super().create(name)
+        # Face frame product cage -> shows in Cabinets selection mode.
+        self.obj[TAG_PRODUCT_CAGE] = True
+        # Active cabinet style's finish material (+ STYLE_NAME stamp).
+        apply_active_finish_to_product(self.obj)
+
+    def apply_placement_width(self, width):
+        """The cage width maps to the product's X span = its 'Dim X' input
+        (panels / supports / legs are all driver-bound to Dim X)."""
+        self.set_input('Dim X', width)
+
+
 CABINET_NAME_DISPATCH = {
     "Base Door": BaseFaceFrameCabinet,
     "Base Door Drw": BaseFaceFrameCabinet,
@@ -6273,6 +6405,8 @@ CABINET_NAME_DISPATCH = {
     "Floating Shelves": FloatingShelfFaceFrameCabinet,
     "Misc Part": MiscPart,
     "Door": DoorPart,
+    "Half Wall": HalfWallFaceFrameProduct,
+    "Support Frame": SupportFrameFaceFrameProduct,
 }
 
 
