@@ -4533,6 +4533,7 @@ class Face_Frame_Scene_Props(PropertyGroup):
             "Leg Product",
             "Vanity End Leg Assembly", "Vanity Support Leg",
             "Vanity Fixed Shelf", "Floating Shelves",
+            "Misc Part", "Door",
         ], columns=3)
 
     # =====================================================================

@@ -319,9 +319,67 @@ class HOME_BUILDER_MT_face_frame_floating_shelf_commands(bpy.types.Menu):
                         text="Delete Shelf", icon='X')
 
 
+class HOME_BUILDER_MT_face_frame_door_part_commands(bpy.types.Menu):
+    """Right-click menu for a Door Part - a bare door front (cutpart +
+    door style + pull, no cabinet cage). Set Dimensions resizes the door
+    (and re-tracks its pull); Assign Active Style re-applies the project's
+    active cabinet style's door style; Delete routes through the HB5-aware
+    delete (falls back to object.delete for a cage-less part).
+    """
+    bl_label = "Door Part Commands"
+
+    def draw(self, context):
+        layout = self.layout
+        obj = context.active_object
+        show_pull = obj.get('DOOR_PART_SHOW_PULL', True) if obj else True
+        is_drawer = (obj.get('DOOR_PART_FRONT_KIND', 'DOOR') == 'DRAWER') if obj else False
+        layout.operator("hb_face_frame.set_door_part_dimensions",
+                        text="Set Dimensions...", icon='ARROW_LEFTRIGHT')
+        layout.operator("hb_face_frame.assign_active_door_style",
+                        text="Assign Active Style", icon='MOD_BEVEL')
+        layout.separator()
+        # Front kind: door vs drawer front (only the pull placement /
+        # asset differs). Label offers the OTHER kind.
+        layout.operator("hb_face_frame.toggle_door_part_front_kind",
+                        text="Switch to Door Front" if is_drawer else "Switch to Drawer Front",
+                        icon='FILE_REFRESH')
+        layout.separator()
+        # Pull controls. Toggle label tracks current state; switch-side is
+        # only meaningful for a shown DOOR-front pull (drawer pulls are
+        # centered, so side does nothing there).
+        layout.operator("hb_face_frame.toggle_door_part_pull",
+                        text="Hide Pull" if show_pull else "Show Pull",
+                        icon='CHECKBOX_HLT' if show_pull else 'CHECKBOX_DEHLT')
+        row = layout.row()
+        row.enabled = show_pull and not is_drawer
+        row.operator("hb_face_frame.switch_door_part_pull_side",
+                     text="Switch Pull Side", icon='ARROW_LEFTRIGHT')
+        layout.separator()
+        layout.operator("hb_general.delete", text="Delete Part", icon='X')
+
+
+class HOME_BUILDER_MT_face_frame_misc_part_commands(bpy.types.Menu):
+    """Right-click menu for a Misc Part - a bare GeoNodeCutpart with no
+    cabinet cage. The cabinet / part-role menus don't apply, so this is
+    just size + delete. Set Dimensions edits the cutpart's GeoNode inputs
+    directly; Delete routes through the HB5-aware delete (which falls back
+    to object.delete for a cage-less part).
+    """
+    bl_label = "Misc Part Commands"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.operator("hb_face_frame.set_misc_part_dimensions",
+                        text="Set Dimensions...", icon='ARROW_LEFTRIGHT')
+        layout.separator()
+        layout.operator("hb_general.delete", text="Delete Part", icon='X')
+
+
 classes = (
     HOME_BUILDER_MT_face_frame_cabinet_commands,
     HOME_BUILDER_MT_face_frame_floating_shelf_commands,
+    HOME_BUILDER_MT_face_frame_misc_part_commands,
+    HOME_BUILDER_MT_face_frame_door_part_commands,
     HOME_BUILDER_MT_face_frame_leg_product_commands,
     HOME_BUILDER_MT_face_frame_cabinet_group_commands,
     HOME_BUILDER_MT_face_frame_bay_commands,

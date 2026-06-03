@@ -20,7 +20,7 @@ import math
 import os
 from contextlib import contextmanager
 
-from mathutils import Vector
+from mathutils import Vector, Matrix, Euler
 
 from ...hb_types import GeoNodeCage, GeoNodeCutpart, GeoNodeDrawerBox
 from ...units import inch
@@ -6004,6 +6004,223 @@ class FloatingShelfFaceFrameCabinet(FaceFrameCabinet):
                          gx0, y_near, gx1, y_far, g_depth, False)
 
 
+class MiscPart(CabinetPart):
+    """A single freely-resizable face frame part - a lone GeoNodeCutpart
+    with NO cabinet cage.
+
+    Unlike Panel / Leg / Floating Shelf (which are FaceFrameCabinet
+    subclasses carrying a cage), a Misc Part is just a board: it stays out
+    of Cabinets selection mode and carries none of the carcass / bay /
+    opening machinery. It rides the standard place_cabinet modal, which
+    special-cases cage-less products in _finalize (see
+    operators/ops_placement.py) - it has no face_frame_cabinet propgroup
+    for the cabinet path to write to. The default_* attrs feed that modal's
+    preview cage; single_placement keeps it one fixed-width piece.
+    """
+    single_placement = True
+    default_cabinet_type = 'BASE'
+
+    def __init__(self):
+        super().__init__()
+        # Dim X = width, Dim Y = depth, Dim Z = height (thickness). A flat
+        # 24 x 12 x 3/4 board out of the box; resize after placement.
+        self.default_width = inch(24.0)
+        self.default_depth = inch(12.0)
+        self.default_height = inch(0.75)
+
+    def create(self, name="Misc Part", bay_qty=1):
+        # bay_qty is accepted (the modal always passes it) but ignored - a
+        # Misc Part has no bays. CabinetPart.create lays down the
+        # GeoNodeCutpart + default inputs; we then size it, mark it a Misc
+        # Part, and finish both faces.
+        super().create(name)
+        self.obj['IS_FACE_FRAME_MISC_PART'] = True
+        self.obj['MENU_ID'] = 'HOME_BUILDER_MT_face_frame_misc_part_commands'
+        self.set_input('Length', self.default_width)
+        self.set_input('Width', self.default_depth)
+        self.set_input('Thickness', self.default_height)
+        self.set_input('Mirror Y', True)
+        self.obj['Finish Top'] = True
+        self.obj['Finish Bottom'] = True
+
+    # --- placement hooks (read by place_cabinet._finalize for bare parts) ---
+    placement_stand_rotation = None  # Misc Part lies flat; no reorient.
+
+    def apply_placement_width(self, width):
+        """The cage width maps to the board's X span = its 'Length' input."""
+        self.set_input('Length', width)
+
+
+# Door Part: stand-up rotation so a standalone door reads vertical with
+# its front face toward the room. Euler X=90 (the default Andrew
+# wants), Y=-90: localX(Length=height)->world Z (up), localY(Width)->
+# world X (across), and the front face (local +Z = thickness) points
+# world -Y (toward the viewer). place_cabinet._finalize composes this
+# onto the placement transform. Flip the X sign to face the door the
+# other way.
+_DOOR_PART_STAND = Euler((math.radians(90.0), math.radians(-90.0), 0.0),
+                         'XYZ').to_matrix().to_4x4()
+
+
+def _active_door_style():
+    """The Face_Frame_Door_Style of the project's ACTIVE cabinet style, or
+    None. Mirrors _apply_door_styles_to_fronts' resolution: active cabinet
+    style -> its door_style name -> ff.door_styles lookup."""
+    from . import props_hb_face_frame as props
+    ff = props.get_style_props()
+    if ff is None:
+        return None
+    idx = ff.active_cabinet_style_index
+    if not (0 <= idx < len(ff.cabinet_styles)):
+        return None
+    name = ff.cabinet_styles[idx].door_style
+    if not name or name == 'NONE':
+        return None
+    for ds in ff.door_styles:
+        if ds.name == name:
+            return ds
+    return None
+
+
+def apply_active_door_style_to_part(door_obj):
+    """Apply the active cabinet style's door style to a Door Part front
+    (assign_style_to_front adds / strips the CPM_5PIECEDOOR 'Door Style'
+    modifier and stamps DOOR_STYLE_NAME). Also records the source cabinet
+    style as STYLE_NAME so a later style-update pass can find it. No-op if
+    nothing resolves."""
+    from . import props_hb_face_frame as props
+    ds = _active_door_style()
+    if ds is None:
+        return
+    ds.assign_style_to_front(door_obj)
+    ff = props.get_style_props()
+    if ff is not None and 0 <= ff.active_cabinet_style_index < len(ff.cabinet_styles):
+        door_obj['STYLE_NAME'] = ff.cabinet_styles[ff.active_cabinet_style_index].name
+
+
+def position_door_part_pull(door_obj):
+    """Create or reposition a scene-settings door pull on a Door Part.
+
+    Mirrors _create_pull_for_front's DOOR / BASE / left-hinged branch but
+    reads the part's own GeoNode dims (not a cabinet leaf) so it works
+    standalone. The pull is parented to the door in front-local space
+    (X = Length up, -Y = Width across, +Z = front face). Reused on resize
+    so the pull tracks the door. Returns the pull Object or None."""
+    scene_props = bpy.context.scene.hb_face_frame
+    existing = next((c for c in door_obj.children if c.get('IS_CABINET_PULL')), None)
+
+    # Per-door toggles stored as ID props (default on / left-hinged):
+    # DOOR_PART_SHOW_PULL and DOOR_PART_PULL_SIDE ('LEFT' / 'RIGHT'),
+    # driven by the right-click menu. Pull hidden -> drop any existing
+    # instance and bail.
+    if not door_obj.get('DOOR_PART_SHOW_PULL', True):
+        if existing is not None:
+            bpy.data.objects.remove(existing, do_unlink=True)
+        return None
+    # Front kind ('DOOR' default / 'DRAWER') picks the pull asset +
+    # placement convention. A DRAWER front borrows the drawer-pull asset
+    # and the in-cabinet drawer formula (horizontal bar, centered).
+    front_kind = door_obj.get('DOOR_PART_FRONT_KIND', 'DOOR')
+    pull_kind = 'drawer' if front_kind == 'DRAWER' else 'door'
+    pull_obj = pulls.resolve_pull_object(scene_props, pull_kind)
+    if pull_obj is None:
+        if existing is not None:
+            bpy.data.objects.remove(existing, do_unlink=True)
+        return None
+    part = GeoNodeCutpart(door_obj)
+    length = part.get_input('Length')      # front height
+    width = part.get_input('Width')        # front width
+    thickness = part.get_input('Thickness')
+    half = pulls.pull_length(pull_obj) / 2.0
+    z = thickness                                                 # front face
+
+    if pull_kind == 'drawer':
+        # Drawer convention: horizontal bar centered across the width;
+        # vertically centered or near the top per center_pulls_on_drawer_
+        # front. Mirrors _create_pull_for_front's drawer branch (rot_z=90
+        # runs the bar horizontal). PULL_SIDE is ignored (centered).
+        if scene_props.center_pulls_on_drawer_front:
+            x = length / 2.0
+        else:
+            x = length - scene_props.pull_vertical_location_base - half
+        y = -width / 2.0
+        rot = (math.radians(-90.0), 0.0, math.radians(90.0))
+    else:
+        # Door convention: vertical bar near the top, on the edge opposite
+        # the hinge (DOOR_PART_PULL_SIDE).
+        x = length - scene_props.pull_vertical_location_base - half
+        if door_obj.get('DOOR_PART_PULL_SIDE', 'LEFT') == 'RIGHT':
+            y = -scene_props.pull_horizontal_offset
+        else:
+            y = -(width - scene_props.pull_horizontal_offset)
+        rot = (math.radians(-90.0), 0.0, 0.0)
+
+    if existing is not None:
+        inst = existing
+        if inst.data is not pull_obj.data:
+            inst.data = pull_obj.data
+    else:
+        inst = bpy.data.objects.new(f"Pull - {door_obj.name}", pull_obj.data)
+        bpy.context.scene.collection.objects.link(inst)
+        inst.parent = door_obj
+        inst['hb_part_role'] = 'PULL'
+        inst['IS_CABINET_PULL'] = True
+    inst.location = (x, y, z)
+    inst.rotation_euler = rot
+    return inst
+
+
+class DoorPart(CabinetPart):
+    """A standalone door: the same bare GeoNodeCutpart as a Misc Part, but
+    carrying a door style + pull.
+
+    It is a DOOR-role front (so Face_Frame_Door_Style.assign_style_to_front
+    renders it slab / 5-piece) plus a scene-settings pull, with NO cabinet
+    cage / opening. On create it picks up the project's ACTIVE cabinet
+    style's door style and the scene's current pull settings; both are
+    re-applicable from the right-click menu. Rides the place_cabinet modal
+    like the Misc Part; _finalize composes placement_stand_rotation so the
+    door stands vertical wherever it lands. The 'Length' input is the door
+    HEIGHT and 'Width' the door WIDTH (assign_style_to_front's convention).
+    """
+    single_placement = True
+    default_cabinet_type = 'BASE'
+    placement_stand_rotation = _DOOR_PART_STAND
+
+    def __init__(self):
+        super().__init__()
+        # Preview cage: Dim X = width, Dim Y = depth (door thickness),
+        # Dim Z = height -> a thin tall slab that reads as a door.
+        self.default_width = inch(18.0)
+        self.default_depth = inch(0.75)
+        self.default_height = inch(30.0)
+
+    def apply_placement_width(self, width):
+        """The cage width is the door's WIDTH = its 'Width' input (its
+        'Length' input is the door HEIGHT - see assign_style_to_front)."""
+        self.set_input('Width', width)
+
+    def create(self, name="Door", bay_qty=1):
+        # bay_qty accepted but ignored. CabinetPart.create lays the cutpart;
+        # we set it up as a DOOR front, stand it up, then apply the active
+        # door style + a scene pull.
+        super().create(name)
+        self.obj['IS_FACE_FRAME_DOOR_PART'] = True
+        self.obj['hb_part_role'] = PART_ROLE_DOOR
+        self.obj['MENU_ID'] = 'HOME_BUILDER_MT_face_frame_door_part_commands'
+        self.set_input('Length', self.default_height)    # door height
+        self.set_input('Width', self.default_width)      # door width
+        self.set_input('Thickness', self.default_depth)  # door thickness
+        self.set_input('Mirror Y', True)
+        self.obj['Finish Top'] = True
+        self.obj['Finish Bottom'] = True
+        # Stand vertical for direct creation; _finalize re-composes this
+        # onto the placement transform when placed via the modal.
+        self.obj.matrix_basis = self.obj.matrix_basis @ _DOOR_PART_STAND
+        apply_active_door_style_to_part(self.obj)
+        position_door_part_pull(self.obj)
+
+
 CABINET_NAME_DISPATCH = {
     "Base Door": BaseFaceFrameCabinet,
     "Base Door Drw": BaseFaceFrameCabinet,
@@ -6034,6 +6251,8 @@ CABINET_NAME_DISPATCH = {
     "Bookcase Storage Unit": BookcaseStorageUnitFaceFrameCabinet,
     "Leg Product": LegProductFaceFrameCabinet,
     "Floating Shelves": FloatingShelfFaceFrameCabinet,
+    "Misc Part": MiscPart,
+    "Door": DoorPart,
 }
 
 

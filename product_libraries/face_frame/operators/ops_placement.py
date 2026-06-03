@@ -2493,6 +2493,37 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
         else:
             cab_obj.matrix_world = captured_world
 
+        # Bare parts (Misc Part, etc.) are a lone GeoNodeCutpart with no
+        # cabinet cage. None of the carcass / bay / style / merge / corner
+        # machinery below applies - and most of it reads
+        # cab_obj.face_frame_cabinet, which a bare part doesn't have. Size
+        # it via its own GeoNode 'Length' input, select it, and finish here.
+        if not cab_obj.get(types_face_frame.TAG_CABINET_CAGE):
+            # Width: each bare part maps the cage width to its own GeoNode
+            # input ('Length' for the flat Misc Part, 'Width' for the
+            # upright Door Part, whose 'Length' is its height).
+            if hasattr(cabinet, 'apply_placement_width'):
+                cabinet.apply_placement_width(captured_width)
+            else:
+                cabinet.set_input('Length', captured_width)
+            # Orientation: parts that declare a stand rotation (Door)
+            # get it composed onto the placement transform so they sit
+            # upright wherever they land. The position block above set
+            # matrix_basis to the placement; right-multiplying applies
+            # the reorient in the part's local space.
+            stand = getattr(cabinet, 'placement_stand_rotation', None)
+            if stand is not None:
+                cab_obj.matrix_basis = cab_obj.matrix_basis @ stand
+            for o in context.selected_objects:
+                o.select_set(False)
+            cab_obj.select_set(True)
+            context.view_layer.objects.active = cab_obj
+            hb_placement.clear_header_text(context)
+            self.report({'INFO'},
+                        f"Placed {self.cabinet_name} "
+                        f"({captured_width * 39.37008:.1f}\" wide)")
+            return {'FINISHED'}
+
         # Resize to match cage width via the property update callback
         cab_props = cab_obj.face_frame_cabinet
         cab_props.width = captured_width

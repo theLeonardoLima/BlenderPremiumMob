@@ -21,6 +21,7 @@ import bpy
 from bpy.props import FloatProperty, StringProperty
 
 from .. import types_face_frame
+from ....hb_types import GeoNodeCutpart
 
 
 # Role sets used by each operator's poll and the menu's draw.
@@ -524,11 +525,288 @@ class hb_face_frame_OT_remove_bottom_rail(bpy.types.Operator):
 # Registration
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# Misc Part dimensions
+# ---------------------------------------------------------------------------
+
+def _misc_part_for_dialog(op):
+    """The Misc Part an open Set-Dimensions dialog targets.
+
+    Resolved by name every tick (never cached) so it survives the popup
+    and a mid-edit active-object change, mirroring set_part_width's
+    source_obj_name pattern. Returns None while source_obj_name is unset -
+    invoke() seeds the prop values BEFORE setting the name, and the update
+    callbacks bail on None so those seed writes don't fan back into the
+    part.
+    """
+    if not op.source_obj_name:
+        return None
+    return bpy.data.objects.get(op.source_obj_name)
+
+
+def _on_misc_width_update(self, context):
+    """Live-apply Width -> the cutpart's 'Length' (X) input."""
+    obj = _misc_part_for_dialog(self)
+    if obj is not None:
+        GeoNodeCutpart(obj).set_input('Length', self.part_width)
+
+
+def _on_misc_depth_update(self, context):
+    """Live-apply Depth -> the cutpart's 'Width' (Y) input."""
+    obj = _misc_part_for_dialog(self)
+    if obj is not None:
+        GeoNodeCutpart(obj).set_input('Width', self.part_depth)
+
+
+def _on_misc_thickness_update(self, context):
+    """Live-apply Thickness -> the cutpart's 'Thickness' (Z) input."""
+    obj = _misc_part_for_dialog(self)
+    if obj is not None:
+        GeoNodeCutpart(obj).set_input('Thickness', self.part_thickness)
+
+
+class hb_face_frame_OT_set_misc_part_dimensions(bpy.types.Operator):
+    """Set a Misc Part's size.
+
+    A Misc Part is a bare GeoNodeCutpart with no cabinet cage, so it has
+    none of the width / height props the other Set-* operators bind to.
+    Each field is LIVE-BOUND via its update callback (same approach as
+    set_part_width): editing a value writes straight to the cutpart's own
+    GeoNode input while the dialog is open - execute() is only reached on
+    OK and has nothing left to do. (Relying on execute alone did not apply
+    on confirm in the popup context.) Labels are user-facing
+    (Width / Depth / Thickness); the GeoNode input each maps to is noted
+    on its update callback.
+    """
+    bl_idname = "hb_face_frame.set_misc_part_dimensions"
+    bl_label = "Set Dimensions"
+    bl_description = "Set this part's width, depth, and thickness"
+    bl_options = {'UNDO'}
+
+    # Resolved each tick by the update callbacks (see _misc_part_for_dialog).
+    source_obj_name: StringProperty(default='', options={'HIDDEN', 'SKIP_SAVE'})  # type: ignore
+
+    part_width: FloatProperty(name="Width", unit='LENGTH', precision=4, min=0.0,
+                              update=_on_misc_width_update)  # type: ignore
+    part_depth: FloatProperty(name="Depth", unit='LENGTH', precision=4, min=0.0,
+                              update=_on_misc_depth_update)  # type: ignore
+    part_thickness: FloatProperty(name="Thickness", unit='LENGTH', precision=4, min=0.0,
+                                  update=_on_misc_thickness_update)  # type: ignore
+
+    @classmethod
+    def poll(cls, context):
+        obj = context.active_object
+        return obj is not None and bool(obj.get('IS_FACE_FRAME_MISC_PART'))
+
+    def invoke(self, context, event):
+        obj = context.active_object
+        part = GeoNodeCutpart(obj)
+        # Seed the fields BEFORE source_obj_name is set: the update
+        # callbacks bail while it's empty, so seeding can't write back or
+        # double-apply.
+        self.part_width = part.get_input('Length')
+        self.part_depth = part.get_input('Width')
+        self.part_thickness = part.get_input('Thickness')
+        self.source_obj_name = obj.name
+        return context.window_manager.invoke_props_dialog(self, width=260)
+
+    def draw(self, context):
+        col = self.layout.column(align=True)
+        col.prop(self, 'part_width')
+        col.prop(self, 'part_depth')
+        col.prop(self, 'part_thickness')
+
+    def execute(self, context):
+        # Live-bound via the prop update callbacks; execute is only hit on
+        # OK - nothing left to do.
+        return {'FINISHED'}
+
+
+# ---------------------------------------------------------------------------
+# Door Part dimensions + style
+# ---------------------------------------------------------------------------
+
+def _door_part_for_dialog(op):
+    """The Door Part an open Set-Dimensions dialog targets (resolved by name
+    each tick; None while source_obj_name is unset - see the Misc Part
+    equivalent)."""
+    if not op.source_obj_name:
+        return None
+    return bpy.data.objects.get(op.source_obj_name)
+
+
+def _on_door_width_update(self, context):
+    """Live-apply Width -> the door's 'Width' input, then re-track the pull."""
+    obj = _door_part_for_dialog(self)
+    if obj is not None:
+        GeoNodeCutpart(obj).set_input('Width', self.part_width)
+        types_face_frame.position_door_part_pull(obj)
+
+
+def _on_door_height_update(self, context):
+    """Live-apply Height -> the door's 'Length' input, then re-track the pull."""
+    obj = _door_part_for_dialog(self)
+    if obj is not None:
+        GeoNodeCutpart(obj).set_input('Length', self.part_height)
+        types_face_frame.position_door_part_pull(obj)
+
+
+def _on_door_thickness_update(self, context):
+    """Live-apply Thickness -> the door's 'Thickness' input, then re-track
+    the pull (it mounts on the front face = thickness)."""
+    obj = _door_part_for_dialog(self)
+    if obj is not None:
+        GeoNodeCutpart(obj).set_input('Thickness', self.part_thickness)
+        types_face_frame.position_door_part_pull(obj)
+
+
+class hb_face_frame_OT_set_door_part_dimensions(bpy.types.Operator):
+    """Set a Door Part's size.
+
+    Same live-bound pattern as the Misc Part dialog, but the door's GeoNode
+    inputs map differently: 'Length' is the door HEIGHT and 'Width' the door
+    WIDTH (Face_Frame_Door_Style.assign_style_to_front's convention), so the
+    fields are Width / Height / Thickness. Each edit also re-tracks the pull
+    so it stays on the door as it resizes.
+    """
+    bl_idname = "hb_face_frame.set_door_part_dimensions"
+    bl_label = "Set Dimensions"
+    bl_description = "Set this door part's width, height, and thickness"
+    bl_options = {'UNDO'}
+
+    source_obj_name: StringProperty(default='', options={'HIDDEN', 'SKIP_SAVE'})  # type: ignore
+
+    part_width: FloatProperty(name="Width", unit='LENGTH', precision=4, min=0.0,
+                              update=_on_door_width_update)  # type: ignore  # -> 'Width'
+    part_height: FloatProperty(name="Height", unit='LENGTH', precision=4, min=0.0,
+                               update=_on_door_height_update)  # type: ignore  # -> 'Length'
+    part_thickness: FloatProperty(name="Thickness", unit='LENGTH', precision=4, min=0.0,
+                                  update=_on_door_thickness_update)  # type: ignore
+
+    @classmethod
+    def poll(cls, context):
+        obj = context.active_object
+        return obj is not None and bool(obj.get('IS_FACE_FRAME_DOOR_PART'))
+
+    def invoke(self, context, event):
+        obj = context.active_object
+        part = GeoNodeCutpart(obj)
+        # Seed BEFORE source_obj_name is set so the callbacks bail and the
+        # seed writes don't fan back.
+        self.part_width = part.get_input('Width')
+        self.part_height = part.get_input('Length')
+        self.part_thickness = part.get_input('Thickness')
+        self.source_obj_name = obj.name
+        return context.window_manager.invoke_props_dialog(self, width=260)
+
+    def draw(self, context):
+        col = self.layout.column(align=True)
+        col.prop(self, 'part_width')
+        col.prop(self, 'part_height')
+        col.prop(self, 'part_thickness')
+
+    def execute(self, context):
+        # Live-bound via the prop update callbacks; nothing to do on OK.
+        return {'FINISHED'}
+
+
+class hb_face_frame_OT_assign_active_door_style(bpy.types.Operator):
+    """Re-apply the project's ACTIVE cabinet style's door style to the
+    selected Door Part (re-runs assign_style_to_front: slab / 5-piece +
+    DOOR_STYLE_NAME). Use after switching the active style."""
+    bl_idname = "hb_face_frame.assign_active_door_style"
+    bl_label = "Assign Active Style"
+    bl_description = "Apply the active cabinet style's door style to this door part"
+    bl_options = {'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        obj = context.active_object
+        return obj is not None and bool(obj.get('IS_FACE_FRAME_DOOR_PART'))
+
+    def execute(self, context):
+        types_face_frame.apply_active_door_style_to_part(context.active_object)
+        return {'FINISHED'}
+
+
+class hb_face_frame_OT_toggle_door_part_pull(bpy.types.Operator):
+    """Show / hide the pull on a Door Part. Stored as DOOR_PART_SHOW_PULL on
+    the object; position_door_part_pull adds or removes the pull child to
+    match."""
+    bl_idname = "hb_face_frame.toggle_door_part_pull"
+    bl_label = "Toggle Pull"
+    bl_description = "Show or hide this door part's pull"
+    bl_options = {'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        obj = context.active_object
+        return obj is not None and bool(obj.get('IS_FACE_FRAME_DOOR_PART'))
+
+    def execute(self, context):
+        obj = context.active_object
+        obj['DOOR_PART_SHOW_PULL'] = not obj.get('DOOR_PART_SHOW_PULL', True)
+        types_face_frame.position_door_part_pull(obj)
+        return {'FINISHED'}
+
+
+class hb_face_frame_OT_switch_door_part_pull_side(bpy.types.Operator):
+    """Switch the pull to the other vertical edge of a Door Part (LEFT-
+    hinged <-> RIGHT-hinged). Stored as DOOR_PART_PULL_SIDE on the object."""
+    bl_idname = "hb_face_frame.switch_door_part_pull_side"
+    bl_label = "Switch Pull Side"
+    bl_description = "Move the pull to the opposite edge of this door part"
+    bl_options = {'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        obj = context.active_object
+        return (obj is not None and bool(obj.get('IS_FACE_FRAME_DOOR_PART'))
+                and obj.get('DOOR_PART_SHOW_PULL', True))
+
+    def execute(self, context):
+        obj = context.active_object
+        side = obj.get('DOOR_PART_PULL_SIDE', 'LEFT')
+        obj['DOOR_PART_PULL_SIDE'] = 'RIGHT' if side == 'LEFT' else 'LEFT'
+        types_face_frame.position_door_part_pull(obj)
+        return {'FINISHED'}
+
+
+class hb_face_frame_OT_toggle_door_part_front_kind(bpy.types.Operator):
+    """Switch a Door Part between a DOOR front and a DRAWER front. Only the
+    pull changes - DOOR: vertical bar near the top on the pull-side edge;
+    DRAWER: horizontal bar centered (drawer-pull asset + the in-cabinet
+    drawer placement). The front geometry / door style is left as-is.
+    Stored as DOOR_PART_FRONT_KIND on the object."""
+    bl_idname = "hb_face_frame.toggle_door_part_front_kind"
+    bl_label = "Toggle Front Kind"
+    bl_description = "Switch between a door front and a drawer front (moves the pull)"
+    bl_options = {'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        obj = context.active_object
+        return obj is not None and bool(obj.get('IS_FACE_FRAME_DOOR_PART'))
+
+    def execute(self, context):
+        obj = context.active_object
+        kind = obj.get('DOOR_PART_FRONT_KIND', 'DOOR')
+        obj['DOOR_PART_FRONT_KIND'] = 'DRAWER' if kind == 'DOOR' else 'DOOR'
+        types_face_frame.position_door_part_pull(obj)
+        return {'FINISHED'}
+
+
 classes = (
     hb_face_frame_OT_set_part_width,
     hb_face_frame_OT_set_part_scribe,
     hb_face_frame_OT_toggle_stile_to_floor,
     hb_face_frame_OT_remove_bottom_rail,
+    hb_face_frame_OT_set_misc_part_dimensions,
+    hb_face_frame_OT_set_door_part_dimensions,
+    hb_face_frame_OT_assign_active_door_style,
+    hb_face_frame_OT_toggle_door_part_pull,
+    hb_face_frame_OT_switch_door_part_pull_side,
+    hb_face_frame_OT_toggle_door_part_front_kind,
 )
 
 

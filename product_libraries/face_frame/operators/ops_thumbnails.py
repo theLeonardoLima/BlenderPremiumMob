@@ -64,6 +64,9 @@ RENDERABLE_CATALOG = (
     "6 Drawer Dresser",
     "Night Stand",
     "3 Drawer Night Stand",
+    # Bare parts (no cage): a lone cutpart, and a door front + pull.
+    "Misc Part",
+    "Door",
 )
 
 
