@@ -394,10 +394,15 @@ def _apply_series_frame_to_door_style(self):
         self.door_type = 'SLAB'
         return
     self.door_type = '5_PIECE'
-    self.stile_width = units.inch(spec['stile'])
-    # Drawer fronts use the series' drawer-rail width; doors use the rail.
-    rail_in = spec['drw_rail'] if _front_is_drawer(self) else spec['rail']
-    self.rail_width = units.inch(rail_in)
+    # Stile and rail unlock independently; the catalog cascade (any of kind/
+    # series/shape/panel routes through here) must not clobber a field the
+    # dealer manages. Everything else still derives.
+    if not self.unlock_stile_width:
+        self.stile_width = units.inch(spec['stile'])
+    if not self.unlock_rail_width:
+        # Drawer fronts use the series' drawer-rail width; doors use the rail.
+        rail_in = spec['drw_rail'] if _front_is_drawer(self) else spec['rail']
+        self.rail_width = units.inch(rail_in)
     if 'panel_inset' in spec:
         self.panel_inset = units.inch(spec['panel_inset'])
     if 'panel_thickness' in spec:
@@ -416,6 +421,58 @@ def update_front_panel(self, context):
     push to assigned fronts."""
     _apply_series_frame_to_door_style(self)
     _propagate_door_style(self, context)
+
+
+def update_rail_width(self, context):
+    """The door's mid rail always mirrors the (top/bottom) rail width, so any
+    change to rail_width -- catalog-derived or a manual override while frame
+    widths are unlocked -- carries into mid_rail_width before propagating to
+    assigned fronts. Setting mid_rail_width fires its own _propagate_door_style,
+    so only propagate directly here when mid already matched (one rebuild)."""
+    if self.mid_rail_width != self.rail_width:
+        self.mid_rail_width = self.rail_width
+    else:
+        _propagate_door_style(self, context)
+
+
+def update_unlock_frame_widths(self, context):
+    """Shared lock-toggle callback for unlock_stile_width / unlock_rail_width.
+    Re-deriving here writes only the still-LOCKED fields from the catalog
+    series (the unlocked one is skipped in _apply_series_frame_to_door_style),
+    so re-locking a field snaps it back to the series spec while a re-derive of
+    an already-locked field is idempotent. The catalog rail write fires
+    rail_width's update, which re-mirrors the mid rail."""
+    _apply_series_frame_to_door_style(self)
+    _propagate_door_style(self, context)
+
+
+def update_grain_direction(self, context):
+    """Grain direction changed -> re-apply materials to every cabinet with a
+    front using this door style, so the panel (5-piece) / face (slab) grain
+    rotation takes effect immediately without a manual recalc. Material
+    application lives on the CABINET style (_apply_materials_to_cabinet), so
+    resolve each affected front's cabinet root + cabinet style and re-run it
+    once per cabinet. Scoped to the active scene (same as _propagate_door_style).
+    """
+    target = self.name
+    ff = get_style_props()
+    styles_by_name = {cs.name: cs for cs in ff.cabinet_styles}
+    seen = set()
+    for obj in context.scene.objects:
+        if obj.get('DOOR_STYLE_NAME') != target:
+            continue
+        cur, cab = obj, None
+        while cur is not None:
+            if cur.get('IS_FACE_FRAME_CABINET_CAGE'):
+                cab = cur
+                break
+            cur = cur.parent
+        if cab is None or cab.name in seen:
+            continue
+        seen.add(cab.name)
+        cs = styles_by_name.get(cab.get('STYLE_NAME'))
+        if cs is not None:
+            cs._apply_materials_to_cabinet(cab)
 
 
 def update_custom_procedural_material(self, context):
@@ -1375,12 +1432,32 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         except Exception:
             pass
 
+    def _door_style_grain(self, front_obj):
+        """Grain direction ('VERTICAL' / 'HORIZONTAL', default VERTICAL) of the
+        door style assigned to front_obj, resolved by DOOR_STYLE_NAME in the
+        shared project-global pool (same lookup as _apply_door_styles_to_fronts).
+        """
+        ds_name = front_obj.get('DOOR_STYLE_NAME')
+        if ds_name:
+            for ds in get_style_props().door_styles:
+                if ds.name == ds_name:
+                    return ds.grain_direction
+        return 'VERTICAL'
+
     def _set_door_modifier_materials(self, front_obj, finish_mat, finish_mat_rotated):
         """Set Stile / Rail / Panel material on a front's 'Door Style'
         CPM_5PIECEDOOR modifier, when present. Slab fronts have no
         such modifier and skip silently. Rails get the rotated variant
-        so cross-grain reads correctly.
+        so cross-grain reads correctly. The PANEL follows the door style's
+        grain_direction: VERTICAL -> finish_mat, HORIZONTAL -> the rotated
+        variant (falling back to finish_mat when no rotated material exists).
         """
+        # Panel grain follows the door style's grain_direction (see
+        # _door_style_grain): HORIZONTAL feeds the rotated finish material.
+        panel_mat = finish_mat
+        if (self._door_style_grain(front_obj) == 'HORIZONTAL'
+                and finish_mat_rotated is not None):
+            panel_mat = finish_mat_rotated
         for mod in front_obj.modifiers:
             if mod.type != 'NODES' or not mod.node_group:
                 continue
@@ -1391,10 +1468,10 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
                 mod[tree['Stile Material'].identifier] = finish_mat
             if 'Rail Material' in tree and finish_mat_rotated is not None:
                 mod[tree['Rail Material'].identifier] = finish_mat_rotated
-            if 'Panel Material' in tree and finish_mat is not None:
-                # Glass-panel override is v2 - currently the panel always
-                # gets the cabinet's finish material.
-                mod[tree['Panel Material'].identifier] = finish_mat
+            if 'Panel Material' in tree and panel_mat is not None:
+                # Glass-panel override is v2. Panel grain follows the door
+                # style's grain_direction (see above).
+                mod[tree['Panel Material'].identifier] = panel_mat
             break
 
     def _apply_materials_to_cabinet(self, cabinet_obj):
@@ -1479,7 +1556,18 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
                     self._set_part_surfaces(child, interior_mat, interior_mat_rotated)
                 continue
 
-            if role in self._FINISH_EXTERIOR_ROLES:
+            if role in self._FRONT_ROLES:
+                # Front cutpart face honors the door style's grain. This IS
+                # the visible face for a SLAB front (HORIZONTAL rotates it);
+                # a 5-piece front hides the cutpart behind the door modifier
+                # (its panel grain is set below), so rotating here is a
+                # harmless visual no-op. Edges keep the rotated variant.
+                face_mat = finish_mat
+                if (self._door_style_grain(child) == 'HORIZONTAL'
+                        and finish_mat_rotated is not None):
+                    face_mat = finish_mat_rotated
+                self._set_part_surfaces(child, face_mat, finish_mat_rotated)
+            elif role in self._FINISH_EXTERIOR_ROLES:
                 self._set_part_surfaces(
                     child, finish_mat, finish_mat_rotated,
                 )
@@ -1868,6 +1956,21 @@ class Face_Frame_Door_Style(PropertyGroup):
         update=_propagate_door_style,
     )  # type: ignore
 
+    # Wood-grain run direction for this front. HORIZONTAL feeds the 5-piece
+    # panel the rotated finish material (finish_mat_rotated) so the panel
+    # grain runs across; VERTICAL uses finish_mat (see
+    # _set_door_modifier_materials).
+    grain_direction: EnumProperty(
+        name="Grain Direction",
+        description="Direction the wood grain runs on this front",
+        items=[
+            ('VERTICAL', "Vertical", "Grain runs vertically"),
+            ('HORIZONTAL', "Horizontal", "Grain runs horizontally"),
+        ],
+        default='VERTICAL',
+        update=update_grain_direction,
+    )  # type: ignore
+
     # ---- Profile object references ----
     outside_profile: PointerProperty(
         name="Outside Profile",
@@ -1882,6 +1985,25 @@ class Face_Frame_Door_Style(PropertyGroup):
     )  # type: ignore
 
     # ---- 5-piece dimensions ----
+    # Stile / rail widths derive from the catalog series by default; each has
+    # its own unlock toggle to override it (see update_unlock_frame_widths /
+    # _apply_series_frame_to_door_style).
+    unlock_stile_width: BoolProperty(
+        name="Unlock Stile Width",
+        description="Override the catalog stile width; re-lock to snap back "
+                    "to the series spec",
+        default=False,
+        update=update_unlock_frame_widths,
+    )  # type: ignore
+
+    unlock_rail_width: BoolProperty(
+        name="Unlock Rail Width",
+        description="Override the catalog rail width; re-lock to snap back "
+                    "to the series spec",
+        default=False,
+        update=update_unlock_frame_widths,
+    )  # type: ignore
+
     stile_width: FloatProperty(
         name="Stile Width",
         description="Width of left and right stiles",
@@ -1891,9 +2013,9 @@ class Face_Frame_Door_Style(PropertyGroup):
 
     rail_width: FloatProperty(
         name="Rail Width",
-        description="Width of top and bottom rails",
+        description="Width of top and bottom rails (the mid rail follows it)",
         default=units.inch(3.0), unit='LENGTH', precision=4,
-        update=_propagate_door_style,
+        update=update_rail_width,
     )  # type: ignore
 
     # ---- Mid rail ----
@@ -2116,13 +2238,26 @@ class Face_Frame_Door_Style(PropertyGroup):
         col.prop(self, "front_shape", text="Shape")
         col.prop(self, "front_panel", text="Panel")
 
-        # Derived frame widths shown read-only so the dealer can see what the
-        # series resolves to (inches; the props themselves drive the geometry).
+        box.prop(self, "grain_direction", text="Grain Direction")
+
+        # Frame widths derive from the catalog series by default (read-only).
+        # Stile and rail each have an independent unlock toggle to override
+        # them; the mid rail always follows the rail width. Re-locking a field
+        # snaps it back to the series spec (see update_unlock_frame_widths).
         if self.door_type == '5_PIECE':
-            info = box.column(align=True)
-            info.enabled = False
-            info.prop(self, "stile_width", text="Stile Width")
-            info.prop(self, "rail_width", text="Rail Width")
+            box.label(text="Frame Widths:")
+            srow = box.row(align=True)
+            sfield = srow.column(align=True)
+            sfield.enabled = self.unlock_stile_width
+            sfield.prop(self, "stile_width", text="Stile Width")
+            srow.prop(self, "unlock_stile_width", text="",
+                      icon='UNLOCKED' if self.unlock_stile_width else 'LOCKED')
+            rrow = box.row(align=True)
+            rfield = rrow.column(align=True)
+            rfield.enabled = self.unlock_rail_width
+            rfield.prop(self, "rail_width", text="Rail Width")
+            rrow.prop(self, "unlock_rail_width", text="",
+                      icon='UNLOCKED' if self.unlock_rail_width else 'LOCKED')
 
         # Assign hits the current selection (anything not a face frame
         # front is silently skipped); Update walks every front already
