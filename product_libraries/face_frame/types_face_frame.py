@@ -1681,6 +1681,15 @@ class FaceFrameCabinet(GeoNodeCage):
         rear_str_by_start = {s['start_bay']: s for s in rear_stretcher_segs}
         carc_top_by_start = {s['start_bay']: s for s in carcass_top_segs}
 
+        # Ensure every part in this cabinet carries a right-click menu.
+        # Fronts (nested under openings, not direct children) and parts
+        # built before the part menu existed get the shared part-commands
+        # menu - without clobbering parts that already have a more
+        # specific one (interior parts, etc.).
+        for _part_obj in self.obj.children_recursive:
+            if _part_obj.get('hb_part_role') and not _part_obj.get('MENU_ID'):
+                _part_obj['MENU_ID'] = 'HOME_BUILDER_MT_face_frame_part_commands'
+
         for child in self.obj.children:
             role = child.get('hb_part_role')
             bay_index = child.get('hb_bay_index', 0)

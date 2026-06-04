@@ -146,15 +146,24 @@ class HOME_BUILDER_MT_face_frame_part_commands(bpy.types.Menu):
         obj = context.active_object
         role = obj.get('hb_part_role') if obj is not None else None
 
-        # Width applies to every face frame part. Label includes the
-        # current value so the user can read it without opening the popup.
-        current_w = ops_part_commands.get_current_width(obj)
-        if current_w is None:
-            width_text = "Set Width"
+        # 5-piece door / drawer front: stile / rail / mid rail editor.
+        if ops_part_commands.has_door_style_modifier(obj):
+            layout.operator("hb_face_frame.set_door_frame",
+                            text="Set Door Frame...", icon='MOD_BEVEL')
+
+        # Face frame members (stiles / rails / splitters) keep their role-aware
+        # Set Width; any other cabinet cutpart gets direct size editing.
+        if role in ops_part_commands._ROLES_WITH_WIDTH:
+            current_w = ops_part_commands.get_current_width(obj)
+            if current_w is None:
+                width_text = "Set Width"
+            else:
+                width_text = f"Set Width: {units.unit_to_string(context.scene.unit_settings, current_w)}"
+            layout.operator("hb_face_frame.set_part_width",
+                            text=width_text, icon='ARROW_LEFTRIGHT')
         else:
-            width_text = f"Set Width: {units.unit_to_string(context.scene.unit_settings, current_w)}"
-        layout.operator("hb_face_frame.set_part_width",
-                        text=width_text, icon='ARROW_LEFTRIGHT')
+            layout.operator("hb_face_frame.set_cabinet_part_size",
+                            text="Set Size...", icon='ARROW_LEFTRIGHT')
 
         # Scribe only makes sense at the cabinet's outer edges: end
         # stiles (left / right) and the top rail (top_scribe).

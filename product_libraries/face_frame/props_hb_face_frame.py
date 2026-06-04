@@ -1930,6 +1930,24 @@ class HB_UL_face_frame_cabinet_styles(UIList):
 # ---------------------------------------------------------------------------
 # Door Style - shared pool, referenced from cabinet styles via index
 # ---------------------------------------------------------------------------
+def _front_frame_store(front_obj):
+    """Persistent home for a front's locked frame overrides.
+
+    Fronts (and their pivots) are torn down and rebuilt as NEW objects
+    on every recalc, so custom props set on the front do not survive a
+    cabinet edit. The front's OPENING cage (IS_FACE_FRAME_OPENING_CAGE)
+    does survive, so the lock flag + HB_FRAME_OVR_* values live there.
+    A cage-less front (bare Door Part) is its own store - it is not
+    rebuilt by a cabinet recalc. NOTE: an opening with two leaves (double
+    door) shares one store, so both leaves take the same locked frame.
+    """
+    o = front_obj.parent
+    while o is not None:
+        if o.get('IS_FACE_FRAME_OPENING_CAGE'):
+            return o
+        o = o.parent
+    return front_obj
+
 class Face_Frame_Door_Style(PropertyGroup):
     """Door / drawer-front construction style. Lives in a single
     Face_Frame_Scene_Props.door_styles collection; cabinet styles reference
@@ -2169,6 +2187,12 @@ class Face_Frame_Door_Style(PropertyGroup):
         if role not in self._STYLEABLE_ROLES:
             return False
 
+        # Every styleable front carries the part right-click menu. Fronts are
+        # rebuilt each recalc (new objects), so stamping here - on the freshly
+        # built front - is reliable where the recalc-time backfill is not.
+        if not front_obj.get('MENU_ID'):
+            front_obj['MENU_ID'] = 'HOME_BUILDER_MT_face_frame_part_commands'
+
         from ... import hb_types
 
         # Slab: strip any existing door style modifier and tag.
@@ -2198,10 +2222,23 @@ class Face_Frame_Door_Style(PropertyGroup):
         # front object carries an HB_FRAME_OVR_* custom prop, that side's
         # stile / rail width comes from it (0.0 = no stile, so adjacent
         # mirrors butt) instead of the uniform door-style width.
-        eff_left_stile  = front_obj.get('HB_FRAME_OVR_LEFT_STILE',  self.stile_width)
-        eff_right_stile = front_obj.get('HB_FRAME_OVR_RIGHT_STILE', self.stile_width)
-        eff_top_rail    = front_obj.get('HB_FRAME_OVR_TOP_RAIL',    self.rail_width)
-        eff_bottom_rail = front_obj.get('HB_FRAME_OVR_BOTTOM_RAIL', self.rail_width)
+        # The per-front stile / rail / mid-rail overrides only take effect
+        # when the front's frame is LOCKED (HB_FRAME_FRAME_LOCKED). Locked
+        # pins the whole Set Door Frame interface so a cabinet edit can't
+        # overwrite it; unlocked, the front follows the door style and is
+        # recomputed on any cabinet change.
+        frame_store = _front_frame_store(front_obj)
+        frame_locked = bool(frame_store.get('HB_FRAME_FRAME_LOCKED', False))
+        if frame_locked:
+            eff_left_stile  = frame_store.get('HB_FRAME_OVR_LEFT_STILE',  self.stile_width)
+            eff_right_stile = frame_store.get('HB_FRAME_OVR_RIGHT_STILE', self.stile_width)
+            eff_top_rail    = frame_store.get('HB_FRAME_OVR_TOP_RAIL',    self.rail_width)
+            eff_bottom_rail = frame_store.get('HB_FRAME_OVR_BOTTOM_RAIL', self.rail_width)
+        else:
+            eff_left_stile  = self.stile_width
+            eff_right_stile = self.stile_width
+            eff_top_rail    = self.rail_width
+            eff_bottom_rail = self.rail_width
 
         min_width = eff_left_stile + eff_right_stile + units.inch(1)
         min_height = eff_top_rail + eff_bottom_rail + units.inch(1)
@@ -2235,11 +2272,29 @@ class Face_Frame_Door_Style(PropertyGroup):
         door_style_mod.set_input("Panel Thickness", self.panel_thickness)
         door_style_mod.set_input("Panel Inset", self.panel_inset)
 
-        if needs_auto_mid_rail or self.add_mid_rail:
+        # Per-front mid rail override (durable, set from the Set Door Frame
+        # popup) wins over the style / auto-center. CENTERED centers it;
+        # THIRD places it 1/3 up (bottom opening = 1/3 of the door height);
+        # CUSTOM uses the stored location. Presence of an override also
+        # forces a mid rail on.
+        ovr_mid_mode = frame_store.get('HB_FRAME_OVR_MID_RAIL_MODE') if frame_locked else None
+        if needs_auto_mid_rail or self.add_mid_rail or ovr_mid_mode:
             try:
                 door_style_mod.set_input("Add Mid Rail", True)
                 door_style_mod.set_input("Mid Rail Width", self.mid_rail_width)
-                if needs_auto_mid_rail:
+                if ovr_mid_mode == 'CENTERED':
+                    door_style_mod.set_input("Center Mid Rail", True)
+                elif ovr_mid_mode == 'THIRD':
+                    door_style_mod.set_input("Center Mid Rail", False)
+                    # Mid Rail Location is measured from the BOTTOM, so 2/3 up
+                    # puts the rail near the top (bottom opening = 2/3, top = 1/3).
+                    door_style_mod.set_input("Mid Rail Location", front_length * 2.0 / 3.0)
+                elif ovr_mid_mode == 'CUSTOM':
+                    door_style_mod.set_input("Center Mid Rail", False)
+                    door_style_mod.set_input(
+                        "Mid Rail Location",
+                        frame_store.get('HB_FRAME_OVR_MID_RAIL_LOCATION', self.mid_rail_location))
+                elif needs_auto_mid_rail:
                     door_style_mod.set_input("Center Mid Rail", True)
                 else:
                     door_style_mod.set_input("Center Mid Rail", self.center_mid_rail)
