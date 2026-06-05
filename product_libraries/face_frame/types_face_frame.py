@@ -208,6 +208,7 @@ PART_ROLE_DRAWER_FRONT = 'DRAWER_FRONT'
 PART_ROLE_PULLOUT_FRONT = 'PULLOUT_FRONT'
 PART_ROLE_FALSE_FRONT = 'FALSE_FRONT'
 PART_ROLE_INSET_PANEL = 'INSET_PANEL'
+PART_ROLE_APRON = 'APRON'
 
 # Applied finished-back part: a 3/4 panel layered on top of the carcass
 # back when back_finished_end_condition is FINISHED. Carcass back stays
@@ -281,6 +282,7 @@ FRONT_PART_ROLES = frozenset({
     PART_ROLE_PULLOUT_FRONT,
     PART_ROLE_FALSE_FRONT,
     PART_ROLE_INSET_PANEL,
+    PART_ROLE_APRON,
 })
 
 FRONT_TYPE_TO_ROLE = {
@@ -4395,6 +4397,43 @@ class FaceFrameCabinet(GeoNodeCage):
 
             self._create_pull_for_front(front, leaf['role'], leaf)
             self._create_drawer_box_for_front(pivot, leaf, rect)
+
+        # Sink apron: a fixed face-frame-depth panel across the top of a
+        # DOOR opening (apron / farmhouse sink). The door(s) stay full
+        # height; the apron sits behind them in the face-frame band
+        # (y from the FF front face back by fft). Built directly here -
+        # not via the leaf/pivot path - so it carries no door style or
+        # pull; PART_ROLE_APRON is in FRONT_PART_ROLES so it's wiped on
+        # the next rebuild. Same orientation as a front part (Length ->
+        # vertical, Width -> horizontal, Thickness -> depth).
+        if op_props.add_apron and front_type == 'DOOR':
+            # Full interior width (the whole opening cage, x from 0), and
+            # set BEHIND the face frame: the FF back plane is bay-local
+            # y = 0, and a front part's Thickness extends -Y from its
+            # origin, so an origin at y = +fft puts the apron body in
+            # y[0, fft] - just behind the frame, in the interior.
+            full_w = rect['cage_dim_x']
+            top_z = rect['cage_dim_z'] - rect['reveal_top']
+            apron_h = min(op_props.apron_height,
+                          top_z - rect['reveal_bottom'])
+            if full_w > 0.0 and apron_h > 0.0:
+                fft = cab_props.face_frame_thickness
+                apron = CabinetPart()
+                apron.create('Apron')
+                apron.obj.parent = opening_obj
+                apron.obj['hb_part_role'] = PART_ROLE_APRON
+                apron.obj['CABINET_PART'] = True
+                # Interior part: shows up in 'Interiors' selection mode and is
+                # routed into the Dashed freestyle collection on 2D layout
+                # views (both keyed off this tag in hb_layouts).
+                apron.obj['IS_FACE_FRAME_INTERIOR_PART'] = True
+                apron.obj.rotation_euler.y = math.radians(-90)
+                apron.obj.rotation_euler.z = math.radians(90)
+                apron.set_input('Mirror Y', True)
+                apron.obj.location = (0.0, fft, top_z - apron_h)
+                apron.set_input('Length', apron_h)
+                apron.set_input('Width', full_w)
+                apron.set_input('Thickness', fft)
 
     def _create_front_pivot(self, opening_obj):
         """Create an Empty parented to the opening cage, used as the

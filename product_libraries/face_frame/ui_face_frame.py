@@ -567,6 +567,15 @@ def draw_opening_properties(layout, opening_obj):
     # NONE which has no front to animate).
     if op.front_type not in ('NONE', 'INSET_PANEL'):
         col.prop(op, 'swing_percent', text="Open", slider=True)
+
+    # Sink apron (door openings only): a fixed face-frame panel across the
+    # top of the opening for an apron / farmhouse sink. Doors stay full
+    # height; the apron sits behind them.
+    if op.front_type == 'DOOR':
+        col.prop(op, 'add_apron', text="Add Apron")
+        if op.add_apron:
+            col.prop(op, 'apron_height', text="Apron Height")
+
     col.separator()
     col.prop(op, 'finish_opening', text="Finish Opening")
     if op.finish_opening:

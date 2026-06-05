@@ -430,6 +430,17 @@ class hb_face_frame_OT_toggle_mode(bpy.types.Operator):
         if any(t in obj for t in ('IS_WALL_BP', 'IS_ENTRY_DOOR_BP',
                                   'IS_WINDOW_BP', 'IS_CUTTING_OBJ')):
             return
+        # A cabinet group cage is a container the user reaches INTO via a
+        # selection mode (Cabinets shows its member cabinet cages, etc.),
+        # so whenever a mode is being applied the group cage gets out of
+        # the way - hide it. It never matches any MODE_TAGS, and without
+        # this it would fall through the cabinet-root guard below
+        # (find_cabinet_root is None, not an appliance, not a product
+        # cage) and stay visible on top of the member cages. "Select
+        # Cabinet Group" re-shows it (hb_face_frame.select_cabinet_group).
+        if obj.get('IS_CAGE_GROUP'):
+            toggle_cabinet_color(obj, False)
+            return
         # Only touch objects that are part of a face frame cabinet,
         # an appliance product, or are generic cabinet parts/cages we
         # know about. Avoids dimming arbitrary scene geometry.
@@ -2485,6 +2496,130 @@ class hb_face_frame_OT_create_cabinet_group(bpy.types.Operator):
         return (location, rotation, overall_w, overall_d, overall_h)
 
 
+def _find_group_cage(obj):
+    """Walk obj's parent chain to the cabinet group cage (IS_CAGE_GROUP)
+    it belongs to, or None. Lets "Select Cabinet Group" re-collapse a group
+    from any selected member - a cabinet root, a bay, or an individual part.
+    """
+    cur = obj
+    while cur is not None:
+        if cur.get('IS_CAGE_GROUP'):
+            return cur
+        cur = cur.parent
+    return None
+
+
+class hb_face_frame_OT_select_cabinet_group(bpy.types.Operator):
+    """Re-collapse a cabinet group: hide the member cabinet cages and show
+    the group cage as the single selection target.
+
+    Counterpart to entering a selection mode (hb_face_frame_OT_toggle_mode),
+    which hides the group cage and surfaces the individual member cabinets.
+    Right-clicking a cabinet that belongs to a group offers this so the group
+    cage can be recovered after a selection mode hid it.
+    """
+    bl_idname = "hb_face_frame.select_cabinet_group"
+    bl_label = "Select Cabinet Group"
+    bl_description = ("Hide the group's member cabinet cages and show the "
+                      "cabinet group cage")
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return _find_group_cage(context.active_object) is not None
+
+    def execute(self, context):
+        group = _find_group_cage(context.active_object)
+        if group is None:
+            self.report({'WARNING'},
+                        "Selected object isn't in a cabinet group")
+            return {'CANCELLED'}
+
+        bpy.ops.object.select_all(action='DESELECT')
+
+        # Hide every member cabinet / product cage so only the group cage
+        # shows - the create-time collapsed state. Appliances keep their
+        # visible geometry (real meshes, not just a cage), exactly as
+        # Create Cabinet Group leaves them.
+        for child in group.children_recursive:
+            if (child.get(types_face_frame.TAG_CABINET_CAGE)
+                    or child.get(types_face_frame.TAG_PRODUCT_CAGE)):
+                child.hide_viewport = True
+                child.select_set(False)
+
+        # Show + select the group cage. dont_show_parent=False forces the
+        # toggle even though the cage has cabinet-cage children sharing the
+        # type tag (which would otherwise suppress it).
+        toggle_cabinet_color(
+            group, True,
+            type_name=types_face_frame.TAG_CABINET_CAGE,
+            dont_show_parent=False,
+        )
+        group.select_set(True)
+        context.view_layer.objects.active = group
+        return {'FINISHED'}
+
+
+class hb_face_frame_OT_ungroup_cabinet(bpy.types.Operator):
+    """Ungroup a cabinet group: free its member cabinets / appliances and
+    delete the group cage. Members keep their world position and become
+    independently selectable again - the inverse of Create Cabinet Group.
+
+    The pre-group wall parent is NOT stored at group creation, so members
+    are unparented to the scene root (world-transform-preserving clear-
+    parent), un-hidden, and the current selection mode is re-applied so they
+    render in their correct per-mode state.
+    """
+    bl_idname = "hb_face_frame.ungroup_cabinet"
+    bl_label = "Ungroup Cabinet"
+    bl_description = "Delete the group cage and free its member cabinets"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return _find_group_cage(context.active_object) is not None
+
+    def execute(self, context):
+        group = _find_group_cage(context.active_object)
+        if group is None:
+            self.report({'WARNING'},
+                        "Selected object isn't in a cabinet group")
+            return {'CANCELLED'}
+
+        # Free each direct member (cabinet root or appliance), preserving
+        # world transform. The original wall parent was dropped at group
+        # creation and isn't recoverable, so members land on the scene root.
+        members = list(group.children)
+        for m in members:
+            world_matrix = m.matrix_world.copy()
+            m.parent = None
+            m.matrix_world = world_matrix
+            # Cabinet cages were hidden when grouped; show them again so the
+            # freed cabinet is selectable. The selection-mode re-apply below
+            # then puts them in their correct per-mode state.
+            if m.get(types_face_frame.TAG_CABINET_CAGE):
+                m.hide_viewport = False
+
+        # Delete the now-childless group cage (and its cage data). Members
+        # were unparented above, so delete_obj_and_children removes only the
+        # cage itself.
+        hb_utils.delete_obj_and_children(group)
+
+        # Re-apply the active selection mode so the freed cabinets render per
+        # the current mode (e.g. Cabinets shows their cages). toggle_mode
+        # clears the selection at the end, so re-select the freed members
+        # afterward.
+        bpy.ops.hb_face_frame.toggle_mode(search_obj_name="")
+        bpy.ops.object.select_all(action='DESELECT')
+        for m in members:
+            m.select_set(True)
+        if members:
+            context.view_layer.objects.active = members[0]
+
+        self.report({'INFO'}, f"Ungrouped {len(members)} item(s)")
+        return {'FINISHED'}
+
+
 class hb_face_frame_OT_leg_product_prompts(bpy.types.Operator):
     """Popup properties dialog for a leg product (right-click entry)."""
     bl_idname = "hb_face_frame.leg_product_prompts"
@@ -2627,9 +2762,181 @@ class hb_face_frame_OT_duplicate_floating_shelf(bpy.types.Operator):
         return {'FINISHED'}
 
 
+def _set_opening_interior(op_props, interior):
+    """Set a door opening's interior to OPEN / SHELF / VANITY_SHELVES by
+    rewriting only its shelf-type interior items (ADJUSTABLE_SHELF /
+    VANITY_SHELVES). Other interior items (e.g. ACCESSORY labels) are left
+    untouched. OPEN clears the shelves entirely.
+    """
+    items = op_props.interior_items
+    for i in range(len(items) - 1, -1, -1):
+        if items[i].kind in ('ADJUSTABLE_SHELF', 'VANITY_SHELVES'):
+            items.remove(i)
+    if interior == 'SHELF':
+        items.add()  # .add() picks up the EnumProperty default ADJUSTABLE_SHELF
+    elif interior == 'VANITY_SHELVES':
+        items.add().kind = 'VANITY_SHELVES'
+    # OPEN -> leave cleared
+
+
+class hb_face_frame_OT_add_appliance_to_bay(bpy.types.Operator):
+    """Configure the active BASE bay as a sink or cooktop bay: apply a
+    sink-style front preset, set the bay width, optionally drop the bay,
+    and set the door interior. (3D appliance models and the 2D
+    SINK/COOKTOP annotation are deferred. The apron config builds
+    full-height doors with a top apron on the door opening.)
+    """
+    bl_idname = "hb_face_frame.add_appliance_to_bay"
+    bl_label = "Add Appliance to Bay"
+    bl_options = {'UNDO'}
+
+    appliance_kind: bpy.props.EnumProperty(
+        name="Appliance",
+        items=[
+            ('KITCHEN_SINK', "Kitchen Sink", "Kitchen sink bay"),
+            ('VANITY_SINK',  "Vanity Sink",  "Vanity sink bay"),
+            ('COOKTOP',      "Cooktop",      "Cooktop bay"),
+        ],
+        default='KITCHEN_SINK',
+        options={'SKIP_SAVE'},
+    )  # type: ignore
+    bay_name: bpy.props.StringProperty(default="", options={'SKIP_SAVE'})  # type: ignore
+    width: bpy.props.FloatProperty(
+        name="Width", unit='LENGTH', precision=4, default=inch(36.0),
+    )  # type: ignore
+    drop_bay_amount: bpy.props.FloatProperty(
+        name="Drop Bay Amount", unit='LENGTH', precision=4,
+        default=0.0, min=0.0,
+    )  # type: ignore
+    config: bpy.props.EnumProperty(
+        name="Configuration",
+        items=[
+            ('FALSE_FRONT_DOORS', "False Front with Doors",
+             "A false-front apron over door(s)"),
+            ('FULL_HEIGHT_DOORS_APRON', "Full Height Doors with Apron",
+             "Full-height door(s) with a sink apron across the top"),
+        ],
+        default='FALSE_FRONT_DOORS',
+    )  # type: ignore
+    interior: bpy.props.EnumProperty(
+        name="Interior",
+        items=[
+            ('OPEN',           "Open",           "No interior shelves"),
+            ('SHELF',          "Shelf",          "Adjustable shelves"),
+            ('VANITY_SHELVES', "Vanity Shelves", "L/R shelves on corbels"),
+        ],
+        default='SHELF',
+    )  # type: ignore
+
+    @classmethod
+    def poll(cls, context):
+        obj = context.active_object
+        return obj is not None and bool(obj.get(types_face_frame.TAG_BAY_CAGE))
+
+    def _resolve_bay(self, context):
+        if self.bay_name:
+            o = bpy.data.objects.get(self.bay_name)
+            if o is not None and o.get(types_face_frame.TAG_BAY_CAGE):
+                return o
+        o = context.active_object
+        if o is not None and o.get(types_face_frame.TAG_BAY_CAGE):
+            return o
+        return None
+
+    def invoke(self, context, event):
+        bay = self._resolve_bay(context)
+        if bay is None:
+            self.report({'WARNING'}, "Select a bay first")
+            return {'CANCELLED'}
+        self.bay_name = bay.name
+        # Default width by kind: a vanity sink base is narrow (20");
+        # kitchen sink / cooktop default to a 36" sink base.
+        self.width = (inch(20.0) if self.appliance_kind == 'VANITY_SINK'
+                      else inch(36.0))
+        return context.window_manager.invoke_props_dialog(self, width=320)
+
+    def draw(self, context):
+        layout = self.layout
+        box = layout.box()
+        row = box.row(); row.label(text="Width:")
+        row.prop(self, 'width', text="")
+        row = box.row(); row.label(text="Drop Bay Amount:")
+        row.prop(self, 'drop_bay_amount', text="")
+        box.label(text="Configuration:")
+        box.prop(self, 'config', expand=True)
+        box.label(text="Interior:")
+        box.prop(self, 'interior', expand=True)
+
+    def execute(self, context):
+        bay = self._resolve_bay(context)
+        if bay is None:
+            self.report({'WARNING'}, "Select a bay first")
+            return {'CANCELLED'}
+        root = types_face_frame.find_cabinet_root(bay)
+        if root is None:
+            self.report({'WARNING'}, "Bay is not part of a cabinet")
+            return {'CANCELLED'}
+        if root.face_frame_cabinet.cabinet_type != 'BASE':
+            self.report({'WARNING'}, "Appliances are only supported on base bays")
+            return {'CANCELLED'}
+
+        # Friendly config -> bay preset. Single vs double doors follows the
+        # same width threshold the auto presets use. The apron is added
+        # per-opening below (add_apron) for the apron config.
+        wide = self.width >= bay_presets.DOUBLE_DOOR_WIDTH_THRESHOLD
+        if self.config == 'FALSE_FRONT_DOORS':
+            preset = 'FALSE_FRONT_DOUBLE_DOOR' if wide else 'FALSE_FRONT_DOOR'
+        else:
+            preset = 'DOUBLE_DOOR' if wide else 'LEFT_SWING_DOOR'
+
+        with types_face_frame.suspend_recalc():
+            if not apply_bay_preset(bay, preset):
+                self.report({'WARNING'},
+                            f"Bay does not accept preset {preset!r}")
+                return {'CANCELLED'}
+            bp = bay.face_frame_bay
+            # Width setter auto-locks unlock_width.
+            bp.width = self.width
+            # Drop: lower the bay TOP by the amount, keeping the bottom
+            # fixed - the solver's top-edge model couples top_offset (+)
+            # and height (-) so d(top_offset)+d(height)=0. Held via the
+            # unlock flags so a later redistribution won't undo it.
+            if self.drop_bay_amount > 0.0:
+                bp.unlock_top_offset = True
+                bp.unlock_height = True
+                bp.top_offset += self.drop_bay_amount
+                bp.height -= self.drop_bay_amount
+            # Interior on the door opening(s) only - skip the false-front
+            # apron opening. Walk recursively since the preset nests the
+            # openings under a vertical split cage.
+            for child in bay.children_recursive:
+                if not child.get(types_face_frame.TAG_OPENING_CAGE):
+                    continue
+                op_props = child.face_frame_opening
+                if op_props.front_type == 'DOOR':
+                    _set_opening_interior(op_props, self.interior)
+                    # Full-height-doors-with-apron adds the per-opening
+                    # sink apron across the top of the door opening.
+                    if self.config == 'FULL_HEIGHT_DOORS_APRON':
+                        op_props.add_apron = True
+            types_face_frame.recalculate_face_frame_cabinet(root)
+
+        # Re-apply selection mode so the rebuilt cages render correctly.
+        try:
+            bpy.ops.hb_face_frame.toggle_mode(search_obj_name=root.name)
+        except RuntimeError:
+            pass
+
+        self.report({'INFO'},
+                    f"Configured {self.appliance_kind.replace('_', ' ').title()} bay")
+        return {'FINISHED'}
+
+
 classes = (
     hb_face_frame_OT_draw_cabinet,
     hb_face_frame_OT_create_cabinet_group,
+    hb_face_frame_OT_select_cabinet_group,
+    hb_face_frame_OT_ungroup_cabinet,
     hb_face_frame_OT_delete_cabinet,
     hb_face_frame_OT_join_cabinets,
     hb_face_frame_OT_break_cabinet_left,
@@ -2652,6 +2959,7 @@ classes = (
     hb_face_frame_OT_show_interior_add_menu,
     hb_face_frame_OT_change_opening,
     hb_face_frame_OT_change_bay,
+    hb_face_frame_OT_add_appliance_to_bay,
     hb_face_frame_OT_insert_bay,
     hb_face_frame_OT_delete_bay,
     hb_face_frame_OT_set_equal_door_width,

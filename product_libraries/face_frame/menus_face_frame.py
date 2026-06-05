@@ -29,8 +29,11 @@ class HOME_BUILDER_MT_face_frame_cabinet_commands(bpy.types.Menu):
         layout.operator("hb_face_frame.join_cabinets",
                         text="Join Cabinets", icon='AUTOMERGE_ON')
 
-        # Show "Create Cabinet Group" only when more than one cabinet is
-        # in the selection - grouping a single cabinet is rarely useful.
+        # Show "Create Cabinet Group" whenever at least one cabinet is in
+        # the selection. A single-cabinet group is allowed on purpose: the
+        # 2D sheet set generates a 9-view (IslandNineView) per cabinet group
+        # (generate_room_views loops get_cabinet_groups), so grouping one
+        # cabinet is how a user opts that cabinet into its own 9-view.
         # find_cabinet_root walks any selected part up to its root, so the
         # menu surfaces correctly whether the user picked roots, bays, or
         # individual face frame parts.
@@ -39,9 +42,24 @@ class HOME_BUILDER_MT_face_frame_cabinet_commands(bpy.types.Menu):
             root = types_face_frame.find_cabinet_root(obj)
             if root is not None:
                 selected_roots.add(root.name)
-        if len(selected_roots) > 1:
+        if len(selected_roots) >= 1:
             layout.operator("hb_face_frame.create_cabinet_group",
                             text="Create Cabinet Group", icon='ADD')
+
+        # "Select Cabinet Group" - re-collapse the group (hide the member
+        # cabinet cages, show the group cage). The group cage is hidden
+        # whenever a selection mode is active, so this is how the user gets
+        # it back. Shown only when the right-clicked cabinet is in a group:
+        # walk its root's parents to an IS_CAGE_GROUP cage.
+        active_root = types_face_frame.find_cabinet_root(context.active_object)
+        cur = active_root.parent if active_root is not None else None
+        while cur is not None and not cur.get('IS_CAGE_GROUP'):
+            cur = cur.parent
+        if cur is not None:
+            layout.operator("hb_face_frame.select_cabinet_group",
+                            text="Select Cabinet Group", icon='OBJECT_ORIGIN')
+            layout.operator("hb_face_frame.ungroup_cabinet",
+                            text="Ungroup Cabinet", icon='GROUP')
 
         # Tip-up wedge calculator - refrigerator cabinets only. The root
         # carries this menu's MENU_ID, so the right-clicked active object
@@ -68,6 +86,9 @@ class HOME_BUILDER_MT_face_frame_cabinet_group_commands(bpy.types.Menu):
         layout = self.layout
         layout.operator("hb_face_frame.grab_cabinet_group",
                         text="Grab Cabinet Group", icon='OBJECT_ORIGIN')
+        layout.separator()
+        layout.operator("hb_face_frame.ungroup_cabinet",
+                        text="Ungroup Cabinet", icon='GROUP')
 
 
 class HOME_BUILDER_MT_face_frame_bay_commands(bpy.types.Menu):
@@ -90,6 +111,10 @@ class HOME_BUILDER_MT_face_frame_bay_commands(bpy.types.Menu):
             if cabinet_type in bay_presets.MENU_ENTRIES:
                 layout.menu("HOME_BUILDER_MT_face_frame_change_bay",
                             text="Change Bay")
+            # Appliance configs (sink / cooktop) are base-bay only.
+            if cabinet_type == 'BASE':
+                layout.menu("HOME_BUILDER_MT_face_frame_add_appliance",
+                            text="Add Appliance to Bay", icon='MOD_FLUIDSIM')
 
         # Structural edits live below in their own group. Anchored on
         # the right-clicked bay's index since the bay cage is the active
@@ -300,6 +325,26 @@ class HOME_BUILDER_MT_face_frame_change_bay(bpy.types.Menu):
             op.config = config
 
 
+class HOME_BUILDER_MT_face_frame_add_appliance(bpy.types.Menu):
+    """Submenu: configure the active base bay for a sink or cooktop. Each
+    entry invokes hb_face_frame.add_appliance_to_bay with the appliance
+    kind preset; the operator opens a dialog for width / drop / config /
+    interior.
+    """
+    bl_label = "Add Appliance to Bay"
+
+    def draw(self, context):
+        layout = self.layout
+        for kind, label, icon in (
+            ('KITCHEN_SINK', "Add Kitchen Sink", 'MOD_FLUIDSIM'),
+            ('VANITY_SINK',  "Add Vanity Sink",  'MOD_FLUIDSIM'),
+            ('COOKTOP',      "Add Cooktop",      'VOLUME_DATA'),
+        ):
+            op = layout.operator("hb_face_frame.add_appliance_to_bay",
+                                 text=label, icon=icon)
+            op.appliance_kind = kind
+
+
 class HOME_BUILDER_MT_face_frame_leg_product_commands(bpy.types.Menu):
     """Right-click menu for a leg product root."""
     bl_label = "Leg Product Commands"
@@ -397,6 +442,7 @@ classes = (
     HOME_BUILDER_MT_face_frame_opening_commands,
     HOME_BUILDER_MT_face_frame_change_opening,
     HOME_BUILDER_MT_face_frame_change_bay,
+    HOME_BUILDER_MT_face_frame_add_appliance,
 )
 
 

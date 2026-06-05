@@ -3901,6 +3901,18 @@ class Face_Frame_Opening_Props(PropertyGroup):
         update=_update_cabinet_dim,
     )  # type: ignore
 
+    # Sink apron: a fixed face-frame-depth panel across the top of a door
+    # opening (for an apron / farmhouse sink). The door(s) stay full
+    # height; the apron sits behind them at the frame plane. Only built
+    # for door front types.
+    add_apron: BoolProperty(
+        name="Add Apron", default=False, update=_update_cabinet_dim,
+    )  # type: ignore
+    apron_height: FloatProperty(
+        name="Apron Height", default=units.inch(7.0), unit='LENGTH',
+        precision=4, min=0.0, update=_update_cabinet_dim,
+    )  # type: ignore
+
     # Interior items: shelves, accessory labels, and (future) glass
     # shelves, half shelves, pullouts, tray dividers, rollouts. Order
     # in this collection is the visual order from bottom to top inside
