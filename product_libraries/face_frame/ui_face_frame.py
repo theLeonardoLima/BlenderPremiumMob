@@ -983,6 +983,20 @@ def draw_finished_ends(layout, cab_props):
         elif fin_type == 'UNFINISHED' and side != 'back':
             row.prop(cab_props, f'{side}_scribe', text="")
 
+        # Finished-end overhang extensions. Shown only when the side
+        # carries a finished part. Back: extend past the L / R cabinet
+        # ends. Left / Right: extend the side part past the cabinet back
+        # (skipped for FLUSH_X, whose depth IS its amount field).
+        if side == 'back' and fin_type != 'UNFINISHED':
+            ext = col.row(align=True)
+            ext.prop(cab_props, 'back_finished_extend_left', text="Extend L")
+            ext.prop(cab_props, 'back_finished_extend_right', text="Extend R")
+        elif (side in ('left', 'right')
+              and fin_type not in ('UNFINISHED', 'FLUSH_X')):
+            ext = col.row(align=True)
+            ext.prop(cab_props, f'{side}_side_finished_extend_back',
+                     text="Extend Back")
+
 
 def draw_all_bays_summary(layout, root):
     """Compact list of all bays with index and dims."""

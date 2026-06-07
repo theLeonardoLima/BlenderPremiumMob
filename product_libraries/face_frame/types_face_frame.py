@@ -2061,6 +2061,11 @@ class FaceFrameCabinet(GeoNodeCage):
             self._reconcile_flush_x_strips(layout)
             self._reconcile_textured_panels(layout)
             self._reconcile_bay_finish_panels(layout)
+            # Run a FINISHED carcass side past the cabinet back by its
+            # per-side extend. The applied / textured side families carry
+            # their own overhang above; the FINISHED side has no applied
+            # part, so the carcass side itself is grown here.
+            self._extend_finished_side_panels(layout)
 
         # Angled cabinet cutter: drives the trapezoidal silhouette on
         # the root cage, top, bottom, and any shelves. Lazy: created
@@ -3022,6 +3027,24 @@ class FaceFrameCabinet(GeoNodeCage):
             location, rotation_z, width, height, depth = (
                 applied_panel_geometry(layout, side)
             )
+            # Finished-end overhang (applied panel). BACK is rotated 180
+            # so panel +X runs cabinet -X from origin x=dim_x: extend_left
+            # widens the far end past x=0, extend_right shifts the origin
+            # +X and widens. LEFT (rotZ=-90, +X->-Y) has its back edge at
+            # the origin, so a back overhang shifts origin +Y and widens.
+            # RIGHT (rotZ=+90, +X->+Y) has its back edge at the FAR end,
+            # so a back overhang only widens.
+            if side == 'BACK':
+                location = (location[0] + cab.back_finished_extend_right,
+                            location[1], location[2])
+                width = (width + cab.back_finished_extend_left
+                         + cab.back_finished_extend_right)
+            elif side == 'LEFT':
+                eb = cab.left_side_finished_extend_back
+                location = (location[0], location[1] + eb, location[2])
+                width = width + eb
+            else:  # RIGHT
+                width = width + cab.right_side_finished_extend_back
             panel_obj.location = location
             panel_obj.rotation_euler = (0.0, 0.0, rotation_z)
             panel_props = panel_obj.face_frame_cabinet
@@ -3107,10 +3130,58 @@ class FaceFrameCabinet(GeoNodeCage):
         else:
             part = GeoNodeCutpart(existing)
 
-        existing.location = (0.0, thickness, 0.0)
+        # Finished-end overhang: grow the panel past the cabinet's left
+        # (-X) / right (+X) end. Width spans +X from origin x=0, so
+        # extending the left end shifts the origin -X and widens; the
+        # right end just widens. Negative values inset that edge.
+        ext_l = cab.back_finished_extend_left
+        ext_r = cab.back_finished_extend_right
+        existing.location = (-ext_l, thickness, 0.0)
         part.set_input('Length',    layout.dim_z)
-        part.set_input('Width',     layout.dim_x)
+        part.set_input('Width',     layout.dim_x + ext_l + ext_r)
         part.set_input('Thickness', thickness)
+
+    def _extend_finished_side_panels(self, layout):
+        """Run a FINISHED carcass side panel past the cabinet back by the
+        per-side extend amount.
+
+        Only the carcass-side FINISHED case lives here. An applied /
+        beadboard / shiplap side carries its overhang on its own applied
+        part (handled in that reconciler); a FINISHED side has no applied
+        part - the carcass side IS the finished face - so it is grown
+        directly.
+
+        The side panel's origin sits at its back edge (cabinet Y=0) with
+        Width (depth) extruding -Y, so a positive extend shifts the origin
+        +Y and widens, pushing the back out while the square front edge
+        stays put (verified empirically). The Width base is recomputed from
+        the solver rather than read back, so the extend never accumulates;
+        the part loop has already written the square location/Width this
+        recalc, so a zero extend needs no reset (self-correcting).
+
+        Skipped in angled mode, where the side geometry is reshaped by the
+        angled cutter / trapezoidal back (§18) and a naive +Y grow would
+        fight those passes - left as a v1 limit.
+        """
+        if layout.is_angled:
+            return
+        cab = self.obj.face_frame_cabinet
+        specs = (
+            (PART_ROLE_LEFT_SIDE, cab.left_finished_end_condition,
+             cab.left_side_finished_extend_back, solver.left_side_dims),
+            (PART_ROLE_RIGHT_SIDE, cab.right_finished_end_condition,
+             cab.right_side_finished_extend_back, solver.right_side_dims),
+        )
+        for role, condition, extend, dims_fn in specs:
+            if condition != 'FINISHED' or extend == 0.0:
+                continue
+            child = next((c for c in self.obj.children
+                          if c.get('hb_part_role') == role), None)
+            if child is None or child.hide_viewport:
+                continue
+            base_width = dims_fn(layout)[1]  # (length, width=depth, thickness)
+            child.location.y += extend
+            GeoNodeCutpart(child).set_input('Width', base_width + extend)
 
     # =====================================================================
     # Applied flush-X strips (single 1/4 part on the front of a side)
@@ -3540,6 +3611,22 @@ class FaceFrameCabinet(GeoNodeCage):
                 width = layout.dim_x
                 rot_x, rot_y = math.radians(90), math.radians(-90)
                 mirror_y, mirror_z = True, False  # no z-mirror needed
+
+            # Finished-end overhang. BACK grows past the L/-X and R/+X
+            # ends (Width spans +X from origin x=0, same as the finished
+            # back). LEFT / RIGHT have their back edge at the origin with
+            # Width extruding -Y, so a back overhang shifts origin +Y and
+            # widens; the square front stays put.
+            if side == 'BACK':
+                el = cab.back_finished_extend_left
+                er = cab.back_finished_extend_right
+                location = (location[0] - el, location[1], location[2])
+                width = width + el + er
+            else:
+                eb = (cab.left_side_finished_extend_back if side == 'LEFT'
+                      else cab.right_side_finished_extend_back)
+                location = (location[0], location[1] + eb, location[2])
+                width = width + eb
 
             if part_obj is None:
                 part = CabinetPart()

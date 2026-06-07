@@ -2915,6 +2915,35 @@ class Face_Frame_Cabinet_Props(PropertyGroup):
         name="Back Finish End Auto", default=True,
     )  # type: ignore
 
+    # Finished-end overhang extensions (signed; meters). Applied to the
+    # finished-end PART for a side (the FINISHED back/side panel, an
+    # applied panel, or a beadboard/shiplap panel) AFTER the carcass is
+    # built, growing that part past the cabinet body without changing the
+    # carcass. FLUSH_X is excluded - its depth already IS flush_x_amount.
+    #   back L/R  -> grow the BACK finished part past the cabinet's left
+    #               (-X) / right (+X) end. Positive = overhang, negative
+    #               = inset that edge.
+    #   side back -> run the LEFT / RIGHT finished part past the cabinet
+    #               back (+Y). Positive = overhang behind the cabinet,
+    #               negative = inset the back edge forward. The square
+    #               front edge stays put.
+    back_finished_extend_left: FloatProperty(
+        name="Back Extend Left", default=0.0, unit='LENGTH', precision=4,
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    back_finished_extend_right: FloatProperty(
+        name="Back Extend Right", default=0.0, unit='LENGTH', precision=4,
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    left_side_finished_extend_back: FloatProperty(
+        name="Left Side Extend Back", default=0.0, unit='LENGTH', precision=4,
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    right_side_finished_extend_back: FloatProperty(
+        name="Right Side Extend Back", default=0.0, unit='LENGTH', precision=4,
+        update=_update_cabinet_dim,
+    )  # type: ignore
+
     # FLUSH_X writes a finished strip running the front X inches of the
     # side panel; per-side because adjacent-appliance widths can differ.
     # Back has no FLUSH_X by design.
