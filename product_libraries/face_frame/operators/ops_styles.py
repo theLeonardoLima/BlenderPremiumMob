@@ -6,6 +6,7 @@ import bpy
 from bpy.types import Operator
 
 from ..props_hb_face_frame import get_style_props
+from .. import style_options
 
 
 def _next_unique_name(base, existing):
@@ -565,7 +566,93 @@ class hb_face_frame_OT_update_fronts_from_style(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class hb_face_frame_PG_temp_special_effect(bpy.types.PropertyGroup):
+    """Scratch row for the Add Special Effects dialog checkboxes."""
+    is_selected: bpy.props.BoolProperty(name="Is Selected")  # type: ignore
+
+
+def _active_cabinet_style(context):
+    """The cabinet style currently selected in the styles list, or None."""
+    ff = get_style_props(context)
+    if ff is None or not ff.cabinet_styles:
+        return None
+    idx = ff.active_cabinet_style_index
+    if idx < 0 or idx >= len(ff.cabinet_styles):
+        return None
+    return ff.cabinet_styles[idx]
+
+
+class hb_face_frame_OT_add_special_effects(Operator):
+    """Add finish special effects to the active cabinet style. The offered
+    list is the set compatible with the style's wood + color."""
+    bl_idname = "hb_face_frame.add_special_effects"
+    bl_label = "Add Special Effects"
+    bl_description = ("Add finish special effects compatible with this style's "
+                      "wood and color")
+    bl_options = {'REGISTER', 'UNDO'}
+
+    candidates: bpy.props.CollectionProperty(
+        type=hb_face_frame_PG_temp_special_effect)  # type: ignore
+
+    def invoke(self, context, event):
+        self.candidates.clear()
+        style = _active_cabinet_style(context)
+        if style is None:
+            self.report({'ERROR'}, "No active cabinet style.")
+            return {'CANCELLED'}
+        have = {e.name for e in style.special_effects}
+        avail = [e for e in style_options.special_effects_for(
+                    style.finish_wood, style.finish_color) if e not in have]
+        if not avail:
+            self.report({'INFO'},
+                        "No more special effects available for this wood + color.")
+            return {'CANCELLED'}
+        for nm in avail:
+            self.candidates.add().name = nm
+        return context.window_manager.invoke_props_dialog(self, width=300)
+
+    def draw(self, context):
+        col = self.layout.column(align=True)
+        for c in self.candidates:
+            col.prop(c, "is_selected", text=c.name)
+
+    def execute(self, context):
+        style = _active_cabinet_style(context)
+        if style is None:
+            return {'CANCELLED'}
+        added = 0
+        for c in self.candidates:
+            if c.is_selected:
+                style.special_effects.add().name = c.name
+                added += 1
+        self.report({'INFO'}, f"Added {added} special effect(s).")
+        return {'FINISHED'}
+
+
+class hb_face_frame_OT_remove_special_effect(Operator):
+    """Remove a special effect from the active cabinet style."""
+    bl_idname = "hb_face_frame.remove_special_effect"
+    bl_label = "Remove Special Effect"
+    bl_description = "Remove this special effect from the cabinet style"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    effect_name: bpy.props.StringProperty(name="Name")  # type: ignore
+
+    def execute(self, context):
+        style = _active_cabinet_style(context)
+        if style is None:
+            return {'CANCELLED'}
+        for i, item in enumerate(style.special_effects):
+            if item.name == self.effect_name:
+                style.special_effects.remove(i)
+                break
+        return {'FINISHED'}
+
+
 classes = (
+    hb_face_frame_PG_temp_special_effect,
+    hb_face_frame_OT_add_special_effects,
+    hb_face_frame_OT_remove_special_effect,
     hb_face_frame_OT_add_cabinet_style,
     hb_face_frame_OT_remove_cabinet_style,
     hb_face_frame_OT_add_door_style,

@@ -717,6 +717,14 @@ class Face_Frame_Millwork_Item(PropertyGroup):
     )  # type: ignore
 
 
+class Face_Frame_Special_Effect(PropertyGroup):
+    """One special-effect line on a cabinet style's finish (e.g. a distress
+    or rub-through). Only the built-in ``name`` (the catalog effect name) is
+    stored; the offered names are gated by the style's wood + color via
+    style_options.special_effects_for."""
+    pass
+
+
 class Face_Frame_Cabinet_Style(PropertyGroup):
     """Face frame cabinet style: wood species, finish color, interior
     material, door overlay, and references to a door style + drawer front
@@ -998,15 +1006,35 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
     # page). These have no geometric effect -- they're presentation fields the
     # dealer types in. Defaults mirror common CWP selections so a fresh style
     # reads sensibly. Editable from the Style Sections panel.
-    ss_corner_treatment: StringProperty(
+    ss_corner_treatment: EnumProperty(
         name="Corner Treatment",
-        description="Corner treatment descriptor for the style section page",
-        default="1/8 Radius",
+        description="Corner treatment for the style section page",
+        items=[
+            ('1/4" x 1/4" Chamfer', '1/4" x 1/4" Chamfer', ''),
+            ('Cove', 'Cove', ''),
+            ('1/8" Radius', '1/8" Radius', ''),
+            ('Square', 'Square', ''),
+            ('1/4" Radius', '1/4" Radius', ''),
+            ('3/8" Radius', '3/8" Radius', ''),
+        ],
+        default='Square',
     )  # type: ignore
-    ss_fin_opening_edge: StringProperty(
+    ss_fin_opening_edge: EnumProperty(
         name="Fin Opening Edge",
         description="Finished opening edge treatment for the style section page",
-        default="1/8 Radius",
+        items=[
+            ('1/8" Radius', '1/8" Radius', ''),
+            ('1/4" Radius', '1/4" Radius', ''),
+            ('1/4" Drop Radius', '1/4" Drop Radius', ''),
+            ('1/4" x 1/4" Chamfer', '1/4" x 1/4" Chamfer', ''),
+            ('3/8" Radius', '3/8" Radius', ''),
+            ('3/8" Drop Radius', '3/8" Drop Radius', ''),
+            ('Beaded', 'Beaded', ''),
+            ('Classic Cut', 'Classic Cut', ''),
+            ('Cove', 'Cove', ''),
+            ('Square', 'Square', ''),
+        ],
+        default='Square',
     )  # type: ignore
     ss_drawer_grain: StringProperty(
         name="Drawer Grain",
@@ -1020,15 +1048,24 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
                     "page; blank uses hb_face_frame.top_drawer_opening_height",
         default="",
     )  # type: ignore
-    ss_drawer_slides: StringProperty(
+    ss_drawer_slides: EnumProperty(
         name="Drawer Slides",
         description="Drawer slide hardware for the style section page",
-        default="Tandem Blumotion",
+        items=[
+            ('Tandem BLUMOTION', 'Tandem BLUMOTION', ''),
+            ('KV8400', 'KV8400', ''),
+            ('KV4270', 'KV4270', ''),
+        ],
+        default='Tandem BLUMOTION',
     )  # type: ignore
-    ss_drawer_box_construction: StringProperty(
+    ss_drawer_box_construction: EnumProperty(
         name="Box Construction",
         description="Drawer box construction for the style section page",
-        default="French Dovetail",
+        items=[
+            ('French', 'French', ''),
+            ('English', 'English', ''),
+        ],
+        default='French',
     )  # type: ignore
 
     # ---- Style-section OVERRIDES for the catalog-backed fields ----
@@ -1082,11 +1119,62 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         description="Override the drawer style text (blank = composed catalog name)",
         default="",
     )  # type: ignore
-    ss_edge_profile: StringProperty(
-        name="Edge Profile (override)",
-        description="Override the edge profile text (blank = door style's edge profile)",
-        default="",
+    ss_edge_profile: EnumProperty(
+        name="Edge Profile",
+        description="Edge profile for the style section page (None = use the door style's edge profile)",
+        items=[
+            ('None', 'None', ''),
+            ('Bay', 'Bay', ''),
+            ('Beveled', 'Beveled', ''),
+            ('Chamfer', 'Chamfer', ''),
+            ('Classic Cut', 'Classic Cut', ''),
+            ('Drop Radius', 'Drop Radius', ''),
+            ('Eclipse', 'Eclipse', ''),
+            ('Estate', 'Estate', ''),
+            ('New Cut', 'New Cut', ''),
+            ('Square', 'Square', ''),
+            ('1/8" Radius', '1/8" Radius', ''),
+            ('1/4" Radius', '1/4" Radius', ''),
+            ('3/8" Radius', '3/8" Radius', ''),
+            ('3/8" Inset 1/8" Radius', '3/8" Inset 1/8" Radius', ''),
+            ('3/8" Inset Radius', '3/8" Inset Radius', ''),
+            ('3/8" Inset square', '3/8" Inset square', ''),
+        ],
+        default='None',
     )  # type: ignore
+
+    # Custom-text companions for the toggleable dropdown fields. When
+    # <field>_is_custom is set, the UI shows <field>_custom (free text) in
+    # place of the dropdown and the style section resolves the typed value --
+    # for entering a value the catalog list doesn't offer.
+    ss_corner_treatment_is_custom: BoolProperty(name="Custom Corner Treatment", default=False)  # type: ignore
+    ss_corner_treatment_custom: StringProperty(name="Corner Treatment", default="")  # type: ignore
+    ss_fin_opening_edge_is_custom: BoolProperty(name="Custom Fin Opening Edge", default=False)  # type: ignore
+    ss_fin_opening_edge_custom: StringProperty(name="Fin Opening Edge", default="")  # type: ignore
+    ss_drawer_slides_is_custom: BoolProperty(name="Custom Drawer Slides", default=False)  # type: ignore
+    ss_drawer_slides_custom: StringProperty(name="Drawer Slides", default="")  # type: ignore
+    ss_drawer_box_construction_is_custom: BoolProperty(name="Custom Box Construction", default=False)  # type: ignore
+    ss_drawer_box_construction_custom: StringProperty(name="Box Construction", default="")  # type: ignore
+    ss_edge_profile_is_custom: BoolProperty(name="Custom Edge Profile", default=False)  # type: ignore
+    ss_edge_profile_custom: StringProperty(name="Edge Profile", default="")  # type: ignore
+    ss_wood_is_custom: BoolProperty(name="Custom Wood", default=False)  # type: ignore
+    ss_wood_custom: StringProperty(name="Wood", default="")  # type: ignore
+    ss_interior_is_custom: BoolProperty(name="Custom Interior", default=False)  # type: ignore
+    ss_interior_custom: StringProperty(name="Interior", default="")  # type: ignore
+    ss_overlay_is_custom: BoolProperty(name="Custom Overlay", default=False)  # type: ignore
+    ss_overlay_custom: StringProperty(name="Overlay", default="")  # type: ignore
+    ss_color_is_custom: BoolProperty(name="Custom Color", default=False)  # type: ignore
+    ss_color_custom: StringProperty(name="Color", default="")  # type: ignore
+    ss_varnish_is_custom: BoolProperty(name="Custom Varnish", default=False)  # type: ignore
+    ss_varnish_custom: StringProperty(name="Varnish", default="")  # type: ignore
+    ss_glaze_is_custom: BoolProperty(name="Custom Glaze", default=False)  # type: ignore
+    ss_glaze_custom: StringProperty(name="Glaze", default="")  # type: ignore
+    ss_door_is_custom: BoolProperty(name="Custom Door", default=False)  # type: ignore
+    ss_door_custom: StringProperty(name="Door", default="")  # type: ignore
+    ss_hinge_is_custom: BoolProperty(name="Custom Hinge", default=False)  # type: ignore
+    ss_hinge_custom: StringProperty(name="Hinge", default="")  # type: ignore
+    ss_drawer_is_custom: BoolProperty(name="Custom Drawer Front", default=False)  # type: ignore
+    ss_drawer_custom: StringProperty(name="Drawer Front", default="")  # type: ignore
 
     # ---- Style-section millwork (per-style list shown under the column on the
     # Style Section page). Each item is name + quantity(ft) + product_code.
@@ -1097,6 +1185,18 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
     )  # type: ignore
     millwork_index: IntProperty(
         name="Millwork Index",
+        default=0,
+    )  # type: ignore
+
+    # ---- Style-section special effects (per-style finish add-ons shown in
+    # the FINISH section + on the page). Each item is a catalog effect name;
+    # the Add dialog offers the wood+color-compatible set.
+    special_effects: CollectionProperty(
+        name="Special Effects",
+        type=Face_Frame_Special_Effect,
+    )  # type: ignore
+    special_effect_index: IntProperty(
+        name="Special Effect Index",
         default=0,
     )  # type: ignore
 
@@ -1848,62 +1948,49 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
                 r.label(text="", icon='BLANK1')
                 r.label(text=inch_label(getattr(self, f"{prop_root}_{col_key}")))
 
+    def _draw_toggle_field(self, col, dropdown_attr, label, custom_base=None):
+        """Draw a dropdown field with a button toggling to a free-text field,
+        so a value outside the list can be typed. The typed value is stored on
+        <base>_custom, gated by <base>_is_custom. ``base`` defaults to the
+        dropdown attr; pass custom_base when the page-override store differs
+        from the dropdown (e.g. the finish_wood dropdown stores custom text on
+        ss_wood). The dropdown still drives geometry/material; custom text is a
+        print-only spec value."""
+        base = custom_base or dropdown_attr
+        row = col.row(align=True)
+        if getattr(self, base + "_is_custom", False):
+            row.prop(self, base + "_custom", text=label)
+        else:
+            row.prop(self, dropdown_attr, text=label)
+        row.prop(self, base + "_is_custom", text="",
+                 icon='GREASEPENCIL', toggle=True)
+
     def draw_cabinet_style_ui(self, layout, context):
         """Per-style settings drawn inside the cabinet styles UIList panel.
-        Door / drawer-front style dropdowns land after the door_styles
-        collection is in place.
+
+        Sections: CABINET / FINISH / FRONTS / DOORS / DRAWERS / EDGE PROFILE.
+        The Door / Drawer Front pickers reference a style by name from the
+        shared front-style pools.
         """
-        box = layout.box()
-        box.prop(self, "name", text="Style Name")
+        main = layout.column()
 
-        # Catalog finish spec (compatibility-filtered cascade; drives the
-        # procedural wood material via finish_wood / finish_color).
-        col = box.column(align=True)
-        col.label(text="Catalog Finish:")
-        col.prop(self, "finish_wood", text="Wood")
-        col.prop(self, "finish_color", text="Color")
-        col.prop(self, "finish_varnish", text="Varnish")
-        col.prop(self, "finish_glaze", text="Glaze")
+        name_box = main.box()
+        name_box.prop(self, "name", text="Style Name")
 
-        # Interior material
+        box = main.box()
+        row = box.row()
+        row.alignment = 'CENTER'
+        row.label(text="CABINET")
         col = box.column(align=True)
-        col.prop(self, "interior_material_type", text="Interior")
-        if self.interior_material_type == 'CUSTOM':
+        self._draw_toggle_field(col, "finish_wood", "Wood", "ss_wood")
+        self._draw_toggle_field(col, "interior_material_type", "Interior",
+                                "ss_interior")
+        if not self.ss_interior_is_custom and self.interior_material_type == 'CUSTOM':
             col.prop(self, "custom_interior_material", text="")
-
-        # Overlay + hinge (catalog). finish_overlay drives the face-frame
-        # sizing engine via door_overlay_type (see update_finish_overlay).
-        col = box.column(align=True)
-        col.prop(self, "finish_overlay", text="Overlay")
-        col.prop(self, "finish_hinge", text="Hinge")
-
-        # Door / drawer-front style picks (from the shared pool). The
-        # selected names land in self.door_style / self.drawer_front_style;
-        # assign_style_to_cabinet consumes them once assign_style_to_front
-        # is wired.
-        col = box.column(align=True)
-        col.label(text="Fronts:")
-        col.prop(self, "door_style", text="Door")
-        col.prop(self, "drawer_front_style", text="Drawer Front")
-
-        # Style-section descriptor fields (free text; print on the Style
-        # Section page, no geometric effect). Corner treatment + fin opening
-        # edge are cabinet-level; box construction is the drawer box. Same
-        # props the Style Sections panel edits, so setting them here fills
-        # the section automatically. (Drawer grain comes from the door
-        # style; top drawer opening height from the project Face Frame
-        # settings -- both shown on the page without a field here.)
-        col = box.column(align=True)
-        col.label(text="Style Section Details:")
-        col.prop(self, "ss_corner_treatment", text="Corner Treatment")
-        col.prop(self, "ss_fin_opening_edge", text="Fin Opening Edge")
-        col.prop(self, "ss_drawer_slides", text="Drawer Slides")
-        col.prop(self, "ss_drawer_box_construction", text="Box Construction")
-
-        # Face frame sizes grid - 7 row types x 3 cabinet types. Rails
-        # carry per-cell unlock toggles; stiles are always overlay-driven
-        # and render as read-only inch labels. Collapsed by default
-        # since the grid is large; expand to edit.
+        self._draw_toggle_field(col, "finish_overlay", "Overlay", "ss_overlay")
+        self._draw_toggle_field(col, "ss_corner_treatment", "Corner Treatment")
+        self._draw_toggle_field(col, "ss_fin_opening_edge", "Fin Opening Edge")
+        # Face frame size grid is large; collapsed by default.
         row = box.row()
         row.alignment = 'LEFT'
         row.prop(self, "show_face_frame_sizes",
@@ -1913,14 +2000,54 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         if self.show_face_frame_sizes:
             self._draw_face_frame_sizes(box, context)
 
-        # Apply / re-apply buttons. Assign hits the current selection;
-        # Update walks every cabinet already tagged with this style name.
-        row = box.row(align=True)
-        row.scale_y = 1.3
-        row.operator("hb_face_frame.assign_style_to_selected_cabinets",
-                     text="Assign Style", icon='BRUSH_DATA')
-        row.operator("hb_face_frame.update_cabinets_from_style",
-                     text="Update Cabinets", icon='FILE_REFRESH')
+        box = main.box()
+        row = box.row()
+        row.alignment = 'CENTER'
+        row.label(text="FINISH")
+        col = box.column(align=True)
+        self._draw_toggle_field(col, "finish_color", "Color", "ss_color")
+        self._draw_toggle_field(col, "finish_varnish", "Varnish", "ss_varnish")
+        self._draw_toggle_field(col, "finish_glaze", "Glaze", "ss_glaze")
+        # Special effects: catalog finish add-ons gated by this style's
+        # wood + color. Add opens a checkbox dialog of the compatible set.
+        sfx = box.column(align=True)
+        sfx.operator("hb_face_frame.add_special_effects",
+                     text="Add Special Effects", icon='ADD')
+        for effect in self.special_effects:
+            r = sfx.row(align=True)
+            r.label(text=effect.name, icon='DOT')
+            r.operator("hb_face_frame.remove_special_effect",
+                       text="", icon='X', emboss=False).effect_name = effect.name
+
+        box = main.box()
+        row = box.row()
+        row.alignment = 'CENTER'
+        row.label(text="FRONTS")
+        col = box.column(align=True)
+        self._draw_toggle_field(col, "door_style", "Door", "ss_door")
+        self._draw_toggle_field(col, "drawer_front_style", "Drawer Front", "ss_drawer")
+
+        box = main.box()
+        row = box.row()
+        row.alignment = 'CENTER'
+        row.label(text="DOORS")
+        col = box.column(align=True)
+        self._draw_toggle_field(col, "finish_hinge", "Hinge", "ss_hinge")
+
+        box = main.box()
+        row = box.row()
+        row.alignment = 'CENTER'
+        row.label(text="DRAWERS")
+        col = box.column(align=True)
+        self._draw_toggle_field(col, "ss_drawer_slides", "Drawer Slides")
+        self._draw_toggle_field(col, "ss_drawer_box_construction", "Box Construction")
+
+        box = main.box()
+        row = box.row()
+        row.alignment = 'CENTER'
+        row.label(text="DOOR & DRAWER EDGE PROFILE")
+        col = box.column(align=True)
+        self._draw_toggle_field(col, "ss_edge_profile", "Edge Profile")
 
 
 class HB_UL_face_frame_cabinet_styles(UIList):
@@ -5118,6 +5245,14 @@ class Face_Frame_Scene_Props(PropertyGroup):
 
         if sp.cabinet_styles and sp.active_cabinet_style_index < len(sp.cabinet_styles):
             style = sp.cabinet_styles[sp.active_cabinet_style_index]
+            # Assign hits the current selection; Update walks every cabinet
+            # already tagged with this style name.
+            btn = layout.row(align=True)
+            btn.scale_y = 1.3
+            btn.operator("hb_face_frame.assign_style_to_selected_cabinets",
+                         text="Assign Style", icon='BRUSH_DATA')
+            btn.operator("hb_face_frame.update_cabinets_from_style",
+                         text="Update Cabinets", icon='FILE_REFRESH')
             style.draw_cabinet_style_ui(layout, context)
         else:
             box = layout.box()
@@ -5508,6 +5643,7 @@ classes = (
     Face_Frame_Leg_Props,
     Face_Frame_Floating_Shelf_Props,
     Face_Frame_Millwork_Item,
+    Face_Frame_Special_Effect,
     Face_Frame_Cabinet_Style,
     HB_UL_face_frame_cabinet_styles,
     Face_Frame_Door_Style,

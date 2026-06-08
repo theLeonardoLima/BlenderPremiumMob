@@ -131,6 +131,15 @@ class TitleBlock:
         border.set_input("Dim X", 1.0)
         border.set_input("Dim Y", 1.0 / aspect_ratio)
         self.obj = border.obj
+
+        # This object stays as the title-block PARENT ANCHOR: its
+        # normalized local frame positions the Spaces view-name field,
+        # legend blocks, detail stacks and style columns. But the visible
+        # rectangle is unwanted on shop drawings (and was mis-positioning
+        # on some views), so hide it from render + viewport. Children are
+        # unaffected -- hide_render/hide_viewport do not propagate to them.
+        border.obj.hide_render = True
+        border.obj.hide_viewport = True
         
         # Add to Freestyle Ignore collection
         if ignore_collection and border.obj.name not in ignore_collection.objects:
