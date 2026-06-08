@@ -4080,6 +4080,37 @@ class Face_Frame_Opening_Props(PropertyGroup):
     )  # type: ignore
 
 
+class Face_Frame_Splitter_Width(PropertyGroup):
+    """Per-splitter width override inside one split node.
+
+    A split node with N children emits N-1 splitter members (mid rails
+    for an H-split, mid stiles for a V-split). The node's scalar
+    splitter_width is the default applied to every member; this
+    collection lets an individual member hold its own width so the user
+    can size one mid rail in a bay without dragging its siblings along.
+
+    Index N maps to the splitter at gap N (the solver's splitter_index,
+    also stamped on the part as hb_splitter_index). An entry is honored
+    only when `active` is True; otherwise the member follows the node's
+    scalar splitter_width. The collection grows lazily on first edit, so
+    a split with no per-member overrides carries an empty collection and
+    behaves exactly as before.
+    """
+    width: FloatProperty(
+        name="Width",
+        default=units.inch(1.5),
+        unit='LENGTH',
+        precision=4,
+        update=_update_cabinet_dim,
+    )  # type: ignore
+
+    active: BoolProperty(
+        name="Active",
+        description="Use this per-splitter width instead of the split's default",
+        default=False,
+    )  # type: ignore
+
+
 class Face_Frame_Split_Props(PropertyGroup):
     """Per-split-node state. Attached to each split node Empty as
     bpy.types.Object.face_frame_split.
@@ -4126,6 +4157,12 @@ class Face_Frame_Split_Props(PropertyGroup):
         description="Hold this split's mid rail / mid stile width when a cabinet style is applied",
         default=False, update=_update_cabinet_dim,
     )  # type: ignore
+
+    # Per-splitter width overrides, indexed by splitter_index. Empty =
+    # every member follows the scalar splitter_width above; an entry with
+    # active=True holds that one member's width independently (set via the
+    # right-click Set Width on a single mid rail / mid stile).
+    splitter_widths: CollectionProperty(type=Face_Frame_Splitter_Width)  # type: ignore
 
     # Carcass part rendered BEHIND each splitter member. The KIND of
     # backing is implied by the split's axis: H-splits (mid rails)
@@ -5655,6 +5692,7 @@ classes = (
     Face_Frame_Interior_Item,
     Face_Frame_Interior_Region_Props,
     Face_Frame_Opening_Props,
+    Face_Frame_Splitter_Width,
     Face_Frame_Split_Props,
     Face_Frame_Interior_Split_Props,
     Face_Frame_Scene_Props,

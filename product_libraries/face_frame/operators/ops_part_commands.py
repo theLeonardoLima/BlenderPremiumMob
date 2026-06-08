@@ -100,6 +100,13 @@ def _get_current_width(obj, role, root):
                 types_face_frame.PART_ROLE_BAY_MID_STILE):
         split = _find_owning_split_node(obj)
         if split is not None:
+            # Each splitter member can hold its own width (keyed by the
+            # hb_splitter_index stamped on the part); fall back to the
+            # split's scalar splitter_width when this index isn't overridden.
+            idx = obj.get('hb_splitter_index', 0)
+            coll = split.face_frame_split.splitter_widths
+            if 0 <= idx < len(coll) and coll[idx].active:
+                return coll[idx].width
             return split.face_frame_split.splitter_width
         # Fall back to cabinet-level default; only used if the part lost its
         # split-node reference somehow.
@@ -153,10 +160,7 @@ def get_current_width(obj):
     root = types_face_frame.find_cabinet_root(obj)
     if root is None:
         return None
-    target, attr = _resolve_width_target(obj, role, root)
-    if target is None:
-        return None
-    return getattr(target, attr)
+    return _get_current_width(obj, role, root)
 
 
 def _rail_segment_bay_indices(root, start_bay_index, role):
@@ -266,7 +270,16 @@ def _fan_out_value(obj, role, root, value):
                 types_face_frame.PART_ROLE_BAY_MID_STILE):
         split = _find_owning_split_node(obj)
         if split is not None:
-            split.face_frame_split.splitter_width = value
+            # Write ONLY this member's per-index override so the other mid
+            # rails / mid stiles in the same split keep their widths. The
+            # collection grows lazily to cover this index; active=True makes
+            # the solver honor it over the split's scalar splitter_width.
+            idx = obj.get('hb_splitter_index', 0)
+            coll = split.face_frame_split.splitter_widths
+            while len(coll) <= idx:
+                coll.add()
+            coll[idx].width = value
+            coll[idx].active = True
         return
 
 
@@ -366,8 +379,9 @@ class hb_face_frame_OT_set_part_width(bpy.types.Operator):
         # source_obj_name is empty, so the seed write cannot fan out or
         # trigger a recalc. An operator-instance flag did not survive
         # into the callback reliably, hence the empty-name approach.
-        target, attr = _resolve_width_target(obj, role, root)
-        self.value = getattr(target, attr) if target is not None else 0.0
+        # Seed from the EFFECTIVE width (handles per-splitter overrides,
+        # which _resolve_width_target's scalar target wouldn't reflect).
+        self.value = _get_current_width(obj, role, root)
 
         self.source_obj_name = obj.name
 

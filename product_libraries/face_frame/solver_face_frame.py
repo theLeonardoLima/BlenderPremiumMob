@@ -247,6 +247,17 @@ class FaceFrameLayout:
                  or c.get(types_face_frame.TAG_SPLIT_NODE)],
                 key=lambda c: c.get('hb_split_child_index', 0),
             )
+            # Per-splitter width snapshot. A split with N children has
+            # N-1 splitter members; member i uses its active per-index
+            # override if present, else the scalar splitter_width. The
+            # solver consumes this list so one mid rail can hold its own
+            # width without dragging its siblings (see Face_Frame_Splitter_Width).
+            n_split = max(0, len(children) - 1)
+            ov = sp.splitter_widths
+            splitter_widths = [
+                (ov[i].width if i < len(ov) and ov[i].active else sp.splitter_width)
+                for i in range(n_split)
+            ]
             return {
                 'kind':            'split',
                 'obj_name':        obj.name,
@@ -254,6 +265,7 @@ class FaceFrameLayout:
                 'size':            sp.size,
                 'unlock_size':     sp.unlock_size,
                 'splitter_width':  sp.splitter_width,
+                'splitter_widths': splitter_widths,
                 'add_backing':     sp.add_backing,
                 'children':        [self._read_tree_node(c) for c in children],
             }
@@ -2235,13 +2247,17 @@ def _bay_root_reveals(layout, bay_index):
     }
 
 
-def _redistribute_sizes(children, available, splitter_count, splitter_width):
+def _redistribute_sizes(children, available, splitter_total):
     """Distribute `available` along children; siblings with unlock_size
     hold their stored value, the rest evenly share the remainder. This
     is the same algorithm as _distribute_bay_widths, just running over
     a tree node's children instead of the cabinet's bays.
+
+    `splitter_total` is the SUM of all splitter member widths in this
+    node (members may differ now that each can hold its own width), so
+    the caller passes the total rather than count * uniform width.
     """
-    consumed_by_splitters = splitter_count * splitter_width
+    consumed_by_splitters = splitter_total
     locked_total = sum(
         c['size'] for c in children if c['unlock_size']
     )
@@ -2272,13 +2288,13 @@ def _backing_thickness_for_role(layout, role):
 
 def _emit_h_splitter(node, cage_x, cage_z, cage_dim_x, cage_dim_y, cage_dim_z,
                      reveals, splitter_top_z, splitter_bottom_z,
-                     splitter_index, layout, splitters, backings):
+                     splitter_index, splitter_w, layout, splitters, backings):
     """Append the mid rail rect for an H-split between two consecutive
     children, plus the matching backing rect if backing_kind isn't
-    NONE. All coords are BAY-local."""
+    NONE. All coords are BAY-local. `splitter_w` is this member's own
+    width (per-index; the caller resolves the override / scalar)."""
     ff_left_x = cage_x + reveals['left']
     ff_width = cage_dim_x - reveals['left'] - reveals['right']
-    splitter_w = node['splitter_width']
     # Cabinet: bay cage origin sits at the back of the face frame, so a
     # mid splitter (a face-frame member) lives one fft in -Y from the
     # origin to land in the FF plane. Panel: bay cage origin sits at
@@ -2322,14 +2338,14 @@ def _emit_h_splitter(node, cage_x, cage_z, cage_dim_x, cage_dim_y, cage_dim_z,
 
 
 def _emit_v_splitter(node, cage_x, cage_z, cage_dim_x, cage_dim_y, cage_dim_z,
-                     reveals, splitter_left_x, splitter_index, layout,
-                     splitters, backings):
+                     reveals, splitter_left_x, splitter_index, splitter_w,
+                     layout, splitters, backings):
     """Append the mid stile rect for a V-split between two consecutive
     children, plus the matching backing rect if backing_kind isn't
-    NONE. All coords are BAY-local."""
+    NONE. All coords are BAY-local. `splitter_w` is this member's own
+    width (per-index; the caller resolves the override / scalar)."""
     ff_bottom_z = cage_z + reveals['bottom']
     ff_height = cage_dim_z - reveals['top'] - reveals['bottom']
-    splitter_w = node['splitter_width']
     # See _emit_h_splitter for the cabinet vs panel y rationale.
     splitter_y = _ff_front_y_bay_local(layout)
     splitters.append({
@@ -2398,11 +2414,18 @@ def _walk_tree(node, layout, bay_index,
     n_children = len(children)
     n_splitters = n_children - 1
     splitter_w = node['splitter_width']
+    # Per-splitter widths (member i uses widths[i]); fall back to a
+    # uniform list for snapshots predating the per-index field. Each
+    # member can differ now, so consumption is the sum, not count * w.
+    widths = node.get('splitter_widths')
+    if not widths or len(widths) != n_splitters:
+        widths = [splitter_w] * n_splitters
+    splitter_total = sum(widths)
 
     if node['axis'] == 'H':
         ff_avail_z = cage_dim_z - reveals['top'] - reveals['bottom']
         sizes = _redistribute_sizes(
-            children, ff_avail_z, n_splitters, splitter_w
+            children, ff_avail_z, splitter_total
         )
         ff_opening_top_z = cage_z + cage_dim_z - reveals['top']
         cur_z_top = ff_opening_top_z
@@ -2433,19 +2456,20 @@ def _walk_tree(node, layout, bay_index,
             )
             if i < n_children - 1:
                 # Mid rail sits below this child's FF bottom edge.
+                w_i = widths[i]
                 splitter_top_z = child_ff_bottom_z
-                splitter_bottom_z = splitter_top_z - splitter_w
+                splitter_bottom_z = splitter_top_z - w_i
                 _emit_h_splitter(
                     node, cage_x, cage_z, cage_dim_x, cage_dim_y, cage_dim_z,
                     reveals, splitter_top_z, splitter_bottom_z,
-                    splitter_index=i, layout=layout,
+                    splitter_index=i, splitter_w=w_i, layout=layout,
                     splitters=splitters, backings=backings,
                 )
-            cur_z_top = child_ff_bottom_z - splitter_w
+                cur_z_top = child_ff_bottom_z - w_i
     else:
         ff_avail_x = cage_dim_x - reveals['left'] - reveals['right']
         sizes = _redistribute_sizes(
-            children, ff_avail_x, n_splitters, splitter_w
+            children, ff_avail_x, splitter_total
         )
         ff_opening_left_x = cage_x + reveals['left']
         cur_x_left = ff_opening_left_x
@@ -2475,14 +2499,15 @@ def _walk_tree(node, layout, bay_index,
                 leaves=leaves, splitters=splitters, backings=backings,
             )
             if i < n_children - 1:
+                w_i = widths[i]
                 splitter_left_x = child_ff_right_x
                 _emit_v_splitter(
                     node, cage_x, cage_z, cage_dim_x, cage_dim_y, cage_dim_z,
                     reveals, splitter_left_x,
-                    splitter_index=i, layout=layout,
+                    splitter_index=i, splitter_w=w_i, layout=layout,
                     splitters=splitters, backings=backings,
                 )
-            cur_x_left = child_ff_right_x + splitter_w
+                cur_x_left = child_ff_right_x + w_i
 
 
 def bay_openings(layout, bay_index):
