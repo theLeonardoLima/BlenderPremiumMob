@@ -161,11 +161,14 @@ def draw_corner_sections(layout, cab_props):
     a shelf-count field.
     """
     sections = cab_props.corner_sections
-    # Nothing to adjust for a lone door section (height is the full
+    # Nothing to adjust for a lone BASE door section (height is the full
     # span, no shelves) - skip the box entirely. A lone OPEN section
-    # still shows for its shelf count.
+    # still shows for its shelf count, and a lone UPPER doors section
+    # (e.g. the bi-fold upper) shows for its shelf-qty override.
     has_open = any(s.content == 'OPEN' for s in sections)
-    if len(sections) < 2 and not has_open:
+    has_upper_doors = (cab_props.cabinet_type == 'UPPER'
+                       and any(s.content == 'DOORS' for s in sections))
+    if len(sections) < 2 and not has_open and not has_upper_doors:
         return
     box = layout.box()
     box.label(text="Sections (top to bottom)")
@@ -183,6 +186,19 @@ def draw_corner_sections(layout, cab_props):
         row.prop(section, 'unlock_height', text="", icon=lock_icon)
         if section.content == 'OPEN':
             col.prop(section, 'shelf_qty', text="Shelves")
+        elif (section.content == 'DOORS'
+              and cab_props.cabinet_type == 'UPPER'):
+            # Upper door sections auto-count shelves by height; the
+            # lock mirrors the standard interior-item qty pattern
+            # (locked = auto, unlocked = manual override).
+            qty_row = col.row(align=True)
+            field = qty_row.row(align=True)
+            field.enabled = section.unlock_shelf_qty
+            field.prop(section, 'shelf_qty', text="Shelves")
+            lock_icon = ('UNLOCKED' if section.unlock_shelf_qty
+                         else 'LOCKED')
+            qty_row.prop(section, 'unlock_shelf_qty', text="",
+                         icon=lock_icon)
 
 
 def draw_construction(layout, cab_props):

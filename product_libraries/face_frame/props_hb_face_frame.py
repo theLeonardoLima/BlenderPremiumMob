@@ -1510,6 +1510,11 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
     # rollouts / trays) are excluded.
     _BAY_FINISH_SHELF_ROLES = {
         'ADJUSTABLE_SHELF', 'INTERIOR_FIXED_SHELF', 'BAY_SHELF', 'VANITY_SHELF',
+        # Corner cabinet shelves live under the cabinet root (no bay /
+        # opening cage above them), so the finish walk resolves to
+        # not-finished and they take the interior material -- correct,
+        # and better than the no-material fallthrough they had before.
+        'CORNER_SHELF',
     }
 
     def _set_part_surfaces(self, part_obj, surface_mat, edge_mat):
@@ -2798,8 +2803,19 @@ class Face_Frame_Corner_Section(PropertyGroup):
     )  # type: ignore
     shelf_qty: IntProperty(
         name="Shelf Qty",
-        description="Number of adjustable shelves in an open section",
+        description="Number of adjustable shelves in this section",
         default=2, min=0, max=10,
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    # DOORS sections on upper corner cabinets auto-count their shelves
+    # by section height (synced into shelf_qty each recalc so the UI
+    # shows the live count). Unlock to override with a manual count.
+    # OPEN sections are unaffected -- their shelf_qty has always been
+    # fully manual and stays that way.
+    unlock_shelf_qty: BoolProperty(
+        name="Unlock Shelf Qty",
+        description="Override the auto shelf count for this door section",
+        default=False,
         update=_update_cabinet_dim,
     )  # type: ignore
 

@@ -1032,6 +1032,10 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
         shelf.obj['hb_corner_section_index'] = section_index
         shelf.obj['hb_corner_shelf_index'] = shelf_index
         shelf.obj['CABINET_PART'] = True
+        # Interior tag so the Interiors selection mode shows the shelf
+        # through the doors (show_in_front) and makes it selectable,
+        # like every standard adjustable shelf.
+        shelf.obj['IS_FACE_FRAME_INTERIOR_PART'] = True
         shelf.obj.rotation_euler.z = math.radians(-90)
         notch = shelf.add_part_modifier('CPM_CORNERNOTCH', 'Front Notch')
         notch.set_input('Flip X', True)
@@ -1079,6 +1083,9 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
                 None)
             if shelf is None:
                 continue
+            # Stamp here too (runs every recalc) so shelves created
+            # before the interior tag existed pick it up in old blends.
+            shelf['IS_FACE_FRAME_INTERIOR_PART'] = True
             z_shelf = sec_z0 + (k + 1) * gap + k * solver.SHELF_THICKNESS
             shelf.location = (0.0, 0.0, z_shelf)
             _set_mod_inputs(shelf, shelf.home_builder.mod_name, (
@@ -1715,9 +1722,17 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
                     self._clear_door_pull(door)
 
             if is_upper:
-                # Adjustable shelves behind the doors, auto by section
-                # height; L-shaped to match the Top / Bottom panels.
-                qty = solver.auto_shelf_qty(sec_h)
+                # Adjustable shelves behind the doors; L-shaped to match
+                # the Top / Bottom panels. Auto by section height while
+                # the section's qty is locked (synced into shelf_qty so
+                # the UI shows the live count); unlock to override.
+                sec = sections[i]
+                auto_qty = solver.auto_shelf_qty(sec_h)
+                if not sec.unlock_shelf_qty and sec.shelf_qty != auto_qty:
+                    # System write; the _RECALCULATING guard short-
+                    # circuits the update callback's re-entrant recalc.
+                    sec.shelf_qty = auto_qty
+                qty = sec.shelf_qty if sec.unlock_shelf_qty else auto_qty
                 self._ensure_pie_cut_section_shelves(i, qty)
                 self._position_pie_cut_shelves(
                     i, qty, sec_z0, sec_h, depth, width, t, fft, ld, rd,
@@ -1849,6 +1864,7 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
                 shelf.obj['hb_corner_section_index'] = i
                 shelf.obj['hb_corner_shelf_index'] = k
                 shelf.obj['CABINET_PART'] = True
+                shelf.obj['IS_FACE_FRAME_INTERIOR_PART'] = True
                 shelf.set_input('Mirror Y', True)
                 if cutter_obj is not None:
                     cut = shelf.obj.modifiers.new(
@@ -1878,6 +1894,7 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
         shelf.obj['hb_corner_section_index'] = section_index
         shelf.obj['hb_corner_shelf_index'] = shelf_index
         shelf.obj['CABINET_PART'] = True
+        shelf.obj['IS_FACE_FRAME_INTERIOR_PART'] = True
         shelf.set_input('Mirror Y', True)
         if cutter_obj is not None:
             cut = shelf.obj.modifiers.new(name='Diagonal Cut', type='BOOLEAN')
@@ -1931,6 +1948,9 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
                 None)
             if shelf is None:
                 continue
+            # Stamp here too (runs every recalc) so shelves created
+            # before the interior tag existed pick it up in old blends.
+            shelf['IS_FACE_FRAME_INTERIOR_PART'] = True
             z_shelf = sec_z0 + (k + 1) * gap + k * solver.SHELF_THICKNESS
             shelf.location = (t, -t, z_shelf)
             _set_mod_inputs(shelf, shelf.home_builder.mod_name, (
@@ -2283,10 +2303,20 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
                         d_right, door_length, leaf_width, dt,
                         width_sign=-1.0, edge='OUTER')
                 if is_upper:
-                    # Adjustable shelves behind the doors, auto by section
-                    # height. (FALSE_FRONT = sink apron, no shelves; OPEN
+                    # Adjustable shelves behind the doors. Auto by section
+                    # height while the section's qty is locked (synced into
+                    # shelf_qty so the UI shows the live count); unlock to
+                    # override. (FALSE_FRONT = sink apron, no shelves; OPEN
                     # handles its own shelf stack below.)
-                    qty = solver.auto_shelf_qty(sec_h)
+                    sec = sections[i]
+                    auto_qty = solver.auto_shelf_qty(sec_h)
+                    if (not sec.unlock_shelf_qty
+                            and sec.shelf_qty != auto_qty):
+                        # System write; the _RECALCULATING guard short-
+                        # circuits the update callback's re-entrant recalc.
+                        sec.shelf_qty = auto_qty
+                    qty = (sec.shelf_qty if sec.unlock_shelf_qty
+                           else auto_qty)
                     self._ensure_diagonal_section_shelves(
                         i, qty, diag_cutter, diag_back_cutter)
                     self._position_diagonal_shelves(
