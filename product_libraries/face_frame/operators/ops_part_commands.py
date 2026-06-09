@@ -1010,7 +1010,8 @@ class hb_face_frame_OT_set_door_frame(bpy.types.Operator):
                                update=_on_df_bottom_rail)  # type: ignore
     mid_rail_mode: bpy.props.EnumProperty(
         name="Mid Rail",
-        items=[('CENTERED', "Centered", "Mid rail centered vertically"),
+        items=[('NONE', "None", "No mid rail (overrides the style and the tall-door auto rail)"),
+               ('CENTERED', "Centered", "Mid rail centered vertically"),
                ('THIRD', "1/3 - 2/3", "Mid rail 1/3 up from the bottom"),
                ('CUSTOM', "Custom", "Mid rail at a custom location")],
         default='CENTERED',
@@ -1040,7 +1041,10 @@ class hb_face_frame_OT_set_door_frame(bpy.types.Operator):
         self.bottom_rail = seed('HB_FRAME_OVR_BOTTOM_RAIL', "Bottom Rail Width")
         mode = store.get('HB_FRAME_OVR_MID_RAIL_MODE') if locked else None
         if not mode:
-            mode = 'CENTERED' if _mod_input_get(mod, "Center Mid Rail", True) else 'CUSTOM'
+            if not _mod_input_get(mod, "Add Mid Rail", False):
+                mode = 'NONE'
+            else:
+                mode = 'CENTERED' if _mod_input_get(mod, "Center Mid Rail", True) else 'CUSTOM'
         self.mid_rail_mode = mode
         if locked and 'HB_FRAME_OVR_MID_RAIL_LOCATION' in store.keys():
             self.mid_rail_location = store['HB_FRAME_OVR_MID_RAIL_LOCATION']

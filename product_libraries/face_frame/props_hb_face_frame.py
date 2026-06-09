@@ -2373,9 +2373,13 @@ class Face_Frame_Door_Style(PropertyGroup):
             eff_top_rail    = self.rail_width
             eff_bottom_rail = self.rail_width
 
+        # Locked NONE mode removes the mid rail entirely, overriding both the
+        # style's add_mid_rail and the tall-door auto rail.
+        ovr_mid_mode = frame_store.get('HB_FRAME_OVR_MID_RAIL_MODE') if frame_locked else None
+
         min_width = eff_left_stile + eff_right_stile + units.inch(1)
         min_height = eff_top_rail + eff_bottom_rail + units.inch(1)
-        if self.add_mid_rail or needs_auto_mid_rail:
+        if ovr_mid_mode != 'NONE' and (self.add_mid_rail or needs_auto_mid_rail):
             min_height += self.mid_rail_width
 
         if front_width < min_width:
@@ -2410,8 +2414,7 @@ class Face_Frame_Door_Style(PropertyGroup):
         # THIRD places it 1/3 up (bottom opening = 1/3 of the door height);
         # CUSTOM uses the stored location. Presence of an override also
         # forces a mid rail on.
-        ovr_mid_mode = frame_store.get('HB_FRAME_OVR_MID_RAIL_MODE') if frame_locked else None
-        if needs_auto_mid_rail or self.add_mid_rail or ovr_mid_mode:
+        if ovr_mid_mode != 'NONE' and (needs_auto_mid_rail or self.add_mid_rail or ovr_mid_mode):
             try:
                 door_style_mod.set_input("Add Mid Rail", True)
                 door_style_mod.set_input("Mid Rail Width", self.mid_rail_width)
