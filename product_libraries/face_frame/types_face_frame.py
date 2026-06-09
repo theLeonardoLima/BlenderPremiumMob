@@ -412,7 +412,7 @@ PART_ROLE_OVERSTOOL_TOWEL_BAR = 'OVERSTOOL_TOWEL_BAR'
 # Leg-accessory sizing (effective real-world). Shelf is front-aligned (front
 # edge flush with the leg front, extending back); towel bar is a round rod.
 # Z positions are measured UP from the dropped leg bottom.
-OVERSTOOL_SHELF_DEPTH = inch(2.5)
+OVERSTOOL_SHELF_DEPTH = inch(6.0)
 OVERSTOOL_SHELF_THICKNESS = inch(0.75)
 OVERSTOOL_SHELF_Z_ABOVE_LEG_BOTTOM = inch(0.0)  # flush with leg bottom
 OVERSTOOL_TOWEL_BAR_DIAMETER = inch(0.75)
@@ -2798,7 +2798,7 @@ class FaceFrameCabinet(GeoNodeCage):
 
     def _position_overstool_shelf(self, shelf_obj, layout):
         """Span the shelf between the leg inner faces, back-aligned (origin at
-        y=0, Mirror Y runs it forward), 2.5" deep, its bottom flush with the
+        y=0, Mirror Y runs it forward), 6" deep, its bottom flush with the
         leg bottom (OVERSTOOL_SHELF_Z_ABOVE_LEG_BOTTOM up from it)."""
         left_inner, right_inner, _front_y, leg_bottom = self._overstool_interior(layout)
         part = GeoNodeCutpart(shelf_obj)
@@ -5505,11 +5505,17 @@ class MedicineCabinetFaceFrameCabinet(UpperFaceFrameCabinet):
 
 
 class OverstoolCabinetFaceFrameCabinet(MedicineCabinetFaceFrameCabinet):
-    """Over-the-toilet cabinet: same size as the medicine cabinet (standard
-    upper width / height, 6" deep), but BOTH carcass side panels extend 7"
-    below the box as furniture legs, with a decorative profile cut into the
-    bottom-front corner of each side. Only the sides drop - the face frame,
-    end stiles, doors and box stay at box bottom."""
+    """Over-the-toilet cabinet: standard upper width / height at a 9" depth,
+    but BOTH carcass side panels extend 7" below the box as furniture legs,
+    with a decorative profile cut into the bottom-front corner of each side.
+    Only the sides drop - the face frame, end stiles, doors and box stay at
+    box bottom."""
+
+    def __init__(self):
+        # Deeper than the medicine cabinet it derives from (6") - over a
+        # toilet it needs room for the tank/lid clearance.
+        super().__init__()
+        self.default_depth = inch(9.0)
 
     def create(self, name="Overstool Cabinet", bay_qty=1):
         super().create(name, bay_qty=bay_qty)
