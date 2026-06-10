@@ -122,6 +122,7 @@ def draw_dimensions(layout, root):
         elif cab_props.corner_type == 'DIAGONAL':
             col.label(text="Exterior Configuration")
             col.prop(cab_props, 'exterior_config', text="Config")
+            col.prop(cab_props, 'diag_door_swing', text="Door Swing")
             draw_corner_sections(layout, cab_props)
     # Angled standard cabinet: per-side depth unlocks, single-bay only.
     # When either is on, the face frame becomes the hypotenuse spanning

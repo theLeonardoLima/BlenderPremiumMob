@@ -1776,7 +1776,9 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
         and just reposition the existing parts.
         """
         sections = cab_props.corner_sections
-        sig = '|'.join(
+        # Swing is part of the layout signature: switching between the
+        # double pair and a single leaf changes the door part set.
+        sig = cab_props.diag_door_swing + '|' + '|'.join(
             '%s:%d' % (s.content, s.shelf_qty if s.content == 'OPEN' else 0)
             for s in sections)
         if self.obj.get('hb_diag_section_sig') == sig:
@@ -1809,11 +1811,20 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
             rail.obj['CABINET_PART'] = True
             rail.obj.rotation_euler.x = math.radians(90)
             rail.set_input('Mirror Z', True)
-        # A double-door pair for each DOORS section.
+        # Door leaves for each DOORS section: a double pair, or a single
+        # full-width leaf whose side tag matches the hinge side
+        # (LEFT_SWING hinges left, RIGHT_SWING hinges right).
+        swing = cab_props.diag_door_swing
+        if swing == 'LEFT_SWING':
+            door_sides = ('DIAGONAL_LEFT',)
+        elif swing == 'RIGHT_SWING':
+            door_sides = ('DIAGONAL_RIGHT',)
+        else:
+            door_sides = ('DIAGONAL_LEFT', 'DIAGONAL_RIGHT')
         for i, sec in enumerate(sections):
             if sec.content != 'DOORS':
                 continue
-            for door_side in ('DIAGONAL_LEFT', 'DIAGONAL_RIGHT'):
+            for door_side in door_sides:
                 leaf = 'Left' if door_side.endswith('LEFT') else 'Right'
                 door = CabinetPart()
                 door.create('Diagonal Door %d %s' % (i + 1, leaf))
@@ -2248,6 +2259,15 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
         door_span = rail_length + left_ov + right_ov
         leaf_width = (door_span - solver.DOUBLE_DOOR_REVEAL) / 2.0
         right_shift = leaf_width + solver.DOUBLE_DOOR_REVEAL
+        # Single-swing leaf spans the whole opening from the left rail
+        # origin: no reveal split, no right shift. The existing pull
+        # edges already land on the unhinged edge - the LEFT leaf's
+        # 'CORNER' edge is its right end, and the RIGHT leaf's 'OUTER'
+        # edge is the end at its origin, which IS the left end once the
+        # shift is zeroed.
+        if cab_props.diag_door_swing != 'DOUBLE_DOOR':
+            leaf_width = door_span
+            right_shift = 0.0
         # Opening runs from the top of the bottom rail to the underside
         # of the top rail. When the base is open the bottom rail is gone,
         # so the lowest opening starts at the carcass floor instead.

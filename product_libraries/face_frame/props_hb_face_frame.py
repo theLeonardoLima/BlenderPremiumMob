@@ -3782,6 +3782,22 @@ class Face_Frame_Cabinet_Props(PropertyGroup):
         items=_exterior_config_items,
         update=_update_exterior_config,
     )  # type: ignore
+    # Door swing for the diagonal face's DOORS sections. Per-cabinet,
+    # applied to every DOORS section (matches the pie cut's per-cabinet
+    # exterior_option swing handling). DOUBLE_DOOR is the historical
+    # behaviour; the single swings build one full-width leaf hinged on
+    # the named edge, pull on the unhinged edge.
+    diag_door_swing: EnumProperty(
+        name="Door Swing",
+        description="Door leaf layout for the diagonal face's door sections",
+        items=[
+            ('DOUBLE_DOOR', "Double Door", "Pair of doors meeting at the center, hinged on the outer edges"),
+            ('LEFT_SWING',  "Left Swing",  "Single full-width door hinged on the left edge"),
+            ('RIGHT_SWING', "Right Swing", "Single full-width door hinged on the right edge"),
+        ],
+        default='DOUBLE_DOOR',
+        update=_update_cabinet_dim,
+    )  # type: ignore
     clip_back_amount: FloatProperty(
         name="Clip Back",
         description="Length of the 45 degree clip taken off each wall side at the rear corner (0 = no clip)",
