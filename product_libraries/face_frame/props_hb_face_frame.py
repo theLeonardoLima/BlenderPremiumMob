@@ -4567,6 +4567,17 @@ class Face_Frame_Scene_Props(PropertyGroup):
         name="Default Finished End Type",
         items=FIN_END_ITEMS, default='FINISHED',
     )  # type: ignore
+    # What exposure auto-pick writes to a side that abuts a dishwasher
+    # (or other panel-ready appliance). Default UNFINISHED: the side
+    # comes in unfinished with the standard 0.25" neighbor scribe, and
+    # a flush fin is added manually per side when wanted. Pick FLUSH_X
+    # here to restore the automatic flush fin (amount from Default
+    # Flush X Amount). Read by exposure._resolve_finish_type.
+    dishwasher_finished_end_type: EnumProperty(
+        name="Dishwasher Side Finished End Type",
+        description="Finished end auto-applied to cabinet sides abutting a dishwasher",
+        items=FIN_END_ITEMS, default='UNFINISHED',
+    )  # type: ignore
     default_scribe: FloatProperty(
         name="Default Scribe", default=units.inch(0.5),
         unit='LENGTH', precision=4,
@@ -5314,7 +5325,11 @@ class Face_Frame_Scene_Props(PropertyGroup):
         # user just doesn't access them here.
         col = layout.column(align=True)
         col.prop(self, 'default_finished_end_type', text="Type")
-        if self.default_finished_end_type == 'FLUSH_X':
+        col.prop(self, 'dishwasher_finished_end_type', text="Dishwasher Side")
+        # The amount field serves whichever default resolves to FLUSH_X;
+        # exposure auto-pick seeds the per-cabinet amount from it.
+        if (self.default_finished_end_type == 'FLUSH_X'
+                or self.dishwasher_finished_end_type == 'FLUSH_X'):
             col.prop(self, 'default_flush_x_amount', text="Flush X Amount")
         col.separator()
         # The bulk operator walks every cabinet in the scene and writes

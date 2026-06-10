@@ -285,9 +285,13 @@ def _back_exposure(cab_obj):
 def _resolve_finish_type(scene_props, exposure_state, dishwasher_adjacent):
     """Priority rule: dishwasher beats partial beats fully-exposed
     beats unexposed. Returns a value from FIN_END_ITEMS.
+
+    The dishwasher branch reads the scene preference rather than a
+    hardwired FLUSH_X, so shops that don't run a flush fin next to a
+    dishwasher can pick a different type (or Unfinished for none).
     """
     if dishwasher_adjacent:
-        return 'FLUSH_X'
+        return scene_props.dishwasher_finished_end_type
     if exposure_state == 'PARTIAL':
         return 'FINISHED'
     if exposure_state == 'EXPOSED':
@@ -295,15 +299,18 @@ def _resolve_finish_type(scene_props, exposure_state, dishwasher_adjacent):
     return 'UNFINISHED'
 
 
-def _resolve_scribe(state, dishwasher, wall_edge):
-    """Auto scribe rule for unfinished sides. Wall-edge UNEXPOSED gets
-    0.5", neighbor-driven UNEXPOSED gets 0.25". Everything else (PARTIAL,
-    EXPOSED, dishwasher) zeroes out - the solver doesn't read the typed
-    scribe value for those finish types, and zeroing avoids stale numbers
-    in the UI when the dropdown is showing a non-UNFINISHED type.
+def _resolve_scribe(state, dishwasher, wall_edge, finish):
+    """Auto scribe rule, keyed on the RESOLVED finish type: the solver
+    only reads the typed scribe on UNFINISHED sides, so every other
+    type zeroes out (avoids stale numbers in the UI when the dropdown
+    shows a non-UNFINISHED type). On an UNFINISHED side, a dishwasher
+    counts as a neighbor (0.25" stack-up gap); otherwise wall-edge
+    UNEXPOSED gets 0.5" and neighbor-driven UNEXPOSED gets 0.25".
     """
-    if dishwasher:
+    if finish != 'UNFINISHED':
         return 0.0
+    if dishwasher:
+        return _NEIGHBOR_SCRIBE
     if state == 'UNEXPOSED':
         return _WALL_SCRIBE if wall_edge else _NEIGHBOR_SCRIBE
     return 0.0
@@ -323,7 +330,16 @@ def _apply_side(cab, side, state, dishwasher, wall_edge, scene_props):
     finish = _resolve_finish_type(scene_props, state, dishwasher)
     setattr(cab, f'{side}_finished_end_condition', finish)
     if side != 'back':
-        setattr(cab, f'{side}_scribe', _resolve_scribe(state, dishwasher, wall_edge))
+        setattr(cab, f'{side}_scribe',
+                _resolve_scribe(state, dishwasher, wall_edge, finish))
+        if finish == 'FLUSH_X':
+            # Seed the amount from the scene default so the prefs field
+            # actually drives what auto-pick produces (the per-cabinet
+            # prop's own 4" default was the only source before). Manual
+            # edits survive: a user edit flips auto off, and this whole
+            # block is gated on auto above.
+            setattr(cab, f'{side}_flush_x_amount',
+                    scene_props.default_flush_x_amount)
     setattr(cab, f'{side}_finish_end_auto', True)
 
 
