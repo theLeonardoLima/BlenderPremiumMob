@@ -1119,6 +1119,16 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         description="Override the drawer style text (blank = composed catalog name)",
         default="",
     )  # type: ignore
+    # Path to a drawer-box brand logo image. When set, the Style Section page
+    # renders the logo (textured quad) inside the DRAWERS section. FILE_PATH so
+    # the sidebar shows a file-picker. Stored per cabinet style like the other
+    # ss_* fields; resolved by style_section.style_section_value.
+    ss_drawer_box_brand: StringProperty(
+        name="Drawer Box Brand",
+        description="Path to a drawer-box brand logo image shown in the DRAWERS section of the Style Section page",
+        subtype='FILE_PATH',
+        default="",
+    )  # type: ignore
     ss_edge_profile: EnumProperty(
         name="Edge Profile",
         description="Edge profile for the style section page (None = use the door style's edge profile)",
@@ -2050,6 +2060,9 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         col = box.column(align=True)
         self._draw_toggle_field(col, "ss_drawer_slides", "Drawer Slides")
         self._draw_toggle_field(col, "ss_drawer_box_construction", "Box Construction")
+        # Drawer-box brand logo (FILE_PATH image) -- plain file-picker row; the
+        # Style Section page renders the logo in the DRAWERS section when set.
+        col.prop(self, "ss_drawer_box_brand", text="Box Brand Logo")
 
         box = main.box()
         row = box.row()
