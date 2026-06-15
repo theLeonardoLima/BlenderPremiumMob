@@ -124,6 +124,13 @@ def draw_dimensions(layout, root):
             col.prop(cab_props, 'exterior_config', text="Config")
             col.prop(cab_props, 'diag_door_swing', text="Door Swing")
             draw_corner_sections(layout, cab_props)
+        elif cab_props.corner_type == 'PIE_CUT_DRAWER':
+            col.label(text="Pie Cut Drawer Options")
+            col.prop(cab_props, 'pie_drawer_qty', text="Drawer Qty")
+            # Per-section opening heights (top to bottom). Section rows label
+            # by content ("Doors") until a dedicated drawer-front content type
+            # lands; the height + lock controls are what matter here.
+            draw_corner_sections(layout, cab_props)
     # Angled standard cabinet: per-side depth unlocks, single-bay only.
     # When either is on, the face frame becomes the hypotenuse spanning
     # the two front edges; the back stays at cab_props.depth between

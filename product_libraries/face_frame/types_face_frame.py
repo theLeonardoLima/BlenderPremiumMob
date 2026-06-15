@@ -410,6 +410,8 @@ PART_ROLE_BACK_EXT_CUTTER = 'BACK_EXT_CUTTER'
 BACK_EXT_CUT_MOD_NAME = 'Back Extension Trim'
 BACK_EXT_CUT_PART_ROLES = frozenset({
     PART_ROLE_TOP, PART_ROLE_BOTTOM,
+    PART_ROLE_FRONT_STRETCHER, PART_ROLE_REAR_STRETCHER,
+    PART_ROLE_FINISH_TOE_KICK, PART_ROLE_TOE_KICK_SUBFRONT,
     PART_ROLE_BAY_SHELF,
     PART_ROLE_ADJUSTABLE_SHELF, PART_ROLE_GLASS_SHELF,
 })
@@ -2292,8 +2294,13 @@ class FaceFrameCabinet(GeoNodeCage):
         """
         import math
         from mathutils import Vector
+        # `extend` may be NEGATIVE: positive splays the back corner outward
+        # (back wider than front), negative pulls it inward (back narrower).
+        # The analytic transform below handles either sign -- back_target moves
+        # the corner the signed amount and w_new / phi follow. Only exactly 0
+        # is a no-op (the caller resets rotation in that case).
         depth = self._part_input(child, 'Width')
-        if depth is None or extend <= 0.0:
+        if depth is None or extend == 0.0:
             return None
         dim_x = self.obj.face_frame_cabinet.width
         if side == 'RIGHT':
@@ -2455,7 +2462,9 @@ class FaceFrameCabinet(GeoNodeCage):
         cab = self.obj.face_frame_cabinet
         ext_l = getattr(cab, 'extend_back_left', 0.0) or 0.0
         ext_r = getattr(cab, 'extend_back_right', 0.0) or 0.0
-        active = ext_l > 0.0 or ext_r > 0.0
+        # Either end may be POSITIVE (outward, back wider) or NEGATIVE
+        # (inward, back narrower); only exactly 0 is a no-op for that end.
+        active = ext_l != 0.0 or ext_r != 0.0
         line_l = None   # (front_outer, back_outer) of the angled left side
         line_r = None   # ... right side; feed the trim cutter
         side_thickness = 0.0
@@ -2463,28 +2472,46 @@ class FaceFrameCabinet(GeoNodeCage):
             role = child.get('hb_part_role')
             if role == PART_ROLE_LEFT_SIDE:
                 side_thickness = self._part_input(child, 'Thickness') or 0.0
-                if ext_l > 0.0:
+                if ext_l != 0.0:
                     line_l = self._angle_side_panel(child, 'LEFT', ext_l)
                 else:
                     child.rotation_euler.z = 0.0
             elif role == PART_ROLE_RIGHT_SIDE:
                 side_thickness = self._part_input(child, 'Thickness') or 0.0
-                if ext_r > 0.0:
+                if ext_r != 0.0:
                     line_r = self._angle_side_panel(child, 'RIGHT', ext_r)
                 else:
                     child.rotation_euler.z = 0.0
             elif role in (PART_ROLE_BACK, PART_ROLE_FINISHED_BACK):
-                # Back panel: X-span is the 'Width' input.
+                # Back panel: X-span is the 'Width' input. Not a trim-cutter
+                # target, so it follows the corner directly in BOTH directions
+                # (grows outward / shrinks inward).
                 self._widen_back_panel(child, ext_l, ext_r, 'Width')
-            elif role == PART_ROLE_REAR_STRETCHER:
-                # Rear stretcher sits along the back; X-span is 'Length'.
-                self._widen_back_panel(child, ext_l, ext_r, 'Length')
+            elif role in (PART_ROLE_REAR_STRETCHER, PART_ROLE_FRONT_STRETCHER,
+                          PART_ROLE_FINISH_TOE_KICK,
+                          PART_ROLE_TOE_KICK_SUBFRONT):
+                # Stretchers AND the toe-kick front members (finish kick + sub
+                # kick) all span left-right (X-span is 'Length') and have depth
+                # in Y, so the angled side crosses them. Treated like top/bottom:
+                # outward grows rectangularly then the cutter trims the overhang;
+                # inward stays square and the cutter trims the corner
+                # (allow_shrink=False). The toe-kick fronts are RECESSED in Y, so
+                # at their setback the angled side has already moved off the
+                # square width -- widening + the cutter lands their end on the
+                # side line at that depth, closing the gap the recess opened.
+                # Front-most edges trim back to the square front-outer corner, so
+                # the square front face is unaffected.
+                self._widen_back_panel(child, ext_l, ext_r, 'Length',
+                                       allow_shrink=False)
             elif role in (PART_ROLE_TOP, PART_ROLE_BOTTOM):
-                # Full-depth panels: first extend rectangularly to reach
-                # the extended back corner (X-span is 'Length'); the trim
-                # cutter below then removes the front overhang, leaving a
-                # trapezoid that matches the angled side.
-                self._widen_back_panel(child, ext_l, ext_r, 'Length')
+                # Full-depth panels ARE trim-cutter targets. Outward: extend
+                # rectangularly to the corner, the cutter trims the FRONT
+                # overhang -> trapezoid. Inward: leave the panel SQUARE
+                # (allow_shrink=False ignores a negative end) and let the cutter
+                # remove the BACK corner instead. The cutter's cut line is the
+                # angled side either way, so a square panel trims correctly.
+                self._widen_back_panel(child, ext_l, ext_r, 'Length',
+                                       allow_shrink=False)
 
         # Trapezoid trim for the full-depth panels (top / bottom / shelves):
         # boolean-difference the front overhang along the angled side
@@ -2496,43 +2523,63 @@ class FaceFrameCabinet(GeoNodeCage):
         else:
             self._cleanup_back_ext_cutter_and_cuts()
 
-    def _widen_back_panel(self, child, ext_l, ext_r, span_input):
-        """Stretch a back-row panel's X-span outward to follow the
-        extended back corner(s). The panel stays at the back; only its
-        end(s) move: the right end by +ext_r, the left end by -ext_l.
-        `span_input` is the geometry-node input that controls the panel's
-        X-span ('Width' for the back panel, 'Length' for back stretchers).
-        The panel's origin (its left end) is shifted left by ext_l when
-        the left end grows. Only the panel(s) reaching a cabinet end grow;
-        a segment ending at an interior bay division is left alone.
+    def _widen_back_panel(self, child, ext_l, ext_r, span_input,
+                          allow_shrink=True):
+        """Move a back-row panel's X-span end(s) to follow the angled back
+        corner(s). Signed: a POSITIVE end extends the span outward, a NEGATIVE
+        end shrinks it inward. Only the end(s) reaching a cabinet end move; a
+        segment ending at an interior bay division is left alone. The right
+        end moves by ext_r; the left end by ext_l (and the origin follows so
+        the right end stays put). `span_input` is the X-span geometry-node
+        input ('Width' for the back panel, 'Length' for stretchers / top /
+        bottom).
 
-        The part loop has just set this panel's square span/location, so
-        the deltas are applied on top each recalc (self-correcting).
+        `allow_shrink`: False for full-depth TOP / BOTTOM, which the trim
+        cutter re-shapes -- a NEGATIVE (inward) end is ignored here so the
+        panel stays SQUARE and the cutter removes the back corner instead.
+        True (back panel / rear stretcher, not cutter targets) follows the
+        corner directly in both directions.
+
+        The part loop has just reset this panel's square span/location, so the
+        deltas are applied on top each recalc (self-correcting).
         """
-        from mathutils import Vector
-        if ext_l <= 0.0 and ext_r <= 0.0:
+        if not allow_shrink:
+            # Trim-cutter targets: ignore inward (negative) ends -- the cutter
+            # trims the back corner off the square panel.
+            ext_l = max(ext_l, 0.0)
+            ext_r = max(ext_r, 0.0)
+        if ext_l == 0.0 and ext_r == 0.0:
             return
         width = self._part_input(child, span_input)
         if width is None:
             return
         dim_x = self.obj.face_frame_cabinet.width
-        # Current X-span of this panel in cabinet-local. The back is inset
-        # from each cabinet end by the side panel thickness, so "reaches
-        # the end" is judged with a tolerance of one side thickness plus a
-        # small margin rather than requiring the edge to touch 0 / dim_x.
-        mb = child.matrix_basis
-        xs = [(mb @ Vector(v)).x for v in child.bound_box]
-        x_lo, x_hi = min(xs), max(xs)
+        # X extent of this panel in cabinet-local, derived ANALYTICALLY from the
+        # part's fresh origin + span -- NOT from bound_box. The part loop just
+        # set this panel's location + span this recalc, but bound_box is the
+        # depsgraph-EVALUATED extent and can still report the PREVIOUS extend
+        # within the same pass (stale). Reading it made the "reaches the end"
+        # test flip between recalcs, so the part length flickered as the extend
+        # value changed. The part's origin is its left (-X) edge and the span
+        # runs +X by `width` (the same convention the grow/origin math below
+        # relies on), so the extent is [location.x, location.x + width]. The
+        # back is inset from each cabinet end by the side thickness, so "reaches
+        # the end" uses a 1" tolerance rather than touching 0 / dim_x exactly.
+        x_lo = child.location.x
+        x_hi = child.location.x + width
         end_tol = inch(1.0)
         grow_left = ext_l if x_lo <= end_tol else 0.0
         grow_right = ext_r if x_hi >= dim_x - end_tol else 0.0
-        if grow_left <= 0.0 and grow_right <= 0.0:
+        if grow_left == 0.0 and grow_right == 0.0:
             return
-        new_width = width + grow_left + grow_right
+        # Floor the result so a large inward value can't invert the panel.
+        new_width = max(width + grow_left + grow_right, inch(0.125))
         self._set_part_input(child, span_input, new_width)
-        # Growing the right end needs no origin move (Width extends +X from
-        # the fixed left origin). Growing the left end moves the origin -X.
-        if grow_left > 0.0:
+        # The right end moves with the span from the fixed left origin (no
+        # origin move). Moving the left end shifts the origin by -grow_left:
+        # +grow_left (outward) moves the origin -X; a negative grow_left
+        # (inward) moves it +X. Right end stays put either way.
+        if grow_left != 0.0:
             child.location.x -= grow_left
 
     # =====================================================================

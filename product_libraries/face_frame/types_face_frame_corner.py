@@ -32,6 +32,14 @@ PART_ROLE_CORNER_LEFT_BACK = 'CORNER_LEFT_BACK'
 PART_ROLE_CORNER_RIGHT_BACK = 'CORNER_RIGHT_BACK'
 PART_ROLE_CORNER_LEFT_SIDE = 'CORNER_LEFT_SIDE'
 PART_ROLE_CORNER_RIGHT_SIDE = 'CORNER_RIGHT_SIDE'
+# Interior 45-degree drawer-channel walls (pie cut DRAWER only; the door
+# pie cut has none). Distinct roles so they don't collide with the box's
+# perpendicular CORNER_LEFT/RIGHT_SIDE panels in _children_by_corner_role.
+PART_ROLE_CORNER_CHANNEL_LEFT = 'CORNER_CHANNEL_LEFT'
+PART_ROLE_CORNER_CHANNEL_RIGHT = 'CORNER_CHANNEL_RIGHT'
+# Hidden cutter cages that let each channel wall into the top / bottom / back.
+PART_ROLE_CORNER_CHANNEL_LEFT_CUTTER = 'CORNER_CHANNEL_LEFT_CUTTER'
+PART_ROLE_CORNER_CHANNEL_RIGHT_CUTTER = 'CORNER_CHANNEL_RIGHT_CUTTER'
 PART_ROLE_CORNER_LEFT_KICK = 'CORNER_LEFT_KICK'
 PART_ROLE_CORNER_RIGHT_KICK = 'CORNER_RIGHT_KICK'
 PART_ROLE_CORNER_LEFT_FINISH_KICK = 'CORNER_LEFT_FINISH_KICK'
@@ -76,6 +84,10 @@ CORNER_PART_ROLES = frozenset({
     PART_ROLE_CORNER_RIGHT_BACK,
     PART_ROLE_CORNER_LEFT_SIDE,
     PART_ROLE_CORNER_RIGHT_SIDE,
+    PART_ROLE_CORNER_CHANNEL_LEFT,
+    PART_ROLE_CORNER_CHANNEL_RIGHT,
+    PART_ROLE_CORNER_CHANNEL_LEFT_CUTTER,
+    PART_ROLE_CORNER_CHANNEL_RIGHT_CUTTER,
     PART_ROLE_CORNER_LEFT_KICK,
     PART_ROLE_CORNER_RIGHT_KICK,
     PART_ROLE_CORNER_LEFT_FINISH_KICK,
@@ -162,6 +174,21 @@ def _find_corner_part(cab_obj, role, side, section_index):
     return None
 
 
+def _front_gn_dims(front_obj):
+    """Read a face-frame front's cutpart (Length, Width, Thickness) GeoNode
+    inputs. Returns None if the modifier / inputs aren't present."""
+    mod = front_obj.modifiers.get(front_obj.home_builder.mod_name)
+    if mod is None or mod.node_group is None:
+        return None
+    names = {it.name: it.identifier
+             for it in mod.node_group.interface.items_tree
+             if getattr(it, 'in_out', '') == 'INPUT'}
+    try:
+        return (mod[names['Length']], mod[names['Width']], mod[names['Thickness']])
+    except KeyError:
+        return None
+
+
 def _solve_section_heights(sections, available, rail_count, rail_width):
     """Distribute `available` clear FF height across the corner sections.
     Sections with unlock_height hold their stored height; the rest share
@@ -203,7 +230,7 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
         cab_props.corner_type = self.default_corner_type
         cab_props.left_depth = self.default_left_depth
         cab_props.right_depth = self.default_right_depth
-        if self.default_corner_type == 'PIE_CUT':
+        if self.default_corner_type in ('PIE_CUT', 'PIE_CUT_DRAWER'):
             self._add_root_corner_notch()
         # DIAGONAL: root chamfer (Boolean DIFFERENCE referencing the
         # Diagonal Cutter object) is added in _build_diagonal_parts
@@ -287,6 +314,8 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
             self._build_pie_cut_parts()
         elif self.default_corner_type == 'DIAGONAL':
             self._build_diagonal_parts()
+        elif self.default_corner_type == 'PIE_CUT_DRAWER':
+            self._build_pie_cut_drawer_parts()
         else:
             raise NotImplementedError(
                 f"Corner type {self.default_corner_type!r} not yet supported")
@@ -923,6 +952,26 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
         else:  # CORNER
             pull.location.y = width_sign * (width - h_offset)
 
+    def _refresh_drawer_pull(self, front_obj, length, width, thickness, side):
+        """Clear and re-attach a CENTERED drawer-style pull on a corner drawer
+        front. Unlike a door pair (where only the active leaf carries an
+        edge-offset pull), each stacked drawer front - both arms - gets its own
+        pull. _create_pull_for_front with the DRAWER_FRONT role gives the
+        drawer pull asset, a horizontal bar, and the drawer vertical placement;
+        the horizontal centre is set per arm: the left front is built Mirror Y
+        (Width spans part-local -Y, centre -W/2) and the right front Mirror Y
+        False (Width spans +Y, centre +W/2).
+        """
+        self._clear_door_pull(front_obj)
+        pull = self._create_pull_for_front(
+            SimpleNamespace(obj=front_obj),
+            ff.PART_ROLE_DRAWER_FRONT,
+            {'part_dims': (length, width, thickness)},
+        )
+        if pull is None:
+            return
+        pull.location.y = -width / 2.0 if side == 'LEFT' else width / 2.0
+
     # -----------------------------------------------------------------
     # Recalculate (overrides FaceFrameCabinet.recalculate)
     # -----------------------------------------------------------------
@@ -941,6 +990,8 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
             self._recalculate_pie_cut()
         elif cab_props.corner_type == 'DIAGONAL':
             self._recalculate_diagonal()
+        elif cab_props.corner_type == 'PIE_CUT_DRAWER':
+            self._recalculate_pie_cut_drawer()
 
     def _reconcile_pie_cut_sections(self, cab_props):
         """Create / remove the section-dependent pie cut parts - one door
@@ -2521,6 +2572,240 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
 
         self._recalculate_clip_back(cab_props, z_back_floor)
 
+    # -----------------------------------------------------------------
+    # Pie cut DRAWER corner: build (slice 1 - carcass only)
+    # -----------------------------------------------------------------
+    def _build_pie_cut_drawer_parts(self):
+        """Build the pie-cut drawer corner carcass.
+
+        Reuses the standard pie-cut build (corner-notched L box + L-shaped face
+        frame + stacked section fronts) so it reads as a pie cut, then adds the
+        two parallel 45-degree interior channel walls the drawer slides between.
+        Those replace the box's perpendicular arm-end sides (which the recalc
+        hides). Sizing / positions are written by _recalculate_pie_cut_drawer.
+        """
+        self._build_pie_cut_parts()
+
+        # Interior channel walls. Built with the kick-part convention
+        # (rot X=-90 -> Length=run, Width=height, Thickness=t); the slide-axis
+        # angle (rot Z) and position are set in recalc.
+        for name, role in (('Left Channel Side', PART_ROLE_CORNER_CHANNEL_LEFT),
+                           ('Right Channel Side', PART_ROLE_CORNER_CHANNEL_RIGHT)):
+            side = CabinetPart()
+            side.create(name)
+            side.obj.parent = self.obj
+            side.obj['hb_part_role'] = role
+            side.obj['CABINET_PART'] = True
+            side.obj.rotation_euler.x = math.radians(-90)
+            # Front-bottom toe-kick notch; sized + gated on a recessed kick in
+            # recalc. Flip X=False/Flip Y=True lands it on the bottom (X=0) of
+            # the front (run) end, same convention as the standard corner sides.
+            notch = side.add_part_modifier('CPM_CORNERNOTCH', 'Notch Front Bottom')
+            notch.set_input('Flip X', False)
+            notch.set_input('Flip Y', True)
+            notch.mod.show_viewport = False
+            notch.mod.show_render = False
+
+        # Channel cutters: a hidden cage per wall, let into the Top, Bottom and
+        # the back it meets, so each full-height wall seats into those panels
+        # via boolean DIFFERENCE instead of interpenetrating them. Sized and
+        # positioned to wrap each wall plus a small clearance in recalc.
+        cutters = {}
+        for name, role in (
+                ('Left Channel Cutter', PART_ROLE_CORNER_CHANNEL_LEFT_CUTTER),
+                ('Right Channel Cutter', PART_ROLE_CORNER_CHANNEL_RIGHT_CUTTER)):
+            cage = GeoNodeCage()
+            cage.create(name)
+            cage.obj.parent = self.obj
+            cage.obj['hb_part_role'] = role
+            cage.set_input('Show Cage', True)
+            cage.obj.hide_viewport = True
+            cutters[role] = cage.obj
+
+        roles = _children_by_corner_role(self.obj)
+        cl_obj = cutters[PART_ROLE_CORNER_CHANNEL_LEFT_CUTTER]
+        cr_obj = cutters[PART_ROLE_CORNER_CHANNEL_RIGHT_CUTTER]
+
+        def _add_channel_cut(part, cutter_obj, mod_name):
+            if part is None:
+                return
+            mod = part.modifiers.new(name=mod_name, type='BOOLEAN')
+            mod.operation = 'DIFFERENCE'
+            mod.object = cutter_obj
+
+        # Each panel is clipped to the channel by BOTH half-space cutters
+        # (remove the wing outboard of the left wall AND outboard of the right
+        # wall), leaving only the strip between the two walls.
+        for pr in (PART_ROLE_CORNER_BOTTOM, PART_ROLE_CORNER_TOP,
+                   PART_ROLE_CORNER_LEFT_BACK, PART_ROLE_CORNER_RIGHT_BACK):
+            _add_channel_cut(roles.get(pr), cl_obj, 'Channel Cut L')
+            _add_channel_cut(roles.get(pr), cr_obj, 'Channel Cut R')
+
+    # -----------------------------------------------------------------
+    # Pie cut DRAWER corner: recalculate (slice 1 - carcass only)
+    # -----------------------------------------------------------------
+    def _recalculate_pie_cut_drawer(self):
+        """Recalculate the pie-cut drawer corner.
+
+        Drives the box + L face frame + stacked section fronts via the shared
+        pie-cut recalc, then hides the box's perpendicular arm-end sides and
+        positions the two 45-degree interior channel walls the drawer slides
+        between. The stacked section count is the drawer count.
+
+        ITERATE: sections render as door slabs for now; drawer-front styling is
+        the next slice. Channel-wall width / run are first-cut defaults from the
+        front-opening geometry.
+        """
+        cab_props = self.obj.face_frame_cabinet
+
+        # Stacked drawer count from the per-cabinet prop. Content-only sync
+        # here (no height writes) so this recalc can't re-enter through a
+        # section-height update callback; the top-drawer height default is
+        # applied by populate_pie_drawer_sections on the qty-change callback
+        # and at create, not here.
+        drawer_qty = cab_props.pie_drawer_qty
+        secs = cab_props.corner_sections
+        if len(secs) != drawer_qty:
+            secs.clear()
+            for _ in range(drawer_qty):
+                secs.add().content = 'DOORS'
+
+        # Box + L face frame + stacked fronts (shared pie-cut machinery).
+        self._update_root_corner_notch()
+        self._recalculate_pie_cut()
+
+        # Drawer pulls: one CENTERED drawer-style pull on every section front
+        # (both arms). The shared pie-cut recalc places door-style pulls (one
+        # leaf of each pair, edge-offset, the other cleared) - a drawer stack
+        # instead wants a centered pull on each front, so override them here.
+        for front in self.obj.children:
+            if front.get('hb_part_role') != ff.PART_ROLE_DOOR:
+                continue
+            side = front.get('hb_face_frame_side')
+            if side not in ('LEFT', 'RIGHT'):
+                continue
+            dims = _front_gn_dims(front)
+            if dims is not None:
+                self._refresh_drawer_pull(front, dims[0], dims[1], dims[2], side)
+
+        width = cab_props.width
+        depth = cab_props.depth
+        height = cab_props.height
+        ld = cab_props.left_depth
+        rd = cab_props.right_depth
+        t = cab_props.material_thickness
+        fft = cab_props.face_frame_thickness
+        kf = self._corner_kick_flags(cab_props)
+        kick_height = cab_props.toe_kick_height if self._has_toe_kick() else 0.0
+        toe_kick_setback = cab_props.toe_kick_setback
+
+        parts = _children_by_corner_role(self.obj)
+
+        # Hide the box's perpendicular arm-end sides - the 45-degree channel
+        # walls take their place (Pulito's drawer corner has no box sides).
+        for role in (PART_ROLE_CORNER_LEFT_SIDE, PART_ROLE_CORNER_RIGHT_SIDE):
+            s = parts.get(role)
+            if s is not None:
+                s.hide_viewport = True
+                s.hide_render = True
+
+        # ---- Channel walls: two parallel panels along the slide axis ----
+        # The drawer pulls straight out the front, so the walls run along the
+        # A-B normal n (not the box diagonal). Each sits on a front opening
+        # corner -- LEFT on A=(ld,-depth), RIGHT on B=(width,-rd) -- and runs
+        # back to a wall plane (LEFT -> x=0, RIGHT -> y=0). Full height (Length
+        # runs +Z from the floor), Thickness = face-frame thickness; the origin
+        # is nudged outward (along -/+u) by t for drawer clearance and the run
+        # is recessed at the front by t. Orientation is the fixed
+        # (-90, -90, atan2(-ux, uy)) basis: local X(Length)->+Z, Y(Width)->n,
+        # Z(Thickness)->u. Derived analytically; matches a hand-placed
+        # reference within ~1.5 mm. (Single-square cabinets are degenerate, so
+        # the formula keys off A / B + the wall planes, which hold off-square.)
+        diag_dx = width - ld
+        diag_dy = depth - rd
+        diag_len = math.sqrt(diag_dx * diag_dx + diag_dy * diag_dy)
+        ux, uy = diag_dx / diag_len, diag_dy / diag_len
+        nx, ny = uy, -ux                       # A-B normal toward the room (run)
+        rot = (math.radians(-90), math.radians(-90), math.atan2(-ux, uy))
+        # (role, front_x, front_y, lam_to_wall, outward_sign)
+        # mirror_z flips the panel's thickness to the inboard side so both
+        # walls present material toward the channel centre (the right wall's
+        # +Z/thickness axis points outward without it).
+        specs = (
+            (PART_ROLE_CORNER_CHANNEL_LEFT,  ld,    -depth, ld / uy, -1.0, False),
+            (PART_ROLE_CORNER_CHANNEL_RIGHT, width, -rd,    rd / ux,  1.0, True),
+        )
+        for role, fx, fy, lam, out_sgn, mirror_z in specs:
+            side = parts.get(role)
+            if side is None:
+                continue
+            bx, by = fx - nx * lam, fy - ny * lam      # back end at the wall
+            ox = bx + out_sgn * ux * t                 # outward clearance
+            oy = by + out_sgn * uy * t
+            run = max(math.hypot(fx - bx, fy - by) - t, inch(3.0))
+            side.location = (ox, oy, 0.0)
+            side.rotation_euler = rot
+            _set_mod_inputs(side, side.home_builder.mod_name, (
+                ('Length', height),
+                ('Width', run),
+                ('Thickness', fft),
+                ('Mirror Z', mirror_z),
+            ))
+
+            # Front-bottom toe-kick notch, shown only for a recessed kick.
+            # The wall runs diagonally, so the notch depth measured along it has
+            # to grow by 1/cos(angle) to land flush with the arm's kick face:
+            # the perpendicular recess (setback plus one material thickness for
+            # the visible finish-kick face) divided by the run direction's
+            # component normal to that arm (uy for the left, ux for the right).
+            perp = abs(uy) if role == PART_ROLE_CORNER_CHANNEL_LEFT else abs(ux)
+            notch_y = ((toe_kick_setback + t) / perp
+                       if perp > 1e-6 else toe_kick_setback)
+            _set_mod_inputs(side, 'Notch Front Bottom', (
+                ('X', kick_height),
+                ('Y', notch_y),
+                ('Route Depth', fft),
+            ))
+            nmod = side.modifiers.get('Notch Front Bottom')
+            if nmod is not None:
+                nmod.show_viewport = kf.side_notch
+                nmod.show_render = kf.side_notch
+
+            # Cutter cage wrapping this wall + clearance, so the Top / Bottom /
+            # back it crosses get a clean let-in slot. Same rotation as the
+            # wall (local X->+Z, Y->run n, Z->thickness u); grows +Z/+n/+u from
+            # origin, so shift the origin back by each margin. The thickness
+            # offset depends on which face the wall's material sits on
+            # (mirror_z): left wall spans 0..+fft along u, right -fft..0.
+            cutter_role = (PART_ROLE_CORNER_CHANNEL_LEFT_CUTTER
+                           if role == PART_ROLE_CORNER_CHANNEL_LEFT
+                           else PART_ROLE_CORNER_CHANNEL_RIGHT_CUTTER)
+            cutter = parts.get(cutter_role)
+            if cutter is not None:
+                # Half-space cutter: removes everything OUTBOARD of this wall
+                # (the dead-corner wing) from the Top / Bottom / backs, so only
+                # the drawer channel between the two walls survives. The inboard
+                # boundary sits clr inside the wall's outboard face (tucked
+                # under the wall, no coplanar z-fight); the cage grows OUTBOARD
+                # and spans far in run + height to clear the whole panel.
+                vm = inch(0.5)
+                clr = inch(0.02)
+                big = inch(60.0)
+                inboard_sign = 1.0 if not mirror_z else -1.0   # +u toward channel
+                cutter.location = (ox - big * nx + inboard_sign * ux * clr,
+                                   oy - big * ny + inboard_sign * uy * clr,
+                                   -vm)
+                cutter.rotation_euler = rot
+                _set_mod_inputs(cutter, cutter.home_builder.mod_name, (
+                    ('Dim X', height + 2.0 * vm),   # vertical: through top/bottom
+                    ('Dim Y', 2.0 * big),           # run: whole panel both ways
+                    ('Dim Z', big),                 # outboard: the whole wing
+                    ('Mirror X', False),
+                    ('Mirror Y', False),
+                    ('Mirror Z', not mirror_z),     # grow OUTBOARD, away from channel
+                    ('Show Cage', True),
+                ))
+
 
 # ---------------------------------------------------------------------------
 # Size variants
@@ -2631,6 +2916,33 @@ class TallDiagonalCabinet(CornerFaceFrameCabinet):
             self.default_right_depth = props.tall_cabinet_depth
 
 
+class BasePieCutDrawerCabinet(CornerFaceFrameCabinet):
+    """Base height pie cut DRAWER corner cabinet: 45-degree channel carcass
+    (slice 1, carcass only). Drawer fronts (2 / 3 / 4) come in a later slice;
+    the carcass is shared across those presets since the footprint is always
+    square (width == depth)."""
+    default_corner_type = 'PIE_CUT_DRAWER'
+    default_cabinet_type = 'BASE'
+
+    def __init__(self):
+        super().__init__()
+        scene = bpy.context.scene
+        if hasattr(scene, 'hb_face_frame'):
+            props = scene.hb_face_frame
+            self.default_width = props.base_inside_corner_size
+            self.default_depth = props.base_inside_corner_size
+            self.default_height = props.base_cabinet_height
+            self.default_left_depth = props.base_cabinet_depth
+            self.default_right_depth = props.base_cabinet_depth
+
+    def create(self, name="Pie Cut Drawer", bay_qty=1):
+        super().create(name=name, bay_qty=bay_qty)
+        # Seed the stacked drawer sections (pie_drawer_qty default) so the
+        # top opening picks up the Top Drawer Opening Height default for a
+        # 3 / 4 drawer stack; the recalc then solves the remaining shares.
+        props_hb.populate_pie_drawer_sections(self.obj.face_frame_cabinet)
+
+
 # ---------------------------------------------------------------------------
 # Dispatch (mutates registries in types_face_frame at import)
 # ---------------------------------------------------------------------------
@@ -2641,6 +2953,7 @@ ff.CABINET_NAME_DISPATCH.update({
     "Diagonal Base": BaseDiagonalCabinet,
     "Diagonal Upper": UpperDiagonalCabinet,
     "Diagonal Tall": TallDiagonalCabinet,
+    "Pie Cut Drawer": BasePieCutDrawerCabinet,
 })
 
 # WRAP_CLASS_REGISTRY: CLASS_NAME -> subclass for the prop-update wrap.
@@ -2654,4 +2967,5 @@ ff.WRAP_CLASS_REGISTRY.update({
     'BaseDiagonalCabinet': BaseDiagonalCabinet,
     'UpperDiagonalCabinet': UpperDiagonalCabinet,
     'TallDiagonalCabinet': TallDiagonalCabinet,
+    'BasePieCutDrawerCabinet': BasePieCutDrawerCabinet,
 })

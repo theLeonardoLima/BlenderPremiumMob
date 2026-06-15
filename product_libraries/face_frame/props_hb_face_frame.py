@@ -3037,6 +3037,38 @@ def _update_exterior_config(self, context):
     types_face_frame.recalculate_face_frame_cabinet(self.id_data)
 
 
+def populate_pie_drawer_sections(cab_props):
+    """Rebuild corner_sections for a pie-cut drawer corner to match
+    pie_drawer_qty - one stacked DOORS section per drawer (rendered as drawer
+    fronts). For 3+ drawer stacks the TOP opening is pinned to the scene's
+    Top Drawer Opening Height by default (mirroring the base drawer presets);
+    the remaining sections share the leftover space equally. The user can then
+    lock / set any section's height in the Sections box.
+    """
+    qty = cab_props.pie_drawer_qty
+    secs = cab_props.corner_sections
+    secs.clear()
+    for _ in range(qty):
+        secs.add().content = 'DOORS'
+    if qty >= 3:
+        ff_scene = getattr(bpy.context.scene, 'hb_face_frame', None)
+        if ff_scene is not None:
+            # Unlock BEFORE writing the height (same ordering reason as
+            # populate_corner_sections: each write fires a recalc whose
+            # height-sync would clobber an unlocked section's height).
+            secs[0].unlock_height = True
+            secs[0].height = ff_scene.top_drawer_opening_height
+
+
+def _update_pie_drawer_qty(self, context):
+    """pie_drawer_qty changed: repopulate the stacked drawer sections, then
+    recalc. Only repopulates on a pie-cut drawer corner."""
+    if self.corner_type == 'PIE_CUT_DRAWER':
+        populate_pie_drawer_sections(self)
+    from . import types_face_frame
+    types_face_frame.recalculate_face_frame_cabinet(self.id_data)
+
+
 def _recompute_blind_stile_width(cab_props, side):
     """Set left_stile_width or right_stile_width from the current stile-type
     and blind-state combination. No-op when the side's unlock flag is True
@@ -3578,10 +3610,12 @@ class Face_Frame_Cabinet_Props(PropertyGroup):
     # it provides access into the corner instead of leaving a void. Zero
     # = square (no extension); either / both ends may be extended.
     extend_back_left: FloatProperty(
-        name="Extend Back Left X", default=0.0, min=0.0,
+        name="Extend Back Left X", default=0.0,
         unit='LENGTH', precision=4,
-        description="Move the back-left corner outward (in -X at the back) "
-                    "by this amount, angling the left side",
+        description="Angle the left side by moving the back-left corner along "
+                    "X. Positive moves it outward (-X, back wider than front); "
+                    "NEGATIVE moves it inward (back narrower than front, e.g. "
+                    "into an acute corner). 0 = square.",
         update=_update_cabinet_dim,
     )  # type: ignore
     furniture_top: BoolProperty(
@@ -3683,10 +3717,12 @@ class Face_Frame_Cabinet_Props(PropertyGroup):
         update=_update_cabinet_dim,
     )  # type: ignore
     extend_back_right: FloatProperty(
-        name="Extend Back Right X", default=0.0, min=0.0,
+        name="Extend Back Right X", default=0.0,
         unit='LENGTH', precision=4,
-        description="Move the back-right corner outward (in +X at the back) "
-                    "by this amount, angling the right side",
+        description="Angle the right side by moving the back-right corner along "
+                    "X. Positive moves it outward (+X, back wider than front); "
+                    "NEGATIVE moves it inward (back narrower than front, e.g. "
+                    "into an acute corner). 0 = square.",
         update=_update_cabinet_dim,
     )  # type: ignore
     inset_toe_kick_left: FloatProperty(
@@ -3737,6 +3773,7 @@ class Face_Frame_Cabinet_Props(PropertyGroup):
             ('NONE', "None", "Not a corner cabinet"),
             ('PIE_CUT', "Pie Cut", "Pie cut corner cabinet"),
             ('DIAGONAL', "Diagonal", "Diagonal corner cabinet with angled front face"),
+            ('PIE_CUT_DRAWER', "Pie Cut Drawer", "Pie cut corner drawer base: 45-degree channel carcass with stacked drawer fronts"),
         ],
         default='NONE',
     )  # type: ignore
@@ -3860,6 +3897,12 @@ class Face_Frame_Cabinet_Props(PropertyGroup):
 
     mid_stile_widths: CollectionProperty(type=Face_Frame_Mid_Stile_Width)  # type: ignore
     corner_sections: CollectionProperty(type=Face_Frame_Corner_Section)  # type: ignore
+    pie_drawer_qty: IntProperty(
+        name="Drawer Qty",
+        description="Number of stacked drawers in a pie-cut drawer corner; the top opening defaults to the Top Drawer Opening Height for 3 or 4 drawers",
+        default=3, min=2, max=4,
+        update=_update_pie_drawer_qty,
+    )  # type: ignore
 
 
 class Face_Frame_Bay_Props(PropertyGroup):

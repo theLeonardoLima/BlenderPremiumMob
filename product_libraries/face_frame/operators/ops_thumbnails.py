@@ -32,9 +32,9 @@ RENDERABLE_CATALOG = (
     "Lap Drawer",
     "Floating Base Cabinet",
     # Corner cabinets - create() builds them populated with doors, so no
-    # bay preset applies. "Pie Cut Drawer" is omitted: it has no dispatch
-    # entry and would fall back to a plain base cabinet.
+    # bay preset applies.
     "Pie Cut Base",
+    "Pie Cut Drawer",
     "Pie Cut Upper",
     "Diagonal Base",
     "Diagonal Upper",
