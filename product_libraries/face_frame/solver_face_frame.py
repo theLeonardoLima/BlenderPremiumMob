@@ -2211,10 +2211,19 @@ def partition_skin_panels(layout, gap_index):
         d = skin_bay['depth']
         return (-layout.dim_y + d, d - layout.fft)
 
+    # A bay flagged floating raises its floor (kick_height holds the lift), so
+    # the floors-differ step below would ALSO fire on the floating side and
+    # overlap the slot-2 floating finish. When exactly one adjacent bay floats
+    # (base / tall), slot 2 covers that side to the floor, so slot 0 is
+    # suppressed for the gap.
+    float_a = bool(bay_a.get('floating_bay'))
+    float_b = bool(bay_b.get('floating_bay'))
+    floating_finish = layout.has_toe_kick and (float_a != float_b)
+
     # ----- Slot 0: bottom step -----
     floor_a = bay_bottom_z(layout, gap_index)
     floor_b = bay_bottom_z(layout, gap_index + 1)
-    if not _epsilon_eq(floor_a, floor_b):
+    if not _epsilon_eq(floor_a, floor_b) and not floating_finish:
         if floor_a > floor_b:
             side = 'LEFT'
             skin_bay_idx = gap_index
@@ -2265,6 +2274,34 @@ def partition_skin_panels(layout, gap_index):
                 'width':     width,
                 'thickness': thickness,
             })
+
+    # ----- Slot 2: floating-bay finish (base / tall) -----
+    # A floating bay has no toe kick, so below its carcass bottom the mid-stile
+    # back-face overhang is exposed to the floor on that bay's side. Drop a skin
+    # to the floor to finish it; slot 0 is suppressed above so the two don't
+    # overlap. (float_a / float_b / floating_finish are computed by the slot-0
+    # block.) No skin when both bays float or on uppers (no kick zone).
+    if floating_finish:
+        if float_a:
+            side = 'LEFT'
+            skin_bay_idx = gap_index
+        else:
+            side = 'RIGHT'
+            skin_bay_idx = gap_index + 1
+        skin_bay = layout.bays[skin_bay_idx]
+        top_z = (bay_bottom_z(layout, skin_bay_idx)
+                 + skin_bay['bottom_rail_width'] - layout.mt)
+        y, width = _y_and_width(skin_bay)
+        skins.append({
+            'slot':      2,
+            'side':      side,
+            'x':         _x_origin(side),
+            'y':         y,
+            'z':         0.0,
+            'length':    top_z,
+            'width':     width,
+            'thickness': thickness,
+        })
 
     return skins
 

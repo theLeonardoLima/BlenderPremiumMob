@@ -1635,6 +1635,7 @@ class FaceFrameCabinet(GeoNodeCage):
                 self._ensure_corner_finish_kick(
                     PART_ROLE_RIGHT_CORNER_FINISH_KICK, 'Finish Toe Kick Right')
                 self._reconcile_mid_finish_kicks(layout)
+                self._ensure_partition_skin_slot2(layout)
                 self._ensure_kick_return(
                     PART_ROLE_LEFT_KICK_RETURN, 'Toe Kick Return Left',
                     mirror_z=True)
@@ -2104,6 +2105,12 @@ class FaceFrameCabinet(GeoNodeCage):
                 slot = child.get('hb_partition_skin_slot', 0)
                 skins = solver.partition_skin_panels(layout, msi)
                 skin = next((s for s in skins if s['slot'] == slot), None)
+                if slot == 2:
+                    # Slot 2 (floating finish) drops to the floor; notch its
+                    # front-bottom to clear the toe-kick recess (off when the
+                    # gap's mid stile is itself stile-to-floor).
+                    self._drive_partition_skin_floor_notch(
+                        child, layout, msi, skin)
                 if skin is None:
                     child.hide_viewport = True
                     child.hide_render = True
@@ -4029,6 +4036,78 @@ class FaceFrameCabinet(GeoNodeCage):
         for gi, side in wanted:
             if (gi, side) not in existing:
                 self._create_mid_finish_kick(gi, side)
+
+    def _ensure_partition_skin_slot2(self, layout):
+        """Lazy-create the slot-2 partition skin (floating-bay finish) per
+        gap if absent. Slots 0/1 are created up front at gap creation; slot
+        2 was added later, so this backfills existing cabinets. Sized + hidden
+        by the PARTITION_SKIN part-loop branch from partition_skin_panels."""
+        n_gaps = max(0, layout.bay_count - 1)
+        existing = {
+            (c.get('hb_mid_stile_index'), c.get('hb_partition_skin_slot'))
+            for c in self.obj.children
+            if c.get('hb_part_role') == PART_ROLE_PARTITION_SKIN
+        }
+        for gi in range(n_gaps):
+            if (gi, 2) in existing:
+                continue
+            skin = CabinetPart()
+            skin.create(f'Partition Skin {gi + 1}.2')
+            skin.obj.parent = self.obj
+            skin.obj['hb_part_role'] = PART_ROLE_PARTITION_SKIN
+            skin.obj['CABINET_PART'] = True
+            skin.obj['hb_mid_stile_index'] = gi
+            skin.obj['hb_partition_skin_slot'] = 2
+            skin.obj.rotation_euler.y = math.radians(-90)
+            skin.set_input('Mirror Y', True)
+            skin.set_input('Mirror Z', True)
+            skin.obj.hide_viewport = True
+            skin.obj.hide_render = True
+
+    def _drive_partition_skin_floor_notch(self, skin_obj, layout, gap_index, skin):
+        """Drive the slot-2 (floating-finish) partition skin's 'Notch Front
+        Bottom' modifier so the floor-dropped skin clears the toe-kick recess
+        at the cabinet front.
+
+        Active for a NOTCH toe kick when the slot-2 skin is present, UNLESS the
+        gap's mid stile is itself dropped to the floor (the stile-to-floor
+        construction already finishes the front, so no notch). Added lazily so
+        skins built before notch support upgrade in place. Flip X=False (bottom)
+        / Flip Y=True (front) match the mid-division's bottom-front corner (the
+        skin shares the mid-division orientation)."""
+        mod = skin_obj.modifiers.get('Notch Front Bottom')
+        if mod is None:
+            cpm = GeoNodeCutpart(skin_obj).add_part_modifier(
+                'CPM_CORNERNOTCH', 'Notch Front Bottom')
+            cpm.set_input('Flip X', False)
+            cpm.set_input('Flip Y', True)
+            mod = cpm.mod
+        if mod.node_group is None:
+            return
+        active = (skin is not None
+                  and layout.has_toe_kick
+                  and layout.toe_kick_type == 'NOTCH'
+                  and gap_index < len(layout.mid_stiles)
+                  and not bool(layout.mid_stiles[gap_index].get('to_floor')))
+        if active:
+            # The floating bay carries the lift in its kick_height, so read the
+            # NON-floating neighbour's kick for the real toe-kick height.
+            bay_a = layout.bays[gap_index]
+            neighbor_idx = (gap_index + 1
+                            if bool(bay_a.get('floating_bay')) else gap_index)
+            kick = layout.bays[neighbor_idx]['kick_height']
+            setback = self.obj.face_frame_cabinet.toe_kick_setback
+            route = skin['thickness']
+        else:
+            kick = setback = route = 0.0
+        ng = mod.node_group
+        for input_name, value in (('X', kick), ('Y', setback),
+                                  ('Route Depth', route)):
+            node_input = ng.interface.items_tree.get(input_name)
+            if node_input is not None:
+                mod[node_input.identifier] = value
+        mod.show_viewport = active
+        mod.show_render = active
 
     def _ensure_kick_return(self, role, name, mirror_z):
         """Lazy-create a left or right kick return - a vertical
