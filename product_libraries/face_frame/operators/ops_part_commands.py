@@ -22,6 +22,7 @@ from bpy.props import FloatProperty, StringProperty
 
 from .. import types_face_frame
 from ....hb_types import GeoNodeCutpart
+from .... import units
 
 
 # Role sets used by each operator's poll and the menu's draw.
@@ -894,6 +895,38 @@ def _door_frame_for_dialog(op):
     return bpy.data.objects.get(op.source_obj_name)
 
 
+def _front_panel_openings(front):
+    """Live interior-panel (opening) heights of a 5-piece front for a
+    read-only readout. Reads the 'Door Style' modifier + the cutpart Length,
+    so it reflects the rendered geometry regardless of the mid-rail mode (the
+    Set Door Frame dialog is live-bound, so the modifier already carries any
+    pending edit). The rail spans [loc - Rm/2, loc + Rm/2] about its centerline
+    loc within the [0, L] door.
+
+    Returns (bottom_opening, top_opening) in metres when a mid rail is present,
+    (full_opening, None) when it isn't, or None if the front can't be read.
+    """
+    mod = _door_style_mod(front)
+    if front is None or mod is None:
+        return None
+    try:
+        length = GeoNodeCutpart(front).get_input("Length")
+    except Exception:
+        return None
+    top_rail = _mod_input_get(mod, "Top Rail Width", 0.0)
+    bottom_rail = _mod_input_get(mod, "Bottom Rail Width", 0.0)
+    if not _mod_input_get(mod, "Add Mid Rail", False):
+        return (length - top_rail - bottom_rail, None)
+    half = _mod_input_get(mod, "Mid Rail Width", 0.0) / 2.0
+    if _mod_input_get(mod, "Center Mid Rail", True):
+        loc = length / 2.0
+    else:
+        loc = _mod_input_get(mod, "Mid Rail Location", length / 2.0)
+    bottom_opening = (loc - half) - bottom_rail
+    top_opening = (length - top_rail) - (loc + half)
+    return (bottom_opening, top_opening)
+
+
 def _frame_store(front_obj):
     """Persistent home for a front's locked frame data: its OPENING cage,
     which survives the per-recalc front rebuild (the front itself does not).
@@ -950,12 +983,20 @@ def _on_df_bottom_rail(self, context):
         _reapply_frame_store(store, front)
 
 
+# Mid Rail modes whose Location field carries a user-entered value (vs. the
+# fraction presets and Centered, which derive the position analytically).
+# CUSTOM = location from the bottom; TOP_PANEL / BOTTOM_PANEL = the interior
+# panel (opening) height that side of the rail, which the solver converts to
+# a centerline location once the rail widths are known.
+_MID_RAIL_VALUE_MODES = {'CUSTOM', 'TOP_PANEL', 'BOTTOM_PANEL'}
+
+
 def _on_df_mid_mode(self, context):
     front = _door_frame_for_dialog(self)
     if front is not None:
         store = _frame_store(front)
         store['HB_FRAME_OVR_MID_RAIL_MODE'] = self.mid_rail_mode
-        if self.mid_rail_mode == 'CUSTOM':
+        if self.mid_rail_mode in _MID_RAIL_VALUE_MODES:
             store['HB_FRAME_OVR_MID_RAIL_LOCATION'] = self.mid_rail_location
         _reapply_frame_store(store, front)
 
@@ -965,7 +1006,7 @@ def _on_df_mid_loc(self, context):
     if front is not None:
         store = _frame_store(front)
         store['HB_FRAME_OVR_MID_RAIL_LOCATION'] = self.mid_rail_location
-        if store.get('HB_FRAME_OVR_MID_RAIL_MODE') == 'CUSTOM':
+        if store.get('HB_FRAME_OVR_MID_RAIL_MODE') in _MID_RAIL_VALUE_MODES:
             _reapply_frame_store(store, front)
 
 
@@ -1026,8 +1067,11 @@ class hb_face_frame_OT_set_door_frame(bpy.types.Operator):
         name="Mid Rail",
         items=[('NONE', "None", "No mid rail (overrides the style and the tall-door auto rail)"),
                ('CENTERED', "Centered", "Mid rail centered vertically"),
-               ('THIRD', "1/3 - 2/3", "Mid rail 1/3 up from the bottom"),
-               ('CUSTOM', "Custom", "Mid rail at a custom location")],
+               ('THIRD', "1/3 - 2/3", "Mid rail 2/3 up from the bottom (top opening 1/3, bottom 2/3)"),
+               ('QUARTER', "1/4 - 3/4", "Mid rail 3/4 up from the bottom (top opening 1/4, bottom 3/4)"),
+               ('CUSTOM', "Custom", "Mid rail centerline at a custom distance from the bottom"),
+               ('TOP_PANEL', "Set Top Panel Height", "Position the mid rail so the top interior panel matches the entered height"),
+               ('BOTTOM_PANEL', "Set Bottom Panel Height", "Position the mid rail so the bottom interior panel matches the entered height")],
         default='CENTERED',
         update=_on_df_mid_mode)  # type: ignore
     mid_rail_location: FloatProperty(name="Location", unit='LENGTH', precision=4, min=0.0,
@@ -1080,8 +1124,27 @@ class hb_face_frame_OT_set_door_frame(bpy.types.Operator):
         body.separator()
         body.prop(self, 'mid_rail_mode')
         row = body.row()
-        row.enabled = self.mid_rail_mode == 'CUSTOM'
-        row.prop(self, 'mid_rail_location')
+        row.enabled = self.mid_rail_mode in _MID_RAIL_VALUE_MODES
+        # The same field carries a from-bottom location (CUSTOM) or an interior
+        # panel height (TOP_PANEL / BOTTOM_PANEL); relabel to match the mode.
+        loc_label = {'TOP_PANEL': "Top Panel Height",
+                     'BOTTOM_PANEL': "Bottom Panel Height"}.get(self.mid_rail_mode, "Location")
+        row.prop(self, 'mid_rail_location', text=loc_label)
+
+        # Read-only readout of the resulting interior-panel heights. Lives in
+        # the always-enabled column (not the lock-greyed body) so it's visible
+        # whether the frame is locked or following its style.
+        openings = _front_panel_openings(_door_frame_for_dialog(self))
+        if openings is not None:
+            bottom_opening, top_opening = openings
+            us = context.scene.unit_settings
+            box = col.box()
+            box.label(text="Panel Heights")
+            if top_opening is None:
+                box.label(text="Panel:  " + units.unit_to_string(us, bottom_opening))
+            else:
+                box.label(text="Top Panel:  " + units.unit_to_string(us, top_opening))
+                box.label(text="Bottom Panel:  " + units.unit_to_string(us, bottom_opening))
 
     def execute(self, context):
         # Live-bound via the prop update callbacks; nothing to do on OK.

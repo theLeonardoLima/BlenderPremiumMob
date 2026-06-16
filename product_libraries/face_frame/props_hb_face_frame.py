@@ -2500,10 +2500,11 @@ class Face_Frame_Door_Style(PropertyGroup):
         door_style_mod.set_input("Panel Inset", self.panel_inset)
 
         # Per-front mid rail override (durable, set from the Set Door Frame
-        # popup) wins over the style / auto-center. CENTERED centers it;
-        # THIRD places it 1/3 up (bottom opening = 1/3 of the door height);
-        # CUSTOM uses the stored location. Presence of an override also
-        # forces a mid rail on.
+        # popup) wins over the style / auto-center. CENTERED centers it; THIRD /
+        # QUARTER place it by fraction; CUSTOM, TOP_PANEL and BOTTOM_PANEL use the
+        # single stored value (a from-bottom centerline, or an interior panel
+        # height that the solver converts to a centerline). Presence of an
+        # override also forces a mid rail on.
         if ovr_mid_mode != 'NONE' and (needs_auto_mid_rail or self.add_mid_rail or ovr_mid_mode):
             try:
                 door_style_mod.set_input("Add Mid Rail", True)
@@ -2512,14 +2513,38 @@ class Face_Frame_Door_Style(PropertyGroup):
                     door_style_mod.set_input("Center Mid Rail", True)
                 elif ovr_mid_mode == 'THIRD':
                     door_style_mod.set_input("Center Mid Rail", False)
-                    # Mid Rail Location is measured from the BOTTOM, so 2/3 up
-                    # puts the rail near the top (bottom opening = 2/3, top = 1/3).
+                    # Mid Rail Location is the rail CENTERLINE measured from the
+                    # BOTTOM, so 2/3 up puts the rail near the top (bottom opening
+                    # = 2/3, top = 1/3).
                     door_style_mod.set_input("Mid Rail Location", front_length * 2.0 / 3.0)
-                elif ovr_mid_mode == 'CUSTOM':
+                elif ovr_mid_mode == 'QUARTER':
                     door_style_mod.set_input("Center Mid Rail", False)
-                    door_style_mod.set_input(
-                        "Mid Rail Location",
-                        frame_store.get('HB_FRAME_OVR_MID_RAIL_LOCATION', self.mid_rail_location))
+                    # 3/4 up from the bottom (bottom opening = 3/4, top = 1/4).
+                    door_style_mod.set_input("Mid Rail Location", front_length * 3.0 / 4.0)
+                elif ovr_mid_mode in ('CUSTOM', 'TOP_PANEL', 'BOTTOM_PANEL'):
+                    door_style_mod.set_input("Center Mid Rail", False)
+                    # One stored value, interpreted by mode. The door spans
+                    # [0, L] along its length; the rail spans [loc - Rm/2,
+                    # loc + Rm/2] about its centerline loc. So the bottom opening
+                    # is (loc - Rm/2) - bottom_rail and the top opening is
+                    # (L - top_rail) - (loc + Rm/2). CUSTOM stores loc directly;
+                    # the panel modes store the opening height on that side and we
+                    # solve for loc, clamping so a too-large height can't push the
+                    # rail past either end rail.
+                    stored = frame_store.get('HB_FRAME_OVR_MID_RAIL_LOCATION',
+                                             self.mid_rail_location)
+                    half_rm = self.mid_rail_width / 2.0
+                    if ovr_mid_mode == 'BOTTOM_PANEL':
+                        loc = eff_bottom_rail + stored + half_rm
+                    elif ovr_mid_mode == 'TOP_PANEL':
+                        loc = front_length - eff_top_rail - stored - half_rm
+                    else:
+                        loc = stored
+                    loc_min = eff_bottom_rail + half_rm
+                    loc_max = front_length - eff_top_rail - half_rm
+                    if loc_max >= loc_min:
+                        loc = max(loc_min, min(loc, loc_max))
+                    door_style_mod.set_input("Mid Rail Location", loc)
                 elif needs_auto_mid_rail:
                     door_style_mod.set_input("Center Mid Rail", True)
                 else:
