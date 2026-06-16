@@ -1885,9 +1885,9 @@ _OPENING_PRESETS = {
     'PULLOUT':           {'front_type': 'PULLOUT'},
     'INSET_PANEL':       {'front_type': 'INSET_PANEL', 'shelves': 'CLEAR'},
     'FALSE_FRONT':       {'front_type': 'FALSE_FRONT'},
-    # Tilt-out: geometrically a FALSE_FRONT; the is_tilt_out flag only
-    # changes the 2D elevation label (TILT-OUT instead of FALSE).
-    'TILT_OUT':          {'front_type': 'FALSE_FRONT', 'tilt_out': True},
+    # Tilt-out: a drawer-styled front hinged on the bottom (its own front_type
+    # now, not a FALSE_FRONT + label flag).
+    'TILT_OUT':          {'front_type': 'TILT_OUT'},
     # APPLIANCE: open opening with no shelves and an 'Appliance' label.
     # Reuses the ACCESSORY interior kind for the label until a dedicated
     # APPLIANCE front_type or interior kind lands.
@@ -1999,7 +1999,7 @@ class hb_face_frame_OT_change_opening(bpy.types.Operator):
             ('PULLOUT',           "Pullout",           "Door front on a pullout slide"),
             ('INSET_PANEL',       "Inset Panel",       "Recessed 1/4\" panel filling the opening"),
             ('FALSE_FRONT',       "False Front",       "Decorative drawer-style panel; fixed"),
-            ('TILT_OUT',          "Tilt-Out",          "False front on hinges; labeled TILT-OUT on 2D drawings"),
+            ('TILT_OUT',          "Tilt-Out",          "Drawer-style front hinged on the bottom; tilts down to open"),
             ('APPLIANCE',         "Appliance",         "Opening reserved for an appliance"),
         ],
         default='OPEN',

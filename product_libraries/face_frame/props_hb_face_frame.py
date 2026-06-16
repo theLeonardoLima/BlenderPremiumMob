@@ -1437,7 +1437,7 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         'MID_RAIL', 'BAY_MID_RAIL', 'BAY_MID_STILE',
         'INTERIOR_FF_RAIL', 'INTERIOR_FF_STILE',
         # Fronts
-        'DOOR', 'DRAWER_FRONT', 'PULLOUT_FRONT', 'FALSE_FRONT', 'INSET_PANEL',
+        'DOOR', 'DRAWER_FRONT', 'PULLOUT_FRONT', 'FALSE_FRONT', 'TILT_OUT', 'INSET_PANEL',
         # Furniture / veneer wood top (dresser products)
         'FURNITURE_TOP',
         # Finished back closing a hutch upper's dropped-end recess
@@ -1512,7 +1512,7 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
 
     # Roles that read materials from the 5-piece door modifier instead
     # of (or in addition to) the cutpart surface inputs.
-    _FRONT_ROLES = {'DOOR', 'DRAWER_FRONT', 'PULLOUT_FRONT', 'FALSE_FRONT'}
+    _FRONT_ROLES = {'DOOR', 'DRAWER_FRONT', 'PULLOUT_FRONT', 'FALSE_FRONT', 'TILT_OUT'}
 
     # Interior shelving that follows the bay's finish_bay flag: a finished
     # bay shows the exterior finish on its shelves too, otherwise they
@@ -1587,7 +1587,7 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         ff = get_style_props()
         role = front_obj.get('hb_part_role')
         pool = (ff.drawer_front_styles
-                if role in ('DRAWER_FRONT', 'FALSE_FRONT')
+                if role in ('DRAWER_FRONT', 'FALSE_FRONT', 'TILT_OUT')
                 else ff.door_styles)
         for ds in pool:
             if ds.name == ds_name:
@@ -1881,7 +1881,7 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         structural parts, hardware) are skipped.
         """
         DOOR_ROLES = {'DOOR', 'PULLOUT_FRONT'}
-        DRAWER_ROLES = {'DRAWER_FRONT', 'FALSE_FRONT'}
+        DRAWER_ROLES = {'DRAWER_FRONT', 'FALSE_FRONT', 'TILT_OUT'}
 
         ff = get_style_props()
 
@@ -2358,7 +2358,7 @@ class Face_Frame_Door_Style(PropertyGroup):
     # on the parent cabinet style - a pullout is a door on a slide; the rest
     # read drawer_front_style).
     _DOOR_FRONT_ROLES = {'DOOR', 'PULLOUT_FRONT'}
-    _DRAWER_FRONT_ROLES = {'DRAWER_FRONT', 'FALSE_FRONT'}
+    _DRAWER_FRONT_ROLES = {'DRAWER_FRONT', 'FALSE_FRONT', 'TILT_OUT'}
     _STYLEABLE_ROLES = _DOOR_FRONT_ROLES | _DRAWER_FRONT_ROLES
 
     def get_parent_cabinet_style(self, front_obj):
@@ -4261,6 +4261,7 @@ FRONT_TYPE_ITEMS = [
     ('DRAWER_FRONT', "Drawer Front", "Drawer front"),
     ('PULLOUT', "Pullout", "Door front on a pullout slide; supports pullout accessories"),
     ('FALSE_FRONT', "False Front", "Decorative drawer-style panel; fixed (does not open)"),
+    ('TILT_OUT', "Tilt-Out", "Drawer-style front hinged on the bottom; tilts down to open"),
     ('INSET_PANEL', "Inset Panel", "1/4\" panel filling the face frame opening; no overlay, no swing"),
 ]
 

@@ -209,6 +209,10 @@ PART_ROLE_DRAWER_FRONT = 'DRAWER_FRONT'
 PART_ROLE_PULLOUT_FRONT = 'PULLOUT_FRONT'
 PART_ROLE_FALSE_FRONT = 'FALSE_FRONT'
 PART_ROLE_INSET_PANEL = 'INSET_PANEL'
+# Tilt-out: a drawer-styled front that tilts down on a BOTTOM hinge.
+# Own role (not FALSE_FRONT) so it's drawer-styled but carries a pull and
+# a swing; not in the drawer-box role set, so it gets no slide box.
+PART_ROLE_TILT_OUT = 'TILT_OUT'
 PART_ROLE_APRON = 'APRON'
 
 # Applied finished-back part: a 3/4 panel layered on top of the carcass
@@ -282,6 +286,7 @@ FRONT_PART_ROLES = frozenset({
     PART_ROLE_DRAWER_FRONT,
     PART_ROLE_PULLOUT_FRONT,
     PART_ROLE_FALSE_FRONT,
+    PART_ROLE_TILT_OUT,
     PART_ROLE_INSET_PANEL,
     PART_ROLE_APRON,
 })
@@ -291,6 +296,7 @@ FRONT_TYPE_TO_ROLE = {
     'DRAWER_FRONT': PART_ROLE_DRAWER_FRONT,
     'PULLOUT':      PART_ROLE_PULLOUT_FRONT,
     'FALSE_FRONT':  PART_ROLE_FALSE_FRONT,
+    'TILT_OUT':     PART_ROLE_TILT_OUT,
 }
 
 # ---------------------------------------------------------------------------
@@ -4942,7 +4948,7 @@ class FaceFrameCabinet(GeoNodeCage):
         if role in (PART_ROLE_FALSE_FRONT, PART_ROLE_INSET_PANEL):
             return None
         scene_props = bpy.context.scene.hb_face_frame
-        kind = 'drawer' if role in (PART_ROLE_DRAWER_FRONT, PART_ROLE_PULLOUT_FRONT) else 'door'
+        kind = 'drawer' if role in (PART_ROLE_DRAWER_FRONT, PART_ROLE_PULLOUT_FRONT, PART_ROLE_TILT_OUT) else 'door'
         # A pullout front carries a drawer-style pull - drawer pull
         # asset, horizontal bar - but it's a full door-height front, so
         # its vertical placement follows the door / cabinet-type formula

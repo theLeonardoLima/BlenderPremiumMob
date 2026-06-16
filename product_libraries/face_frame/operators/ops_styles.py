@@ -363,7 +363,7 @@ class hb_face_frame_OT_paint_assign_front_style(bpy.types.Operator):
     )  # type: ignore
 
     _DOOR_ROLES = {'DOOR', 'PULLOUT_FRONT'}
-    _DRAWER_ROLES = {'DRAWER_FRONT', 'FALSE_FRONT'}
+    _DRAWER_ROLES = {'DRAWER_FRONT', 'FALSE_FRONT', 'TILT_OUT'}
 
     def _allowed_roles(self):
         return self._DRAWER_ROLES if self.kind == 'DRAWER' else self._DOOR_ROLES
@@ -539,7 +539,7 @@ class hb_face_frame_OT_update_fronts_from_style(bpy.types.Operator):
     )  # type: ignore
 
     _DOOR_ROLES = {'DOOR', 'PULLOUT_FRONT'}
-    _DRAWER_ROLES = {'DRAWER_FRONT', 'FALSE_FRONT'}
+    _DRAWER_ROLES = {'DRAWER_FRONT', 'FALSE_FRONT', 'TILT_OUT'}
 
     def execute(self, context):
         ff = get_style_props(context)

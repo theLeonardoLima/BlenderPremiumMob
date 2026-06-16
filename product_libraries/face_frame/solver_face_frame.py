@@ -2953,6 +2953,7 @@ _FRONT_TYPE_TO_ROLE_NAME = {
     'DRAWER_FRONT': ('DRAWER_FRONT',  'Drawer Front'),
     'PULLOUT':      ('PULLOUT_FRONT', 'Pullout Front'),
     'FALSE_FRONT':  ('FALSE_FRONT',   'False Front'),
+    'TILT_OUT':     ('TILT_OUT',      'Tilt-Out'),
     'INSET_PANEL':  ('INSET_PANEL',   'Inset Panel'),
 }
 
@@ -3115,6 +3116,22 @@ class _ZeroSwingProxy:
         return getattr(self._inner, name)
 
 
+class _ForceHingeProxy:
+    """Wraps an opening_props instance and reports a fixed hinge_side
+    (every other field, including swing_percent, passes through). Used by
+    TILT_OUT to force a BOTTOM hinge through the shared door-pivot builder
+    while the user's swing_percent still drives how far it tilts open.
+    """
+    __slots__ = ('_inner', '_hinge')
+    def __init__(self, inner, hinge):
+        object.__setattr__(self, '_inner', inner)
+        object.__setattr__(self, '_hinge', hinge)
+    def __getattr__(self, name):
+        if name == 'hinge_side':
+            return self._hinge
+        return getattr(self._inner, name)
+
+
 def _triple_door_leaves(layout, rect, cab_props, opening_props, role):
     """Three equal leaves for a tri-view medicine cabinet front: three
     mirror doors butting across ONE opening (no mid-stiles), hinged
@@ -3203,6 +3220,22 @@ def front_leaves(layout, rect, cab_props, opening_props):
 
     if front_type == 'INSET_PANEL':
         return [_inset_panel_leaf(layout, rect, role, base_name)]
+
+    if front_type == 'TILT_OUT':
+        # A drawer-styled front that tilts down on a BOTTOM hinge. The motion
+        # reuses the door swing pivot (flip-down), but the leaf carries the
+        # TILT_OUT role so it's styled from the drawer-front pool and gets a
+        # centered drawer pull with no slide box (see types_face_frame). The
+        # bottom hinge is forced regardless of hinge_side; swing_percent still
+        # drives how far it tilts open.
+        width, height = _door_panel_size(rect, cab_props, opening_props)
+        leaf = _single_door_leaf_pivot(
+            layout, rect, cab_props, _ForceHingeProxy(opening_props, 'BOTTOM'))
+        leaf['role'] = role
+        leaf['name'] = base_name
+        leaf['part_dims'] = (height, width, cab_props.door_thickness)
+        leaf['hinge'] = 'BOTTOM'
+        return [leaf]
 
     if front_type in ('DRAWER_FRONT', 'PULLOUT', 'FALSE_FRONT'):
         # FALSE_FRONT shares drawer geometry but is fixed - we hand the
