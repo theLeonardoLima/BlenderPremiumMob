@@ -2129,6 +2129,12 @@ class FaceFrameCabinet(GeoNodeCage):
         if self._has_carcass():
             self._apply_back_extension(layout)
 
+        # Extend Bottom (uppers): overhang the carcass bottom past a side to
+        # cover the corner void where two uppers meet. Runs after the part
+        # loop / back extension so it reshapes the positioned bottom in place.
+        if self._has_carcass() and layout.cabinet_type == 'UPPER':
+            self._apply_bottom_extension(layout)
+
         # Appliance bay annotation (square + SINK / COOKTOP word) on top
         # of stamped bays and the dedicated sink cabinet's basin bay.
         # Unconditional so stale annotations are wiped even when the
@@ -2541,6 +2547,31 @@ class FaceFrameCabinet(GeoNodeCage):
             self._apply_back_ext_cuts(cutter)
         else:
             self._cleanup_back_ext_cutter_and_cuts()
+
+    def _apply_bottom_extension(self, layout):
+        """Overhang the carcass bottom panel(s) laterally past the side(s) to
+        cover the void where two upper cabinets meet in a corner. Uppers only.
+
+        Outward only (extend_bottom_left / _right are min 0). Reuses
+        _widen_back_panel on the BOTTOM children with the 'Length' span input:
+        that helper already grows only the end(s) that reach a cabinet end
+        (so on a multi-bay upper just the outermost bottom segment overhangs,
+        interior bay divisions are left alone) and derives the span
+        analytically (recalc-stale-safe). Nothing else moves - the face frame,
+        sides, and doors stay square, so only the bottom sticks out under the
+        void. No-op (square) when both extends are 0; the part loop has already
+        reset each bottom to its square span this recalc, so this is applied on
+        top each time and self-corrects when the values drop back to 0.
+        """
+        cab = self.obj.face_frame_cabinet
+        ext_l = getattr(cab, 'extend_bottom_left', 0.0) or 0.0
+        ext_r = getattr(cab, 'extend_bottom_right', 0.0) or 0.0
+        if ext_l == 0.0 and ext_r == 0.0:
+            return
+        for child in self.obj.children:
+            if child.get('hb_part_role') == PART_ROLE_BOTTOM:
+                self._widen_back_panel(child, ext_l, ext_r, 'Length',
+                                       allow_shrink=True)
 
     def _widen_back_panel(self, child, ext_l, ext_r, span_input,
                           allow_shrink=True):

@@ -3729,6 +3729,24 @@ class Face_Frame_Cabinet_Props(PropertyGroup):
                     "into an acute corner). 0 = square.",
         update=_update_cabinet_dim,
     )  # type: ignore
+    # Extend Bottom (uppers): push the carcass bottom panel laterally past
+    # the side(s) to cover the void left in a corner where two uppers meet.
+    # Outward only (min 0); only the bottom panel overhangs - the face frame,
+    # sides, and doors stay square. Applied in _apply_bottom_extension.
+    extend_bottom_left: FloatProperty(
+        name="Extend Bottom Left X", default=0.0, min=0.0,
+        unit='LENGTH', precision=4,
+        description="Overhang the carcass bottom past the LEFT side by this "
+                    "amount to cover a corner void. 0 = flush with the side.",
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    extend_bottom_right: FloatProperty(
+        name="Extend Bottom Right X", default=0.0, min=0.0,
+        unit='LENGTH', precision=4,
+        description="Overhang the carcass bottom past the RIGHT side by this "
+                    "amount to cover a corner void. 0 = flush with the side.",
+        update=_update_cabinet_dim,
+    )  # type: ignore
     inset_toe_kick_left: FloatProperty(
         name="Inset Toe Kick Left", default=0.0, unit='LENGTH', precision=4,
         update=_update_cabinet_dim,

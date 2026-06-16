@@ -278,6 +278,14 @@ def draw_construction(layout, cab_props):
             col.prop(cab_props, 'side_front_profile', text="Front Profile")
             col.prop(cab_props, 'overstool_accessory', text="Accessory")
 
+        # Bottom panel overhangs a side to cover the void where two uppers
+        # meet in a corner (bottom only - face frame / doors stay square).
+        box = layout.box()
+        box.label(text="Extend Bottom", icon='MOD_BEVEL')
+        col = box.column(align=True)
+        col.prop(cab_props, 'extend_bottom_left', text="Extend Bottom Left X")
+        col.prop(cab_props, 'extend_bottom_right', text="Extend Bottom Right X")
+
     box = layout.box()
     box.label(text="Finished Ends and Backs")
     draw_finished_ends(box, cab_props)
