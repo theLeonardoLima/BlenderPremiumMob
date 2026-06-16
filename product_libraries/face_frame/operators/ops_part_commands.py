@@ -477,7 +477,8 @@ class hb_face_frame_OT_toggle_stile_to_floor(bpy.types.Operator):
         obj = context.active_object
         if obj is None:
             return False
-        return obj.get('hb_part_role') in _END_STILE_ROLES
+        return obj.get('hb_part_role') in (
+            _END_STILE_ROLES | {types_face_frame.PART_ROLE_MID_STILE})
 
     def execute(self, context):
         obj = context.active_object
@@ -488,8 +489,21 @@ class hb_face_frame_OT_toggle_stile_to_floor(bpy.types.Operator):
         cab = root.face_frame_cabinet
         if role == types_face_frame.PART_ROLE_LEFT_STILE:
             cab.extend_left_stile_to_floor = not cab.extend_left_stile_to_floor
-        else:
+        elif role == types_face_frame.PART_ROLE_RIGHT_STILE:
             cab.extend_right_stile_to_floor = not cab.extend_right_stile_to_floor
+        elif role == types_face_frame.PART_ROLE_MID_STILE:
+            # Per-stile to_floor on the mid_stile_widths entry, keyed by
+            # the part's gap index. Grow the collection if needed (a fresh
+            # entry's default width matches the solver default, no change).
+            gap = obj.get('hb_mid_stile_index')
+            if gap is None:
+                return {'CANCELLED'}
+            coll = cab.mid_stile_widths
+            while len(coll) <= gap:
+                coll.add()
+            coll[gap].to_floor = not coll[gap].to_floor
+        else:
+            return {'CANCELLED'}
         return {'FINISHED'}
 
 

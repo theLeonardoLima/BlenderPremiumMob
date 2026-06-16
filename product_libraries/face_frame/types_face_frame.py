@@ -117,6 +117,7 @@ PART_ROLE_TOE_KICK_SUBFRONT = 'TOE_KICK_SUBFRONT'
 PART_ROLE_FINISH_TOE_KICK = 'FINISH_TOE_KICK'
 PART_ROLE_LEFT_CORNER_FINISH_KICK = 'LEFT_CORNER_FINISH_KICK'
 PART_ROLE_RIGHT_CORNER_FINISH_KICK = 'RIGHT_CORNER_FINISH_KICK'
+PART_ROLE_MID_FINISH_KICK = 'MID_FINISH_KICK'
 PART_ROLE_LEFT_KICK_RETURN = 'LEFT_KICK_RETURN'
 PART_ROLE_RIGHT_KICK_RETURN = 'RIGHT_KICK_RETURN'
 # Loose toe kick ladder sub-base (toe_kick_type == 'LOOSE'): a freestanding
@@ -1633,6 +1634,7 @@ class FaceFrameCabinet(GeoNodeCage):
                     PART_ROLE_LEFT_CORNER_FINISH_KICK, 'Finish Toe Kick Left')
                 self._ensure_corner_finish_kick(
                     PART_ROLE_RIGHT_CORNER_FINISH_KICK, 'Finish Toe Kick Right')
+                self._reconcile_mid_finish_kicks(layout)
                 self._ensure_kick_return(
                     PART_ROLE_LEFT_KICK_RETURN, 'Toe Kick Return Left',
                     mirror_z=True)
@@ -1915,6 +1917,23 @@ class FaceFrameCabinet(GeoNodeCage):
                 pos = solver.right_corner_finish_kick_position(layout)
                 length, width, thickness = solver.right_corner_finish_kick_dims(layout)
                 child.location = pos
+                part.set_input('Length', length)
+                part.set_input('Width', width)
+                part.set_input('Thickness', thickness)
+
+            elif role == PART_ROLE_MID_FINISH_KICK:
+                gi = child.get('hb_mid_stile_index', 0)
+                side = child.get('hb_mid_kick_side', 'LEFT')
+                pos = solver.mid_finish_kick_position(layout, gi, side)
+                dims = solver.mid_finish_kick_dims(layout, gi, side)
+                if pos is None or dims is None:
+                    child.hide_viewport = True
+                    child.hide_render = True
+                    continue
+                child.hide_viewport = False
+                child.hide_render = False
+                child.location = pos
+                length, width, thickness = dims
                 part.set_input('Length', length)
                 part.set_input('Width', width)
                 part.set_input('Thickness', thickness)
@@ -3967,6 +3986,49 @@ class FaceFrameCabinet(GeoNodeCage):
         fk.obj.rotation_euler.x = math.radians(90)
         fk.set_input('Mirror Z', True)
         return fk.obj
+
+    def _create_mid_finish_kick(self, gap_index, side):
+        """Create one mid-stile finish toe kick filler, keyed by gap +
+        side. Same orientation as the end-stile corner finish kick."""
+        label = 'Left' if side == 'LEFT' else 'Right'
+        fk = CabinetPart()
+        fk.create(f'Finish Toe Kick {label} (Mid {gap_index + 1})')
+        fk.obj.parent = self.obj
+        fk.obj['hb_part_role'] = PART_ROLE_MID_FINISH_KICK
+        fk.obj['CABINET_PART'] = True
+        fk.obj['hb_mid_stile_index'] = gap_index
+        fk.obj['hb_mid_kick_side'] = side
+        fk.obj.rotation_euler.x = math.radians(90)
+        fk.set_input('Mirror Z', True)
+        return fk.obj
+
+    def _reconcile_mid_finish_kicks(self, layout):
+        """Match mid-stile finish toe kick fillers against to-floor gaps.
+
+        Two per to-floor mid stile (LEFT + RIGHT of the dropped division),
+        keyed by (hb_mid_stile_index, hb_mid_kick_side). Creates the
+        missing ones and removes any whose gap is no longer to-floor (or
+        out of range / finish kick disabled). Positioned + sized in the
+        main part loop (PART_ROLE_MID_FINISH_KICK branch)."""
+        n_gaps = max(0, layout.bay_count - 1)
+        wanted = set()
+        for gi in range(n_gaps):
+            if solver.has_mid_finish_kick(layout, gi):
+                wanted.add((gi, 'LEFT'))
+                wanted.add((gi, 'RIGHT'))
+        for child in list(self.obj.children):
+            if child.get('hb_part_role') != PART_ROLE_MID_FINISH_KICK:
+                continue
+            key = (child.get('hb_mid_stile_index'),
+                   child.get('hb_mid_kick_side'))
+            if key not in wanted:
+                bpy.data.objects.remove(child, do_unlink=True)
+        existing = {(c.get('hb_mid_stile_index'), c.get('hb_mid_kick_side'))
+                    for c in self.obj.children
+                    if c.get('hb_part_role') == PART_ROLE_MID_FINISH_KICK}
+        for gi, side in wanted:
+            if (gi, side) not in existing:
+                self._create_mid_finish_kick(gi, side)
 
     def _ensure_kick_return(self, role, name, mirror_z):
         """Lazy-create a left or right kick return - a vertical

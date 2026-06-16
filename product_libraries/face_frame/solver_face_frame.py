@@ -206,12 +206,14 @@ class FaceFrameLayout:
                     'width': ms.width,
                     'extend_up_amount': ms.extend_up_amount,
                     'extend_down_amount': ms.extend_down_amount,
+                    'to_floor': bool(getattr(ms, 'to_floor', False)),
                 })
             else:
                 self.mid_stiles.append({
                     'width': default_ms,
                     'extend_up_amount': 0.0,
                     'extend_down_amount': 0.0,
+                    'to_floor': False,
                 })
 
     def _read_bay(self, bay_obj):
@@ -631,6 +633,10 @@ def _kick_subfront_passthrough(layout, gap_index):
         return False
     bay_a = layout.bays[gap_index]
     bay_b = layout.bays[gap_index + 1]
+    # A to-floor mid stile's division runs to the floor through the kick
+    # zone, so the toe kick (subfront + finish) breaks here too.
+    if layout.mid_stiles[gap_index].get('to_floor'):
+        return False
     if not _epsilon_eq(bay_a['kick_height'], bay_b['kick_height']):
         return False
     if (bay_a.get('remove_bottom') or bay_b.get('remove_bottom')
@@ -847,6 +853,71 @@ def right_corner_finish_kick_dims(layout):
 # When kick_inset_left / right > 0, the side floats up by kick_height
 # and the kick is "wrapped" at that end by a return panel running the
 # full carcass depth, sitting tkt-thick at the inset X position. The
+# ---------------------------------------------------------------------------
+# Mid-stile finish toe kick fillers (two per to-floor mid stile)
+# ---------------------------------------------------------------------------
+# When a MID stile is dropped to the floor its carcass division also drops
+# through the kick zone, so the toe kick breaks at the gap. The mid stile board
+# overhangs the division by (msw - dt)/2 on each side; these fillers bridge that
+# overhang from the stile back to the main finish kick front so the face frame
+# reads flush in the kick band - the mid-stile analog of the end-stile corner
+# finish kick. One filler per side (LEFT / RIGHT of the division), each at its
+# adjacent bay's kick height.
+def has_mid_finish_kick(layout, gap_index):
+    """True when gap_index's mid stile is to-floor AND the cabinet has a
+    finish kick. Suppressed if either adjacent bay omits its kick parts
+    (remove_bottom / remove_carcass / floating)."""
+    if gap_index >= len(layout.mid_stiles):
+        return False
+    if not has_finish_kick(layout):
+        return False
+    if not layout.mid_stiles[gap_index].get('to_floor'):
+        return False
+    bay_a = layout.bays[gap_index]
+    bay_b = layout.bays[gap_index + 1]
+    if (bay_a.get('remove_bottom') or bay_b.get('remove_bottom')
+            or bay_a.get('remove_carcass') or bay_b.get('remove_carcass')
+            or bay_a.get('floating_bay') or bay_b.get('floating_bay')):
+        return False
+    return True
+
+
+def mid_finish_kick_position(layout, gap_index, side):
+    """Origin for the LEFT / RIGHT mid finish kick filler: at the FF back,
+    on the floor, at the outer edge of its half of the mid-stile overhang
+    (LEFT = mid-stile left edge; RIGHT = division right face). Length then
+    runs +X to the division (LEFT) or to the mid-stile right edge (RIGHT).
+    Returns None when no filler is needed here."""
+    if not has_mid_finish_kick(layout, gap_index):
+        return None
+    center = _mid_stile_center_x(layout, gap_index)
+    dt = layout.division_thickness
+    msw = layout.mid_stiles[gap_index]['width']
+    if side == 'LEFT':
+        x = center - msw / 2.0
+    else:
+        x = center + dt / 2.0
+    return (x, -layout.dim_y + layout.fft, 0.0)
+
+
+def mid_finish_kick_dims(layout, gap_index, side):
+    """Length (X) = the FF overhang beyond the division on this side
+    ((msw - dt)/2). Width (Z) = the adjacent bay's kick height. Thickness
+    (Y) = stile back to main finish kick front (same gap the end-stile
+    corner kick fills). Returns None when no filler is needed."""
+    if not has_mid_finish_kick(layout, gap_index):
+        return None
+    dt = layout.division_thickness
+    msw = layout.mid_stiles[gap_index]['width']
+    length = (msw - dt) / 2.0
+    bay_idx = gap_index if side == 'LEFT' else gap_index + 1
+    width = layout.bays[bay_idx]['kick_height']
+    thickness = (layout.tks + layout.tkt
+                 - layout.finish_kick_thickness - layout.fft)
+    return (length, width, thickness)
+
+
+# ---------------------------------------------------------------------------
 # main kick subfront butts against the return's inboard face.
 # ---------------------------------------------------------------------------
 def has_left_kick_return(layout):
@@ -1094,7 +1165,7 @@ def bottom_rail_passthrough(layout, gap_index):
     bay_a = layout.bays[gap_index]
     bay_b = layout.bays[gap_index + 1]
     ms = layout.mid_stiles[gap_index]
-    if ms['extend_down_amount'] > 0:
+    if ms['extend_down_amount'] > 0 or ms.get('to_floor'):
         return False
     if not _epsilon_eq(bay_bottom_z(layout, gap_index),
                        bay_bottom_z(layout, gap_index + 1)):
@@ -1480,6 +1551,8 @@ def mid_stile_position(layout, gap_index):
     if bottom_rail_passthrough(layout, gap_index):
         base_z += bay_a['bottom_rail_width']
     base_z -= ms['extend_down_amount']
+    if ms.get('to_floor'):
+        base_z = 0.0
 
     x = (bay_x_position(layout, gap_index)
          + bay_a['width']
@@ -1508,6 +1581,10 @@ def mid_stile_dims(layout, gap_index):
     if bottom_rail_passthrough(layout, gap_index):
         bottom_z += bay_a['bottom_rail_width']
     bottom_z -= ms['extend_down_amount']
+    # Stile-to-floor pins the mid stile's bottom to the floor (Z=0),
+    # overriding the bay-bottom + extend-down computation (like an end stile).
+    if ms.get('to_floor'):
+        bottom_z = 0.0
 
     # Top Z: higher of the two adjacent bay tops, minus top rail width
     # if a rail passes through, plus extend_up_amount.
@@ -1537,6 +1614,10 @@ def _carcass_bottom_passthrough(layout, gap_index):
         return False
     bay_a = layout.bays[gap_index]
     bay_b = layout.bays[gap_index + 1]
+    # A to-floor mid stile drops its carcass division to the floor, so the
+    # bay-floor panel must break here to let the division pass through.
+    if layout.mid_stiles[gap_index].get('to_floor'):
+        return False
     if not _epsilon_eq(bay_bottom_z(layout, gap_index),
                        bay_bottom_z(layout, gap_index + 1)):
         return False
@@ -1975,6 +2056,8 @@ def mid_division_panels(layout, gap_index):
         bottom_z = (bay_bottom_z(layout, bay_idx)
                     + brw_term
                     - ms['extend_down_amount'])
+        if ms.get('to_floor'):
+            bottom_z = 0.0
         top = carcass_top_z(layout, bay_idx)
         # Stretchers: division flush with stretcher tops for structural
         # attachment. Solid top: division stops mt below carcass top to
@@ -2005,6 +2088,8 @@ def mid_division_panels(layout, gap_index):
             lower_brw = layout.bays[lower_idx]['bottom_rail_width']
         bottom_z = (bay_bottom_z(layout, lower_idx) + lower_brw
                     - ms['extend_down_amount'])
+        if ms.get('to_floor'):
+            bottom_z = 0.0
         higher_top_z = max(carcass_top_z(layout, gap_index),
                            carcass_top_z(layout, gap_index + 1))
         if layout.uses_stretchers or tops_differ:

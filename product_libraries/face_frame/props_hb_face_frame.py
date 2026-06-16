@@ -2862,6 +2862,14 @@ class Face_Frame_Mid_Stile_Width(PropertyGroup):
         update=_update_cabinet_dim,
     )  # type: ignore
 
+    to_floor: BoolProperty(
+        name="Stile to Floor",
+        default=False,
+        description="Extend this mid stile past the toe kick down to the "
+                    "floor (pins its bottom to Z=0, like an end stile)",
+        update=_update_cabinet_dim,
+    )  # type: ignore
+
 
 # ---------------------------------------------------------------------------
 # Corner cabinet exterior configuration

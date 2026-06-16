@@ -212,9 +212,10 @@ class HOME_BUILDER_MT_face_frame_part_commands(bpy.types.Menu):
             layout.operator("hb_face_frame.set_part_scribe",
                             text="Set Scribe...", icon='SNAP_EDGE')
 
-        # Stile-to-floor is end-stile only.
+        # Stile-to-floor: end stiles and between-bay mid stiles.
         if role in (types_face_frame.PART_ROLE_LEFT_STILE,
-                    types_face_frame.PART_ROLE_RIGHT_STILE):
+                    types_face_frame.PART_ROLE_RIGHT_STILE,
+                    types_face_frame.PART_ROLE_MID_STILE):
             layout.operator("hb_face_frame.toggle_stile_to_floor",
                             text="Toggle Stile to Floor",
                             icon='TRIA_DOWN_BAR')
