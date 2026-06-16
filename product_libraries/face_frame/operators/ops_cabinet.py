@@ -2909,6 +2909,8 @@ class hb_face_frame_OT_add_appliance_to_bay(bpy.types.Operator):
              "A false-front apron over door(s)"),
             ('FULL_HEIGHT_DOORS_APRON', "Full Height Doors with Apron",
              "Full-height door(s) with a sink apron across the top"),
+            ('KEEP_EXISTING', "Keep Existing",
+             "Leave the bay's current front layout unchanged"),
         ],
         default='FALSE_FRONT_DOORS',
     )  # type: ignore
@@ -2983,13 +2985,17 @@ class hb_face_frame_OT_add_appliance_to_bay(bpy.types.Operator):
         # same width threshold the auto presets use. The apron is added
         # per-opening below (add_apron) for the apron config.
         wide = self.width >= bay_presets.DOUBLE_DOOR_WIDTH_THRESHOLD
+        # KEEP_EXISTING leaves the bay's current front layout untouched
+        # (preset stays None, and the apron toggle below is skipped); only the
+        # width / drop / interior / appliance label are applied.
+        preset = None
         if self.config == 'FALSE_FRONT_DOORS':
             preset = 'FALSE_FRONT_DOUBLE_DOOR' if wide else 'FALSE_FRONT_DOOR'
-        else:
+        elif self.config == 'FULL_HEIGHT_DOORS_APRON':
             preset = 'DOUBLE_DOOR' if wide else 'LEFT_SWING_DOOR'
 
         with types_face_frame.suspend_recalc():
-            if not apply_bay_preset(bay, preset):
+            if preset is not None and not apply_bay_preset(bay, preset):
                 self.report({'WARNING'},
                             f"Bay does not accept preset {preset!r}")
                 return {'CANCELLED'}
