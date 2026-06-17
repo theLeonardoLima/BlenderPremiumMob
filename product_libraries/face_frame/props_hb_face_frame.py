@@ -719,10 +719,23 @@ class Face_Frame_Millwork_Item(PropertyGroup):
 
 class Face_Frame_Special_Effect(PropertyGroup):
     """One special-effect line on a cabinet style's finish (e.g. a distress
-    or rub-through). Only the built-in ``name`` (the catalog effect name) is
-    stored; the offered names are gated by the style's wood + color via
-    style_options.special_effects_for."""
-    pass
+    or rub-through). The built-in ``name`` holds the catalog effect name
+    (offered names gated by the style's wood + color via
+    style_options.special_effects_for). ``ref_name`` / ``ref_image`` are an
+    optional finish reference: the name is appended to the effect's FINISH
+    row on the Style Section page, the image is collected into the page's
+    right-side references box (mirrors the per-finish refs on the style)."""
+    ref_name: StringProperty(
+        name="Reference",
+        description="Reference name for this special effect, shown on the Style Section finish row",
+        default="",
+    )  # type: ignore
+    ref_image: StringProperty(
+        name="Reference Image",
+        description="Path to a reference image for this special effect, shown in the Style Section references box",
+        subtype='FILE_PATH',
+        default="",
+    )  # type: ignore
 
 
 def get_cabinet_extra_front_style_items(self, context):
@@ -1139,6 +1152,43 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         description="Override the glaze text (blank = catalog value)",
         default="",
     )  # type: ignore
+    # Finish REFERENCE name + image per Color / Varnish / Glaze. A ref name
+    # is appended to the field's FINISH row on the Style Section page
+    # ("AUBURN – SUNSET"); a ref image is collected into the page's right-side
+    # references box. Both are independent and optional (either alone works).
+    ss_color_ref_name: StringProperty(
+        name="Color Reference",
+        description="Reference name for the color, shown on the Style Section finish row",
+        default="",
+    )  # type: ignore
+    ss_color_ref_image: StringProperty(
+        name="Color Reference Image",
+        description="Path to a reference image for the color, shown in the Style Section references box",
+        subtype='FILE_PATH',
+        default="",
+    )  # type: ignore
+    ss_varnish_ref_name: StringProperty(
+        name="Varnish Reference",
+        description="Reference name for the varnish, shown on the Style Section finish row",
+        default="",
+    )  # type: ignore
+    ss_varnish_ref_image: StringProperty(
+        name="Varnish Reference Image",
+        description="Path to a reference image for the varnish, shown in the Style Section references box",
+        subtype='FILE_PATH',
+        default="",
+    )  # type: ignore
+    ss_glaze_ref_name: StringProperty(
+        name="Glaze Reference",
+        description="Reference name for the glaze, shown on the Style Section finish row",
+        default="",
+    )  # type: ignore
+    ss_glaze_ref_image: StringProperty(
+        name="Glaze Reference Image",
+        description="Path to a reference image for the glaze, shown in the Style Section references box",
+        subtype='FILE_PATH',
+        default="",
+    )  # type: ignore
     ss_door: StringProperty(
         name="Door Style (override)",
         description="Override the door style text (blank = composed catalog name)",
@@ -1298,6 +1348,11 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
     show_face_frame_sizes: BoolProperty(
         name="Show Face Frame Sizes",
         description="Show the face frame sizes grid (top/bottom/mid rail and stile widths per cabinet type)",
+        default=False,
+    )  # type: ignore
+    show_finish_references: BoolProperty(
+        name="Show Reference Fields",
+        description="Show the per-finish reference name + image fields (Color / Varnish / Glaze / Special Effects) in this style's editor",
         default=False,
     )  # type: ignore
 
@@ -2037,6 +2092,14 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         row.prop(self, base + "_is_custom", text="",
                  icon='GREASEPENCIL', toggle=True)
 
+    def _draw_finish_reference(self, col, ref_name_attr, ref_image_attr):
+        """Compact reference row beneath a finish field: a ref NAME (appended
+        to the field's row on the Style Section page) and a ref IMAGE path
+        (collected into the page's right-side references box). Both optional."""
+        r = col.row(align=True)
+        r.prop(self, ref_name_attr, text="Ref")
+        r.prop(self, ref_image_attr, text="", icon='IMAGE_DATA')
+
     def draw_cabinet_style_ui(self, layout, context):
         """Per-style settings drawn inside the cabinet styles UIList panel.
 
@@ -2076,18 +2139,39 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         row = box.row()
         row.alignment = 'CENTER'
         row.label(text="FINISH")
+        # Toggle the per-finish reference name + image fields on/off (off by
+        # default to keep the editor compact when references aren't in use).
+        trow = box.row()
+        trow.alignment = 'RIGHT'
+        trow.prop(self, "show_finish_references", text="References",
+                  icon='IMAGE_REFERENCE', toggle=True)
+        show_refs = self.show_finish_references
         col = box.column(align=True)
+        # Each finish field optionally shows a Reference row beneath it: a ref
+        # NAME (shown on the Style Section page next to the field descriptor)
+        # and a ref IMAGE path (collected into the page's right-side references
+        # box). Gated on the References toggle above.
         self._draw_toggle_field(col, "finish_color", "Color", "ss_color")
+        if show_refs:
+            self._draw_finish_reference(col, "ss_color_ref_name", "ss_color_ref_image")
         self._draw_toggle_field(col, "finish_varnish", "Varnish", "ss_varnish")
+        if show_refs:
+            self._draw_finish_reference(col, "ss_varnish_ref_name", "ss_varnish_ref_image")
         self._draw_toggle_field(col, "finish_glaze", "Glaze", "ss_glaze")
+        if show_refs:
+            self._draw_finish_reference(col, "ss_glaze_ref_name", "ss_glaze_ref_image")
         # Special effects: catalog finish add-ons gated by this style's
         # wood + color. Add opens a checkbox dialog of the compatible set.
+        # Each effect row also carries its own ref name + image.
         sfx = box.column(align=True)
         sfx.operator("hb_face_frame.add_special_effects",
                      text="Add Special Effects", icon='ADD')
         for effect in self.special_effects:
             r = sfx.row(align=True)
             r.label(text=effect.name, icon='DOT')
+            if show_refs:
+                r.prop(effect, "ref_name", text="")
+                r.prop(effect, "ref_image", text="", icon='IMAGE_DATA')
             r.operator("hb_face_frame.remove_special_effect",
                        text="", icon='X', emboss=False).effect_name = effect.name
 
