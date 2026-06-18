@@ -1237,6 +1237,11 @@ def _align_base_tall_toe_kick(cab_obj):
     cab_type = cab_props.cabinet_type
     if cab_type not in ('BASE', 'TALL'):
         return
+    # Floating shelves report cabinet_type BASE + a NOTCH toe kick but
+    # are wall-mounted slabs with no real toe-kick run, so they must
+    # neither drive nor receive base/tall setback matching.
+    if cab_obj.get('IS_FLOATING_SHELF'):
+        return
 
     cab_x = cab_obj.location.x
     cab_w = cab_props.width
@@ -1251,6 +1256,8 @@ def _align_base_tall_toe_kick(cab_obj):
         if sib is cab_obj:
             continue
         if not sib.get(types_face_frame.TAG_CABINET_CAGE):
+            continue
+        if sib.get('IS_FLOATING_SHELF'):
             continue
         sib_props = sib.face_frame_cabinet
         if sib_props.cabinet_type != other_type:
