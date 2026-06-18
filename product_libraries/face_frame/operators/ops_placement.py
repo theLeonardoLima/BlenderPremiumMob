@@ -2508,7 +2508,11 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
             if self._fill_mode:
                 cabinet_width = available
             else:
-                cabinet_width = max(min(self._cabinet_width, available), min_w)
+                # Typed width is honored EXACTLY: pin the left edge at the
+                # offset and keep the user's width even when the gap is too
+                # narrow. They asked for that width, so don't silently
+                # shrink it to fit (was min(width, available)).
+                cabinet_width = max(self._cabinet_width, min_w)
         else:  # has_right
             cab_right = full_right - self._right_offset
             available = max(cab_right - full_left, min_w)
@@ -2516,7 +2520,9 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
                 cabinet_width = available
                 placement_x = full_left
             else:
-                cabinet_width = max(min(self._cabinet_width, available), min_w)
+                # Pin the right edge at the offset, keep the typed width
+                # (extends left past the gap if too narrow) - see above.
+                cabinet_width = max(self._cabinet_width, min_w)
                 placement_x = cab_right - cabinet_width
 
         # Resize the cage. _apply_width is the right hook in fill mode
@@ -3201,12 +3207,12 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
             placement_x = cab_left
         elif has_left:
             placement_x = full_left + self._left_offset
-            available = max(full_right - placement_x, min_w)
-            cabinet_width = max(min(self._appliance_width, available), min_w)
+            # Keep the appliance's full width pinned at the left offset;
+            # never shrink it to fit a too-narrow gap (slides, not shrinks).
+            cabinet_width = max(self._appliance_width, min_w)
         else:  # has_right
             cab_right = full_right - self._right_offset
-            available = max(cab_right - full_left, min_w)
-            cabinet_width = max(min(self._appliance_width, available), min_w)
+            cabinet_width = max(self._appliance_width, min_w)
             placement_x = cab_right - cabinet_width
 
         if self._place_on_front:
@@ -4282,12 +4288,12 @@ class hb_face_frame_OT_place_corner_cabinet(bpy.types.Operator,
             placement_x = cab_left
         elif has_left:
             placement_x = full_left + self._left_offset
-            available = max(full_right - placement_x, min_w)
-            cabinet_extent = max(min(self._cabinet_width, available), min_w)
+            # Keep the corner cabinet's full extent pinned at the left
+            # offset; never shrink it to fit a too-narrow gap.
+            cabinet_extent = max(self._cabinet_width, min_w)
         else:  # has_right
             cab_right = full_right - self._right_offset
-            available = max(cab_right - full_left, min_w)
-            cabinet_extent = max(min(self._cabinet_width, available), min_w)
+            cabinet_extent = max(self._cabinet_width, min_w)
             placement_x = cab_right - cabinet_extent
 
         # Honor the R rotation flip (0 / -90) here too; origin is the left
