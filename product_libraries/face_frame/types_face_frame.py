@@ -7740,6 +7740,25 @@ def merge_cabinets(anchor, absorbed, side):
     return True
 
 
+def _resolve_style_stile_width(root, cab_props, row):
+    """Style's ff_<row>_width_<col> for this cabinet (column from
+    cabinet_type), or None if it can't be resolved. Lets the break op size
+    new butt-stile edges from the assigned style."""
+    style_name = root.get('STYLE_NAME')
+    if not style_name:
+        return None
+    try:
+        from .props_hb_face_frame import get_style_props
+        ff = get_style_props()
+        style = next((cs for cs in ff.cabinet_styles if cs.name == style_name), None)
+        if style is None:
+            return None
+        col = style._CABINET_TYPE_COLUMN.get(cab_props.cabinet_type, 'base')
+        return getattr(style, f"ff_{row}_width_{col}", None)
+    except Exception:
+        return None
+
+
 def break_cabinet_at_gap(cabinet, gap_index):
     """Break `cabinet` into two cabinets at the gap between bays
     `gap_index` and `gap_index+1`. Returns the new (right-half)
@@ -7785,7 +7804,11 @@ def break_cabinet_at_gap(cabinet, gap_index):
         right_mid_parts = [p for p in all_mid_parts
                            if p.get('hb_mid_stile_index', 0) > gap_index]
         right_bays = bays[gap_index + 1:]
-        boundary_default = cab_props.bay_mid_stile_width
+        # Break edges become an interior butt joint -> size them from the
+        # style's butt-stile width (keeps the width-conservation math below
+        # consistent); fall back to the mid-stile default if no style.
+        butt_w = _resolve_style_stile_width(cabinet, cab_props, 'butt_stile')
+        boundary_default = butt_w if butt_w else cab_props.bay_mid_stile_width
 
         # Create new cabinet (1 default bay; we replace it below)
         new_inst = cls()
@@ -7843,6 +7866,12 @@ def break_cabinet_at_gap(cabinet, gap_index):
                           _default_side_props('LEFT', boundary_default, cab_props.depth))
         _apply_side_props(cab_props, 'RIGHT',
                           _default_side_props('RIGHT', boundary_default, cab_props.depth))
+
+        # The two edges the break just created are an interior butt joint.
+        # Setting the type re-derives the stile width from the style's butt
+        # row (== boundary_default), before the width math reads it below.
+        new_props.left_stile_type = 'BUTT'
+        cab_props.right_stile_type = 'BUTT'
 
         # Delete the new cabinet's default bay (created by cls.create())
         for child in list(new_root.children):

@@ -1297,6 +1297,77 @@ def _align_base_tall_toe_kick(cab_obj):
         cab_props.toe_kick_setback = cab_target_setback
 
 
+_CORNER_TYPE_TO_STILE = {
+    'PIE_CUT': 'INSIDE_90',
+    'PIE_CUT_DRAWER': 'INSIDE_90',
+    'DIAGONAL': 'ANGLE',
+}
+
+
+def _abutting_corner_stile(cab_obj, side, wall):
+    """Stile type implied by a corner cabinet on the SAME wall meeting
+    cab_obj's `side` end (its arm-end at the placed cabinet's edge, in the
+    same height band): INSIDE_90 for a pie cut, ANGLE for a diagonal, else
+    None. The corner's right arm runs along the wall by its Dim X, so the
+    abutment edge is location.x (its left) or location.x + Dim X (its
+    right)."""
+    props = cab_obj.face_frame_cabinet
+    edge = cab_obj.location.x if side == 'LEFT' else cab_obj.location.x + props.width
+    my_range = _cabinet_world_z_range(cab_obj)
+    tol = units.inch(1.0)
+    for sib in wall.children:
+        if sib is cab_obj or not _is_corner_cabinet(sib):
+            continue
+        try:
+            sib_dimx = hb_types.GeoNodeObject(sib).get_input('Dim X') or 0.0
+        except Exception:
+            continue
+        if not _z_ranges_overlap(my_range, _cabinet_world_z_range(sib), tol):
+            continue
+        meet = (sib.location.x + sib_dimx) if side == 'LEFT' else sib.location.x
+        if abs(edge - meet) <= tol:
+            return _CORNER_TYPE_TO_STILE.get(sib.face_frame_cabinet.corner_type)
+    return None
+
+
+def _auto_detect_stile_types(cab_obj):
+    """Set end stile types from placement context, per end with precedence:
+    a corner cabinet abutting that end (pie cut -> INSIDE_90, diagonal ->
+    ANGLE) wins; else WALL when the end reaches the end of its wall run; else
+    STANDARD. Corner cabinets manage their own ends and are skipped. Setting
+    a type re-derives its width + recalcs via the prop callback, coalesced
+    under one suspend. (Same-wall abutment only; a left-return onto the
+    perpendicular wall is a follow-up.)"""
+    if _is_corner_cabinet(cab_obj):
+        return
+    wall = cab_obj.parent
+    if wall is None or 'IS_WALL_BP' not in wall:
+        return
+    try:
+        wall_length = hb_types.GeoNodeWall(wall).get_input('Length')
+    except Exception:
+        return
+    props = cab_obj.face_frame_cabinet
+    tol = units.inch(1.0)
+    left = cab_obj.location.x
+    right = left + props.width
+    want = {}
+    for side, at_wall_end in (('LEFT', left <= tol),
+                              ('RIGHT', right >= wall_length - tol)):
+        corner_stile = _abutting_corner_stile(cab_obj, side, wall)
+        if corner_stile:
+            want[side] = corner_stile
+        elif at_wall_end:
+            want[side] = 'WALL'
+        else:
+            want[side] = 'STANDARD'
+    with types_face_frame.suspend_recalc():
+        if props.left_stile_type != want['LEFT']:
+            props.left_stile_type = want['LEFT']
+        if props.right_stile_type != want['RIGHT']:
+            props.right_stile_type = want['RIGHT']
+
+
 class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
                                      hb_placement.PlacementMixin):
     """Modal: cursor drags a face-frame preview cage, click to commit."""
@@ -2841,6 +2912,8 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
                     )
             except RuntimeError:
                 pass
+
+        _auto_detect_stile_types(selection_target)
 
         hb_placement.clear_header_text(context)
         bay_label = f"{captured_bay_qty} bay" + ("" if captured_bay_qty == 1 else "s")

@@ -581,7 +581,8 @@ def update_face_frame_sizes(self, context):
                 setattr(self, f"ff_{row}_width_upper", units.inch(upper_in))
 
         # Stiles - always overlay-driven, no unlocks.
-        for row in ('wall_stile', 'mid_stile', 'end_stile', 'blind_stile'):
+        for row in ('wall_stile', 'mid_stile', 'end_stile', 'blind_stile',
+                    'butt_stile', 'inside_90_stile', 'angle_stile'):
             base_in, tall_in, upper_in = defaults[row]
             setattr(self, f"ff_{row}_width_base", units.inch(base_in))
             setattr(self, f"ff_{row}_width_tall", units.inch(tall_in))
@@ -1021,6 +1022,54 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         update=_propagate_cabinet_style,
     )  # type: ignore
 
+    # Joint stile types (Butt / Inside 90 / Angle) - width-only, sourced
+    # from the overlay table like the other stile rows; defaults match CLASSIC.
+    ff_butt_stile_width_base: FloatProperty(
+        name="Butt Stile (Base)", default=units.inch(1.25),
+        unit='LENGTH', precision=4,
+        update=_propagate_cabinet_style,
+    )  # type: ignore
+    ff_butt_stile_width_tall: FloatProperty(
+        name="Butt Stile (Tall)", default=units.inch(1.25),
+        unit='LENGTH', precision=4,
+        update=_propagate_cabinet_style,
+    )  # type: ignore
+    ff_butt_stile_width_upper: FloatProperty(
+        name="Butt Stile (Upper)", default=units.inch(1.25),
+        unit='LENGTH', precision=4,
+        update=_propagate_cabinet_style,
+    )  # type: ignore
+    ff_inside_90_stile_width_base: FloatProperty(
+        name="Inside 90 Stile (Base)", default=units.inch(3.0),
+        unit='LENGTH', precision=4,
+        update=_propagate_cabinet_style,
+    )  # type: ignore
+    ff_inside_90_stile_width_tall: FloatProperty(
+        name="Inside 90 Stile (Tall)", default=units.inch(3.0),
+        unit='LENGTH', precision=4,
+        update=_propagate_cabinet_style,
+    )  # type: ignore
+    ff_inside_90_stile_width_upper: FloatProperty(
+        name="Inside 90 Stile (Upper)", default=units.inch(2.0),
+        unit='LENGTH', precision=4,
+        update=_propagate_cabinet_style,
+    )  # type: ignore
+    ff_angle_stile_width_base: FloatProperty(
+        name="Angle Stile (Base)", default=units.inch(1.5),
+        unit='LENGTH', precision=4,
+        update=_propagate_cabinet_style,
+    )  # type: ignore
+    ff_angle_stile_width_tall: FloatProperty(
+        name="Angle Stile (Tall)", default=units.inch(1.5),
+        unit='LENGTH', precision=4,
+        update=_propagate_cabinet_style,
+    )  # type: ignore
+    ff_angle_stile_width_upper: FloatProperty(
+        name="Angle Stile (Upper)", default=units.inch(1.5),
+        unit='LENGTH', precision=4,
+        update=_propagate_cabinet_style,
+    )  # type: ignore
+
     # ---- Rail unlock toggles (9: 3 row types x 3 cabinet types) ----
     # When False (locked), the rail's width follows the overlay default
     # and is rewritten on overlay change AND immediately on re-lock (the
@@ -1432,6 +1481,9 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
             'mid_stile':   (2.0, 2.0, 2.0),
             'end_stile':   (2.0, 2.0, 2.0),
             'blind_stile': (3.0, 3.0, 2.0),
+            'butt_stile':      (1.25, 1.25, 1.25),
+            'inside_90_stile': (3.0, 3.0, 2.0),
+            'angle_stile':     (1.5, 1.5, 1.5),
         },
         'TRANSITIONAL': {
             'top_rail':    (1.5, 3.0, 3.0),
@@ -1441,6 +1493,9 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
             'mid_stile':   (1.5, 1.5, 1.5),
             'end_stile':   (1.5, 1.5, 1.5),
             'blind_stile': (3.75, 3.75, 2.75),
+            'butt_stile':      (1.25, 1.25, 1.25),
+            'inside_90_stile': (3.0, 3.0, 2.0),
+            'angle_stile':     (1.5, 1.5, 1.5),
         },
         'FULL': {
             'top_rail':    (1.125, 3.0, 3.0),
@@ -1450,6 +1505,9 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
             'mid_stile':   (2.25, 2.25, 2.25),
             'end_stile':   (1.25, 1.25, 1.5),
             'blind_stile': (3.75, 3.75, 2.75),
+            'butt_stile':      (1.125, 1.125, 1.125),
+            'inside_90_stile': (3.5, 3.5, 3.5),
+            'angle_stile':     (1.75, 1.75, 1.75),
         },
         'PARTIAL_INSET': {
             'top_rail':    (1.5, 3.0, 3.0),
@@ -1459,6 +1517,9 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
             'mid_stile':   (1.5, 1.5, 1.5),
             'end_stile':   (1.5, 1.5, 1.5),
             'blind_stile': (3.75, 3.75, 2.75),
+            'butt_stile':      (1.25, 1.25, 1.25),
+            'inside_90_stile': (2.5, 2.5, 1.5),
+            'angle_stile':     (1.5, 1.5, 1.5),
         },
         'FULL_INSET': {
             'top_rail':    (1.5, 3.0, 3.0),
@@ -1468,6 +1529,9 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
             'mid_stile':   (1.5, 1.5, 1.5),
             'end_stile':   (1.5, 1.5, 1.5),
             'blind_stile': (3.75, 3.75, 2.75),
+            'butt_stile':      (1.25, 1.25, 1.25),
+            'inside_90_stile': (2.5, 2.5, 1.5),
+            'angle_stile':     (1.5, 1.5, 1.5),
         },
     }
 
@@ -1882,6 +1946,9 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         'STANDARD': 'end_stile',
         'WALL': 'wall_stile',
         'BLIND': 'blind_stile',
+        'BUTT': 'butt_stile',
+        'INSIDE_90': 'inside_90_stile',
+        'ANGLE': 'angle_stile',
     }
 
     def _ff_size_for(self, row, col):
@@ -2078,6 +2145,9 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
             ("Mid Stile", "ff_mid_stile_width"),
             ("End Stile", "ff_end_stile_width"),
             ("Blind Stile", "ff_blind_stile_width"),
+            ("Butt Stile", "ff_butt_stile_width"),
+            ("Inside 90 Stile", "ff_inside_90_stile_width"),
+            ("Angle Stile", "ff_angle_stile_width"),
         ):
             r = box.row(align=True)
             r.label(text=row_label)
@@ -3271,6 +3341,26 @@ def _update_pie_drawer_qty(self, context):
     types_face_frame.recalculate_face_frame_cabinet(self.id_data)
 
 
+def _style_stile_width_for(cab_props, stile_type):
+    """Per-(row, column) stile width from the cabinet's assigned style, or
+    None if it can't be resolved. Lets a width-only joint stile type take its
+    value from the style's row for that type + the cabinet's column."""
+    cabinet_obj = cab_props.id_data
+    style_name = cabinet_obj.get('STYLE_NAME') if cabinet_obj else None
+    if not style_name:
+        return None
+    try:
+        ff = get_style_props()
+    except Exception:
+        return None
+    style = next((cs for cs in ff.cabinet_styles if cs.name == style_name), None)
+    if style is None:
+        return None
+    row = style._STILE_TYPE_TO_ROW.get(stile_type, 'end_stile')
+    col = style._CABINET_TYPE_COLUMN.get(cab_props.cabinet_type, 'base')
+    return getattr(style, f"ff_{row}_width_{col}", None)
+
+
 def _recompute_blind_stile_width(cab_props, side):
     """Set left_stile_width or right_stile_width from the current stile-type
     and blind-state combination. No-op when the side's unlock flag is True
@@ -3304,6 +3394,11 @@ def _recompute_blind_stile_width(cab_props, side):
         width = ff_scene.ff_blind_stile_width
         if is_blind:
             width += units.inch(0.75)
+    elif stile_type in ('WALL', 'BUTT', 'INSIDE_90', 'ANGLE'):
+        # Width-only types (incl. WALL): take the style's per-row/column value.
+        width = _style_stile_width_for(cab_props, stile_type)
+        if width is None:
+            return
     else:
         width = ff_scene.ff_end_stile_width
 
@@ -3587,6 +3682,9 @@ class Face_Frame_Cabinet_Props(PropertyGroup):
         ('STANDARD', "Standard", "Standard stile"),
         ('WALL', "Wall", "Wall stile (extends past carcass)"),
         ('BLIND', "Blind", "Blind corner stile"),
+        ('BUTT', "Butt", "Butt joint against an adjacent cabinet"),
+        ('INSIDE_90', "Inside 90", "Against an inside 90 (pie cut) corner"),
+        ('ANGLE', "Angle", "Against a diagonal / angled cabinet"),
     ]
     left_stile_type: EnumProperty(
         name="Left Stile Type", items=LEFT_STILE_TYPE_ITEMS, default='STANDARD',
