@@ -3292,7 +3292,7 @@ ACCESSORY_Y_OFFSET = inch(1.0)         # nudge into the cavity so it reads
 
 def auto_shelf_qty(opening_height, depth):
     """Catalog count of adjustable shelves for an interior opening, keyed on
-    the opening's interior HEIGHT and the CABINET DEPTH (CWP spec).
+    the opening's interior HEIGHT and the CABINET DEPTH (per the residential catalog).
 
     Shallow cabinets (depth < 18") take more shelves per inch of opening
     height than deeper ones, so the bracket table is depth-dependent. An
@@ -3300,7 +3300,7 @@ def auto_shelf_qty(opening_height, depth):
     a refrigerator). Heights / depth are compared in inches; the count caps
     at 4 (the catalog's tallest listed opening, 66").
 
-    CWP catalog (Opening Height -> Shelves):
+    Catalog (Opening Height -> Shelves):
         Depth < 18"      : <15->0  15-20->1  >20-32->2  >32-44->3  >44-66->4
         Depth 18" to 30" : <20->0  20-28->1  >28-40->2  >40-52->3  >52-66->4
 

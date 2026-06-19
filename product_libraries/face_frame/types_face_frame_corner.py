@@ -2702,7 +2702,7 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
         parts = _children_by_corner_role(self.obj)
 
         # Hide the box's perpendicular arm-end sides - the 45-degree channel
-        # walls take their place (Pulito's drawer corner has no box sides).
+        # walls take their place (the drawer corner has no box sides).
         for role in (PART_ROLE_CORNER_LEFT_SIDE, PART_ROLE_CORNER_RIGHT_SIDE):
             s = parts.get(role)
             if s is not None:

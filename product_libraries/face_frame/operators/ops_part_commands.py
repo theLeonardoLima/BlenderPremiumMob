@@ -18,7 +18,7 @@ Width writes also flip the matching unlock flag so a later style apply
 doesn't reset the user's value.
 """
 import bpy
-from bpy.props import FloatProperty, StringProperty
+from bpy.props import BoolProperty, FloatProperty, StringProperty
 
 from .. import types_face_frame
 from ....hb_types import GeoNodeCutpart
@@ -305,6 +305,79 @@ def _on_value_update(self, context):
         _fan_out_value(obj, role, root, self.value)
 
 
+def _lock_for_role(obj, role, root):
+    """Re-lock the part so it follows the cabinet / bay / style default
+    again -- the inverse of _flip_unlock_for_role. Clearing each unlock
+    flag fires that flag's own update callback, which reverts the width to
+    the default on the recalc that follows. For bay mid rails / stiles the
+    per-member override is dropped too so the part returns to the split's
+    scalar default."""
+    cab = root.face_frame_cabinet
+    if role == types_face_frame.PART_ROLE_LEFT_STILE:
+        cab.unlock_left_stile = False
+        return
+    if role == types_face_frame.PART_ROLE_RIGHT_STILE:
+        cab.unlock_right_stile = False
+        return
+    if role == types_face_frame.PART_ROLE_MID_STILE:
+        msi = obj.get('hb_mid_stile_index', 0)
+        if 0 <= msi < len(cab.mid_stile_widths):
+            cab.mid_stile_widths[msi].unlock = False
+        return
+    if role in (types_face_frame.PART_ROLE_TOP_RAIL,
+                types_face_frame.PART_ROLE_BOTTOM_RAIL):
+        start = obj.get('hb_segment_start_bay', 0)
+        unlock_attr = ('unlock_top_rail'
+                       if role == types_face_frame.PART_ROLE_TOP_RAIL
+                       else 'unlock_bottom_rail')
+        indices = _rail_segment_bay_indices(root, start, role)
+        bays = _bays_by_index(root)
+        for idx in indices:
+            bay = bays.get(idx)
+            if bay is not None:
+                setattr(bay.face_frame_bay, unlock_attr, False)
+        return
+    if role in (types_face_frame.PART_ROLE_BAY_MID_RAIL,
+                types_face_frame.PART_ROLE_BAY_MID_STILE):
+        split = _find_owning_split_node(obj)
+        if split is not None:
+            sp = split.face_frame_split
+            idx = obj.get('hb_splitter_index', 0)
+            coll = sp.splitter_widths
+            if 0 <= idx < len(coll):
+                coll[idx].active = False
+            sp.unlock_splitter_width = False
+
+
+def _on_lock_update(self, context):
+    """'Lock to Default' toggle on the Set Width dialog. Locking re-locks
+    the part (its unlock flags' callbacks revert the width to the default)
+    and reflects the reverted value in the field; unlocking re-flips the
+    unlock and re-applies the dialog value. Bails while source_obj_name is
+    empty (invoke seeds the toggle before binding)."""
+    obj = bpy.data.objects.get(self.source_obj_name)
+    if obj is None:
+        return
+    role = obj.get('hb_part_role')
+    root = types_face_frame.find_cabinet_root(obj)
+    if root is None:
+        return
+    if self.lock_to_default:
+        _lock_for_role(obj, role, root)
+        # Reflect the reverted default in the dialog field without
+        # re-fanning it out (that would recreate the override we cleared).
+        src = bpy.data.objects.get(self.source_obj_name)
+        if src is not None:
+            saved = self.source_obj_name
+            self.source_obj_name = ''
+            self.value = _get_current_width(src, role, root)
+            self.source_obj_name = saved
+    else:
+        _flip_unlock_for_role(obj, role, root)
+        with types_face_frame.suspend_recalc():
+            _fan_out_value(obj, role, root, self.value)
+
+
 # ---------------------------------------------------------------------------
 # Scribe: read current and apply (cabinet-level only)
 # ---------------------------------------------------------------------------
@@ -360,6 +433,12 @@ class hb_face_frame_OT_set_part_width(bpy.types.Operator):
         update=_on_value_update,
     )  # type: ignore
 
+    lock_to_default: BoolProperty(
+        name="Lock to Default", default=False,
+        description="Lock this part back to the cabinet / style default",
+        options={'SKIP_SAVE'}, update=_on_lock_update,
+    )  # type: ignore
+
     @classmethod
     def poll(cls, context):
         obj = context.active_object
@@ -383,6 +462,9 @@ class hb_face_frame_OT_set_part_width(bpy.types.Operator):
         # Seed from the EFFECTIVE width (handles per-splitter overrides,
         # which _resolve_width_target's scalar target wouldn't reflect).
         self.value = _get_current_width(obj, role, root)
+        # Reset the lock toggle while the binding is still empty so its
+        # update callback bails (no premature re-lock).
+        self.lock_to_default = False
 
         self.source_obj_name = obj.name
 
@@ -403,7 +485,12 @@ class hb_face_frame_OT_set_part_width(bpy.types.Operator):
         col = self.layout.column(align=True)
         if obj is not None:
             col.label(text=obj.name, icon='SNAP_EDGE')
-        col.prop(self, 'value', text="Width")
+        row = col.row(align=True)
+        sub = row.row(align=True)
+        sub.enabled = not self.lock_to_default
+        sub.prop(self, 'value', text="Width")
+        row.prop(self, 'lock_to_default', text="",
+                 icon='LOCKED' if self.lock_to_default else 'UNLOCKED')
 
     def execute(self, context):
         # Live-bound via the value prop's update callback; execute is

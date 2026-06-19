@@ -449,8 +449,10 @@ def draw_face_frame_defaults(layout, cab_props):
     """Default stile and rail widths + per-side overlay defaults.
     Per-opening overrides live on each opening object."""
     col = layout.column(align=True)
-    col.prop(cab_props, 'left_stile_width', text="Left Stile")
-    col.prop(cab_props, 'right_stile_width', text="Right Stile")
+    _draw_locked_rail_row(col, cab_props, 'left_stile_width',
+                          'unlock_left_stile', "Left Stile")
+    _draw_locked_rail_row(col, cab_props, 'right_stile_width',
+                          'unlock_right_stile', "Right Stile")
     if cab_props.cabinet_type in ('BASE', 'TALL', 'LAP_DRAWER'):
         col.prop(cab_props, 'extend_left_stile_to_floor', text="Left Stile to Floor")
         col.prop(cab_props, 'extend_right_stile_to_floor', text="Right Stile to Floor")
@@ -459,8 +461,10 @@ def draw_face_frame_defaults(layout, cab_props):
     col.prop(cab_props, 'right_scribe', text="Right Scribe")
     col.prop(cab_props, 'top_scribe', text="Top Scribe")
     col.separator()
-    col.prop(cab_props, 'top_rail_width', text="Top Rail")
-    col.prop(cab_props, 'bottom_rail_width', text="Bottom Rail")
+    _draw_locked_rail_row(col, cab_props, 'top_rail_width',
+                          'unlock_top_rail', "Top Rail")
+    _draw_locked_rail_row(col, cab_props, 'bottom_rail_width',
+                          'unlock_bottom_rail', "Bottom Rail")
     col.separator()
     col.label(text="Default Overlays")
     col.prop(cab_props, 'default_top_overlay', text="Top")
@@ -470,10 +474,12 @@ def draw_face_frame_defaults(layout, cab_props):
 
 
 def _draw_locked_rail_row(layout, bp, attr, unlock_attr, text):
-    """Draw a bay rail-width field with a lock toggle. Locked
-    (default): field disabled, value follows the cabinet rail
-    default via _distribute_bay_rails. Unlocked: field editable,
-    the bay holds its own per-bay override."""
+    """Draw a width field with a lock toggle. Locked (default):
+    field disabled, the value follows its computed default (bay rails
+    via _distribute_bay_rails; cabinet stile/rail via the assigned
+    style). Unlocked: field editable and the override persists across
+    style propagation. Generic over any object carrying ``attr`` +
+    ``unlock_attr`` (bay props or cabinet props)."""
     unlocked = getattr(bp, unlock_attr)
     row = layout.row(align=True)
     field = row.row(align=True)

@@ -1023,17 +1023,18 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
 
     # ---- Rail unlock toggles (9: 3 row types x 3 cabinet types) ----
     # When False (locked), the rail's width follows the overlay default
-    # and gets rewritten on overlay change. When True (unlocked), the
-    # user's value persists across overlay changes.
-    unlock_base_top_rail: BoolProperty(name="Unlock Base Top Rail", default=False)  # type: ignore
-    unlock_tall_top_rail: BoolProperty(name="Unlock Tall Top Rail", default=False)  # type: ignore
-    unlock_upper_top_rail: BoolProperty(name="Unlock Upper Top Rail", default=False)  # type: ignore
-    unlock_base_bottom_rail: BoolProperty(name="Unlock Base Bottom Rail", default=False)  # type: ignore
-    unlock_tall_bottom_rail: BoolProperty(name="Unlock Tall Bottom Rail", default=False)  # type: ignore
-    unlock_upper_bottom_rail: BoolProperty(name="Unlock Upper Bottom Rail", default=False)  # type: ignore
-    unlock_base_mid_rail: BoolProperty(name="Unlock Base Mid Rail", default=False)  # type: ignore
-    unlock_tall_mid_rail: BoolProperty(name="Unlock Tall Mid Rail", default=False)  # type: ignore
-    unlock_upper_mid_rail: BoolProperty(name="Unlock Upper Mid Rail", default=False)  # type: ignore
+    # and is rewritten on overlay change AND immediately on re-lock (the
+    # update callback re-derives every locked cell). When True (unlocked),
+    # the user's value persists.
+    unlock_base_top_rail: BoolProperty(name="Unlock Base Top Rail", default=False, update=update_face_frame_sizes)  # type: ignore
+    unlock_tall_top_rail: BoolProperty(name="Unlock Tall Top Rail", default=False, update=update_face_frame_sizes)  # type: ignore
+    unlock_upper_top_rail: BoolProperty(name="Unlock Upper Top Rail", default=False, update=update_face_frame_sizes)  # type: ignore
+    unlock_base_bottom_rail: BoolProperty(name="Unlock Base Bottom Rail", default=False, update=update_face_frame_sizes)  # type: ignore
+    unlock_tall_bottom_rail: BoolProperty(name="Unlock Tall Bottom Rail", default=False, update=update_face_frame_sizes)  # type: ignore
+    unlock_upper_bottom_rail: BoolProperty(name="Unlock Upper Bottom Rail", default=False, update=update_face_frame_sizes)  # type: ignore
+    unlock_base_mid_rail: BoolProperty(name="Unlock Base Mid Rail", default=False, update=update_face_frame_sizes)  # type: ignore
+    unlock_tall_mid_rail: BoolProperty(name="Unlock Tall Mid Rail", default=False, update=update_face_frame_sizes)  # type: ignore
+    unlock_upper_mid_rail: BoolProperty(name="Unlock Upper Mid Rail", default=False, update=update_face_frame_sizes)  # type: ignore
 
     # ---- Door / drawer-front style refs (by name into Face_Frame_Scene_Props.door_styles) ----
     door_style: EnumProperty(
@@ -1516,7 +1517,7 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
 
         # Push face frame widths to the cabinet BEFORE recalc so the
         # carcass rebuild picks up the new stile/rail dimensions.
-        # Pulito-style: assign overwrites whatever the user had per-
+        # Assign overwrites whatever the user had per-
         # cabinet; Update Cabinets re-runs this for every cabinet
         # tagged with this style.
         self._apply_face_frame_sizes_to_cabinet(cabinet_obj)
@@ -1920,15 +1921,24 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
             return
 
         # Regular carcass cabinets - top/bottom rail at cabinet level.
-        props.top_rail_width = self._ff_size_for('top_rail', col)
-        props.bottom_rail_width = self._ff_size_for('bottom_rail', col)
+        # Respect the per-cabinet unlock flags: a style change re-applies the
+        # style to every cabinet carrying it, so writing these unconditionally
+        # would wipe a cabinet's own rail/stile override back to the style
+        # default. An unlocked field keeps the cabinet's value - mirrors the
+        # bay-rail / split unlock handling noted below.
+        if not props.unlock_top_rail:
+            props.top_rail_width = self._ff_size_for('top_rail', col)
+        if not props.unlock_bottom_rail:
+            props.bottom_rail_width = self._ff_size_for('bottom_rail', col)
 
         # Per-side stile widths: each side picks its row by its
         # stile_type. Unknown stile types fall back to end_stile.
         left_row = self._STILE_TYPE_TO_ROW.get(props.left_stile_type, 'end_stile')
         right_row = self._STILE_TYPE_TO_ROW.get(props.right_stile_type, 'end_stile')
-        props.left_stile_width = self._ff_size_for(left_row, col)
-        props.right_stile_width = self._ff_size_for(right_row, col)
+        if not props.unlock_left_stile:
+            props.left_stile_width = self._ff_size_for(left_row, col)
+        if not props.unlock_right_stile:
+            props.right_stile_width = self._ff_size_for(right_row, col)
 
         # Bay-level rail widths are intentionally NOT written here. Each
         # bay carries its own top/bottom rail copy with an unlock flag;
@@ -3023,7 +3033,7 @@ class Face_Frame_Mid_Stile_Width(PropertyGroup):
     unlock: BoolProperty(
         name="Unlock",
         description="Hold this mid stile width independent of cabinet defaults",
-        default=False,
+        default=False, update=_update_cabinet_dim,
     )  # type: ignore
 
     extend_up_amount: FloatProperty(
@@ -3324,6 +3334,27 @@ def _update_blind_right(self, context):
     _update_cabinet_dim(self, context)
 
 
+def update_cabinet_frame_lock(self, context):
+    """Toggling a per-cabinet stile / rail lock re-applies the assigned
+    cabinet style's frame sizes to this cabinet: a re-locked field snaps
+    back to the style value, while still-unlocked fields keep the user's
+    override (the apply respects each unlock flag). No-op when the cabinet
+    has no resolvable style (e.g. during load)."""
+    cabinet_obj = self.id_data
+    if cabinet_obj is None:
+        return
+    style_name = cabinet_obj.get('STYLE_NAME')
+    if not style_name:
+        return
+    try:
+        ff = get_style_props(context)
+    except Exception:
+        return
+    style = next((cs for cs in ff.cabinet_styles if cs.name == style_name), None)
+    if style is not None:
+        style._apply_face_frame_sizes_to_cabinet(cabinet_obj)
+
+
 class Face_Frame_Cabinet_Props(PropertyGroup):
     """Cabinet-level face frame state. Attached to the cabinet's root object
     as bpy.types.Object.face_frame_cabinet.
@@ -3547,8 +3578,8 @@ class Face_Frame_Cabinet_Props(PropertyGroup):
         name="Right Stile Width", default=units.inch(2.0), unit='LENGTH', precision=4,
         update=_update_cabinet_dim,
     )  # type: ignore
-    unlock_left_stile: BoolProperty(name="Unlock Left Stile", default=False)  # type: ignore
-    unlock_right_stile: BoolProperty(name="Unlock Right Stile", default=False)  # type: ignore
+    unlock_left_stile: BoolProperty(name="Unlock Left Stile", default=False, update=update_cabinet_frame_lock)  # type: ignore
+    unlock_right_stile: BoolProperty(name="Unlock Right Stile", default=False, update=update_cabinet_frame_lock)  # type: ignore
     turn_off_left_stile: BoolProperty(name="Turn Off Left Stile", default=False)  # type: ignore
     turn_off_right_stile: BoolProperty(name="Turn Off Right Stile", default=False)  # type: ignore
 
@@ -3649,8 +3680,8 @@ class Face_Frame_Cabinet_Props(PropertyGroup):
         name="Bottom Rail Width", default=units.inch(1.5), unit='LENGTH', precision=4,
         update=_update_cabinet_dim,
     )  # type: ignore
-    unlock_top_rail: BoolProperty(name="Unlock Top Rail (Cabinet)", default=False)  # type: ignore
-    unlock_bottom_rail: BoolProperty(name="Unlock Bottom Rail (Cabinet)", default=False)  # type: ignore
+    unlock_top_rail: BoolProperty(name="Unlock Top Rail (Cabinet)", default=False, update=update_cabinet_frame_lock)  # type: ignore
+    unlock_bottom_rail: BoolProperty(name="Unlock Bottom Rail (Cabinet)", default=False, update=update_cabinet_frame_lock)  # type: ignore
 
     # Mid rails / mid stiles INSIDE a bay (face frame members created by
     # splitting an opening). Cabinet-level defaults; per-member override

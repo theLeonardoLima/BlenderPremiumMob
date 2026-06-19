@@ -192,6 +192,62 @@ BAY_BACKING_ROLES = frozenset({
     PART_ROLE_BAY_DIVISION, PART_ROLE_BAY_SHELF,
 })
 
+
+# Highlight colour for a face frame part the user has UNLOCKED (manually
+# overridden). Shown in Face Frame selection mode -- amber, slightly
+# transparent -- so changed-from-default parts stand out from the default
+# light-blue highlight. Used by the toggle_mode operator AND the post-recalc
+# highlight reapply below, so both colouring paths agree.
+FACE_FRAME_UNLOCKED_COLOR = (0.95, 0.55, 0.10, 0.6)
+
+
+def part_width_is_unlocked(obj):
+    """True when this face frame part carries a manual width override (its
+    unlock flag is set), so Face Frame selection mode can flag it as
+    changed-from-default. Only the width-overridable roles can be unlocked;
+    every other part returns False.
+    """
+    role = obj.get('hb_part_role')
+    if role not in FACE_FRAME_PART_ROLES:
+        return False
+    root = find_cabinet_root(obj)
+    if root is None:
+        return False
+    cab = root.face_frame_cabinet
+    if role == PART_ROLE_LEFT_STILE:
+        return bool(cab.unlock_left_stile)
+    if role == PART_ROLE_RIGHT_STILE:
+        return bool(cab.unlock_right_stile)
+    if role == PART_ROLE_MID_STILE:
+        msi = obj.get('hb_mid_stile_index', 0)
+        if 0 <= msi < len(cab.mid_stile_widths):
+            return bool(cab.mid_stile_widths[msi].unlock)
+        return False
+    if role in (PART_ROLE_TOP_RAIL, PART_ROLE_BOTTOM_RAIL):
+        start = obj.get('hb_segment_start_bay', 0)
+        bay = None
+        for child in root.children:
+            if child.get(TAG_BAY_CAGE) and child.get('hb_bay_index') == start:
+                bay = child
+                break
+        if bay is None:
+            return False
+        attr = ('unlock_top_rail' if role == PART_ROLE_TOP_RAIL
+                else 'unlock_bottom_rail')
+        return bool(getattr(bay.face_frame_bay, attr))
+    if role in (PART_ROLE_BAY_MID_RAIL, PART_ROLE_BAY_MID_STILE):
+        split_name = obj.get('hb_split_node_name')
+        split = bpy.data.objects.get(split_name) if split_name else None
+        if split is None:
+            return False
+        sp = split.face_frame_split
+        if sp.unlock_splitter_width:
+            return True
+        idx = obj.get('hb_splitter_index', 0)
+        coll = sp.splitter_widths
+        return 0 <= idx < len(coll) and bool(coll[idx].active)
+    return False
+
 # Carcass interior partition behind each mid stile (one per gap).
 PART_ROLE_MID_DIVISION = 'MID_DIVISION'
 
@@ -6622,8 +6678,8 @@ class MiscPart(CabinetPart):
 
 
 # Door Part: stand-up rotation so a standalone door reads vertical with
-# its front face toward the room. Euler X=90 (the default Andrew
-# wants), Y=-90: localX(Length=height)->world Z (up), localY(Width)->
+# its front face toward the room. Euler X=90 (the configured
+# default), Y=-90: localX(Length=height)->world Z (up), localY(Width)->
 # world X (across), and the front face (local +Z = thickness) points
 # world -Y (toward the viewer). place_cabinet._finalize composes this
 # onto the placement transform. Flip the X sign to face the door the
@@ -7228,6 +7284,11 @@ def _reapply_selection_mode_highlights(root):
                 type_name=mode_tags.get(mode, ''),
                 dont_show_parent=False,
             )
+            # Unlocked (overridden) parts read a distinct colour so the
+            # user can see what they've changed from default. Same rule as
+            # the toggle_mode operator; this path runs after every recalc.
+            if mode == 'Face Frame' and part_width_is_unlocked(obj):
+                obj.color = FACE_FRAME_UNLOCKED_COLOR
         else:
             toggle_cabinet_color(
                 obj, False,

@@ -325,7 +325,7 @@ def apply_panel_split_structure(cab_obj, panel_obj, side):
     Decisions:
       1. Mid rail: only if the source bay (bay 0 for LEFT, last for
          RIGHT, none for BACK) has a door-over-door H-split. Width
-         per the Pulito formula: 2*door_rail + bay_mid_rail -
+         per the standard formula: 2*door_rail + bay_mid_rail -
          (top_overlay + bottom_overlay). Z-position locked to match
          the cabinet's mid rail in absolute cabinet space.
       2. Mid stile, NO mid rails: a panel >= 21" wide builds as TWO
@@ -433,7 +433,7 @@ def _detect_panel_mid_rails(cab_obj, side, panel_bay_obj):
     Two categories of mid rails are detected:
       1. Cabinet-level rail between two DOOR-front openings stacked
          vertically in the source bay (door-over-door split). Width
-         per Pulito's formula = 2*door_rail + bay_mid_rail - 2*overlay,
+         per the standard formula = 2*door_rail + bay_mid_rail - 2*overlay,
          because the visible band combines both doors' rails plus the
          exposed portion of the cabinet's bay mid rail.
       2. Per-door mid rails - any door whose 5-piece style has

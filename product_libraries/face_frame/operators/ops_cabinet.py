@@ -458,6 +458,11 @@ class hb_face_frame_OT_toggle_mode(bpy.types.Operator):
         if self._matches_mode(obj, mode):
             toggle_cabinet_color(obj, True, type_name=self.MODE_TAGS.get(mode, ''),
                                  dont_show_parent=False)
+            # In Face Frame mode, recolour parts the user has unlocked so
+            # changed-from-default parts stand out from the light-blue highlight.
+            if (mode == 'Face Frame'
+                    and types_face_frame.part_width_is_unlocked(obj)):
+                obj.color = types_face_frame.FACE_FRAME_UNLOCKED_COLOR
         else:
             toggle_cabinet_color(obj, False, type_name=self.MODE_TAGS.get(mode, ''))
 
