@@ -285,6 +285,8 @@ PART_ROLE_FINISHED_BACK = 'FINISHED_BACK'
 # applied panel isn't wanted.
 PART_ROLE_FLUSH_X = 'FLUSH_X'
 TAG_FLUSH_X_SIDE = 'hb_flush_x_side'
+PART_ROLE_FULL_OVERLAY_STILE = 'FULL_OVERLAY_STILE'
+TAG_FO_STILE_SIDE = 'hb_fo_stile_side'
 
 # Per-bay finish liner: 1/4 finish-material panels added to the inner
 # faces of a bay's opening (left / right / top / back) when the bay's
@@ -2191,6 +2193,7 @@ class FaceFrameCabinet(GeoNodeCage):
             self._reconcile_applied_panels(layout)
             self._reconcile_finished_back(layout)
             self._reconcile_flush_x_strips(layout)
+            self._reconcile_full_overlay_stiles(layout)
             self._reconcile_textured_panels(layout)
             self._reconcile_bay_finish_panels(layout)
             # Run a FINISHED carcass side past the cabinet back by its
@@ -3414,6 +3417,66 @@ class FaceFrameCabinet(GeoNodeCage):
     # =====================================================================
     # Applied flush-X strips (single 1/4 part on the front of a side)
     # =====================================================================
+    def _reconcile_full_overlay_stiles(self, layout):
+        """Full-overlay cabinets with a WALL end stile get an extra
+        1.25\"-wide face-frame part doubled in FRONT of that stile, the
+        height of the door front, flush to the cabinet side. Spawn / resize
+        / remove per side. Mirrors the end-stile build (rotation + mirror
+        flags) shifted one face-frame thickness forward.
+        """
+        cab = self.obj.face_frame_cabinet
+        is_full = _resolve_style_overlay(self.obj) == 'FULL'
+        last = layout.bay_count - 1
+        side_specs = (
+            ('LEFT',  cab.left_stile_type,  0,    0.0),
+            ('RIGHT', cab.right_stile_type, last, solver.face_frame_length(layout)),
+        )
+        existing = {
+            child.get(TAG_FO_STILE_SIDE): child
+            for child in self.obj.children
+            if child.get('hb_part_role') == PART_ROLE_FULL_OVERLAY_STILE
+            and child.get(TAG_FO_STILE_SIDE) in ('LEFT', 'RIGHT')
+        }
+        width = inch(1.25)
+        for side, stile_type, bi, ff_x in side_specs:
+            wants = is_full and stile_type == 'WALL'
+            part_obj = existing.get(side)
+            if not wants:
+                if part_obj is not None:
+                    bpy.data.objects.remove(part_obj, do_unlink=True)
+                continue
+            bay = layout.bays[bi]
+            bottom_rail = solver.effective_bottom_rail_width(layout, bi)
+            # Door front = clear opening + the top/bottom overlay it laps.
+            opening_h = (bay['height'] - bay['top_rail_width']
+                         - bottom_rail - bay['kick_height'])
+            door_h = (opening_h + layout.default_top_overlay
+                      + layout.default_bottom_overlay)
+            door_bottom_z = (solver.bay_bottom_z(layout, bi) + bottom_rail
+                             - layout.default_bottom_overlay)
+            # One fft FORWARD of the FF outer plane -> right in front of
+            # the stile (perp_offset positive is INTO the cabinet).
+            pos = solver.ff_perpendicular_offset(
+                layout, ff_x, -layout.fft, door_bottom_z)
+            if part_obj is None:
+                part = CabinetPart()
+                part.create(f'FO Stile {side[0]}')
+                part.obj.parent = self.obj
+                part.obj['hb_part_role'] = PART_ROLE_FULL_OVERLAY_STILE
+                part.obj['CABINET_PART'] = True
+                part.obj[TAG_FO_STILE_SIDE] = side
+                part.obj.rotation_euler.y = math.radians(-90)
+                part.obj.rotation_euler.z = math.radians(90)
+                part.set_input('Mirror Y', side == 'LEFT')
+                part.set_input('Mirror Z', True)
+                part_obj = part.obj
+            else:
+                part = GeoNodeCutpart(part_obj)
+            part_obj.location = pos
+            part.set_input('Length', door_h)
+            part.set_input('Width', width)
+            part.set_input('Thickness', layout.fft)
+
     def _reconcile_flush_x_strips(self, layout):
         """Spawn / resize / remove the FLUSH_X applied strip on each
         side. Triggered when *_finished_end_condition == 'FLUSH_X'.
@@ -7738,6 +7801,20 @@ def merge_cabinets(anchor, absorbed, side):
         _remove_root_with_children(absorbed)
 
     return True
+
+
+def _resolve_style_overlay(root):
+    """door_overlay_type of the cabinet's assigned style, or None."""
+    style_name = root.get('STYLE_NAME')
+    if not style_name:
+        return None
+    try:
+        from .props_hb_face_frame import get_style_props
+        ff = get_style_props()
+        style = next((cs for cs in ff.cabinet_styles if cs.name == style_name), None)
+        return style.door_overlay_type if style is not None else None
+    except Exception:
+        return None
 
 
 def _resolve_style_stile_width(root, cab_props, row):

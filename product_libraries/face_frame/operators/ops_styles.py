@@ -41,6 +41,47 @@ def _copy_door_style(src, dst):
             pass
 
 
+def _copy_collection(src_coll, dst_coll):
+    """Replace dst_coll's entries with copies of src_coll's (scalar props)."""
+    dst_coll.clear()
+    for src_item in src_coll:
+        dst_item = dst_coll.add()
+        for prop in src_item.bl_rna.properties:
+            pid = prop.identifier
+            if pid == 'rna_type' or prop.is_readonly:
+                continue
+            try:
+                setattr(dst_item, pid, getattr(src_item, pid))
+            except Exception:
+                pass
+
+
+def _copy_cabinet_style(src, dst):
+    """Copy a cabinet style's settings from src to dst (everything except the
+    name). The finish / overlay cascade is copied FIRST so its update
+    callbacks settle (they rewrite the ff_* widths from the overlay table),
+    then the remaining fields are copied so any customized widths / unlocks
+    land last and aren't clobbered. Collection props (e.g. millwork_items)
+    are cleared and re-added entry by entry."""
+    cascade = ('finish_color', 'finish_overlay', 'door_overlay_type')
+    for pid in cascade:
+        try:
+            setattr(dst, pid, getattr(src, pid))
+        except Exception:
+            pass
+    for prop in src.bl_rna.properties:
+        pid = prop.identifier
+        if pid in ('rna_type', 'name') or pid in cascade or prop.is_readonly:
+            continue
+        if prop.type == 'COLLECTION':
+            _copy_collection(getattr(src, pid), getattr(dst, pid))
+            continue
+        try:
+            setattr(dst, pid, getattr(src, pid))
+        except Exception:
+            pass
+
+
 class hb_face_frame_OT_add_cabinet_style(Operator):
     """Add a new face frame cabinet style"""
     bl_idname = "hb_face_frame.add_cabinet_style"
@@ -51,8 +92,16 @@ class hb_face_frame_OT_add_cabinet_style(Operator):
     def execute(self, context):
         ff = get_style_props(context)
         existing = [s.name for s in ff.cabinet_styles]
+        # New style duplicates the currently-selected one so adding is
+        # "copy + tweak" (matches the door / drawer-front style Add), which
+        # is what dealers want for a second style in the same job.
+        idx = ff.active_cabinet_style_index
+        src = ff.cabinet_styles[idx] if 0 <= idx < len(ff.cabinet_styles) else None
+        base = src.name if src is not None else "Style"
         new_style = ff.cabinet_styles.add()
-        new_style.name = _next_unique_name("Style", existing)
+        new_style.name = _next_unique_name(base, existing)
+        if src is not None:
+            _copy_cabinet_style(src, new_style)
         ff.active_cabinet_style_index = len(ff.cabinet_styles) - 1
         self.report({'INFO'}, f"Added cabinet style: {new_style.name}")
         return {'FINISHED'}
