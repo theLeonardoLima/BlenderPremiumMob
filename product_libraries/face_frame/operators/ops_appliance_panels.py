@@ -3,7 +3,7 @@ import math
 import json
 from bpy.props import EnumProperty, FloatProperty, BoolProperty, StringProperty
 from .. import types_face_frame
-from .... import hb_utils, hb_types, units
+from .... import hb_utils, hb_types, units, appliance_spec_registry
 
 # --- Appliance panels: face-frame door-style panels on a panel-ready appliance.
 # Fronts are bare CabinetParts (no pull) tagged DOOR-role so the active FACE-FRAME
@@ -26,6 +26,8 @@ _I = units.inch
 _CONFIG_ITEMS = {
     'REFRIGERATOR': [
         ('FRENCH_DOOR', "French Door (Side-by-Side)", "Two tall side-by-side panels"),
+        ('FRENCH_DOOR_BOTTOM_FREEZER', "French Door + Bottom Freezer",
+         "Two french doors over a full-width freezer drawer"),
         ('SINGLE', "Single Door", "One full-height panel"),
         ('BOTTOM_FREEZER', "Bottom Freezer (1 Drawer)", "Door over a single freezer drawer"),
         ('BOTTOM_FREEZER_2DRAWER', "Bottom Freezer (2 Drawer)", "Door over two freezer drawers"),
@@ -56,6 +58,8 @@ MAX_COLUMNS = 2
 _CONFIG_LAYOUT = {
     'SINGLE': [[("Door", 0.0, False)]],
     'FRENCH_DOOR': [[("Left Door", 0.0, False)], [("Right Door", 0.0, False)]],
+    'FRENCH_DOOR_BOTTOM_FREEZER': [[("Left Door", 0.0, False)],
+                                  [("Right Door", 0.0, False)]],
     'BOTTOM_FREEZER': [[("Freezer Drawer", _I(24), True), ("Door", 0.0, False)]],
     'BOTTOM_FREEZER_2DRAWER': [[("Lower Drawer", _I(12), True),
                                 ("Upper Drawer", _I(12), True),
@@ -75,6 +79,15 @@ _CONFIG_LAYOUT = {
                      ("Drawer 3", 0.0, False), ("Drawer 4", 0.0, False)]],
 }
 
+# Configs with a full-width front (a "banner") spanning the bottom, BELOW the
+# columns - for a single drawer that runs the full width under a multi-column
+# region (e.g. a freezer drawer under french doors), which the column model
+# alone cannot express. Banner fronts take global indices AFTER the column
+# fronts (see _iter_fronts).
+_CONFIG_FULLWIDTH_BOTTOM = {
+    'FRENCH_DOOR_BOTTOM_FREEZER': [("Freezer Drawer", _I(16), True)],
+}
+
 
 def _appliance_type(context):
     obj = context.object
@@ -88,12 +101,16 @@ def _config_enum_items(self, context):
 
 def _iter_fronts(config):
     """Yield (global_index, col_index, label, default_size, default_hold) for a
-    config, global_index running across all columns in column-then-front order."""
+    config: the column fronts in column-then-front order, then any full-width
+    bottom banner fronts (col_index None)."""
     g = 0
     for ci, col in enumerate(_CONFIG_LAYOUT.get(config, _CONFIG_LAYOUT['SINGLE'])):
         for (label, size, hold) in col:
             yield g, ci, label, size, hold
             g += 1
+    for (label, size, hold) in _CONFIG_FULLWIDTH_BOTTOM.get(config, ()):
+        yield g, None, label, size, hold
+        g += 1
 
 
 def _num_columns(config):
@@ -112,13 +129,68 @@ def _solve(total, holds, sizes):
     return [sizes[i] if holds[i] else max(0.0, share) for i in range(n)]
 
 
+def _solve_region(total, holds, sizes):
+    """Like _solve but WITHOUT the two end reveals - fills a sub-region whose
+    extents are already fixed (e.g. the column region above a banner)."""
+    n = len(holds)
+    usable = total - APPLIANCE_PANEL_GAP * (n - 1)
+    held = sum(sizes[i] for i in range(n) if holds[i])
+    autos = [i for i in range(n) if not holds[i]]
+    share = (usable - held) / len(autos) if autos else 0.0
+    return [sizes[i] if holds[i] else max(0.0, share) for i in range(n)]
+
+
+def _banner_split(config, dim_z, front_sizes, front_holds):
+    """Split dim_z for a banner config into (banner_heights, region_height,
+    ncol_fronts): the full-width bottom banners (bottom-to-top) plus the height
+    left for the column region above them. Banners + region solve as one
+    vertical stack, so the cabinet's end reveals land at the true top/bottom."""
+    cols = _CONFIG_LAYOUT.get(config, _CONFIG_LAYOUT['SINGLE'])
+    ncol_fronts = sum(len(c) for c in cols)
+    banners = _CONFIG_FULLWIDTH_BOTTOM.get(config, ())
+    nb = len(banners)
+    bh = [front_holds[ncol_fronts + i] for i in range(nb)]
+    bs = [front_sizes[ncol_fronts + i] for i in range(nb)]
+    v = _solve(dim_z, bh + [False], bs + [0.0])
+    return v[:nb], v[nb], ncol_fronts
+
+
 def _solve_layout(config, dim_x, dim_z, front_sizes, front_holds, col_widths, col_holds):
-    """Return [(x0, x1, z0, z1)] literal panel rects (meters) for the config,
-    solving column widths over dim_x and each column's front heights over dim_z."""
+    """Return [(x0, x1, z0, z1)] literal panel rects (meters) for the config, in
+    _iter_fronts order: column fronts first, then any full-width bottom banners.
+    Column widths solve over dim_x; front heights over dim_z, or over the region
+    above the banners when the config has them."""
     cols = _CONFIG_LAYOUT.get(config, _CONFIG_LAYOUT['SINGLE'])
     ncol = len(cols)
+    banners = _CONFIG_FULLWIDTH_BOTTOM.get(config, ())
     solved_w = _solve(dim_x, [col_holds[c] for c in range(ncol)],
                       [col_widths[c] for c in range(ncol)])
+
+    if banners:
+        banner_h, region_h, ncf = _banner_split(config, dim_z, front_sizes, front_holds)
+        rects = [None] * (ncf + len(banners))
+        x0b, x1b = APPLIANCE_PANEL_REVEAL, dim_x - APPLIANCE_PANEL_REVEAL
+        z = APPLIANCE_PANEL_REVEAL
+        for i in range(len(banners)):
+            rects[ncf + i] = (x0b, x1b, z, z + banner_h[i])
+            z += banner_h[i] + APPLIANCE_PANEL_GAP
+        region_z0 = z  # bottom of the column region (above the banners + a gap)
+        x_cursor = APPLIANCE_PANEL_REVEAL
+        g = 0
+        for ci, col in enumerate(cols):
+            w = solved_w[ci]
+            x0, x1 = x_cursor, x_cursor + w
+            x_cursor += w + APPLIANCE_PANEL_GAP
+            idxs = list(range(g, g + len(col)))
+            h_solved = _solve_region(region_h, [front_holds[i] for i in idxs],
+                                     [front_sizes[i] for i in idxs])
+            z_cursor = region_z0
+            for k, _front in enumerate(col):
+                rects[g + k] = (x0, x1, z_cursor, z_cursor + h_solved[k])
+                z_cursor += h_solved[k] + APPLIANCE_PANEL_GAP
+            g += len(col)
+        return rects
+
     rects = []
     x_cursor = APPLIANCE_PANEL_REVEAL
     g = 0
@@ -294,12 +366,69 @@ def build_appliance_panels(appliance_obj, config, panel_type, front_sizes,
                 col_widths, col_holds)
 
 
+# --- Manufacturer spec dropdowns: items come from whatever provider the host
+# app registered in appliance_spec_registry (HB5 ships none, so the default is
+# Manual). Enum item lists must stay alive at module scope - Blender keeps only
+# the char* of each string, so a list built and dropped in the callback can be
+# garbage-collected and crash the UI.
+_mfr_items = []
+_model_items = []
+
+
+def _draw_wrapped(layout, text, icon='NONE', width=46):
+    """Emit `text` across multiple labels so the operator popup doesn't
+    truncate long notes. The icon (if any) sits on the first line; wrapped
+    lines indent under it with a blank icon."""
+    words, lines, cur = text.split(), [], ""
+    for w in words:
+        if cur and len(cur) + 1 + len(w) > width:
+            lines.append(cur)
+            cur = w
+        else:
+            cur = (cur + " " + w) if cur else w
+    if cur:
+        lines.append(cur)
+    for i, ln in enumerate(lines or [text]):
+        layout.label(text=ln, icon=(icon if i == 0 else 'BLANK1'))
+
+
+def _manufacturer_enum(self, context):
+    _mfr_items.clear()
+    _mfr_items.append(('MANUAL', "Manual", "Set the size and layout by hand"))
+    p = appliance_spec_registry.get_provider()
+    if p is not None:
+        try:
+            for m in p.manufacturers():
+                _mfr_items.append((m, m, m))
+        except Exception as e:  # pragma: no cover - defensive
+            print("HB5 appliance spec provider (manufacturers) failed: %s" % e)
+    return _mfr_items
+
+
+def _model_enum(self, context):
+    _model_items.clear()
+    p = appliance_spec_registry.get_provider()
+    if p is not None and self.manufacturer not in ('MANUAL', ''):
+        try:
+            for d in p.models(self.manufacturer):
+                _model_items.append(
+                    (d['model'], d['model'], d.get('appliance_type', "")))
+        except Exception as e:  # pragma: no cover - defensive
+            print("HB5 appliance spec provider (models) failed: %s" % e)
+    if not _model_items:
+        _model_items.append(('NONE', "(none)", "No models in this catalog"))
+    return _model_items
+
+
 class hb_face_frame_OT_add_appliance_panels(bpy.types.Operator):
     bl_idname = "hb_face_frame.add_appliance_panels"
     bl_label = "Appliance Panels"
     bl_description = "Add or edit face-frame door-style panels on a panel-ready appliance"
     bl_options = {'REGISTER', 'UNDO'}
 
+    manufacturer: EnumProperty(name="Manufacturer", items=_manufacturer_enum)  # type: ignore
+    model: EnumProperty(name="Model", items=_model_enum)  # type: ignore
+    last_model: StringProperty(default="")  # type: ignore
     configuration: EnumProperty(name="Configuration", items=_config_enum_items)  # type: ignore
     panel_type: EnumProperty(name="Panel Type", items=_PANEL_TYPE_ITEMS, default='A')  # type: ignore
     last_config: StringProperty(default="")  # type: ignore
@@ -382,10 +511,51 @@ class hb_face_frame_OT_add_appliance_panels(bpy.types.Operator):
         self.execute(context)
         return context.window_manager.invoke_props_popup(self, event)
 
+    def _apply_spec(self, context, bp):
+        """Drive appliance width + config + panel type from the selected
+        manufacturer model and stamp the spec for downstream consumers."""
+        p = appliance_spec_registry.get_provider()
+        if p is None:
+            return
+        try:
+            spec = p.resolve(self.manufacturer, self.model)
+        except Exception as e:
+            print("HB5 appliance spec resolve failed: %s" % e)
+            return
+        cfg = spec.get('operator_config')
+        if cfg:
+            try:
+                self.configuration = cfg
+            except TypeError:
+                pass
+        ptype = spec.get('operator_panel_type')
+        if ptype in {'A', 'B', 'C'}:
+            self.panel_type = ptype
+        dim_x = spec.get('appliance_dim_x_m')
+        if dim_x:
+            try:
+                hb_types.GeoNodeCage(bp).set_input('Dim X', dim_x)
+            except Exception:
+                pass
+        bp['APPLIANCE_PANEL_SPEC'] = json.dumps({
+            'manufacturer': spec.get('manufacturer'),
+            'model': spec.get('model'),
+            'weight_max_lb': spec.get('weight_max_lb'),
+            'panel_thickness': spec.get('panel_thickness'),
+            'panels': spec.get('panels'),
+            'flags': spec.get('flags'),
+            'source_url': spec.get('source_url'),
+        })
+
     def execute(self, context):
         bp = hb_utils.get_appliance_bp(context.object)
         if bp is None:
             return {'CANCELLED'}
+        if (self.manufacturer not in ('MANUAL', '')
+                and self.model not in ('NONE', '')
+                and self.model != self.last_model):
+            self._apply_spec(context, bp)
+            self.last_model = self.model
         if self.configuration != self.last_config:
             self._reset_to_preset(self.configuration)
         sizes, holds, cwid, chold = self._gather(self.configuration)
@@ -395,6 +565,29 @@ class hb_face_frame_OT_add_appliance_panels(bpy.types.Operator):
 
     def draw(self, context):
         layout = self.layout
+        provider = appliance_spec_registry.get_provider()
+        if provider is not None:
+            layout.prop(self, 'manufacturer')
+            if self.manufacturer not in ('MANUAL', ''):
+                layout.prop(self, 'model')
+                bp = hb_utils.get_appliance_bp(context.object)
+                spec_json = bp.get('APPLIANCE_PANEL_SPEC') if bp else None
+                if spec_json:
+                    try:
+                        sp = json.loads(spec_json)
+                    except (ValueError, TypeError):
+                        sp = None
+                    if sp:
+                        sbox = layout.box()
+                        wmax = sp.get('weight_max_lb')
+                        if wmax is not None:
+                            sbox.label(text="Max panel weight: %g lb" % wmax)
+                        for flag in (sp.get('flags') or []):
+                            _draw_wrapped(sbox, flag, icon='ERROR')
+                        url = sp.get('source_url')
+                        if url:
+                            sbox.operator("wm.url_open", text="Open spec sheet",
+                                          icon='URL').url = url
         layout.prop(self, 'configuration')
         layout.prop(self, 'panel_type')
 
@@ -412,6 +605,11 @@ class hb_face_frame_OT_add_appliance_panels(bpy.types.Operator):
         box = layout.box()
         box.label(text="Fronts (hold to fix a size; others share the rest)")
         fronts = list(_iter_fronts(config))
+        banner_fronts = [(g, lbl) for g, c, lbl, _s, _h in fronts if c is None]
+        if banner_fronts and dim_z:
+            banner_h, region_h, _ncf = _banner_split(config, dim_z, sizes, holds)
+        else:
+            banner_h, region_h = [], dim_z
         for ci in range(ncol):
             col_fronts = [(g, lbl) for g, c, lbl, _s, _h in fronts if c == ci]
             cbox = box.column(align=True)
@@ -426,9 +624,14 @@ class hb_face_frame_OT_add_appliance_panels(bpy.types.Operator):
                 wrow.prop(self, 'col_hold_%d' % (ci + 1), text="",
                           icon='LOCKED' if chold[ci] else 'UNLOCKED')
             idxs = [g for g, _l in col_fronts]
-            h_solved = (_solve(dim_z, [holds[i] for i in idxs],
-                               [sizes[i] for i in idxs]) if dim_z
-                        else [sizes[i] for i in idxs])
+            if not dim_z:
+                h_solved = [sizes[i] for i in idxs]
+            elif banner_fronts:
+                h_solved = _solve_region(region_h, [holds[i] for i in idxs],
+                                         [sizes[i] for i in idxs])
+            else:
+                h_solved = _solve(dim_z, [holds[i] for i in idxs],
+                                  [sizes[i] for i in idxs])
             for pos, (g, lbl) in enumerate(reversed(col_fronts)):
                 k = len(col_fronts) - 1 - pos
                 row = cbox.row(align=True)
@@ -437,6 +640,17 @@ class hb_face_frame_OT_add_appliance_panels(bpy.types.Operator):
                     row.prop(self, 'size_%d' % (g + 1), text="")
                 elif dim_z:
                     row.label(text="%.2f\"" % units.meter_to_inch(h_solved[k]))
+                row.prop(self, 'hold_%d' % (g + 1), text="",
+                         icon='LOCKED' if holds[g] else 'UNLOCKED')
+        if banner_fronts:
+            cbox = box.column(align=True)
+            for bi, (g, lbl) in enumerate(banner_fronts):
+                row = cbox.row(align=True)
+                row.label(text="%s (full width)" % lbl)
+                if holds[g]:
+                    row.prop(self, 'size_%d' % (g + 1), text="")
+                elif dim_z and banner_h:
+                    row.label(text="%.2f\"" % units.meter_to_inch(banner_h[bi]))
                 row.prop(self, 'hold_%d' % (g + 1), text="",
                          icon='LOCKED' if holds[g] else 'UNLOCKED')
 
