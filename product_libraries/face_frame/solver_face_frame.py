@@ -551,6 +551,24 @@ def refrigerator_raise_z(layout, bay_index):
             + getattr(layout, 'refrigerator_opening_height', 0.0))
 
 
+def _upper_side_captured(layout, side, bay_index):
+    """True when this UNFINISHED upper side should be captured by (sit on
+    top of) the carcass bottom panel instead of running the full box
+    height. The bottom panel is extended outward under the side to match
+    (see carcass_bottom_segments). False for non-uppers, FINISHED / other
+    finish conditions, sides extended downward (hutch / over-stool), or
+    bays with no bottom panel (remove_bottom / remove_carcass)."""
+    if layout.cabinet_type != 'UPPER':
+        return False
+    side_fin = layout.l_fin_end if side == 'LEFT' else layout.r_fin_end
+    if side_fin != 'UNFINISHED':
+        return False
+    if ends_down_drop(layout, side) + side_extend_down(layout, side) > 0.0:
+        return False
+    bay = layout.bays[bay_index]
+    return not (bay.get('remove_bottom') or bay.get('remove_carcass'))
+
+
 def side_bottom_z(layout, bay_index, side='LEFT'):
     """Z of the carcass side panel's bottom edge.
 
@@ -573,6 +591,16 @@ def side_bottom_z(layout, bay_index, side='LEFT'):
     if not layout.has_toe_kick:
         # Uppers: anchor at the box bottom, dropped by the hutch amount
         # (side + stile) and the over-stool amount (sides only).
+        # An UNFINISHED upper side is captured by the carcass bottom
+        # panel: the panel runs out under the side and the side sits on
+        # top of it, so the side's bottom edge rises to the top face of
+        # this bay's bottom panel (bay bottom + bottom rail width). A
+        # FINISHED side stays full-height - the side IS the visible face
+        # and wraps the bottom. carcass_bottom_segments widens the panel
+        # outward to match.
+        if _upper_side_captured(layout, side, bay_index):
+            bay = layout.bays[bay_index]
+            return bay_bottom_z(layout, bay_index) + bay['bottom_rail_width']
         return (bay_bottom_z(layout, bay_index)
                 - ends_down_drop(layout, side)
                 - side_extend_down(layout, side))
@@ -1749,6 +1777,13 @@ def carcass_bottom_segments(layout):
         if first_bay.get('remove_bottom') or first_bay.get('remove_carcass'):
             continue
         left_x, right_x = _segment_x_bounds(layout, start, end)
+        # Captured UNFINISHED upper sides sit on top of this panel, so
+        # extend it outward to the side's outer face (end bays only) to
+        # give the raised side something to land on. Mirrors side_bottom_z.
+        if start == 0 and _upper_side_captured(layout, 'LEFT', 0):
+            left_x -= left_side_thickness(layout)
+        if end == layout.bay_count - 1 and _upper_side_captured(layout, 'RIGHT', end):
+            right_x += right_side_thickness(layout)
         segments.append({
             'start_bay':  start,
             'end_bay':    end,
