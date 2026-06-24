@@ -54,6 +54,11 @@ def V(*children, size_role=None):
 # Door+drawer combos use a fixed RIGHT_DOOR hinge for any single-door zone;
 # DOUBLE_DOOR is used wherever the menu name says "2 Door" / "Doors".
 BASE_PRESETS = {
+    # Drawer-look doors: one working door leaf shown as N stacked drawer
+    # fronts (front_type DOOR + drawer_look_divisions). Single opening.
+    'DOOR_LOOKS_2_DRAWER':     L('DOOR_LOOKS_2_DRAWER'),
+    'DOOR_LOOKS_3_DRAWER':     L('DOOR_LOOKS_3_DRAWER'),
+    'DOOR_LOOKS_4_DRAWER':     L('DOOR_LOOKS_4_DRAWER'),
     'LEFT_SWING_DOOR':         L('LEFT_DOOR'),
     'RIGHT_SWING_DOOR':        L('RIGHT_DOOR'),
     'DOUBLE_DOOR':             L('DOUBLE_DOOR'),
@@ -230,6 +235,9 @@ BASE_MENU_ENTRIES = [
     ('LEFT_SWING_DOOR',          "Left Swing Door"),
     ('RIGHT_SWING_DOOR',         "Right Swing Door"),
     ('DOUBLE_DOOR',              "Double Door"),
+    ('DOOR_LOOKS_2_DRAWER',      "Door - Looks like 2 Drawers"),
+    ('DOOR_LOOKS_3_DRAWER',      "Door - Looks like 3 Drawers"),
+    ('DOOR_LOOKS_4_DRAWER',      "Door - Looks like 4 Drawers"),
     SEP,
     ('DRAWER_DOOR',              "1 Drawer 1 Door"),
     ('DRAWER_DOUBLE_DOOR',       "1 Drawer 2 Door"),

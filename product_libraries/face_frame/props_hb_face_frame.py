@@ -2082,7 +2082,8 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         structural parts, hardware) are skipped.
         """
         DOOR_ROLES = {'DOOR', 'PULLOUT_FRONT'}
-        DRAWER_ROLES = {'DRAWER_FRONT', 'FALSE_FRONT', 'TILT_OUT'}
+        DRAWER_ROLES = {'DRAWER_FRONT', 'FALSE_FRONT', 'TILT_OUT',
+                        'DRAWER_LOOK_FRONT'}
 
         ff = get_style_props()
 
@@ -2107,6 +2108,10 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
             # Manual (applied / hand-edited) fronts have no Door Style modifier
             # to drive - re-styling would add geometry onto the baked mesh.
             if child.get('IS_MANUAL_PART'):
+                continue
+            # Drawer-look carrier leaf stays a flat slab (its applied
+            # drawer fronts carry the visible style); never style it.
+            if child.get('HB_DRAWER_LOOK_CARRIER'):
                 continue
             role = child.get('hb_part_role')
             if role in DOOR_ROLES and door_ds is not None:
@@ -2613,7 +2618,8 @@ class Face_Frame_Door_Style(PropertyGroup):
     # on the parent cabinet style - a pullout is a door on a slide; the rest
     # read drawer_front_style).
     _DOOR_FRONT_ROLES = {'DOOR', 'PULLOUT_FRONT'}
-    _DRAWER_FRONT_ROLES = {'DRAWER_FRONT', 'FALSE_FRONT', 'TILT_OUT'}
+    _DRAWER_FRONT_ROLES = {'DRAWER_FRONT', 'FALSE_FRONT', 'TILT_OUT',
+                            'DRAWER_LOOK_FRONT'}
     _STYLEABLE_ROLES = _DOOR_FRONT_ROLES | _DRAWER_FRONT_ROLES
 
     def get_parent_cabinet_style(self, front_obj):
@@ -4578,6 +4584,48 @@ FRONT_TYPE_ITEMS = [
 ]
 
 
+def _update_drawer_look_divisions(self, context):
+    """Sync the per-opening height list to the division count, then recalc.
+
+    Mirrors a standard drawer stack: on a count change the top opening is
+    seeded to the scene Top Drawer Opening Height (held) and the rest start
+    auto / equal. Editing the rows afterwards behaves like stack openings.
+    """
+    from . import types_face_frame
+    coll = self.drawer_look_openings
+    n = 0 if self.drawer_look_divisions == 'NONE' else int(self.drawer_look_divisions)
+    with types_face_frame.suspend_recalc():
+        while len(coll) > n:
+            coll.remove(len(coll) - 1)
+        while len(coll) < n:
+            coll.add()
+        if n:
+            top_oh = bpy.context.scene.hb_face_frame.top_drawer_opening_height
+            for i, item in enumerate(coll):
+                # index n-1 == top opening: held at the top-drawer height;
+                # the rest auto (share the remainder equally).
+                item.unlock_size = (i == n - 1)
+                if i == n - 1:
+                    item.size = top_oh
+        types_face_frame.recalculate_face_frame_cabinet(self.id_data)
+
+
+class Face_Frame_Drawer_Look_Opening(PropertyGroup):
+    """One drawer-opening height for a drawer-look door. unlock_size = the
+    user set this height (held); locked rows share the remainder equally,
+    matching a standard drawer stack. Heights are OPENING heights (front
+    height = opening + overlays), consumed by _build_drawer_look_fronts."""
+    size: FloatProperty(
+        name="Opening Height", default=units.inch(6.0), unit='LENGTH',
+        precision=4, update=_update_cabinet_dim,
+    )  # type: ignore
+    unlock_size: BoolProperty(
+        name="Unlock Opening Height",
+        description="Hold this opening height; locked rows share the remainder equally",
+        default=False, update=_update_cabinet_dim,
+    )  # type: ignore
+
+
 class Face_Frame_Opening_Props(PropertyGroup):
     """Per-opening state for face frame cabinets. Attached to each
     opening's cage object as bpy.types.Object.face_frame_opening.
@@ -4638,6 +4686,31 @@ class Face_Frame_Opening_Props(PropertyGroup):
         description="Label this false front as a tilt-out on 2D drawings",
         default=False,
     )  # type: ignore
+
+    # Drawer-look door: a single working DOOR leaf whose face carries N
+    # applied drawer-front panels (reveal gaps between them read as mid
+    # rails) so it looks like a stack of drawers but opens as one door.
+    # NONE = a plain door. The applied fronts + their pulls are built in
+    # _update_fronts_in_opening, parented to the door so they swing as one;
+    # they carry no pricing tags (the leaf prices as a single door). Lives
+    # on the persistent opening cage so it survives recalcs.
+    drawer_look_divisions: EnumProperty(
+        name="Drawer-Look Divisions",
+        description="Show this door as a stack of N applied drawer fronts (still opens as one door)",
+        items=[
+            ('NONE', "None", "Plain door (no drawer-look fronts)"),
+            ('2', "2 Drawers", "Two applied drawer fronts"),
+            ('3', "3 Drawers", "Three applied drawer fronts"),
+            ('4', "4 Drawers", "Four applied drawer fronts"),
+        ],
+        default='NONE',
+        update=_update_drawer_look_divisions,
+    )  # type: ignore
+    # Per-drawer OPENING heights, edited like a standard drawer stack
+    # (unlock to set a height; locked rows share the remainder). Synced to
+    # the division count by _update_drawer_look_divisions; consumed by
+    # _build_drawer_look_fronts (front height = opening height + overlays).
+    drawer_look_openings: CollectionProperty(type=Face_Frame_Drawer_Look_Opening)  # type: ignore
 
     HINGE_SIDE_ITEMS = [
         ('LEFT', "Left", "Single door, hinged on the left edge"),
@@ -6420,6 +6493,7 @@ classes = (
     Face_Frame_Bay_Props,
     Face_Frame_Interior_Item,
     Face_Frame_Interior_Region_Props,
+    Face_Frame_Drawer_Look_Opening,
     Face_Frame_Opening_Props,
     Face_Frame_Splitter_Width,
     Face_Frame_Split_Props,

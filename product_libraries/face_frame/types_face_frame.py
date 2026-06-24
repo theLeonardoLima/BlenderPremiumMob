@@ -270,6 +270,17 @@ PART_ROLE_INSET_PANEL = 'INSET_PANEL'
 # a swing; not in the drawer-box role set, so it gets no slide box.
 PART_ROLE_TILT_OUT = 'TILT_OUT'
 PART_ROLE_APRON = 'APRON'
+# Drawer-look door: a working DOOR leaf wearing N applied drawer-front
+# panels (proud of the leaf, with reveal gaps that read as faux mid
+# rails) so it looks like a drawer stack but opens as one door. Built in
+# _update_fronts_in_opening as children of the door part (inherit swing);
+# carry no DOOR_STYLE_NAME, so pricing / machining see one door.
+PART_ROLE_DRAWER_LOOK_FRONT = 'DRAWER_LOOK_FRONT'
+# Faux mid-rail strip between drawer-look fronts, added only for FULL
+# INSET (proud of the inset fronts, like a real inset face frame).
+PART_ROLE_DRAWER_LOOK_RAIL = 'DRAWER_LOOK_RAIL'
+DRAWER_LOOK_REVEAL = inch(0.125)            # gap between applied fronts
+DRAWER_LOOK_TALLER_TOP_FACTOR = 1.5         # top front height vs each other
 
 # Applied finished-back part: a 3/4 panel layered on top of the carcass
 # back when back_finished_end_condition is FINISHED. Carcass back stays
@@ -4956,8 +4967,19 @@ class FaceFrameCabinet(GeoNodeCage):
                 elif _prop in front.obj:
                     del front.obj[_prop]
 
-            self._create_pull_for_front(front, leaf['role'], leaf)
+            # Drawer-look doors swap the single door pull for one pull
+            # per applied drawer front; the panels are added below and
+            # inherit the leaf swing. v1: single-leaf LEFT / RIGHT only.
+            drawer_look = (
+                leaf['role'] == PART_ROLE_DOOR
+                and getattr(op_props, 'drawer_look_divisions', 'NONE') != 'NONE'
+                and op_props.hinge_side in ('LEFT', 'RIGHT')
+            )
+            if not drawer_look:
+                self._create_pull_for_front(front, leaf['role'], leaf)
             self._create_drawer_box_for_front(pivot, leaf, rect)
+            if drawer_look:
+                self._build_drawer_look_fronts(front, leaf, op_props)
 
         # Sink apron: a fixed face-frame-depth panel across the top of a
         # DOOR opening (apron / farmhouse sink). The door(s) stay full
@@ -4995,6 +5017,138 @@ class FaceFrameCabinet(GeoNodeCage):
                 apron.set_input('Length', apron_h)
                 apron.set_input('Width', full_w)
                 apron.set_input('Thickness', fft)
+
+    def _build_drawer_look_fronts(self, front, leaf, op_props):
+        """Lay N applied drawer fronts on a DOOR leaf so it reads exactly
+        like a real N-drawer stack but opens as one door.
+
+        Heights, reveals and the drawer-front style mirror a real stack:
+        a short top front (the scene Top Drawer Opening Height) with the
+        rest equal, reveals = the cabinet mid-rail width less the two
+        overlapping overlays, and the panels picked up by
+        _apply_door_styles_to_fronts as DRAWER_LOOK_FRONT (drawer-front
+        style). The carrier leaf is rendered as a flat slab (skipped by
+        that styling pass) and recessed one front thickness along its
+        outward normal, so the proud fronts sit at the normal front plane
+        and the slab shows through the reveals as the faux mid rails. Each
+        front gets its own drawer pull. The panels live under the front
+        pivot, so the per-recalc pivot wipe clears them.
+
+        v1 scope: single-leaf LEFT / RIGHT swing doors.
+        """
+        divisions = getattr(op_props, 'drawer_look_divisions', 'NONE')
+        if leaf['role'] != PART_ROLE_DOOR or divisions == 'NONE':
+            return
+        if op_props.hinge_side not in ('LEFT', 'RIGHT'):
+            return
+        n = int(divisions)
+        length, width, thickness = leaf['part_dims']
+        cab_props = self.obj.face_frame_cabinet
+        overlays = (solver.resolved_overlay(cab_props, op_props, 'top')
+                    + solver.resolved_overlay(cab_props, op_props, 'bottom'))
+        # Reveal between fronts = mid-rail width less the two overlapping
+        # front overlays, matching a real drawer stack.
+        reveal = max(0.0, cab_props.bay_mid_rail_width - overlays)
+        # FULL INSET (negative overlay): the fronts sit flush in the
+        # frame, so the reveals can't read as rails - add real proud
+        # mid-rail strips between the fronts instead.
+        inset = overlays < 0.0
+        # Front heights come from per-drawer OPENING heights, exactly like a
+        # standard drawer stack: the available run (leaf less the two outer
+        # overlays and the n-1 mid rails) is shared among the openings -
+        # user-held (unlock_size) heights kept, the rest splitting the
+        # remainder equally - then front height = opening height + overlays.
+        # spec is bottom -> top; the top opening defaults to the scene Top
+        # Drawer Opening Height (seeded by _update_drawer_look_divisions).
+        rail_w = cab_props.bay_mid_rail_width
+        available = length - overlays - (n - 1) * rail_w
+        openings = getattr(op_props, 'drawer_look_openings', None)
+        if openings is not None and len(openings) == n:
+            spec = [(o.size, bool(o.unlock_size)) for o in openings]
+        else:
+            top_oh = bpy.context.scene.hb_face_frame.top_drawer_opening_height
+            spec = [(0.0, False)] * (n - 1) + [(top_oh, True)]
+        held_total = sum(s for s, held in spec if held)
+        auto = [k for k, (s, held) in enumerate(spec) if not held]
+        share = (available - held_total) / len(auto) if auto else 0.0
+        # Write the auto-computed opening height back into the locked
+        # (not unlock_size) rows so their disabled UI field shows the
+        # real height. Safe mid-recalc: the size update callback bails
+        # on the _RECALCULATING guard, so this can't loop.
+        if openings is not None and len(openings) == n:
+            for k, (s, held) in enumerate(spec):
+                if not held and abs(openings[k].size - share) > 1e-6:
+                    openings[k].size = share
+        heights = [(s if held else share) + overlays for (s, held) in spec]
+        if any(h <= 0.0 for h in heights):
+            return
+
+        # The carrier leaf is the swinging "door": flat slab, recessed by
+        # one front thickness along its outward normal so the proud fronts
+        # land at the normal front plane.
+        carrier = front.obj
+        carrier['HB_DRAWER_LOOK_CARRIER'] = True
+        outward = carrier.rotation_euler.to_matrix() @ Vector((0.0, 0.0, 1.0))
+        carrier.location = carrier.location - outward * thickness
+
+        scene_props = bpy.context.scene.hb_face_frame
+        z = 0.0
+        for i, h in enumerate(heights):
+            panel = CabinetPart()
+            panel.create("Drawer-Look Front " + str(i + 1))
+            panel.obj.parent = carrier
+            panel.obj['hb_part_role'] = PART_ROLE_DRAWER_LOOK_FRONT
+            panel.obj['CABINET_PART'] = True
+            # Identity local rotation: the panel shares the carrier's local
+            # frame (X = vertical, -Y = horizontal, +Z = outward). Full
+            # width + tiled height cover the slab except the reveals; z =
+            # thickness mounts the panel proud of the recessed slab.
+            panel.obj.rotation_euler = (0.0, 0.0, 0.0)
+            panel.set_input('Mirror Y', True)
+            panel.obj.location = (z, 0.0, thickness)
+            panel.set_input('Length', h)
+            panel.set_input('Width', width)
+            panel.set_input('Thickness', thickness)
+            self._add_drawer_look_pull(panel.obj, h, width, thickness,
+                                       scene_props)
+            if inset and i < n - 1:
+                rail_h = cab_props.bay_mid_rail_width
+                rail = CabinetPart()
+                rail.create("Drawer-Look Rail " + str(i + 1))
+                rail.obj.parent = carrier
+                rail.obj['hb_part_role'] = PART_ROLE_DRAWER_LOOK_RAIL
+                rail.obj['CABINET_PART'] = True
+                rail.obj.rotation_euler = (0.0, 0.0, 0.0)
+                rail.set_input('Mirror Y', True)
+                # Mirror Z flips the cutpart's thickness axis so the rail
+                # builds back into the frame rather than proud-outward.
+                rail.set_input('Mirror Z', True)
+                # Centered in the gap, full width, proud of the fronts by
+                # one thickness (matches a real inset stack's mid rail).
+                rail.obj.location = (z + h + (reveal - rail_h) / 2.0,
+                                     0.0, thickness * 2.0)
+                rail.set_input('Length', rail_h)
+                rail.set_input('Width', width)
+                rail.set_input('Thickness', thickness)
+            z += h + reveal
+
+    def _add_drawer_look_pull(self, panel_obj, length, width, thickness,
+                              scene_props):
+        """A centered horizontal drawer pull on one drawer-look panel,
+        mounted on its proud front face (same orientation the drawer-pull
+        branch of _create_pull_for_front uses)."""
+        pull_obj = pulls.resolve_pull_object(scene_props, 'drawer')
+        if pull_obj is None:
+            return
+        instance = bpy.data.objects.new("Pull - " + panel_obj.name,
+                                        pull_obj.data)
+        bpy.context.scene.collection.objects.link(instance)
+        instance.parent = panel_obj
+        instance.location = (length / 2.0, -width / 2.0, thickness)
+        instance.rotation_euler = (math.radians(-90.0), 0.0,
+                                   math.radians(90.0))
+        instance['hb_part_role'] = 'PULL'
+        instance['IS_CABINET_PULL'] = True
 
     def _create_front_pivot(self, opening_obj):
         """Create an Empty parented to the opening cage, used as the

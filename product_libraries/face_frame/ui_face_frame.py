@@ -638,6 +638,22 @@ def draw_opening_properties(layout, opening_obj):
         if op.add_apron:
             col.prop(op, 'apron_height', text="Apron Height")
 
+    # Drawer-look door (single-leaf swing doors): render the leaf as a
+    # stack of applied drawer fronts that still opens as one door.
+    if op.front_type == 'DOOR' and op.hinge_side in ('LEFT', 'RIGHT'):
+        col.prop(op, 'drawer_look_divisions', text="Drawer-Look")
+        if op.drawer_look_divisions != 'NONE':
+            heights_box = col.box()
+            heights_box.label(text="Drawer Opening Heights (top to bottom)")
+            for idx in range(len(op.drawer_look_openings) - 1, -1, -1):
+                item = op.drawer_look_openings[idx]
+                hrow = heights_box.row(align=True)
+                field = hrow.row(align=True)
+                field.enabled = item.unlock_size
+                field.prop(item, 'size', text="Opening " + str(idx + 1))
+                hrow.prop(item, 'unlock_size', text="",
+                          icon='UNLOCKED' if item.unlock_size else 'LOCKED')
+
     # Tilt-out flag (false fronts only): label-only -- the 2D elevation
     # prints TILT-OUT instead of FALSE. No geometry change.
     if op.front_type == 'FALSE_FRONT':

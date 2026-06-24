@@ -1917,6 +1917,9 @@ _OPENING_PRESETS = {
     'LEFT_DOOR':         {'front_type': 'DOOR',         'hinge_side': 'LEFT'},
     'RIGHT_DOOR':        {'front_type': 'DOOR',         'hinge_side': 'RIGHT'},
     'DOUBLE_DOOR':       {'front_type': 'DOOR',         'hinge_side': 'DOUBLE'},
+    'DOOR_LOOKS_2_DRAWER': {'front_type': 'DOOR', 'hinge_side': 'LEFT', 'drawer_look': '2'},
+    'DOOR_LOOKS_3_DRAWER': {'front_type': 'DOOR', 'hinge_side': 'LEFT', 'drawer_look': '3'},
+    'DOOR_LOOKS_4_DRAWER': {'front_type': 'DOOR', 'hinge_side': 'LEFT', 'drawer_look': '4'},
     'FLIP_UP_DOOR':      {'front_type': 'DOOR',         'hinge_side': 'TOP'},
     'FLIP_DOWN_DOOR':    {'front_type': 'DOOR',         'hinge_side': 'BOTTOM'},
     'DRAWER':            {'front_type': 'DRAWER_FRONT'},
@@ -1987,6 +1990,12 @@ def apply_opening_preset(opening_obj, config, **overrides):
     op_props.is_tilt_out = bool(preset.get('tilt_out'))
     if 'hinge_side' in preset:
         op_props.hinge_side = preset['hinge_side']
+
+    # Drawer-look door: a single DOOR leaf shown as N stacked drawer
+    # fronts. Set after front_type / hinge so it lands on a valid door;
+    # its update seeds the per-opening height rows. Unconditional so
+    # re-applying another preset drops a previous drawer-look.
+    op_props.drawer_look_divisions = preset.get('drawer_look', 'NONE')
 
     # Post-front_type shelf strip (see docstring: the DOOR write above
     # re-seeds a shelf, so this must come after it).
