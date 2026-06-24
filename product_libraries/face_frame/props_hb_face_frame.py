@@ -3961,6 +3961,14 @@ class Face_Frame_Cabinet_Props(PropertyGroup):
         name="Wedge Max Height", default=units.inch(3.0),
         unit='LENGTH', precision=4, min=0.0, update=_update_cabinet_dim,
     )  # type: ignore
+    # ---- Construction-tab section visibility (UI only) ----
+    show_angled_back_extension: BoolProperty(
+        name="Show Angled Back Extension", default=False)  # type: ignore
+    show_upper_extensions: BoolProperty(
+        name="Show Upper Extensions", default=False)  # type: ignore
+    show_toe_kick: BoolProperty(name="Show Toe Kick", default=True)  # type: ignore
+    show_finished_ends: BoolProperty(name="Show Finished Ends", default=True)  # type: ignore
+    show_wood_top: BoolProperty(name="Show Wood Top", default=False)  # type: ignore
     # ---- Angled back extension (trapezoidal back) ----
     # Per-cabinet, per-end: extend the BACK corner outward in +X (left or
     # right) by the given amount, splaying that side panel so the back is
@@ -4681,6 +4689,11 @@ class Face_Frame_Opening_Props(PropertyGroup):
         description="Position in the parent bay's opening list (0-based)",
         default=0,
     )  # type: ignore
+    # ---- Opening dialog section visibility (UI only) ----
+    show_front: BoolProperty(name="Show Front Type", default=True)  # type: ignore
+    show_finish: BoolProperty(name="Show Finish Options", default=False)  # type: ignore
+    show_overlays: BoolProperty(name="Show Overlays", default=False)  # type: ignore
+    show_interior_items: BoolProperty(name="Show Interior Items", default=True)  # type: ignore
 
     # Size along the parent split's axis (height when parent is an
     # H-split, width when parent is a V-split). Meaningful only when
@@ -5171,6 +5184,9 @@ class Face_Frame_Scene_Props(PropertyGroup):
 
     # ---- Library section toggles ----
     show_cabinet_sizes: BoolProperty(name="Show Cabinet Sizes", default=True)  # type: ignore
+    show_corner_sizes: BoolProperty(name="Show Corner Sizes", default=False)  # type: ignore
+    show_appliance_sizes: BoolProperty(name="Show Appliance Sizes", default=False)  # type: ignore
+    show_opening_heights: BoolProperty(name="Show Opening Heights", default=False)  # type: ignore
     show_cabinet_library: BoolProperty(name="Show Standard Cabinets", default=True)  # type: ignore
     show_corner_cabinet_library: BoolProperty(name="Show Corner Cabinets", default=False)  # type: ignore
     show_appliance_library: BoolProperty(name="Show Appliance Products", default=False)  # type: ignore
@@ -5711,59 +5727,69 @@ class Face_Frame_Scene_Props(PropertyGroup):
         sub.enabled = False
         sub.prop(self, 'upper_cabinet_height', text="")
 
-        row = layout.row()
-        row.label(text="Tall Split Height:")
-        row.prop(self, 'tall_cabinet_split_height', text="")
-
-        row = layout.row()
-        row.label(text="Top Drawer Opening Height:")
-        row.prop(self, 'top_drawer_opening_height', text="")
-        # Re-sync existing drawer-preset cabinets to the value above
-        # (changing it does not re-flow cabinets already built).
-        row.operator('hb_face_frame.refresh_top_drawer_openings',
-                     text="", icon='FILE_REFRESH')
-
-        row = layout.row()
-        row.label(text="Upper Stacked Top Height:")
-        row.prop(self, 'upper_top_stacked_cabinet_height', text="")
+        layout.separator()
+        ohbox = layout.box()
+        ohbox.prop(self, 'show_opening_heights', text="Opening Heights",
+                   icon='TRIA_DOWN' if self.show_opening_heights else 'TRIA_RIGHT',
+                   emboss=False)
+        if self.show_opening_heights:
+            row = ohbox.row()
+            row.label(text="Tall Split Height:")
+            row.prop(self, 'tall_cabinet_split_height', text="")
+            row = ohbox.row()
+            row.label(text="Top Drawer Opening Height:")
+            row.prop(self, 'top_drawer_opening_height', text="")
+            # Re-sync existing drawer-preset cabinets to the value above
+            # (changing it does not re-flow cabinets already built).
+            row.operator('hb_face_frame.refresh_top_drawer_openings',
+                         text="", icon='FILE_REFRESH')
+            row = ohbox.row()
+            row.label(text="Upper Stacked Top Height:")
+            row.prop(self, 'upper_top_stacked_cabinet_height', text="")
 
         # Corner + appliance sizes live here (moved out of their library
         # sections) so those sections list only products and this whole
         # block collapses with Cabinet Sizes.
-        layout.separator()
-        row = layout.row()
-        row.label(text="Corner Sizes")
-        row.label(text="Base")
-        row.label(text="Tall")
-        row.label(text="Upper")
-        row = layout.row()
-        row.label(text="Inside Corner:")
-        row.prop(self, 'base_inside_corner_size', text="")
-        row.prop(self, 'tall_inside_corner_size', text="")
-        row.prop(self, 'upper_inside_corner_size', text="")
-        row = layout.row()
-        row.label(text="Blind Width:")
-        row.prop(self, 'base_width_blind', text="")
-        row.prop(self, 'tall_width_blind', text="")
-        row.prop(self, 'upper_width_blind', text="")
+        cbox = layout.box()
+        cbox.prop(self, 'show_corner_sizes', text="Corner Sizes",
+                  icon='TRIA_DOWN' if self.show_corner_sizes else 'TRIA_RIGHT',
+                  emboss=False)
+        if self.show_corner_sizes:
+            row = cbox.row()
+            row.label(text="")
+            row.label(text="Base")
+            row.label(text="Tall")
+            row.label(text="Upper")
+            row = cbox.row()
+            row.label(text="Inside Corner:")
+            row.prop(self, 'base_inside_corner_size', text="")
+            row.prop(self, 'tall_inside_corner_size', text="")
+            row.prop(self, 'upper_inside_corner_size', text="")
+            row = cbox.row()
+            row.label(text="Blind Width:")
+            row.prop(self, 'base_width_blind', text="")
+            row.prop(self, 'tall_width_blind', text="")
+            row.prop(self, 'upper_width_blind', text="")
 
-        layout.separator()
-        row = layout.row()
-        row.label(text="Appliance Sizes")
-        row = layout.row()
-        row.label(text="Refrigerator Height:")
-        row.prop(self, 'refrigerator_height', text="")
-        row = layout.row()
-        row.label(text="Refrigerator Width:")
-        row.prop(self, 'refrigerator_cabinet_width', text="")
-        row = layout.row()
-        row.label(text="Dishwasher / Range:")
-        row.prop(self, 'dishwasher_width', text="")
-        row.prop(self, 'range_width', text="")
-        row = layout.row()
-        row.label(text="Sink / Oven:")
-        row.prop(self, 'sink_cabinet_width', text="")
-        row.prop(self, 'oven_cabinet_width', text="")
+        abox = layout.box()
+        abox.prop(self, 'show_appliance_sizes', text="Appliance Sizes",
+                  icon='TRIA_DOWN' if self.show_appliance_sizes else 'TRIA_RIGHT',
+                  emboss=False)
+        if self.show_appliance_sizes:
+            row = abox.row()
+            row.label(text="Refrigerator Height:")
+            row.prop(self, 'refrigerator_height', text="")
+            row = abox.row()
+            row.label(text="Refrigerator Width:")
+            row.prop(self, 'refrigerator_cabinet_width', text="")
+            row = abox.row()
+            row.label(text="Dishwasher / Range:")
+            row.prop(self, 'dishwasher_width', text="")
+            row.prop(self, 'range_width', text="")
+            row = abox.row()
+            row.label(text="Sink / Oven:")
+            row.prop(self, 'sink_cabinet_width', text="")
+            row.prop(self, 'oven_cabinet_width', text="")
 
     # =====================================================================
     # UI: shared helper - draw a grid of catalog buttons

@@ -219,86 +219,106 @@ def draw_construction(layout, cab_props):
 
     if cab_props.cabinet_type in ('BASE', 'TALL', 'LAP_DRAWER'):
         box = layout.box()
-        col = box.column(align=True)
-        col.label(text="Toe Kick")
-        col.prop(cab_props, 'toe_kick_type', text="Type")
-        col.prop(cab_props, 'toe_kick_height', text="Height")
-        col.prop(cab_props, 'toe_kick_setback', text="Setback")
-        col.prop(cab_props, 'inset_toe_kick_left', text="Left Inset")
-        col.prop(cab_props, 'inset_toe_kick_right', text="Right Inset")
-        # Back insets pull each arm's rear (wall-side) rail off its wall;
-        # corner cabinets only (no wall-side rail on a straight run).
-        if cab_props.corner_type != 'NONE':
-            col.prop(cab_props, 'inset_toe_kick_back_left', text="Back Left Inset")
-            col.prop(cab_props, 'inset_toe_kick_back_right', text="Back Right Inset")
-        col.prop(cab_props, 'include_finish_toe_kick', text="Finish Toe Kick")
+        box.prop(cab_props, 'show_toe_kick', text="Toe Kick",
+                 icon='TRIA_DOWN' if cab_props.show_toe_kick else 'TRIA_RIGHT',
+                 emboss=False)
+        if cab_props.show_toe_kick:
+            col = box.column(align=True)
+            col.prop(cab_props, 'toe_kick_type', text="Type")
+            col.prop(cab_props, 'toe_kick_height', text="Height")
+            col.prop(cab_props, 'toe_kick_setback', text="Setback")
+            col.prop(cab_props, 'inset_toe_kick_left', text="Left Inset")
+            col.prop(cab_props, 'inset_toe_kick_right', text="Right Inset")
+            # Back insets pull each arm's rear (wall-side) rail off its wall;
+            # corner cabinets only (no wall-side rail on a straight run).
+            if cab_props.corner_type != 'NONE':
+                col.prop(cab_props, 'inset_toe_kick_back_left', text="Back Left Inset")
+                col.prop(cab_props, 'inset_toe_kick_back_right', text="Back Right Inset")
+            col.prop(cab_props, 'include_finish_toe_kick', text="Finish Toe Kick")
 
     box = layout.box()
-    box.label(text="End Stile Types")
-    draw_blind_corners(box, cab_props)
+    box.prop(cab_props, 'show_finished_ends', text="Finished Ends and Backs",
+             icon='TRIA_DOWN' if cab_props.show_finished_ends else 'TRIA_RIGHT',
+             emboss=False)
+    if cab_props.show_finished_ends:
+        draw_finished_ends(box, cab_props)
 
-    box = layout.box()
-    box.label(text="Angled Back Extension", icon='MOD_BEVEL')
-    col = box.column(align=True)
-    col.prop(cab_props, 'extend_back_left', text="Extend Back Left X")
-    # Convert this end's extension into an attached wing instead of splaying
-    # the carcass: the carcass stays square and a flat panel is added along
-    # the same angled line. Only meaningful when the extend above is non-zero.
-    row = col.row()
-    row.enabled = cab_props.extend_back_left != 0.0
-    row.prop(cab_props, 'wing_attached_left', text="Attach as Wing")
-    col.separator()
-    col.prop(cab_props, 'extend_back_right', text="Extend Back Right X")
-    row = col.row()
-    row.enabled = cab_props.extend_back_right != 0.0
-    row.prop(cab_props, 'wing_attached_right', text="Attach as Wing")
+    abx = layout.box()
+    abx.prop(cab_props, 'show_angled_back_extension',
+             text="Angled Back Extension",
+             icon='TRIA_DOWN' if cab_props.show_angled_back_extension
+             else 'TRIA_RIGHT', emboss=False)
+    if cab_props.show_angled_back_extension:
+        col = abx.column(align=True)
+        col.prop(cab_props, 'extend_back_left', text="Extend Back Left X")
+        # Convert this end's extension into an attached wing instead of
+        # splaying the carcass: the carcass stays square and a flat panel
+        # is added along the same angled line. Only meaningful when the
+        # extend above is non-zero.
+        row = col.row()
+        row.enabled = cab_props.extend_back_left != 0.0
+        row.prop(cab_props, 'wing_attached_left', text="Attach as Wing")
+        col.separator()
+        col.prop(cab_props, 'extend_back_right', text="Extend Back Right X")
+        row = col.row()
+        row.enabled = cab_props.extend_back_right != 0.0
+        row.prop(cab_props, 'wing_attached_right', text="Attach as Wing")
 
-    box = layout.box()
-    box.prop(cab_props, 'furniture_top', text="Furniture Wood Top")
-    if cab_props.furniture_top:
-        col = box.column(align=True)
-        col.prop(cab_props, 'furniture_top_thickness', text="Thickness")
-        col.prop(cab_props, 'furniture_top_overhang', text="Overhang")
-
-    # Uppers only: drop the left / right sides + end stiles below the box
-    # (hutch look). Left and right are independent.
+    # Uppers only: hutch / over-stool / corner-cover extensions, grouped
+    # under one collapsible category (rarely used).
     if cab_props.cabinet_type == 'UPPER':
-        box = layout.box()
-        box.label(text="Extend Ends Down")
-        col = box.column(align=True)
-        col.prop(cab_props, 'extend_left_end_down', text="Left")
-        if cab_props.extend_left_end_down:
-            col.prop(cab_props, 'extend_left_end_down_amount', text="Left Drop")
-        col.prop(cab_props, 'extend_right_end_down', text="Right")
-        if cab_props.extend_right_end_down:
-            col.prop(cab_props, 'extend_right_end_down_amount', text="Right Drop")
-        # Finished back closes the recess once a side is dropped.
-        if cab_props.extend_left_end_down or cab_props.extend_right_end_down:
-            box.prop(cab_props, 'hutch_finished_back',
-                     text="Finished Back in Recess")
+        uex = layout.box()
+        uex.prop(cab_props, 'show_upper_extensions', text="Upper Extensions",
+                 icon='TRIA_DOWN' if cab_props.show_upper_extensions
+                 else 'TRIA_RIGHT', emboss=False)
+        if cab_props.show_upper_extensions:
+            # Drop the left / right sides + end stiles below the box
+            # (hutch look). Left and right are independent.
+            box = uex.box()
+            box.label(text="Extend Ends Down")
+            col = box.column(align=True)
+            col.prop(cab_props, 'extend_left_end_down', text="Left")
+            if cab_props.extend_left_end_down:
+                col.prop(cab_props, 'extend_left_end_down_amount', text="Left Drop")
+            col.prop(cab_props, 'extend_right_end_down', text="Right")
+            if cab_props.extend_right_end_down:
+                col.prop(cab_props, 'extend_right_end_down_amount', text="Right Drop")
+            # Finished back closes the recess once a side is dropped.
+            if cab_props.extend_left_end_down or cab_props.extend_right_end_down:
+                box.prop(cab_props, 'hutch_finished_back',
+                         text="Finished Back in Recess")
 
-        # Uppers only: drop BOTH sides below the box as furniture legs
-        # (over-stool look) - decorative front profile + a shelf / towel bar.
-        box = layout.box()
-        box.label(text="Extend Sides Down")
-        col = box.column(align=True)
-        col.prop(cab_props, 'extend_sides_down', text="Extend Sides Down")
-        if cab_props.extend_sides_down:
-            col.prop(cab_props, 'extend_sides_down_amount', text="Sides Drop")
-            col.prop(cab_props, 'side_front_profile', text="Front Profile")
-            col.prop(cab_props, 'overstool_accessory', text="Accessory")
+            # Drop BOTH sides below the box as furniture legs (over-stool
+            # look) - decorative front profile + a shelf / towel bar.
+            box = uex.box()
+            box.label(text="Extend Sides Down")
+            col = box.column(align=True)
+            col.prop(cab_props, 'extend_sides_down', text="Extend Sides Down")
+            if cab_props.extend_sides_down:
+                col.prop(cab_props, 'extend_sides_down_amount', text="Sides Drop")
+                col.prop(cab_props, 'side_front_profile', text="Front Profile")
+                col.prop(cab_props, 'overstool_accessory', text="Accessory")
 
-        # Bottom panel overhangs a side to cover the void where two uppers
-        # meet in a corner (bottom only - face frame / doors stay square).
-        box = layout.box()
-        box.label(text="Extend Bottom", icon='MOD_BEVEL')
-        col = box.column(align=True)
-        col.prop(cab_props, 'extend_bottom_left', text="Extend Bottom Left X")
-        col.prop(cab_props, 'extend_bottom_right', text="Extend Bottom Right X")
+            # Bottom panel overhangs a side to cover the void where two
+            # uppers meet in a corner (bottom only - faces stay square).
+            box = uex.box()
+            box.label(text="Extend Bottom", icon='MOD_BEVEL')
+            col = box.column(align=True)
+            col.prop(cab_props, 'extend_bottom_left', text="Extend Bottom Left X")
+            col.prop(cab_props, 'extend_bottom_right', text="Extend Bottom Right X")
 
+    # Furniture wood top sits at the bottom - a finishing option layered
+    # on after the carcass, ends, and any extensions are set.
     box = layout.box()
-    box.label(text="Finished Ends and Backs")
-    draw_finished_ends(box, cab_props)
+    box.prop(cab_props, 'show_wood_top', text="Furniture Wood Top",
+             icon='TRIA_DOWN' if cab_props.show_wood_top else 'TRIA_RIGHT',
+             emboss=False)
+    if cab_props.show_wood_top:
+        box.prop(cab_props, 'furniture_top', text="Enable")
+        if cab_props.furniture_top:
+            col = box.column(align=True)
+            col.prop(cab_props, 'furniture_top_thickness', text="Thickness")
+            col.prop(cab_props, 'furniture_top_overhang', text="Overhang")
 
 
 def draw_refrigerator_options(layout, root):
@@ -456,47 +476,73 @@ def draw_leg_product(layout, root):
 
 
 def draw_face_frame_defaults(layout, cab_props):
-    """Default stile and rail widths + per-side overlay defaults.
-    Per-opening overrides live on each opening object."""
-    col = layout.column(align=True)
-    _draw_locked_rail_row(col, cab_props, 'left_stile_width',
-                          'unlock_left_stile', "Left Stile")
-    _draw_locked_rail_row(col, cab_props, 'right_stile_width',
-                          'unlock_right_stile', "Right Stile")
-    if cab_props.cabinet_type in ('BASE', 'TALL', 'LAP_DRAWER'):
-        col.prop(cab_props, 'extend_left_stile_to_floor', text="Left Stile to Floor")
-        col.prop(cab_props, 'extend_right_stile_to_floor', text="Right Stile to Floor")
-    col.separator()
-    col.prop(cab_props, 'left_scribe', text="Left Scribe")
-    col.prop(cab_props, 'right_scribe', text="Right Scribe")
-    col.prop(cab_props, 'top_scribe', text="Top Scribe")
-    col.separator()
-    _draw_locked_rail_row(col, cab_props, 'top_rail_width',
+    """Face frame stile / rail / mid-stile widths, scribe, stile-to-floor,
+    and end stile types. Per-opening overlay overrides live on the opening
+    and are edited there, so they are no longer shown here."""
+    # Face Frame Sizes: top rail, the two end stiles on one row, bottom
+    # rail, then every mid stile width on a single row.
+    fbox = layout.box()
+    fbox.label(text="Face Frame Sizes")
+    fcol = fbox.column(align=False)
+    _draw_locked_rail_row(fcol, cab_props, 'top_rail_width',
                           'unlock_top_rail', "Top Rail")
-    _draw_locked_rail_row(col, cab_props, 'bottom_rail_width',
+    srow = fcol.row(align=True)
+    _locked_field(srow, cab_props, 'left_stile_width',
+                  'unlock_left_stile', "Left Stile")
+    _locked_field(srow, cab_props, 'right_stile_width',
+                  'unlock_right_stile', "Right Stile")
+    _draw_locked_rail_row(fcol, cab_props, 'bottom_rail_width',
                           'unlock_bottom_rail', "Bottom Rail")
-    col.separator()
-    col.label(text="Default Overlays")
-    col.prop(cab_props, 'default_top_overlay', text="Top")
-    col.prop(cab_props, 'default_bottom_overlay', text="Bottom")
-    col.prop(cab_props, 'default_left_overlay', text="Left")
-    col.prop(cab_props, 'default_right_overlay', text="Right")
+    # Mid stiles -- the dividers between bays. One width field per mid
+    # stile on one row; index i is the stile between bay i and bay i + 1.
+    if len(cab_props.mid_stile_widths) > 0:
+        mrow = fcol.row(align=True)
+        for i, ms in enumerate(cab_props.mid_stile_widths):
+            _locked_field(mrow, ms, 'width', 'unlock', "Mid %d" % (i + 1))
+
+    # Scribe Options
+    scbox = layout.box()
+    scbox.label(text="Scribe Options")
+    sccol = scbox.column(align=True)
+    sccol.prop(cab_props, 'left_scribe', text="Left Scribe")
+    sccol.prop(cab_props, 'right_scribe', text="Right Scribe")
+    sccol.prop(cab_props, 'top_scribe', text="Top Scribe")
+
+    # Stile to Floor (base / tall / lap only) -- both toggles on one row.
+    if cab_props.cabinet_type in ('BASE', 'TALL', 'LAP_DRAWER'):
+        stfbox = layout.box()
+        stfbox.label(text="Stile to Floor")
+        stfrow = stfbox.row(align=True)
+        stfrow.prop(cab_props, 'extend_left_stile_to_floor', text="Left")
+        stfrow.prop(cab_props, 'extend_right_stile_to_floor', text="Right")
+
+    # Stile Types (end stiles)
+    ebox = layout.box()
+    ebox.label(text="Stile Types")
+    draw_blind_corners(ebox, cab_props)
+
+
+def _locked_field(parent, bp, attr, unlock_attr, text):
+    """A single width field + lock toggle drawn into ``parent`` (a row or
+    column). Shared building block: _draw_locked_rail_row uses it for a
+    full-width row, and the Face Frame Sizes grid uses it to pack two
+    locked fields (Left / Right stile, or several mid stiles) onto one
+    row. Locked = field disabled, value follows its computed default;
+    unlocked = editable override that persists across style propagation."""
+    unlocked = getattr(bp, unlock_attr)
+    cell = parent.row(align=True)
+    field = cell.row(align=True)
+    field.enabled = unlocked
+    field.prop(bp, attr, text=text)
+    cell.prop(bp, unlock_attr, text="",
+              icon='UNLOCKED' if unlocked else 'LOCKED')
 
 
 def _draw_locked_rail_row(layout, bp, attr, unlock_attr, text):
-    """Draw a width field with a lock toggle. Locked (default):
-    field disabled, the value follows its computed default (bay rails
-    via _distribute_bay_rails; cabinet stile/rail via the assigned
-    style). Unlocked: field editable and the override persists across
-    style propagation. Generic over any object carrying ``attr`` +
-    ``unlock_attr`` (bay props or cabinet props)."""
-    unlocked = getattr(bp, unlock_attr)
-    row = layout.row(align=True)
-    field = row.row(align=True)
-    field.enabled = unlocked
-    field.prop(bp, attr, text=text)
-    row.prop(bp, unlock_attr, text="",
-             icon='UNLOCKED' if unlocked else 'LOCKED')
+    """Full-width width field + lock toggle on its own row. Generic over
+    any object carrying ``attr`` + ``unlock_attr`` (bay or cabinet props).
+    See _locked_field for the shared building block."""
+    _locked_field(layout, bp, attr, unlock_attr, text)
 
 
 def draw_bay_properties(layout, bay_obj):
@@ -610,7 +656,6 @@ def draw_opening_properties(layout, opening_obj):
     """
     op = opening_obj.face_frame_opening
     layout.label(text=f"Opening {op.opening_index + 1}", icon='MESH_PLANE')
-    col = layout.column(align=True)
 
     # Size + unlock - meaningful only when the opening is a child of a
     # split node (the redistributor uses it). A bay's ROOT opening fills
@@ -618,74 +663,102 @@ def draw_opening_properties(layout, opening_obj):
     # real opening height read-only instead of the stale, ignored prop.
     root_size = _root_opening_size(opening_obj)
     if root_size is not None:
-        size_row = col.row(align=True)
+        size_row = layout.row(align=True)
         size_row.enabled = False
         size_row.label(
             text="Size:  " + units.unit_to_string(
                 bpy.context.scene.unit_settings, root_size))
     else:
-        size_row = col.row(align=True)
+        size_row = layout.row(align=True)
         field = size_row.row(align=True)
         field.enabled = op.unlock_size
         field.prop(op, 'size', text="Size")
         lock_icon = 'UNLOCKED' if op.unlock_size else 'LOCKED'
         size_row.prop(op, 'unlock_size', text="", icon=lock_icon)
-    col.separator()
 
-    col.prop(op, 'front_type', text="Front Type")
-    if op.front_type in ('DOOR', 'PULLOUT'):
-        col.prop(op, 'hinge_side', text="Hinge Side")
-    # INSET_PANEL has no motion - skip the swing slider for it (and
-    # NONE which has no front to animate).
+    # Front: collapsible -- front type plus its conditional extras.
+    fbox = layout.box()
+    fbox.prop(op, 'show_front', text="Front Type",
+              icon='TRIA_DOWN' if op.show_front else 'TRIA_RIGHT', emboss=False)
+    if op.show_front:
+        fcol = fbox.column(align=True)
+        fcol.prop(op, 'front_type', text="Front Type")
+        if op.front_type in ('DOOR', 'PULLOUT'):
+            fcol.prop(op, 'hinge_side', text="Hinge Side")
+
+        # Sink apron (door openings only): a fixed face-frame panel across
+        # the top of the opening for an apron / farmhouse sink. Doors stay
+        # full height; the apron sits behind them.
+        if op.front_type == 'DOOR':
+            fcol.prop(op, 'add_apron', text="Add Apron")
+            if op.add_apron:
+                fcol.prop(op, 'apron_height', text="Apron Height")
+
+        # Drawer-look door (single-leaf swing doors): render the leaf as a
+        # stack of applied drawer fronts that still opens as one door.
+        if op.front_type == 'DOOR' and op.hinge_side in ('LEFT', 'RIGHT'):
+            fcol.prop(op, 'drawer_look_divisions', text="Drawer-Look")
+            if op.drawer_look_divisions != 'NONE':
+                heights_box = fcol.box()
+                heights_box.label(text="Drawer Opening Heights (top to bottom)")
+                for idx in range(len(op.drawer_look_openings) - 1, -1, -1):
+                    item = op.drawer_look_openings[idx]
+                    hrow = heights_box.row(align=True)
+                    field = hrow.row(align=True)
+                    field.enabled = item.unlock_size
+                    field.prop(item, 'size', text="Opening " + str(idx + 1))
+                    hrow.prop(item, 'unlock_size', text="",
+                              icon='UNLOCKED' if item.unlock_size else 'LOCKED')
+
+        # Tilt-out flag (false fronts only): label-only -- the 2D elevation
+        # prints TILT-OUT instead of FALSE. No geometry change.
+        if op.front_type == 'FALSE_FRONT':
+            fcol.prop(op, 'is_tilt_out', text="Tilt-Out")
+
+    # Open: swing / motion amount, kept separate from the front-type
+    # controls. INSET_PANEL has no motion; NONE has no front to animate.
     if op.front_type not in ('NONE', 'INSET_PANEL'):
-        col.prop(op, 'swing_percent', text="Open", slider=True)
+        opbox = layout.box()
+        opbox.prop(op, 'swing_percent', text="Open", slider=True)
 
-    # Sink apron (door openings only): a fixed face-frame panel across the
-    # top of the opening for an apron / farmhouse sink. Doors stay full
-    # height; the apron sits behind them.
-    if op.front_type == 'DOOR':
-        col.prop(op, 'add_apron', text="Add Apron")
-        if op.add_apron:
-            col.prop(op, 'apron_height', text="Apron Height")
+    # Finish: collapsible.
+    nbox = layout.box()
+    nbox.prop(op, 'show_finish', text="Finish Options",
+              icon='TRIA_DOWN' if op.show_finish else 'TRIA_RIGHT', emboss=False)
+    if op.show_finish:
+        ncol = nbox.column(align=True)
+        ncol.prop(op, 'finish_opening', text="Finish Opening")
+        if op.finish_opening:
+            ncol.prop(op, 'finish_opening_flush', text="Finish Flush")
+            if op.finish_opening_flush:
+                ncol.prop(op, 'finish_opening_flush_depth', text="Flush Depth")
 
-    # Drawer-look door (single-leaf swing doors): render the leaf as a
-    # stack of applied drawer fronts that still opens as one door.
-    if op.front_type == 'DOOR' and op.hinge_side in ('LEFT', 'RIGHT'):
-        col.prop(op, 'drawer_look_divisions', text="Drawer-Look")
-        if op.drawer_look_divisions != 'NONE':
-            heights_box = col.box()
-            heights_box.label(text="Drawer Opening Heights (top to bottom)")
-            for idx in range(len(op.drawer_look_openings) - 1, -1, -1):
-                item = op.drawer_look_openings[idx]
-                hrow = heights_box.row(align=True)
-                field = hrow.row(align=True)
-                field.enabled = item.unlock_size
-                field.prop(item, 'size', text="Opening " + str(idx + 1))
-                hrow.prop(item, 'unlock_size', text="",
-                          icon='UNLOCKED' if item.unlock_size else 'LOCKED')
-
-    # Tilt-out flag (false fronts only): label-only -- the 2D elevation
-    # prints TILT-OUT instead of FALSE. No geometry change.
-    if op.front_type == 'FALSE_FRONT':
-        col.prop(op, 'is_tilt_out', text="Tilt-Out")
-
-    col.separator()
-    col.prop(op, 'finish_opening', text="Finish Opening")
-    if op.finish_opening:
-        col.prop(op, 'finish_opening_flush', text="Finish Flush")
-        if op.finish_opening_flush:
-            col.prop(op, 'finish_opening_flush_depth', text="Flush Depth")
-
-    col.separator()
-    col.label(text="Overlays")
-    for side in ('top', 'bottom', 'left', 'right'):
-        unlocked = getattr(op, f'unlock_{side}_overlay')
-        row = col.row(align=True)
-        field = row.row(align=True)
-        field.enabled = unlocked
-        field.prop(op, f'{side}_overlay', text=side.capitalize())
-        lock_icon = 'UNLOCKED' if unlocked else 'LOCKED'
-        row.prop(op, f'unlock_{side}_overlay', text="", icon=lock_icon)
+    # Overlays: collapsible.
+    obox = layout.box()
+    obox.prop(op, 'show_overlays', text="Overlays",
+              icon='TRIA_DOWN' if op.show_overlays else 'TRIA_RIGHT', emboss=False)
+    if op.show_overlays:
+        ocol = obox.column(align=True)
+        from . import solver_face_frame
+        ov_root = types_face_frame.find_cabinet_root(opening_obj)
+        ov_cab = ov_root.face_frame_cabinet if ov_root is not None else None
+        for side in ('top', 'bottom', 'left', 'right'):
+            unlocked = getattr(op, f'unlock_{side}_overlay')
+            row = ocol.row(align=True)
+            field = row.row(align=True)
+            field.enabled = unlocked
+            if unlocked or ov_cab is None:
+                field.prop(op, f'{side}_overlay', text=side.capitalize())
+            else:
+                # Locked: the solver uses the cabinet default, so show that
+                # resolved value read-only instead of this opening's own
+                # (ignored) stored overlay -- which would otherwise misread
+                # as the 0.5" property default.
+                eff = solver_face_frame.resolved_overlay(ov_cab, op, side)
+                field.label(text=side.capitalize() + ":  " + units.unit_to_string(
+                    bpy.context.scene.unit_settings, eff))
+            lock_icon = 'UNLOCKED' if unlocked else 'LOCKED'
+            row.prop(op, f'unlock_{side}_overlay', text="", icon=lock_icon)
 
     # Interior Items: hidden for panel roots - panels never have
     # interior objects (no carcass to hold them). Walk up to the root
@@ -694,29 +767,29 @@ def draw_opening_properties(layout, opening_obj):
     if root is not None and root.face_frame_cabinet.cabinet_type == 'PANEL':
         return
 
-    layout.separator()
-    layout.label(text="Interior Items")
-
-    # When the opening has no tree the user can subdivide it directly,
-    # add items to the flat collection, or both. Once a tree exists,
-    # items live on leaves so the flat add buttons are suppressed; the
-    # tree itself is rendered inline below so the modal popup remains
-    # self-sufficient (no need to leave the popup to edit a region).
-    has_tree = any(
-        c.get(types_face_frame.TAG_INTERIOR_SPLIT_NODE)
-        or c.get(types_face_frame.TAG_INTERIOR_REGION)
-        for c in opening_obj.children
-    )
-
-    if not has_tree:
-        # Pass the opening's name as target_name so the Add / Remove
-        # operators in the buttons below survive an active-object
-        # change mid-popup (e.g., the shelf the user right-clicked
-        # gets wiped on a kind-change recalc).
-        _draw_interior_items_section(layout, op, target_name=opening_obj.name)
-        return
-
-    _draw_interior_tree_inline(layout, opening_obj)
+    ibox = layout.box()
+    ibox.prop(op, 'show_interior_items', text="Interior Items",
+              icon='TRIA_DOWN' if op.show_interior_items else 'TRIA_RIGHT',
+              emboss=False)
+    if op.show_interior_items:
+        # When the opening has no tree the user can subdivide it directly,
+        # add items to the flat collection, or both. Once a tree exists,
+        # items live on leaves so the flat add buttons are suppressed; the
+        # tree itself is rendered inline below so the modal popup remains
+        # self-sufficient (no need to leave the popup to edit a region).
+        has_tree = any(
+            c.get(types_face_frame.TAG_INTERIOR_SPLIT_NODE)
+            or c.get(types_face_frame.TAG_INTERIOR_REGION)
+            for c in opening_obj.children
+        )
+        if not has_tree:
+            # Pass the opening's name as target_name so the Add / Remove
+            # operators in the buttons below survive an active-object
+            # change mid-popup (e.g., the shelf the user right-clicked
+            # gets wiped on a kind-change recalc).
+            _draw_interior_items_section(ibox, op, target_name=opening_obj.name)
+        else:
+            _draw_interior_tree_inline(ibox, opening_obj)
 
 
 def _draw_interior_items_section(layout, target_props, target_name=""):
@@ -1051,14 +1124,13 @@ def draw_blind_corners(layout, cab_props):
 
 
 def draw_finished_ends(layout, cab_props):
-    """Per-cabinet finished ends + auto-pick flags.
+    """Per-cabinet finished ends.
 
-    One row per side (Left / Right / Back): label, auto checkbox, finish
-    type dropdown, and a context field that only appears when relevant -
-    scribe when type is UNFINISHED (left/right), flush-X amount when
-    type is FLUSH_X (left/right). Back has neither. The auto checkbox
-    lets exposure detection drive the dropdown; editing the dropdown
-    flips auto off automatically.
+    One row per side (Left / Right / Back): label + finish-type dropdown.
+    Left / Right also show that side's Extend Back inline on the same row
+    when finished; their scribe (UNFINISHED) or flush-X amount (FLUSH_X)
+    drops to its own labeled row. The Back's two extends (L / R) sit on a
+    dedicated row below its dropdown.
     """
     col = layout.column(align=True)
     for side, label, has_flush_x in (
@@ -1066,29 +1138,27 @@ def draw_finished_ends(layout, cab_props):
         ('right', 'Right', True),
         ('back', 'Back', False),
     ):
+        fin_type = getattr(cab_props, f'{side}_finished_end_condition')
+        # Left / Right: label + dropdown, with that side's Extend Back
+        # inline on the same row when it carries a finished part. The Back
+        # keeps its two extends (L / R) on a dedicated row below.
         row = col.row(align=True)
         row.label(text=label)
-        row.prop(cab_props, f'{side}_finish_end_auto', text="", icon='AUTO')
         row.prop(cab_props, f'{side}_finished_end_condition', text="")
-        fin_type = getattr(cab_props, f'{side}_finished_end_condition')
+        if (side in ('left', 'right')
+                and fin_type not in ('UNFINISHED', 'FLUSH_X')):
+            row.prop(cab_props, f'{side}_side_finished_extend_back',
+                     text="Extend Back")
         if has_flush_x and fin_type == 'FLUSH_X':
-            row.prop(cab_props, f'{side}_flush_x_amount', text="")
+            col.prop(cab_props, f'{side}_flush_x_amount', text="Flush-X Amount")
         elif fin_type == 'UNFINISHED' and side != 'back':
-            row.prop(cab_props, f'{side}_scribe', text="")
+            col.prop(cab_props, f'{side}_scribe', text="Scribe")
 
-        # Finished-end overhang extensions. Shown only when the side
-        # carries a finished part. Back: extend past the L / R cabinet
-        # ends. Left / Right: extend the side part past the cabinet back
-        # (skipped for FLUSH_X, whose depth IS its amount field).
+        # Back: extend past the L / R cabinet ends, on its own row.
         if side == 'back' and fin_type != 'UNFINISHED':
             ext = col.row(align=True)
             ext.prop(cab_props, 'back_finished_extend_left', text="Extend L")
             ext.prop(cab_props, 'back_finished_extend_right', text="Extend R")
-        elif (side in ('left', 'right')
-              and fin_type not in ('UNFINISHED', 'FLUSH_X')):
-            ext = col.row(align=True)
-            ext.prop(cab_props, f'{side}_side_finished_extend_back',
-                     text="Extend Back")
 
 
 def draw_all_bays_summary(layout, root):
