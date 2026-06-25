@@ -2125,11 +2125,11 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
             return None
 
         # door_style resolves in door_styles, drawer_front_style in the
-        # separate drawer_front_styles pool (independent lists).
+        # separate drawer_front_styles pool (independent lists). These are the
+        # cabinet-level DEFAULTS, applied only to fronts that carry no per-front
+        # assignment of their own (see the DOOR_STYLE_NAME check below).
         door_ds = resolve(self.door_style, ff.door_styles)
         drawer_ds = resolve(self.drawer_front_style, ff.drawer_front_styles)
-        if door_ds is None and drawer_ds is None:
-            return
 
         for child in cabinet_obj.children_recursive:
             if 'CABINET_PART' not in child:
@@ -2143,10 +2143,21 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
             if child.get('HB_DRAWER_LOOK_CARRIER'):
                 continue
             role = child.get('hb_part_role')
-            if role in DOOR_ROLES and door_ds is not None:
-                door_ds.assign_style_to_front(child)
-            elif role in DRAWER_ROLES and drawer_ds is not None:
-                drawer_ds.assign_style_to_front(child)
+            if role in DOOR_ROLES:
+                pool, default_ds = ff.door_styles, door_ds
+            elif role in DRAWER_ROLES:
+                pool, default_ds = ff.drawer_front_styles, drawer_ds
+            else:
+                continue
+            # The solver wipes and rebuilds every front on each recalc, so an
+            # opening-size edit (or any cabinet alteration) lands here. Prefer
+            # the front's OWN previously-assigned style, recorded in
+            # DOOR_STYLE_NAME, so a per-front override survives the rebuild;
+            # fall back to the cabinet default only for fronts with no stored
+            # assignment. Mirrors _reapply_front_style (ops_part_commands.py).
+            ds = resolve(child.get('DOOR_STYLE_NAME'), pool) or default_ds
+            if ds is not None:
+                ds.assign_style_to_front(child)
 
     # =================================================================
     # UI
