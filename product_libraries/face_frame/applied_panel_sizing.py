@@ -163,16 +163,28 @@ def apply_panel_sizing(cab_obj, panel_obj, side, panel_condition):
         return
     panel_props = panel_obj.face_frame_cabinet
     with types_face_frame.suspend_recalc():
-        panel_props.top_rail_width = sizes['top_rail_width']
-        panel_props.bottom_rail_width = sizes['bottom_rail_width']
-        panel_props.left_stile_width = sizes['left_stile_width']
-        panel_props.right_stile_width = sizes['right_stile_width']
+        # Respect per-part unlocks: a rail/stile the user unlocked + overrode
+        # on the applied panel's own face frame must survive a host-cabinet
+        # recalc (which re-runs this auto-size). Locked parts keep following
+        # the auto-calc. Mirrors _apply_face_frame_sizes_to_cabinet_inner.
+        # Stiles render from the panel cabinet level, rails from each bay,
+        # so each write is gated by the unlock flag at its own level.
+        if not panel_props.unlock_top_rail:
+            panel_props.top_rail_width = sizes['top_rail_width']
+        if not panel_props.unlock_bottom_rail:
+            panel_props.bottom_rail_width = sizes['bottom_rail_width']
+        if not panel_props.unlock_left_stile:
+            panel_props.left_stile_width = sizes['left_stile_width']
+        if not panel_props.unlock_right_stile:
+            panel_props.right_stile_width = sizes['right_stile_width']
         for child in panel_obj.children_recursive:
             if not child.get(types_face_frame.TAG_BAY_CAGE):
                 continue
             bay = child.face_frame_bay
-            bay.top_rail_width = sizes['top_rail_width']
-            bay.bottom_rail_width = sizes['bottom_rail_width']
+            if not bay.unlock_top_rail:
+                bay.top_rail_width = sizes['top_rail_width']
+            if not bay.unlock_bottom_rail:
+                bay.bottom_rail_width = sizes['bottom_rail_width']
 
 
 # ---------------------------------------------------------------------------

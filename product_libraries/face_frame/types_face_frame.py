@@ -224,6 +224,14 @@ def part_width_is_unlocked(obj):
             return bool(cab.mid_stile_widths[msi].unlock)
         return False
     if role in (PART_ROLE_TOP_RAIL, PART_ROLE_BOTTOM_RAIL):
+        attr = ('unlock_top_rail' if role == PART_ROLE_TOP_RAIL
+                else 'unlock_bottom_rail')
+        # Cabinet-level rail unlock (the lock toggle in the cabinet prompts,
+        # draw_face_frame_defaults) overrides every bay's rail, so flag the
+        # part when it is set -- the same name lives on the bay, which the
+        # right-click set_part_width path flips. Either one means overridden.
+        if getattr(cab, attr):
+            return True
         start = obj.get('hb_segment_start_bay', 0)
         bay = None
         for child in root.children:
@@ -232,8 +240,6 @@ def part_width_is_unlocked(obj):
                 break
         if bay is None:
             return False
-        attr = ('unlock_top_rail' if role == PART_ROLE_TOP_RAIL
-                else 'unlock_bottom_rail')
         return bool(getattr(bay.face_frame_bay, attr))
     if role in (PART_ROLE_BAY_MID_RAIL, PART_ROLE_BAY_MID_STILE):
         split_name = obj.get('hb_split_node_name')
