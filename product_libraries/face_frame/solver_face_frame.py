@@ -2434,6 +2434,39 @@ def bay_cage_dims(layout, bay_index):
     return (cage_dim_x, cage_dim_y, cage_dim_z)
 
 
+def bay_opening_center_x(layout, bay_index):
+    """Cabinet-local X of a bay's FACE FRAME OPENING center - midway
+    between the inner edges of the bay's bounding stiles (the end stiles
+    for the outer bays, mid stiles between).
+
+    This differs from the bay cage center (``bay_cage_position`` +
+    ``bay_cage_dims`` / 2), which tracks the carcass interior and so
+    shifts with scribe / finished-end / side-thickness conditions. A
+    symmetric face frame yields the cabinet midpoint here regardless of
+    an asymmetric end condition, so a sink centerline dimensioned to this
+    reads the opening the basin actually sits in, not the scribe-shifted
+    cavity midpoint.
+    """
+    ff_len = face_frame_length(layout)
+    last = layout.bay_count - 1
+    # Left bounding stile inner (right-facing) edge, FF-local X.
+    if bay_index <= 0:
+        left_inner = layout.lsw
+    else:
+        gap = bay_index - 1
+        left_inner = ((_mid_stile_center_x(layout, gap) - layout.blind_offset_left)
+                      + layout.mid_stiles[gap]['width'] / 2.0)
+    # Right bounding stile inner (left-facing) edge, FF-local X.
+    if bay_index >= last:
+        right_inner = ff_len - layout.rsw
+    else:
+        gap = bay_index
+        right_inner = ((_mid_stile_center_x(layout, gap) - layout.blind_offset_left)
+                       - layout.mid_stiles[gap]['width'] / 2.0)
+    # Back to cabinet-local X (the FF plane starts at blind_offset_left).
+    return (left_inner + right_inner) / 2.0 + layout.blind_offset_left
+
+
 # ---------------------------------------------------------------------------
 # Opening cage (the face frame opening; child of a bay cage)
 # ---------------------------------------------------------------------------
