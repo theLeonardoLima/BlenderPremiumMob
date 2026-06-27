@@ -1092,17 +1092,17 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         update=_propagate_cabinet_style,
     )  # type: ignore
     ff_inside_90_stile_width_base: FloatProperty(
-        name="Inside 90 Stile (Base)", default=units.inch(3.0),
+        name="Inside 90 Stile (Base)", default=units.inch(1.5),
         unit='LENGTH', precision=4,
         update=_propagate_cabinet_style,
     )  # type: ignore
     ff_inside_90_stile_width_tall: FloatProperty(
-        name="Inside 90 Stile (Tall)", default=units.inch(3.0),
+        name="Inside 90 Stile (Tall)", default=units.inch(1.5),
         unit='LENGTH', precision=4,
         update=_propagate_cabinet_style,
     )  # type: ignore
     ff_inside_90_stile_width_upper: FloatProperty(
-        name="Inside 90 Stile (Upper)", default=units.inch(2.0),
+        name="Inside 90 Stile (Upper)", default=units.inch(1.0),
         unit='LENGTH', precision=4,
         update=_propagate_cabinet_style,
     )  # type: ignore

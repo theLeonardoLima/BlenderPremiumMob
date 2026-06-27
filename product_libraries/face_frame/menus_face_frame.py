@@ -13,6 +13,7 @@ import bpy
 
 from . import bay_presets
 from . import types_face_frame
+from . import types_face_frame_corner
 from .operators import ops_part_commands
 from ... import units
 
@@ -222,7 +223,9 @@ class HOME_BUILDER_MT_face_frame_part_commands(bpy.types.Menu):
         # carcass side panels. The operator derives the side from the
         # clicked part's role and shows only that side's enum.
         if role in (types_face_frame.PART_ROLE_LEFT_SIDE,
-                    types_face_frame.PART_ROLE_RIGHT_SIDE):
+                    types_face_frame.PART_ROLE_RIGHT_SIDE,
+                    types_face_frame_corner.PART_ROLE_CORNER_LEFT_SIDE,
+                    types_face_frame_corner.PART_ROLE_CORNER_RIGHT_SIDE):
             layout.operator("hb_face_frame.set_finished_end_condition",
                             text="Set Finished End Condition...",
                             icon='MOD_SOLIDIFY')

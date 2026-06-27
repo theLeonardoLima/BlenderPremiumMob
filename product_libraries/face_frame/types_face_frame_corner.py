@@ -993,6 +993,17 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
         elif cab_props.corner_type == 'PIE_CUT_DRAWER':
             self._recalculate_pie_cut_drawer()
 
+        # Ensure every corner part carries a right-click menu. Corner parts
+        # are built outside the standard rectangular reconciliation, so they
+        # miss the part-commands menu it assigns; without a MENU_ID a part
+        # has no right-click menu at all (e.g. side panels couldn't reach
+        # Set Finished End Condition). Assign the shared part-commands menu
+        # to any part that has a role but no menu, without clobbering one
+        # that already has a more specific menu.
+        for _part_obj in self.obj.children_recursive:
+            if _part_obj.get('hb_part_role') and not _part_obj.get('MENU_ID'):
+                _part_obj['MENU_ID'] = 'HOME_BUILDER_MT_face_frame_part_commands'
+
     def _reconcile_pie_cut_sections(self, cab_props):
         """Create / remove the section-dependent pie cut parts - one door
         per arm per section, plus a mid rail per arm between sections -

@@ -21,6 +21,7 @@ import bpy
 from bpy.props import BoolProperty, FloatProperty, StringProperty
 
 from .. import types_face_frame
+from .. import types_face_frame_corner
 from ....hb_types import GeoNodeCutpart
 from .... import units
 
@@ -1624,6 +1625,11 @@ class hb_face_frame_OT_remove_mid_rail(bpy.types.Operator):
 _SIDE_PANEL_ROLES = frozenset({
     types_face_frame.PART_ROLE_LEFT_SIDE,
     types_face_frame.PART_ROLE_RIGHT_SIDE,
+    # Corner cabs tag their exposed sides with corner-specific roles. The
+    # operator edits cabinet-level finished-end props via find_cabinet_root,
+    # so it works for corners once the side panel is reachable here.
+    types_face_frame_corner.PART_ROLE_CORNER_LEFT_SIDE,
+    types_face_frame_corner.PART_ROLE_CORNER_RIGHT_SIDE,
 })
 
 
@@ -1660,7 +1666,9 @@ class hb_face_frame_OT_set_finished_end_condition(bpy.types.Operator):
         # its role so the dialog edits the matching cabinet prop.
         obj = context.active_object
         if (obj is not None
-                and obj.get('hb_part_role') == types_face_frame.PART_ROLE_RIGHT_SIDE):
+                and obj.get('hb_part_role') in (
+                    types_face_frame.PART_ROLE_RIGHT_SIDE,
+                    types_face_frame_corner.PART_ROLE_CORNER_RIGHT_SIDE)):
             self.side = 'RIGHT'
         else:
             self.side = 'LEFT'

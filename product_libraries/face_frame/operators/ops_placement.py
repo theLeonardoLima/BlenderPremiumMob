@@ -1310,7 +1310,8 @@ def _abutting_corner_stile(cab_obj, side, wall):
     same height band): INSIDE_90 for a pie cut, ANGLE for a diagonal, else
     None. The corner's right arm runs along the wall by its Dim X, so the
     abutment edge is location.x (its left) or location.x + Dim X (its
-    right)."""
+    right). Returns (stile_type, corner_obj, corner_side) so the caller can
+    mirror the joint onto the corner's meeting stile, or None."""
     props = cab_obj.face_frame_cabinet
     edge = cab_obj.location.x if side == 'LEFT' else cab_obj.location.x + props.width
     my_range = _cabinet_world_z_range(cab_obj)
@@ -1326,7 +1327,14 @@ def _abutting_corner_stile(cab_obj, side, wall):
             continue
         meet = (sib.location.x + sib_dimx) if side == 'LEFT' else sib.location.x
         if abs(edge - meet) <= tol:
-            return _CORNER_TYPE_TO_STILE.get(sib.face_frame_cabinet.corner_type)
+            stile_type = _CORNER_TYPE_TO_STILE.get(
+                sib.face_frame_cabinet.corner_type)
+            if stile_type is None:
+                return None
+            # Our LEFT end meets the corner's right arm-end (its RIGHT
+            # stile); our RIGHT end meets the corner's LEFT stile.
+            corner_side = 'RIGHT' if side == 'LEFT' else 'LEFT'
+            return (stile_type, sib, corner_side)
     return None
 
 
@@ -1352,11 +1360,15 @@ def _auto_detect_stile_types(cab_obj):
     left = cab_obj.location.x
     right = left + props.width
     want = {}
+    corner_joins = []  # (corner_obj, corner_side) to mirror the pie-cut joint
     for side, at_wall_end in (('LEFT', left <= tol),
                               ('RIGHT', right >= wall_length - tol)):
-        corner_stile = _abutting_corner_stile(cab_obj, side, wall)
-        if corner_stile:
-            want[side] = corner_stile
+        hit = _abutting_corner_stile(cab_obj, side, wall)
+        if hit:
+            stile_type, corner_obj, corner_side = hit
+            want[side] = stile_type
+            if stile_type == 'INSIDE_90':
+                corner_joins.append((corner_obj, corner_side))
         elif at_wall_end:
             want[side] = 'WALL'
         else:
@@ -1366,6 +1378,15 @@ def _auto_detect_stile_types(cab_obj):
             props.left_stile_type = want['LEFT']
         if props.right_stile_type != want['RIGHT']:
             props.right_stile_type = want['RIGHT']
+    # Mirror the pie-cut joint onto the abutting corner cabinet so both
+    # meeting stiles take the Inside-90 stile width. Setting the corner's
+    # meeting-side stile type to INSIDE_90 fires its own width derivation +
+    # recalc; done outside the suspend so that recalc runs.
+    for corner_obj, corner_side in corner_joins:
+        cprops = corner_obj.face_frame_cabinet
+        attr = corner_side.lower() + '_stile_type'
+        if getattr(cprops, attr) != 'INSIDE_90':
+            setattr(cprops, attr, 'INSIDE_90')
 
 
 class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
