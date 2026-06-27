@@ -2365,24 +2365,30 @@ _ALL_ACCESSORY_HOSTS = {
 # Enum item lists must stay alive at module scope (Blender keeps only the
 # char* of each string).
 _accessory_product_items = []
-_accessory_search_items = []
 
 
 def _valid_accessory_hosts(opening_obj):
     """Host keys whose accessories make sense for ``opening_obj`` (strict
-    context filter). Drawer-front openings -> drawer inserts only; an opening
-    in a blind-corner cabinet -> blind-corner hardware only; otherwise every
-    opening host, with door-mounted items gated to openings that have a door.
-    Fails open (all hosts) when the opening can't be read."""
-    if opening_obj is None:
-        return set(_ALL_ACCESSORY_HOSTS)
-    fo = getattr(opening_obj, 'face_frame_opening', None)
+    context filter). ``opening_obj`` may be the opening cage itself or any
+    descendant (interior region, split node, part) the user clicked - the
+    owning opening cage is resolved first so the front type is read off the
+    real opening, not whatever leaf happened to be active. Drawer-front
+    openings -> drawer inserts only; an opening in a blind-corner cabinet ->
+    blind-corner hardware only; otherwise every opening host, with door-
+    mounted items gated to openings that have a door. Returns an EMPTY set
+    when no owning opening / front type can be resolved, so a detection miss
+    shows nothing (and the menu prompts to select an opening) rather than
+    dumping the whole catalog."""
+    opening = _find_owning_opening(opening_obj) if opening_obj is not None else None
+    if opening is None:
+        return set()
+    fo = getattr(opening, 'face_frame_opening', None)
     front = fo.front_type if fo is not None else None
     if front is None:
-        return set(_ALL_ACCESSORY_HOSTS)
+        return set()
     if front == 'DRAWER_FRONT':
         return {'drawer_accessory'}
-    root = types_face_frame.find_cabinet_root(opening_obj)
+    root = types_face_frame.find_cabinet_root(opening)
     cab = getattr(root, 'face_frame_cabinet', None) if root is not None else None
     if cab is not None and (getattr(cab, 'blind_left', False)
                             or getattr(cab, 'blind_right', False)):
@@ -2435,10 +2441,15 @@ def _accessory_product_enum(self, context):
     return _accessory_product_items
 
 
-def _accessory_search_enum(self, context):
-    """Every accessory valid for the opening, for the fuzzy search popup."""
-    _accessory_search_items.clear()
-    valid = _valid_accessory_hosts(_accessory_target(self, context))
+def _populate_accessory_search(operator, context):
+    """Fill ``operator.matches`` with the catalog accessories valid for the
+    opening, narrowed by ``operator.filter_text``. The filter is split into
+    space-separated tokens; every token must appear (case-insensitively)
+    somewhere in the item's name / section / group / code. Called on invoke
+    and on every keystroke (via the operator's ``check``)."""
+    operator.matches.clear()
+    valid = _valid_accessory_hosts(_accessory_target(operator, context))
+    tokens = operator.filter_text.lower().split()
     for it in accessory_registry.all_items():
         if it.get('host') not in valid:
             continue
@@ -2446,15 +2457,21 @@ def _accessory_search_enum(self, context):
         if not code:
             continue
         name = it.get('name', code)
+        sec = it.get('section', '')
         grp = it.get('group', '')
+        if tokens:
+            hay = (" ".join((name, sec, grp, code))).lower()
+            if not all(tok in hay for tok in tokens):
+                continue
+        row = operator.matches.add()
+        row.code = code
+        row.name = name
+        row.section = sec
+        row.group = grp
         mw = it.get('min_opening_w')
-        label = ("%s - %s" % (grp, name)) if grp else name
-        if mw is not None:
-            label += "  (min %g\")" % mw
-        _accessory_search_items.append((code, label, name))
-    if not _accessory_search_items:
-        _accessory_search_items.append(('NONE', "(none)", "No accessories"))
-    return _accessory_search_items
+        row.label = name if mw is None else "%s  (min %g\")" % (name, mw)
+    operator.active_index = min(operator.active_index,
+                                max(0, len(operator.matches) - 1))
 
 
 class hb_face_frame_OT_add_accessory(bpy.types.Operator):
@@ -2661,34 +2678,89 @@ class hb_face_frame_OT_accessory_menu(bpy.types.Operator):
             op.group = grp
 
 
+class AccessorySearchRow(bpy.types.PropertyGroup):
+    """One result row in the accessory search dialog."""
+    code: bpy.props.StringProperty()  # type: ignore
+    label: bpy.props.StringProperty()  # type: ignore
+    name: bpy.props.StringProperty()  # type: ignore
+    section: bpy.props.StringProperty()  # type: ignore
+    group: bpy.props.StringProperty()  # type: ignore
+
+
+class HB_UL_face_frame_accessory_search(bpy.types.UIList):
+    """Result list for the accessory search dialog: model name (with any
+    minimum-width note) on the left, its catalog section / group on the
+    right."""
+    def draw_item(self, context, layout, data, item, icon, active_data,
+                  active_propname):
+        split = layout.split(factor=0.55)
+        split.label(text=item.label, icon='DOT')
+        loc = ("%s / %s" % (item.section, item.group)
+               if item.group else item.section)
+        split.label(text=loc)
+
+
+def _accessory_search_update(self, context):
+    """Live filter as the user types (filter_text uses TEXTEDIT_UPDATE)."""
+    _populate_accessory_search(self, context)
+
+
 class hb_face_frame_OT_search_accessory(bpy.types.Operator):
-    """Fuzzy-search the accessory catalog (filtered to the opening) and open
-    the model dialog for the chosen item."""
+    """Search the accessory catalog (filtered to the opening) in a wide
+    dialog: type to narrow the list, pick a row, then the model dialog opens
+    for the chosen accessory."""
     bl_idname = "hb_face_frame.search_accessory"
     bl_label = "Search Accessory"
-    bl_property = "result"
 
     target_name: bpy.props.StringProperty(default="", options={'HIDDEN'})  # type: ignore
-    result: bpy.props.EnumProperty(name="Accessory", items=_accessory_search_enum)  # type: ignore
+    filter_text: bpy.props.StringProperty(
+        name="Search",
+        description="Filter accessories by name, section, group or code",
+        options={'TEXTEDIT_UPDATE'}, update=_accessory_search_update,
+    )  # type: ignore
+    matches: bpy.props.CollectionProperty(type=AccessorySearchRow)  # type: ignore
+    active_index: bpy.props.IntProperty(default=0)  # type: ignore
 
     @classmethod
     def poll(cls, context):
         return True
 
     def invoke(self, context, event):
-        context.window_manager.invoke_search_popup(self)
-        return {'FINISHED'}
+        self.active_index = 0
+        _populate_accessory_search(self, context)
+        return context.window_manager.invoke_props_dialog(self, width=600)
+
+    def check(self, context):
+        # Any edit in the dialog re-runs the filter and forces a redraw so the
+        # result list reflects the current search text.
+        _populate_accessory_search(self, context)
+        return True
+
+    def draw(self, context):
+        layout = self.layout
+        layout.prop(self, "filter_text", icon='VIEWZOOM')
+        if len(self.matches) == 0:
+            layout.label(text="No accessories match", icon='INFO')
+            return
+        layout.template_list(
+            "HB_UL_face_frame_accessory_search", "",
+            self, "matches",
+            self, "active_index",
+            rows=12,
+        )
 
     def execute(self, context):
-        if self.result in ('NONE', ''):
+        if len(self.matches) == 0:
             return {'CANCELLED'}
-        it = accessory_registry.find(self.result)
+        idx = max(0, min(self.active_index, len(self.matches) - 1))
+        row = self.matches[idx]
+        it = accessory_registry.find(row.code)
         if it is None:
             return {'CANCELLED'}
         bpy.ops.hb_face_frame.add_accessory(
             'INVOKE_DEFAULT', target_name=self.target_name,
             section=it.get('section', ''), group=it.get('group', ''),
-            code=self.result)
+            code=row.code)
         return {'FINISHED'}
 
 
@@ -3965,6 +4037,8 @@ classes = (
     hb_face_frame_OT_add_interior_accessory,
     hb_face_frame_OT_add_accessory,
     hb_face_frame_OT_accessory_menu,
+    AccessorySearchRow,
+    HB_UL_face_frame_accessory_search,
     hb_face_frame_OT_search_accessory,
     hb_face_frame_OT_add_appliance_to_bay,
     hb_face_frame_OT_remove_appliance_from_bay,
