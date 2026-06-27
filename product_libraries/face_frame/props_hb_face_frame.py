@@ -4392,10 +4392,13 @@ class Face_Frame_Cabinet_Props(PropertyGroup):
     interior_option: EnumProperty(
         name="Interior Option",
         items=[
-            ('NONE',               "None",                "No interior accessory"),
-            ('KIDNEY_SUSANS',      "Kidney Susans",       "Kidney-shaped rotating shelves"),
-            ('SUPER_SUSANS',       "Super Susans",        "Round rotating shelves on bearings"),
-            ('NOT_SO_LAZY_SUSANS', "Not So Lazy Susans",  "Pan storage with hooks plus a lower tray"),
+            ('NONE',                       "None",                                  "No interior accessory"),
+            ('POLYMER_KIDNEY_SUSANS_POLE', "Polymer Kidney Susans on Pole",         "Polymer kidney susans on a center pole"),
+            ('WOOD_KIDNEY_SUSANS_POLE',    "Wood Kidney Susans on Pole",            "Wood kidney susans on a center pole"),
+            ('POLYMER_PIE_CUT_REVOLVING',  "Polymer Pie-cut Revolving Door Susans", "Polymer revolving-door susans for a pie-cut corner"),
+            ('WOOD_PIE_CUT_REVOLVING',     "Wood Pie-Cut Revolving Door Susans",    "Wood revolving-door susans for a pie-cut corner"),
+            ('SUPER_SUSANS',               "Super Susans",                          "Round rotating shelves on bearings"),
+            ('NOT_SO_LAZY_SUSANS',         "Not So Lazy Susan",                     "Pan storage with hooks plus a lower tray"),
         ],
         default='NONE',
         update=_update_cabinet_dim,
