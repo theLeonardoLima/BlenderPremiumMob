@@ -1121,6 +1121,14 @@ class FaceFrameCabinet(GeoNodeCage):
         mid_stile.set_input('Mirror Y', True)
         mid_stile.set_input('Mirror Z', True)
 
+        # Face-frame-only roots (panels / applied panels) have no carcass,
+        # so they get the mid stile but never mid-division partitions or
+        # partition skins. Mirrors the guard in _build_carcass_parts;
+        # without it insert_bay (used by the applied-panel split) seeds
+        # carcass parts onto panels that shouldn't have them.
+        if not self._has_carcass():
+            return
+
         for slot in (0, 1):
             mid_div = CabinetPart()
             mid_div.create(f'Mid Division {gap_index + 1}.{slot}')
@@ -3433,6 +3441,16 @@ class FaceFrameCabinet(GeoNodeCage):
             applied_panel_sizing.apply_panel_toe_kick_notch(
                 self.obj, panel_obj, side,
             )
+
+            # Stamp a right-click menu onto the panel's menu-less parts
+            # (inset panel fronts, pivots) so clicking any part of the
+            # applied panel surfaces the panel's own prompts via the
+            # part-commands menu. Face-frame parts already carry that
+            # MENU_ID; cabinet_prompts resolves to the panel root.
+            for part in panel_obj.children_recursive:
+                if part.get('hb_part_role') and not part.get('MENU_ID'):
+                    part['MENU_ID'] = (
+                        'HOME_BUILDER_MT_face_frame_part_commands')
 
     # =====================================================================
     # Applied finished back (single 3/4 part layered on the carcass back)

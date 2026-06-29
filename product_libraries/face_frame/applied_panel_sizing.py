@@ -220,6 +220,29 @@ _PANEL_PART_THICKNESS = 0.75 * 0.0254  # meters
 # auto-generated vertical splitter at their center.
 _MID_STILE_WIDTH_THRESHOLD = 21.0 * 0.0254
 
+# Applied-panel opening count by panel width: one opening up to 20",
+# then one extra
+# opening (and thus one extra mid stile) at roughly every 18" step,
+# capped at 8 openings. Mid-stile count is openings - 1.
+_PANEL_OPENING_WIDTH_BREAKS = (
+    20.0 * 0.0254,   # <= -> 1 opening
+    38.0 * 0.0254,   # <= -> 2
+    56.0 * 0.0254,   # <= -> 3
+    74.0 * 0.0254,   # <= -> 4
+    92.0 * 0.0254,   # <= -> 5
+    110.0 * 0.0254,  # <= -> 6
+    128.0 * 0.0254,  # <= -> 7
+)                    #  > last -> 8
+
+
+def _panel_opening_qty(width):
+    """Number of openings a real-bay applied panel of this width gets
+    (per the width ladder above). Mid stiles = result - 1."""
+    for i, brk in enumerate(_PANEL_OPENING_WIDTH_BREAKS):
+        if width <= brk:
+            return i + 1
+    return len(_PANEL_OPENING_WIDTH_BREAKS) + 1
+
 
 def apply_panel_toe_kick_notch(cab_obj, panel_obj, side):
     """Add or refresh a 'Notch Front Bottom' CPM_CORNERNOTCH on the
@@ -353,6 +376,20 @@ def _ensure_and_drive_notch(part_obj, active, x_val, y_val, flips):
 # Pass 2: panel split structure (mid rails + mid stiles)
 # ---------------------------------------------------------------------------
 
+def _strip_panel_carcass_parts(panel_obj):
+    """Remove any MID_DIVISION / PARTITION_SKIN parts from a panel root.
+    Panels carry no carcass, so these are always spurious - left over
+    from older builds where insert_bay seeded them onto the panel."""
+    stale = (types_face_frame.PART_ROLE_MID_DIVISION,
+             types_face_frame.PART_ROLE_PARTITION_SKIN)
+    for child in list(panel_obj.children):
+        if child.get('hb_part_role') in stale:
+            mesh = child.data
+            bpy.data.objects.remove(child, do_unlink=True)
+            if mesh is not None and getattr(mesh, 'users', 0) == 0:
+                bpy.data.meshes.remove(mesh)
+
+
 def apply_panel_split_structure(cab_obj, panel_obj, side):
     """Build the panel's internal opening tree.
 
@@ -388,16 +425,25 @@ def apply_panel_split_structure(cab_obj, panel_obj, side):
     if panel_bay_obj is None:
         return
 
+    # Self-heal: panels have no carcass, so MID_DIVISION / PARTITION_SKIN
+    # parts are always spurious. insert_bay historically seeded them onto
+    # applied panels; strip any so panels built before the
+    # _create_mid_parts_at guard converge to a clean state on recalc.
+    _strip_panel_carcass_parts(panel_obj)
+
     rails = _detect_panel_mid_rails(cab_obj, side, panel_bay_obj)
     panel_props = panel_obj.face_frame_cabinet
     wide = panel_props.width >= _MID_STILE_WIDTH_THRESHOLD
+    # Openings scale with width when the panel splits into real bays
+    # (no rail-matched H-split in play); see the width ladder above.
+    n_open = _panel_opening_qty(panel_props.width)
 
     # Bay quantity: real-bay mid stile only when no rails are in play.
     # insert_bay / delete_bay manage their own recalc guards and were
     # built to run on a live cabinet -- call them OUTSIDE the suspend
     # block. insert_bay clones the anchor bay's tree, which is fine:
     # every bay tree is wiped + rebuilt below.
-    desired_qty = 2 if (wide and not rails) else 1
+    desired_qty = n_open if not rails else 1
     bays = _sorted_panel_bays(panel_obj)
     pcab = types_face_frame._wrap_cabinet(panel_obj)
     while len(bays) < desired_qty:

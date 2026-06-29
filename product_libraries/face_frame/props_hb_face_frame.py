@@ -1850,7 +1850,7 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
     @staticmethod
     def _get_glass_panel_material():
         """Get/create the 'Door Panel Glass' material for prep-for-glass door
-        panels. Mirrors the Pulito reference: a Glass BSDF mixed 50/50 with a
+        panels. A Glass BSDF mixed 50/50 with a
         Transparent shader -- near-clear, very slight blue tint, roughness 0,
         IOR 1.45. Cached by name. Socket writes are guarded so a renamed input
         on a future Blender can't raise."""
