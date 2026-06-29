@@ -982,6 +982,207 @@ class hb_face_frame_OT_remove_cabinet_extra_front_style(Operator):
         return {'FINISHED'}
 
 
+class hb_face_frame_OT_paint_part_material(bpy.types.Operator):
+    """Modal part-paint: click parts (or any object) to paint the active
+    cabinet style's Finish or Interior material onto them, or Reset a
+    cabinet part to its automatic by-role material. For a cabinet part the
+    choice is stored as a per-part override (hb_part_material_override) so it
+    survives recalc; for any other object the material is assigned to its
+    slots directly. 1 / 2 / 3 switch brush; Esc / RMB finishes."""
+    bl_idname = "hb_face_frame.paint_part_material"
+    bl_label = "Paint Part Material"
+    bl_description = ("Click parts to paint the cabinet style's finish / "
+                      "interior material onto them")
+    bl_options = {'REGISTER', 'UNDO'}
+
+    brush: bpy.props.EnumProperty(
+        name="Brush",
+        items=[
+            ('FINISH',   "Finish",   "Paint the style's finish (exterior) material"),
+            ('INTERIOR', "Interior", "Paint the style's interior material"),
+            ('RESET',    "Reset",    "Return a cabinet part to its automatic material"),
+        ],
+        default='FINISH',
+    )  # type: ignore
+
+    @classmethod
+    def poll(cls, context):
+        ff = get_style_props(context)
+        return len(ff.cabinet_styles) > 0
+
+    def _active_style(self, ff):
+        idx = ff.active_cabinet_style_index
+        return ff.cabinet_styles[idx] if 0 <= idx < len(ff.cabinet_styles) else None
+
+    def _region_under_mouse(self, context, event):
+        x, y = event.mouse_x, event.mouse_y
+        for area in context.screen.areas:
+            if area.type != 'VIEW_3D':
+                continue
+            for region in area.regions:
+                if (region.type == 'WINDOW'
+                        and region.x <= x < region.x + region.width
+                        and region.y <= y < region.y + region.height):
+                    rv3d = area.spaces.active.region_3d
+                    return region, rv3d, (x - region.x, y - region.y)
+        return None, None, None
+
+    def _object_under_cursor(self, context, event):
+        from bpy_extras import view3d_utils
+        region, rv3d, coord = self._region_under_mouse(context, event)
+        if region is None:
+            return None
+        origin = view3d_utils.region_2d_to_origin_3d(region, rv3d, coord)
+        direction = view3d_utils.region_2d_to_vector_3d(region, rv3d, coord)
+        depsgraph = context.evaluated_depsgraph_get()
+        hit, loc, nrm, fidx, obj, mat = context.scene.ray_cast(
+            depsgraph, origin, direction)
+        if not hit or obj is None:
+            return None
+        # ray_cast returns the evaluated object; resolve to the original.
+        return obj.original if hasattr(obj, 'original') else obj
+
+    def _style_for(self, ff, obj):
+        """A cabinet part follows its cabinet's STYLE_NAME so the immediate
+        paint matches what recalc will re-apply; everything else uses the
+        active style."""
+        from .. import types_face_frame
+        root = types_face_frame.find_cabinet_root(obj)
+        if root is not None and root.get('STYLE_NAME'):
+            name = root.get('STYLE_NAME')
+            for cs in ff.cabinet_styles:
+                if cs.name == name:
+                    return cs
+        return self._active_style(ff)
+
+    @staticmethod
+    def _assign_object_material(obj, mat):
+        me = getattr(obj, 'data', None)
+        if mat is None or me is None or not hasattr(me, 'materials'):
+            return False
+        if len(me.materials) == 0:
+            me.materials.append(mat)
+        else:
+            for i in range(len(me.materials)):
+                me.materials[i] = mat
+        return True
+
+    _FRONT_ROLES = {'DOOR', 'DRAWER_FRONT', 'PULLOUT_FRONT',
+                    'FALSE_FRONT', 'TILT_OUT'}
+
+    @staticmethod
+    def _opening_for(obj):
+        """Walk up to the front's stable opening cage (survives recalc)."""
+        node = obj.parent
+        while node is not None:
+            if node.get('IS_FACE_FRAME_OPENING_CAGE'):
+                return node
+            node = node.parent
+        return None
+
+    def _paint(self, context, event):
+        ff = get_style_props(context)
+        obj = self._object_under_cursor(context, event)
+        if obj is None:
+            return
+        from .. import types_face_frame
+        # Always paint with the active (selected) style so a part picks up the
+        # colour the user chose - consistent with painting a plain object.
+        style = self._active_style(ff)
+        if style is None:
+            return
+        is_part = bool(obj.get('CABINET_PART'))
+        is_front = is_part and obj.get('hb_part_role') in self._FRONT_ROLES
+
+        if self.brush == 'RESET':
+            if is_front:
+                opening = self._opening_for(obj)
+                tgt = opening if opening is not None else obj
+                for k in ('hb_front_material_override', 'hb_front_material_style'):
+                    if k in tgt:
+                        del tgt[k]
+            elif is_part:
+                for k in ('hb_part_material_override', 'hb_part_material_style'):
+                    if k in obj:
+                        del obj[k]
+            if is_part:
+                root = types_face_frame.find_cabinet_root(obj)
+                if root is not None:
+                    host = self._style_for(ff, obj)
+                    if host is not None:
+                        host._apply_materials_to_cabinet(root)
+            # Non-cabinet objects have no automatic material; leave as-is.
+        else:
+            if self.brush == 'FINISH':
+                mat, edge = style.get_finish_material()
+            else:
+                mat, edge = style.get_interior_material()
+            if is_front:
+                # Fronts are rebuilt each recalc, so the override is stored on
+                # the stable opening cage; the material walk re-applies it to
+                # the new front (incl. the 5-piece door modifier slots).
+                opening = self._opening_for(obj)
+                tgt = opening if opening is not None else obj
+                tgt['hb_front_material_override'] = self.brush
+                tgt['hb_front_material_style'] = style.name
+                style._set_part_surfaces(obj, mat, edge)
+                style._set_door_modifier_materials(obj, mat, edge)
+            elif is_part:
+                obj['hb_part_material_override'] = self.brush
+                obj['hb_part_material_style'] = style.name
+                style._set_part_surfaces(obj, mat, edge)
+            else:
+                self._assign_object_material(obj, mat)
+
+        if context.area is not None:
+            context.area.tag_redraw()
+        self._painted.add(obj.name)
+        self._status(context, count=True)
+
+    def _status(self, context, count=False):
+        tail = (f" - {len(self._painted)} painted" if count else "")
+        context.workspace.status_text_set(
+            f"Paint Part [{self.brush.title()}]{tail}  |  "
+            f"1 Finish  2 Interior  3 Reset  |  click parts  |  Esc / RMB to finish")
+
+    def modal(self, context, event):
+        if event.type in {'ESC', 'RIGHTMOUSE'} and event.value == 'PRESS':
+            return self._finish(context)
+        if event.type in {'ONE', 'NUMPAD_1'} and event.value == 'PRESS':
+            self.brush = 'FINISH'; self._status(context); return {'RUNNING_MODAL'}
+        if event.type in {'TWO', 'NUMPAD_2'} and event.value == 'PRESS':
+            self.brush = 'INTERIOR'; self._status(context); return {'RUNNING_MODAL'}
+        if event.type in {'THREE', 'NUMPAD_3'} and event.value == 'PRESS':
+            self.brush = 'RESET'; self._status(context); return {'RUNNING_MODAL'}
+        if event.type == 'LEFTMOUSE' and event.value == 'PRESS':
+            self._paint(context, event)
+            return {'RUNNING_MODAL'}
+        if event.type in {'MIDDLEMOUSE', 'WHEELUPMOUSE', 'WHEELDOWNMOUSE'}:
+            return {'PASS_THROUGH'}
+        return {'RUNNING_MODAL'}
+
+    def _finish(self, context):
+        context.window.cursor_modal_restore()
+        context.workspace.status_text_set(None)
+        if context.area is not None:
+            context.area.tag_redraw()
+        self.report({'INFO'}, f"Painted {len(self._painted)} part(s)")
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        if context.area is None or context.area.type != 'VIEW_3D':
+            self.report({'WARNING'}, "Run from the 3D viewport")
+            return {'CANCELLED'}
+        if self._active_style(get_style_props(context)) is None:
+            self.report({'WARNING'}, "No active cabinet style")
+            return {'CANCELLED'}
+        self._painted = set()
+        context.window.cursor_modal_set('PAINT_BRUSH')
+        self._status(context)
+        context.window_manager.modal_handler_add(self)
+        return {'RUNNING_MODAL'}
+
+
 classes = (
     hb_face_frame_PG_temp_special_effect,
     hb_face_frame_OT_add_special_effects,
@@ -998,6 +1199,7 @@ classes = (
     hb_face_frame_OT_assign_style_to_selected_cabinets,
     hb_face_frame_OT_update_cabinets_from_style,
     hb_face_frame_OT_paint_assign_cabinet_style,
+    hb_face_frame_OT_paint_part_material,
     hb_face_frame_OT_assign_door_style_to_selected_fronts,
     hb_face_frame_OT_update_fronts_from_door_style,
     hb_face_frame_OT_paint_assign_front_style,

@@ -2557,7 +2557,12 @@ class FaceFrameCabinet(GeoNodeCage):
         cab = self.obj.face_frame_cabinet
         if getattr(cab, 'furniture_top', False) and self._has_carcass():
             top_obj = self._ensure_furniture_top()
-            self._position_furniture_top(top_obj)
+            # A made-editable (manual) top is hand-controlled: its cutpart
+            # GeoNode has been applied off, so re-driving it would raise
+            # (no modifier to set inputs on). Leave it exactly as the user
+            # edited it, mirroring how recalc skips other manual parts.
+            if not top_obj.get('IS_MANUAL_PART'):
+                self._position_furniture_top(top_obj)
         else:
             self._cleanup_furniture_top()
 

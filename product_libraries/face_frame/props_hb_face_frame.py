@@ -1955,6 +1955,28 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
                 continue
             role = child.get('hb_part_role')
 
+            # Per-part paint override (set by the Paint Part tool) wins
+            # over the role-based default and survives recalc since it
+            # lives on the part. Unset / 'AUTO' falls through to the role
+            # logic below.
+            override = child.get('hb_part_material_override')
+            if override in ('FINISH', 'INTERIOR'):
+                # Materialize from the style the user painted with (stored
+                # on the part), falling back to this cabinet's own style.
+                ov_style = self
+                ov_name = child.get('hb_part_material_style')
+                if ov_name:
+                    for cs in get_style_props().cabinet_styles:
+                        if cs.name == ov_name:
+                            ov_style = cs
+                            break
+                if override == 'FINISH':
+                    ov_mat, ov_edge = ov_style.get_finish_material()
+                else:
+                    ov_mat, ov_edge = ov_style.get_interior_material()
+                self._set_part_surfaces(child, ov_mat, ov_edge)
+                continue
+
             # Sides routed per-condition. For FINISHED sides the outer
             # face (Bottom Surface) gets finish, the inner face (Top
             # Surface, visible from inside the cabinet) gets interior.
@@ -2019,16 +2041,34 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
                 continue
 
             if role in self._FRONT_ROLES:
-                # Front cutpart face honors the door style's grain. This IS
-                # the visible face for a SLAB front (HORIZONTAL rotates it);
-                # a 5-piece front hides the cutpart behind the door modifier
-                # (its panel grain is set below), so rotating here is a
-                # harmless visual no-op. Edges keep the rotated variant.
-                face_mat = finish_mat
+                # A front's paint override lives on the stable OPENING cage
+                # (fronts are wiped + rebuilt each recalc, so a prop on the
+                # front itself would not survive). Default = finish material.
+                base_mat, base_edge = finish_mat, finish_mat_rotated
+                opening = self._opening_cage_for_part(child)
+                fov = opening.get('hb_front_material_override') if opening else None
+                if fov in ('FINISH', 'INTERIOR'):
+                    fstyle = self
+                    fname = opening.get('hb_front_material_style')
+                    if fname:
+                        for cs in get_style_props().cabinet_styles:
+                            if cs.name == fname:
+                                fstyle = cs
+                                break
+                    if fov == 'FINISH':
+                        base_mat, base_edge = fstyle.get_finish_material()
+                    else:
+                        base_mat, base_edge = fstyle.get_interior_material()
+                # Cutpart face honors the door style's grain (a no-op for a
+                # 5-piece front, whose visible faces come from the door
+                # modifier set just below).
+                face_mat = base_mat
                 if (self._door_style_grain(child) == 'HORIZONTAL'
-                        and finish_mat_rotated is not None):
-                    face_mat = finish_mat_rotated
-                self._set_part_surfaces(child, face_mat, finish_mat_rotated)
+                        and base_edge is not None):
+                    face_mat = base_edge
+                self._set_part_surfaces(child, face_mat, base_edge)
+                self._set_door_modifier_materials(child, base_mat, base_edge)
+                continue
             elif role in self._FINISH_EXTERIOR_ROLES:
                 self._set_part_surfaces(
                     child, finish_mat, finish_mat_rotated,
@@ -2036,12 +2076,6 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
             elif role in self._INTERIOR_PART_ROLES:
                 self._set_part_surfaces(
                     child, interior_mat, interior_mat_rotated,
-                )
-            # 5-piece door modifier slots, only on actual fronts (the
-            # INSET_PANEL role is excluded - inset panels are flat).
-            if role in self._FRONT_ROLES:
-                self._set_door_modifier_materials(
-                    child, finish_mat, finish_mat_rotated,
                 )
 
     def _bay_cage_for_part(self, part_obj):
@@ -6447,6 +6481,21 @@ class Face_Frame_Scene_Props(PropertyGroup):
                          text="Assign by Painting", icon='BRUSH_DATA')
             btn.operator("hb_face_frame.update_cabinets_from_style",
                          text="", icon='FILE_REFRESH')
+            # Part paint: stamp the style's finish / interior material onto
+            # individual parts (or any object). Cabinet parts store it as a
+            # per-part override that survives recalc; Reset returns a part
+            # to its by-role material.
+            paint = layout.row(align=True)
+            paint.label(text="Paint Part:")
+            op = paint.operator("hb_face_frame.paint_part_material",
+                                text="Finish", icon='BRUSH_DATA')
+            op.brush = 'FINISH'
+            op = paint.operator("hb_face_frame.paint_part_material",
+                                text="Interior", icon='BRUSH_DATA')
+            op.brush = 'INTERIOR'
+            op = paint.operator("hb_face_frame.paint_part_material",
+                                text="Reset", icon='X')
+            op.brush = 'RESET'
             style.draw_cabinet_style_ui(layout, context)
         else:
             box = layout.box()
