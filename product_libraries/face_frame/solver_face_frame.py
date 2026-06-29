@@ -2721,6 +2721,15 @@ def _child_overlay(child, side, default):
     return default
 
 
+# Frontless bottom-opening front types: openings that carry no door/drawer
+# front and run open to the kick (the front-leaf builder emits no leaf for
+# either). When such an opening is the bottom-most child of a remove_bottom
+# bay, the splitter capping it is the lowest framed rail and is built as a
+# real BOTTOM_RAIL. APPLIANCE (e.g. a refrigerator opening) is frontless
+# alongside NONE -- it just adds its own filler stiles.
+_FRONTLESS_FRONT_TYPES = frozenset({'NONE', 'APPLIANCE'})
+
+
 def _walk_tree(node, layout, bay_index,
                cage_x, cage_z, cage_dim_x, cage_dim_y, cage_dim_z,
                reveals, leaves, splitters, backings,
@@ -2731,8 +2740,9 @@ def _walk_tree(node, layout, bay_index,
 
     ``is_bay_root`` is True only for the bay's top-level node. When the
     bay drops its bottom rail (remove_bottom) AND its bottom-most child is
-    a frontless opening (front_type NONE -- an appliance / open-shelf zone
-    that runs open to the kick, e.g. a refrigerator cabinet), the splitter
+    a frontless opening (front_type in _FRONTLESS_FRONT_TYPES -- NONE or
+    APPLIANCE, an appliance / open-shelf zone that runs open to the kick,
+    e.g. a refrigerator cabinet), the splitter
     capping it is the lowest framed rail, so it is emitted as a real
     BOTTOM_RAIL (sized to the bay's bottom_rail_width) rather than a mid
     rail. A bottom opening WITH a front (stacked doors, drawers, pullout)
@@ -2798,7 +2808,7 @@ def _walk_tree(node, layout, bay_index,
         if (is_bay_root and n_splitters >= 1
                 and bay.get('remove_bottom')
                 and children[-1].get('kind') == 'leaf'
-                and children[-1].get('front_type') == 'NONE'
+                and children[-1].get('front_type') in _FRONTLESS_FRONT_TYPES
                 and not removes[n_splitters - 1]):
             bottom_rail_splitter_index = n_splitters - 1
             brw = bay.get('bottom_rail_width') or 0.0
