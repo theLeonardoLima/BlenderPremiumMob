@@ -6628,6 +6628,13 @@ class LegProductFaceFrameCabinet(FaceFrameCabinet):
     def __init__(self):
         super().__init__()
         self.default_width = inch(2.0)
+        # Height / depth follow the scene's base-cabinet defaults so a
+        # leg matches the base cabinets beside it (width stays a slim 2").
+        scene = bpy.context.scene
+        if hasattr(scene, 'hb_face_frame'):
+            props = scene.hb_face_frame
+            self.default_height = props.base_cabinet_height
+            self.default_depth = props.base_cabinet_depth
 
     def _has_toe_kick(self):
         return False
