@@ -1854,9 +1854,23 @@ def carcass_back_segments(layout):
             continue
         left_x, right_x = _segment_x_bounds(layout, start, end)
         if first_bay.get('remove_bottom'):
-            # No bottom panel here, so the back wraps the missing
-            # bottom and toe-kick area by dropping to the cabinet floor.
-            z_origin = 0.0
+            # No bottom panel here. On a floor-standing carcass (NOTCH /
+            # FLUSH base) the back wraps the missing bottom and toe-kick
+            # area by dropping to the cabinet floor. But on a FLOATING
+            # carcass (FLOATING / LOOSE / LOOSE_FLUSH base, or a per-bay
+            # floating_bay - e.g. a lap drawer floated up on a tall kick)
+            # the bay bottom IS the carcass underside, so the back must
+            # follow the sides down to the bay bottom, NOT the room floor.
+            # Mirrors the floating branch in side_bottom_z(). Gated on
+            # has_toe_kick so uppers (toe_kick_type forced to FLOATING)
+            # keep their box-bottom 0.0 origin.
+            floating_carcass = layout.has_toe_kick and (
+                layout.toe_kick_type in ('FLOATING', 'LOOSE', 'LOOSE_FLUSH')
+                or first_bay.get('floating_bay'))
+            if floating_carcass:
+                z_origin = bay_bottom_z(layout, start)
+            else:
+                z_origin = 0.0
         else:
             z_origin = bay_bottom_z(layout, start) + first_bay['bottom_rail_width'] - layout.mt
         # Cabinet-level override: raise the back's bottom edge above
