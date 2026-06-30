@@ -191,10 +191,14 @@ class HOME_BUILDER_MT_face_frame_part_commands(bpy.types.Menu):
         # stops at the applied-panel root, so cabinet_prompts edits the
         # panel itself, not the host cabinet.
         panel_root = types_face_frame.find_cabinet_root(obj)
-        if (panel_root is not None
-                and panel_root.get(types_face_frame.TAG_APPLIED_PANEL_SIDE)):
+        if panel_root is not None and (
+                panel_root.get(types_face_frame.TAG_APPLIED_PANEL_SIDE)
+                or types_face_frame._is_standalone_panel(panel_root)):
+            ptext = ("Panel Back Properties..."
+                     if panel_root.get(types_face_frame.TAG_APPLIED_PANEL_SIDE)
+                     else "Panel Properties...")
             layout.operator("hb_face_frame.cabinet_prompts",
-                            text="Panel Back Properties...", icon='WINDOW')
+                            text=ptext, icon='WINDOW')
             layout.separator()
 
         # 5-piece door / drawer front: stile / rail / mid rail editor.

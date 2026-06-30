@@ -564,7 +564,8 @@ class hb_face_frame_OT_cabinet_prompts(bpy.types.Operator):
             ui_face_frame.draw_bays_in_prompts(layout, root)
             # Applied panels: surface the auto-openings toggle so a user
             # can return a manually-pinned panel to width-driven openings.
-            if root.get(types_face_frame.TAG_APPLIED_PANEL_SIDE):
+            if (root.get(types_face_frame.TAG_APPLIED_PANEL_SIDE)
+                    or types_face_frame._is_standalone_panel(root)):
                 layout.prop(cab_props, 'panel_split_auto')
         elif self.active_tab == 'CONSTRUCTION':
             ui_face_frame.draw_construction(layout, cab_props)
@@ -852,7 +853,8 @@ class hb_face_frame_OT_split_opening(bpy.types.Operator):
             # mode so the host recalc stops wiping / rebuilding the
             # opening tree (mirrors insert / delete bay). Without this the
             # next recalc would revert the user's split.
-            if root.get(types_face_frame.TAG_APPLIED_PANEL_SIDE):
+            if (root.get(types_face_frame.TAG_APPLIED_PANEL_SIDE)
+                    or types_face_frame._is_standalone_panel(root)):
                 root.face_frame_cabinet.panel_split_auto = False
 
             types_face_frame.recalculate_face_frame_cabinet(root)
@@ -3042,7 +3044,8 @@ class hb_face_frame_OT_insert_bay(bpy.types.Operator):
         # so the host recalc's auto-split stops overriding it. The auto
         # path calls insert_bay as a method (not via this operator), so it
         # won't trip this. Setting the flag recalcs the host panel.
-        if root.get(types_face_frame.TAG_APPLIED_PANEL_SIDE):
+        if (root.get(types_face_frame.TAG_APPLIED_PANEL_SIDE)
+                or types_face_frame._is_standalone_panel(root)):
             root.face_frame_cabinet.panel_split_auto = False
 
         # Reapply the cabinet's current selection mode so the new bay's
@@ -3088,7 +3091,8 @@ class hb_face_frame_OT_delete_bay(bpy.types.Operator):
         # A user-driven delete on an applied panel pins its opening count
         # so the host recalc's auto-split stops overriding it (the auto
         # path calls delete_bay as a method, not via this operator).
-        if root.get(types_face_frame.TAG_APPLIED_PANEL_SIDE):
+        if (root.get(types_face_frame.TAG_APPLIED_PANEL_SIDE)
+                or types_face_frame._is_standalone_panel(root)):
             root.face_frame_cabinet.panel_split_auto = False
         return {'FINISHED'}
 

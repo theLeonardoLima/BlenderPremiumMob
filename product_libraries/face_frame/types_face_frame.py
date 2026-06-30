@@ -7650,6 +7650,55 @@ def _remove_root_with_children(root_obj):
     bpy.data.objects.remove(root_obj, do_unlink=True)
 
 
+# Standalone panel products (placed from the library) that should get the
+# applied-back-panel behaviour: auto face frame sizes, the mid-stile width
+# ladder, and auto openings. Applied panels are PanelFaceFrameCabinet too but
+# carry TAG_APPLIED_PANEL_SIDE and are reconciled by their host, so excluded.
+PANEL_PRODUCT_CLASS_NAMES = frozenset({
+    'PanelFaceFrameCabinet', 'FaceFrameAndDoorsCabinet',
+})
+
+
+def _is_standalone_panel(root):
+    return (root is not None
+            and root.get('CLASS_NAME') in PANEL_PRODUCT_CLASS_NAMES
+            and not root.get(TAG_APPLIED_PANEL_SIDE))
+
+
+# Guard so the bay insert/delete inside the standalone-panel reconcile (each of
+# which recalcs the panel) doesn't recurse back into the reconcile.
+_RECONCILING_STANDALONE = set()
+
+
+def _reconcile_standalone_panel(root):
+    """Give a standalone Panel the same treatment an applied back panel gets:
+    auto face frame sizes, the mid-stile width ladder, and auto openings - with
+    the panel acting as its own host. Runs OUTSIDE the recalc reentrance guard
+    (so the bay insert/delete it performs can recalc the panel) but under its
+    own guard (so that recalc doesn't recurse here)."""
+    if id(root) in _RECONCILING_STANDALONE:
+        return
+    if not _is_standalone_panel(root):
+        return
+    _RECONCILING_STANDALONE.add(id(root))
+    try:
+        from . import applied_panel_sizing as aps
+        # NOTE: do NOT call apply_panel_sizing here. Its 5-piece path
+        # reconstructs the rail as `cab.top_rail_width - overlay + door_rail`,
+        # reading and writing the SAME field when the panel is its own host -
+        # so the rail grows without bound every recalc. A standalone panel
+        # keeps its own style-driven face-frame widths; only the split
+        # structure (ladder + auto openings + mid-stile widths) is applied.
+        aps.apply_panel_split_structure(root, root, 'BACK')
+        # Surface the panel's properties from any of its parts: stamp the
+        # part-commands menu onto menu-less parts (inset panels / pivots).
+        for part in root.children_recursive:
+            if part.get('hb_part_role') and not part.get('MENU_ID'):
+                part['MENU_ID'] = 'HOME_BUILDER_MT_face_frame_part_commands'
+    finally:
+        _RECONCILING_STANDALONE.discard(id(root))
+
+
 def recalculate_face_frame_cabinet(obj):
     """Push current property values to all carcass parts. Safe entry point
     for property update callbacks. Walks up to find the cabinet root if obj
@@ -7679,6 +7728,10 @@ def recalculate_face_frame_cabinet(obj):
         _reapply_selection_mode_highlights(root)
     finally:
         _RECALCULATING.discard(id(root))
+
+    # Standalone panels get the applied-back behaviour after the core
+    # recalc (own guard prevents recursion via its bay insert/delete).
+    _reconcile_standalone_panel(root)
 
 
 def _reapply_selection_mode_highlights(root):
