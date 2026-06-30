@@ -1630,6 +1630,12 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
             props.default_door_inset_amount = 0.0
 
         cabinet_obj['STYLE_NAME'] = self.name
+        # Seed the rename anchor the first time this style is stamped onto a
+        # cabinet so a later rename has an old name to propagate from. Without
+        # it, renaming a style that was assigned while the anchor was empty
+        # leaves the cabinets carrying the stale STYLE_NAME.
+        if not self.rename_anchor:
+            self.rename_anchor = self.name
 
         # Push face frame widths to the cabinet BEFORE recalc so the
         # carcass rebuild picks up the new stile/rail dimensions.
@@ -1660,6 +1666,10 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         if finish_mat is None:
             return
         hood_obj['STYLE_NAME'] = self.name
+        # Seed the rename anchor (see assign_style_to_cabinet) so a later
+        # rename propagates to this hood too.
+        if not self.rename_anchor:
+            self.rename_anchor = self.name
         from ..common import wood_hoods
         wood_hoods.apply_finish_to_hood(hood_obj, finish_mat, finish_mat_rotated)
 
