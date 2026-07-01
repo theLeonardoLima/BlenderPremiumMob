@@ -573,7 +573,7 @@ class hb_face_frame_OT_assign_door_style_to_selected_fronts(Operator):
         applied = 0
         errors = []
         for obj in context.selected_objects:
-            result = ds.assign_style_to_front(obj)
+            result = ds.assign_style_to_front(obj, record_override=True)
             if result is True:
                 applied += 1
             elif isinstance(result, str):
@@ -707,7 +707,7 @@ class hb_face_frame_OT_paint_assign_front_style(bpy.types.Operator):
             context.workspace.status_text_set(
                 f"Skipped: not a {self.kind.lower()} front  |  Esc / RMB to finish")
             return
-        result = style.assign_style_to_front(front)
+        result = style.assign_style_to_front(front, record_override=True)
         if result is True:
             self._count += 1
             context.workspace.status_text_set(

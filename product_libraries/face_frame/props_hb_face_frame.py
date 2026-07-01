@@ -2288,12 +2288,19 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
             else:
                 continue
             # The solver wipes and rebuilds every front on each recalc, so an
-            # opening-size edit (or any cabinet alteration) lands here. Prefer
-            # the front's OWN previously-assigned style, recorded in
-            # DOOR_STYLE_NAME, so a per-front override survives the rebuild;
-            # fall back to the cabinet default only for fronts with no stored
-            # assignment. Mirrors _reapply_front_style (ops_part_commands.py).
-            ds = resolve(child.get('DOOR_STYLE_NAME'), pool) or default_ds
+            # opening-size edit (or any cabinet alteration) lands here. Prefer a
+            # per-front override the user explicitly assigned, persisted on the
+            # durable OPENING cage - the rebuilt front object is blank, so its
+            # DOOR_STYLE_NAME does not survive the rebuild. Fall back to the
+            # front's own tag (same-recalc reapply) and then the cabinet
+            # default. Mirrors _reapply_front_style (ops_part_commands.py).
+            cage = self._opening_cage_for_part(child)
+            ovr_key = ('hb_front_drawer_style' if role in DRAWER_ROLES
+                       else 'hb_front_door_style')
+            ovr_name = cage.get(ovr_key) if cage is not None else None
+            ds = (resolve(ovr_name, pool)
+                  or resolve(child.get('DOOR_STYLE_NAME'), pool)
+                  or default_ds)
             if ds is not None:
                 ds.assign_style_to_front(child)
 
@@ -2826,7 +2833,7 @@ class Face_Frame_Door_Style(PropertyGroup):
                 return cs
         return None
 
-    def assign_style_to_front(self, front_obj):
+    def assign_style_to_front(self, front_obj, record_override=False):
         """Apply this door style to a face frame front object.
 
         SLAB: remove any existing 'Door Style' modifier so the front
@@ -2845,6 +2852,24 @@ class Face_Frame_Door_Style(PropertyGroup):
         role = front_obj.get('hb_part_role')
         if role not in self._STYLEABLE_ROLES:
             return False
+
+        # Per-front style override: when the user explicitly assigns a style to
+        # THIS front (paint / assign-to-selected), persist the choice on the
+        # stable OPENING cage so it survives the per-recalc front wipe+rebuild
+        # (the front object is destroyed each recalc; the opening cage is not -
+        # the same durable-store pattern as the front material override and the
+        # locked frame store). Recalc-time reapply / propagate paths pass
+        # record_override=False so a cabinet-default front never becomes a
+        # sticky override.
+        if record_override:
+            _cage = front_obj.parent
+            while _cage is not None and not _cage.get('IS_FACE_FRAME_OPENING_CAGE'):
+                _cage = _cage.parent
+            if _cage is not None:
+                _key = ('hb_front_drawer_style'
+                        if role in self._DRAWER_FRONT_ROLES
+                        else 'hb_front_door_style')
+                _cage[_key] = self.name
 
         # Every styleable front carries the part right-click menu. Fronts are
         # rebuilt each recalc (new objects), so stamping here - on the freshly
