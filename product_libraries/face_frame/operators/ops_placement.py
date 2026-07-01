@@ -1423,6 +1423,7 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
     _fill_mode: bool = True         # False after the user types a width
     _single_placement: bool = False # True for cabinets that don't fill or tile (e.g., Sink)
     _fill_no_bays: bool = False     # fill the wall gap but stay one piece (no bay array)
+    _recess_into_wall: bool = False # sink into the wall, face frame flush (recessed med cab)
     _follow_cursor_z: bool = False  # Z tracks the cursor's wall height (floating shelf)
     _floor_z: float = 0.0           # floor height for free placement (seeded from 3D cursor)
     _gap_snap = None                # None | 'LEFT' | 'CENTER' | 'RIGHT' gap-position snap
@@ -1470,6 +1471,7 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
         self._single_placement = bool(getattr(cls_inst, 'single_placement', False))
         self._fill_no_bays = bool(getattr(cls_inst, 'fill_no_bays', False))
         self._follow_cursor_z = bool(getattr(cls_inst, 'follow_cursor_z', False))
+        self._recess_into_wall = bool(getattr(cls_inst, 'recess_into_wall', False))
         # Cage depth/height come straight from the cabinet class so the
         # preview matches subclasses with non-standard dims (e.g. the
         # 12"-deep Bookcase) instead of a cabinet_type approximation.
@@ -2223,13 +2225,30 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
         # rotate 180 around Z (cage now extends +Y from origin) and
         # offset Y by wall_thickness. The X offset accounts for the
         # rotation around origin shifting the geometry by total width.
+        #
+        # Recessed products (recessed medicine cabinet) sink into the wall:
+        # the carcass buries into the wall body while the face frame is left
+        # PROUD of the wall by its own thickness - the frame's BACK sits flush
+        # with the wall face and the frame overlays the wall surface (like a
+        # real recessed-med-cab trim). Shift the origin into the wall by the
+        # CARCASS depth (box depth minus the face frame). The cage extends -Y
+        # from the origin, so +Y on the front side (and wall_thickness - that
+        # from the back-face origin) pulls the box in. Clamp to wall thickness
+        # so a thin wall can't push the carcass out the far side.
+        recess = 0.0
+        if self._recess_into_wall:
+            fft = getattr(context.scene.hb_face_frame,
+                          'ff_face_frame_thickness', units.inch(0.75))
+            carcass_depth = max(cabinet_depth - fft, 0.0)
+            recess = (min(carcass_depth, wall_thickness)
+                      if wall_thickness > 0.0 else carcass_depth)
         if self._place_on_front:
             cage_obj.location.x = placement_x
-            cage_obj.location.y = 0
+            cage_obj.location.y = recess
             cage_obj.rotation_euler = (0, 0, 0)
         else:
             cage_obj.location.x = placement_x + cabinet_width
-            cage_obj.location.y = wall_thickness
+            cage_obj.location.y = wall_thickness - recess
             cage_obj.rotation_euler = (0, 0, math.pi)
 
         # Refresh the GPU dimension overlay

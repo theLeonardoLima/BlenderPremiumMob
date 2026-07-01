@@ -6297,6 +6297,10 @@ class StandardRecessedMedicineCabinet(UpperFaceFrameCabinet):
     turned off both sides). Front comes from default_bay_config; a single
     door at this width."""
 
+    # Placement sinks this product into the wall so the face frame sits
+    # flush with the wall face (read by the wall-placement operator).
+    recess_into_wall = True
+
     def __init__(self):
         super().__init__()
         self.default_width = inch(16.25)
