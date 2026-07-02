@@ -61,6 +61,9 @@ CABINET_MARKERS = frozenset({
     'IS_FRAMELESS_CABINET_CAGE',
     'IS_FACE_FRAME_CABINET_CAGE',
     'IS_APPLIANCE',
+    # Closet starter roots participate in placement collision the same
+    # way cabinets do (same-wall gaps AND adjacent-wall corner intrusion).
+    'IS_CLOSET_STARTER_CAGE',
 })
 
 

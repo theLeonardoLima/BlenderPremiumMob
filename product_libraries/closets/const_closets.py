@@ -1,0 +1,88 @@
+"""Closet library constants.
+
+Values ported from the legacy closet system so dealers migrating projects
+see the same defaults. Heights are defined in millimeters (32mm-system
+panel drilling heights); everything else is inches.
+"""
+from ...units import inch, millimeter
+
+
+# ---------------------------------------------------------------------------
+# Material thicknesses
+# ---------------------------------------------------------------------------
+PANEL_THICKNESS = inch(0.75)
+SHELF_THICKNESS = inch(0.75)
+COUNTERTOP_THICKNESS = inch(1.125)
+APPLIED_BACK_THICKNESS = inch(0.75)
+CLEAT_WIDTH = inch(4.0)
+
+# ---------------------------------------------------------------------------
+# Starter defaults
+# ---------------------------------------------------------------------------
+DEFAULT_WIDTH = inch(80.0)
+DEFAULT_BAY_QTY = 4
+DEFAULT_DEPTH = inch(14.0)
+
+# Panel heights by starter type. The mm values are legacy 32mm-system
+# heights: Base 819mm = 32.25", Tall 2131mm = 83.94", Hanging 1267mm = 49.88".
+BASE_PANEL_HEIGHT = millimeter(819)
+TALL_PANEL_HEIGHT = millimeter(2131)
+HANGING_PANEL_HEIGHT = millimeter(1267)
+
+# Floor to TOP of a hanging (wall-mounted) unit. Chosen so a hanging
+# section top-aligns with an adjacent tall tower (tall panel height).
+HANGING_TOP_HEIGHT = millimeter(2131)
+
+# ---------------------------------------------------------------------------
+# Toe kick
+# ---------------------------------------------------------------------------
+DEFAULT_TOE_KICK_HEIGHT = millimeter(96)   # 3.78"
+DEFAULT_TOE_KICK_SETBACK = inch(1.625)
+
+# Legacy kick-height choices (mm string, label). Kept for the Phase 2
+# prompts UI where kick height becomes a dropdown; Phase 1 exposes a
+# plain distance defaulting to 96mm.
+KICK_HEIGHT_ITEMS = [
+    ('64', '2 1/2"', '2 1/2"'),
+    ('96', '3 3/4"', '3 3/4"'),
+    ('128', '5"', '5"'),
+    ('160', '6 1/4"', '6 1/4"'),
+    ('192', '7 1/2"', '7 1/2"'),
+    ('224', '8 3/4"', '8 3/4"'),
+    ('256', '10"', '10"'),
+    ('288', '11 1/4"', '11 1/4"'),
+    ('320', '12 1/2"', '12 1/2"'),
+]
+
+# ---------------------------------------------------------------------------
+# Countertop (Base and Island starters)
+# ---------------------------------------------------------------------------
+COUNTERTOP_OVERHANG_FRONT = inch(1.875)
+
+# Minimum bay width the redistributor will assign to an unlocked bay.
+MIN_BAY_WIDTH = inch(1.0)
+
+# ---------------------------------------------------------------------------
+# Interior parts (Phase 3)
+# ---------------------------------------------------------------------------
+ROD_RADIUS = inch(0.5)
+# Fronts (doors / drawer fronts / hampers). Half-overlay convention from
+# the legacy closet system: each front overlays a shared panel/shelf by
+# (thickness - gap) / 2 so neighboring fronts split the reveal.
+FRONT_THICKNESS = inch(0.75)
+DOOR_TO_CABINET_GAP = inch(0.125)   # front face held off the carcass
+FRONT_GAP = inch(0.125)             # gap between adjacent fronts
+DRAWER_FRONT_HEIGHT = inch(7.5)
+DRAWER_SLIDE_GAP = inch(0.5)        # per side, drawer box to panel
+DRAWER_BOX_HEIGHT_DEDUCT = inch(1.25)
+DRAWER_BOX_DEPTH_DEDUCT = inch(0.5)
+DRAWER_BOX_Z_LIFT = inch(0.5)       # box bottom above front bottom edge
+# Double-sided island
+ISLAND_DOUBLE_DEPTH = inch(30.0)
+ISLAND_CTOP_OVERHANG = inch(1.5)    # legacy islands overhang all sides
+# Default distance from the opening TOP to a hang rod's center when the
+# rod is added from the menu (modal placement types an exact height).
+ROD_TOP_OFFSET = inch(2.5)
+ADJ_SHELF_DEFAULT_QTY = 3
+# Modal add-part height snapping increment.
+PART_Z_SNAP = inch(0.25)

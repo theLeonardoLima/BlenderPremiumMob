@@ -111,9 +111,25 @@ class HOME_BUILDER_PT_hidden_header(bpy.types.Panel):
                            'Interiors', icon='OBJECT_HIDDEN')
             row2.prop_enum(hb_face_frame, "face_frame_selection_mode",
                            'Parts', icon='EDITMODE_HLT')
-        elif product_tab == 'CLOSETS':
-            # Closets selection mode lands when the closets library port begins.
-            selection_mod_box.label(text="Closets selection mode coming soon", icon='INFO')
+        elif product_tab == 'CLOSET':
+            hb_closets = context.scene.hb_closets
+            header = selection_mod_box.row(align=True)
+            header.label(text="Closet Selection Mode")
+            header.prop(hb_closets, "closet_selection_mode_enabled", text="")
+            modes_col = selection_mod_box.column(align=True)
+            modes_col.enabled = hb_closets.closet_selection_mode_enabled
+            row1 = modes_col.row(align=True)
+            row1.scale_y = 1.5
+            row1.prop_enum(hb_closets, "closet_selection_mode",
+                           'Starters', icon='MESH_CUBE')
+            row1.prop_enum(hb_closets, "closet_selection_mode",
+                           'Bays', icon='MESH_CUBE')
+            row2 = modes_col.row(align=True)
+            row2.scale_y = 1.5
+            row2.prop_enum(hb_closets, "closet_selection_mode",
+                           'Openings', icon='OBJECT_DATAMODE')
+            row2.prop_enum(hb_closets, "closet_selection_mode",
+                           'Parts', icon='EDITMODE_HLT')
         else:
             hb_frameless = context.scene.hb_frameless
             selection_mod_box.label(text="Frameless Selection Mode")

@@ -111,6 +111,10 @@ def _frameless_ui_visible(context):
     return _product_ui_visible(context, 'FRAMELESS')
 
 
+def _closet_ui_visible(context):
+    return _product_ui_visible(context, 'CLOSET')
+
+
 # Per-product wiring for the selection-mode picker. enabled_attr is the
 # product's master enable bool, or None when it has none -- frameless has
 # no such bool and treats the 'Parts' pick as the neutral state instead.
@@ -124,6 +128,9 @@ _FF_SELECTION = _SelectionWiring(
 _FL_SELECTION = _SelectionWiring(
     'hb_frameless', 'frameless_selection_mode',
     None, _frameless_ui_visible)
+_CL_SELECTION = _SelectionWiring(
+    'hb_closets', 'closet_selection_mode',
+    'closet_selection_mode_enabled', _closet_ui_visible)
 
 
 # ---- Widgets ----------------------------------------------------------------
@@ -341,8 +348,8 @@ class _ModalToggleButton:
 # Widget instances. Mode values must match the EnumProperty items on
 # Face_Frame_Scene_Props.face_frame_selection_mode.
 _NAV_BUTTON = _NavButton()
-# Face frame (6 modes) and frameless (5 -- no Face Frame) buttons share one
-# group. Each self-gates on its product tab via visible(), so compute_layout
+# Face frame (6 modes), frameless (5 -- no Face Frame), and closets (4)
+# buttons share one group. Each self-gates on its product tab via visible(), so compute_layout
 # renders only the active product's set; the tabs are mutually exclusive so
 # the two never appear together.
 _MODE_BUTTONS = [
@@ -357,6 +364,10 @@ _MODE_BUTTONS = [
     _ModeButton(_FL_SELECTION, 'Openings', "Openings"),
     _ModeButton(_FL_SELECTION, 'Interiors', "Interiors"),
     _ModeButton(_FL_SELECTION, 'Parts', "Parts"),
+    _ModeButton(_CL_SELECTION, 'Starters', "Starters"),
+    _ModeButton(_CL_SELECTION, 'Bays', "Bays"),
+    _ModeButton(_CL_SELECTION, 'Openings', "Openings"),
+    _ModeButton(_CL_SELECTION, 'Parts', "Parts"),
 ]
 
 _GRAB_CABINET_BUTTON = _ModalToggleButton(
