@@ -251,6 +251,8 @@ class HOME_BUILDER_MT_face_frame_part_commands(bpy.types.Menu):
         if role == types_face_frame.PART_ROLE_BOTTOM_RAIL:
             layout.operator("hb_face_frame.remove_bottom_rail",
                             text="Remove Bottom Rail", icon='X')
+            layout.menu("HOME_BUILDER_MT_face_frame_bottom_rail_profile",
+                        text="Bottom Rail Profile", icon='MOD_BEVEL')
 
         # A mid rail can be removed (mainly between drawers). The split
         # stays; the FF member + its backing drop and the solver closes
@@ -266,6 +268,17 @@ class HOME_BUILDER_MT_face_frame_part_commands(bpy.types.Menu):
             layout.separator()
             layout.operator("hb_face_frame.mid_stile_prompts",
                             text="Mid Stile Properties...", icon='WINDOW')
+
+        # Machining cutout (hole / route) - available on any parametric cutpart
+        # (sides, backs, panels, doors, hood parts). Shows in 3D and in the 2D
+        # copy, so no detail view is needed. Operator lives in ops_part_commands.
+        if ops_part_commands._is_cutpart(obj):
+            layout.separator()
+            layout.operator("hb_face_frame.add_part_cutout",
+                            text="Add Cutout...", icon='MOD_BOOLEAN')
+            if ops_part_commands._user_cutout_mods(obj):
+                layout.operator("hb_face_frame.remove_part_cutout",
+                                text="Remove Cutout", icon='X')
 
         # Make Editable / Revert to Parametric. Applying a part's GeoNode(s)
         # turns it into real, hand-editable mesh that the recalc then leaves
@@ -534,6 +547,33 @@ class HOME_BUILDER_MT_face_frame_misc_part_commands(bpy.types.Menu):
         layout.operator("hb_general.delete", text="Delete Part", icon='X')
 
 
+class HOME_BUILDER_MT_face_frame_bottom_rail_profile(bpy.types.Menu):
+    """Pick the decorative bottom-rail profile for this cabinet. Lists None +
+    every '* Cutter' curve in face_frame_assets/profiles; the current choice is
+    marked. Each item sets the cabinet-level bottom_rail_profile enum."""
+    bl_label = "Bottom Rail Profile"
+
+    def draw(self, context):
+        import os
+        layout = self.layout
+        root = types_face_frame.find_cabinet_root(context.active_object)
+        current = ''
+        if root is not None:
+            current = getattr(root.face_frame_cabinet, 'bottom_rail_profile', 'NONE')
+        items = [('NONE', 'None'), ('ARCH', 'Arched')]
+        d = types_face_frame.bottom_rail_profile_dir()
+        if os.path.isdir(d):
+            for fn in sorted(os.listdir(d)):
+                if fn.endswith(' Cutter.blend'):
+                    stem = fn[:-len('.blend')]
+                    items.append((stem, stem[:-len(' Cutter')]))
+        for pid, label in items:
+            icon = 'RADIOBUT_ON' if pid == current else 'RADIOBUT_OFF'
+            op = layout.operator('hb_face_frame.set_bottom_rail_profile',
+                                  text=label, icon=icon)
+            op.profile_id = pid
+
+
 classes = (
     HOME_BUILDER_MT_face_frame_cabinet_commands,
     HOME_BUILDER_MT_face_frame_floating_shelf_commands,
@@ -548,6 +588,7 @@ classes = (
     HOME_BUILDER_MT_face_frame_change_opening,
     HOME_BUILDER_MT_face_frame_change_bay,
     HOME_BUILDER_MT_face_frame_add_appliance,
+    HOME_BUILDER_MT_face_frame_bottom_rail_profile,
 )
 
 

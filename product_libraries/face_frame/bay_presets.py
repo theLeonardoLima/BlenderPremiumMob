@@ -142,6 +142,14 @@ BASE_PRESETS = {
     # Single opening filled by a recessed 1/4" inset panel (no overlay,
     # no swing). Default front for the Window Seat product.
     'INSET_PANEL':             L('INSET_PANEL'),
+    # Lap drawer bay: a single drawer front in a bay floated to lap
+    # height. The recipe is only the front; the floating construction
+    # and 24" kick come from BAY_PROPS below.
+    'LAP_DRAWER':              L('DRAWER'),
+    # Support frame bay: an open, bottomless frame (e.g. counter support
+    # over a knee space). Open front here; the removed bottom comes from
+    # BAY_PROPS below.
+    'SUPPORT_FRAME':           L('OPEN'),
 }
 
 
@@ -224,6 +232,44 @@ PRESETS = {
 
 
 # ---------------------------------------------------------------------------
+# Bay-level construction props per config
+# ---------------------------------------------------------------------------
+# Most presets only describe the opening tree; a few also change how the
+# bay itself is BUILT. BAY_PROPS[config] maps Face_Frame_Bay_Props names
+# to values written after the tree is rebuilt.
+#
+# BAY_PROP_DEFAULTS lists the managed props with their stock values. The
+# change_bay operator resets these on every preset swap
+# (reset_bay_props=True) so switching a bay from Lap Drawer / Support
+# Frame back to a normal layout restores standard construction.
+# Placement-time preset application keeps reset_bay_props=False so
+# cabinet classes that pre-set these flags on their bays (e.g. removed
+# bottoms) are not undone.
+BAY_PROP_DEFAULTS = {
+    'floating_bay': False,
+    'remove_bottom': False,
+    # Re-locking kick height lets the recalc's kick-height distribution
+    # re-sync the bay to the cabinet's toe_kick_height.
+    'unlock_kick_height': False,
+}
+
+BAY_PROPS = {
+    # Lap drawer bay: floats 24" off the floor. Writing kick_height
+    # auto-locks unlock_kick_height via its update callback, so the
+    # distribution pass leaves the 24" lift alone afterwards.
+    'LAP_DRAWER': {
+        'floating_bay': True,
+        'kick_height': inch(24.0),
+    },
+    # Support frame bay: no bottom panel / bottom rail behind an open
+    # front.
+    'SUPPORT_FRAME': {
+        'remove_bottom': True,
+    },
+}
+
+
+# ---------------------------------------------------------------------------
 # Menu rendering data: per cabinet type, the order and grouping of entries
 # in the right-click "Change Bay" submenu. ('SEP',) inserts a separator;
 # all other tuples are (config_id, display_label), with an optional
@@ -257,6 +303,9 @@ BASE_MENU_ENTRIES = [
     SEP,
     ('OPEN_WITH_SHELVES',        "Open with Shelves"),
     ('OPEN',                     "Open"),
+    SEP,
+    ('LAP_DRAWER',               "Lap Drawer"),
+    ('SUPPORT_FRAME',            "Support Frame"),
     SEP,
     ('CUSTOM_HORIZONTAL', "Custom Horizontal", 'SNAP_EDGE'),
     ('CUSTOM_VERTICAL',   "Custom Vertical",   'PAUSE'),

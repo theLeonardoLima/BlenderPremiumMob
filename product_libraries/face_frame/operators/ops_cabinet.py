@@ -2851,12 +2851,50 @@ class hb_face_frame_OT_search_accessory(bpy.types.Operator):
         return {'FINISHED'}
 
 
-def apply_bay_preset(bay_obj, config):
+def _apply_bay_prop_overrides(bay_obj, config, reset):
+    """Write a preset's bay-level construction props (bay_presets.BAY_PROPS).
+
+    Most presets only rebuild the opening tree; a few (Lap Drawer,
+    Support Frame) also change how the bay is built. With reset=True the
+    managed props (bay_presets.BAY_PROP_DEFAULTS) are first returned to
+    stock values, so swapping a bay away from a construction preset
+    restores standard construction. Placement-time callers keep
+    reset=False so cabinet classes that pre-set these flags on their
+    bays (e.g. removed bottoms) are not undone.
+
+    Values are written only when they differ so prop update callbacks
+    (remove_bottom's overlay rewrite, kick_height's auto-lock) fire only
+    on real changes.
+    """
+    def differs(current, target):
+        if isinstance(target, float):
+            return abs(current - target) > 1e-6
+        return current != target
+
+    overrides = bay_presets.BAY_PROPS.get(config, {})
+    bp = bay_obj.face_frame_bay
+    if reset:
+        for prop, default in bay_presets.BAY_PROP_DEFAULTS.items():
+            if prop in overrides:
+                continue  # the override write below carries the final value
+            if differs(getattr(bp, prop), default):
+                setattr(bp, prop, default)
+    for prop, value in overrides.items():
+        if differs(getattr(bp, prop), value):
+            setattr(bp, prop, value)
+
+
+def apply_bay_preset(bay_obj, config, reset_bay_props=False):
     """Wipe `bay_obj`'s contents and rebuild from a bay preset.
     Programmatic equivalent of hb_face_frame.change_bay's execute body,
     minus the user-feedback bits (active object, report, selection
     mode toggle). The caller is responsible for triggering selection
     refresh if needed; the recalc itself runs here.
+
+    reset_bay_props=True additionally resets the bay-level construction
+    props managed by bay_presets.BAY_PROPS (see
+    _apply_bay_prop_overrides); the change_bay operator passes True,
+    placement-time callers keep the default False.
 
     Returns True on success, False if the bay's cabinet type has no
     presets or `config` isn't recognized for that type.
@@ -2880,6 +2918,7 @@ def apply_bay_preset(bay_obj, config):
         _build_recipe_into(
             presets[config], bay_obj, 0, opening_idx, root.face_frame_cabinet,
         )
+        _apply_bay_prop_overrides(bay_obj, config, reset_bay_props)
         types_face_frame.recalculate_face_frame_cabinet(root)
     return True
 
@@ -2968,7 +3007,8 @@ class hb_face_frame_OT_change_bay(bpy.types.Operator):
         # single recalc per affected cabinet.
         with types_face_frame.suspend_recalc():
             for bay_obj in bays:
-                if apply_bay_preset(bay_obj, self.config):
+                if apply_bay_preset(bay_obj, self.config,
+                                    reset_bay_props=True):
                     changed += 1
                     root = types_face_frame.find_cabinet_root(bay_obj)
                     if root is not None:

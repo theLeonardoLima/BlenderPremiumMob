@@ -244,6 +244,14 @@ def draw_construction(layout, cab_props):
     if cab_props.show_finished_ends:
         draw_finished_ends(box, cab_props)
 
+    # Decorative bottom-rail profile (valance) - base / upper. The chosen
+    # '* Cutter' curve is cut into the bottom rail with fixed end details and
+    # a stretched middle (see types_face_frame._apply_bottom_rail_profile).
+    if cab_props.cabinet_type in ('BASE', 'UPPER'):
+        rpbox = layout.box()
+        rpbox.label(text="Bottom Rail Profile", icon='MOD_BEVEL')
+        rpbox.prop(cab_props, 'bottom_rail_profile', text="Profile")
+
     abx = layout.box()
     abx.prop(cab_props, 'show_angled_back_extension',
              text="Angled Back Extension",
@@ -324,6 +332,24 @@ def draw_construction(layout, cab_props):
             col.prop(cab_props, 'furniture_top_overhang_back', text="Back")
             col.prop(cab_props, 'furniture_top_overhang_left', text="Left")
             col.prop(cab_props, 'furniture_top_overhang_right', text="Right")
+            # Plan shape + its per-shape inputs (bow altitude / corner
+            # radii). Waterfall has no extra inputs - the drop panels
+            # follow the top's ends, thickness, and plan depth.
+            col = box.column(align=True)
+            col.prop(cab_props, 'furniture_top_shape', text="Shape")
+            if cab_props.furniture_top_shape == 'BOW_BACK':
+                col.prop(cab_props, 'furniture_top_bow_altitude',
+                         text="Bow Altitude")
+            elif cab_props.furniture_top_shape == 'RADIUS':
+                col.label(text="Corner Radius")
+                col.prop(cab_props, 'furniture_top_radius_front_left',
+                         text="Front Left")
+                col.prop(cab_props, 'furniture_top_radius_front_right',
+                         text="Front Right")
+                col.prop(cab_props, 'furniture_top_radius_back_left',
+                         text="Back Left")
+                col.prop(cab_props, 'furniture_top_radius_back_right',
+                         text="Back Right")
 
 
 def draw_refrigerator_options(layout, root):
@@ -1225,6 +1251,21 @@ def draw_finished_ends(layout, cab_props):
             col.prop(cab_props, f'{side}_flush_x_amount', text="Flush-X Amount")
         elif fin_type == 'UNFINISHED' and side != 'back':
             col.prop(cab_props, f'{side}_scribe', text="Scribe")
+
+        # Return closeout: only meaningful when a FINISHED or PANELED side is
+        # extended back past a FINISHED or PANELED back. Nonzero return width
+        # caps the exposed corner with a return panel + a rear stile that wide.
+        if (side in ('left', 'right') and fin_type in ('FINISHED', 'PANELED')
+                and getattr(cab_props, f'{side}_side_finished_extend_back') != 0.0
+                and getattr(cab_props, 'back_finished_end_condition')
+                in ('FINISHED', 'PANELED')):
+            col.prop(cab_props, f'{side}_side_return_width', text="Return Width")
+            # Per-member Finished / Paneled construction, once a return exists.
+            if getattr(cab_props, f'{side}_side_return_width') != 0.0:
+                col.prop(cab_props, f'{side}_side_return_panel_type',
+                         text="Side Return")
+                col.prop(cab_props, f'{side}_side_return_stile_type',
+                         text="Return Stile")
 
         # Back: extend past the L / R cabinet ends, on its own row.
         if side == 'back' and fin_type != 'UNFINISHED':

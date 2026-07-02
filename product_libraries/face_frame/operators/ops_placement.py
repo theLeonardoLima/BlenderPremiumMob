@@ -1510,14 +1510,13 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
         if cabinet_type == 'UPPER' or _mounts_as_upper(_cls):
             cage_obj.location.z = _upper_mount_z(_cls, scene_props)
         else:
-            cage_obj.location.z = cursor_loc.z
-        # Floor reference for free placement. Seeded from the 3D cursor so
-        # a deliberately raised cursor is honored (rough-in shelves /
-        # islands); 0 (floor) by default. Free placement uses this instead
-        # of the raycast hit Z, which in a non-plan view (e.g. a front
-        # elevation) is the cursor's on-screen height rather than the
-        # floor - that floated floor cabinets up off the ground.
-        self._floor_z = cursor_loc.z
+            cage_obj.location.z = 0.0
+        # Floor reference for free placement. Floor cabinets always seed at
+        # Z=0 (the floor) regardless of the 3D cursor height. Free placement
+        # uses this instead of the raycast hit Z, which in a non-plan view
+        # (e.g. a front elevation) is the cursor's on-screen height rather
+        # than the floor - that floated floor cabinets up off the ground.
+        self._floor_z = 0.0
 
         # Fresh free-placement rotation each session.
         self._free_rotation_z = 0.0
@@ -3896,11 +3895,11 @@ class hb_face_frame_OT_place_corner_cabinet(bpy.types.Operator,
         if _mounts_as_upper(cls):
             cage_obj.location.z = _upper_mount_z(cls, scene_props)
         else:
-            cage_obj.location.z = cursor_loc.z
-        # Floor reference for free placement (see place_cabinet): use this
-        # instead of the raycast hit Z so floor cabinets don't float up in
-        # a non-plan view (front elevation).
-        self._floor_z = cursor_loc.z
+            cage_obj.location.z = 0.0
+        # Floor reference for free placement (see place_cabinet): floor
+        # cabinets always seed at Z=0 (the floor), not the raycast hit Z,
+        # so they don't float up in a non-plan view (front elevation).
+        self._floor_z = 0.0
 
         self.init_placement(context)
         if self.region is None:

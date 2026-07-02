@@ -22,7 +22,7 @@ from bpy.props import BoolProperty, FloatProperty, StringProperty
 
 from .. import types_face_frame
 from .. import types_face_frame_corner
-from ....hb_types import GeoNodeCutpart
+from ....hb_types import GeoNodeCutpart, CabinetPartModifier
 from .... import units
 
 
@@ -1692,6 +1692,253 @@ class hb_face_frame_OT_set_finished_end_condition(bpy.types.Operator):
         return {'FINISHED'}
 
 
+# ---------------------------------------------------------------------------
+# Machining cutout (CPM_CUTOUT) - user-added rectangular hole / route on a part
+# ---------------------------------------------------------------------------
+_CUTOUT_TOKEN = 'CPM_CUTOUT'
+_CUTOUT_NAME = 'Cutout'
+
+
+def _cutpart_modifier(obj):
+    """The base GeoNodeCutpart modifier on a parametric part, or None. Machining
+    cutouts read the part's Length / Width / Thickness from it to place and size
+    the cut, so a part without it (bare / applied mesh) is not eligible in v1."""
+    if obj is None or obj.type != 'MESH':
+        return None
+    for m in obj.modifiers:
+        if (m.type == 'NODES' and m.node_group
+                and m.node_group.name == 'GeoNodeCutpart'):
+            return m
+    return None
+
+
+def _is_cutpart(obj):
+    """True when a machining cutout can be added to obj."""
+    return _cutpart_modifier(obj) is not None
+
+
+def _user_cutout_mods(obj):
+    """User-added CPM_CUTOUT modifiers on obj, in stack order. Named with the
+    'Cutout' prefix so they stay distinct from system CPM_CUTOUT uses (e.g. the
+    appliance-panel 'Flange *' strips)."""
+    if obj is None:
+        return []
+    return [m for m in obj.modifiers
+            if (m.type == 'NODES' and m.node_group
+                and m.node_group.name == _CUTOUT_TOKEN
+                and m.name.split('.')[0] == _CUTOUT_NAME)]
+
+
+def _unique_cutout_name(obj):
+    existing = {m.name for m in obj.modifiers}
+    if _CUTOUT_NAME not in existing:
+        return _CUTOUT_NAME
+    i = 1
+    while f"{_CUTOUT_NAME}.{i:03d}" in existing:
+        i += 1
+    return f"{_CUTOUT_NAME}.{i:03d}"
+
+
+def _cutout_part_for_dialog(op):
+    """The part a live Add-Cutout dialog is editing (resolved by name each tick;
+    None while source_obj_name is unset - see the Misc / Door Part dialogs)."""
+    if not op.source_obj_name:
+        return None
+    return bpy.data.objects.get(op.source_obj_name)
+
+
+def _apply_cutout_live(op):
+    """Recompute + write the live cutout's inputs from the operator's fields so
+    the viewport updates as the dialog changes. Bails while source_obj_name /
+    mod_name are unset (during invoke seeding)."""
+    obj = _cutout_part_for_dialog(op)
+    if obj is None or not op.mod_name:
+        return
+    mod = obj.modifiers.get(op.mod_name)
+    if mod is None:
+        return
+    part = GeoNodeCutpart(obj)
+    try:
+        length = part.get_input('Length')
+        width = part.get_input('Width')
+        thickness = part.get_input('Thickness')
+    except Exception:
+        return
+    cl = max(min(op.cutout_length, length), 0.0)
+    cw = max(min(op.cutout_width, width), 0.0)
+    if cl <= 0.0 or cw <= 0.0:
+        return
+    if op.center:
+        x0 = (length - cl) / 2.0
+        y0 = (width - cw) / 2.0
+    else:
+        x0 = op.offset_length
+        y0 = op.offset_width
+    # Keep the rectangle inside the part face.
+    x0 = min(max(x0, 0.0), length - cl)
+    y0 = min(max(y0, 0.0), width - cw)
+    depth = thickness if op.through else min(op.route_depth, thickness)
+    cpm = CabinetPartModifier(obj)
+    cpm.mod = mod
+    cpm.set_input('X', x0)
+    cpm.set_input('End X', x0 + cl)
+    cpm.set_input('Y', y0)
+    cpm.set_input('End Y', y0 + cw)
+    cpm.set_input('Route Depth', depth)
+    cpm.set_input('Flip Z', op.back_face)
+    mod.show_viewport = True
+    mod.show_render = True
+    obj.update_tag()
+
+
+def _on_cutout_field_update(self, context):
+    _apply_cutout_live(self)
+
+
+class hb_face_frame_OT_add_part_cutout(bpy.types.Operator):
+    """Cut a rectangular hole or route into this part - a fan / liner opening,
+    a light route, an outlet cutout. The cut shows in 3D and in the 2D drawing
+    (a rotated copy of the part reveals it), so no detail view is needed. The
+    cutout is built immediately and updates LIVE as the dialog fields change;
+    Cancel leaves it in place (drop it with Remove Cutout)."""
+    bl_idname = "hb_face_frame.add_part_cutout"
+    bl_label = "Add Cutout"
+    bl_description = ("Cut a rectangular hole or route into this part "
+                      "(fan/liner opening, light route, outlet)")
+    bl_options = {'REGISTER', 'UNDO'}
+
+    # Live-dialog binding: the cutout is created on invoke and each field write
+    # fans straight to its CPM_CUTOUT inputs (same pattern as the Misc / Door
+    # Part dimension dialogs). Target resolved by name each tick.
+    source_obj_name: StringProperty(default='', options={'HIDDEN', 'SKIP_SAVE'})  # type: ignore
+    mod_name: StringProperty(default='', options={'HIDDEN', 'SKIP_SAVE'})  # type: ignore
+
+    cutout_length: FloatProperty(name="Length", unit='LENGTH', precision=4,
+                                 min=0.0, default=units.inch(4.0),
+                                 update=_on_cutout_field_update)  # type: ignore
+    cutout_width: FloatProperty(name="Width", unit='LENGTH', precision=4,
+                                min=0.0, default=units.inch(4.0),
+                                update=_on_cutout_field_update)  # type: ignore
+    center: BoolProperty(name="Center on Part", default=True,
+                         update=_on_cutout_field_update)  # type: ignore
+    offset_length: FloatProperty(name="Offset Along Length", unit='LENGTH',
+                                 precision=4, min=0.0, default=0.0,
+                                 update=_on_cutout_field_update)  # type: ignore
+    offset_width: FloatProperty(name="Offset Along Width", unit='LENGTH',
+                                precision=4, min=0.0, default=0.0,
+                                update=_on_cutout_field_update)  # type: ignore
+    through: BoolProperty(name="Through (Full Depth)", default=True,
+                          update=_on_cutout_field_update)  # type: ignore
+    route_depth: FloatProperty(name="Route Depth", unit='LENGTH', precision=4,
+                               min=0.0, default=units.inch(0.25),
+                               update=_on_cutout_field_update)  # type: ignore
+    back_face: BoolProperty(name="Cut From Back Face", default=False,
+                            update=_on_cutout_field_update)  # type: ignore
+
+    @classmethod
+    def poll(cls, context):
+        return _is_cutpart(context.active_object)
+
+    def invoke(self, context, event):
+        obj = context.active_object
+        part = GeoNodeCutpart(obj)
+        try:
+            length = part.get_input('Length')
+            width = part.get_input('Width')
+            thickness = part.get_input('Thickness')
+        except Exception:
+            self.report({'ERROR'}, "Part has no cutpart geometry to cut")
+            return {'CANCELLED'}
+        # Seed the fields BEFORE source_obj_name / mod_name are set: the update
+        # callbacks bail while those are empty, so seeding can't fan back.
+        self.cutout_length = min(units.inch(4.0), length)
+        self.cutout_width = min(units.inch(4.0), width)
+        self.center = True
+        self.offset_length = 0.0
+        self.offset_width = 0.0
+        self.through = True
+        self.route_depth = min(units.inch(0.25), thickness)
+        self.back_face = False
+        # Build the live cutout now so it previews as the dialog opens.
+        name = _unique_cutout_name(obj)
+        cpm = part.add_part_modifier(_CUTOUT_TOKEN, name)
+        cpm.mod.show_viewport = True
+        cpm.mod.show_render = True
+        self.source_obj_name = obj.name
+        self.mod_name = name
+        _apply_cutout_live(self)
+        return context.window_manager.invoke_props_dialog(self, width=280)
+
+    def draw(self, context):
+        col = self.layout.column(align=True)
+        col.prop(self, 'cutout_length')
+        col.prop(self, 'cutout_width')
+        col.prop(self, 'center')
+        if not self.center:
+            col.prop(self, 'offset_length')
+            col.prop(self, 'offset_width')
+        col.separator()
+        col.prop(self, 'through')
+        if not self.through:
+            col.prop(self, 'route_depth')
+        col.prop(self, 'back_face')
+
+    def execute(self, context):
+        # Live-applied via the field update callbacks; the cutout already
+        # exists, so OK just commits it.
+        return {'FINISHED'}
+
+
+class hb_face_frame_OT_remove_part_cutout(bpy.types.Operator):
+    """Remove the most recently added machining cutout from this part."""
+    bl_idname = "hb_face_frame.remove_part_cutout"
+    bl_label = "Remove Cutout"
+    bl_description = "Remove the last machining cutout added to this part"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return len(_user_cutout_mods(context.active_object)) > 0
+
+    def execute(self, context):
+        obj = context.active_object
+        mods = _user_cutout_mods(obj)
+        if not mods:
+            self.report({'WARNING'}, "No cutout to remove")
+            return {'CANCELLED'}
+        obj.modifiers.remove(mods[-1])
+        obj.update_tag()
+        return {'FINISHED'}
+
+
+class hb_face_frame_OT_set_bottom_rail_profile(bpy.types.Operator):
+    """Set the cabinet's decorative bottom-rail profile from the right-click
+    menu on a bottom rail. Sets the cabinet-level enum (one profile per
+    cabinet); the update callback re-runs the recalc."""
+    bl_idname = "hb_face_frame.set_bottom_rail_profile"
+    bl_label = "Set Bottom Rail Profile"
+    bl_description = "Cut this decorative profile into the cabinet's bottom rail"
+    bl_options = {'UNDO'}
+
+    profile_id: StringProperty(default='NONE', options={'SKIP_SAVE'})  # type: ignore
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+        root = types_face_frame.find_cabinet_root(context.active_object)
+        if root is None:
+            self.report({'WARNING'}, "No cabinet found for this part")
+            return {'CANCELLED'}
+        try:
+            root.face_frame_cabinet.bottom_rail_profile = self.profile_id
+        except TypeError:
+            self.report({'WARNING'}, f"Unknown profile: {self.profile_id}")
+            return {'CANCELLED'}
+        return {'FINISHED'}
+
+
 classes = (
     hb_face_frame_OT_set_part_width,
     hb_face_frame_OT_set_finished_end_condition,
@@ -1709,6 +1956,9 @@ classes = (
     hb_face_frame_OT_set_cabinet_part_size,
     hb_face_frame_OT_make_part_editable,
     hb_face_frame_OT_revert_part_to_parametric,
+    hb_face_frame_OT_add_part_cutout,
+    hb_face_frame_OT_remove_part_cutout,
+    hb_face_frame_OT_set_bottom_rail_profile,
 )
 
 

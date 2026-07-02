@@ -38,6 +38,15 @@ FIN_END_ITEMS = [
     ('FLUSH_X', "Finished Flush X Inches", "Finished strip running the front X inches of the side"),
 ]
 
+# Construction of a finished-side RETURN member (the return panel or its
+# rear stile). FINISHED = a flat 3/4 part; PANELED = an applied panel with
+# rails / stiles + inset panel (same PanelFaceFrameCabinet machinery as a
+# PANELED side). Per-member, per-side; default FINISHED.
+RETURN_MEMBER_TYPE_ITEMS = [
+    ('FINISHED', "Finished", "Flat 3/4 finished part"),
+    ('PANELED', "Paneled", "Applied panel with rails / stiles and an inset panel"),
+]
+
 
 # Exposure states per side. UNEXPOSED = covered by wall or neighbor over
 # the full cabinet height. PARTIAL = neighbor abuts but only covers part
@@ -1684,8 +1693,9 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         'INTERIOR_FF_RAIL', 'INTERIOR_FF_STILE',
         # Fronts
         'DOOR', 'DRAWER_FRONT', 'PULLOUT_FRONT', 'FALSE_FRONT', 'TILT_OUT', 'INSET_PANEL',
-        # Furniture / veneer wood top (dresser products)
-        'FURNITURE_TOP',
+        # Furniture / veneer wood top (dresser products) + the
+        # waterfall drop panels at its ends
+        'FURNITURE_TOP', 'FURNITURE_TOP_LEG',
         # Finished back closing a hutch upper's dropped-end recess
         'HUTCH_BACK',
         # Over-stool shelf between the extended legs
@@ -1707,6 +1717,10 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         # Blind ends + finished back + flush skins / decorative panels
         'BLIND_PANEL_LEFT', 'BLIND_PANEL_RIGHT',
         'FINISHED_BACK', 'FLUSH_X', 'BEADBOARD', 'SHIPLAP',
+        # Finished-side return closeout (return panel + rear stile) wrapping
+        # the exposed corner of a side extended back past a finished back.
+        'LEFT_SIDE_RETURN', 'RIGHT_SIDE_RETURN',
+        'LEFT_SIDE_RETURN_STILE', 'RIGHT_SIDE_RETURN_STILE',
         # Partition skins fill the exposed step between bays of differing
         # height / depth (added when a bay's height is adjusted) and are
         # visible through the opening, so they take the exterior finish
@@ -3121,6 +3135,27 @@ def _update_cabinet_dim(self, context):
     types_face_frame.recalculate_face_frame_cabinet(self.id_data)
 
 
+_BOTTOM_RAIL_PROFILE_ITEMS_CACHE = []
+
+
+def _bottom_rail_profile_items(self, context):
+    """Enum items for bottom_rail_profile: 'None' plus every '* Cutter.blend'
+    in face_frame_assets/profiles (id = the blend stem, e.g. 'Beckony Cutter').
+    Held in a module global so Blender does not GC the returned strings (the
+    dynamic-enum-callback gotcha)."""
+    items = [('NONE', 'None', 'No decorative bottom-rail profile'),
+             ('ARCH', 'Arched', 'A smooth circular arch cut into the bottom rail')]
+    d = os.path.join(os.path.dirname(__file__), 'face_frame_assets', 'profiles')
+    if os.path.isdir(d):
+        for fn in sorted(os.listdir(d)):
+            if fn.endswith(' Cutter.blend'):
+                stem = fn[:-len('.blend')]        # 'Beckony Cutter'
+                label = stem[:-len(' Cutter')]     # 'Beckony'
+                items.append((stem, label, label + ' bottom-rail profile'))
+    _BOTTOM_RAIL_PROFILE_ITEMS_CACHE[:] = items
+    return _BOTTOM_RAIL_PROFILE_ITEMS_CACHE
+
+
 def _update_panel_split_auto(self, context):
     """Auto-openings toggle on an applied panel. Recalc the HOST cabinet
     so _reconcile_applied_panels re-runs the split: auto on re-applies the
@@ -3884,6 +3919,44 @@ class Face_Frame_Cabinet_Props(PropertyGroup):
         update=_update_cabinet_dim,
     )  # type: ignore
 
+    # Return closeout on a FINISHED side that is extended back past a
+    # FINISHED back. Nonzero return width builds a finished "post" wrapping
+    # the exposed back corner: a return panel parallel to the side (its
+    # depth = the side's extend-back amount) dying into the finished back,
+    # capped at the rear by a stile whose width IS this value (e.g. 4" ->
+    # a 4"-wide stile running full height to the floor). Zero = no return
+    # (bare extended side, the prior behaviour). Gated per-side on that side
+    # being FINISHED or PANELED + extended back with a FINISHED or PANELED
+    # back; see _reconcile_finished_side_returns in types_face_frame.
+    left_side_return_width: FloatProperty(
+        name="Left Side Return Width", default=0.0, unit='LENGTH', precision=4,
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    right_side_return_width: FloatProperty(
+        name="Right Side Return Width", default=0.0, unit='LENGTH', precision=4,
+        update=_update_cabinet_dim,
+    )  # type: ignore
+
+    # Per-member construction of the return closeout: the return panel and
+    # its rear stile can each be a flat FINISHED part (default) or a PANELED
+    # applied panel. Per side. Read by _reconcile_finished_side_returns.
+    left_side_return_panel_type: EnumProperty(
+        name="Left Side Return Type", items=RETURN_MEMBER_TYPE_ITEMS,
+        default='FINISHED', update=_update_cabinet_dim,
+    )  # type: ignore
+    right_side_return_panel_type: EnumProperty(
+        name="Right Side Return Type", items=RETURN_MEMBER_TYPE_ITEMS,
+        default='FINISHED', update=_update_cabinet_dim,
+    )  # type: ignore
+    left_side_return_stile_type: EnumProperty(
+        name="Left Side Return Stile Type", items=RETURN_MEMBER_TYPE_ITEMS,
+        default='FINISHED', update=_update_cabinet_dim,
+    )  # type: ignore
+    right_side_return_stile_type: EnumProperty(
+        name="Right Side Return Stile Type", items=RETURN_MEMBER_TYPE_ITEMS,
+        default='FINISHED', update=_update_cabinet_dim,
+    )  # type: ignore
+
     # FLUSH_X writes a finished strip running the front X inches of the
     # side panel; per-side because adjacent-appliance widths can differ.
     # Back has no FLUSH_X by design.
@@ -4309,6 +4382,62 @@ class Face_Frame_Cabinet_Props(PropertyGroup):
         description="Overhang of the wood top past the right side of the carcass",
         update=_update_cabinet_dim,
     )  # type: ignore
+    # Furniture wood top plan shape. RECTANGLE is the original slab.
+    # BOW_BACK bows the back edge outward in a circular arc (the arc's
+    # corners stay on the straight back-overhang line; the apex sits
+    # furniture_top_bow_altitude past it). RADIUS rounds each plan corner
+    # with its own radius. WATERFALL drops a panel from the underside of
+    # each end of the top to the floor.
+    furniture_top_shape: EnumProperty(
+        name="Wood Top Shape",
+        items=[
+            ('RECTANGLE', "Rectangle", "Square-cornered rectangular top"),
+            ('BOW_BACK', "Bow Back",
+             "Bow the back edge outward in a circular arc"),
+            ('RADIUS', "Radius Edges",
+             "Round each corner with its own radius"),
+            ('WATERFALL', "Waterfall",
+             "Drop the ends of the top to the floor"),
+        ],
+        default='RECTANGLE',
+        description="Plan shape of the furniture wood top",
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    furniture_top_bow_altitude: FloatProperty(
+        name="Wood Top Bow Altitude", default=units.inch(2.0), min=0.0,
+        unit='LENGTH', precision=4,
+        description="Bow Back shape: distance from the straight back edge "
+                    "to the apex of the arc",
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    furniture_top_radius_front_left: FloatProperty(
+        name="Wood Top Front Left Radius", default=units.inch(1.0), min=0.0,
+        unit='LENGTH', precision=4,
+        description="Radius Edges shape: corner radius at the front-left "
+                    "corner of the top (0 = square)",
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    furniture_top_radius_front_right: FloatProperty(
+        name="Wood Top Front Right Radius", default=units.inch(1.0), min=0.0,
+        unit='LENGTH', precision=4,
+        description="Radius Edges shape: corner radius at the front-right "
+                    "corner of the top (0 = square)",
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    furniture_top_radius_back_left: FloatProperty(
+        name="Wood Top Back Left Radius", default=units.inch(1.0), min=0.0,
+        unit='LENGTH', precision=4,
+        description="Radius Edges shape: corner radius at the back-left "
+                    "corner of the top (0 = square)",
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    furniture_top_radius_back_right: FloatProperty(
+        name="Wood Top Back Right Radius", default=units.inch(1.0), min=0.0,
+        unit='LENGTH', precision=4,
+        description="Radius Edges shape: corner radius at the back-right "
+                    "corner of the top (0 = square)",
+        update=_update_cabinet_dim,
+    )  # type: ignore
     extend_left_end_down: BoolProperty(
         name="Extend Left End Down",
         default=False,
@@ -4363,6 +4492,15 @@ class Face_Frame_Cabinet_Props(PropertyGroup):
         default=False,
         description="Cut the over-stool decorative profile into the "
                     "bottom-front corner of each extended side panel",
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    bottom_rail_profile: EnumProperty(
+        name="Bottom Rail Profile",
+        description="Decorative profile cut into the bottom rail (base / "
+                    "upper). Options are the '* Cutter' curves in "
+                    "face_frame_assets/profiles; the end details stay fixed "
+                    "while the middle stretches to the rail length",
+        items=_bottom_rail_profile_items,
         update=_update_cabinet_dim,
     )  # type: ignore
     overstool_accessory: EnumProperty(

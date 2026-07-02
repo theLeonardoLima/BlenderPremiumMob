@@ -299,6 +299,24 @@ DRAWER_LOOK_TALLER_TOP_FACTOR = 1.5         # top front height vs each other
 # visible finish surface behind it.
 PART_ROLE_FINISHED_BACK = 'FINISHED_BACK'
 
+# Finished-side return closeout. When a FINISHED side is extended back past
+# a FINISHED back and the user sets a return width, the exposed back corner
+# is wrapped by two 3/4 parts: a RETURN panel parallel to the side (its
+# depth = the side's extend-back amount) that dies into the finished back,
+# and a rear STILE (the outermost/rearmost member) whose width IS the return
+# width, running full height to the floor. Managed by
+# _reconcile_finished_side_returns; both roles are in _FINISH_EXTERIOR_ROLES.
+PART_ROLE_LEFT_SIDE_RETURN = 'LEFT_SIDE_RETURN'
+PART_ROLE_RIGHT_SIDE_RETURN = 'RIGHT_SIDE_RETURN'
+PART_ROLE_LEFT_SIDE_RETURN_STILE = 'LEFT_SIDE_RETURN_STILE'
+PART_ROLE_RIGHT_SIDE_RETURN_STILE = 'RIGHT_SIDE_RETURN_STILE'
+
+# Tag carried by either kind of return member (the flat FINISHED cutpart or
+# the PANELED applied-panel root) so the reconciler can find and kind-swap it
+# regardless of type. `hb_return_member_kind` ('FINISHED'/'PANELED') records
+# which kind is currently built.
+TAG_RETURN_MEMBER = 'hb_return_member'
+
 # Applied flush-X strip: a 1/4 part covering the front portion of a
 # cabinet side when LEFT/RIGHT_finished_end_condition is FLUSH_X. The
 # strip's outer face is flush with the FF outer face; its width along
@@ -497,6 +515,18 @@ WEDGE_CUT_PART_ROLES = frozenset({
 # in _FINISH_EXTERIOR_ROLES so the material walk gives it the cabinet's
 # exterior wood finish.
 PART_ROLE_FURNITURE_TOP = 'FURNITURE_TOP'
+# Furniture-top plan shapes (furniture_top_shape). BOW_BACK and RADIUS
+# trim the rectangular top cutpart with a hidden boolean cutter (same
+# lazy mesh-cutter pattern as the back-extension trim); WATERFALL adds a
+# drop panel at each end of the top running from its underside to the
+# floor (in _FINISH_EXTERIOR_ROLES like the top itself). All managed by
+# _apply_furniture_top.
+PART_ROLE_FURNITURE_TOP_CUTTER = 'FURNITURE_TOP_CUTTER'
+PART_ROLE_FURNITURE_TOP_LEG = 'FURNITURE_TOP_LEG'
+FURNITURE_TOP_CUT_MOD_NAME = 'Furniture Top Shape Cut'
+# Arc tessellation for the bow-back / radius-corner cutter meshes.
+FURNITURE_TOP_BOW_SEGMENTS = 48
+FURNITURE_TOP_RADIUS_SEGMENTS = 16
 # Finished back panel closing the open recess below an upper whose
 # ends are extended down (hutch). Managed by _apply_hutch_back; in
 # _FINISH_EXTERIOR_ROLES so it gets the cabinet's finish material.
@@ -581,6 +611,119 @@ def _overstool_profile_poly():
             bpy.data.curves.remove(cu)
     _OVERSTOOL_PROFILE_POLY_CACHE = pts
     return pts
+
+
+# ---------------------------------------------------------------------------
+# Bottom-rail decorative profile cut (Beckony / Heritage / ... valance).
+# A closed 2D Bezier authored with the decorative detail confined to the two
+# ENDS and a flat horizontal middle. At apply time the ends stay FIXED and only
+# the flat middle stretches to the rail length (3-slice), so the same profile
+# fits any width with identical end details. Profiles are the '* Cutter.blend'
+# curves in face_frame_assets/profiles. See _apply_bottom_rail_profile.
+# ---------------------------------------------------------------------------
+PART_ROLE_BOTTOM_RAIL_PROFILE_CUTTER = 'BOTTOM_RAIL_PROFILE_CUTTER'
+BOTTOM_RAIL_PROFILE_CUT_MOD_NAME = 'Bottom Rail Profile Cut'
+BOTTOM_RAIL_PROFILE_END_MARGIN = inch(2.0)  # flat, uncut rail left at each end
+_BOTTOM_RAIL_PROFILE_ARCH = 'ARCH'          # procedural smooth-arch option (no blend)
+BOTTOM_RAIL_PROFILE_ARCH_RISE = inch(2.0)   # arch height at the centre
+_BOTTOM_RAIL_PROFILE_SUFFIX = ' Cutter.blend'
+_BOTTOM_RAIL_PROFILE_POLY_CACHE = {}   # profile_id -> list[(x, y)] meters
+
+
+def bottom_rail_profile_dir():
+    return os.path.join(os.path.dirname(__file__), 'face_frame_assets', 'profiles')
+
+
+def _bottom_rail_profile_poly(profile_id):
+    """Sampled closed-loop (x, y) outline (meters) for a profile id, cached.
+    Same depsgraph-free Bezier sampling as _overstool_profile_poly."""
+    if profile_id in _BOTTOM_RAIL_PROFILE_POLY_CACHE:
+        return _BOTTOM_RAIL_PROFILE_POLY_CACHE[profile_id]
+    from mathutils.geometry import interpolate_bezier
+    blend = os.path.join(bottom_rail_profile_dir(), profile_id + '.blend')
+    if not os.path.exists(blend):
+        return []
+    before = set(bpy.data.objects)
+    with bpy.data.libraries.load(blend, link=False) as (src, dst):
+        dst.objects = [profile_id] if profile_id in src.objects else list(src.objects)
+    obj = next((o for o in bpy.data.objects if o not in before), None)
+    pts = []
+    try:
+        sp = obj.data.splines[0]
+        bp = sp.bezier_points
+        n = len(bp)
+        res = max(12, obj.data.resolution_u)
+        last = n if sp.use_cyclic_u else n - 1
+        for i in range(last):
+            a = bp[i]
+            b = bp[(i + 1) % n]
+            seg = interpolate_bezier(a.co, a.handle_right, b.handle_left, b.co, res)
+            pts.extend((v.x, v.y) for v in seg[:-1])
+    finally:
+        cu = obj.data if obj else None
+        if obj:
+            bpy.data.objects.remove(obj, do_unlink=True)
+        if cu and cu.users == 0:
+            bpy.data.curves.remove(cu)
+    _BOTTOM_RAIL_PROFILE_POLY_CACHE[profile_id] = pts
+    return pts
+
+
+def _bottom_rail_profile_stretched(poly, target_len):
+    """3-slice the profile to target_len. Seams are the x-range of the flat top
+    edge (points at max Y): keep the LEFT detail (x <= left_seam) fixed,
+    translate the RIGHT detail (x >= right_seam) by (target_len - ref_len), and
+    stretch the flat middle between them. Returns the remapped [(x, y)], or None
+    when the rail is too short to hold both end details."""
+    if not poly:
+        return None
+    max_y = max(y for _, y in poly)
+    ref_len = max(x for x, _ in poly)
+    top_x = [x for x, y in poly if abs(y - max_y) < 1e-4]
+    if not top_x:
+        return None
+    left_seam, right_seam = min(top_x), max(top_x)
+    right_detail = ref_len - right_seam
+    if target_len <= left_seam + right_detail:
+        return None
+    delta = target_len - ref_len
+    mid_old = right_seam - left_seam
+    mid_new = mid_old + delta
+    out = []
+    for x, y in poly:
+        if x <= left_seam:
+            nx = x
+        elif x >= right_seam:
+            nx = x + delta
+        elif mid_old > 1e-9:
+            nx = left_seam + (x - left_seam) * (mid_new / mid_old)
+        else:
+            nx = x
+        out.append((nx, y))
+    return out
+
+
+def _bottom_rail_arch_poly(chord, rise=None, segments=48):
+    """Closed (x, y) loop for a smooth arched bottom-rail cut spanning x in
+    [0, chord]: the TOP edge is a circular arc rising `rise` at the centre from
+    y=0 at both ends; the bottom edge is flat just below y=0 so the cut clears
+    the rail's bottom edge. Chord = the arch's span; a wider rail flattens the
+    arc (fixed rise, larger radius). Returns None for a non-positive span."""
+    if rise is None:
+        rise = BOTTOM_RAIL_PROFILE_ARCH_RISE
+    if chord <= 0.0 or rise <= 0.0:
+        return None
+    half = chord / 2.0
+    radius = (half * half + rise * rise) / (2.0 * rise)
+    cx, cy = half, rise - radius
+    below = -inch(0.25)
+    top = []
+    for i in range(segments + 1):
+        x = chord * i / segments
+        dx = x - cx
+        top.append((x, cy + math.sqrt(max(0.0, radius * radius - dx * dx))))
+    return top + [(chord, below), (0.0, below)]
+
 
 # Baseline rotation_euler.z for parts that live in the face frame plane.
 # Recalc adds face_frame_angle on top so they rotate with the angled
@@ -2272,6 +2415,11 @@ class FaceFrameCabinet(GeoNodeCage):
             # their own overhang above; the FINISHED side has no applied
             # part, so the carcass side itself is grown here.
             self._extend_finished_side_panels(layout)
+            # Close the exposed corner of an extended finished side with a
+            # return panel + rear stile when a return width is set (needs a
+            # FINISHED back to return into). Runs after the extend so it can
+            # read the grown side's rear edge.
+            self._reconcile_finished_side_returns(layout)
 
         # Angled cabinet cutter: drives the trapezoidal silhouette on
         # the root cage, top, bottom, and any shelves. Lazy: created
@@ -2316,6 +2464,10 @@ class FaceFrameCabinet(GeoNodeCage):
         # Over-stool side-front profile: cut the decorative leg profile into
         # the bottom-front of each extended side. No-op + cleanup when off.
         self._apply_overstool_profile(layout)
+
+        # Bottom-rail decorative profile (valance): cut the chosen profile
+        # into the bottom rail(s). No-op + cleanup when off.
+        self._apply_bottom_rail_profile(layout)
 
         # Over-stool leg accessories: shelf and/or towel bar between the legs
         # per the overstool_accessory dropdown. No-op + cleanup when off.
@@ -2554,7 +2706,12 @@ class FaceFrameCabinet(GeoNodeCage):
         height and the per-side furniture_top_overhang_* / _thickness props.
         Each edge (front / back / left / right) overhangs the carcass
         independently. Falls back to the legacy uniform furniture_top_overhang
-        (and a flush back) for data saved before the per-side props."""
+        (and a flush back) for data saved before the per-side props.
+
+        BOW_BACK shape: the slab is first extended straight back by the
+        bow altitude so it covers the arc's bulge; the shape cutter then
+        trims it back to the arc (the arc's corners stay on the straight
+        back-overhang line)."""
         cab = self.obj.face_frame_cabinet
         dim_x = cab.width
         dim_y = cab.depth
@@ -2565,37 +2722,270 @@ class FaceFrameCabinet(GeoNodeCage):
         ohf = getattr(cab, 'furniture_top_overhang_front', legacy)
         ohb = getattr(cab, 'furniture_top_overhang_back', 0.0)
         th = cab.furniture_top_thickness
+        bow = 0.0
+        if getattr(cab, 'furniture_top_shape', 'RECTANGLE') == 'BOW_BACK':
+            bow = max(getattr(cab, 'furniture_top_bow_altitude', 0.0), 0.0)
         part = GeoNodeCutpart(top_obj)
         part.set_input('Length', dim_x + ohl + ohr)   # left + right overhang
-        part.set_input('Width', dim_y + ohf + ohb)    # front + back overhang
+        part.set_input('Width', dim_y + ohf + ohb + bow)  # front/back + bow
         part.set_input('Thickness', th)
         # Origin at the case top back-left corner, shifted -X by the left
-        # overhang and +Y by the back overhang. Width runs -Y from the back
-        # edge (y = ohb) past the front (y = -(dim_y + ohf)). Thickness +Z.
-        top_obj.location = Vector((-ohl, ohb, dim_z))
+        # overhang and +Y by the back overhang (plus the bow bulge). Width
+        # runs -Y from the back edge past the front (y = -(dim_y + ohf)).
+        # Thickness +Z.
+        top_obj.location = Vector((-ohl, ohb + bow, dim_z))
         top_obj.rotation_euler = (0.0, 0.0, 0.0)
 
     def _cleanup_furniture_top(self):
         """Remove the furniture-top part (furniture_top toggled off, or a
-        non-carcass / non-furniture cabinet)."""
+        non-carcass / non-furniture cabinet) plus its shape cutter and
+        any waterfall drop panels."""
         for child in list(self.obj.children):
             if child.get('hb_part_role') == PART_ROLE_FURNITURE_TOP:
+                bpy.data.objects.remove(child, do_unlink=True)
+        self._cleanup_furniture_top_cutter()
+        self._cleanup_furniture_top_legs()
+
+    # ---- Furniture top shape (bow back / radius corners / waterfall) ----
+    def _furniture_top_extents(self):
+        """Plan-space extents of the furniture top in cabinet-local XY:
+        (x_left, x_right, y_front, y_back) EXCLUDING any bow bulge - the
+        bow arc's corners sit on y_back. Mirrors the sizing math in
+        _position_furniture_top."""
+        cab = self.obj.face_frame_cabinet
+        legacy = cab.furniture_top_overhang
+        ohl = getattr(cab, 'furniture_top_overhang_left', legacy)
+        ohr = getattr(cab, 'furniture_top_overhang_right', legacy)
+        ohf = getattr(cab, 'furniture_top_overhang_front', legacy)
+        ohb = getattr(cab, 'furniture_top_overhang_back', 0.0)
+        return (-ohl, cab.width + ohr, -(cab.depth + ohf), ohb)
+
+    def _ensure_furniture_top_cutter(self):
+        """Find or lazily create the furniture-top shape cutter MESH.
+        Hidden in the viewport; the boolean reads its mesh regardless.
+        Mirrors _ensure_back_ext_cutter."""
+        for child in self.obj.children:
+            if child.get('hb_part_role') == PART_ROLE_FURNITURE_TOP_CUTTER:
+                return child
+        mesh = bpy.data.meshes.new('Wood Top Shape Cutter')
+        cutter = bpy.data.objects.new('Wood Top Shape Cutter', mesh)
+        cutter['hb_part_role'] = PART_ROLE_FURNITURE_TOP_CUTTER
+        cutter.parent = self.obj
+        cutter.display_type = 'WIRE'
+        cutter.hide_render = True
+        cutter.hide_viewport = True
+        for coll in self.obj.users_collection:
+            coll.objects.link(cutter)
+            break
+        return cutter
+
+    def _position_furniture_top_cutter(self, cutter_obj):
+        """Rebuild the shape-cutter mesh for the current shape props.
+
+        BOW_BACK: one prism removing everything behind the circular arc
+        through the two back corners and the apex (bow altitude past the
+        straight back edge). The slab was pre-extended by the altitude in
+        _position_furniture_top, so the DIFFERENCE leaves the bowed edge.
+
+        RADIUS: one prism per corner with a non-zero radius, removing the
+        corner material outside a quarter-circle of that radius. Radii are
+        clamped so opposite corners cannot overlap.
+
+        Prisms span only the top's Z range (plus a margin) so nothing else
+        is affected, and their outer walls sit a margin outside the slab so
+        no cutter face is coplanar with a slab face."""
+        cab = self.obj.face_frame_cabinet
+        shape = getattr(cab, 'furniture_top_shape', 'RECTANGLE')
+        x_l, x_r, y_f, y_b = self._furniture_top_extents()
+        th = cab.furniture_top_thickness
+        margin = inch(1.0)
+        z0 = cab.height - margin
+        z1 = cab.height + th + margin
+
+        def prism(bm, pts):
+            # Extrude a closed plan polygon from z0 to z1; winding is
+            # unified by the recalc_face_normals below.
+            bot = [bm.verts.new((p[0], p[1], z0)) for p in pts]
+            top = [bm.verts.new((p[0], p[1], z1)) for p in pts]
+            bm.faces.new(bot)
+            bm.faces.new(list(reversed(top)))
+            n = len(pts)
+            for i in range(n):
+                j = (i + 1) % n
+                bm.faces.new((bot[i], bot[j], top[j], top[i]))
+
+        bm = bmesh.new()
+        if shape == 'BOW_BACK':
+            alt = max(getattr(cab, 'furniture_top_bow_altitude', 0.0), 0.0)
+            if alt > 1e-6:
+                # Circle through (x_l, y_b), (x_r, y_b) and the apex
+                # ((x_l + x_r) / 2, y_b + alt): R = (c^2 + a^2) / 2a with
+                # c the half-chord, centered a - R below the apex.
+                half = (x_r - x_l) * 0.5
+                rad = (half * half + alt * alt) / (2.0 * alt)
+                cx = (x_l + x_r) * 0.5
+                cy = y_b + alt - rad
+                a0 = math.atan2(y_b - cy, x_l - cx)
+                a1 = math.atan2(y_b - cy, x_r - cx)
+                y_out = y_b + alt + margin
+                segs = FURNITURE_TOP_BOW_SEGMENTS
+                pts = []
+                for i in range(segs + 1):
+                    ang = a0 + (a1 - a0) * i / segs
+                    pts.append((cx + rad * math.cos(ang),
+                                cy + rad * math.sin(ang)))
+                # Close around the outside: past the right corner, back
+                # behind the extended slab, past the left corner. The end
+                # walls sit outside the slab ends so the only cut faces
+                # are along the arc itself.
+                pts.extend([(x_r + margin, y_b), (x_r + margin, y_out),
+                            (x_l - margin, y_out), (x_l - margin, y_b)])
+                prism(bm, pts)
+        elif shape == 'RADIUS':
+            segs = FURNITURE_TOP_RADIUS_SEGMENTS
+            rmax = max(min(x_r - x_l, y_b - y_f) * 0.5 - inch(0.01), 0.0)
+            corners = (
+                # (corner, x/y direction into the slab, radius prop)
+                (x_l, y_f, 1.0, 1.0,
+                 getattr(cab, 'furniture_top_radius_front_left', 0.0)),
+                (x_r, y_f, -1.0, 1.0,
+                 getattr(cab, 'furniture_top_radius_front_right', 0.0)),
+                (x_l, y_b, 1.0, -1.0,
+                 getattr(cab, 'furniture_top_radius_back_left', 0.0)),
+                (x_r, y_b, -1.0, -1.0,
+                 getattr(cab, 'furniture_top_radius_back_right', 0.0)),
+            )
+            for px, py, sx, sy, r in corners:
+                r = min(max(r, 0.0), rmax)
+                if r <= 1e-6:
+                    continue
+                # Quarter-circle centered r in from both edges; removal
+                # region = the corner block outside the arc, extended a
+                # margin past both slab edges.
+                ccx, ccy = px + sx * r, py + sy * r
+                pts = [(px + sx * r, py)]      # tangent point on the X edge
+                for i in range(1, segs):
+                    ang = (math.pi * 0.5) * i / segs
+                    pts.append((ccx - sx * r * math.sin(ang),
+                                ccy - sy * r * math.cos(ang)))
+                pts.append((px, py + sy * r))  # tangent point on the Y edge
+                pts.extend([(px - sx * margin, py + sy * r),
+                            (px - sx * margin, py - sy * margin),
+                            (px + sx * r, py - sy * margin)])
+                prism(bm, pts)
+        if bm.faces:
+            bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+        bm.to_mesh(cutter_obj.data)
+        bm.free()
+        cutter_obj.location = (0.0, 0.0, 0.0)
+        cutter_obj.rotation_euler = (0.0, 0.0, 0.0)
+
+    def _cleanup_furniture_top_cutter(self):
+        """Remove the shape cutter and its boolean modifier on the top.
+        No-op when there is nothing to undo."""
+        for child in list(self.obj.children):
+            if child.get('hb_part_role') == PART_ROLE_FURNITURE_TOP:
+                mod = child.modifiers.get(FURNITURE_TOP_CUT_MOD_NAME)
+                if mod is not None:
+                    child.modifiers.remove(mod)
+        for child in list(self.obj.children):
+            if child.get('hb_part_role') == PART_ROLE_FURNITURE_TOP_CUTTER:
+                mesh = child.data
+                bpy.data.objects.remove(child, do_unlink=True)
+                if mesh is not None and mesh.users == 0:
+                    bpy.data.meshes.remove(mesh)
+
+    def _ensure_furniture_top_leg(self, side):
+        """Find or lazily create one waterfall drop panel ('LEFT' /
+        'RIGHT'), tagged like the top so the material walk finishes it.
+        Same vertical-panel orientation as the carcass sides: Length up,
+        Width along -Y, thickness across X - mirrored so each leg's
+        origin X is its OUTER face."""
+        for child in self.obj.children:
+            if (child.get('hb_part_role') == PART_ROLE_FURNITURE_TOP_LEG
+                    and child.get('hb_leg_side') == side):
+                return child
+        leg = CabinetPart()
+        leg.create(f'Wood Top Waterfall {side.title()}')
+        leg.obj.parent = self.obj
+        leg.obj['hb_part_role'] = PART_ROLE_FURNITURE_TOP_LEG
+        leg.obj['hb_leg_side'] = side
+        leg.obj['CABINET_PART'] = True
+        leg.obj.rotation_euler.y = math.radians(-90)
+        leg.set_input('Mirror Y', True)
+        # LEFT grows thickness +X (inward from the outer face at the
+        # top's left edge); RIGHT grows -X from the top's right edge.
+        leg.set_input('Mirror Z', side == 'LEFT')
+        return leg.obj
+
+    def _position_furniture_top_legs(self):
+        """Size + place both waterfall drop panels: outer face flush with
+        the top's end, running from the floor to the underside of the top,
+        spanning the top's full plan depth, same thickness as the top."""
+        cab = self.obj.face_frame_cabinet
+        x_l, x_r, y_f, y_b = self._furniture_top_extents()
+        th = cab.furniture_top_thickness
+        dim_z = cab.height
+        for side, outer_x in (('LEFT', x_l), ('RIGHT', x_r)):
+            leg_obj = self._ensure_furniture_top_leg(side)
+            if leg_obj.get('IS_MANUAL_PART'):
+                continue
+            part = GeoNodeCutpart(leg_obj)
+            part.set_input('Length', dim_z)      # floor -> underside of top
+            part.set_input('Width', y_b - y_f)   # full top plan depth
+            part.set_input('Thickness', th)
+            leg_obj.location = Vector((outer_x, y_b, 0.0))
+            leg_obj.rotation_euler = (0.0, math.radians(-90), 0.0)
+
+    def _cleanup_furniture_top_legs(self):
+        """Remove the waterfall drop panels (shape changed / top gone)."""
+        for child in list(self.obj.children):
+            if child.get('hb_part_role') == PART_ROLE_FURNITURE_TOP_LEG:
                 bpy.data.objects.remove(child, do_unlink=True)
 
     def _apply_furniture_top(self, layout):
         """Build / position the veneer wood top when furniture_top is on and
         the cabinet has a carcass; otherwise ensure it is gone. Called once
         per recalc (after _apply_back_extension) so it tracks width / depth /
-        height changes - the managed-part lifecycle mirrors the cutters."""
+        height changes - the managed-part lifecycle mirrors the cutters.
+        Also manages the shape extras from furniture_top_shape: the
+        bow-back / radius-corner boolean cutter and the waterfall drop
+        panels."""
         cab = self.obj.face_frame_cabinet
         if getattr(cab, 'furniture_top', False) and self._has_carcass():
             top_obj = self._ensure_furniture_top()
             # A made-editable (manual) top is hand-controlled: its cutpart
             # GeoNode has been applied off, so re-driving it would raise
             # (no modifier to set inputs on). Leave it exactly as the user
-            # edited it, mirroring how recalc skips other manual parts.
-            if not top_obj.get('IS_MANUAL_PART'):
-                self._position_furniture_top(top_obj)
+            # edited it - including any shape cutter / waterfall panels.
+            if top_obj.get('IS_MANUAL_PART'):
+                return
+            self._position_furniture_top(top_obj)
+            shape = getattr(cab, 'furniture_top_shape', 'RECTANGLE')
+            wants_cut = (
+                (shape == 'BOW_BACK'
+                 and getattr(cab, 'furniture_top_bow_altitude', 0.0) > 1e-6)
+                or (shape == 'RADIUS' and any(
+                    getattr(cab, f'furniture_top_radius_{c}', 0.0) > 1e-6
+                    for c in ('front_left', 'front_right',
+                              'back_left', 'back_right'))))
+            if wants_cut:
+                cutter = self._ensure_furniture_top_cutter()
+                self._position_furniture_top_cutter(cutter)
+                mod = top_obj.modifiers.get(FURNITURE_TOP_CUT_MOD_NAME)
+                if mod is None:
+                    mod = top_obj.modifiers.new(
+                        name=FURNITURE_TOP_CUT_MOD_NAME, type='BOOLEAN')
+                    mod.operation = 'DIFFERENCE'
+                    mod.solver = 'EXACT'
+                if mod.object is not cutter:
+                    mod.object = cutter
+            else:
+                self._cleanup_furniture_top_cutter()
+            if shape == 'WATERFALL':
+                self._position_furniture_top_legs()
+            else:
+                self._cleanup_furniture_top_legs()
         else:
             self._cleanup_furniture_top()
 
@@ -3155,6 +3545,137 @@ class FaceFrameCabinet(GeoNodeCage):
                 mod.object = cutter
 
     # =====================================================================
+    # Bottom-rail decorative profile cut (valance)
+    # =====================================================================
+    def _bottom_rail_parts(self):
+        return [c for c in self.obj.children_recursive
+                if c.get('hb_part_role') == PART_ROLE_BOTTOM_RAIL]
+
+    def _ensure_bottom_rail_profile_cutter(self, seg_key):
+        for child in self.obj.children:
+            if (child.get('hb_part_role') == PART_ROLE_BOTTOM_RAIL_PROFILE_CUTTER
+                    and child.get('hb_profile_seg') == seg_key):
+                return child
+        name = 'Bottom Rail Profile Cutter ' + str(seg_key)
+        mesh = bpy.data.meshes.new(name)
+        cutter = bpy.data.objects.new(name, mesh)
+        cutter['hb_part_role'] = PART_ROLE_BOTTOM_RAIL_PROFILE_CUTTER
+        cutter['hb_profile_seg'] = seg_key
+        cutter.parent = self.obj
+        cutter.display_type = 'WIRE'
+        cutter.hide_render = True
+        cutter.hide_viewport = True
+        for coll in self.obj.users_collection:
+            coll.objects.link(cutter)
+            break
+        return cutter
+
+    def _position_bottom_rail_profile_cutter(self, cutter, rail, profile_id, poly):
+        """Rebuild the cutter prism aligned to the rail: profile X -> rail
+        Length, profile Y -> up from the rail's bottom edge (rail local Y=0),
+        extruded through the rail Thickness. Built in cabinet-local coords via
+        the rail's matrix_local (rails are direct children of the root). ARCH
+        generates a smooth circular arc; every other profile 3-slices its
+        authored curve. Returns False (and clears the mesh) when too short."""
+        part = GeoNodeCutpart(rail)
+        try:
+            length = part.get_input('Length')
+            thickness = part.get_input('Thickness')
+        except Exception:
+            return False
+        # Inset the cut from each rail end by a flat margin: it spans
+        # [margin, length - margin], leaving uncut rail at each end.
+        margin = BOTTOM_RAIL_PROFILE_END_MARGIN
+        inner_len = length - 2.0 * margin
+        if profile_id == _BOTTOM_RAIL_PROFILE_ARCH:
+            rpoly = _bottom_rail_arch_poly(inner_len)
+        else:
+            rpoly = _bottom_rail_profile_stretched(poly, inner_len)
+        if not rpoly:
+            cutter.data.clear_geometry()
+            return False
+        rpoly = [(px + margin, py) for (px, py) in rpoly]
+        # Extrude symmetrically past BOTH faces so the cut passes fully through
+        # the rail regardless of which way its local thickness axis points (the
+        # rail mesh runs 0..-Thickness in local Z, not 0..+Thickness).
+        eps = inch(0.1)
+        zt = thickness + eps
+        ml = rail.matrix_local
+        bm = bmesh.new()
+        loop0, loop1 = [], []
+        for (px, py) in rpoly:
+            loop0.append(bm.verts.new(ml @ Vector((px, py, -zt))))
+            loop1.append(bm.verts.new(ml @ Vector((px, py, zt))))
+        bm.faces.new(loop0)
+        bm.faces.new(list(reversed(loop1)))
+        n = len(rpoly)
+        for i in range(n):
+            j = (i + 1) % n
+            bm.faces.new((loop0[i], loop0[j], loop1[j], loop1[i]))
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+        bm.to_mesh(cutter.data)
+        bm.free()
+        cutter.location = (0.0, 0.0, 0.0)
+        cutter.rotation_euler = (0.0, 0.0, 0.0)
+        return True
+
+    def _cleanup_bottom_rail_profile_cutters(self):
+        """Reverse of _apply_bottom_rail_profile. No-op when nothing to undo."""
+        for rail in self._bottom_rail_parts():
+            mod = rail.modifiers.get(BOTTOM_RAIL_PROFILE_CUT_MOD_NAME)
+            if mod is not None:
+                rail.modifiers.remove(mod)
+        for child in list(self.obj.children):
+            if child.get('hb_part_role') == PART_ROLE_BOTTOM_RAIL_PROFILE_CUTTER:
+                mesh = child.data
+                bpy.data.objects.remove(child, do_unlink=True)
+                if mesh is not None and mesh.users == 0:
+                    bpy.data.meshes.remove(mesh)
+
+    def _apply_bottom_rail_profile(self, layout):
+        """Cut the chosen decorative profile into the bottom rail(s). Gated on a
+        BASE / UPPER with bottom_rail_profile set; a no-op + full cleanup
+        otherwise. One cutter per bottom-rail segment; the profile's end details
+        stay fixed while its flat middle stretches to each rail's length."""
+        cab_props = self.obj.face_frame_cabinet
+        profile_id = getattr(cab_props, 'bottom_rail_profile', 'NONE')
+        on = (layout.cabinet_type in ('BASE', 'UPPER')
+              and profile_id not in ('NONE', ''))
+        is_arch = profile_id == _BOTTOM_RAIL_PROFILE_ARCH
+        poly = None if (not on or is_arch) else _bottom_rail_profile_poly(profile_id)
+        if not on or (not is_arch and not poly):
+            self._cleanup_bottom_rail_profile_cutters()
+            return
+        live_keys = set()
+        for rail in self._bottom_rail_parts():
+            seg_key = rail.get('hb_segment_start_bay')
+            if seg_key is None:
+                seg_key = rail.name
+            live_keys.add(seg_key)
+            cutter = self._ensure_bottom_rail_profile_cutter(seg_key)
+            ok = self._position_bottom_rail_profile_cutter(cutter, rail, profile_id, poly)
+            mod = rail.modifiers.get(BOTTOM_RAIL_PROFILE_CUT_MOD_NAME)
+            if not ok:
+                if mod is not None:
+                    rail.modifiers.remove(mod)
+                continue
+            if mod is None:
+                mod = rail.modifiers.new(
+                    name=BOTTOM_RAIL_PROFILE_CUT_MOD_NAME, type='BOOLEAN')
+                mod.operation = 'DIFFERENCE'
+                mod.solver = 'EXACT'
+            if mod.object is not cutter:
+                mod.object = cutter
+        # Drop cutters whose rail segment no longer exists.
+        for child in list(self.obj.children):
+            if (child.get('hb_part_role') == PART_ROLE_BOTTOM_RAIL_PROFILE_CUTTER
+                    and child.get('hb_profile_seg') not in live_keys):
+                mesh = child.data
+                bpy.data.objects.remove(child, do_unlink=True)
+                if mesh is not None and mesh.users == 0:
+                    bpy.data.meshes.remove(mesh)
+
+    # =====================================================================
     # Over-stool leg accessories (shelf / towel bar between the legs)
     # =====================================================================
     def _overstool_interior(self, layout):
@@ -3440,10 +3961,18 @@ class FaceFrameCabinet(GeoNodeCage):
             # RIGHT (rotZ=+90, +X->+Y) has its back edge at the FAR end,
             # so a back overhang only widens.
             if side == 'BACK':
-                location = (location[0] + cab.back_finished_extend_right,
+                # Trim the paneled back at each end that carries a return
+                # closeout so it butts the return post instead of running
+                # behind it. Rotated 180, the origin is the RIGHT end, so a
+                # right return shifts the origin -X and narrows; a left return
+                # (far end) only narrows - mirroring the extend_r / extend_l
+                # grows below.
+                ret_l = self._finished_side_return_width(cab, layout, 'LEFT')
+                ret_r = self._finished_side_return_width(cab, layout, 'RIGHT')
+                location = (location[0] + cab.back_finished_extend_right - ret_r,
                             location[1], location[2])
                 width = (width + cab.back_finished_extend_left
-                         + cab.back_finished_extend_right)
+                         + cab.back_finished_extend_right - ret_l - ret_r)
             elif side == 'LEFT':
                 eb = cab.left_side_finished_extend_back
                 location = (location[0], location[1] + eb, location[2])
@@ -3510,8 +4039,10 @@ class FaceFrameCabinet(GeoNodeCage):
         no user state, so reuse-when-present keeps it stable across
         recalcs without rebuilding.
 
-        Spans the full cabinet width and full cabinet height. Refining
-        for stepped cabinets or excluding the toe kick is deferred.
+        Spans the full cabinet width (less any per-side return closeout,
+        which trims that end so the back butts the return post) and full
+        cabinet height. Refining for stepped cabinets or excluding the toe
+        kick is deferred.
         """
         cab = self.obj.face_frame_cabinet
         wants = cab.back_finished_end_condition == 'FINISHED'
@@ -3551,9 +4082,16 @@ class FaceFrameCabinet(GeoNodeCage):
         # right end just widens. Negative values inset that edge.
         ext_l = cab.back_finished_extend_left
         ext_r = cab.back_finished_extend_right
-        existing.location = (-ext_l, thickness, 0.0)
+        # Shorten the back at each end that carries a return closeout so it
+        # butts the return post's outer face instead of running behind it.
+        # The return panel's outer face sits `return width` in from that
+        # side's outer face, so trimming the back by the same amount (and
+        # shifting the origin +X for a left return) lands them flush.
+        ret_l = self._finished_side_return_width(cab, layout, 'LEFT')
+        ret_r = self._finished_side_return_width(cab, layout, 'RIGHT')
+        existing.location = (-ext_l + ret_l, thickness, 0.0)
         part.set_input('Length',    layout.dim_z)
-        part.set_input('Width',     layout.dim_x + ext_l + ext_r)
+        part.set_input('Width',     layout.dim_x + ext_l + ext_r - ret_l - ret_r)
         part.set_input('Thickness', thickness)
 
     def _extend_finished_side_panels(self, layout):
@@ -3597,6 +4135,233 @@ class FaceFrameCabinet(GeoNodeCage):
             base_width = dims_fn(layout)[1]  # (length, width=depth, thickness)
             child.location.y += extend
             GeoNodeCutpart(child).set_input('Width', base_width + extend)
+
+    def _finished_side_return_width(self, cab, layout, side):
+        """Effective return-closeout width on `side` ('LEFT' / 'RIGHT'), or
+        0.0 when the return isn't active. Active requires a non-angled
+        cabinet, a FINISHED or PANELED back to return into, and that side
+        being FINISHED or PANELED, extended back (extend > 0), with a
+        positive return width.
+        Single source of truth shared by the return-part builder and the
+        back sizing (the finished-back cutpart or the paneled applied-back
+        panel is shortened by this width so it butts the return post
+        instead of running behind it).
+        """
+        if layout.is_angled:
+            return 0.0
+        if cab.back_finished_end_condition not in ('FINISHED', 'PANELED'):
+            return 0.0
+        if side == 'LEFT':
+            condition = cab.left_finished_end_condition
+            extend = cab.left_side_finished_extend_back
+            width = cab.left_side_return_width
+        else:
+            condition = cab.right_finished_end_condition
+            extend = cab.right_side_finished_extend_back
+            width = cab.right_side_return_width
+        if condition not in ('FINISHED', 'PANELED') or extend <= 0.0 or width <= 0.0:
+            return 0.0
+        return width
+
+    def _reconcile_finished_side_returns(self, layout):
+        """Spawn / resize / remove the return closeout on a FINISHED or
+        PANELED side that is extended back past a FINISHED or PANELED back.
+
+        Coordinate frame: cabinet back plane at Y=0, body toward -Y, and an
+        extended side grows in +Y to its rear edge at Y=extend. The closeout
+        wraps that exposed back corner with two 3/4-deep members:
+
+          * RETURN panel - parallel to the side, depth = the side's extend-back
+            amount, running Y[0, extend] so its front edge dies into the
+            (shortened) back. Sits inboard of the side outer face by the return
+            width (behind the stile).
+          * STILE - the rearmost / outermost member, X-span = the return width,
+            capping the rear at Y[extend, extend+3/4]. Runs full height to the
+            floor.
+
+        Each member is a flat FINISHED cutpart (default) or a PANELED applied
+        panel (PanelFaceFrameCabinet) per its *_return_panel_type /
+        *_return_stile_type prop; both kinds occupy the same footprint, so the
+        inner_x-keyed back shortening is unaffected by the choice.
+
+        Gated (via _finished_side_return_width) on the side being FINISHED or
+        PANELED, extended back (extend>0), a nonzero return width, and a
+        FINISHED or PANELED back to return into. Anything failing the gate
+        removes both parts (idempotent). Skipped in angled mode, matching
+        _extend_finished_side_panels.
+        """
+        cab = self.obj.face_frame_cabinet
+        thk = inch(0.75)  # 3/4 finished stock / applied-panel depth
+        # outer_x = the side's visible outer face = the face-frame outer face
+        # (X=0 left, dim_x right); correct for FINISHED and PANELED sides (do
+        # NOT use the scribe offset, which is 0.75 for PANELED). mirror_z sets
+        # the finished return panel's Thickness direction: OFF left / ON right,
+        # so its body runs toward the side and its inboard face lands at
+        # inner_x, where the shortened back butts it.
+        specs = (
+            ('LEFT', PART_ROLE_LEFT_SIDE_RETURN,
+             PART_ROLE_LEFT_SIDE_RETURN_STILE,
+             cab.left_side_finished_extend_back, cab.left_side_return_width,
+             0.0, False, cab.left_side_return_panel_type,
+             cab.left_side_return_stile_type),
+            ('RIGHT', PART_ROLE_RIGHT_SIDE_RETURN,
+             PART_ROLE_RIGHT_SIDE_RETURN_STILE,
+             cab.right_side_finished_extend_back, cab.right_side_return_width,
+             layout.dim_x, True, cab.right_side_return_panel_type,
+             cab.right_side_return_stile_type),
+        )
+        for (side, return_role, stile_role, extend, return_width, outer_x,
+             mirror_z, panel_type, stile_type) in specs:
+            wants = self._finished_side_return_width(cab, layout, side) > 0.0
+            # inner_x = the return panel's inboard face (where the shortened
+            # back butts) = return width in from the outer face.
+            inboard = 1.0 if side == 'LEFT' else -1.0
+            inner_x = outer_x + inboard * return_width
+
+            # ---- Return panel ----
+            # Finished: side-oriented cutpart (rot Y=-90), Width=depth=extend,
+            # Thickness toward the outer face (mirror_z). Paneled: applied
+            # panel, width=extend along +Y (rot Z=+90), body on the same side
+            # of inner_x as the finished part.
+            rp_origin_x = inner_x if side == 'RIGHT' else inner_x - thk
+            self._reconcile_return_member(
+                return_role, wants, panel_type, 'Side Return ' + side[0],
+                finished=dict(loc=(inner_x, extend, 0.0), rot_x=0.0,
+                              mirror_z=mirror_z, length=layout.dim_z,
+                              width=extend, thickness=thk),
+                paneled=dict(loc=(rp_origin_x, 0.0, 0.0),
+                             rot_z=math.radians(90), width=extend,
+                             height=layout.dim_z, depth=thk, side=side))
+
+            # ---- Rear stile ----
+            # Finished: back-oriented cutpart (rot X=90, Y=-90), Width=return
+            # width in +X from the lower-X end, 3/4 cap at Y=extend..+3/4.
+            # Paneled: applied panel facing rear (rot Z=180), same rear cap.
+            self._reconcile_return_member(
+                stile_role, wants, stile_type, 'Side Return Stile ' + side[0],
+                finished=dict(loc=(min(outer_x, inner_x), extend + thk, 0.0),
+                              rot_x=math.radians(90), mirror_z=False,
+                              length=layout.dim_z, width=return_width,
+                              thickness=thk),
+                paneled=dict(loc=(max(outer_x, inner_x), extend, 0.0),
+                             rot_z=math.radians(180), width=return_width,
+                             height=layout.dim_z, depth=thk, side=side))
+
+    def _reconcile_return_member(self, role, wants, kind, name,
+                                 finished, paneled):
+        """Build / resize / remove one return member (the return panel or the
+        rear stile) as a flat FINISHED cutpart or a PANELED applied panel.
+        Found by TAG_RETURN_MEMBER (falling back to the legacy hb_part_role
+        tag on pre-type parts); a kind change or a failed gate removes the
+        existing member the right way and rebuilds. `finished` / `paneled` are
+        geometry dicts built by the caller.
+        """
+        existing = next((c for c in self.obj.children
+                         if c.get(TAG_RETURN_MEMBER) == role
+                         or c.get('hb_part_role') == role), None)
+        if not wants:
+            if existing is not None:
+                self._remove_return_member(existing)
+            return
+        current_kind = (existing.get('hb_return_member_kind', 'FINISHED')
+                        if existing is not None else None)
+        if existing is not None and current_kind != kind:
+            self._remove_return_member(existing)
+            existing = None
+        if kind == 'PANELED':
+            self._build_return_paneled(role, name, existing, paneled)
+        else:
+            self._build_return_finished(role, name, existing, finished)
+
+    def _build_return_finished(self, role, name, existing, geo):
+        """Flat 3/4 finished cutpart. rot_x distinguishes the side-oriented
+        return panel (0) from the back-oriented stile (90); both add Y=-90.
+        """
+        if existing is None:
+            part = CabinetPart()
+            part.create(name)
+            part.obj.parent = self.obj
+            part.obj['CABINET_PART'] = True
+            part.obj.rotation_euler.x = geo['rot_x']
+            part.obj.rotation_euler.y = math.radians(-90)
+            part.set_input('Mirror Y', True)
+            part.set_input('Mirror Z', geo['mirror_z'])
+            existing = part.obj
+        else:
+            part = GeoNodeCutpart(existing)
+        existing['hb_part_role'] = role
+        existing[TAG_RETURN_MEMBER] = role
+        existing['hb_return_member_kind'] = 'FINISHED'
+        existing.location = geo['loc']
+        part.set_input('Length', geo['length'])
+        part.set_input('Width', geo['width'])
+        part.set_input('Thickness', geo['thickness'])
+
+    def _build_return_paneled(self, role, name, existing, geo):
+        """PANELED applied panel (PanelFaceFrameCabinet) filling the member's
+        footprint (width along its long axis, 3/4 depth, frame face outward),
+        stamped with the parent style so its rebuilt parts get the finish.
+        """
+        if existing is None:
+            panel = PanelFaceFrameCabinet()
+            panel.create(name, bay_qty=1)
+            existing = panel.obj
+            existing.parent = self.obj
+        existing[TAG_RETURN_MEMBER] = role
+        existing['hb_return_member_kind'] = 'PANELED'
+        parent_style = self.obj.get('STYLE_NAME')
+        if parent_style:
+            existing['STYLE_NAME'] = parent_style
+        existing.location = geo['loc']
+        existing.rotation_euler = (0.0, 0.0, geo['rot_z'])
+        pp = existing.face_frame_cabinet
+        pp.width = geo['width']
+        pp.height = geo['height']
+        pp.depth = geo['depth']
+        # Match the top / bottom rail widths to the cabinet's side panels.
+        self._match_return_member_rails(existing, geo['side'])
+
+    def _match_return_member_rails(self, panel_obj, side):
+        """Set a paneled return member's top / bottom rail widths to match the
+        cabinet's PANELED side panels, so the rails read consistently with the
+        sides. Uses the same auto-size resolver against that side's condition
+        (falling back to PANELED when the side itself isn't an applied-panel
+        type); skipped when auto sizing is off, exactly like the side panels.
+        Only the rails are matched - stiles stay the member's own. Rails render
+        per-bay as well as at panel level, so both are written; per-part unlock
+        overrides are respected.
+        """
+        from . import applied_panel_sizing
+        cab = self.obj.face_frame_cabinet
+        side_cond = (cab.left_finished_end_condition if side == 'LEFT'
+                     else cab.right_finished_end_condition)
+        cond = side_cond if side_cond in APPLIED_PANEL_END_TYPES else 'PANELED'
+        sizes = applied_panel_sizing.resolve_panel_sizing(self.obj, side, cond)
+        if sizes is None:
+            return
+        top_rw = sizes['top_rail_width']
+        bot_rw = sizes['bottom_rail_width']
+        pp = panel_obj.face_frame_cabinet
+        with suspend_recalc():
+            if not pp.unlock_top_rail:
+                pp.top_rail_width = top_rw
+            if not pp.unlock_bottom_rail:
+                pp.bottom_rail_width = bot_rw
+            for child in panel_obj.children_recursive:
+                if not child.get(TAG_BAY_CAGE):
+                    continue
+                bay = child.face_frame_bay
+                if not bay.unlock_top_rail:
+                    bay.top_rail_width = top_rw
+                if not bay.unlock_bottom_rail:
+                    bay.bottom_rail_width = bot_rw
+
+    def _remove_return_member(self, obj):
+        """Remove a return member; paneled members are roots with children."""
+        if obj.get('hb_return_member_kind') == 'PANELED':
+            _remove_root_with_children(obj)
+        else:
+            bpy.data.objects.remove(obj, do_unlink=True)
 
     # =====================================================================
     # Applied flush-X strips (single 1/4 part on the front of a side)
