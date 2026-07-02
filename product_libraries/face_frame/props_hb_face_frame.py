@@ -583,10 +583,32 @@ def _propagate_door_style(self, context):
     propagator: edits in the door style panel reflect across every
     front using that style without a button press.
     """
+    # Both style pools stamp the same DOOR_STYLE_NAME tag on fronts, and
+    # a door style and a drawer-front style may share a name. Gate on the
+    # front's role so a drawer-style edit can't restyle same-named DOOR
+    # fronts (and vice versa) - matches the paint-assign semantics.
     target_name = self.name
+    roles = (Face_Frame_Door_Style._DRAWER_FRONT_ROLES
+             if _front_is_drawer(self)
+             else Face_Frame_Door_Style._DOOR_FRONT_ROLES)
     for obj in context.scene.objects:
-        if obj.get('DOOR_STYLE_NAME') == target_name:
+        if (obj.get('DOOR_STYLE_NAME') == target_name
+                and obj.get('hb_part_role') in roles):
             self.assign_style_to_front(obj)
+    # A door-style change can move the rail width that match-door-rail
+    # drawer styles mirror, so re-push those styles' fronts too. Drawer
+    # styles are terminal here (_front_is_drawer) - no recursion.
+    if not _front_is_drawer(self):
+        ff = get_style_props()
+        matched = [ds.name for ds in ff.drawer_front_styles
+                   if ds.match_door_rail_width]
+        if matched:
+            by_name = {ds.name: ds for ds in ff.drawer_front_styles}
+            drw_roles = Face_Frame_Door_Style._DRAWER_FRONT_ROLES
+            for obj in context.scene.objects:
+                tag = obj.get('DOOR_STYLE_NAME')
+                if tag in matched and obj.get('hb_part_role') in drw_roles:
+                    by_name[tag].assign_style_to_front(obj)
 
 
 def update_face_frame_sizes(self, context):
@@ -2622,6 +2644,29 @@ def _front_frame_store(front_obj):
         o = o.parent
     return front_obj
 
+
+def _door_rail_for_front(style, front_obj):
+    """Rail width of the door style paired with ``front_obj``'s cabinet
+    (front -> cabinet cage -> cabinet style -> door style), or None when
+    any link is missing or the paired door style is a slab. Feeds the
+    drawer-front match-door-rail option so drawer fronts can carry the
+    same rail the cabinet's doors show."""
+    cab = front_obj
+    while cab is not None and not cab.get('IS_FACE_FRAME_CABINET_CAGE'):
+        cab = cab.parent
+    if cab is None:
+        return None
+    ff = get_style_props()
+    cs = next((c for c in ff.cabinet_styles
+               if c.name == cab.get('STYLE_NAME')), None)
+    if cs is None:
+        return None
+    ds = next((d for d in ff.door_styles if d.name == cs.door_style), None)
+    if ds is None or ds.door_type != '5_PIECE':
+        return None
+    return ds.rail_width
+
+
 class Face_Frame_Door_Style(PropertyGroup):
     """Door / drawer-front construction style. Lives in a single
     Face_Frame_Scene_Props.door_styles collection; cabinet styles reference
@@ -2745,6 +2790,15 @@ class Face_Frame_Door_Style(PropertyGroup):
         description="Show the rail-size callout (e.g. '3R') on fronts whose "
                     "rail width deviates from the catalog spec",
         default=True,
+        update=_propagate_door_style,
+    )  # type: ignore
+
+    match_door_rail_width: BoolProperty(
+        name="Match Door Rail Width When Possible",
+        description="Drawer fronts tall enough to carry the door rail "
+                    "widths take the paired door style's rail width "
+                    "instead of the drawer rail (drawer-front styles only)",
+        default=False,
         update=_propagate_door_style,
     )  # type: ignore
 
@@ -2958,6 +3012,26 @@ class Face_Frame_Door_Style(PropertyGroup):
         # style's add_mid_rail and the tall-door auto rail.
         ovr_mid_mode = frame_store.get('HB_FRAME_OVR_MID_RAIL_MODE') if frame_locked else None
 
+        # Match-door-rail (drawer-front styles): a drawer front tall
+        # enough to carry the door rails takes the paired door style's
+        # rail width instead of the drawer rail, so doors and drawer
+        # fronts read as one family. Manual control wins - skipped when
+        # this style's rail is unlocked or the front's frame is locked.
+        # Only ever widens, and only when the front still clears the
+        # 2*rail + 1" panel minimum enforced below.
+        rail_matched = False
+        if (self.match_door_rail_width and _front_is_drawer(self)
+                and role in self._DRAWER_FRONT_ROLES
+                and not frame_locked and not self.unlock_rail_width):
+            door_rail = _door_rail_for_front(self, front_obj)
+            if door_rail is not None and door_rail > eff_top_rail:
+                need = door_rail * 2.0 + units.inch(1)
+                if ovr_mid_mode != 'NONE' and (self.add_mid_rail or needs_auto_mid_rail):
+                    need += self.mid_rail_width
+                if front_length >= need:
+                    eff_top_rail = eff_bottom_rail = door_rail
+                    rail_matched = True
+
         min_width = eff_left_stile + eff_right_stile + units.inch(1)
         min_height = eff_top_rail + eff_bottom_rail + units.inch(1)
         if ovr_mid_mode != 'NONE' and (self.add_mid_rail or needs_auto_mid_rail):
@@ -3051,12 +3125,14 @@ class Face_Frame_Door_Style(PropertyGroup):
                 pass
 
         # Rail-size callout ('3R'): rail width deviates from the catalog
-        # via the style's rail unlock, or via a locked per-front frame
-        # override whose top rail differs from the style.
+        # via the style's rail unlock, a matched door rail on a drawer
+        # front, or a locked per-front frame override whose top rail
+        # differs from the style.
         _sync_rail_size_annotation(
             front_obj, part, eff_top_rail, eff_right_stile,
             active=(self.show_rail_annotation
                     and (self.unlock_rail_width
+                         or rail_matched
                          or (frame_locked
                              and abs(eff_top_rail - self.rail_width) > 1e-6))),
         )
@@ -3106,6 +3182,9 @@ class Face_Frame_Door_Style(PropertyGroup):
             rrow.prop(self, "unlock_rail_width", text="",
                       icon='UNLOCKED' if self.unlock_rail_width else 'LOCKED')
             box.prop(self, "show_rail_annotation", text="Show Rail Callout")
+            if _front_is_drawer(self):
+                box.prop(self, "match_door_rail_width",
+                         text="Match Door Rail Width When Possible")
 
         # Assign by Painting starts a modal brush: click fronts in the
         # viewport to apply THIS style. Door styles paint door fronts,
