@@ -1067,6 +1067,32 @@ class hb_face_frame_OT_paint_part_material(bpy.types.Operator):
                 me.materials[i] = mat
         return True
 
+    @staticmethod
+    def _paint_manual_part_slots(obj, surface_mat, edge_mat):
+        """Paint a part that was made editable (manual). Its GeoNode(s)
+        were applied, so the cutpart surface inputs / Door Style modifier
+        are gone and the materials live in the baked mesh's slots instead
+        - writing GN inputs would silently no-op. Rewrite the slots: a
+        slot holding a ROTATED (cross-grain) material takes the rotated
+        edge material so grain direction is preserved, a glass panel slot
+        is left alone, everything else takes the surface material."""
+        me = getattr(obj, 'data', None)
+        if surface_mat is None or me is None or not hasattr(me, 'materials'):
+            return False
+        if len(me.materials) == 0:
+            me.materials.append(surface_mat)
+            return True
+        for i in range(len(me.materials)):
+            cur = me.materials[i]
+            name = cur.name if cur is not None else ''
+            if name == 'Door Panel Glass':
+                continue
+            if edge_mat is not None and 'ROTATED' in name:
+                me.materials[i] = edge_mat
+            else:
+                me.materials[i] = surface_mat
+        return True
+
     _FRONT_ROLES = {'DOOR', 'DRAWER_FRONT', 'PULLOUT_FRONT',
                     'FALSE_FRONT', 'TILT_OUT'}
 
@@ -1125,12 +1151,20 @@ class hb_face_frame_OT_paint_part_material(bpy.types.Operator):
                 tgt = opening if opening is not None else obj
                 tgt['hb_front_material_override'] = self.brush
                 tgt['hb_front_material_style'] = style.name
-                style._set_part_surfaces(obj, mat, edge)
-                style._set_door_modifier_materials(obj, mat, edge)
+                if obj.get('IS_MANUAL_PART'):
+                    # Manual front: GN applied, paint the baked slots.
+                    self._paint_manual_part_slots(obj, mat, edge)
+                else:
+                    style._set_part_surfaces(obj, mat, edge)
+                    style._set_door_modifier_materials(obj, mat, edge)
             elif is_part:
                 obj['hb_part_material_override'] = self.brush
                 obj['hb_part_material_style'] = style.name
-                style._set_part_surfaces(obj, mat, edge)
+                if obj.get('IS_MANUAL_PART'):
+                    # Manual part: GN applied, paint the baked slots.
+                    self._paint_manual_part_slots(obj, mat, edge)
+                else:
+                    style._set_part_surfaces(obj, mat, edge)
             else:
                 self._assign_object_material(obj, mat)
 

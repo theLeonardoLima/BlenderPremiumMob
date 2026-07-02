@@ -3650,6 +3650,35 @@ class hb_face_frame_OT_floating_shelf_prompts(bpy.types.Operator):
         ui_face_frame.draw_floating_shelf(self.layout, root)
 
 
+class hb_face_frame_OT_valance_prompts(bpy.types.Operator):
+    """Popup properties dialog for a valance (right-click entry)."""
+    bl_idname = "hb_face_frame.valance_prompts"
+    bl_label = "Valance Properties"
+    bl_description = "Edit the valance's dimensions, finished ends, and cover"
+    bl_options = {'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        root = types_face_frame.find_cabinet_root(context.active_object)
+        return root is not None and bool(root.get('IS_VALANCE_PRODUCT'))
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self, width=320)
+
+    def execute(self, context):
+        return {'FINISHED'}
+
+    def draw(self, context):
+        from .. import ui_face_frame
+        root = types_face_frame.find_cabinet_root(context.active_object)
+        if root is None:
+            self.layout.label(text="No valance selected", icon='INFO')
+            return
+        ui_face_frame.draw_identity(self.layout, root)
+        self.layout.separator()
+        ui_face_frame.draw_valance_product(self.layout, root)
+
+
 class hb_face_frame_OT_duplicate_floating_shelf(bpy.types.Operator):
     """Duplicate the selected floating shelf vertically by a quantity +
     spacing. Each copy is an independent, separately-editable shelf that
@@ -4160,6 +4189,7 @@ classes = (
     hb_face_frame_OT_cabinet_prompts,
     hb_face_frame_OT_leg_product_prompts,
     hb_face_frame_OT_floating_shelf_prompts,
+    hb_face_frame_OT_valance_prompts,
     hb_face_frame_OT_duplicate_floating_shelf,
     hb_face_frame_OT_adjust_floating_shelves,
     hb_face_frame_OT_bay_prompts,

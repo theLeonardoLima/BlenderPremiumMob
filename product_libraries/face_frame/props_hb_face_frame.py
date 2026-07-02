@@ -6435,6 +6435,7 @@ class Face_Frame_Scene_Props(PropertyGroup):
         self._draw_catalog_labeled_row(layout, "", [
             ("Panel", "Panel"), ("Leg", "Leg Product"), ("Door", "Door"),
             ("Misc", "Misc Part"), ("Floating Shelf", "Floating Shelves"),
+            ("Valance", "Valance"),
         ])
 
     # =====================================================================
@@ -7087,9 +7088,54 @@ class Face_Frame_Floating_Shelf_Props(PropertyGroup):
     )  # type: ignore
 
 
+class Face_Frame_Valance_Props(PropertyGroup):
+    """Options for a Valance product (a decorative board spanning the
+    gap between two upper cabinets).
+
+    Lives on the valance's cage object alongside face_frame_cabinet;
+    recalculate() reads these to build its parts. Width / height / depth
+    come from face_frame_cabinet (cage Dim X/Z/Y) - height (Dim Z) is
+    the valance board's vertical drop. finish_left / finish_right add a
+    return panel back to the wall on that end (auto-set on placement
+    from the neighbouring exposure, editable after).
+    """
+    finish_left: BoolProperty(
+        name="Finish Left", default=True, update=_update_cabinet_dim,
+        description="Close the left end with a finished return panel",
+    )  # type: ignore
+    finish_right: BoolProperty(
+        name="Finish Right", default=True, update=_update_cabinet_dim,
+        description="Close the right end with a finished return panel",
+    )  # type: ignore
+    frame_thickness: FloatProperty(
+        name="Frame Thickness", default=units.inch(0.75),
+        unit='LENGTH', precision=4, update=_update_cabinet_dim,
+        description="Stock thickness of the valance board and return panels",
+    )  # type: ignore
+    include_cover: BoolProperty(
+        name="Include Cover", default=True, update=_update_cabinet_dim,
+        description="Add a cover board behind the valance board",
+    )  # type: ignore
+    cover_thickness: FloatProperty(
+        name="Cover Thickness", default=units.inch(0.5),
+        unit='LENGTH', precision=4, update=_update_cabinet_dim,
+        description="Stock thickness of the cover board",
+    )  # type: ignore
+    flush_bottom: BoolProperty(
+        name="Flush Bottom", default=False, update=_update_cabinet_dim,
+        description="Rest the cover at the bottom of the valance instead of below the top edge",
+    )  # type: ignore
+    top_scribe: FloatProperty(
+        name="Top Scribe Amount", default=units.inch(0.25),
+        unit='LENGTH', precision=4, update=_update_cabinet_dim,
+        description="Drop the cover down from the top edge by this amount",
+    )  # type: ignore
+
+
 classes = (
     Face_Frame_Leg_Props,
     Face_Frame_Floating_Shelf_Props,
+    Face_Frame_Valance_Props,
     Face_Frame_Millwork_Item,
     Face_Frame_Special_Effect,
     Face_Frame_Cabinet_Extra_Front_Style,
@@ -7142,6 +7188,7 @@ def register():
     bpy.types.Object.face_frame_cabinet = PointerProperty(type=Face_Frame_Cabinet_Props)
     bpy.types.Object.leg_product = PointerProperty(type=Face_Frame_Leg_Props)
     bpy.types.Object.floating_shelf = PointerProperty(type=Face_Frame_Floating_Shelf_Props)
+    bpy.types.Object.valance_product = PointerProperty(type=Face_Frame_Valance_Props)
     bpy.types.Object.face_frame_bay = PointerProperty(type=Face_Frame_Bay_Props)
     bpy.types.Object.face_frame_opening = PointerProperty(type=Face_Frame_Opening_Props)
     bpy.types.Object.face_frame_split = PointerProperty(type=Face_Frame_Split_Props)
@@ -7166,6 +7213,8 @@ def unregister():
         del bpy.types.Object.face_frame_bay
     if hasattr(bpy.types.Object, 'floating_shelf'):
         del bpy.types.Object.floating_shelf
+    if hasattr(bpy.types.Object, 'valance_product'):
+        del bpy.types.Object.valance_product
     if hasattr(bpy.types.Object, 'leg_product'):
         del bpy.types.Object.leg_product
     if hasattr(bpy.types.Object, 'face_frame_cabinet'):

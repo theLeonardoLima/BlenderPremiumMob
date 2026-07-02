@@ -871,6 +871,10 @@ def _try_auto_merge_with_neighbor(context, cab_obj):
     if cab_obj.get('IS_FLOATING_SHELF'):
         return None
 
+    # Valances span between cabinets but stay independent - never merge.
+    if cab_obj.get('IS_VALANCE_PRODUCT'):
+        return None
+
     # Force a depsgraph update so cab_obj.matrix_world reflects the
     # parent + location assignments _finalize just made. Without this,
     # the Z-match check in merge_cabinets sees a stale world Z (often
@@ -919,6 +923,8 @@ def _try_auto_merge_with_neighbor(context, cab_obj):
         if sib.get('IS_LEG_PRODUCT'):
             continue
         if sib.get('IS_FLOATING_SHELF'):
+            continue
+        if sib.get('IS_VALANCE_PRODUCT'):
             continue
         sib_run = sib.matrix_world.to_3x3() @ Vector((1.0, 0.0, 0.0))
         sib_run.z = 0.0
@@ -1242,6 +1248,8 @@ def _align_base_tall_toe_kick(cab_obj):
     # neither drive nor receive base/tall setback matching.
     if cab_obj.get('IS_FLOATING_SHELF'):
         return
+    if cab_obj.get('IS_VALANCE_PRODUCT'):
+        return
 
     cab_x = cab_obj.location.x
     cab_w = cab_props.width
@@ -1258,6 +1266,8 @@ def _align_base_tall_toe_kick(cab_obj):
         if not sib.get(types_face_frame.TAG_CABINET_CAGE):
             continue
         if sib.get('IS_FLOATING_SHELF'):
+            continue
+        if sib.get('IS_VALANCE_PRODUCT'):
             continue
         sib_props = sib.face_frame_cabinet
         if sib_props.cabinet_type != other_type:
@@ -2957,6 +2967,15 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
             sp = selection_target.floating_shelf
             sp.finish_left = fl
             sp.finish_right = fr
+
+        # Auto-set a valance's finished ends the same way: a return
+        # panel when the end is exposed, none when a cabinet abuts it.
+        if selection_target.get('IS_VALANCE_PRODUCT'):
+            context.view_layer.update()
+            fl, fr = exposure.auto_floating_shelf_finish(selection_target)
+            vp = selection_target.valance_product
+            vp.finish_left = fl
+            vp.finish_right = fr
 
         # Apply the active cabinet style to this fresh placement. Skip
         # when a merge absorbed cab_obj into a neighbor - the survivor

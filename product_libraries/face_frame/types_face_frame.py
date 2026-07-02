@@ -153,6 +153,14 @@ PART_ROLE_SHELF_TOP = 'SHELF_TOP'
 PART_ROLE_SHELF_BOTTOM = 'SHELF_BOTTOM'
 PART_ROLE_SHELF_PANEL_LEFT = 'SHELF_PANEL_LEFT'
 PART_ROLE_SHELF_PANEL_RIGHT = 'SHELF_PANEL_RIGHT'
+
+# Valance product (a decorative board spanning the gap between two
+# upper cabinets). Same non-bay pattern as the floating shelf.
+VALANCE_TAG = 'IS_VALANCE_PRODUCT'
+PART_ROLE_VALANCE_BOARD = 'VALANCE_BOARD'
+PART_ROLE_VALANCE_COVER = 'VALANCE_COVER'
+PART_ROLE_VALANCE_PANEL_LEFT = 'VALANCE_PANEL_LEFT'
+PART_ROLE_VALANCE_PANEL_RIGHT = 'VALANCE_PANEL_RIGHT'
 PART_ROLE_BLIND_PANEL_LEFT = 'BLIND_PANEL_LEFT'
 PART_ROLE_BLIND_PANEL_RIGHT = 'BLIND_PANEL_RIGHT'
 
@@ -7919,6 +7927,128 @@ class FloatingShelfFaceFrameCabinet(FaceFrameCabinet):
                          gx0, y_near, gx1, y_far, g_depth, False)
 
 
+class ValanceFaceFrameProduct(FaceFrameCabinet):
+    """Wall-mounted valance - a decorative board spanning the gap
+    between two upper cabinets (e.g. over a sink or a window).
+
+    NOT a bay/opening product: like the floating shelf it is a fixed
+    parameterized assembly built directly from the cage width / depth /
+    height (height = the board's vertical drop) and the
+    ``valance_product`` propgroup. Parts: the valance board across the
+    front, finish-gated left/right return panels back to the wall, and
+    an optional top cover recessed below the top edge by a scribe
+    amount (or resting at the bottom when flush_bottom).
+
+    ``fill_no_bays`` spans the wall gap as one piece in placement;
+    ``follow_cursor_z`` mounts it at the cursor's height on the wall
+    (typically flush with the bottom of the adjacent uppers).
+    """
+    single_placement = False
+    fill_no_bays = True       # span the gap, but always one piece
+    follow_cursor_z = True    # mount at the cursor's height on the wall
+    default_cabinet_type = 'BASE'
+
+    def __init__(self):
+        super().__init__()
+        scene = getattr(bpy.context, 'scene', None)
+        ff_scene = getattr(scene, 'hb_face_frame', None) if scene else None
+        self.default_width = inch(30.0)
+        self.default_depth = getattr(ff_scene, 'upper_cabinet_depth', inch(12.0))
+        self.default_height = inch(4.0)   # board vertical drop
+
+    def _has_toe_kick(self):
+        return False
+
+    def _has_carcass(self):
+        return False
+
+    def create(self, name="Valance", bay_qty=1):
+        # bay_qty is accepted (the modal always passes it) but ignored -
+        # a valance has no bays.
+        self.create_cabinet_root(name)
+        self.obj[VALANCE_TAG] = True
+        self.obj['MENU_ID'] = 'HOME_BUILDER_MT_face_frame_valance_commands'
+        self.recalculate()
+
+    def _ensure_valance_part(self, role, name):
+        for child in self.obj.children:
+            if child.get('hb_part_role') == role:
+                return child
+        part = CabinetPart()
+        part.create(name)
+        part.obj.parent = self.obj
+        part.obj['hb_part_role'] = role
+        part.obj['CABINET_PART'] = True
+        return part.obj
+
+    def recalculate(self):
+        cab = self.obj.face_frame_cabinet
+        val = self.obj.valance_product
+
+        width = cab.width
+        height = cab.height   # Dim Z = the board's vertical drop
+        depth = cab.depth
+        self.set_input('Dim X', width)
+        self.set_input('Dim Y', depth)
+        self.set_input('Dim Z', height)
+
+        ft = val.frame_thickness   # board + return panel stock
+        ct = val.cover_thickness   # top cover stock
+        fl = val.finish_left
+        fr = val.finish_right
+
+        BOARD = self._ensure_valance_part(PART_ROLE_VALANCE_BOARD, 'Valance Board')
+        COVER = self._ensure_valance_part(PART_ROLE_VALANCE_COVER, 'Valance Cover')
+        LP = self._ensure_valance_part(PART_ROLE_VALANCE_PANEL_LEFT, 'Valance Panel Left')
+        RP = self._ensure_valance_part(PART_ROLE_VALANCE_PANEL_RIGHT, 'Valance Panel Right')
+
+        def place(obj, length, w, th, loc, rot, mirror):
+            gn = GeoNodeCutpart(obj)
+            gn.set_input('Length', length)
+            gn.set_input('Width', w)
+            gn.set_input('Thickness', th)
+            obj.location = loc
+            obj.rotation_euler = rot
+            for k, v in mirror.items():
+                gn.set_input(k, v)
+
+        inset_l = ft if fl else 0.0
+        inset_r = ft if fr else 0.0
+        inner_len = width - inset_l - inset_r
+        inner_depth = depth - ft   # behind the board, back to the wall
+
+        # Valance board: full width across the front, `height` tall.
+        place(BOARD, width, height, ft, (0.0, -depth, 0.0),
+              (math.radians(-90), 0.0, 0.0), {'Mirror Y': True})
+        BOARD['IS_FINISHED'] = True
+
+        # Return panels: close each end back to the wall when finished.
+        place(LP, inner_depth, height, ft, (0.0, 0.0, 0.0),
+              (math.radians(-90), 0.0, math.radians(90)),
+              {'Mirror X': True, 'Mirror Y': True, 'Mirror Z': True})
+        LP.hide_viewport = not fl
+        LP.hide_render = not fl
+        LP['IS_FINISHED'] = True
+
+        place(RP, inner_depth, height, ft, (width, 0.0, 0.0),
+              (math.radians(-90), 0.0, math.radians(90)),
+              {'Mirror X': True, 'Mirror Y': True})
+        RP.hide_viewport = not fr
+        RP.hide_render = not fr
+        RP['IS_FINISHED'] = True
+
+        # Top cover: Mirror Z makes the given Z the panel's TOP face -
+        # recessed below the top edge by the scribe amount, or occupying
+        # 0..thickness at the floor of the valance when flush_bottom.
+        cover_z = ct if val.flush_bottom else height - val.top_scribe
+        place(COVER, inner_len, inner_depth, ct,
+              (inset_l, -depth + ft, cover_z), (0.0, 0.0, 0.0),
+              {'Mirror Z': True})
+        COVER.hide_viewport = not val.include_cover
+        COVER.hide_render = not val.include_cover
+        COVER['IS_FINISHED'] = True
+
+
 class MiscPart(CabinetPart):
     """A single freely-resizable face frame part - a lone GeoNodeCutpart
     with NO cabinet cage.
@@ -8291,6 +8421,7 @@ CABINET_NAME_DISPATCH = {
     "Bookcase Storage Unit": BookcaseStorageUnitFaceFrameCabinet,
     "Leg Product": LegProductFaceFrameCabinet,
     "Floating Shelves": FloatingShelfFaceFrameCabinet,
+    "Valance": ValanceFaceFrameProduct,
     "Misc Part": MiscPart,
     "Door": DoorPart,
     "Half Wall": HalfWallFaceFrameProduct,
@@ -8447,6 +8578,7 @@ WRAP_CLASS_REGISTRY.update({
     'FaceFrameAndDoorsCabinet': FaceFrameAndDoorsCabinet,
     'LegProductFaceFrameCabinet': LegProductFaceFrameCabinet,
     'FloatingShelfFaceFrameCabinet': FloatingShelfFaceFrameCabinet,
+    'ValanceFaceFrameProduct': ValanceFaceFrameProduct,
 })
 
 

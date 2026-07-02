@@ -447,6 +447,37 @@ def draw_floating_shelf(layout, root):
         gsub.prop(shelf, 'groove_depth', text="Depth")
 
 
+def draw_valance_product(layout, root):
+    """Valance prompts: dimensions, finished ends, and the cover board.
+    Shown in the right-click popup. Height (Dim Z) is the valance
+    board's vertical drop."""
+    cab = root.face_frame_cabinet
+    val = root.valance_product
+
+    col = layout.column(align=True)
+    col.prop(cab, 'width', text="Width")
+    col.prop(cab, 'depth', text="Depth")
+    col.prop(cab, 'height', text="Height")
+
+    box = layout.box()
+    box.label(text="Finished Ends")
+    row = box.row(align=True)
+    row.prop(val, 'finish_left', text="Left", toggle=True)
+    row.prop(val, 'finish_right', text="Right", toggle=True)
+
+    layout.prop(val, 'frame_thickness', text="Frame Thickness")
+
+    cbox = layout.box()
+    cbox.prop(val, 'include_cover', text="Include Cover")
+    csub = cbox.column(align=True)
+    csub.enabled = val.include_cover
+    csub.prop(val, 'cover_thickness', text="Cover Thickness")
+    csub.prop(val, 'flush_bottom', text="Flush Bottom")
+    srow = csub.row()
+    srow.enabled = not val.flush_bottom
+    srow.prop(val, 'top_scribe', text="Top Scribe")
+
+
 def _is_leg_product(obj):
     """True when obj (or its cabinet root) is a leg product."""
     root = types_face_frame.find_cabinet_root(obj)
