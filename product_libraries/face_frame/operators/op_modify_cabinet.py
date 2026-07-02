@@ -46,6 +46,12 @@ MIN_OPENING_SIZE = inch(1.0)
 # jitter; the user flips it by dragging decisively the other way.
 ACTIVE_DIR_DEADZONE = inch(0.25)
 LOCK_TINT = (0.95, 0.55, 0.10, 0.10)        # warm tint for locked bays
+# Crisp warm outline around a locked rect -- the faint fill alone washes
+# out over light cabinet faces; the border makes 'pinned' read at a glance.
+LOCK_OUTLINE = (0.95, 0.60, 0.15, 0.55)
+# Dark backing chip behind the padlock glyph so it reads over any surface
+# (same contrast idea as the dim-label pills).
+LOCK_CHIP = (0.13, 0.13, 0.14, 0.85)
 HOVER_LINE = (1.00, 0.85, 0.20, 1.00)
 ACTIVE_LINE = (1.00, 0.65, 0.10, 1.00)
 GHOST_LINE = (0.85, 0.85, 0.85, 0.35)
@@ -56,6 +62,9 @@ LOCK_GLYPH = (1.00, 0.85, 0.20, 1.00)
 # it reads as 'this is what changes' against the plain DIM_TEXT sibling.
 ACTIVE_TINT = (0.20, 0.70, 1.00, 0.18)
 ACTIVE_DIM_TEXT = (0.40, 0.90, 1.00, 1.00)
+# Cool border around the active rect -- pairs with ACTIVE_TINT the way
+# LOCK_OUTLINE pairs with LOCK_TINT.
+ACTIVE_OUTLINE = (0.35, 0.80, 1.00, 0.90)
 
 
 # ---------------------------------------------------------------------------
@@ -495,13 +504,41 @@ def _draw_quad_2d(shader, corners, color):
     batch.draw(shader)
 
 
+def _draw_quad_outline(shader, corners, color, width=1.5):
+    """corners: 4 Vector2 in CCW order. Border only."""
+    if any(c is None for c in corners):
+        return
+    gpu.state.line_width_set(width)
+    shader.uniform_float("color", color)
+    verts = [(c.x, c.y) for c in corners]
+    batch = batch_for_shader(shader, 'LINE_LOOP', {"pos": verts})
+    batch.draw(shader)
+
+
+def _draw_disc_2d(shader, cx, cy, r, color, segs=16):
+    """Filled circle -- backing chip for glyphs."""
+    pts = [(cx, cy)]
+    for i in range(segs + 1):
+        a = 2.0 * math.pi * i / segs
+        pts.append((cx + r * math.cos(a), cy + r * math.sin(a)))
+    shader.uniform_float("color", color)
+    batch = batch_for_shader(shader, 'TRI_FAN', {"pos": pts})
+    batch.draw(shader)
+
+
 def _draw_padlock(shader, x, y, color, size=10.0):
-    """Tiny GPU padlock anchored at top-right corner of a rect.
-    Body is a rect; shackle is a half-arc above the body."""
+    """GPU padlock anchored at the top-right corner of its body rect
+    (callers position off that anchor, so it is kept stable). Pass a
+    pre-scaled ``size`` (10 * ui_scale). Draws a dark backing chip for
+    contrast, the body, a keyhole, and a thick shackle arc."""
     bw = size
     bh = size * 0.7
     bx = x - bw
     by = y - bh
+    body_cx = bx + bw * 0.5
+    body_cy = by + bh * 0.5
+    # Backing chip: centered between body and shackle so both sit on it.
+    _draw_disc_2d(shader, body_cx, by + bh * 0.75, size * 1.05, LOCK_CHIP)
     body = [
         Vector((bx, by)),
         Vector((bx + bw, by)),
@@ -509,17 +546,21 @@ def _draw_padlock(shader, x, y, color, size=10.0):
         Vector((bx, by + bh)),
     ]
     _draw_quad_2d(shader, body, color)
-    # Shackle: half-circle above the body
+    # Keyhole: small dark dot just below body centre.
+    _draw_disc_2d(shader, body_cx, body_cy + bh * 0.08, bw * 0.14,
+                  LOCK_CHIP, segs=10)
+    # Shackle: half-circle above the body, thick enough to read at a
+    # glance and sized to the body.
     shader.uniform_float("color", color)
-    cx = bx + bw * 0.5
+    cx = body_cx
     cy = by + bh
-    r = bw * 0.32
-    segs = 10
+    r = bw * 0.34
+    segs = 12
     pts = []
     for i in range(segs + 1):
         a = math.pi * (i / segs)  # 0..pi (left-to-right over the top)
         pts.append((cx + r * math.cos(math.pi - a), cy + r * math.sin(a)))
-    gpu.state.line_width_set(1.5)
+    gpu.state.line_width_set(max(2.0, size * 0.2))
     batch = batch_for_shader(shader, 'LINE_STRIP', {"pos": pts})
     batch.draw(shader)
 
@@ -541,11 +582,35 @@ def _bay_rect_screen(region, rv3d, cabinet_obj, layout, bay_idx):
     return corners
 
 
+# Label pill styling -- dark background + faint border behind each dim
+# value so it reads over busy geometry (same treatment as the bay /
+# opening size labels and hb_placement's placement dims).
+_LABEL_BG = (0.13, 0.13, 0.14, 0.85)
+_LABEL_BORDER = (1.0, 1.0, 1.0, 0.25)
+_LABEL_PAD_X = 6.0
+_LABEL_PAD_Y = 4.0
+
+
 def _draw_text(x, y, text, color, size=12):
+    """Centered dim label on a dark pill, scaled by the UI scale."""
+    try:
+        s = bpy.context.preferences.system.ui_scale
+    except AttributeError:
+        s = 1.0
     font_id = 0
-    blf.size(font_id, size)
-    blf.color(font_id, *color)
+    blf.size(font_id, size * s)
     w, h = blf.dimensions(font_id, text)
+    half_w = w / 2 + _LABEL_PAD_X * s
+    half_h = h / 2 + _LABEL_PAD_Y * s
+    verts = ((x - half_w, y - half_h), (x + half_w, y - half_h),
+             (x + half_w, y + half_h), (x - half_w, y + half_h))
+    shader = gpu.shader.from_builtin('UNIFORM_COLOR')
+    shader.bind()
+    shader.uniform_float("color", _LABEL_BG)
+    batch_for_shader(shader, 'TRI_FAN', {"pos": verts}).draw(shader)
+    shader.uniform_float("color", _LABEL_BORDER)
+    batch_for_shader(shader, 'LINE_LOOP', {"pos": verts}).draw(shader)
+    blf.color(font_id, *color)
     blf.position(font_id, x - w / 2, y - h / 2, 0)
     blf.draw(font_id, text)
 
@@ -593,6 +658,10 @@ def _draw_callback(op, context):
     rv3d = context.region_data
     if region is None or rv3d is None:
         return
+    try:
+        s = bpy.context.preferences.system.ui_scale
+    except AttributeError:
+        s = 1.0
     shader = gpu.shader.from_builtin('UNIFORM_COLOR')
     gpu.state.blend_set('ALPHA')
     # Reset clickable-lock targets for this draw pass. Modal LMB-press
@@ -610,6 +679,9 @@ def _draw_callback(op, context):
                 corners = _bay_rect_screen(region, rv3d, cab, layout, i)
                 if corners is not None:
                     _draw_quad_2d(shader, corners, LOCK_TINT)
+                    # Crisp border on top of the faint fill so the
+                    # pinned region reads over light cabinet faces.
+                    _draw_quad_outline(shader, corners, LOCK_OUTLINE, 1.5)
                     # Bay locks sit centered on the bay's top edge so
                     # they're spatially distinct from opening locks
                     # (which hug the right edge). Average both top
@@ -619,17 +691,18 @@ def _draw_callback(op, context):
                     top_center_x = 0.5 * (top_left.x + top_right.x)
                     top_center_y = 0.5 * (top_left.y + top_right.y)
                     # _draw_padlock's (x, y) is the body's top-right.
-                    # Shift right by bw/2 (=5) so body centers on the
-                    # top edge; inset 4 below so shackle clears rail.
-                    icon_anchor_x = top_center_x + 5.0
-                    icon_anchor_y = top_center_y - 4
+                    # Shift right by bw/2 so body centers on the top
+                    # edge; inset below so shackle clears rail. All
+                    # UI-scale relative like the glyph itself.
+                    icon_anchor_x = top_center_x + 5.0 * s
+                    icon_anchor_y = top_center_y - 4.0 * s
                     _draw_padlock(shader, icon_anchor_x, icon_anchor_y,
-                                  LOCK_GLYPH, size=10.0)
+                                  LOCK_GLYPH, size=10.0 * s)
                     op._lock_targets.append({
                         'kind': 'BAY',
                         'target_name': bay.name,
-                        'cx': icon_anchor_x - 5,
-                        'cy': icon_anchor_y - 3.5,
+                        'cx': icon_anchor_x - 5.0 * s,
+                        'cy': icon_anchor_y - 3.5 * s,
                     })
             # Locked-opening tints + padlock glyphs (per-leaf)
             leaves = solver.bay_openings(layout, i).get('leaves', [])
@@ -644,6 +717,7 @@ def _draw_callback(op, context):
                 if corners is None:
                     continue
                 _draw_quad_2d(shader, corners, LOCK_TINT)
+                _draw_quad_outline(shader, corners, LOCK_OUTLINE, 1.5)
                 # Opening locks hang on the right edge, vertically
                 # centered on the opening. Pairs with bay locks
                 # (top-center) so the two kinds never collide.
@@ -652,17 +726,17 @@ def _draw_callback(op, context):
                 right_edge_x = 0.5 * (bottom_right.x + top_right.x)
                 right_mid_y = 0.5 * (bottom_right.y + top_right.y)
                 # _draw_padlock's (x, y) is the body's top-right.
-                # Inset 4 inboard from the right edge; shift up by
-                # bh/2 (=3.5) so body centers on right_mid_y.
-                icon_anchor_x = right_edge_x - 4
-                icon_anchor_y = right_mid_y + 3.5
+                # Inset inboard from the right edge; shift up by bh/2
+                # so body centers on right_mid_y. UI-scale relative.
+                icon_anchor_x = right_edge_x - 4.0 * s
+                icon_anchor_y = right_mid_y + 3.5 * s
                 _draw_padlock(shader, icon_anchor_x, icon_anchor_y,
-                              LOCK_GLYPH, size=10.0)
+                              LOCK_GLYPH, size=10.0 * s)
                 op._lock_targets.append({
                     'kind': 'OPENING',
                     'target_name': leaf['obj_name'],
-                    'cx': icon_anchor_x - 5,
-                    'cy': icon_anchor_y - 3.5,
+                    'cx': icon_anchor_x - 5.0 * s,
+                    'cy': icon_anchor_y - 3.5 * s,
                 })
     # 2. Boundary lines
     for b, layout in op._boundaries:
@@ -672,9 +746,15 @@ def _draw_callback(op, context):
         z = _ff_to_screen(region, rv3d, b['cabinet_obj'], layout,
                           p2_ff[0], p2_ff[1])
         is_active = (op._drag_boundary is b) or (op._hover_boundary is b)
-        color = ACTIVE_LINE if is_active else GHOST_LINE
-        width = 2.5 if is_active else 1.0
-        _draw_line_2d(shader, a, z, color, width)
+        if is_active:
+            # Soft glow underlay + solid core: the hovered/dragged
+            # boundary pops without the hard neon of a single fat line.
+            _draw_line_2d(shader, a, z,
+                          (ACTIVE_LINE[0], ACTIVE_LINE[1],
+                           ACTIVE_LINE[2], 0.22), 7.0 * s)
+            _draw_line_2d(shader, a, z, ACTIVE_LINE, 2.5 * s)
+        else:
+            _draw_line_2d(shader, a, z, GHOST_LINE, max(1.0, 1.0 * s))
     # 3. Drag dimensions + snap marker
     if op._drag_active and op._drag_boundary is not None:
         b = op._drag_boundary
@@ -721,6 +801,8 @@ def _draw_callback(op, context):
                                                layout, bay_idx)
                     if corners is not None:
                         _draw_quad_2d(shader, corners, ACTIVE_TINT)
+                        _draw_quad_outline(shader, corners,
+                                           ACTIVE_OUTLINE, 2.0)
                 x0 = solver.bay_x_position(layout, bay_idx)
                 x1 = x0 + layout.bays[bay_idx]['width']
                 zmid = 0.5 * (solver.bay_bottom_z(layout, bay_idx)
@@ -775,6 +857,8 @@ def _draw_callback(op, context):
                             region, rv3d, cab, layout, leaf_match, bi)
                         if corners is not None:
                             _draw_quad_2d(shader, corners, ACTIVE_TINT)
+                            _draw_quad_outline(shader, corners,
+                                               ACTIVE_OUTLINE, 2.0)
                     cx_ff = (cage_left_x + leaf_match['cage_x']
                              + leaf_match['cage_dim_x'] * 0.5)
                     cz_ff = (cage_bottom_z + leaf_match['cage_z']
@@ -795,13 +879,17 @@ def _draw_callback(op, context):
             scr = _ff_to_screen(region, rv3d, cab, layout,
                                 marker_pt[0], marker_pt[1])
             if scr is not None:
-                r = 6
+                # Filled diamond with a white rim -- the outline-only
+                # marker vanished over light faces.
+                r = 6.0 * s
                 pts = [(scr.x, scr.y + r), (scr.x + r, scr.y),
-                       (scr.x, scr.y - r), (scr.x - r, scr.y),
-                       (scr.x, scr.y + r)]
-                gpu.state.line_width_set(2.0)
+                       (scr.x, scr.y - r), (scr.x - r, scr.y)]
                 shader.uniform_float("color", SNAP_MARKER)
-                batch = batch_for_shader(shader, 'LINE_STRIP', {"pos": pts})
+                batch = batch_for_shader(shader, 'TRI_FAN', {"pos": pts})
+                batch.draw(shader)
+                gpu.state.line_width_set(1.5)
+                shader.uniform_float("color", (1.0, 1.0, 1.0, 0.9))
+                batch = batch_for_shader(shader, 'LINE_LOOP', {"pos": pts})
                 batch.draw(shader)
     gpu.state.line_width_set(1.0)
     gpu.state.blend_set('NONE')
@@ -938,7 +1026,12 @@ class _GrabBaseMixin:
             return False
         mx, my = event.mouse_region_x, event.mouse_region_y
         best = None
-        best_d2 = self.LOCK_ICON_HIT_TOL ** 2
+        # Tolerance tracks the UI scale like the glyph it targets.
+        try:
+            ui_s = bpy.context.preferences.system.ui_scale
+        except AttributeError:
+            ui_s = 1.0
+        best_d2 = (self.LOCK_ICON_HIT_TOL * ui_s) ** 2
         for t in targets:
             dx = mx - t['cx']
             dy = my - t['cy']

@@ -1444,12 +1444,27 @@ def draw_placement_dimensions(operator, context):
     default_color = (1.0, 1.0, 1.0, 0.95)
     tick_pixels = 6  # half-length of the perpendicular end tick
 
+    # Label pill styling -- dark background + faint border behind each
+    # value so it stays readable over busy geometry (same treatment as
+    # the face-frame bay/opening size labels).
+    label_bg = (0.13, 0.13, 0.14, 0.85)
+    label_border = (1.0, 1.0, 1.0, 0.25)
+    pad_x = 6.0
+    pad_y = 4.0
+
+    # Track Blender's UI scale so text stays legible on high-DPI setups
+    # instead of rendering at a fixed 14px.
+    try:
+        ui_scale = bpy.context.preferences.system.ui_scale
+    except AttributeError:
+        ui_scale = 1.0
+
     shader = gpu.shader.from_builtin('UNIFORM_COLOR')
     gpu.state.blend_set('ALPHA')
     gpu.state.line_width_set(1.5)
 
     font_id = 0
-    blf.size(font_id, 14)
+    blf.size(font_id, 14 * ui_scale)
 
     for spec in (specs or []):
         s_world = spec.start
@@ -1498,22 +1513,30 @@ def draw_placement_dimensions(operator, context):
             batch.draw(shader)
 
         # Label - centered on midpoint, offset perpendicular so the
-        # text doesn't sit on top of the line.
+        # pill doesn't sit on top of the line, drawn over a dark pill
+        # so the value reads over cabinets / wireframes. The spec's
+        # color (snap green etc.) tints the text; the pill stays dark.
         if text:
             mx = (s_screen.x + e_screen.x) * 0.5
             my = (s_screen.y + e_screen.y) * 0.5
             text_w, text_h = blf.dimensions(font_id, text)
+            half_w = text_w * 0.5 + pad_x * ui_scale
+            half_h = text_h * 0.5 + pad_y * ui_scale
             if length > 0.5:
-                # Offset along the perpendicular by half-text + a few px
-                offset = text_h * 0.5 + 4.0
-                ox = px * offset
-                oy = py * offset
-                tx_pos = mx + ox - text_w * 0.5
-                ty_pos = my + oy - text_h * 0.5
+                # Push the pill clear of the line along the perpendicular.
+                offset = half_h + 4.0
+                cx = mx + px * offset
+                cy = my + py * offset
             else:
-                tx_pos = mx - text_w * 0.5
-                ty_pos = my + 6.0
-            blf.position(font_id, tx_pos, ty_pos, 0)
+                cx = mx
+                cy = my + half_h + 6.0
+            verts = ((cx - half_w, cy - half_h), (cx + half_w, cy - half_h),
+                     (cx + half_w, cy + half_h), (cx - half_w, cy + half_h))
+            shader.uniform_float("color", label_bg)
+            batch_for_shader(shader, 'TRI_FAN', {"pos": verts}).draw(shader)
+            shader.uniform_float("color", label_border)
+            batch_for_shader(shader, 'LINE_LOOP', {"pos": verts}).draw(shader)
+            blf.position(font_id, cx - text_w * 0.5, cy - text_h * 0.5, 0)
             blf.color(font_id, *color)
             blf.draw(font_id, text)
 
