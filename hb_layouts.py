@@ -1577,8 +1577,10 @@ class MultiView(LayoutView):
         page_short_in = min(paper_w_in, paper_h_in)
         
         # Pick the largest scale where composed content fits inside the
-        # printable page area (page minus margins).
-        scale_ladder = ('1"=1\'', '3/4"=1\'', '1/2"=1\'',
+        # printable page area (page minus margins). Capped at 1/2"=1' so
+        # composed pages come in at a consistent scale with other layout
+        # views unless the content forces a coarser step.
+        scale_ladder = ('1/2"=1\'',
                         '3/8"=1\'', '1/4"=1\'', '3/16"=1\'', '1/8"=1\'')
         chosen_scale = None
         for scale_str in scale_ladder:
