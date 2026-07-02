@@ -321,6 +321,126 @@ class HOME_BUILDER_OT_adjust_dimension_leader_length(bpy.types.Operator):
         return {'RUNNING_MODAL'}
 
 
+class HOME_BUILDER_OT_move_dimension_text(bpy.types.Operator):
+    """Freely place a dimension's text with the mouse. Drives the
+    'Offset Text X Amount' (along the line) and 'Offset Text Amount'
+    (perpendicular) GeoNode inputs together, so the text follows the
+    cursor instead of the user hand-tuning two offset fields. Applies
+    the same delta to every selected dimension (active is the
+    reference), mirroring Adjust Leader Length."""
+    bl_idname = "home_builder.move_dimension_text"
+    bl_label = "Move Text"
+    bl_description = "Interactively move the dimension text of all selected dimensions with the mouse"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return any(obj.get('IS_DIMENSION') for obj in context.selected_objects)
+
+    def get_mouse_offset_components(self, context, event):
+        """(along, perp) world offsets of the mouse from its invoke
+        position, decomposed against the reference dimension's line
+        direction. Screen-space math with a 100px world probe at the
+        line midpoint (same approach as Adjust Leader Length) so it
+        stays correct at any zoom / ortho scale and any dim rotation."""
+        from bpy_extras.view3d_utils import (region_2d_to_location_3d,
+                                             location_3d_to_region_2d)
+        region = context.region
+        rv3d = context.region_data
+        mouse_2d = Vector((event.mouse_region_x, event.mouse_region_y))
+
+        obj = self.reference_dim.obj
+        pts = obj.data.splines[0].points
+        p1_world = obj.matrix_world @ Vector(pts[0].co[:3])
+        p2_world = obj.matrix_world @ Vector(pts[1].co[:3])
+        p1_2d = location_3d_to_region_2d(region, rv3d, p1_world)
+        p2_2d = location_3d_to_region_2d(region, rv3d, p2_world)
+        if p1_2d is None or p2_2d is None:
+            return 0.0, 0.0
+        line_vec = p2_2d - p1_2d
+        if line_vec.length == 0:
+            return 0.0, 0.0
+        line_unit = line_vec / line_vec.length
+
+        d = mouse_2d - self.initial_mouse_2d
+        along_px = d.dot(line_unit)
+        # 2D cross -> signed perpendicular, same sign convention as the
+        # leader modal (positive = leader side of the line).
+        perp_px = line_unit.x * d.y - line_unit.y * d.x
+
+        mid_world = (p1_world + p2_world) / 2
+        ref_2d = (p1_2d + p2_2d) / 2
+        ref_world = region_2d_to_location_3d(region, rv3d, ref_2d, mid_world)
+        ref_world_offset = region_2d_to_location_3d(
+            region, rv3d, ref_2d + Vector((0, 100)), mid_world)
+        if ref_world is None or ref_world_offset is None:
+            wpp = 0.001  # fallback scale
+        else:
+            wpp = (ref_world_offset - ref_world).length / 100
+        return along_px * wpp, perp_px * wpp
+
+    def modal(self, context, event):
+        if context.area:
+            context.area.tag_redraw()
+
+        if event.type == 'MOUSEMOVE':
+            along, perp = self.get_mouse_offset_components(context, event)
+            for dim, init_x, init_y, _init_flag in self.dimensions:
+                dim.set_input("Offset Text X Amount", init_x + along)
+                dim.set_input("Offset Text Amount", init_y + perp)
+            if context.area:
+                context.area.header_text_set(
+                    "Move text | %d dimension(s) | "
+                    "LMB: Confirm | RMB/ESC: Cancel"
+                    % len(self.dimensions))
+
+        elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
+            if context.area:
+                context.area.header_text_set(None)
+            return {'FINISHED'}
+
+        elif event.type in {'RIGHTMOUSE', 'ESC'}:
+            for dim, init_x, init_y, init_flag in self.dimensions:
+                dim.set_input("Offset Text X Amount", init_x)
+                dim.set_input("Offset Text Amount", init_y)
+                dim.set_input("Offset Text From Line", init_flag)
+            if context.area:
+                context.area.header_text_set(None)
+            return {'CANCELLED'}
+
+        return {'RUNNING_MODAL'}
+
+    def invoke(self, context, event):
+        self.dimensions = []
+        self.reference_dim = None
+        self.initial_mouse_2d = Vector((event.mouse_region_x,
+                                        event.mouse_region_y))
+        for obj in context.selected_objects:
+            if not obj.get('IS_DIMENSION'):
+                continue
+            dim = hb_types.GeoNodeDimension(obj)
+            init_x = dim.get_input("Offset Text X Amount") or 0.0
+            init_y = dim.get_input("Offset Text Amount") or 0.0
+            init_flag = bool(dim.get_input("Offset Text From Line"))
+            # The perpendicular amount only applies while 'Offset Text
+            # From Line' is on -- enable it for the session so the text
+            # tracks the cursor in Y; cancel restores the stored flag.
+            dim.set_input("Offset Text From Line", True)
+            self.dimensions.append((dim, init_x, init_y, init_flag))
+            if obj == context.active_object or self.reference_dim is None:
+                self.reference_dim = dim
+
+        if not self.dimensions:
+            self.report({'WARNING'}, "No dimensions selected")
+            return {'CANCELLED'}
+        context.window_manager.modal_handler_add(self)
+        if context.area:
+            context.area.header_text_set(
+                "Move mouse to place text | %d dimension(s) | "
+                "LMB: Confirm | RMB/ESC: Cancel" % len(self.dimensions))
+        return {'RUNNING_MODAL'}
+
+
 class HOME_BUILDER_OT_show_dimension_properties(bpy.types.Operator):
     bl_idname = "home_builder.dimension_options"
     bl_label = "Dimension Options"
@@ -522,6 +642,7 @@ class HOME_BUILDER_MT_dimension_commands(bpy.types.Menu):
         layout.operator("home_builder.flip_dimensions", text="Flip Dimensions", icon='ARROW_LEFTRIGHT')
         layout.operator("home_builder.flip_dimension_text", text="Flip Text", icon='FILE_FONT')
         layout.operator("home_builder.adjust_dimension_leader_length", text="Adjust Leader Length", icon='DRIVER_DISTANCE')
+        layout.operator("home_builder.move_dimension_text", text="Move Text", icon='FONT_DATA')
         layout.operator("home_builder.update_dimensions", text="Update Dimensions", icon='FILE_REFRESH')
         layout.separator()
         layout.operator("object.delete", text="Delete Dimension", icon='X')
@@ -542,6 +663,7 @@ classes = (
     HOME_BUILDER_OT_flip_dimension_text,
     HOME_BUILDER_OT_update_dimensions,
     HOME_BUILDER_OT_adjust_dimension_leader_length,
+    HOME_BUILDER_OT_move_dimension_text,
     HOME_BUILDER_OT_show_dimension_properties,
     HOME_BUILDER_MT_dimension_commands,
 )
