@@ -232,8 +232,13 @@ class Closets_Scene_Props(PropertyGroup):
     closet_selection_mode_enabled: BoolProperty(
         name="Enable Closet Selection Mode",
         description="Highlight objects matching the active selection mode",
-        default=False,
+        default=True,
         update=_update_closet_selection_mode)  # type: ignore
+
+    selection_mode_show_sizes: BoolProperty(
+        name="Show Sizes",
+        description="Show editable dimension labels in selection modes",
+        default=True)  # type: ignore
 
     # ----- Library UI state -----
     library_view_mode: EnumProperty(

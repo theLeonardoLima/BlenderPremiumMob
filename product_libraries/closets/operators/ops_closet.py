@@ -41,6 +41,22 @@ def _apply_finish(root_obj):
         pass
 
 
+def _apply_selection_shading(context, root_obj, keep_active=True):
+    """Run the selection-mode shading pass scoped to one starter so
+    freshly created objects land already shaded for the current mode
+    (face_frame does the same after placement). toggle_mode deselects
+    everything, so restore the active selection after."""
+    if root_obj is None:
+        return
+    try:
+        bpy.ops.hb_closets.toggle_mode(search_obj_name=root_obj.name)
+        if keep_active:
+            root_obj.select_set(True)
+            context.view_layer.objects.active = root_obj
+    except RuntimeError:
+        pass
+
+
 # ---------------------------------------------------------------------------
 # Selection mode toggle
 # ---------------------------------------------------------------------------
@@ -722,6 +738,7 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
             o.select_set(False)
         root.select_set(True)
         context.view_layer.objects.active = root
+        _apply_selection_shading(context, root)
         hb_placement.clear_header_text(context)
         context.window.cursor_set('DEFAULT')
         width_str = units.unit_to_string(
@@ -760,6 +777,7 @@ class hb_closets_OT_insert_bay(bpy.types.Operator):
                                      self.direction)
         if new_bay is not None:
             _apply_finish(root)
+            _apply_selection_shading(context, root)
         return {'FINISHED'}
 
 
@@ -809,8 +827,13 @@ class hb_closets_OT_add_part(bpy.types.Operator,
     def _make_preview(self, opening):
         from .. import const_closets as const
         if self.part_type == 'ROD':
-            return types_closets.add_rod(opening, const.ROD_TOP_OFFSET)
-        return types_closets.add_fixed_shelf(opening, 0.0)
+            obj = types_closets.add_rod(opening, const.ROD_TOP_OFFSET)
+        else:
+            obj = types_closets.add_fixed_shelf(opening, 0.0)
+        # Previews are invisible to the split reconciler; the flag comes
+        # off on commit, which is when a fixed shelf splits its opening.
+        obj['hb_preview'] = 1
+        return obj
 
     def _drop_preview(self):
         if self._preview is not None:
@@ -827,16 +850,66 @@ class hb_closets_OT_add_part(bpy.types.Operator,
         except Exception:
             return 0.0
 
+    def _resolve_opening_under_cursor(self, context):
+        """(opening, local_z, interior_h) for the opening under the mouse.
+
+        Closet interiors are open-backed, so a scene raycast usually
+        sails THROUGH an opening and hits the wall/floor behind it (and
+        in Starters mode the highlighted root cage eats the hit) - so
+        don't depend on geometry at all: intersect the mouse ray with
+        every opening cage's user-facing plane (front face; y=0 face for
+        a double island's BACK openings) and take the nearest hit that
+        lands inside the opening rectangle."""
+        from bpy_extras import view3d_utils
+        from ...face_frame import split_preview
+        region = self.region
+        rv3d = region.data if region is not None else None
+        if rv3d is None or self.mouse_pos is None:
+            return None
+        origin = view3d_utils.region_2d_to_origin_3d(
+            region, rv3d, self.mouse_pos)
+        direction = view3d_utils.region_2d_to_vector_3d(
+            region, rv3d, self.mouse_pos)
+        best = None
+        for obj in context.scene.objects:
+            if not obj.get(types_closets.TAG_OPENING_CAGE):
+                continue
+            try:
+                cage = hb_types.GeoNodeCage(obj)
+                o_w = cage.get_input('Dim X')
+                o_d = cage.get_input('Dim Y')
+                o_h = cage.get_input('Dim Z')
+            except Exception:
+                continue
+            if o_w <= 0.0 or o_h <= 0.0:
+                continue
+            inv = split_preview._world_matrix(obj).inverted()
+            o_l = inv @ origin
+            d_l = inv.to_3x3() @ direction
+            if abs(d_l.y) < 1e-8:
+                continue
+            side = obj.get(types_closets.PROP_OPENING_SIDE, 'FRONT')
+            plane_y = 0.0 if side == 'BACK' else -o_d
+            t = (plane_y - o_l.y) / d_l.y
+            if t <= 0.0:
+                continue
+            p = o_l + d_l * t
+            if -0.001 <= p.x <= o_w + 0.001 and -0.001 <= p.z <= o_h + 0.001:
+                if best is None or t < best[0]:
+                    best = (t, obj, p.z, o_h)
+        if best is None:
+            return None
+        return best[1], best[2], best[3]
+
     def _update_preview(self, context):
         """Move the preview into the opening under the cursor at the
         cursor's opening-local height, then relay the starter out so the
         preview part sizes itself like a committed part."""
         from .. import const_closets as const
-        if self.hit_object is None or self.hit_location is None:
+        resolved = self._resolve_opening_under_cursor(context)
+        if resolved is None:
             return
-        opening = types_closets.find_opening_cage(self.hit_object)
-        if opening is None:
-            return
+        opening, local_z, _interior = resolved
         if opening is not self._opening:
             root_prev = (types_closets.find_starter_root(self._opening)
                          if self._opening else None)
@@ -847,9 +920,8 @@ class hb_closets_OT_add_part(bpy.types.Operator,
                 types_closets.recalculate_closet_starter(root_prev)
 
         interior_h = self._opening_interior_h(opening)
-        local = opening.matrix_world.inverted() @ self.hit_location
         snap = const.PART_Z_SNAP
-        z = round(local.z / snap) * snap
+        z = round(local_z / snap) * snap
         z = max(0.0, min(z, interior_h))
         if self.part_type == 'ROD':
             # Stored as distance from the opening top (rods ride the top).
@@ -924,24 +996,28 @@ class hb_closets_OT_add_part(bpy.types.Operator,
             return {'PASS_THROUGH'}
 
         if event.type == 'MOUSEMOVE':
-            if self._preview is not None:
-                self._preview.hide_set(True)
-            try:
-                self.update_snap(context, event)
-            finally:
-                if self._preview is not None:
-                    self._preview.hide_set(False)
+            # Plane-based resolution only needs the mouse position; no
+            # raycast, so no hide/unhide dance around the preview.
+            self.mouse_pos = Vector((event.mouse_region_x,
+                                     event.mouse_region_y))
             self._update_preview(context)
             return {'RUNNING_MODAL'}
 
         if event.type == 'LEFTMOUSE' and event.value == 'PRESS':
             if self._preview is not None and self._opening is not None:
-                # Commit: the preview IS the part. Apply finish and start
-                # a fresh preview in the same opening to keep adding.
+                # Commit: the preview IS the part. Clearing the preview
+                # flag lets the reconciler adopt a fixed shelf as a
+                # SPLITTER on the recalc below (the opening divides into
+                # two segments). Then start a fresh preview to keep adding.
                 committed_opening = self._opening
+                if 'hb_preview' in self._preview:
+                    del self._preview['hb_preview']
                 root = types_closets.find_starter_root(committed_opening)
                 if root is not None and self.part_type != 'ROD':
                     _apply_finish(root)
+                if root is not None:
+                    types_closets.recalculate_closet_starter(root)
+                _apply_selection_shading(context, root, keep_active=False)
                 self._preview = self._make_preview(committed_opening)
                 if root is not None:
                     types_closets.recalculate_closet_starter(root)
@@ -984,6 +1060,7 @@ class hb_closets_OT_add_adj_shelves(bpy.types.Operator):
         root = types_closets.find_starter_root(opening)
         types_closets.recalculate_closet_starter(root)
         _apply_finish(root)
+        _apply_selection_shading(context, root)
         return {'FINISHED'}
 
 
@@ -1025,6 +1102,7 @@ class _ClosetInsertDialog:
         root = types_closets.find_starter_root(opening)
         types_closets.recalculate_closet_starter(root)
         _apply_finish(root)
+        _apply_selection_shading(context, root)
         return {'FINISHED'}
 
 

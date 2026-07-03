@@ -537,31 +537,57 @@ class ClosetStarter(GeoNodeCage):
                 part.set_input('Width', bay['interior_h'])
                 part.set_input('Thickness', st)
 
-            # Openings. Single-sided bays have one full-depth opening;
-            # double islands split the depth into FRONT / BACK regions
-            # either side of the center back.
-            openings = [c for c in bay_obj.children
-                        if c.get(TAG_OPENING_CAGE)]
+            # Openings. Fixed shelves are SPLITTERS: committed shelves
+            # live at bay level and divide the interior into segments,
+            # one opening cage per segment (per side on double islands).
+            # The reconciler adopts freshly committed shelves, matches
+            # the opening count to the segments, and preserves contents
+            # when a shelf removal merges segments.
+            self._reconcile_bay_openings(bay_obj)
             half_depth = (bay['depth'] - st) / 2.0
-            for opening in openings:
-                side = opening.get(PROP_OPENING_SIDE, 'FRONT')
+            sides = ('FRONT', 'BACK') if self.is_double else ('FRONT',)
+            for side in sides:
                 if self.is_double:
                     o_depth = half_depth
-                    if side == 'BACK':
-                        opening.location = (0.0, 0.0, bay['interior_z'])
-                    else:
-                        opening.location = (
-                            0.0, -(bay['depth'] / 2.0 + st / 2.0),
-                            bay['interior_z'])
+                    base_y = (0.0 if side == 'BACK'
+                              else -(bay['depth'] / 2.0 + st / 2.0))
                 else:
                     o_depth = bay['depth']
-                    opening.location = (0.0, 0.0, bay['interior_z'])
-                op_cage = GeoNodeCage(opening)
-                op_cage.set_input('Dim X', bay['width'])
-                op_cage.set_input('Dim Y', o_depth)
-                op_cage.set_input('Dim Z', bay['interior_h'])
-                self._layout_opening_parts(opening, bay['width'], o_depth,
-                                           bay['interior_h'], scene_props)
+                    base_y = 0.0
+
+                # Splitting shelves: clamp into the interior, lay out at
+                # bay level, and collect the segment boundaries.
+                boundaries = []
+                for sh in self._bay_split_shelves(bay_obj, side):
+                    z_off = max(0.0, min(sh.get('hb_z_offset', 0.0),
+                                         bay['interior_h'] - st))
+                    sh['hb_z_offset'] = float(z_off)
+                    sh.location = (0.0, base_y, bay['interior_z'] + z_off)
+                    part = GeoNodeCutpart(sh)
+                    part.set_input('Length', bay['width'])
+                    part.set_input('Width', o_depth)
+                    part.set_input('Thickness', st)
+                    _set_part_hidden(sh, False)
+                    boundaries.append(z_off)
+
+                openings = sorted(
+                    [c for c in bay_obj.children
+                     if c.get(TAG_OPENING_CAGE)
+                     and c.get(PROP_OPENING_SIDE, 'FRONT') == side],
+                    key=lambda o: o.get('hb_opening_index', 0))
+                bottoms = [0.0] + [b + st for b in boundaries]
+                tops = boundaries + [bay['interior_h']]
+                for op_obj, b0, t0 in zip(openings, bottoms, tops):
+                    seg_h = max(t0 - b0, 0.01)
+                    op_obj['hb_seg_bottom'] = float(b0)
+                    op_obj.location = (0.0, base_y,
+                                       bay['interior_z'] + b0)
+                    op_cage = GeoNodeCage(op_obj)
+                    op_cage.set_input('Dim X', bay['width'])
+                    op_cage.set_input('Dim Y', o_depth)
+                    op_cage.set_input('Dim Z', seg_h)
+                    self._layout_opening_parts(op_obj, bay['width'],
+                                               o_depth, seg_h, scene_props)
 
     def _layout_opening_parts(self, opening, width, depth, interior_h,
                               scene_props):
@@ -804,6 +830,65 @@ class ClosetStarter(GeoNodeCage):
             obj = add_fixed_shelf(opening, 0.0, role=PART_ROLE_CUBBY_SHELF)
             obj['hb_cubby_index'] = len(shelves)
             shelves.append(obj)
+
+    def _bay_split_shelves(self, bay_obj, side):
+        """Committed splitting shelves of one side, bottom-up."""
+        shelves = [c for c in bay_obj.children
+                   if c.get('hb_part_role') == PART_ROLE_FIXED_SHELF
+                   and c.get(PROP_OPENING_SIDE, 'FRONT') == side
+                   and not c.get('hb_preview')]
+        shelves.sort(key=lambda o: o.get('hb_z_offset', 0.0))
+        return shelves
+
+    def _reconcile_bay_openings(self, bay_obj):
+        """Adopt committed fixed shelves up to bay level (they arrive as
+        opening children from the add-part modal / older files) and keep
+        exactly one opening cage per interior segment on each side.
+        Removing a shelf merges segments; the removed opening's contents
+        re-home into the lowest surviving opening rather than dying."""
+        for opening in [c for c in bay_obj.children
+                        if c.get(TAG_OPENING_CAGE)]:
+            seg_bottom = opening.get('hb_seg_bottom', 0.0)
+            side = opening.get(PROP_OPENING_SIDE, 'FRONT')
+            for child in list(opening.children):
+                if (child.get('hb_part_role') == PART_ROLE_FIXED_SHELF
+                        and not child.get('hb_preview')):
+                    child.parent = bay_obj
+                    # Opening-local -> bay-interior datum. Top-anchored
+                    # offsets convert via the segment the shelf was in.
+                    z_off = child.get('hb_z_offset', 0.0)
+                    if child.get('hb_anchor_top'):
+                        try:
+                            seg_h = GeoNodeCage(opening).get_input('Dim Z')
+                        except Exception:
+                            seg_h = 0.0
+                        z_off = max(0.0, seg_h - z_off)
+                    child['hb_z_offset'] = float(seg_bottom + z_off)
+                    child['hb_anchor_top'] = 0
+                    child[PROP_OPENING_SIDE] = side
+
+        sides = ('FRONT', 'BACK') if self.is_double else ('FRONT',)
+        for side in sides:
+            want = len(self._bay_split_shelves(bay_obj, side)) + 1
+            openings = sorted(
+                [c for c in bay_obj.children
+                 if c.get(TAG_OPENING_CAGE)
+                 and c.get(PROP_OPENING_SIDE, 'FRONT') == side],
+                key=lambda o: o.get('hb_opening_index', 0))
+            while len(openings) > want:
+                extra = openings.pop()
+                for child in list(extra.children):
+                    child.parent = openings[0]
+                bpy.data.objects.remove(extra, do_unlink=True)
+            while len(openings) < want:
+                op = ClosetOpening()
+                op.create(f'Opening {len(openings) + 1}')
+                op.obj.parent = bay_obj
+                if side == 'BACK':
+                    op.obj[PROP_OPENING_SIDE] = 'BACK'
+                openings.append(op.obj)
+            for i, op_obj in enumerate(openings):
+                op_obj['hb_opening_index'] = i
 
     def _layout_starter_parts(self, layout, scene_props, sp):
         ctop = self._root_part(PART_ROLE_COUNTERTOP)
