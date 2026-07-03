@@ -1367,8 +1367,11 @@ def _restore_mirror_inputs(obj):
 
 
 def _is_manual_part(obj):
-    """True if obj is a face-frame part currently under manual control."""
-    return bool(obj and obj.get('IS_MANUAL_PART') and obj.get('hb_part_role'))
+    """True if obj is a face-frame part currently under manual control.
+    Misc Parts carry no hb_part_role; their tag qualifies them instead."""
+    return bool(obj and obj.get('IS_MANUAL_PART')
+                and (obj.get('hb_part_role')
+                     or obj.get('IS_FACE_FRAME_MISC_PART')))
 
 
 # Door / drawer front roles. Fronts are a SEPARATE editable path from
@@ -1396,14 +1399,15 @@ def _can_make_editable(obj):
     """True if obj is a STRUCTURAL cutpart that can be made editable: a MESH
     cutpart with its modifier present, not already manual, and not a front
     (fronts go through the front path). Face-frame parts qualify by part role;
-    wood-hood cutparts qualify by their HOOD part tag (they carry no role)."""
+    wood-hood cutparts and Misc Parts qualify by their tags (no role)."""
     if obj is None or obj.type != 'MESH':
         return False
     if obj.get('IS_MANUAL_PART'):
         return False
     if has_door_style_modifier(obj):
         return False
-    if not obj.get('IS_WOOD_HOOD_PART'):
+    if not (obj.get('IS_WOOD_HOOD_PART')
+            or obj.get('IS_FACE_FRAME_MISC_PART')):
         # Face-frame parts must carry a non-front part role.
         role = obj.get('hb_part_role')
         if not role or role in _FRONT_EDITABLE_ROLES:
@@ -1551,6 +1555,13 @@ class hb_face_frame_OT_revert_part_to_parametric(bpy.types.Operator):
         mod.show_viewport = True
         obj.home_builder.mod_name = mod.name
         _restore_mirror_inputs(obj)
+        # A Misc Part has no cabinet recalc to rewrite Length / Width /
+        # Thickness afterwards, so restore them from the stash directly.
+        if obj.get('IS_FACE_FRAME_MISC_PART'):
+            gn = GeoNodeCutpart(obj)
+            for key, inp in _MANUAL_STASH_INPUTS[:3]:
+                if key in obj.keys():
+                    gn.set_input(inp, obj[key])
         for key in ('IS_MANUAL_PART',) + _MANUAL_STASH_KEYS:
             if key in obj.keys():
                 del obj[key]

@@ -546,16 +546,43 @@ class HOME_BUILDER_MT_face_frame_valance_commands(bpy.types.Menu):
 class HOME_BUILDER_MT_face_frame_misc_part_commands(bpy.types.Menu):
     """Right-click menu for a Misc Part - a bare GeoNodeCutpart with no
     cabinet cage. The cabinet / part-role menus don't apply, so this is
-    just size + delete. Set Dimensions edits the cutpart's GeoNode inputs
-    directly; Delete routes through the HB5-aware delete (which falls back
-    to object.delete for a cage-less part).
+    size, machining cutouts, Make Editable / Revert, and delete. Set
+    Dimensions and the cutout items edit the cutpart's GeoNode inputs, so
+    they hide once the part is made editable (GN applied); Delete routes
+    through the HB5-aware delete (which falls back to object.delete for a
+    cage-less part).
     """
     bl_label = "Misc Part Commands"
 
     def draw(self, context):
         layout = self.layout
-        layout.operator("hb_face_frame.set_misc_part_dimensions",
-                        text="Set Dimensions...", icon='ARROW_LEFTRIGHT')
+        obj = context.active_object
+
+        if ops_part_commands._is_cutpart(obj):
+            layout.operator("hb_face_frame.set_misc_part_dimensions",
+                            text="Set Dimensions...", icon='ARROW_LEFTRIGHT')
+            # Machining cutout - same entries as the cabinet-part menu; a
+            # Misc Part is itself a parametric cutpart so the operators
+            # apply unchanged.
+            layout.separator()
+            layout.operator("hb_face_frame.add_part_cutout",
+                            text="Add Cutout...", icon='MOD_BOOLEAN')
+            if ops_part_commands._user_cutout_mods(obj):
+                layout.operator("hb_face_frame.remove_part_cutout",
+                                text="Remove Cutout", icon='X')
+
+        # Make Editable / Revert. A Misc Part has no cabinet recalc, so
+        # Revert restores its stashed Length / Width / Thickness directly
+        # (see ops_part_commands._revert_one).
+        if obj is not None and obj.get('IS_MANUAL_PART'):
+            layout.separator()
+            layout.operator("hb_face_frame.revert_part_to_parametric",
+                            text="Revert to Parametric", icon='FILE_REFRESH')
+        elif ops_part_commands._can_make_editable(obj):
+            layout.separator()
+            layout.operator("hb_face_frame.make_part_editable",
+                            text="Make Editable", icon='EDITMODE_HLT')
+
         layout.separator()
         layout.operator("hb_general.delete", text="Delete Part", icon='X')
 
