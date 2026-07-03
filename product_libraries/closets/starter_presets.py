@@ -6,14 +6,29 @@ class attributes on the starter classes (face_frame pattern). This module
 stays import-light (no bpy) so the solver/types can be smoke-reloaded.
 """
 
-# Order here is the order the library UI lists the starters.
-STARTER_MENU_ENTRIES = [
-    ('Base', "Base Starter", "Floor-mounted base closet starter"),
-    ('Tall', "Tall Starter", "Floor-mounted full-height closet starter"),
-    ('Hanging', "Hanging Starter", "Wall-mounted hanging closet starter"),
-    ('Island', "Island Starter", "Single-sided closet island with countertop and applied back"),
-    ('Island Double', "Island Double Starter", "Double-sided closet island with center back, accessible from both faces"),
+# Library sections: (section label, [(catalog name, button label, desc)]).
+# The library UI draws one collapsible-free header row per section.
+STARTER_SECTIONS = [
+    ("Closets", [
+        ('Base', "Base", "Floor-mounted base closet starter"),
+        ('Tall', "Tall", "Floor-mounted full-height closet starter"),
+        ('Hanging', "Hanging", "Wall-mounted hanging closet starter"),
+    ]),
+    ("L Shelves", [
+        ('L Shelf Base', "Base", "Floor-mounted corner L-shelf unit"),
+        ('L Shelf Tall', "Tall", "Floor-mounted full-height corner L-shelf unit"),
+        ('L Shelf Upper', "Hanging", "Wall-mounted corner L-shelf unit"),
+    ]),
+    ("Islands", [
+        ('Island', "Single", "Single-sided island with countertop and applied back"),
+        ('Island Double', "Double", "Double-sided island with center back"),
+    ]),
 ]
+
+# Flat list retained for anything iterating the whole catalog
+# (thumbnail checks etc.).
+STARTER_MENU_ENTRIES = [entry for _sec, entries in STARTER_SECTIONS
+                        for entry in entries]
 
 # Bay-level override defaults, mirrored by Closet_Bay_Props. Kept as data
 # so a Phase 2 "Change Bay" style mechanism can reset overrides the same

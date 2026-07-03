@@ -171,13 +171,25 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
         scene_props = context.scene.hb_closets
         cls_inst = cls()
         self._is_hanging = not cls.floor_mounted
-        self._cabinet_width = scene_props.default_closet_width
-        self._cabinet_depth = (cls.default_depth
-                               if cls.default_depth is not None
-                               else scene_props.default_panel_depth)
+        self._is_corner = bool(getattr(cls, 'is_corner', False))
+        if self._is_corner:
+            # Corner L units are fixed-footprint singles: no gap fill,
+            # no bay tiling.
+            from .. import const_closets as const
+            self._cabinet_width = const.L_SHELF_SIZE
+            self._cabinet_depth = const.L_SHELF_SIZE
+            self.bay_qty = 1
+        else:
+            self._cabinet_width = scene_props.default_closet_width
+            self._cabinet_depth = (cls.default_depth
+                                   if cls.default_depth is not None
+                                   else scene_props.default_panel_depth)
+            # Derive the initial bay count from the width (target 42",
+            # no bay > 42"); fill mode recomputes it per wall gap.
+            self.bay_qty = types_closets.auto_bay_qty(self._cabinet_width)
         self._cabinet_height = cls_inst.default_height(scene_props)
-        self._fill_mode = True
-        self._auto_bay_qty = True
+        self._fill_mode = not self._is_corner
+        self._auto_bay_qty = not self._is_corner
         self._place_on_front = True
         self._free_rotation_z = 0.0
         self._gap_snap = None
@@ -310,6 +322,8 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
         """Set the preview width. fill_mode=False is the typed path (the
         next wall hover must not overwrite it); True is the auto-fill
         path where width follows the wall gap."""
+        if getattr(self, '_is_corner', False):
+            return  # fixed footprint
         if abs(width - self._cabinet_width) < 1e-5 and fill_mode == self._fill_mode:
             return
         self._cabinet_width = width
@@ -393,8 +407,36 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
 
     def _position_on_wall(self, context, wall):
         """Parent the cage to the wall; fill or snap within the gap
-        between neighbors (shared PlacementMixin gap detection)."""
+        between neighbors (shared PlacementMixin gap detection). Corner
+        L units skip the gap logic entirely: they snap to the nearer
+        wall END and orient so their wings hug both walls (the L fits
+        either corner by rotation alone - origin AT the corner, 0 deg
+        for the left end, -90 for the right)."""
         cage_obj = self._preview_cage.obj
+        if getattr(self, '_is_corner', False):
+            try:
+                wall_geo = hb_types.GeoNodeWall(wall)
+                wall_length = wall_geo.get_input('Length')
+            except Exception:
+                wall_length = 0.0
+            if cage_obj.parent is not wall:
+                cage_obj.parent = wall
+                cage_obj.matrix_parent_inverse.identity()
+            local_hit = wall.matrix_world.inverted() @ self.hit_location
+            cage_obj.location.z = self._mount_z(context.scene.hb_closets)
+            if local_hit.x <= wall_length / 2.0:
+                cage_obj.location.x = 0.0
+                cage_obj.location.y = 0.0
+                cage_obj.rotation_euler = (0, 0, 0)
+            else:
+                cage_obj.location.x = wall_length
+                cage_obj.location.y = 0.0
+                cage_obj.rotation_euler = (0, 0, math.radians(-90))
+            self._gap_wall = None
+            self._placement_dim_specs = []
+            if context.area is not None:
+                context.area.tag_redraw()
+            return
         try:
             wall_geo = hb_types.GeoNodeWall(wall)
             wall_thickness = wall_geo.get_input('Thickness')
@@ -818,7 +860,7 @@ class hb_closets_OT_add_part(bpy.types.Operator,
     part_type: bpy.props.EnumProperty(
         name="Part Type",
         items=[('FIXED_SHELF', "Fixed Shelf", "Fixed shelf at a set height"),
-               ('ROD', "Hang Rod", "Hang rod at a set height")],
+               ('ROD', "Closet Rod", "Closet rod at a set height")],
         default='FIXED_SHELF')  # type: ignore
 
     _preview = None
@@ -920,8 +962,12 @@ class hb_closets_OT_add_part(bpy.types.Operator,
                 types_closets.recalculate_closet_starter(root_prev)
 
         interior_h = self._opening_interior_h(opening)
-        snap = const.PART_Z_SNAP
-        z = round(local_z / snap) * snap
+        # 32mm system: shelf/rod locations land on system holes. The
+        # hole lattice is defined from the BAY interior bottom, so add
+        # the segment offset before snapping and remove it after -
+        # holes stay aligned across split segments.
+        seg_bottom = opening.get('hb_seg_bottom', 0.0)
+        z = const.snap_system_hole(seg_bottom + local_z) - seg_bottom
         z = max(0.0, min(z, interior_h))
         if self.part_type == 'ROD':
             # Stored as distance from the opening top (rods ride the top).
@@ -968,7 +1014,8 @@ class hb_closets_OT_add_part(bpy.types.Operator,
             self.report({'WARNING'}, "No 3D viewport available")
             return {'CANCELLED'}
         self.add_placement_dim_handler(context)
-        label = "fixed shelf" if self.part_type == 'FIXED_SHELF' else "hang rod"
+        label = ("fixed shelf" if self.part_type == 'FIXED_SHELF'
+                 else "closet rod")
         hb_placement.draw_header_text(
             context,
             f"Add {label}: hover an opening, click to place "
@@ -1048,8 +1095,10 @@ class hb_closets_OT_add_adj_shelves(bpy.types.Operator):
 
     def invoke(self, context, event):
         opening = types_closets.find_opening_cage(context.active_object)
-        self.qty = int(opening.get(types_closets.PROP_ADJ_SHELF_QTY,
-                                   3)) or 3
+        # Default to the computed count for this opening's height; keep
+        # an existing user setting if the opening already has shelves.
+        existing = int(opening.get(types_closets.PROP_ADJ_SHELF_QTY, 0))
+        self.qty = existing or types_closets.default_adj_shelf_qty(opening)
         return context.window_manager.invoke_props_dialog(self, width=250)
 
     def execute(self, context):
@@ -1130,17 +1179,55 @@ class hb_closets_OT_add_drawers(_ClosetInsertDialog, bpy.types.Operator):
         return context.window_manager.invoke_props_dialog(self, width=250)
 
     def execute(self, context):
-        return self._commit(context, {
-            types_closets.PROP_DRAWER_QTY: self.qty,
-            types_closets.PROP_DRAWER_FRONT_HEIGHT: self.front_height,
-        })
+        from .. import const_closets as const
+        opening = _active_opening_for_insert(context)
+        if opening is None:
+            return {'CANCELLED'}
+        opening[types_closets.PROP_DRAWER_QTY] = self.qty
+        opening[types_closets.PROP_DRAWER_FRONT_HEIGHT] = self.front_height
+        root = types_closets.find_starter_root(opening)
+        bay = types_closets.find_bay_cage(opening)
+
+        # A drawer bank comes in capped by a fixed shelf (shop
+        # convention). The cap's underside sits so the top drawer front
+        # half-overlays it: qty*(front_h + gap) - shelf_thickness in
+        # opening-local Z. If this segment is already capped, MOVE the
+        # cap to match the new stack instead of stacking another shelf.
+        if self.qty > 0 and bay is not None:
+            st = context.scene.hb_closets.shelf_thickness
+            cap_z_local = self.qty * (self.front_height
+                                      + const.FRONT_GAP) - st
+            seg_bottom = opening.get('hb_seg_bottom', 0.0)
+            side = opening.get(types_closets.PROP_OPENING_SIDE, 'FRONT')
+            shelves = sorted(
+                [c for c in bay.children
+                 if c.get('hb_part_role')
+                 == types_closets.PART_ROLE_FIXED_SHELF
+                 and c.get(types_closets.PROP_OPENING_SIDE,
+                           'FRONT') == side
+                 and not c.get('hb_preview')],
+                key=lambda o: o.get('hb_z_offset', 0.0))
+            cap = next((sh for sh in shelves
+                        if sh.get('hb_z_offset', 0.0)
+                        >= seg_bottom - 1e-6), None)
+            if cap is not None:
+                cap['hb_z_offset'] = float(seg_bottom + cap_z_local)
+            else:
+                types_closets.add_fixed_shelf(opening, cap_z_local)
+
+        types_closets.recalculate_closet_starter(root)
+        _apply_finish(root)
+        _apply_selection_shading(context, root)
+        return {'FINISHED'}
 
 
 class hb_closets_OT_add_doors(_ClosetInsertDialog, bpy.types.Operator):
-    """Set the door front for the active opening (full-opening slab;
-    hamper marks the front as a tilt-out)."""
+    """Add a door front to the active opening. No dialog - the menu
+    entries bake the swing (left / right / double) and the hamper flag;
+    picking a different entry replaces the existing fronts. Delete Part
+    on a door removes it."""
     bl_idname = "hb_closets.add_doors"
-    bl_label = "Doors"
+    bl_label = "Add Door"
     bl_options = {'UNDO'}
 
     swing: bpy.props.EnumProperty(
@@ -1154,14 +1241,31 @@ class hb_closets_OT_add_doors(_ClosetInsertDialog, bpy.types.Operator):
         name="Hamper (tilt-out)", default=False)  # type: ignore
 
     def invoke(self, context, event):
-        opening = _active_opening_for_insert(context)
-        if opening is not None:
-            self.swing = opening.get(types_closets.PROP_DOOR_SWING, '') or 'LEFT'
-            self.is_hamper = bool(opening.get(types_closets.PROP_IS_HAMPER, 0))
-        return context.window_manager.invoke_props_dialog(self, width=250)
+        # Direct action, no dialog (menu entries carry the props).
+        return self.execute(context)
 
     def execute(self, context):
         swing = '' if self.swing == 'NONE' else self.swing
+        obj = context.active_object
+        # Right-clicked a BAY cage -> doors span the whole bay; an
+        # OPENING cage -> doors scope to that opening (segment).
+        if obj is not None and obj.get(types_closets.TAG_BAY_CAGE):
+            bay = types_closets.find_bay_cage(obj)
+            root = types_closets.find_starter_root(bay)
+            if bay is None or root is None:
+                return {'CANCELLED'}
+            bay[types_closets.PROP_BAY_DOOR_SWING] = swing
+            bay[types_closets.PROP_BAY_IS_HAMPER] = 1 if self.is_hamper else 0
+            # Bay-wide doors supersede opening doors on the front side.
+            for op in bay.children:
+                if (op.get(types_closets.TAG_OPENING_CAGE)
+                        and op.get(types_closets.PROP_OPENING_SIDE, 'FRONT')
+                        == 'FRONT'):
+                    op[types_closets.PROP_DOOR_SWING] = ''
+            types_closets.recalculate_closet_starter(root)
+            _apply_finish(root)
+            _apply_selection_shading(context, root)
+            return {'FINISHED'}
         return self._commit(context, {
             types_closets.PROP_DOOR_SWING: swing,
             types_closets.PROP_IS_HAMPER: 1 if self.is_hamper else 0,
@@ -1191,6 +1295,229 @@ class hb_closets_OT_add_cubbies(_ClosetInsertDialog, bpy.types.Operator):
         })
 
 
+class hb_closets_OT_change_bay(bpy.types.Operator):
+    """Rebuild the active bay as a standard configuration (clears the
+    bay's current contents first)."""
+    bl_idname = "hb_closets.change_bay"
+    bl_label = "Bay Configuration"
+    bl_options = {'UNDO'}
+
+    config: bpy.props.EnumProperty(
+        name="Configuration",
+        items=[(cid, label, "") for cid, label in types_closets.BAY_CONFIGS],
+        default='ADJ_SHELVES')  # type: ignore
+
+    @classmethod
+    def poll(cls, context):
+        return types_closets.find_bay_cage(context.active_object) is not None
+
+    def execute(self, context):
+        bay = types_closets.find_bay_cage(context.active_object)
+        if bay is None:
+            return {'CANCELLED'}
+        root = types_closets.find_starter_root(bay)
+        if not types_closets.apply_bay_config(bay, self.config):
+            return {'CANCELLED'}
+        _apply_finish(root)
+        _apply_selection_shading(context, root)
+        return {'FINISHED'}
+
+
+# Clipboards for copy/paste of bay & opening contents (survive object
+# deletion; a copy persists until overwritten so it can paste to many).
+_bay_clipboard = None
+_opening_clipboard = None
+
+
+class hb_closets_OT_copy_bay(bpy.types.Operator):
+    """Copy all contents of the active bay to the clipboard, to paste
+    onto other bays."""
+    bl_idname = "hb_closets.copy_bay"
+    bl_label = "Copy Bay"
+
+    @classmethod
+    def poll(cls, context):
+        return types_closets.find_bay_cage(context.active_object) is not None
+
+    def execute(self, context):
+        global _bay_clipboard
+        bay = types_closets.find_bay_cage(context.active_object)
+        if bay is None:
+            return {'CANCELLED'}
+        _bay_clipboard = types_closets.serialize_bay(bay)
+        self.report({'INFO'}, "Bay contents copied")
+        return {'FINISHED'}
+
+
+class hb_closets_OT_paste_bay(bpy.types.Operator):
+    """Replace the active bay's contents with the copied bay."""
+    bl_idname = "hb_closets.paste_bay"
+    bl_label = "Paste Bay"
+    bl_options = {'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return (_bay_clipboard is not None
+                and types_closets.find_bay_cage(context.active_object)
+                is not None)
+
+    def execute(self, context):
+        bay = types_closets.find_bay_cage(context.active_object)
+        root = types_closets.find_starter_root(bay)
+        if bay is None or not types_closets.apply_bay_data(
+                bay, _bay_clipboard):
+            return {'CANCELLED'}
+        _apply_finish(root)
+        _apply_selection_shading(context, root)
+        return {'FINISHED'}
+
+
+class hb_closets_OT_copy_opening(bpy.types.Operator):
+    """Copy the active opening's contents to the clipboard."""
+    bl_idname = "hb_closets.copy_opening"
+    bl_label = "Copy Opening"
+
+    @classmethod
+    def poll(cls, context):
+        return (types_closets.find_opening_cage(context.active_object)
+                is not None)
+
+    def execute(self, context):
+        global _opening_clipboard
+        opening = _active_opening_for_insert(context)
+        if opening is None:
+            return {'CANCELLED'}
+        _opening_clipboard = types_closets.serialize_opening(opening)
+        self.report({'INFO'}, "Opening contents copied")
+        return {'FINISHED'}
+
+
+class hb_closets_OT_paste_opening(bpy.types.Operator):
+    """Replace the active opening's contents with the copied opening."""
+    bl_idname = "hb_closets.paste_opening"
+    bl_label = "Paste Opening"
+    bl_options = {'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return (_opening_clipboard is not None
+                and types_closets.find_opening_cage(context.active_object)
+                is not None)
+
+    def execute(self, context):
+        opening = _active_opening_for_insert(context)
+        if opening is None:
+            return {'CANCELLED'}
+        root = types_closets.find_starter_root(opening)
+        types_closets.apply_opening_data(opening, _opening_clipboard)
+        _apply_finish(root)
+        _apply_selection_shading(context, root)
+        return {'FINISHED'}
+
+
+class hb_closets_OT_change_opening(bpy.types.Operator):
+    """Swap the active opening to a standard configuration (clears its
+    current contents first)."""
+    bl_idname = "hb_closets.change_opening"
+    bl_label = "Change Opening"
+    bl_options = {'UNDO'}
+
+    config: bpy.props.EnumProperty(
+        name="Configuration",
+        items=[(cid, label, "")
+               for cid, label in types_closets.OPENING_CONFIGS],
+        default='ADJ_SHELVES')  # type: ignore
+
+    @classmethod
+    def poll(cls, context):
+        return (types_closets.find_opening_cage(context.active_object)
+                is not None)
+
+    def execute(self, context):
+        opening = _active_opening_for_insert(context)
+        if opening is None:
+            return {'CANCELLED'}
+        root = types_closets.find_starter_root(opening)
+        if not types_closets.apply_opening_config(opening, self.config):
+            return {'CANCELLED'}
+        _apply_finish(root)
+        _apply_selection_shading(context, root)
+        return {'FINISHED'}
+
+
+class hb_closets_OT_clear_opening(bpy.types.Operator):
+    """Remove all contents of the active opening (shelves stay - they
+    are bay structure; use Clear Bay to remove those too)."""
+    bl_idname = "hb_closets.clear_opening"
+    bl_label = "Clear Opening"
+    bl_options = {'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return types_closets.find_opening_cage(context.active_object) is not None
+
+    def execute(self, context):
+        opening = _active_opening_for_insert(context)
+        if opening is None:
+            return {'CANCELLED'}
+        root = types_closets.find_starter_root(opening)
+        types_closets.clear_opening_contents(opening)
+        types_closets.recalculate_closet_starter(root)
+        _apply_selection_shading(context, root)
+        return {'FINISHED'}
+
+
+class hb_closets_OT_clear_bay(bpy.types.Operator):
+    """Remove all contents of the active bay, including its splitting
+    fixed shelves - the bay merges back to one open section."""
+    bl_idname = "hb_closets.clear_bay"
+    bl_label = "Clear Bay"
+    bl_options = {'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return types_closets.find_bay_cage(context.active_object) is not None
+
+    def execute(self, context):
+        bay = types_closets.find_bay_cage(context.active_object)
+        if bay is None:
+            return {'CANCELLED'}
+        root = types_closets.find_starter_root(bay)
+        types_closets.clear_bay_contents(bay)
+        types_closets.recalculate_closet_starter(root)
+        _apply_selection_shading(context, root)
+        return {'FINISHED'}
+
+
+class hb_closets_OT_adj_shelf_step(bpy.types.Operator):
+    """Add or remove one adjustable shelf from the opening of the active
+    adjustable shelf (right-click on a shelf). Re-spaces the rest."""
+    bl_idname = "hb_closets.adj_shelf_step"
+    bl_label = "Adjustable Shelf"
+    bl_options = {'UNDO'}
+
+    delta: bpy.props.IntProperty(default=1)  # type: ignore
+
+    @classmethod
+    def poll(cls, context):
+        obj = context.active_object
+        return (obj is not None and obj.get('hb_part_role')
+                == types_closets.PART_ROLE_ADJ_SHELF)
+
+    def execute(self, context):
+        obj = context.active_object
+        opening = types_closets.find_opening_cage(obj)
+        root = types_closets.find_starter_root(obj)
+        if opening is None or root is None:
+            return {'CANCELLED'}
+        qty = int(opening.get(types_closets.PROP_ADJ_SHELF_QTY, 0))
+        opening[types_closets.PROP_ADJ_SHELF_QTY] = max(0, qty + self.delta)
+        types_closets.recalculate_closet_starter(root)
+        _apply_finish(root)
+        _apply_selection_shading(context, root)
+        return {'FINISHED'}
+
+
 class hb_closets_OT_delete_part(bpy.types.Operator):
     """Delete the active interior part. Config-driven parts (adjustable
     shelves, drawers, doors, cubby parts) decrement their opening's
@@ -1216,6 +1543,15 @@ class hb_closets_OT_delete_part(bpy.types.Operator):
         obj = context.active_object
         role = obj.get('hb_part_role')
         root = types_closets.find_starter_root(obj)
+        # A bay-wide door lives on the bay cage; clearing its config
+        # removes it (the reconciler drops the part on recalc).
+        if role == types_closets.PART_ROLE_DOOR and obj.get('hb_bay_door'):
+            bay = types_closets.find_bay_cage(obj)
+            if bay is not None:
+                bay[types_closets.PROP_BAY_DOOR_SWING] = ''
+            if root is not None:
+                types_closets.recalculate_closet_starter(root)
+            return {'FINISHED'}
         opening = types_closets.find_opening_cage(obj)
         remove_obj = True
 
@@ -1367,6 +1703,15 @@ classes = (
     hb_closets_OT_add_drawers,
     hb_closets_OT_add_doors,
     hb_closets_OT_add_cubbies,
+    hb_closets_OT_change_bay,
+    hb_closets_OT_change_opening,
+    hb_closets_OT_copy_bay,
+    hb_closets_OT_paste_bay,
+    hb_closets_OT_copy_opening,
+    hb_closets_OT_paste_opening,
+    hb_closets_OT_clear_opening,
+    hb_closets_OT_clear_bay,
+    hb_closets_OT_adj_shelf_step,
     hb_closets_OT_delete_part,
     hb_closets_OT_delete_starter,
     hb_closets_OT_starter_prompts,

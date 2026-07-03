@@ -183,9 +183,6 @@ class Closets_Scene_Props(PropertyGroup):
     default_closet_width: FloatProperty(
         name="Default Width", default=const.DEFAULT_WIDTH,
         unit='LENGTH', precision=4)  # type: ignore
-    default_bay_qty: IntProperty(
-        name="Bays", description="Bay count for newly placed starters",
-        default=const.DEFAULT_BAY_QTY, min=1, max=9)  # type: ignore
     default_panel_depth: FloatProperty(
         name="Panel Depth", default=const.DEFAULT_DEPTH,
         unit='LENGTH', precision=4)  # type: ignore
@@ -241,14 +238,6 @@ class Closets_Scene_Props(PropertyGroup):
         default=True)  # type: ignore
 
     # ----- Library UI state -----
-    library_view_mode: EnumProperty(
-        name="Library View",
-        items=[
-            ('THUMBNAIL', "Thumbnail", "Thumbnail tiles with previews",
-             'IMGDISPLAY', 0),
-            ('LIST', "List", "Compact text buttons", 'COLLAPSEMENU', 1),
-        ],
-        default='THUMBNAIL')  # type: ignore
     show_closet_sizes: BoolProperty(name="Show Closet Sizes", default=False)  # type: ignore
     show_starter_library: BoolProperty(name="Show Closet Starters", default=True)  # type: ignore
 
@@ -277,38 +266,21 @@ class Closets_Scene_Props(PropertyGroup):
                  icon='TRIA_DOWN' if self.show_starter_library else 'TRIA_RIGHT',
                  emboss=False)
         if self.show_starter_library:
-            row = box.row()
-            row.label(text="Bays:")
-            row.prop(self, 'default_bay_qty', text="")
-            view = row.row(align=True)
-            view.alignment = 'RIGHT'
-            view.prop(self, 'library_view_mode', expand=True, icon_only=True)
-
-            entries = starter_presets.STARTER_MENU_ENTRIES
-            if self.library_view_mode == 'LIST':
-                starters = box.column(align=True)
-                starters.scale_y = 1.3
+            # One row per section: the section LABEL on the left, then a
+            # thumbnail tile + place button per product to its right
+            # (matches the face_frame catalog's labeled-row layout). Bay
+            # count is derived from width at placement (target ~42").
+            for sec_label, entries in starter_presets.STARTER_SECTIONS:
+                row = box.row(align=True)
+                row.label(text=sec_label)
                 for name, label, _desc in entries:
-                    op = starters.operator('hb_closets.place_starter',
-                                           text=label)
+                    cell = row.column(align=True)
+                    icon_id = load_starter_thumbnail(name)
+                    if icon_id:
+                        cell.template_icon(icon_value=icon_id, scale=4.0)
+                    op = cell.operator('hb_closets.place_starter',
+                                      text=label)
                     op.starter_name = name
-                    op.bay_qty = self.default_bay_qty
-            else:
-                # Two tiles per row; tiles without a rendered thumbnail
-                # degrade to the plain button.
-                for i in range(0, len(entries), 2):
-                    row = box.row(align=True)
-                    for name, label, _desc in entries[i:i + 2]:
-                        cell = row.column(align=True)
-                        icon_id = load_starter_thumbnail(name)
-                        if icon_id:
-                            cell.template_icon(icon_value=icon_id, scale=4.0)
-                        op = cell.operator('hb_closets.place_starter',
-                                           text=label)
-                        op.starter_name = name
-                        op.bay_qty = self.default_bay_qty
-                    if len(entries[i:i + 2]) == 1:
-                        row.column(align=True)
 
 
 classes = (

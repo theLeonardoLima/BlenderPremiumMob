@@ -61,16 +61,15 @@ _PILL_GAP = 4
 # Widget-family filters. Each is (pill label, scene idprop key, kind
 # prefixes it controls, modes it applies to). Scene idprops (default on)
 # need no registration and save with the file.
+# Structural add/remove-bay pills and contents chips were removed in
+# design review (too busy) - those actions live on the right-click
+# menus. The overlay keeps dims, mount toggles, and the Grab pill.
 _FILTERS = [
     ("Dims", 'hb_ov_show_dims',
-     ('STARTER_', 'BAY_W', 'OPEN_H', 'PART_Z', 'DRAWER_H', 'TOGGLE_LOCK'),
+     ('STARTER_', 'BAY_', 'OPEN_H', 'PART_Z', 'DRAWER_H', 'TOGGLE_LOCK'),
      ('Starters', 'Bays', 'Openings')),
-    ("Mount", 'hb_ov_show_mount',
-     ('TOGGLE_FLOOR',), ('Bays',)),
-    ("Contents", 'hb_ov_show_contents',
-     ('CHIP_CONTENTS',), ('Bays', 'Openings')),
-    ("Bays +/-", 'hb_ov_show_structure',
-     ('PILL_INS', 'PILL_DELETE'), ('Bays',)),
+    ("Bottoms", 'hb_ov_show_mount',
+     ('TOGGLE_BOTTOM',), ('Bays',)),
 ]
 
 
@@ -92,6 +91,10 @@ KIND_ITEMS = [
     ('STARTER_D', "Starter Depth", ""),
     ('BAY_W', "Bay Width", ""),
     ('OPEN_H', "Opening Height", ""),
+    # Bay top height OFF THE FLOOR (world Z); committing moves the top.
+    ('BAY_H', "Bay Height", ""),
+    # Bay depth, at the bottom-front of the bay.
+    ('BAY_D', "Bay Depth", ""),
     # Per-part height (fixed shelf underside / rod center, opening-local)
     ('PART_Z', "Part Height", ""),
     # Drawer stack front height (opening idprop)
@@ -142,7 +145,7 @@ def _active_mode(context):
     if props is None or not getattr(props, 'closet_selection_mode_enabled', False):
         return None
     mode = getattr(props, 'closet_selection_mode', '')
-    return mode if mode in ('Starters', 'Bays', 'Openings') else None
+    return mode if mode in ('Starters', 'Bays', 'Openings', 'Parts') else None
 
 
 def _filter_pill_rects(context, area, mode):
@@ -159,7 +162,14 @@ def _filter_pill_rects(context, area, mode):
     blf.size(0, FONT_SIZE * s)
     pills = [(label, key) for label, key, _p, modes in _FILTERS
              if mode in modes]
-    pills.append(("Grab", '__grab__'))
+    if mode == 'Parts':
+        # Parts mode: only the Open Door action pill.
+        pills.append(("Open Door", '__open_door__'))
+    else:
+        pills.append(("Grab", '__grab__'))
+        # Static add-part actions (start the hover-to-place modals).
+        pills.append(("Add Shelf", '__add_shelf__'))
+        pills.append(("Add Rod", '__add_rod__'))
     widths = [blf.dimensions(0, label)[0] + 24 * s for label, _k in pills]
     h = _HUD_BTN_H * s
     total = sum(widths) + _PILL_GAP * s * max(0, len(pills) - 1)
@@ -204,7 +214,7 @@ def _anchor_world(cage, fx, fz):
 
 def _starter_label_targets(starter):
     """(kind, anchor, value) for the three starter dims. Each label sits
-    where its edit ACTS (Andrew's layout): H at the top edge centered -
+    where its edit ACTS: H at the top edge centered -
     the edge that moves when you change the height; W dead-center of the
     front face; D on the bottom-front edge centered on the width. Values
     come from the SAME props a commit writes so typing them back is a
@@ -248,33 +258,69 @@ def compute_labels(context, region, rv3d):
                 bp = bay.hb_closet_bay
                 targets.append((bay, 'BAY_W', True, bp.width_locked,
                                 _anchor_world(bay, 0.5, 0.5),
-                                bp.width, ""))
-            if mode == 'Openings':
-                # Splitting fixed shelves live at BAY level; their label
-                # rides the shelf and edits its bay-interior offset.
+                                bp.width, "W "))
+                # Bay depth: drawn at the FRONT edge of the bay floor
+                # (full -Y), centered on width - so in a side view it
+                # sits at the front instead of stacking on the front-
+                # face W / H labels.
                 b_mw = split_preview._world_matrix(bay)
                 b_w, _bh = split_preview._cage_dims(bay)
-                for child in bay.children:
-                    if (child.get('hb_part_role')
-                            == types_closets.PART_ROLE_FIXED_SHELF
-                            and not child.get('hb_preview')):
-                        anchor = b_mw @ Vector(
-                            (b_w / 2.0, -0.003, child.location.z))
-                        targets.append((child, 'PART_Z', True, False,
-                                        anchor,
-                                        child.get('hb_z_offset', 0.0), ""))
+                d_anchor = b_mw @ Vector((b_w * 0.5, -bp.depth, 0.001))
+                targets.append((bay, 'BAY_D', True, False,
+                                d_anchor, bp.depth, "D "))
+            # Opening heights split by concern: Bays mode shows only the
+            # TOPMOST segment per side (that label edits the bay height);
+            # Openings mode shows only the capped segments (those labels
+            # move their capping shelf). Keeps shelf information out of
+            # Bays mode and bay-level values out of Openings mode.
+            openings_by_side = {}
             for opening in _iter_opening_cages(bay):
+                side = opening.get(types_closets.PROP_OPENING_SIDE, 'FRONT')
+                openings_by_side.setdefault(side, []).append(opening)
+            top_index = {side: max(o.get('hb_opening_index', 0) for o in ops)
+                         for side, ops in openings_by_side.items()}
+            shelves_by_side = {}
+            for side in openings_by_side:
+                shelves_by_side[side] = sorted(
+                    [c for c in bay.children
+                     if c.get('hb_part_role')
+                     == types_closets.PART_ROLE_FIXED_SHELF
+                     and c.get(types_closets.PROP_OPENING_SIDE,
+                               'FRONT') == side
+                     and not c.get('hb_preview')],
+                    key=lambda o: o.get('hb_z_offset', 0.0))
+            for opening in _iter_opening_cages(bay):
+                side = opening.get(types_closets.PROP_OPENING_SIDE, 'FRONT')
+                idx = opening.get('hb_opening_index', 0)
+                is_top = (idx == top_index[side])
                 o_w, interior_h = split_preview._cage_dims(opening)
-                targets.append((opening, 'OPEN_H', True, False,
-                                _anchor_world(opening, 0.5, 1.0),
-                                interior_h, ""))
+                if mode == 'Bays' and is_top:
+                    # Bay height reads OFF THE FLOOR (world Z of the bay
+                    # top) and sits on the top edge - the line the grab
+                    # handle drags. One emission per side.
+                    bay_top_world = (split_preview._world_matrix(bay)
+                                     .translation.z
+                                     + bay.hb_closet_bay.height)
+                    targets.append((bay, 'BAY_H', True, False,
+                                    _anchor_world(bay, 0.5, 1.0),
+                                    bay_top_world, "H "))
+                elif mode == 'Openings' and not is_top:
+                    # Section label reads the capping shelf's height OFF
+                    # THE GROUND (world Z); committing places the shelf
+                    # at the typed height.
+                    shelves = shelves_by_side.get(side, [])
+                    if idx < len(shelves):
+                        shelf_world_z = split_preview._world_matrix(
+                            shelves[idx]).translation.z
+                        targets.append((opening, 'OPEN_H', True, False,
+                                        _anchor_world(opening, 0.5, 1.0),
+                                        shelf_world_z, "H "))
                 if mode != 'Openings':
                     continue
                 # Per-part labels: fixed shelves and rods show their
                 # opening-local height at the part itself; a drawer
                 # stack shows its front height at the stack's top edge.
                 o_mw = split_preview._world_matrix(opening)
-                top_front_z = None
                 for child in opening.children:
                     role = child.get('hb_part_role')
                     if (role == types_closets.PART_ROLE_ROD
@@ -284,17 +330,19 @@ def compute_labels(context, region, rv3d):
                         targets.append((child, 'PART_Z', True, False,
                                         anchor, child.location.z, ""))
                     elif role == types_closets.PART_ROLE_DRAWER_FRONT:
-                        if (top_front_z is None
-                                or child.location.z > top_front_z):
-                            top_front_z = child.location.z
-                if top_front_z is not None:
-                    dh = opening.get(
-                        types_closets.PROP_DRAWER_FRONT_HEIGHT,
-                        const.DRAWER_FRONT_HEIGHT)
-                    anchor = o_mw @ Vector(
-                        (o_w / 2.0, -0.003, top_front_z + dh))
-                    targets.append((opening, 'DRAWER_H', True, False,
-                                    anchor, dh, ""))
+                        # Every drawer front carries its own editable height
+                        # label at its center; the bullet marks fronts the
+                        # user has pinned (locked) so the stack redistributes
+                        # around them.
+                        dh = child.get(types_closets.PROP_FRONT_HEIGHT,
+                                       const.DRAWER_FRONT_HEIGHT)
+                        locked = bool(child.get(
+                            types_closets.PROP_FRONT_LOCKED, 0))
+                        anchor = o_mw @ Vector(
+                            (o_w / 2.0, -0.003,
+                             child.location.z + dh / 2.0))
+                        targets.append((child, 'DRAWER_H', True, locked,
+                                        anchor, dh, ""))
 
     labels = []
     for obj, kind, editable, locked, anchor, value, prefix in targets:
@@ -337,16 +385,17 @@ def compute_labels(context, region, rv3d):
                              gw + 2 * PAD_X * s, gh)
                     labels.append((bay.name, 'TOGGLE_LOCK', False,
                                    bp.width_locked, grect, glyph))
-                # Floor/Hung pill straddling the bay's bottom edge -
-                # where the mount condition acts.
-                anchor = _anchor_world(bay, 0.5, 0.0)
+                # Bottom on/off pill just above the bay's bottom edge -
+                # the very bottom-front is the bay depth (BAY_D) label, so
+                # the pill sits a touch higher to clear it.
+                anchor = _anchor_world(bay, 0.5, 0.08)
                 if anchor is None:
                     continue
                 pt = view3d_utils.location_3d_to_region_2d(
                     region, rv3d, anchor)
                 if pt is None:
                     continue
-                text = "Floor" if bp.floor_mounted else "Hung"
+                text = "Bottom"
                 tw, th = blf.dimensions(0, text)
                 w = tw + 2 * PAD_X * s
                 h = th + 2 * PAD_Y * s
@@ -354,95 +403,8 @@ def compute_labels(context, region, rv3d):
                 if (rect[0] + w < 0 or rect[0] > region.width
                         or rect[1] + h < 0 or rect[1] > region.height):
                     continue
-                labels.append((bay.name, 'TOGGLE_FLOOR', False,
-                               not bp.floor_mounted, rect, text))
-
-    # ----- Structural pills (Bays mode): a "+" on every panel inserts a
-    # bay at that boundary (panel i = left panel of bay i, so the last
-    # panel inserts AFTER the last bay); an "x" at each bay's top-left
-    # deletes the bay. Both invoke the registered UNDO operators. -----
-    if mode == 'Bays':
-        for starter in _iter_starter_roots(scene):
-            bays_sorted = sorted(
-                _iter_bay_cages(starter),
-                key=lambda o: o.get('hb_bay_index', 0))
-            if not bays_sorted:
-                continue
-            panels = sorted(
-                [c for c in starter.children
-                 if c.get('hb_part_role') == types_closets.PART_ROLE_PANEL],
-                key=lambda o: o.get('hb_panel_index', 0))
-            smw = split_preview._world_matrix(starter)
-            pt_half = scene.hb_closets.panel_thickness / 2.0
-            for i, panel in enumerate(panels):
-                try:
-                    length = GeoNodeCutpart(panel).get_input('Length')
-                except Exception:
-                    continue
-                anchor = smw @ Vector((panel.location.x + pt_half, -0.003,
-                                       panel.location.z + length * 0.5))
-                pt2 = view3d_utils.location_3d_to_region_2d(
-                    region, rv3d, anchor)
-                if pt2 is None:
-                    continue
-                glyph = "+"
-                gw, gh = blf.dimensions(0, glyph)
-                w = gw + 2.5 * PAD_X * s
-                h = gh + 2.5 * PAD_Y * s
-                rect = (pt2.x - w / 2.0, pt2.y - h / 2.0, w, h)
-                if (rect[0] + w < 0 or rect[0] > region.width
-                        or rect[1] + h < 0 or rect[1] > region.height):
-                    continue
-                if i < len(bays_sorted):
-                    labels.append((bays_sorted[i].name, 'PILL_INS_BEFORE',
-                                   False, False, rect, glyph))
-                else:
-                    labels.append((bays_sorted[-1].name, 'PILL_INS_AFTER',
-                                   False, False, rect, glyph))
-            for bay in bays_sorted:
-                anchor = _anchor_world(bay, 0.08, 0.94)
-                if anchor is None:
-                    continue
-                pt2 = view3d_utils.location_3d_to_region_2d(
-                    region, rv3d, anchor)
-                if pt2 is None:
-                    continue
-                glyph = "×"
-                gw, gh = blf.dimensions(0, glyph)
-                w = gw + 2.5 * PAD_X * s
-                h = gh + 2.5 * PAD_Y * s
-                rect = (pt2.x - w / 2.0, pt2.y - h / 2.0, w, h)
-                if (rect[0] + w < 0 or rect[0] > region.width
-                        or rect[1] + h < 0 or rect[1] > region.height):
-                    continue
-                labels.append((bay.name, 'PILL_DELETE', False, False,
-                               rect, glyph))
-
-    # ----- Contents chip, top-right of every opening (Bays and
-    # Openings modes). Click pops the insert menu at the cursor.
-    # Labeled "Add..." (Andrew's pick) so it can't be confused with
-    # the bare "+" add-bay pills on the panels. -----
-    if mode in ('Bays', 'Openings'):
-        for starter in _iter_starter_roots(scene):
-            for bay in _iter_bay_cages(starter):
-                for opening in _iter_opening_cages(bay):
-                    anchor = _anchor_world(opening, 0.9, 0.94)
-                    if anchor is None:
-                        continue
-                    pt = view3d_utils.location_3d_to_region_2d(
-                        region, rv3d, anchor)
-                    if pt is None:
-                        continue
-                    glyph = "Add..."
-                    gw, gh = blf.dimensions(0, glyph)
-                    w = gw + 2.5 * PAD_X * s
-                    h = gh + 2.5 * PAD_Y * s
-                    rect = (pt.x - w / 2.0, pt.y - h / 2.0, w, h)
-                    if (rect[0] + w < 0 or rect[0] > region.width
-                            or rect[1] + h < 0 or rect[1] > region.height):
-                        continue
-                    labels.append((opening.name, 'CHIP_CONTENTS', False,
-                                   False, rect, glyph))
+                labels.append((bay.name, 'TOGGLE_BOTTOM', False,
+                               not bp.remove_bottom, rect, text))
 
     # Per-family visibility filters (the pills below the HUD).
     return [entry for entry in labels if _kind_visible(scene, entry[1])]
@@ -472,8 +434,18 @@ def _draw_filter_pills(shader, context, area, font_sz, mode):
     """One pill per widget family applicable to the mode; active blue
     while that family is shown. The Grab pill mirrors the modal state."""
     for label, key, rect in _filter_pill_rects(context, area, mode):
-        on = (_grab_active() if key == '__grab__'
-              else _filter_on(context.scene, key))
+        if key.startswith('__add_'):
+            on = False   # action pills: never "active"
+        elif key == '__grab__':
+            on = _grab_active()
+        elif key == '__open_door__':
+            try:
+                from .operators import op_open_door_closet
+                on = op_open_door_closet.open_door_is_active()
+            except Exception:
+                on = False
+        else:
+            on = _filter_on(context.scene, key)
         _draw_label_rect(shader, rect, EDIT_BG if on else LABEL_BG)
         blf.size(0, font_sz)
         blf.color(0, *(EDIT_TEXT_COLOR if on else TEXT_COLOR))
@@ -512,7 +484,7 @@ def _draw():
         shader.bind()
         _draw_filter_pills(shader, context, area, font_sz, mode)
         for name, kind, editable, _locked, rect, text in labels:
-            if kind.startswith(('TOGGLE_', 'CHIP_', 'PILL_')):
+            if kind.startswith('TOGGLE_'):
                 # Toggle pill/glyph: ``_locked`` slot = active state.
                 _draw_label_rect(shader, rect,
                                  EDIT_BG if _locked else LABEL_BG)
@@ -566,6 +538,9 @@ def _commit(obj, kind, value):
         # Fires _update_bay_width: auto-locks + redistributes the rest.
         obj.hb_closet_bay.width = value
         return True
+    if kind == 'BAY_D':
+        obj.hb_closet_bay.depth = value
+        return True
     if kind == 'OPEN_H':
         # Segment-aware: when a splitting shelf caps this opening,
         # editing the opening height MOVES that shelf. Only the topmost
@@ -587,7 +562,12 @@ def _commit(obj, kind, value):
                       if sh.get('hb_z_offset', 0.0) >= seg_bottom - 1e-6),
                      None)
         if above is not None:
-            above['hb_z_offset'] = float(seg_bottom + value)
+            # The label reads the capping shelf's height OFF THE GROUND
+            # (world Z), so the typed value places the shelf there.
+            # base = world Z of the shelf's zero offset.
+            base_world = (split_preview._world_matrix(above).translation.z
+                          - above.get('hb_z_offset', 0.0))
+            above['hb_z_offset'] = float(max(0.0, value - base_world))
             types_closets.recalculate_closet_starter(root)
             return True
         scene_props = bpy.context.scene.hb_closets
@@ -596,6 +576,24 @@ def _commit(obj, kind, value):
                 if bp.floor_mounted else 0.0)
         bp.height = (value + seg_bottom
                      + 2.0 * scene_props.shelf_thickness + kick)
+        return True
+    if kind == 'BAY_H':
+        # Typed value = desired bay top off the floor. Move the top by
+        # the delta (floor bays: top lands exactly at the value; hanging
+        # bays keep their run-top anchor, so the height change shifts
+        # the bottom instead).
+        root = types_closets.find_starter_root(obj)
+        if root is None:
+            return False
+        bp = obj.hb_closet_bay
+        scene_props = bpy.context.scene.hb_closets
+        st = scene_props.shelf_thickness
+        kick = (root.hb_closet_starter.toe_kick_height
+                if bp.floor_mounted else 0.0)
+        top_world = (split_preview._world_matrix(obj).translation.z
+                     + bp.height)
+        min_h = kick + 2.0 * st + units.inch(1.0)
+        bp.height = max(min_h, bp.height + (value - top_world))
         return True
     if kind == 'PART_Z':
         root = types_closets.find_starter_root(obj)
@@ -619,22 +617,31 @@ def _commit(obj, kind, value):
         types_closets.recalculate_closet_starter(root)
         return True
     if kind == 'DRAWER_H':
-        # obj is the opening; the regenerator relays the stack out.
+        # obj is a single drawer FRONT. Pin its height and let the stack
+        # redistribute the remaining span across the unlocked fronts.
         root = types_closets.find_starter_root(obj)
         if root is None:
             return False
-        obj[types_closets.PROP_DRAWER_FRONT_HEIGHT] = float(value)
+        obj[types_closets.PROP_FRONT_HEIGHT] = float(max(0.0, value))
+        obj[types_closets.PROP_FRONT_LOCKED] = 1
         types_closets.recalculate_closet_starter(root)
         return True
     return False
 
 
 def _reset_to_auto(obj, kind):
-    """BAY_W only: clear the width lock so redistribution owns the value
-    again. width_locked has no update callback, so recalc explicitly."""
+    """Clear a manual lock so redistribution owns the value again. BAY_W
+    releases a bay width; DRAWER_H un-pins a drawer front so the stack
+    fills evenly."""
     if kind == 'BAY_W' and obj.hb_closet_bay.width_locked:
         obj.hb_closet_bay.width_locked = False
         types_closets.recalculate_closet_starter(obj)
+        return True
+    if kind == 'DRAWER_H' and obj.get(types_closets.PROP_FRONT_LOCKED):
+        obj[types_closets.PROP_FRONT_LOCKED] = 0
+        root = types_closets.find_starter_root(obj)
+        if root is not None:
+            types_closets.recalculate_closet_starter(root)
         return True
     return False
 
@@ -735,46 +742,12 @@ class hb_closets_OT_edit_dim_label(bpy.types.Operator):
 
 # ---- Click routing --------------------------------------------------------------
 
-def _open_contents_popup(context, opening_name):
-    """Activate the clicked opening (or its bay when the cage is hidden
-    in Bays mode) and pop the insert menu at the cursor."""
-    opening = bpy.data.objects.get(opening_name)
-    if opening is None:
-        return
-    target = opening
-    if opening.hide_viewport:
-        target = types_closets.find_bay_cage(opening) or opening
-    try:
-        for o in context.selected_objects:
-            o.select_set(False)
-        target.select_set(True)
-        context.view_layer.objects.active = target
-    except Exception:
-        pass
-
-    def _draw_menu(menu, _ctx):
-        from . import menus_closets
-        layout = menu.layout
-        # Menu items in a wm.popup_menu invoke with the POPUP's context
-        # by default, which has no 3D region - the add-part modal then
-        # cancels on init ("no viewport"). INVOKE_REGION_WIN re-targets
-        # invocation at the viewport's window region (the same context a
-        # right-click context menu provides).
-        layout.operator_context = 'INVOKE_REGION_WIN'
-        menus_closets._draw_add_part_entries(layout)
-
-    context.window_manager.popup_menu(
-        _draw_menu, title="Opening Contents", icon='PLUS')
-
-
 class hb_closets_OT_dim_label_click(bpy.types.Operator):
     """Routes a viewport left-press to overlay labels; everything else
     passes through untouched."""
     bl_idname = "hb_closets.dim_label_click"
     bl_label = "Closet Dimension Label Click"
     bl_options = {'INTERNAL'}
-
-    _pending_chip = None
 
     @classmethod
     def poll(cls, context):
@@ -784,20 +757,6 @@ class hb_closets_OT_dim_label_click(bpy.types.Operator):
                 and context.region is not None
                 and context.region.type == 'WINDOW'
                 and _active_mode(context) is not None)
-
-    def modal(self, context, event):
-        # Waiting out the press that hit a contents chip: the menu opens
-        # on RELEASE so it gets normal click-to-choose interaction.
-        if event.type == 'LEFTMOUSE' and event.value == 'RELEASE':
-            name = self._pending_chip
-            self._pending_chip = None
-            if name is not None:
-                _open_contents_popup(context, name)
-            return {'FINISHED'}
-        if event.type in {'ESC', 'RIGHTMOUSE'} and event.value == 'PRESS':
-            self._pending_chip = None
-            return {'CANCELLED'}
-        return {'RUNNING_MODAL'}
 
     def invoke(self, context, event):
         if _edit is not None:
@@ -821,6 +780,18 @@ class hb_closets_OT_dim_label_click(bpy.types.Operator):
                         op_grab_closet.request_grab_exit()
                     else:
                         bpy.ops.hb_closets.grab_mode('INVOKE_DEFAULT')
+                elif key == '__add_shelf__':
+                    bpy.ops.hb_closets.add_part(
+                        'INVOKE_DEFAULT', part_type='FIXED_SHELF')
+                elif key == '__add_rod__':
+                    bpy.ops.hb_closets.add_part(
+                        'INVOKE_DEFAULT', part_type='ROD')
+                elif key == '__open_door__':
+                    from .operators import op_open_door_closet
+                    if op_open_door_closet.open_door_is_active():
+                        op_open_door_closet.request_open_door_exit()
+                    else:
+                        bpy.ops.hb_closets.open_door_mode('INVOKE_DEFAULT')
                 else:
                     context.scene[key] = (0 if _filter_on(context.scene, key)
                                           else 1)
@@ -831,39 +802,13 @@ class hb_closets_OT_dim_label_click(bpy.types.Operator):
             x, y, w, h = rect
             if not (x <= mx <= x + w and y <= my <= y + h):
                 continue
-            if kind in ('PILL_INS_BEFORE', 'PILL_INS_AFTER', 'PILL_DELETE'):
-                bay = bpy.data.objects.get(name)
-                if bay is None:
-                    return {'PASS_THROUGH'}
-                try:
-                    for o in context.selected_objects:
-                        o.select_set(False)
-                    bay.select_set(True)
-                    context.view_layer.objects.active = bay
-                except Exception:
-                    return {'PASS_THROUGH'}
-                if kind == 'PILL_DELETE':
-                    bpy.ops.hb_closets.delete_bay('INVOKE_DEFAULT')
-                else:
-                    direction = ('BEFORE' if kind == 'PILL_INS_BEFORE'
-                                 else 'AFTER')
-                    bpy.ops.hb_closets.insert_bay(
-                        'INVOKE_DEFAULT', direction=direction)
-                context.area.tag_redraw()
-                return {'FINISHED'}
-            if kind == 'CHIP_CONTENTS':
-                # Consume the PRESS and open the menu on RELEASE via a
-                # tiny modal - popping the menu on the press puts Blender
-                # in hold-and-drag menu selection, which reads as broken.
-                self._pending_chip = name
-                context.window_manager.modal_handler_add(self)
-                return {'RUNNING_MODAL'}
-            if kind == 'TOGGLE_FLOOR':
+            if kind == 'TOGGLE_BOTTOM':
                 bay = bpy.data.objects.get(name)
                 if bay is not None:
                     bp = bay.hb_closet_bay
-                    # Update callback runs the recalc.
-                    bp.floor_mounted = not bp.floor_mounted
+                    # Update callback runs the recalc (kick hides with
+                    # the bottom).
+                    bp.remove_bottom = not bp.remove_bottom
                     context.area.tag_redraw()
                 return {'FINISHED'}
             if kind == 'TOGGLE_LOCK':

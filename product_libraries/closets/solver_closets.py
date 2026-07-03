@@ -104,6 +104,10 @@ def compute_layout(spec):
         top_z = b['height'] - spec.st         # bay-local underside of top shelf
         interior_z = bottom_z + spec.st
         interior_h = max(top_z - interior_z, const.MIN_BAY_WIDTH / 4.0)
+        # Cleat rides the bottom shelf; with the bottom removed it drops
+        # to the bay envelope bottom (legacy behavior: the wall cleat
+        # anchors the panels at the floor / hang line instead).
+        cleat_z = 0.0 if b['remove_bottom'] else interior_z
         bays_out.append({
             'x': xs[i] + spec.pt,
             'z0': z0,
@@ -114,7 +118,7 @@ def compute_layout(spec):
             'floor': b['floor'],
             'bottom_z': bottom_z,
             'top_z': top_z,
-            'cleat_z': interior_z,
+            'cleat_z': cleat_z,
             'interior_z': interior_z,
             'interior_h': interior_h,
         })
