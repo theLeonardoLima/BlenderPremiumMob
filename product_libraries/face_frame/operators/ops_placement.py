@@ -4787,6 +4787,13 @@ class hb_face_frame_OT_set_blind_corner_void_amount(bpy.types.Operator):
                 blind_props.blind_left = new_blind_flag
                 blind_props.blind_amount_left = new_blind_amount
                 blind_props.left_stile_width = final_stile_w
+                # Durable marker: THIS cabinet's LEFT end owns the corner
+                # void. Needed because the placed cabinet's corner stile
+                # is also typed BLIND below, so stile type alone cannot
+                # identify which side of the corner the void sits on.
+                # The value is informational -- readers should measure
+                # the actual gap from geometry.
+                blind_obj['HB_BLIND_VOID_LEFT'] = actual_reduction
                 placed_props.right_stile_type = 'BLIND'
                 # The placed cabinet's corner stile is sized independently
                 # from the exposed blind stile (each side of the corner is
@@ -4812,6 +4819,8 @@ class hb_face_frame_OT_set_blind_corner_void_amount(bpy.types.Operator):
                 blind_props.blind_right = new_blind_flag
                 blind_props.blind_amount_right = new_blind_amount
                 blind_props.right_stile_width = final_stile_w
+                # See the LEFT-branch note: marks the void owner side.
+                blind_obj['HB_BLIND_VOID_RIGHT'] = actual_reduction
                 placed_props.left_stile_type = 'BLIND'
                 # See the LEFT-branch note: the placed corner stile is sized
                 # independently from the exposed blind stile width.
