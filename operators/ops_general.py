@@ -89,6 +89,11 @@ class HB_GENERAL_OT_delete(bpy.types.Operator):
     object and dispatches:
 
     - face frame cabinet  -> hb_face_frame.delete_cabinet
+    - closet starter      -> hb_closets.delete_starter
+    - closet bay cage     -> hb_closets.delete_bay
+    - closet opening cage -> hb_closets.clear_opening (openings are
+      structural in closets; the reconciler owns their lifecycle)
+    - closet part         -> hb_closets.delete_part (config-aware)
     - frameless cabinet   -> hb_frameless.delete_cabinet
     - frameless appliance -> hb_frameless.delete_appliance
     - door / window       -> home_builder_doors_windows.delete_door_window
@@ -131,6 +136,18 @@ class HB_GENERAL_OT_delete(bpy.types.Operator):
         if obj is not None and (obj.get('IS_2D_ANNOTATION')
                                 or obj.get('CABINET_PART')
                                 or obj.get('hb_part_role')):
+            # Closet parts route through their config-aware delete
+            # (drawer/door/cubby counts decrement; rods take their
+            # hangers along). Parts it doesn't cover remove their
+            # subtree so children never orphan.
+            from ..product_libraries.closets import types_closets
+            if (obj.get('hb_part_role')
+                    and types_closets.find_starter_root(obj) is not None):
+                if bpy.ops.hb_closets.delete_part.poll():
+                    bpy.ops.hb_closets.delete_part()
+                else:
+                    _delete_object_subtree(obj)
+                return {'FINISHED'}
             bpy.ops.object.delete(confirm=False)
             return {'FINISHED'}
 
@@ -154,6 +171,26 @@ class HB_GENERAL_OT_delete(bpy.types.Operator):
             else:
                 # Opening cage (or other sub-cage): no dedicated operator, so
                 # remove the cage and everything under it.
+                _delete_object_subtree(obj)
+            return {'FINISHED'}
+
+        # Closet hierarchy: the starter CAGE deletes the whole product;
+        # a bay cage deletes the bay; an opening cage clears its
+        # contents (opening cages are structural - the reconciler owns
+        # them); any other closet sub-object (hangers, molding) removes
+        # its own subtree. Must run BEFORE the wall check: a starter is
+        # a direct child of its wall, so the wall test would otherwise
+        # delete the whole wall.
+        from ..product_libraries.closets import types_closets
+        cl_root = types_closets.find_starter_root(obj)
+        if cl_root is not None:
+            if cl_root is obj:
+                bpy.ops.hb_closets.delete_starter()
+            elif obj.get(types_closets.TAG_BAY_CAGE):
+                bpy.ops.hb_closets.delete_bay()
+            elif obj.get(types_closets.TAG_OPENING_CAGE):
+                bpy.ops.hb_closets.clear_opening()
+            else:
                 _delete_object_subtree(obj)
             return {'FINISHED'}
 

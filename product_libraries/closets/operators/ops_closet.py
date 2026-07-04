@@ -20,6 +20,7 @@ from ...frameless.operators.ops_placement import toggle_cabinet_color
 # Shared wall detection (raycast + nearest-wall floor fallback). Lives in
 # face_frame today; promote to hb_placement if a third library needs it.
 from ...face_frame.operators.ops_placement import _detect_wall
+from .. import const_closets as const
 from .. import types_closets
 
 _BAY_QTY_MIN = 1
@@ -64,6 +65,106 @@ def _apply_selection_shading(context, root_obj, keep_active=True):
             context.view_layer.objects.active = root_obj
     except RuntimeError:
         pass
+
+
+def _clearance_obstacles(scene, exclude_obj, z0, z1):
+    """Plan-view obstacles for island clearance: wall bodies and every
+    cabinet/closet root that overlaps the island's height band. Each
+    entry is (world->local matrix, x_min, x_max, y_min, y_max, label)
+    describing an oriented rectangle in its own local frame."""
+    out = []
+    for obj in scene.objects:
+        if obj is exclude_obj or obj.get('hb_preview'):
+            continue
+        if 'IS_WALL_BP' in obj:
+            try:
+                g = hb_types.GeoNodeWall(obj)
+                length = g.get_input('Length')
+                thickness = g.get_input('Thickness')
+            except Exception:
+                continue
+            out.append((obj.matrix_world.inverted(),
+                        0.0, length, 0.0, thickness, "wall"))
+        elif any(m in obj for m in hb_placement.CABINET_MARKERS):
+            try:
+                g = hb_types.GeoNodeObject(obj)
+                w = g.get_input('Dim X')
+                d = g.get_input('Dim Y')
+                h = g.get_input('Dim Z')
+            except Exception:
+                continue
+            oz = obj.matrix_world.translation.z
+            if not (z0 < oz + h - 1e-4 and oz < z1 - 1e-4):
+                continue
+            out.append((obj.matrix_world.inverted(),
+                        0.0, w, -d, 0.0, "closet"))
+    return out
+
+
+def _ray_rect_distance(origin, direction, rect):
+    """Distance along a plan ray to an oriented rectangle, or None.
+    Slab test in the rectangle's local XY frame."""
+    inv, x0, x1, y0, y1, _label = rect
+    o = inv @ origin
+    d = inv.to_3x3() @ direction
+    t_min, t_max = 0.0, 1e9
+    for axis, lo, hi in ((0, x0, x1), (1, y0, y1)):
+        dv = d[axis]
+        ov = o[axis]
+        if abs(dv) < 1e-9:
+            if ov < lo or ov > hi:
+                return None
+            continue
+        ta = (lo - ov) / dv
+        tb = (hi - ov) / dv
+        if ta > tb:
+            ta, tb = tb, ta
+        t_min = max(t_min, ta)
+        t_max = min(t_max, tb)
+        if t_min > t_max:
+            return None
+    return t_min if t_min >= 0.0 else None
+
+
+_ISLAND_SIDES = ('FRONT', 'RIGHT', 'BACK', 'LEFT')
+
+
+def _island_clearances(cage_obj, width, depth, z0, height, scene):
+    """Nearest clearance per island side, measured in plan from three
+    points along each face outward to walls and other closets. Returns
+    {side: (distance, label) | None} - None when a side is open past
+    the search reach."""
+    mw = cage_obj.matrix_world
+    x_axis = (mw.to_3x3() @ Vector((1.0, 0.0, 0.0))).normalized()
+    y_axis = (mw.to_3x3() @ Vector((0.0, 1.0, 0.0))).normalized()
+    x_axis.z = y_axis.z = 0.0
+    obstacles = _clearance_obstacles(scene, cage_obj, z0, z0 + height)
+    inset = min(units.inch(2.0), width / 4.0, depth / 4.0)
+    faces = {
+        'FRONT': (-y_axis, [(x, -depth) for x in
+                            (inset, width / 2.0, width - inset)]),
+        'BACK': (y_axis, [(x, 0.0) for x in
+                          (inset, width / 2.0, width - inset)]),
+        'LEFT': (-x_axis, [(0.0, -y) for y in
+                           (inset, depth / 2.0, depth - inset)]),
+        'RIGHT': (x_axis, [(width, -y) for y in
+                           (inset, depth / 2.0, depth - inset)]),
+    }
+    result = {}
+    for side, (normal, points) in faces.items():
+        best = None
+        best_label = ""
+        for px, py in points:
+            origin = mw @ Vector((px, py, 0.0))
+            origin.z = 0.0
+            for rect in obstacles:
+                t = _ray_rect_distance(origin, normal, rect)
+                if t is not None and t <= const.CLEARANCE_MAX_REACH:
+                    if best is None or t < best:
+                        best = t
+                        best_label = rect[5]
+        result[side] = (best, best_label) if best is not None else None
+    return result
 
 
 def _detect_corner_closet_neighbor(root_obj):
@@ -301,6 +402,15 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
         cls_inst = cls()
         self._is_hanging = not cls.floor_mounted
         self._is_corner = bool(getattr(cls, 'is_corner', False))
+        # Island placement extras (clearance dims / aisle detents /
+        # typed clearance) key off this.
+        self._is_island = 'Island' in self.starter_name
+        self._is_island_double = 'Double' in self.starter_name
+        self._active_clearance_side = 'FRONT'
+        self._suppress_detents = False
+        self._clearance_anchor = None   # (location, clearance) at typing start
+        self._last_clearances = {}
+        self._detent_hit = set()
         if self._is_corner:
             # Corner L units are fixed-footprint singles: no gap fill,
             # no bay tiling.
@@ -313,6 +423,10 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
             self._cabinet_depth = (cls.default_depth
                                    if cls.default_depth is not None
                                    else scene_props.default_panel_depth)
+        # Auto-fill widths picked up over a wall reset to this off-wall
+        # (typed widths persist - they clear fill mode).
+        self._default_free_width = self._cabinet_width
+        if not self._is_corner:
             # Derive the initial bay count from the width (target 42",
             # no bay > 42"); fill mode recomputes it per wall gap.
             self.bay_qty = types_closets.auto_bay_qty(self._cabinet_width)
@@ -421,6 +535,9 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
                 self._left_offset = parsed
                 self._reposition_with_offsets(bpy.context)
                 self._left_offset = old
+            elif (parsed >= 0 and self._gap_wall is None
+                    and getattr(self, '_is_island', False)):
+                self._apply_island_clearance(bpy.context, parsed)
         elif self.typing_target == hb_placement.TypingTarget.OFFSET_RIGHT:
             if parsed >= 0 and self._gap_wall is not None:
                 old = self._right_offset
@@ -439,6 +556,10 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
                 self._right_offset = None
                 self._gap_snap = None
                 self._reposition_with_offsets(bpy.context)
+            elif (parsed is not None and parsed >= 0
+                    and self._gap_wall is None
+                    and getattr(self, '_is_island', False)):
+                self._apply_island_clearance(bpy.context, parsed)
         elif self.typing_target == hb_placement.TypingTarget.OFFSET_RIGHT:
             if parsed is not None and parsed >= 0 and self._gap_wall is not None:
                 self._right_offset = parsed
@@ -480,21 +601,66 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
         self._update_header(context)
 
     def _reposition_with_offsets(self, context):
-        """Place the cage at a typed offset from the true gap edge. The
-        typed side wins over snap heuristics; width is preserved."""
+        """Place the cage using per-side effective offsets from the
+        true gap edges: a typed offset wins on ITS side; the other side
+        keeps its automatic inside-corner pull-off. In fill mode the
+        offsets TRIM the fill, so the starter shrinks and still reaches
+        each side's effective edge; a typed width is preserved and only
+        shifts (anchored to the typed side)."""
         if self._gap_wall is None:
+            return
+        if self._left_offset is None and self._right_offset is None:
             return
         gap_start = self._gap_left_boundary
         gap_end = self._gap_right_boundary
-        width = min(self._cabinet_width, max(gap_end - gap_start, units.inch(1.0)))
-        if self._left_offset is not None:
-            placement_x = gap_start + self._left_offset
-        elif self._right_offset is not None:
-            placement_x = gap_end - self._right_offset - width
+        left = (self._left_offset if self._left_offset is not None
+                else getattr(self, '_auto_left_inset', 0.0))
+        right = (self._right_offset if self._right_offset is not None
+                 else getattr(self, '_auto_right_inset', 0.0))
+        span = max(gap_end - gap_start - left - right, units.inch(1.0))
+        if self._fill_mode:
+            width = span
+            self._apply_width(width, fill_mode=True)
         else:
-            return
+            width = min(self._cabinet_width, span)
+        if self._right_offset is not None and self._left_offset is None:
+            placement_x = gap_end - right - width
+        else:
+            placement_x = gap_start + left
         self._place_cage_on_wall(context, self._gap_wall, placement_x, width,
                                  gap_start, gap_end)
+
+    def _corner_insets(self, wall, wall_geo, wall_length, wall_thickness):
+        """(left, right) automatic pull-offs for INSIDE corners on the
+        placement side. A connected wall only earns the pull-off when
+        it extends into the half-space the closet occupies (front:
+        -Y; back: beyond the wall thickness) - outside corners and
+        open ends need no relief. Tested via the connected wall's far
+        endpoint in this wall's local frame, so any wall angle works."""
+        insets = [0.0, 0.0]
+        inv = wall.matrix_world.inverted()
+        for i, direction in enumerate(('left', 'right')):
+            try:
+                node = wall_geo.get_connected_wall(direction=direction)
+                if node is None:
+                    continue
+                adj = node.obj
+                adj_len = hb_types.GeoNodeWall(adj).get_input('Length')
+                a = inv @ adj.matrix_world.translation
+                b = inv @ (adj.matrix_world
+                           @ Vector((adj_len, 0.0, 0.0)))
+                corner = Vector((0.0 if direction == 'left'
+                                 else wall_length, 0.0, 0.0))
+                far = a if (a - corner).length > (b - corner).length else b
+                if self._place_on_front:
+                    inside = far.y < -1e-4
+                else:
+                    inside = far.y > wall_thickness + 1e-4
+                if inside:
+                    insets[i] = const.CORNER_PULL_OFF
+            except Exception:
+                continue
+        return insets
 
     # ---------------- positioning ----------------
 
@@ -607,11 +773,35 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
         self._gap_right_boundary = gap_end
         self._gap_wall = wall
 
-        # Typed offset owns positioning once set.
+        # Automatic 1/2" pull-off at bare INSIDE corners so the closet
+        # clears the return wall. Only when the gap edge IS the wall
+        # end (a corner neighbor's intrusion has already moved the edge
+        # - the clearance dialog owns that case) AND the connected wall
+        # turns into the placement side (_corner_insets). Stored per
+        # side so a typed offset on one end replaces its own pull-off
+        # while the other end keeps its automatic one.
+        try:
+            auto_left, auto_right = self._corner_insets(
+                wall, wall_geo, wall_length, wall_thickness)
+        except Exception:
+            auto_left = auto_right = 0.0
+        if gap_start > 1e-6:
+            auto_left = 0.0
+        if gap_end < wall_length - 1e-6:
+            auto_right = 0.0
+        self._auto_left_inset = auto_left
+        self._auto_right_inset = auto_right
+
+        # Typed offset owns positioning once set (measured from the
+        # TRUE gap edge; per-side merge with the automatic pull-offs
+        # happens in _reposition_with_offsets).
         if self._left_offset is not None or self._right_offset is not None:
             self._gap_snap = None
             self._reposition_with_offsets(context)
             return
+
+        gap_start += auto_left
+        gap_end -= auto_right
 
         gap_width = max(gap_end - gap_start, units.inch(1.0))
 
@@ -691,7 +881,12 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
 
     def _position_free(self, context):
         """Off-wall: follow the cursor on the floor grid with the free
-        rotation applied. Hanging starters keep their mount height."""
+        rotation applied (R rotates; no automatic alignment). Hanging
+        starters keep their mount height. A wall hover's auto-fill
+        width resets to the library default out here (typed widths
+        stick). Islands additionally snap their clearances to standard
+        aisle widths (Shift bypasses) and draw live clearance dims on
+        all four sides, with the opening faces labeled."""
         cage_obj = self._preview_cage.obj
         if cage_obj.parent is not None:
             world = cage_obj.matrix_world.copy()
@@ -699,11 +894,21 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
             cage_obj.matrix_world = world
         self._gap_wall = None
         self._gap_snap = None
+
+        is_island = getattr(self, '_is_island', False)
+        if (self._fill_mode and not getattr(self, '_is_corner', False)):
+            default_w = getattr(self, '_default_free_width', None)
+            if default_w and abs(self._cabinet_width - default_w) > 1e-6:
+                self._apply_width(default_w, fill_mode=True)
+
         snapped = hb_snap.snap_vector_to_grid(Vector(self.hit_location))
         cage_obj.location.x = snapped.x
         cage_obj.location.y = snapped.y
         cage_obj.location.z = self._mount_z(context.scene.hb_closets)
         cage_obj.rotation_euler = (0, 0, self._free_rotation_z)
+
+        if is_island:
+            self._apply_island_detents(context)
 
         unit_settings = context.scene.unit_settings
         z_dim = cage_obj.location.z + self._cabinet_height + units.inch(4.0)
@@ -714,6 +919,139 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
         self._placement_dim_specs = [hb_placement.PlacementDimSpec(
             s, e, units.unit_to_string(unit_settings, self._cabinet_width),
             None)]
+        if is_island:
+            self._placement_dim_specs += self._island_clearance_dims(context)
+        if context.area is not None:
+            context.area.tag_redraw()
+
+    def _island_current_clearances(self, context):
+        cage_obj = self._preview_cage.obj
+        return _island_clearances(
+            cage_obj, self._cabinet_width, self._cabinet_depth,
+            cage_obj.location.z, self._cabinet_height, context.scene)
+
+    def _apply_island_detents(self, context):
+        """Nudge the island so a clearance near a standard aisle width
+        lands exactly on it - per axis, using that axis's nearer side.
+        Shift (recorded on mousemove) bypasses."""
+        self._detent_hit = set()
+        if self._suppress_detents:
+            return
+        cage_obj = self._preview_cage.obj
+        clearances = self._island_current_clearances(context)
+        mw = cage_obj.matrix_world
+        x_axis = (mw.to_3x3() @ Vector((1.0, 0.0, 0.0))).normalized()
+        y_axis = (mw.to_3x3() @ Vector((0.0, 1.0, 0.0))).normalized()
+        normals = {'FRONT': -y_axis, 'BACK': y_axis,
+                   'LEFT': -x_axis, 'RIGHT': x_axis}
+        for pair in (('LEFT', 'RIGHT'), ('FRONT', 'BACK')):
+            candidates = [(clearances[s][0], s) for s in pair
+                          if clearances.get(s) is not None]
+            if not candidates:
+                continue
+            dist, side = min(candidates)
+            for detent in const.AISLE_DETENTS:
+                if abs(dist - detent) <= const.AISLE_SNAP_ENGAGE:
+                    delta = dist - detent
+                    move = normals[side] * delta
+                    cage_obj.location.x += move.x
+                    cage_obj.location.y += move.y
+                    self._detent_hit.add(side)
+                    break
+
+    def _island_clearance_dims(self, context):
+        """One dim per side, from the face center out to the obstacle
+        it measured. Detent-snapped sides draw green; the arrow-active
+        side carries a marker so typed clearances have a visible
+        target. Opening faces are labeled (Front - and Back on double
+        islands) so the facing reads at a glance; a labeled face with
+        nothing in reach still gets a short marker."""
+        cage_obj = self._preview_cage.obj
+        clearances = self._island_current_clearances(context)
+        self._last_clearances = clearances
+        mw = cage_obj.matrix_world
+        w, d = self._cabinet_width, self._cabinet_depth
+        x_axis = (mw.to_3x3() @ Vector((1.0, 0.0, 0.0))).normalized()
+        y_axis = (mw.to_3x3() @ Vector((0.0, 1.0, 0.0))).normalized()
+        centers = {'FRONT': (Vector((w / 2.0, -d, 0.0)), -y_axis),
+                   'BACK': (Vector((w / 2.0, 0.0, 0.0)), y_axis),
+                   'LEFT': (Vector((0.0, -d / 2.0, 0.0)), -x_axis),
+                   'RIGHT': (Vector((w, -d / 2.0, 0.0)), x_axis)}
+        facing = {'FRONT': "Front"}
+        if getattr(self, '_is_island_double', False):
+            facing['BACK'] = "Back"
+        z_dim = cage_obj.location.z + units.inch(1.0)
+        unit_settings = context.scene.unit_settings
+        specs = []
+        for side, (local, normal) in centers.items():
+            entry = clearances.get(side)
+            prefix = facing.get(side, "")
+            if entry is None:
+                if prefix:
+                    # No obstacle in reach: short marker so the facing
+                    # still reads.
+                    s = mw @ local
+                    e = s + normal * units.inch(18.0)
+                    s.z = e.z = z_dim
+                    specs.append(hb_placement.PlacementDimSpec(
+                        s, e, prefix, None))
+                continue
+            dist, label = entry
+            s = mw @ local
+            e = s + normal * dist
+            s.z = e.z = z_dim
+            text = units.unit_to_string(unit_settings, dist)
+            if prefix:
+                text = f"{prefix} {text}"
+            if side == self._active_clearance_side:
+                text = f"> {text} <"
+            color = _SNAP_GREEN if side in self._detent_hit else None
+            specs.append(hb_placement.PlacementDimSpec(s, e, text, color))
+        return specs
+
+    def _handle_island_arrow(self, context, step):
+        """Left/Right arrow while placing an island: cycle the active
+        clearance side and start typing its distance."""
+        idx = _ISLAND_SIDES.index(self._active_clearance_side)
+        self._active_clearance_side = _ISLAND_SIDES[(idx + step)
+                                                    % len(_ISLAND_SIDES)]
+        entry = (self._last_clearances or {}).get(
+            self._active_clearance_side)
+        anchor_clear = entry[0] if entry else None
+        self._clearance_anchor = (
+            self._preview_cage.obj.location.copy(), anchor_clear)
+        if self.placement_state == hb_placement.PlacementState.TYPING:
+            self.typed_value = ""
+            self.typing_target = hb_placement.TypingTarget.OFFSET_X
+        else:
+            self.start_typing(hb_placement.TypingTarget.OFFSET_X)
+        self._position_free(context)
+        self._update_header(context)
+
+    def _apply_island_clearance(self, context, value):
+        """Move the island along the active side's normal so that
+        side's clearance equals the typed value, measured from the
+        typing-anchor position (so live keystrokes don't compound)."""
+        if self._clearance_anchor is None:
+            return
+        anchor_loc, anchor_clear = self._clearance_anchor
+        if anchor_clear is None:
+            return
+        cage_obj = self._preview_cage.obj
+        cage_obj.location = anchor_loc.copy()
+        mw = cage_obj.matrix_world
+        x_axis = (mw.to_3x3() @ Vector((1.0, 0.0, 0.0))).normalized()
+        y_axis = (mw.to_3x3() @ Vector((0.0, 1.0, 0.0))).normalized()
+        normals = {'FRONT': -y_axis, 'BACK': y_axis,
+                   'LEFT': -x_axis, 'RIGHT': x_axis}
+        normal = normals[self._active_clearance_side]
+        delta = anchor_clear - value
+        move = normal * delta
+        cage_obj.location.x += move.x
+        cage_obj.location.y += move.y
+        # Refresh dims without re-reading the cursor.
+        self._placement_dim_specs = self._placement_dim_specs[:1]
+        self._placement_dim_specs += self._island_clearance_dims(context)
         if context.area is not None:
             context.area.tag_redraw()
 
@@ -769,6 +1107,12 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
                 hb_placement.TypingTarget.OFFSET_X: "Offset (left)",
                 hb_placement.TypingTarget.OFFSET_RIGHT: "Offset (right)",
             }.get(self.typing_target, "Value")
+            if (getattr(self, '_is_island', False)
+                    and self._gap_wall is None
+                    and self.typing_target
+                    == hb_placement.TypingTarget.OFFSET_X):
+                side = self._active_clearance_side.title()
+                label = f"Clearance ({side})"
             hb_placement.draw_header_text(
                 context,
                 f"{self.starter_name} Starter  -  {label}: {typed}  -  "
@@ -843,11 +1187,15 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
         if event.type == 'LEFT_ARROW' and event.value == 'PRESS':
             if self._gap_wall is not None:
                 self._handle_offset_arrow(context, side='LEFT')
+            elif getattr(self, '_is_island', False):
+                self._handle_island_arrow(context, step=-1)
             return {'RUNNING_MODAL'}
 
         if event.type == 'RIGHT_ARROW' and event.value == 'PRESS':
             if self._gap_wall is not None:
                 self._handle_offset_arrow(context, side='RIGHT')
+            elif getattr(self, '_is_island', False):
+                self._handle_island_arrow(context, step=1)
             return {'RUNNING_MODAL'}
 
         if event.type == 'MOUSEMOVE':
@@ -856,6 +1204,7 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
                         hb_placement.TypingTarget.OFFSET_X,
                         hb_placement.TypingTarget.OFFSET_RIGHT)):
                 return {'RUNNING_MODAL'}
+            self._suppress_detents = event.shift
             cage_obj = self._preview_cage.obj
             cage_obj.hide_set(True)
             try:

@@ -62,6 +62,17 @@ COUNTERTOP_OVERHANG_FRONT = inch(1.875)
 # Minimum bay width the redistributor will assign to an unlocked bay.
 MIN_BAY_WIDTH = inch(1.0)
 
+# Automatic pull-off from a bare wall corner at placement, so the
+# closet clears the return wall. A typed placement offset replaces it.
+CORNER_PULL_OFF = inch(0.5)
+
+# Island placement: standard aisle widths the clearance snap detents
+# to, the engage window around each, and how far a clearance ray
+# searches before a side reads as open.
+AISLE_DETENTS = (inch(30.0), inch(36.0), inch(42.0), inch(48.0))
+AISLE_SNAP_ENGAGE = inch(1.0)
+CLEARANCE_MAX_REACH = inch(240.0)
+
 # ---------------------------------------------------------------------------
 # Interior parts
 # ---------------------------------------------------------------------------
