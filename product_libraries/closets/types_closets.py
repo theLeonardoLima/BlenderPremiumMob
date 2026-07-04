@@ -907,10 +907,24 @@ class ClosetStarter(GeoNodeCage):
             rot = (math.radians(-90.0), 0.0, 0.0)
         else:
             hinge = front.get('hb_hinge', 'LEFT')
+            # 5-piece doors center the pull on the latch stile; slab
+            # doors keep the fixed from-edge offset.
+            stile_w = None
+            mod = next((m for m in front.modifiers
+                        if m.type == 'NODES' and 'Door Style' in m.name),
+                       None)
+            if mod is not None and mod.node_group is not None:
+                for item in mod.node_group.interface.items_tree:
+                    if (item.item_type == 'SOCKET'
+                            and item.in_out == 'INPUT'
+                            and item.name == 'Left Stile Width'):
+                        stile_w = mod.get(item.identifier)
+                        break
+            offset = (stile_w / 2.0) if stile_w else h_edge
             if hinge == 'LEFT':
-                x = width - h_edge
+                x = width - offset
             else:
-                x = h_edge
+                x = offset
             # Base / Tall / Upper rule, floor-referenced: hold the pull
             # at the TALL height off the floor; when the door bottom is
             # already above that height use the UPPER convention (near
@@ -2006,11 +2020,28 @@ BAY_CONFIG_GROUPS = [
      ('DOORS_OPEN_4DR', "Doors Open 4 Drawers"),
      ('DOORS_OPEN_5DR', "Doors Open 5 Drawers"),
      ('DOORS_OPEN_6DR', "Doors Open 6 Drawers")],
-    [('OPEN_OVER_DOORS', "Open Over Doors"),
-     ('DOORS_OVER_OPEN', "Doors Over Open"),
+    [('OPEN_OVER_DOORS', "Base Doors"),
+     ('DOORS_OVER_OPEN', "Upper Doors"),
      ('FULL_HEIGHT_DOORS', "Full Height Doors")],
 ]
 BAY_CONFIGS = [item for group in BAY_CONFIG_GROUPS for item in group]
+
+
+def seed_door_shelves(opening):
+    """Door openings include adjustable shelves behind the doors by
+    default. Seeds the opening's shelf count unless something else
+    already occupies it (an existing shelf count, drawers, cubbies, or
+    a rod) - adding doors over an existing interior never overwrites
+    it. Hampers are the callers' business (a tilt-out basket leaves no
+    room for shelves)."""
+    if (opening.get(PROP_ADJ_SHELF_QTY)
+            or opening.get(PROP_DRAWER_QTY)
+            or opening.get(PROP_CUBBY_COLS)):
+        return
+    for c in opening.children:
+        if c.get('hb_part_role') == PART_ROLE_ROD:
+            return
+    opening[PROP_ADJ_SHELF_QTY] = default_adj_shelf_qty(opening)
 
 
 def _cfg_rod(opening):
@@ -2020,6 +2051,7 @@ def _cfg_rod(opening):
 def _cfg_doors(opening):
     opening[PROP_DOOR_SWING] = 'DOUBLE'
     opening[PROP_IS_HAMPER] = 0
+    seed_door_shelves(opening)
 
 
 def _cfg_hamper(opening):
@@ -2130,6 +2162,7 @@ def apply_bay_config(bay_obj, config):
     if bay_door:
         bay_obj[PROP_BAY_DOOR_SWING] = bay_door
         bay_obj[PROP_BAY_IS_HAMPER] = 0
+        seed_door_shelves(opening)
     recalculate_closet_starter(root)
     return True
 
@@ -2162,10 +2195,13 @@ def apply_opening_config(opening, config):
         opening[PROP_ADJ_SHELF_QTY] = default_adj_shelf_qty(opening)
     elif config == 'DOOR_LEFT':
         opening[PROP_DOOR_SWING] = 'LEFT'
+        seed_door_shelves(opening)
     elif config == 'DOOR_RIGHT':
         opening[PROP_DOOR_SWING] = 'RIGHT'
+        seed_door_shelves(opening)
     elif config == 'DOOR_DOUBLE':
         opening[PROP_DOOR_SWING] = 'DOUBLE'
+        seed_door_shelves(opening)
     elif config == 'CUBBIES':
         opening[PROP_CUBBY_COLS] = 3
         opening[PROP_CUBBY_ROWS] = 3

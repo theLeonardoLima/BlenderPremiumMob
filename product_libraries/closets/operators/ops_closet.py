@@ -1459,16 +1459,26 @@ class hb_closets_OT_add_doors(_ClosetInsertDialog, bpy.types.Operator):
                 return {'CANCELLED'}
             bay[types_closets.PROP_BAY_DOOR_SWING] = swing
             bay[types_closets.PROP_BAY_IS_HAMPER] = 1 if self.is_hamper else 0
-            # Bay-wide doors supersede opening doors on the front side.
+            # Bay-wide doors supersede opening doors on the front side;
+            # door openings get default adjustable shelves behind them
+            # (seed_door_shelves skips occupied openings).
             for op in bay.children:
                 if (op.get(types_closets.TAG_OPENING_CAGE)
                         and op.get(types_closets.PROP_OPENING_SIDE, 'FRONT')
                         == 'FRONT'):
                     op[types_closets.PROP_DOOR_SWING] = ''
+                    if swing and not self.is_hamper:
+                        types_closets.seed_door_shelves(op)
             types_closets.recalculate_closet_starter(root)
             _apply_finish(root)
             _apply_selection_shading(context, root)
             return {'FINISHED'}
+        # Door openings get default adjustable shelves behind them
+        # (skipped for hampers and occupied openings).
+        if swing and not self.is_hamper:
+            opening = _active_opening_for_insert(context)
+            if opening is not None:
+                types_closets.seed_door_shelves(opening)
         return self._commit(context, {
             types_closets.PROP_DOOR_SWING: swing,
             types_closets.PROP_IS_HAMPER: 1 if self.is_hamper else 0,

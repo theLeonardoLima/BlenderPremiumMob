@@ -255,8 +255,42 @@ class Closets_Scene_Props(PropertyGroup):
         update=materials_closets.update_room)  # type: ignore
     closet_front_material: EnumProperty(
         name="Front Material",
-        description="Door and drawer front material",
-        items=materials_closets.material_enum_items,
+        description="Door and drawer front material (Match Closet "
+                    "follows the closet material)",
+        items=materials_closets.match_enum_items,
+        update=materials_closets.update_room)  # type: ignore
+    closet_edge_material: EnumProperty(
+        name="Closet Edgebanding",
+        description="Edgebanding on closet parts (Match = the closet "
+                    "material)",
+        items=materials_closets.match_enum_items,
+        update=materials_closets.update_room)  # type: ignore
+    closet_front_edge_material: EnumProperty(
+        name="Front Edgebanding",
+        description="Edgebanding on doors and drawer fronts (Match = "
+                    "the fronts material)",
+        items=materials_closets.match_enum_items,
+        update=materials_closets.update_room)  # type: ignore
+
+    closet_panel_type: EnumProperty(
+        name="Door Panel",
+        description="Center panel on 5-piece doors: wood or glass",
+        items=materials_closets.PANEL_TYPES,
+        default='Vertical Grain',
+        update=materials_closets.update_room)  # type: ignore
+    closet_door_grain: EnumProperty(
+        name="Door Grain",
+        description="Grain direction on closet doors",
+        items=[('VERTICAL', "Vertical", ""),
+               ('HORIZONTAL', "Horizontal", "")],
+        default='VERTICAL',
+        update=materials_closets.update_room)  # type: ignore
+    closet_drawer_grain: EnumProperty(
+        name="Drawer Front Grain",
+        description="Grain direction on closet drawer fronts",
+        items=[('VERTICAL', "Vertical", ""),
+               ('HORIZONTAL', "Horizontal", "")],
+        default='HORIZONTAL',
         update=materials_closets.update_room)  # type: ignore
 
     closet_pull: EnumProperty(
@@ -376,6 +410,18 @@ class Closets_Scene_Props(PropertyGroup):
             row = box.row()
             row.label(text="Fronts")
             row.prop(self, 'closet_front_material', text="")
+            row = box.row()
+            row.label(text="Closet Edge")
+            row.prop(self, 'closet_edge_material', text="")
+            row = box.row()
+            row.label(text="Front Edge")
+            row.prop(self, 'closet_front_edge_material', text="")
+            row = box.row()
+            row.label(text="Door Grain")
+            row.prop(self, 'closet_door_grain', text="")
+            row = box.row()
+            row.label(text="Drawer Grain")
+            row.prop(self, 'closet_drawer_grain', text="")
 
         box = col.box()
         row = box.row()
@@ -405,6 +451,9 @@ class Closets_Scene_Props(PropertyGroup):
         row = box.row()
         row.label(text="Front Style")
         row.prop(self, 'closet_front_style', text="")
+        row = box.row()
+        row.label(text="Door Panel")
+        row.prop(self, 'closet_panel_type', text="")
 
         box = col.box()
         row = box.row()

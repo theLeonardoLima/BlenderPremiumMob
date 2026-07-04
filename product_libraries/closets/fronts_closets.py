@@ -10,18 +10,22 @@ node group the cabinet libraries use):
   Combination                2.5" stiles, 3" rails (2" on drawers)
   Slab                       flat (no modifier)
 
-Panel: 1/4" thick, flush inset. Each style carries a MINIMUM front
-size; a front smaller than the minimum stays a slab so short drawer
-stacks never grow squeezed frames.
+Panel: 1/4" thick, inset 1/2" from the frame face. Each style carries
+a MINIMUM front size; a front smaller than the minimum stays a slab so
+short drawer stacks never grow squeezed frames.
 
-AXIS NOTE: closet front cutparts run Length ACROSS and Width UP (the
-opposite of the cabinet door parts the modifier was authored for), so
-the 'Left/Right Stile' sockets render along the top/bottom edges here
-and 'Top/Bottom Rail' along the sides. The writer below swaps the
-values so the visible result matches the style names. For the
-equal-width styles the swap is invisible; Contemporary/Combination is
-where it matters.
+AXIS NOTE: closet front cutparts run Length ACROSS and Width UP - the
+opposite of the cabinet door parts CPM_5PIECEDOOR was authored for -
+so used directly the builder lays its through-members (stiles)
+horizontally. The fronts therefore use a thin wrapper node group
+('Closet Door Style'): rotate the geometry -90 in the face plane, run
+the standard builder (its stile axis lands vertical), rotate back. The
+builder sizes itself from the geometry bounds, so no re-homing is
+needed, and every socket keeps its plain meaning (stile widths on
+stiles, rail widths on rails).
 """
+import math
+
 import bpy
 
 from ...units import inch
@@ -62,7 +66,72 @@ _MIN_SIZES = {
 }
 
 _PANEL_THICKNESS = inch(0.25)
-_PANEL_INSET = 0.0
+_PANEL_INSET = inch(0.5)
+
+
+WRAP_GROUP_NAME = 'Closet Door Style'
+# Bump to rebuild the wrapper's node graph in existing files (the group
+# datablock is kept, so scene modifiers pick the rebuild up in place).
+_WRAP_VERSION = 2
+
+
+def _wrapped_door_group(base_group):
+    """Find-or-create the rotation wrapper around the shared 5-piece
+    builder (see the module docstring). Mirrors the base interface so
+    socket-by-name writes work unchanged. The builder re-homes its
+    output, so after rotating back the result is translated to the
+    INPUT geometry's bounding-box corner (X/Y only) - otherwise the
+    door lands shifted by its own width."""
+    ng = bpy.data.node_groups.get(WRAP_GROUP_NAME)
+    if ng is not None and ng.get('hb_wrap_version') == _WRAP_VERSION:
+        return ng
+    if ng is None:
+        ng = bpy.data.node_groups.new(WRAP_GROUP_NAME,
+                                      'GeometryNodeTree')
+        for item in base_group.interface.items_tree:
+            if item.item_type == 'SOCKET':
+                ng.interface.new_socket(item.name, in_out=item.in_out,
+                                        socket_type=item.socket_type)
+    ng.nodes.clear()
+    gin = ng.nodes.new('NodeGroupInput')
+    gout = ng.nodes.new('NodeGroupOutput')
+    rot_in = ng.nodes.new('GeometryNodeTransform')
+    rot_out = ng.nodes.new('GeometryNodeTransform')
+    rehome = ng.nodes.new('GeometryNodeTransform')
+    grp = ng.nodes.new('GeometryNodeGroup')
+    grp.node_tree = base_group
+    bbox_in = ng.nodes.new('GeometryNodeBoundBox')
+    bbox_out = ng.nodes.new('GeometryNodeBoundBox')
+    delta = ng.nodes.new('ShaderNodeVectorMath')
+    delta.operation = 'SUBTRACT'
+    sep = ng.nodes.new('ShaderNodeSeparateXYZ')
+    comb = ng.nodes.new('ShaderNodeCombineXYZ')
+    rot_in.inputs['Rotation'].default_value = (0.0, 0.0,
+                                               math.radians(-90.0))
+    rot_out.inputs['Rotation'].default_value = (0.0, 0.0,
+                                                math.radians(90.0))
+    links = ng.links
+    links.new(gin.outputs['Geometry'], rot_in.inputs['Geometry'])
+    links.new(rot_in.outputs['Geometry'], grp.inputs['Geometry'])
+    links.new(grp.outputs[0], rot_out.inputs['Geometry'])
+    # Re-home: input bbox min - output bbox min, X/Y only (thickness
+    # placement stays the builder's business).
+    links.new(gin.outputs['Geometry'], bbox_in.inputs['Geometry'])
+    links.new(rot_out.outputs['Geometry'], bbox_out.inputs['Geometry'])
+    links.new(bbox_in.outputs['Min'], delta.inputs[0])
+    links.new(bbox_out.outputs['Min'], delta.inputs[1])
+    links.new(delta.outputs['Vector'], sep.inputs['Vector'])
+    links.new(sep.outputs['X'], comb.inputs['X'])
+    links.new(sep.outputs['Y'], comb.inputs['Y'])
+    links.new(rot_out.outputs['Geometry'], rehome.inputs['Geometry'])
+    links.new(comb.outputs['Vector'], rehome.inputs['Translation'])
+    links.new(rehome.outputs['Geometry'], gout.inputs['Geometry'])
+    for item in base_group.interface.items_tree:
+        if (item.item_type == 'SOCKET' and item.in_out == 'INPUT'
+                and item.name != 'Geometry'):
+            links.new(gin.outputs[item.name], grp.inputs[item.name])
+    ng['hb_wrap_version'] = _WRAP_VERSION
+    return ng
 
 
 def current_style():
@@ -119,17 +188,41 @@ def apply_style_to_front(front_obj, is_drawer, style=None):
     else:
         style_mod = part.add_part_modifier('CPM_5PIECEDOOR', 'Door Style')
 
-    # Axis swap (see module docstring): the modifier's stile sockets run
-    # along this part's horizontal edges, so rails go into the stile
-    # sockets and stiles into the rail sockets.
-    style_mod.set_input('Left Stile Width', rail)
-    style_mod.set_input('Right Stile Width', rail)
-    style_mod.set_input('Top Rail Width', stile)
-    style_mod.set_input('Bottom Rail Width', stile)
+    # Route through the rotation wrapper (see module docstring) so the
+    # builder's stiles land vertical; also migrates fronts that still
+    # point at the RAW builder group (never re-wrap anything else -
+    # a double wrap rotates the build 180 and swaps the members back).
+    # An out-of-date wrapper rebuilds in place, keeping the datablock
+    # every scene modifier already references.
+    mod = style_mod.mod
+    ngroup = mod.node_group
+    if ngroup is not None:
+        if ngroup.name.startswith('CPM_5PIECEDOOR'):
+            mod.node_group = _wrapped_door_group(ngroup)
+        elif (ngroup.name == WRAP_GROUP_NAME
+                and ngroup.get('hb_wrap_version') != _WRAP_VERSION):
+            base = next((n.node_tree for n in ngroup.nodes
+                         if n.type == 'GROUP' and n.node_tree
+                         is not None), None)
+            if base is not None:
+                _wrapped_door_group(base)
+
+    style_mod.set_input('Left Stile Width', stile)
+    style_mod.set_input('Right Stile Width', stile)
+    style_mod.set_input('Top Rail Width', rail)
+    style_mod.set_input('Bottom Rail Width', rail)
     style_mod.set_input('Use Miter', miter)
     style_mod.set_input('Panel Thickness', _PANEL_THICKNESS)
     style_mod.set_input('Panel Inset', _PANEL_INSET)
     front_obj['DOOR_STYLE_NAME'] = style
+    # Freshly added modifiers have empty material sockets; give the
+    # members grain-correct materials right away.
+    try:
+        from . import materials_closets
+        materials_closets.apply_front_member_materials(front_obj,
+                                                       is_drawer)
+    except Exception:
+        pass
 
 
 def update_room(self=None, context=None):
