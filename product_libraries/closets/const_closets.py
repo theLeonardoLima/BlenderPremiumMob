@@ -39,9 +39,9 @@ HANGING_TOP_HEIGHT = millimeter(2131)
 DEFAULT_TOE_KICK_HEIGHT = millimeter(96)   # 3.78"
 DEFAULT_TOE_KICK_SETBACK = inch(1.625)
 
-# Legacy kick-height choices (mm string, label). Kept for the Phase 2
-# prompts UI where kick height becomes a dropdown; Phase 1 exposes a
-# plain distance defaulting to 96mm.
+# Standard kick-height choices (mm string, label) for a kick-height
+# dropdown; the starter prompts currently expose a plain distance
+# defaulting to 96mm.
 KICK_HEIGHT_ITEMS = [
     ('64', '2 1/2"', '2 1/2"'),
     ('96', '3 3/4"', '3 3/4"'),
@@ -63,7 +63,7 @@ COUNTERTOP_OVERHANG_FRONT = inch(1.875)
 MIN_BAY_WIDTH = inch(1.0)
 
 # ---------------------------------------------------------------------------
-# Interior parts (Phase 3)
+# Interior parts
 # ---------------------------------------------------------------------------
 ROD_RADIUS = inch(1.0)
 ROD_CUP_DEPTH = inch(0.2)

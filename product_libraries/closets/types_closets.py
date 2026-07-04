@@ -1,8 +1,8 @@
 """Closet starter construction classes.
 
-Phase 1 deliverable: Base / Tall / Hanging / Island starters that build
-panels, top and bottom fixed shelves, cleats, toe kicks, openings, and
-(Base/Island) countertops. No drivers - all dimension propagation runs
+Base / Tall / Hanging / Island starters that build panels, top and
+bottom fixed shelves, cleats, toe kicks, openings, and (Base/Island)
+countertops. No drivers - all dimension propagation runs
 through recalculate(), which reads the hb_closet_starter / hb_closet_bay
 PropertyGroups, asks solver_closets for the layout, and writes positions
 and GeoNode inputs to every part.
@@ -47,7 +47,7 @@ PART_ROLE_CLEAT = 'CLOSET_CLEAT'
 PART_ROLE_COUNTERTOP = 'CLOSET_COUNTERTOP'
 PART_ROLE_APPLIED_BACK = 'CLOSET_APPLIED_BACK'
 
-# Interior parts added by the user (Phase 3). These live under an opening
+# Interior parts added by the user. These live under an opening
 # cage and carry idprops instead of a PropertyGroup so the whole layer
 # stays hot-reloadable:
 #   'hb_z_offset'   distance (m) from the opening bottom (or top when
@@ -58,7 +58,7 @@ PART_ROLE_APPLIED_BACK = 'CLOSET_APPLIED_BACK'
 PART_ROLE_FIXED_SHELF = 'CLOSET_FIXED_SHELF'
 PART_ROLE_ADJ_SHELF = 'CLOSET_ADJ_SHELF'
 PART_ROLE_ROD = 'CLOSET_ROD'
-# Inserts (Phase 4). Fronts follow the legacy half-overlay convention.
+# Inserts. Fronts follow the legacy half-overlay convention.
 PART_ROLE_DOOR = 'CLOSET_DOOR_FRONT'
 PART_ROLE_DRAWER_FRONT = 'CLOSET_DRAWER_FRONT'
 PART_ROLE_DRAWER_BOX = 'CLOSET_DRAWER_BOX'
@@ -102,6 +102,17 @@ PROP_OPENING_SIDE = 'hb_opening_side'    # 'FRONT' (default) | 'BACK'
 # would otherwise recurse; the callbacks consult these sets and bail.
 _RECALCULATING = set()
 _DISTRIBUTING_WIDTHS = set()
+
+
+def _apply_front_style(front_obj, is_drawer):
+    """Apply the scene's front-style selection to one front (see
+    fronts_closets). Best-effort: a missing module/selection leaves the
+    front a slab rather than failing the recalc."""
+    try:
+        from . import fronts_closets
+        fronts_closets.apply_style_to_front(front_obj, is_drawer)
+    except Exception:
+        pass
 
 
 def _remove_part_tree(obj):
@@ -731,6 +742,7 @@ class ClosetStarter(GeoNodeCage):
                 part.set_input('Length', leaf)
                 part.set_input('Width', interior_h + to + bo)
                 part.set_input('Thickness', const.FRONT_THICKNESS)
+                _apply_front_style(child, is_drawer=False)
                 _stash_door_closed(child, x, front_y, -bo, leaf, side)
                 self._position_front_pull(
                     child,
@@ -756,8 +768,11 @@ class ClosetStarter(GeoNodeCage):
                 avail,
                 [(f.get(PROP_FRONT_HEIGHT, 0.0),
                   bool(f.get(PROP_FRONT_LOCKED, 0))) for f in fronts])
+            from . import drawer_boxes_closets as dbx
+            box_type = dbx.current_type()
+            box_mat = dbx.box_material(box_type)
             box_w = max(width - 2 * const.DRAWER_SLIDE_GAP, inch(2.0))
-            box_d = max(depth - const.DRAWER_BOX_DEPTH_DEDUCT, inch(2.0))
+            wood_d = max(depth - const.DRAWER_BOX_DEPTH_DEDUCT, inch(2.0))
             z = -bo
             for i, child in enumerate(fronts):
                 dh = heights[i]
@@ -768,14 +783,27 @@ class ClosetStarter(GeoNodeCage):
                 part.set_input('Length', width + lo + ro)
                 part.set_input('Width', dh)
                 part.set_input('Thickness', const.FRONT_THICKNESS)
+                _apply_front_style(child, is_drawer=True)
                 self._position_front_pull(child, 'drawer', side)
                 box = boxes.get(i)
-                box_h = max(dh - const.DRAWER_BOX_HEIGHT_DEDUCT, inch(2.0))
+                # Selected drawer box system decides the box proportions
+                # (standard heights/slide lengths) or turns boxes off;
+                # the WOOD path keeps the parametric deduct behavior.
+                wood_h = max(dh - const.DRAWER_BOX_HEIGHT_DEDUCT,
+                             inch(2.0))
+                spec = dbx.size_box(box_type, dh, depth, wood_h, wood_d)
+                box_d = spec[1] if spec is not None else wood_d
                 if box is not None:
+                    box['hb_drawer_box_type'] = box_type
+                    box['hb_drawer_box_size'] = (spec[2] if spec
+                                                 else 'NONE')
+                    _set_part_hidden(box, spec is None)
+                if box is not None and spec is not None:
+                    box_h = spec[0]
                     # GeoNodeDrawerBox extrudes +Y from its origin, so
                     # anchor the origin at the face the drawer serves:
                     # box spans [y_box, y_box + box_d], front edge flush
-                    # with the opening face, DEDUCT clearance at the rear.
+                    # with the opening face, clearance at the rear.
                     y_box = (-box_d if side == 'BACK' else -depth)
                     box.location = (const.DRAWER_SLIDE_GAP, y_box,
                                     max(z, 0.0) + const.DRAWER_BOX_Z_LIFT)
@@ -783,6 +811,13 @@ class ClosetStarter(GeoNodeCage):
                     gb.set_input('Dim X', box_w)
                     gb.set_input('Dim Y', box_d)
                     gb.set_input('Dim Z', box_h)
+                    # Always write the slot: None resets a previously
+                    # applied system material to the node default (the
+                    # WOOD look) when the selection changes.
+                    try:
+                        gb.set_input('Material', box_mat)
+                    except Exception:
+                        pass
                 # Open-drawer support: stash closed Y + travel, then apply
                 # the persistent open state (Open Door mode toggles it).
                 travel = min(box_d, inch(12.0))
@@ -830,56 +865,64 @@ class ClosetStarter(GeoNodeCage):
         existing = next((c for c in front.children
                          if c.get('IS_CABINET_PULL')), None)
         try:
-            from ..face_frame import pulls as ff_pulls
+            from . import pulls_closets
             from ..face_frame import split_preview
-            ff = bpy.context.scene.hb_face_frame
+            from ... import units
         except Exception:
             return
         pull_obj = None
         if side != 'BACK':
-            pull_kind = 'door' if kind == 'door' else 'drawer'
-            pull_obj = ff_pulls.resolve_pull_object(ff, pull_kind)
+            pull_obj = pulls_closets.resolve_pull_object()
         if pull_obj is None:
             if existing is not None:
                 bpy.data.objects.remove(existing, do_unlink=True)
             return
+        # Closet-scoped placement settings; getattr defaults keep the
+        # math working when the scene props are not registered.
+        cp = bpy.context.scene.hb_closets
+        v_base = getattr(cp, 'pull_vertical_location_base',
+                         units.inch(1.5))
+        v_tall = getattr(cp, 'pull_vertical_location_tall',
+                         units.inch(45.0))
+        v_upper = getattr(cp, 'pull_vertical_location_upper',
+                          units.inch(1.5))
+        h_edge = getattr(cp, 'pull_horizontal_offset', units.inch(2.0))
         part = GeoNodeCutpart(front)
         width = part.get_input('Length')
         height = part.get_input('Width')
         thickness = part.get_input('Thickness')
-        half = ff_pulls.pull_length(pull_obj) / 2.0
+        half = pulls_closets.pull_length(pull_obj) / 2.0
         z = thickness
 
         if kind == 'drawer':
             x = width / 2.0
-            if getattr(ff, 'center_pulls_on_drawer_front', True):
+            if getattr(cp, 'center_pulls_on_drawer_front', True):
                 y = height / 2.0
             else:
-                y = height - ff.pull_vertical_location_base - half
+                y = height - v_base - half
             rot = (math.radians(-90.0), 0.0, 0.0)
         elif kind == 'hamper':
             x = width / 2.0
-            y = height - ff.pull_vertical_location_base - half
+            y = height - v_base - half
             rot = (math.radians(-90.0), 0.0, 0.0)
         else:
             hinge = front.get('hb_hinge', 'LEFT')
             if hinge == 'LEFT':
-                x = width - ff.pull_horizontal_offset
+                x = width - h_edge
             else:
-                x = ff.pull_horizontal_offset
-            # Base / Tall / Upper toggle (face_frame's rule, floor-
-            # referenced): hold the pull at the TALL height off the
-            # floor; when the door bottom is already above that height
-            # use the UPPER convention (near the bottom edge); when the
-            # tall height would land past the door top use the BASE
-            # convention (near the top edge).
+                x = h_edge
+            # Base / Tall / Upper rule, floor-referenced: hold the pull
+            # at the TALL height off the floor; when the door bottom is
+            # already above that height use the UPPER convention (near
+            # the bottom edge); when the tall height would land past
+            # the door top use the BASE convention (near the top edge).
             bottom_w = split_preview._world_matrix(front).translation.z
-            tall_target = ff.pull_vertical_location_tall
+            tall_target = v_tall
             if bottom_w >= tall_target:
-                y = ff.pull_vertical_location_upper + half
+                y = v_upper + half
             else:
                 tall_y = (tall_target - bottom_w) + half
-                base_y = height - ff.pull_vertical_location_base - half
+                base_y = height - v_base - half
                 y = tall_y if tall_y <= base_y else base_y
             rot = (math.radians(-90.0), 0.0, math.radians(90.0))
 
@@ -978,6 +1021,7 @@ class ClosetStarter(GeoNodeCage):
             part.set_input('Length', leaf)
             part.set_input('Width', interior_h + to + bo)
             part.set_input('Thickness', const.FRONT_THICKNESS)
+            _apply_front_style(child, is_drawer=False)
             _stash_door_closed(child, x, front_y, z, leaf, side)
             self._position_front_pull(
                 child, 'hamper' if child.get('hb_is_hamper') else 'door',
@@ -1210,8 +1254,7 @@ class ClosetStarter(GeoNodeCage):
                 if slot == 'KICK':
                     # The strip runs past the far end of the gap by the
                     # kick setback so it meets the neighbor's recessed
-                    # kick line instead of stopping at its side panel
-                    # (legacy parity with the Pulito bridge kick).
+                    # kick line instead of stopping at its side panel.
                     kick_len = span + sp.toe_kick_setback
                     kick_x = -kick_len if side == 'LEFT' else sp.width
                     part_obj.location = (

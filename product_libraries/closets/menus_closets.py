@@ -1,8 +1,7 @@
 """Right-click context menus for closet starters, bays, and openings.
 
-The right-click handler in ui/menu_apend.py reads obj['MENU_ID'] from the
-active object and shows the named Menu class. Phase 1 keeps these minimal
-(properties + delete); part-add flows land in Phase 3.
+The right-click handler in ui/menu_apend.py reads obj['MENU_ID'] from
+the active object and shows the named Menu class.
 """
 import bpy
 

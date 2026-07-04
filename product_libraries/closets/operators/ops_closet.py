@@ -1,7 +1,7 @@
 """Closet starter operators: modal placement, selection-mode toggle,
 bay insert/delete, delete, and properties popups.
 
-Placement (Phase 2) ports the face_frame place-cabinet modal's core wall
+Placement ports the face_frame place-cabinet modal's core wall
 path: a preview cage with an array modifier previews the bays, the cage
 parents to the wall under the cursor, width auto-fills the gap between
 neighbors (shared PlacementMixin gap detection), W/numbers type a width,
@@ -31,9 +31,17 @@ _SNAP_GREEN = (0.30, 0.95, 0.40, 1.0)
 
 
 def _apply_finish(root_obj):
-    """Assign the active cabinet style's finish to every cutpart under
-    the starter via the shared face_frame helper. Best-effort: a missing
-    style leaves parts unfinished rather than failing placement."""
+    """Assign the closets material selection (scene dropdowns) to every
+    cutpart under the starter; while no closet material resolves (e.g.
+    missing assets library) fall back to the active cabinet style's
+    finish via the shared face_frame helper. Best-effort: failure
+    leaves parts unfinished rather than failing placement."""
+    try:
+        from .. import materials_closets
+        if materials_closets.apply_to_starter(root_obj):
+            return
+    except Exception:
+        pass
     try:
         from ...face_frame.types_face_frame import apply_active_finish_to_product
         apply_active_finish_to_product(root_obj)
@@ -988,7 +996,7 @@ class hb_closets_OT_delete_bay(bpy.types.Operator):
 
 
 # ---------------------------------------------------------------------------
-# Interior parts (Phase 3)
+# Interior parts
 # ---------------------------------------------------------------------------
 class hb_closets_OT_add_part(bpy.types.Operator,
                              hb_placement.PlacementMixin):
@@ -2078,6 +2086,54 @@ class hb_closets_OT_set_corner_clearance(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class hb_closets_OT_add_molding(bpy.types.Operator):
+    """Add crown molding along the top of every closet in the room
+    using the selected profile (re-run after layout changes; clears
+    each starter's previous crown first)."""
+    bl_idname = "hb_closets.add_molding"
+    bl_label = "Add Crown Molding"
+    bl_options = {'UNDO'}
+
+    def execute(self, context):
+        from .. import molding_closets
+        profile_name = getattr(context.scene.hb_closets,
+                               'closet_crown_profile',
+                               molding_closets.DEFAULT_PROFILE)
+        profile = molding_closets.load_profile(profile_name)
+        if profile is None:
+            self.report({'WARNING'}, "Crown profile not found")
+            return {'CANCELLED'}
+        made = 0
+        for obj in context.scene.objects:
+            if (obj.get(types_closets.TAG_STARTER_CAGE)
+                    and not str(obj.get('CLASS_NAME', '')
+                                ).startswith('LShelf')):
+                made += molding_closets.add_crown_to_starter(obj, profile)
+        if made == 0:
+            self.report({'INFO'},
+                        "No qualifying runs (bays under 60\" are skipped)")
+            return {'CANCELLED'}
+        self.report({'INFO'}, f"Added crown to {made} runs")
+        return {'FINISHED'}
+
+
+class hb_closets_OT_delete_molding(bpy.types.Operator):
+    """Remove all closet molding from the room"""
+    bl_idname = "hb_closets.delete_molding"
+    bl_label = "Clear Closet Molding"
+    bl_options = {'UNDO'}
+
+    def execute(self, context):
+        from .. import molding_closets
+        removed = 0
+        for obj in list(context.scene.objects):
+            if obj.get(molding_closets.TAG_MOLDING):
+                bpy.data.objects.remove(obj, do_unlink=True)
+                removed += 1
+        self.report({'INFO'}, f"Removed {removed} molding runs")
+        return {'FINISHED'}
+
+
 classes = (
     hb_closets_OT_toggle_mode,
     hb_closets_OT_place_starter,
@@ -2102,6 +2158,8 @@ classes = (
     hb_closets_OT_starter_prompts,
     hb_closets_OT_bay_prompts,
     hb_closets_OT_set_corner_clearance,
+    hb_closets_OT_add_molding,
+    hb_closets_OT_delete_molding,
 )
 
 register, unregister = bpy.utils.register_classes_factory(classes)

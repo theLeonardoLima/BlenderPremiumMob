@@ -30,9 +30,9 @@ STARTER_SECTIONS = [
 STARTER_MENU_ENTRIES = [entry for _sec, entries in STARTER_SECTIONS
                         for entry in entries]
 
-# Bay-level override defaults, mirrored by Closet_Bay_Props. Kept as data
-# so a Phase 2 "Change Bay" style mechanism can reset overrides the same
-# way face_frame's BAY_PROPS does.
+# Bay-level override defaults, mirrored by Closet_Bay_Props. Kept as
+# data so Change Bay-style mechanisms can reset overrides the same way
+# face_frame's BAY_PROPS does.
 BAY_PROP_DEFAULTS = {
     'width_locked': False,
     'remove_bottom': False,

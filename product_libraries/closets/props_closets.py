@@ -25,6 +25,12 @@ import os
 
 from . import const_closets as const
 from . import starter_presets
+from . import materials_closets
+from . import pulls_closets
+from . import drawer_boxes_closets
+from . import fronts_closets
+from . import molding_closets
+from ... import units
 
 
 # ---------------------------------------------------------------------------
@@ -237,9 +243,81 @@ class Closets_Scene_Props(PropertyGroup):
         description="Show editable dimension labels in selection modes",
         default=True)  # type: ignore
 
+    # ----- Options (materials / fronts / pulls / drawer boxes /
+    # molding). Selections live at scene level and re-apply to the
+    # whole room on change; new placements pick them up at finish
+    # time. Materials is the first category wired up - the remaining
+    # dropdowns land one category at a time.
+    closet_material: EnumProperty(
+        name="Closet Material",
+        description="Carcass material (panels, shelves, kicks, tops)",
+        items=materials_closets.material_enum_items,
+        update=materials_closets.update_room)  # type: ignore
+    closet_front_material: EnumProperty(
+        name="Front Material",
+        description="Door and drawer front material",
+        items=materials_closets.material_enum_items,
+        update=materials_closets.update_room)  # type: ignore
+
+    closet_pull: EnumProperty(
+        name="Pull",
+        description="Handle used on every closet front",
+        items=pulls_closets.pull_enum_items,
+        update=pulls_closets.update_room)  # type: ignore
+    closet_pull_finish: EnumProperty(
+        name="Pull Finish",
+        items=pulls_closets.PULL_FINISHES,
+        default='Polished Chrome',
+        update=pulls_closets.update_room)  # type: ignore
+    pull_horizontal_offset: FloatProperty(
+        name="From Edge",
+        description="Door edge to pull center",
+        default=units.inch(2.0), unit='LENGTH',
+        update=pulls_closets.update_room)  # type: ignore
+    pull_vertical_location_base: FloatProperty(
+        name="Base",
+        description="Top of base door to top of pull",
+        default=units.inch(1.5), unit='LENGTH',
+        update=pulls_closets.update_room)  # type: ignore
+    pull_vertical_location_tall: FloatProperty(
+        name="Tall",
+        description="Pull height off the floor on tall doors",
+        default=units.inch(45.0), unit='LENGTH',
+        update=pulls_closets.update_room)  # type: ignore
+    pull_vertical_location_upper: FloatProperty(
+        name="Upper",
+        description="Bottom of upper door to bottom of pull",
+        default=units.inch(1.5), unit='LENGTH',
+        update=pulls_closets.update_room)  # type: ignore
+    center_pulls_on_drawer_front: BoolProperty(
+        name="Center Pulls on Drawer Fronts",
+        default=True,
+        update=pulls_closets.update_room)  # type: ignore
+
+    closet_drawer_box: EnumProperty(
+        name="Drawer Box",
+        description="Drawer box system used by every closet drawer",
+        items=drawer_boxes_closets.BOX_TYPES,
+        default='AVANTECH',
+        update=drawer_boxes_closets.update_room)  # type: ignore
+
+    closet_front_style: EnumProperty(
+        name="Front Style",
+        description="Door and drawer front style for every closet front",
+        items=fronts_closets.FRONT_STYLES,
+        default='SLAB',
+        update=fronts_closets.update_room)  # type: ignore
+
+    closet_crown_profile: EnumProperty(
+        name="Crown Profile",
+        description="Profile used by Add Crown Molding",
+        items=molding_closets.profile_enum_items)  # type: ignore
+
     # ----- Library UI state -----
     show_closet_sizes: BoolProperty(name="Show Closet Sizes", default=False)  # type: ignore
     show_starter_library: BoolProperty(name="Show Closet Starters", default=True)  # type: ignore
+    show_material_options: BoolProperty(name="Show Materials", default=False)  # type: ignore
+    show_pull_options: BoolProperty(name="Show Pulls", default=False)  # type: ignore
 
     def draw_library_ui(self, layout, context):
         col = layout.column(align=True)
@@ -281,6 +359,65 @@ class Closets_Scene_Props(PropertyGroup):
                     op = cell.operator('hb_closets.place_starter',
                                       text=label)
                     op.starter_name = name
+
+        # ----- Options: one collapsible box per category, right below
+        # the starter library. Dropdown changes re-apply room-wide.
+        box = col.box()
+        row = box.row()
+        row.alignment = 'LEFT'
+        row.prop(self, 'show_material_options', text="Materials",
+                 icon='TRIA_DOWN' if self.show_material_options
+                 else 'TRIA_RIGHT',
+                 emboss=False)
+        if self.show_material_options:
+            row = box.row()
+            row.label(text="Closet")
+            row.prop(self, 'closet_material', text="")
+            row = box.row()
+            row.label(text="Fronts")
+            row.prop(self, 'closet_front_material', text="")
+
+        box = col.box()
+        row = box.row()
+        row.alignment = 'LEFT'
+        row.prop(self, 'show_pull_options', text="Pulls",
+                 icon='TRIA_DOWN' if self.show_pull_options
+                 else 'TRIA_RIGHT',
+                 emboss=False)
+        if self.show_pull_options:
+            row = box.row()
+            row.label(text="Pull")
+            row.prop(self, 'closet_pull', text="")
+            row = box.row()
+            row.label(text="Finish")
+            row.prop(self, 'closet_pull_finish', text="")
+            row = box.row()
+            row.label(text="Vertical:")
+            row = box.row(align=True)
+            row.prop(self, 'pull_vertical_location_base')
+            row.prop(self, 'pull_vertical_location_upper')
+            row.prop(self, 'pull_vertical_location_tall')
+            row = box.row()
+            row.prop(self, 'pull_horizontal_offset')
+            box.prop(self, 'center_pulls_on_drawer_front')
+
+        box = col.box()
+        row = box.row()
+        row.label(text="Front Style")
+        row.prop(self, 'closet_front_style', text="")
+
+        box = col.box()
+        row = box.row()
+        row.label(text="Drawer Box")
+        row.prop(self, 'closet_drawer_box', text="")
+
+        box = col.box()
+        row = box.row()
+        row.label(text="Molding")
+        row.prop(self, 'closet_crown_profile', text="")
+        row = box.row(align=True)
+        row.operator('hb_closets.add_molding', text="Add", icon='ADD')
+        row.operator('hb_closets.delete_molding', text="Clear", icon='X')
 
 
 classes = (
