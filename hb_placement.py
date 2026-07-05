@@ -512,6 +512,20 @@ class PlacementMixin:
             wall_obj, exclude_obj,
             object_z_start=object_z_start, object_height=object_height)
         
+        # Interior walls butting into this wall mid-run (T-junctions) are
+        # neither children nor chain neighbors; inject their footprints
+        # as virtual obstacles on both sides (doors/windows cut through).
+        for x0, x1 in (self.get_tee_wall_intrusions(
+                           wall_obj, place_on_front=True,
+                           object_z_start=object_z_start,
+                           object_height=object_height)
+                       + self.get_tee_wall_intrusions(
+                           wall_obj, place_on_front=False,
+                           object_z_start=object_z_start,
+                           object_height=object_height)):
+            children.append((x0, x1, None))
+        children.sort(key=lambda x: x[0])
+
         if not children:
             # Empty wall - full length available
             return (0, wall_length, cursor_x)
@@ -668,7 +682,8 @@ class PlacementMixin:
         from . import hb_types
 
         wall = hb_types.GeoNodeWall(wall_obj)
-        adj_wall_node = wall.get_connected_wall(direction=side)
+        adj_wall_node = wall.get_connected_wall(direction=side,
+                                                include_loop_seam=True)
         if not adj_wall_node:
             return 0.0
         adj_wall_obj = adj_wall_node.obj
@@ -750,6 +765,96 @@ class PlacementMixin:
                                             wall_length - c.x)
 
         return max(0.0, max_intrusion)
+
+    def get_tee_wall_intrusions(self, wall_obj, place_on_front=True,
+                                object_z_start=None, object_height=None):
+        """Mid-run intrusions from walls that BUTT into this wall
+        (T-junctions).
+
+        An interior wall drawn ending against this wall is neither a
+        child of it nor a chain neighbor (chains connect end-to-start),
+        so the child scan and get_adjacent_wall_intrusion never see it
+        and cabinet runs would pass straight through the partition.
+        This computes those junctions geometrically at placement time -
+        nothing is stored, so the result can never go stale when walls
+        move.
+
+        A wall counts as a tee when one of its endpoints lands on this
+        wall's interior span (strictly inside the ends - end junctions
+        are chain corners, already handled as adjacent-wall intrusions)
+        and on or near the slab. The blocked span is the intruding
+        wall's thickness footprint projected onto this wall's X axis,
+        and it only blocks the side of this wall the intruding wall
+        protrudes toward (front = local -Y, matching the child side
+        test). Vertical filtering is opt-in and mirrors the child scan,
+        so a half-height partition doesn't block uppers above it.
+
+        Returns a list of (x_start, x_end) spans in this wall's local X.
+        """
+        from . import hb_types
+
+        wall = hb_types.GeoNodeWall(wall_obj)
+        if not wall.has_modifier():
+            return []
+        wall_length = wall.get_input('Length')
+        wall_thickness = wall.get_input('Thickness')
+        wall_matrix_inv = wall_obj.matrix_world.inverted()
+        wall_rot_inv = wall_matrix_inv.to_3x3()
+
+        check_vertical = (object_z_start is not None and
+                          object_height is not None)
+        if check_vertical:
+            object_z_end = object_z_start + object_height
+
+        END_MARGIN = 0.01  # meters: end junctions are chain corners
+        FACE_TOL = 0.02    # meters: how far off the slab a butt end may sit
+
+        spans = []
+        for other in bpy.context.scene.objects:
+            if 'IS_WALL_BP' not in other or other is wall_obj:
+                continue
+            other_geo = hb_types.GeoNodeWall(other)
+            if not other_geo.has_modifier():
+                continue
+            try:
+                o_len = other_geo.get_input('Length')
+                o_thk = other_geo.get_input('Thickness')
+                o_hgt = other_geo.get_input('Height')
+            except Exception:
+                continue
+
+            if check_vertical:
+                o_z0 = other.location.z
+                o_z1 = o_z0 + (o_hgt or 0.0)
+                if not (object_z_start < o_z1 and o_z0 < object_z_end):
+                    continue
+
+            om = other.matrix_world
+            o_dir = Vector((om[0][0], om[1][0], 0)).normalized()
+            o_off = Vector((om[0][1], om[1][1], 0)).normalized() * o_thk
+            o_start = Vector((om[0][3], om[1][3], 0))
+            o_end = o_start + o_dir * o_len
+
+            # away_sign: which way the intruding wall extends from the
+            # junction endpoint (start-junction extends +dir, end -dir).
+            for pt, away_sign in ((o_start, 1.0), (o_end, -1.0)):
+                lp = wall_matrix_inv @ pt
+                if not (END_MARGIN < lp.x < wall_length - END_MARGIN):
+                    continue
+                if not (-FACE_TOL <= lp.y <= wall_thickness + FACE_TOL):
+                    continue
+                away_local_y = (wall_rot_inv @ (o_dir * away_sign)).y
+                if abs(away_local_y) < 0.001:
+                    continue  # runs along this wall, not a tee
+                if (away_local_y < 0.0) != place_on_front:
+                    continue
+                # Blocked span: the slab corners at the junction end,
+                # projected onto this wall's X.
+                xa = lp.x
+                xb = (wall_matrix_inv @ (pt + o_off)).x
+                spans.append((max(0.0, min(xa, xb)),
+                              min(wall_length, max(xa, xb))))
+        return spans
 
     def find_placement_gap_by_side(self, wall_obj, cursor_x: float,
                                    object_width: float,
@@ -881,6 +986,16 @@ class PlacementMixin:
         if left_intrusion > 0 or right_intrusion > 0:
             children.sort(key=lambda x: x[0])
 
+        # Interior walls butting into this wall mid-run (T-junctions)
+        # become virtual obstacles, same as the end intrusions above.
+        tee_spans = self.get_tee_wall_intrusions(
+            wall_obj, place_on_front=place_on_front,
+            object_z_start=object_z_start, object_height=object_height)
+        if tee_spans:
+            for x0, x1 in tee_spans:
+                children.append((x0, x1, None))
+            children.sort(key=lambda x: x[0])
+
         # Snap lines as zero-width boundaries.
         for child in wall_obj.children:
             if child.get('IS_SNAP_LINE'):
@@ -929,7 +1044,7 @@ class PlacementMixin:
         extends toward that side (verified: nbr-dir . placement-normal > 0).
         """
         from . import hb_types
-        adj = wall_geo.get_connected_wall(side)
+        adj = wall_geo.get_connected_wall(side, include_loop_seam=True)
         if adj is None:
             return False
         wall_obj = wall_geo.obj

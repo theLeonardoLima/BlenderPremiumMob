@@ -1165,7 +1165,8 @@ def _detect_blind_corner_neighbor(cab_obj):
     ANGLE_TOL_DEG = 5.0
 
     for direction in ('left', 'right'):
-        adj_node = wall_geo.get_connected_wall(direction=direction)
+        adj_node = wall_geo.get_connected_wall(direction=direction,
+                                               include_loop_seam=True)
         if adj_node is None:
             continue
         result = _max_intrusion_neighbor(

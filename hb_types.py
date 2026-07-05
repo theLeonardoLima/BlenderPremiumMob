@@ -474,12 +474,20 @@ class GeoNodeWall(GeoNodeObject):
 
         wall.obj_x.home_builder.connected_object = self.obj
 
-    def get_connected_wall(self, direction='left'):
+    def get_connected_wall(self, direction='left', include_loop_seam=False):
         """
         Get the wall connected to this wall on the left or right side.
         
         Args:
             direction: 'left' for wall at start point, 'right' for wall at end point
+            include_loop_seam: also find the neighbor across a closed
+                room's closure seam. The COPY_LOCATION constraint chain is
+                directional and never crosses the seam (the first-drawn
+                anchor wall carries no constraint to the last-drawn wall),
+                so the constraint walk reports None there even though the
+                walls genuinely meet. Corner-aware placement wants the true
+                geometric neighbor; chain WALKERS should leave this off or
+                a closed loop never terminates.
             
         Returns:
             GeoNodeWall or None
@@ -500,6 +508,47 @@ class GeoNodeWall(GeoNodeObject):
                     for con in obj.constraints:
                         if con.type == 'COPY_LOCATION' and con.target == self.obj_x:
                             return GeoNodeWall(obj)
+        if include_loop_seam:
+            return self._geometric_neighbor(direction)
+        return None
+
+    def _geometric_neighbor(self, direction='left'):
+        """Neighboring wall by endpoint coincidence - the same
+        end-to-start rule wall-chain detection uses (0.01 m tolerance,
+        world XY). Closes the constraint chain's closure-seam blind spot;
+        also bridges rooms that merely share a corner point, which is the
+        right answer for corner-aware placement."""
+        tol = 0.01
+
+        def endpoints(obj, length):
+            t = obj.matrix_world.translation
+            rot = obj.matrix_world.to_euler().z
+            return (t.x, t.y,
+                    t.x + math.cos(rot) * length,
+                    t.y + math.sin(rot) * length)
+
+        try:
+            sx, sy, ex, ey = endpoints(self.obj, self.get_input('Length'))
+        except Exception:
+            return None
+        for obj in bpy.data.objects:
+            if 'IS_WALL_BP' not in obj or obj == self.obj:
+                continue
+            other = GeoNodeWall(obj)
+            if not other.has_modifier():
+                continue
+            try:
+                osx, osy, oex, oey = endpoints(obj, other.get_input('Length'))
+            except Exception:
+                continue
+            if direction == 'left':
+                # Their end at our start
+                if math.hypot(oex - sx, oey - sy) < tol:
+                    return other
+            else:
+                # Their start at our end
+                if math.hypot(osx - ex, osy - ey) < tol:
+                    return other
         return None
 
 class GeoNodeCage(GeoNodeObject):

@@ -209,7 +209,8 @@ def _detect_corner_closet_neighbor(root_obj):
     our_inv = wall.matrix_world.inverted()
 
     for direction in ('left', 'right'):
-        adj_node = wall_geo.get_connected_wall(direction=direction)
+        adj_node = wall_geo.get_connected_wall(direction=direction,
+                                               include_loop_seam=True)
         if adj_node is None:
             continue
 
@@ -641,7 +642,8 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
         inv = wall.matrix_world.inverted()
         for i, direction in enumerate(('left', 'right')):
             try:
-                node = wall_geo.get_connected_wall(direction=direction)
+                node = wall_geo.get_connected_wall(
+                    direction=direction, include_loop_seam=True)
                 if node is None:
                     continue
                 adj = node.obj
