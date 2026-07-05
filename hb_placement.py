@@ -708,6 +708,54 @@ class PlacementMixin:
 
         max_intrusion = 0.0
 
+        # The adjacent wall's own slab intrudes into this wall's span when
+        # it extends toward the placement side. Front runs at a typical
+        # interior corner start at 0 because the neighbor's slab lies
+        # outside the front band, but back-side runs at an inside corner
+        # must start past the neighbor's thickness or the first cabinet
+        # lands inside the wall. Everything is decided geometrically (the
+        # neighbor's away-direction picks the side, and projecting its
+        # junction-end slab corners handles either drawing direction), so
+        # wall angles and draw order don't matter.
+        try:
+            adj_geo = hb_types.GeoNodeWall(adj_wall_obj)
+            adj_len = adj_geo.get_input('Length')
+            adj_thk = adj_geo.get_input('Thickness')
+            adj_hgt = adj_geo.get_input('Height')
+        except Exception:
+            adj_len = None
+        if adj_len is not None:
+            slab_z_ok = True
+            if check_vertical:
+                a_z0 = adj_wall_obj.location.z
+                a_z1 = a_z0 + (adj_hgt or 0.0)
+                slab_z_ok = (object_z_start < a_z1 and a_z0 < object_z_end)
+            if slab_z_ok:
+                adj_m = adj_wall_obj.matrix_world
+                # Junction end: 'left' neighbors connect their END to our
+                # start; 'right' neighbors their START to our end. The
+                # away vector points from the junction into the neighbor.
+                jx = adj_len if side == 'left' else 0.0
+                away = -1.0 if side == 'left' else 1.0
+                away_world = adj_m.to_3x3() @ Vector((away, 0.0, 0.0))
+                away_local_y = (wall_matrix_inv.to_3x3() @ away_world).y
+                protrudes_to_side = (away_local_y < -0.001 if place_on_front
+                                     else away_local_y > 0.001)
+                if protrudes_to_side:
+                    slab_corners = [
+                        wall_matrix_inv @ (adj_m @ Vector((jx, 0.0, 0.0))),
+                        wall_matrix_inv @ (adj_m @ Vector((jx, adj_thk, 0.0))),
+                    ]
+                    if side == 'left':
+                        for c in slab_corners:
+                            if c.x > 0:
+                                max_intrusion = max(max_intrusion, c.x)
+                    else:
+                        for c in slab_corners:
+                            if c.x < wall_length:
+                                max_intrusion = max(max_intrusion,
+                                                    wall_length - c.x)
+
         for child in adj_wall_obj.children:
             if child.get('obj_x') or child.get('IS_2D_ANNOTATION'):
                 continue
