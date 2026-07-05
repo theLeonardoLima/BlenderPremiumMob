@@ -26,6 +26,22 @@ class HOME_BUILDER_MT_face_frame_cabinet_commands(bpy.types.Menu):
         layout = self.layout
         layout.operator("hb_face_frame.cabinet_prompts",
                         text="Cabinet Properties...", icon='WINDOW')
+        # Duplicate: copy-and-place. Seeds the placement modal from
+        # this cabinet; the drop deep-copies the whole hierarchy so
+        # bay configs, fronts, and the style come along. F in the
+        # modal toggles fill-the-gap. Corner cabinets place through
+        # a different modal - no duplicate for them yet.
+        _dup_root = types_face_frame.find_cabinet_root(context.active_object)
+        if (_dup_root is not None
+                and getattr(_dup_root.face_frame_cabinet,
+                            'corner_type', 'NONE') == 'NONE'):
+            op = layout.operator("hb_face_frame.place_cabinet",
+                                 text="Duplicate", icon='DUPLICATE')
+            op.source_cabinet_name = _dup_root.name
+            op = layout.operator("hb_face_frame.place_cabinet",
+                                 text="Duplicate Mirror", icon='MOD_MIRROR')
+            op.source_cabinet_name = _dup_root.name
+            op.mirror = True
         layout.separator()
         layout.operator("hb_face_frame.join_cabinets",
                         text="Join Cabinets", icon='AUTOMERGE_ON')

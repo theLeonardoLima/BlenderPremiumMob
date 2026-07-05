@@ -1400,6 +1400,156 @@ def _auto_detect_stile_types(cab_obj):
             setattr(cprops, attr, 'INSIDE_90')
 
 
+def _reverse_collection(col):
+    """Reverse a CollectionProperty in place via move()."""
+    n = len(col)
+    for i in range(n):
+        col.move(n - 1, i)
+
+
+def _flipped_lr_value(value):
+    """LEFT<->RIGHT token flip inside an enum identifier, or None when
+    the value carries no handed token."""
+    if not isinstance(value, str):
+        return None
+    if 'LEFT' not in value and 'RIGHT' not in value:
+        return None
+    flipped = (value.replace('LEFT', '\x00')
+                    .replace('RIGHT', 'LEFT')
+                    .replace('\x00', 'RIGHT'))
+    return flipped if flipped != value else None
+
+
+def _swap_lr_props(pg):
+    """Mirror one PropertyGroup: swap every left/right-paired value
+    (pairs matched by identifier - left_stile_width/right_stile_width,
+    blind_left/blind_right, ...), then flip handed ENUM values (e.g.
+    hinge_side LEFT<->RIGHT, BIFOLD_LEFT_SWING<->BIFOLD_RIGHT_SWING).
+
+    Update callbacks fire normally, so run inside suspend_recalc().
+    RNA definition order works in our favor for the finished-end
+    props: the *_finished_end_condition swap fires the user-set
+    callbacks (which force auto=False) BEFORE the *_finish_end_auto
+    pair swap restores the mirrored auto flags.
+    """
+    rna = pg.bl_rna.properties
+    handled = set()
+    for ident in list(rna.keys()):
+        if ident in handled or 'left' not in ident:
+            continue
+        prop = rna[ident]
+        if prop.is_readonly:
+            continue
+        partner = ident.replace('left', 'right')
+        if partner == ident or partner not in rna or rna[partner].is_readonly:
+            continue
+        a = getattr(pg, ident)
+        b = getattr(pg, partner)
+        if a != b:
+            setattr(pg, ident, b)
+            setattr(pg, partner, a)
+        handled.add(ident)
+        handled.add(partner)
+    for ident in list(rna.keys()):
+        prop = rna[ident]
+        if prop.is_readonly or prop.type != 'ENUM':
+            continue
+        try:
+            cur = getattr(pg, ident)
+        except Exception:
+            continue
+        flipped = _flipped_lr_value(cur)
+        if flipped is None:
+            continue
+        # Static item lists only (dynamic-callback enums report no
+        # items here); never write a value the enum doesn't declare.
+        if any(it.identifier == flipped for it in prop.enum_items):
+            setattr(pg, ident, flipped)
+
+
+def _mirror_interior_node(obj):
+    """Mirror an opening's interior tree: reverse the child order of
+    V-axis (side-by-side) interior splits; H-axis stacks keep their
+    top-to-bottom order. Region/split sizes travel with their nodes."""
+    if obj.get(types_face_frame.TAG_INTERIOR_SPLIT_NODE):
+        _swap_lr_props(obj.face_frame_interior_split)
+        kids = sorted(
+            [c for c in obj.children
+             if c.get(types_face_frame.TAG_INTERIOR_SPLIT_NODE)
+             or c.get(types_face_frame.TAG_INTERIOR_REGION)],
+            key=lambda c: c.get('hb_interior_child_index', 0))
+        if obj.face_frame_interior_split.axis == 'V':
+            m = len(kids)
+            for i, k in enumerate(kids):
+                k['hb_interior_child_index'] = m - 1 - i
+        for k in kids:
+            _mirror_interior_node(k)
+    elif obj.get(types_face_frame.TAG_INTERIOR_REGION):
+        _swap_lr_props(obj.face_frame_interior_region)
+
+
+def _mirror_face_node(obj):
+    """Mirror a bay's face tree: reverse the child order (and the
+    between-children splitter widths) of V-axis splits, flip handed
+    opening props (hinge side, overlays, appliance fillers), and
+    recurse into interiors. H-axis stacks keep their order."""
+    if obj.get(types_face_frame.TAG_SPLIT_NODE):
+        _swap_lr_props(obj.face_frame_split)
+        kids = sorted(
+            [c for c in obj.children
+             if c.get(types_face_frame.TAG_OPENING_CAGE)
+             or c.get(types_face_frame.TAG_SPLIT_NODE)],
+            key=lambda c: c.get('hb_split_child_index', 0))
+        if obj.face_frame_split.axis == 'V':
+            m = len(kids)
+            for i, k in enumerate(kids):
+                k['hb_split_child_index'] = m - 1 - i
+            _reverse_collection(obj.face_frame_split.splitter_widths)
+        for k in kids:
+            _mirror_face_node(k)
+    elif obj.get(types_face_frame.TAG_OPENING_CAGE):
+        _swap_lr_props(obj.face_frame_opening)
+        for c in obj.children:
+            _mirror_interior_node(c)
+
+
+def _mirror_cabinet_config(root):
+    """Flip a duplicated cabinet's whole configuration left<->right:
+    cabinet-level paired props (finished ends, scribes, exposures,
+    stiles, blind side, returns, extends), the mid-stile width order,
+    the bay order (bay widths and configs travel with their bays),
+    every bay's face tree, and every opening's handed state. One
+    recalc at the end rebuilds parts, fronts, and pulls."""
+    props = root.face_frame_cabinet
+    with types_face_frame.suspend_recalc():
+        _swap_lr_props(props)
+        _reverse_collection(props.mid_stile_widths)
+        bays = sorted(
+            [c for c in root.children
+             if c.get(types_face_frame.TAG_BAY_CAGE)],
+            key=lambda c: c.get('hb_bay_index', 0))
+        n = len(bays)
+        for i, bay in enumerate(bays):
+            bay['hb_bay_index'] = n - 1 - i
+            bay.face_frame_bay.bay_index = n - 1 - i
+            _swap_lr_props(bay.face_frame_bay)
+            for child in bay.children:
+                _mirror_face_node(child)
+    types_face_frame.recalculate_face_frame_cabinet(root)
+
+
+def _dispatch_name_for_source(src):
+    """Library dispatch name whose class matches the source root's
+    CLASS_NAME, so duplicate-mode class lookups resolve to the same
+    cabinet class. Falls back on the stored CABINET_TYPE."""
+    cls_name = src.get('CLASS_NAME', '')
+    for name, cls in types_face_frame.CABINET_NAME_DISPATCH.items():
+        if cls.__name__ == cls_name:
+            return name
+    return {'UPPER': 'Upper', 'TALL': 'Tall'}.get(
+        src.get('CABINET_TYPE', 'BASE'), 'Base Door')
+
+
 class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
                                      hb_placement.PlacementMixin):
     """Modal: cursor drags a face-frame preview cage, click to commit."""
@@ -1425,9 +1575,24 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
         default=1, min=_BAY_QTY_MIN, max=_BAY_QTY_MAX,
     )  # type: ignore
 
+    source_cabinet_name: bpy.props.StringProperty(
+        name="Source Cabinet Name",
+        description="When set, duplicate this existing cabinet root "
+                    "instead of building a new cabinet from defaults",
+        default="",
+    )  # type: ignore
+
+    mirror: bpy.props.BoolProperty(
+        name="Mirror",
+        description="Duplicate mode only: flip the copy left-to-right "
+                    "(bay order, door swings, finished ends, stiles)",
+        default=False,
+    )  # type: ignore
+
     # Live state during modal session. Reset on FINISHED/CANCELLED.
     _preview_cage = None
     _array_modifier = None
+    _source_obj = None              # duplicate mode: cabinet root being copied
     _cabinet_width: float = 0.0     # total cabinet width (m)
     _auto_bay_qty: bool = True      # True until user presses arrow keys
     _place_on_front: bool = True    # which side of the wall
@@ -1464,6 +1629,19 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
     # ---------------- invoke / modal ----------------
 
     def invoke(self, context, event):
+        # Duplicate mode: resolve the source root and derive a dispatch
+        # name from its stored class so every class lookup downstream
+        # (type, flags, corner math) matches the source cabinet.
+        self._source_obj = None
+        if self.source_cabinet_name:
+            src = bpy.data.objects.get(self.source_cabinet_name)
+            if src is None or not src.get(types_face_frame.TAG_CABINET_CAGE):
+                self.report({'WARNING'},
+                            f"Source cabinet not found: "
+                            f"{self.source_cabinet_name}")
+                return {'CANCELLED'}
+            self._source_obj = src
+            self.cabinet_name = _dispatch_name_for_source(src)
         if not self.cabinet_name:
             self.report({'WARNING'}, "No cabinet name supplied")
             return {'CANCELLED'}
@@ -1488,7 +1666,22 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
         # 12"-deep Bookcase) instead of a cabinet_type approximation.
         self._cabinet_depth = cls_inst.default_depth
         self._cabinet_height = cls_inst.default_height
-        if self._single_placement:
+        if self._source_obj is not None:
+            # Seed the preview from the source's real dimensions and
+            # bay count. Fill starts OFF (the copy keeps its size); F
+            # in the modal toggles fill-the-gap. Bay count is pinned
+            # so a gap-fill stretches the copied bays instead of
+            # re-deriving a new bay quantity.
+            src_props = self._source_obj.face_frame_cabinet
+            self._cabinet_width = src_props.width
+            self._cabinet_depth = src_props.depth
+            self._cabinet_height = src_props.height
+            self._auto_bay_qty = False
+            self._fill_mode = False
+            self.bay_qty = max(1, min(_BAY_QTY_MAX, sum(
+                1 for c in self._source_obj.children
+                if c.get(types_face_frame.TAG_BAY_CAGE))))
+        elif self._single_placement:
             self._cabinet_width = cls_inst.default_width
             self._auto_bay_qty = False
             self._fill_mode = False
@@ -1518,7 +1711,11 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
         cage_obj.location.y = cursor_loc.y
         cabinet_type = _cabinet_type_for_name(self.cabinet_name)
         _cls = types_face_frame.get_cabinet_class(self.cabinet_name)
-        if cabinet_type == 'UPPER' or _mounts_as_upper(_cls):
+        if self._source_obj is not None:
+            # Keep the source's mounting height (custom upper heights,
+            # floating bases) instead of the scene default.
+            cage_obj.location.z =                 self._source_obj.matrix_world.translation.z
+        elif cabinet_type == 'UPPER' or _mounts_as_upper(_cls):
             cage_obj.location.z = _upper_mount_z(_cls, scene_props)
         else:
             cage_obj.location.z = 0.0
@@ -1592,6 +1789,25 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
             self._free_rotation_z = (
                 self._free_rotation_z + math.radians(90)) % math.radians(360)
             self._position_from_hit(context)
+            self._update_header(context)
+            return {'RUNNING_MODAL'}
+
+        # 'F' (duplicate mode only) toggles fill-the-gap. The copy
+        # starts at the source's width; F stretches it to the wall
+        # gap (bay count stays pinned - the copied bays widen), F
+        # again restores the source width.
+        if (event.type == 'F' and event.value == 'PRESS'
+                and self._source_obj is not None
+                and not self._single_placement
+                and self.placement_state == hb_placement.PlacementState.PLACING):
+            if self._fill_mode:
+                self._apply_width(
+                    self._source_obj.face_frame_cabinet.width,
+                    fill_mode=False)
+            else:
+                self._fill_mode = True
+                if self.hit_location is not None:
+                    self._position_from_hit(context)
             self._update_header(context)
             return {'RUNNING_MODAL'}
 
@@ -1838,6 +2054,9 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
             self._position_from_hit(bpy.context)
 
     def _update_header(self, context):
+        title = (self.cabinet_name if self._source_obj is None
+                 else ("Duplicate Mirror " if self.mirror else "Duplicate ")
+                 + self._source_obj.name)
         bay_label = f"{self.bay_qty} bay" + ("" if self.bay_qty == 1 else "s")
         mode = "auto" if self._auto_bay_qty else "manual"
         side = "front" if self._place_on_front else "back"
@@ -1855,7 +2074,7 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
             }.get(self.typing_target, "Value")
             hb_placement.draw_header_text(
                 context,
-                f"{self.cabinet_name}  -  {label}: {typed}  -  "
+                f"{title}  -  {label}: {typed}  -  "
                 "Enter: apply   ←/→: switch offset   "
                 "Esc: cancel typing   Backspace: delete"
             )
@@ -1871,9 +2090,10 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
                 )
             hb_placement.draw_header_text(
                 context,
-                f"{self.cabinet_name}  -  {bay_label} ({mode})  -  "
+                f"{title}  -  {bay_label} ({mode})  -  "
                 f"width: {width_in:.1f}\"  -  side: {side}{offset_hint}  -  "
-                "W/numbers: width   Up/Down: bays   "
+                + ("F: fill gap   " if self._source_obj is not None else "")
+                + "W/numbers: width   Up/Down: bays   "
                 "←/→: gap offset   R: rotate 90   "
                 "Click: place   Esc: cancel"
             )
@@ -2187,8 +2407,10 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
                 # typed-width-equivalent state at the scene default.
                 self._fill_mode_before_center_snap = True
                 scene_props = context.scene.hb_face_frame
-                self._apply_width(scene_props.default_cabinet_width,
-                                  fill_mode=False)
+                _w = (self._source_obj.face_frame_cabinet.width
+                      if self._source_obj is not None
+                      else scene_props.default_cabinet_width)
+                self._apply_width(_w, fill_mode=False)
                 # _apply_width updated cabinet_width in place. Refresh
                 # our local copy so positioning math sees the new value.
                 cabinet_width = self._cabinet_width
@@ -2512,7 +2734,9 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
         # sticks and we don't touch _cabinet_width.
         if self._fill_mode:
             scene_props = context.scene.hb_face_frame
-            default_w = scene_props.default_cabinet_width
+            default_w = (self._source_obj.face_frame_cabinet.width
+                         if self._source_obj is not None
+                         else scene_props.default_cabinet_width)
             self._apply_width(default_w, fill_mode=True)
             self._update_header(context)
 
@@ -2861,6 +3085,11 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
 
         self._delete_preview()
 
+        if self._source_obj is not None:
+            return self._finalize_duplicate(
+                context, captured_parent, captured_world,
+                captured_local_loc, captured_local_rot, captured_width)
+
         cls = types_face_frame.get_cabinet_class(self.cabinet_name)
         try:
             cabinet = cls()
@@ -3047,6 +3276,98 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
         self.report({'INFO'},
                     f"Placed {self.cabinet_name} ({bay_label}, "
                     f"{captured_width * 39.37008:.1f}\" wide)")
+        return {'FINISHED'}
+
+    def _finalize_duplicate(self, context, captured_parent, captured_world,
+                            captured_local_loc, captured_local_rot,
+                            captured_width):
+        """Commit for duplicate mode: deep-copy the source hierarchy at
+        the cage transform. The copy keeps every bay config, front, and
+        its style, so the fresh-build pipeline (default bay presets,
+        active style, auto-merge) is intentionally skipped - only the
+        position-driven passes (exposure, toe kick, corner dialog,
+        stile detection) run."""
+        src = self._source_obj
+        if src is None or src.name not in bpy.data.objects:
+            self.report({'ERROR'}, "Source cabinet no longer exists")
+            hb_placement.clear_header_text(context)
+            return {'CANCELLED'}
+
+        try:
+            cab_obj = hb_placement.duplicate_object_hierarchy(context, src)
+        except Exception:
+            cab_obj = None
+        if cab_obj is None:
+            self.report({'ERROR'}, "Duplicate failed")
+            hb_placement.clear_header_text(context)
+            return {'CANCELLED'}
+
+        if captured_parent is not None:
+            cab_obj.parent = captured_parent
+            cab_obj.matrix_parent_inverse.identity()
+            cab_obj.location = captured_local_loc
+            cab_obj.rotation_euler = captured_local_rot
+        else:
+            cab_obj.parent = None
+            cab_obj.matrix_world = captured_world
+
+        # Mirror before the width push so the fill recalc lays out the
+        # already-flipped bay order.
+        if self.mirror:
+            _mirror_cabinet_config(cab_obj)
+
+        # Fill-the-gap commit: push the gap width through the prop
+        # update path so the copied bays stretch proportionally.
+        if abs(captured_width - cab_obj.face_frame_cabinet.width) > 1e-5:
+            cab_obj.face_frame_cabinet.width = captured_width
+
+        exposure.recalc_with_neighbors(cab_obj)
+        _align_base_tall_toe_kick(cab_obj)
+
+        for o in context.selected_objects:
+            o.select_set(False)
+        cab_obj.select_set(True)
+        context.view_layer.objects.active = cab_obj
+
+        try:
+            bpy.ops.hb_face_frame.toggle_mode(search_obj_name=cab_obj.name)
+            cab_obj.select_set(True)
+            context.view_layer.objects.active = cab_obj
+        except RuntimeError:
+            pass
+
+        # Same corner handling as a fresh placement - it's driven by
+        # the drop position, not by how the cabinet was built.
+        corner_match = _detect_blind_corner_neighbor(cab_obj)
+        if corner_match is not None:
+            (neighbor, blind_side, corner_kind, interior_deg,
+             placed_corner_end) = corner_match
+            try:
+                if corner_kind == 'ANGLED':
+                    bpy.ops.hb_face_frame.set_angled_corner_void_amount(
+                        'INVOKE_DEFAULT',
+                        angled_cabinet_name=neighbor.name,
+                        current_cabinet_name=cab_obj.name,
+                        meeting_side=blind_side,
+                        placed_corner_end=placed_corner_end,
+                        corner_angle_deg=interior_deg,
+                    )
+                else:
+                    bpy.ops.hb_face_frame.set_blind_corner_void_amount(
+                        'INVOKE_DEFAULT',
+                        blind_cabinet_name=neighbor.name,
+                        current_cabinet_name=cab_obj.name,
+                        blind_side=blind_side,
+                    )
+            except RuntimeError:
+                pass
+
+        _auto_detect_stile_types(cab_obj)
+
+        hb_placement.clear_header_text(context)
+        self.report({'INFO'},
+                    ("Duplicated (mirrored) " if self.mirror
+                     else "Duplicated ") + src.name)
         return {'FINISHED'}
 
     def _cancel(self, context):

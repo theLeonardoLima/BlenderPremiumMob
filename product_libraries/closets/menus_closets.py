@@ -5,6 +5,8 @@ the active object and shows the named Menu class.
 """
 import bpy
 
+from . import types_closets
+
 
 class HOME_BUILDER_MT_closet_starter_commands(bpy.types.Menu):
     """Right-click menu for a closet starter root."""
@@ -14,6 +16,18 @@ class HOME_BUILDER_MT_closet_starter_commands(bpy.types.Menu):
         layout = self.layout
         layout.operator("hb_closets.starter_prompts",
                         text="Starter Properties...", icon='WINDOW')
+        # Duplicate: copy-and-place. Seeds the placement modal from
+        # this starter; the drop deep-copies the hierarchy so all bay
+        # configs come along. F in the modal toggles fill-the-gap.
+        _dup_root = types_closets.find_starter_root(context.active_object)
+        if _dup_root is not None:
+            op = layout.operator("hb_closets.place_starter",
+                                 text="Duplicate", icon='DUPLICATE')
+            op.source_starter_name = _dup_root.name
+            op = layout.operator("hb_closets.place_starter",
+                                 text="Duplicate Mirror", icon='MOD_MIRROR')
+            op.source_starter_name = _dup_root.name
+            op.mirror = True
         # Re-opens the placement-time clearance dialog; cancels itself
         # with an info report when no corner neighbor qualifies.
         layout.operator("hb_closets.set_corner_clearance",

@@ -357,6 +357,45 @@ class hb_closets_OT_toggle_mode(bpy.types.Operator):
 # ---------------------------------------------------------------------------
 # Placement modal
 # ---------------------------------------------------------------------------
+def _flip_swing_idprop(obj, key):
+    """LEFT<->RIGHT flip of a door-swing idprop; DOUBLE and unset
+    values pass through unchanged."""
+    v = obj.get(key)
+    if v == 'LEFT':
+        obj[key] = 'RIGHT'
+    elif v == 'RIGHT':
+        obj[key] = 'LEFT'
+
+
+def _mirror_starter_config(root):
+    """Flip a duplicated starter's configuration left<->right: reverse
+    the bay order (bay widths and contents travel with their bays) and
+    flip every LEFT/RIGHT door swing, bay-wide and per-opening. Shared
+    panels, rods, shelves, and fronts regenerate on the recalc."""
+    bays = sorted(
+        [c for c in root.children if c.get(types_closets.TAG_BAY_CAGE)],
+        key=lambda c: c.get('hb_bay_index', 0))
+    n = len(bays)
+    for i, bay in enumerate(bays):
+        bay['hb_bay_index'] = n - 1 - i
+        bay.hb_closet_bay.bay_index = n - 1 - i
+        _flip_swing_idprop(bay, types_closets.PROP_BAY_DOOR_SWING)
+        for child in bay.children:
+            if child.get(types_closets.TAG_OPENING_CAGE):
+                _flip_swing_idprop(child, types_closets.PROP_DOOR_SWING)
+    types_closets.recalculate_closet_starter(root)
+
+
+def _dispatch_name_for_starter(src):
+    """Library name whose class matches the source root's CLASS_NAME,
+    so duplicate-mode lookups resolve to the same starter class."""
+    cls_name = src.get('CLASS_NAME', '')
+    for name, cls in types_closets.CLOSET_NAME_DISPATCH.items():
+        if cls.__name__ == cls_name:
+            return name
+    return None
+
+
 class hb_closets_OT_place_starter(bpy.types.Operator,
                                   hb_placement.PlacementMixin):
     """Place a closet starter. On a wall the width fills the available
@@ -372,10 +411,21 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
     bay_qty: bpy.props.IntProperty(
         name="Bay Quantity", default=4,
         min=_BAY_QTY_MIN, max=_BAY_QTY_MAX)  # type: ignore
+    source_starter_name: bpy.props.StringProperty(
+        name="Source Starter Name",
+        description="When set, duplicate this existing starter root "
+                    "instead of building a new starter from defaults",
+        default="")  # type: ignore
+    mirror: bpy.props.BoolProperty(
+        name="Mirror",
+        description="Duplicate mode only: flip the copy left-to-right "
+                    "(bay order and door swings)",
+        default=False)  # type: ignore
 
     # Live modal state; reset per session in invoke().
     _preview_cage = None
     _array_modifier = None
+    _source_obj = None   # duplicate mode: starter root being copied
     _cabinet_width: float = 0.0
     _cabinet_depth: float = 0.0
     _cabinet_height: float = 0.0
@@ -394,6 +444,24 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
     # ---------------- lifecycle ----------------
 
     def invoke(self, context, event):
+        # Duplicate mode: resolve the source starter and derive its
+        # library name from the stored class so downstream lookups
+        # (corner / island / hanging flags) match the source.
+        self._source_obj = None
+        if self.source_starter_name:
+            src = bpy.data.objects.get(self.source_starter_name)
+            if src is None or not src.get(types_closets.TAG_STARTER_CAGE):
+                self.report({'WARNING'},
+                            f"Source starter not found: "
+                            f"{self.source_starter_name}")
+                return {'CANCELLED'}
+            name = _dispatch_name_for_starter(src)
+            if name is None:
+                self.report({'WARNING'},
+                            "Cannot duplicate: unknown starter class")
+                return {'CANCELLED'}
+            self._source_obj = src
+            self.starter_name = name
         cls = types_closets.get_starter_class(self.starter_name)
         if cls is None:
             self.report({'WARNING'}, f"Unknown starter: {self.starter_name}")
@@ -434,6 +502,23 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
         self._cabinet_height = cls_inst.default_height(scene_props)
         self._fill_mode = not self._is_corner
         self._auto_bay_qty = not self._is_corner
+        if self._source_obj is not None:
+            # Seed from the source's real dimensions and bay count.
+            # Fill starts OFF (the copy keeps its size); F toggles
+            # fill-the-gap in the modal. Bay count is pinned so a
+            # fill stretches the copied bays rather than re-deriving
+            # a quantity. _default_free_width keeps off-wall resets
+            # at the source width too.
+            sp = self._source_obj.hb_closet_starter
+            self._cabinet_width = sp.width
+            self._cabinet_depth = sp.depth
+            self._cabinet_height = sp.height
+            self._default_free_width = self._cabinet_width
+            self._fill_mode = False
+            self._auto_bay_qty = False
+            self.bay_qty = max(1, min(_BAY_QTY_MAX, sum(
+                1 for c in self._source_obj.children
+                if c.get(types_closets.TAG_BAY_CAGE))))
         self._place_on_front = True
         self._free_rotation_z = 0.0
         self._gap_snap = None
@@ -447,7 +532,12 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
         cursor_loc = context.scene.cursor.location
         cage_obj.location.x = cursor_loc.x
         cage_obj.location.y = cursor_loc.y
-        cage_obj.location.z = self._mount_z(scene_props)
+        if self._source_obj is not None:
+            # Keep the source's mounting height (custom hang heights)
+            # instead of the scene default.
+            cage_obj.location.z =                 self._source_obj.matrix_world.translation.z
+        else:
+            cage_obj.location.z = self._mount_z(scene_props)
 
         self.init_placement(context)
         if self.region is None:
@@ -1098,6 +1188,9 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
     # ---------------- header ----------------
 
     def _update_header(self, context):
+        title = (f"{self.starter_name} Starter" if self._source_obj is None
+                 else ("Duplicate Mirror " if self.mirror else "Duplicate ")
+                 + self._source_obj.name)
         bay_label = f"{self.bay_qty} bay" + ("" if self.bay_qty == 1 else "s")
         mode = "auto" if self._auto_bay_qty else "manual"
         width_str = units.unit_to_string(
@@ -1117,14 +1210,15 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
                 label = f"Clearance ({side})"
             hb_placement.draw_header_text(
                 context,
-                f"{self.starter_name} Starter  -  {label}: {typed}  -  "
+                f"{title}  -  {label}: {typed}  -  "
                 "Enter: apply   Esc: cancel typing   Backspace: delete")
         else:
             hb_placement.draw_header_text(
                 context,
-                f"{self.starter_name} Starter  -  {bay_label} ({mode})  -  "
+                f"{title}  -  {bay_label} ({mode})  -  "
                 f"width: {width_str}  -  "
-                "W/numbers: width   Up/Down: bays   Left/Right: gap offset   "
+                + ("F: fill gap   " if self._source_obj is not None else "")
+                + "W/numbers: width   Up/Down: bays   Left/Right: gap offset   "
                 "R: rotate   Click: place   Esc: cancel")
 
     # ---------------- modal ----------------
@@ -1152,6 +1246,24 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
             self._free_rotation_z = (
                 self._free_rotation_z + math.radians(90)) % math.radians(360)
             self._position_from_hit(context)
+            self._update_header(context)
+            return {'RUNNING_MODAL'}
+
+        # 'F' (duplicate mode only) toggles fill-the-gap. The copy
+        # starts at the source's width; F stretches it to the wall
+        # gap (bay count pinned - the copied bays widen), F again
+        # restores the source width.
+        if (event.type == 'F' and event.value == 'PRESS'
+                and self._source_obj is not None
+                and not getattr(self, '_is_corner', False)
+                and self.placement_state == hb_placement.PlacementState.PLACING):
+            if self._fill_mode:
+                self._apply_width(self._source_obj.hb_closet_starter.width,
+                                  fill_mode=False)
+            else:
+                self._fill_mode = True
+                if self.hit_location is not None:
+                    self._position_from_hit(context)
             self._update_header(context)
             return {'RUNNING_MODAL'}
 
@@ -1232,6 +1344,11 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
         captured_bay_qty = self.bay_qty
         self._delete_preview()
 
+        if self._source_obj is not None:
+            return self._finalize_duplicate(
+                context, captured_parent, captured_world,
+                captured_local_loc, captured_local_rot, captured_width)
+
         cls = types_closets.get_starter_class(self.starter_name)
         try:
             starter = cls()
@@ -1289,6 +1406,80 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
             context.scene.unit_settings, captured_width)
         self.report({'INFO'},
                     f"Placed {self.starter_name} starter ({width_str})")
+        return {'FINISHED'}
+
+    def _finalize_duplicate(self, context, captured_parent, captured_world,
+                            captured_local_loc, captured_local_rot,
+                            captured_width):
+        """Commit for duplicate mode: deep-copy the source hierarchy at
+        the cage transform, keeping every bay config and finish (the
+        fresh-build path - create_starter + _apply_finish - is
+        skipped). Only the position-driven corner-clearance dialog
+        still runs."""
+        src = self._source_obj
+        if src is None or src.name not in bpy.data.objects:
+            self.report({'ERROR'}, "Source starter no longer exists")
+            hb_placement.clear_header_text(context)
+            context.window.cursor_set('DEFAULT')
+            return {'CANCELLED'}
+
+        try:
+            root = hb_placement.duplicate_object_hierarchy(context, src)
+        except Exception:
+            root = None
+        if root is None:
+            self.report({'ERROR'}, "Duplicate failed")
+            hb_placement.clear_header_text(context)
+            context.window.cursor_set('DEFAULT')
+            return {'CANCELLED'}
+
+        if captured_parent is not None:
+            root.parent = captured_parent
+            root.matrix_parent_inverse.identity()
+            root.location = captured_local_loc
+            root.rotation_euler = captured_local_rot
+        else:
+            root.parent = None
+            root.matrix_world = captured_world
+
+        # Mirror before the width push so the fill recalc lays out the
+        # already-flipped bay order.
+        if self.mirror:
+            _mirror_starter_config(root)
+
+        # Fill-the-gap commit: push the gap width through the prop
+        # update path so the copied bays stretch proportionally.
+        if abs(captured_width - root.hb_closet_starter.width) > 1e-5:
+            root.hb_closet_starter.width = captured_width
+
+        for o in context.selected_objects:
+            o.select_set(False)
+        root.select_set(True)
+        context.view_layer.objects.active = root
+        _apply_selection_shading(context, root)
+
+        # Same corner handling as a fresh placement - driven by the
+        # drop position, not by how the starter was built.
+        if not getattr(self, '_is_corner', False):
+            matches = _detect_corner_closet_neighbor(root)
+            if matches:
+                kwargs = {'closet_name': root.name}
+                for neighbor, placed_end, gap in matches:
+                    k = placed_end.lower()
+                    kwargs[f'has_{k}'] = True
+                    kwargs[f'neighbor_{k}'] = neighbor.name
+                    kwargs[f'gap_{k}'] = gap
+                try:
+                    bpy.ops.hb_closets.set_corner_clearance(
+                        'INVOKE_DEFAULT', **kwargs)
+                except RuntimeError:
+                    pass
+
+        hb_placement.clear_header_text(context)
+        context.window.cursor_set('DEFAULT')
+        self.report({'INFO'},
+                    ("Duplicated (mirrored) " if self.mirror
+                     else "Duplicated ") + src.name)
         return {'FINISHED'}
 
 

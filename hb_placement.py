@@ -1209,6 +1209,76 @@ class PlacementMixin:
         return (left_h, right_h)
 
 
+def duplicate_object_hierarchy(context, source_obj):
+    """Deep-copy an object and all descendants via the native duplicate
+    operator, which remaps parents / drivers / modifier references WITHIN
+    the copied set (a manual obj.copy() loop would leave child drivers
+    pointing at the original root). Used by the product libraries'
+    duplicate-and-place commands.
+
+    Hidden members can't be selected for the duplicate operator, so the
+    whole hierarchy is temporarily unhidden. A token custom prop - which
+    object copies carry - maps each copy back to its original so both
+    sides get their exact hide flags restored afterwards.
+
+    Returns the new root object, or None on failure. Restores the
+    caller's selection and active object.
+    """
+    all_objs = [source_obj] + list(source_obj.children_recursive)
+
+    old_selected = [o.name for o in context.selected_objects]
+    old_active = (context.view_layer.objects.active.name
+                  if context.view_layer.objects.active else None)
+
+    flags = {}
+    for i, obj in enumerate(all_objs):
+        obj['_HB_DUP_TOKEN'] = i
+        flags[i] = (obj.hide_viewport, obj.hide_get(), obj.hide_select)
+        obj.hide_viewport = False
+        obj.hide_select = False
+        obj.hide_set(False)
+
+    new_objs = []
+    new_root = None
+    try:
+        bpy.ops.object.select_all(action='DESELECT')
+        for obj in all_objs:
+            obj.select_set(True)
+        context.view_layer.objects.active = source_obj
+        bpy.ops.object.duplicate(linked=False)
+        new_objs = list(context.selected_objects)
+        new_root = context.view_layer.objects.active
+    finally:
+        # Exact per-object restore on originals AND copies, then drop
+        # the tokens from both sides.
+        for obj in all_objs + new_objs:
+            token = obj.get('_HB_DUP_TOKEN')
+            if token in flags:
+                hv, hg, hs = flags[token]
+                obj.hide_viewport = hv
+                obj.hide_select = hs
+                obj.hide_set(hg)
+            if '_HB_DUP_TOKEN' in obj:
+                del obj['_HB_DUP_TOKEN']
+
+    bpy.ops.object.select_all(action='DESELECT')
+    for name in old_selected:
+        o = bpy.data.objects.get(name)
+        if o is not None:
+            try:
+                o.select_set(True)
+            except RuntimeError:
+                pass
+    if old_active:
+        o = bpy.data.objects.get(old_active)
+        if o is not None:
+            context.view_layer.objects.active = o
+
+    if new_root is source_obj:
+        return None
+    return new_root
+
+
 def draw_header_text(context, text: str):
     """
     Draw text in the header area during modal operation.
