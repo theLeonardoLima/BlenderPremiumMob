@@ -146,6 +146,12 @@ class HOME_BUILDER_MT_face_frame_bay_commands(bpy.types.Menu):
             if cabinet_type == 'BASE':
                 layout.menu("HOME_BUILDER_MT_face_frame_add_appliance",
                             text="Add Appliance to Bay", icon='MOD_FLUIDSIM')
+            # Flush toe kick toggle - base / tall only (uppers have no
+            # kick to flush).
+            if cabinet_type in ('BASE', 'TALL'):
+                layout.operator("hb_face_frame.toggle_flush_toe_kick",
+                                text="Toggle Flush Toe Kick",
+                                icon='SNAP_PERPENDICULAR')
 
         # Structural edits live below in their own group. Anchored on
         # the right-clicked bay's index since the bay cage is the active

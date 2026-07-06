@@ -2991,6 +2991,139 @@ def apply_bay_preset(bay_obj, config, reset_bay_props=False):
 
 
 # ---------------------------------------------------------------------------
+# Operator: flush toe kick toggle (per bay). The kick recess is removed
+# and the face frame bottom rail widens to cover the kick zone, butting
+# into full-height stiles on the selected run's outer flanks.
+# ---------------------------------------------------------------------------
+FLUSH_KICK_BOTTOM_RAIL = inch(5.25)
+_FLUSH_KICK_EPS = 1e-6
+
+
+def _bay_is_flush_kick(bay_obj):
+    """A bay reads as flush-kick when its kick height is (effectively)
+    zero. Only meaningful on base / tall cabinets - uppers carry
+    kick_height 0 by construction and are excluded by the operator."""
+    return bay_obj.face_frame_bay.kick_height <= _FLUSH_KICK_EPS
+
+
+class hb_face_frame_OT_toggle_flush_toe_kick(bpy.types.Operator):
+    """Toggle flush toe kick construction on the selected bays.
+
+    Flush = bay kick height 0 (auto-locked so the kick distribution
+    leaves it alone) + a wide bottom rail + the stiles on the OUTER
+    flanks of the selected run dropped to the floor, so the wide rail
+    butts into full-height stiles. Mid stiles BETWEEN selected bays are
+    left alone. If any selected bay still has a kick recess the
+    operator makes them all flush; when every one is already flush it
+    reverts them (kick height unlocks back to the cabinet's toe kick
+    height, bottom rail returns to the cabinet default, flank stiles
+    lift unless the neighboring bay still needs them).
+    """
+    bl_idname = "hb_face_frame.toggle_flush_toe_kick"
+    bl_label = "Toggle Flush Toe Kick"
+    bl_description = ("Set the selected bays to flush toe kick "
+                      "construction (no kick recess, wide bottom rail, "
+                      "flanking stiles to the floor); run again to revert")
+    bl_options = {'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        obj = context.active_object
+        return obj is not None and obj.get(types_face_frame.TAG_BAY_CAGE)
+
+    def execute(self, context):
+        active = context.active_object
+        bays = [o for o in context.selected_objects
+                if o.get(types_face_frame.TAG_BAY_CAGE)]
+        if (active is not None
+                and active.get(types_face_frame.TAG_BAY_CAGE)
+                and active not in bays):
+            bays.append(active)
+        # Group per cabinet; uppers have no toe kick to flush.
+        by_root = {}
+        for bay_obj in bays:
+            root = types_face_frame.find_cabinet_root(bay_obj)
+            if root is None:
+                continue
+            if root.face_frame_cabinet.cabinet_type == 'UPPER':
+                continue
+            by_root.setdefault(root.name, (root, []))[1].append(bay_obj)
+        if not by_root:
+            self.report({'WARNING'}, "No base / tall bays selected")
+            return {'CANCELLED'}
+        # One decision for the whole selection: enable when any targeted
+        # bay still has a kick recess; revert only when all are flush.
+        enable = any(not _bay_is_flush_kick(b)
+                     for _root, group in by_root.values() for b in group)
+        with types_face_frame.suspend_recalc():
+            for root, group in by_root.values():
+                self._apply(root, group, enable)
+                types_face_frame.recalculate_face_frame_cabinet(root)
+        self.report({'INFO'}, "Flush toe kick %s" %
+                    ("set" if enable else "removed"))
+        return {'FINISHED'}
+
+    def _apply(self, root, group, enable):
+        cab = root.face_frame_cabinet
+        for bay_obj in group:
+            bp = bay_obj.face_frame_bay
+            if enable:
+                # Writing kick_height auto-locks unlock_kick_height via
+                # its update callback (same mechanism BAY_PROPS uses for
+                # the lap drawer lift).
+                bp.kick_height = 0.0
+                bp.unlock_bottom_rail = True
+                bp.bottom_rail_width = FLUSH_KICK_BOTTOM_RAIL
+            else:
+                # Unlocking re-syncs the bay to the cabinet's
+                # toe_kick_height on the next recalc distribution.
+                if bp.unlock_kick_height:
+                    bp.unlock_kick_height = False
+                bp.bottom_rail_width = cab.bottom_rail_width
+                bp.unlock_bottom_rail = False
+        # Flank stiles: only the OUTER flanks of the selected run in
+        # this cabinet - mid stiles between selected bays stay put.
+        indices = sorted(b.get('hb_bay_index', 0) for b in group)
+        lo, hi = indices[0], indices[-1]
+        bays_by_idx = {b.get('hb_bay_index', 0): b for b in root.children
+                       if b.get(types_face_frame.TAG_BAY_CAGE)}
+        last = max(bays_by_idx) if bays_by_idx else 0
+
+        def _neighbor_needs(idx):
+            # A neighboring bay outside the run keeps a shared stile on
+            # the floor when it floats / lost its bottom (lap drawer,
+            # support frame) or is itself flush-kick.
+            b = bays_by_idx.get(idx)
+            if b is None:
+                return False
+            return _bay_wants_floor_stiles(b) or _bay_is_flush_kick(b)
+
+        def _set_mid(gap, neighbor_idx):
+            if not (0 <= gap < len(cab.mid_stile_widths)):
+                return
+            ms = cab.mid_stile_widths[gap]
+            if enable:
+                value = True
+            elif ms.to_floor and _neighbor_needs(neighbor_idx):
+                value = True
+            else:
+                value = False
+            if ms.to_floor != value:
+                ms.to_floor = value
+
+        if lo == 0:
+            if cab.extend_left_stile_to_floor != enable:
+                cab.extend_left_stile_to_floor = enable
+        else:
+            _set_mid(lo - 1, lo - 1)
+        if hi == last:
+            if cab.extend_right_stile_to_floor != enable:
+                cab.extend_right_stile_to_floor = enable
+        else:
+            _set_mid(hi, hi + 1)
+
+
+# ---------------------------------------------------------------------------
 # Operator: change bay configuration (right-click quick presets per
 # cabinet type). Wipes the bay's existing tree and rebuilds it from a
 # preset recipe in bay_presets.PRESETS.
@@ -4293,6 +4426,7 @@ classes = (
     hb_face_frame_OT_show_interior_add_menu,
     hb_face_frame_OT_change_opening,
     hb_face_frame_OT_change_bay,
+    hb_face_frame_OT_toggle_flush_toe_kick,
     hb_face_frame_OT_add_pullout_accessory,
     hb_face_frame_OT_add_interior_accessory,
     hb_face_frame_OT_add_accessory,
