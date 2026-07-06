@@ -262,11 +262,22 @@ BAY_PROPS = {
         'kick_height': inch(24.0),
     },
     # Support frame bay: no bottom panel / bottom rail behind an open
-    # front.
+    # front, and no toe kick - the frame runs to the floor. Writing
+    # kick_height auto-locks unlock_kick_height (same as LAP_DRAWER)
+    # so the distribution pass leaves the 0 alone; the reset on a swap
+    # away unlocks it and re-syncs to the cabinet's toe_kick_height.
     'SUPPORT_FRAME': {
         'remove_bottom': True,
+        'kick_height': 0.0,
     },
 }
+
+# Configs whose construction exposes the kick zone beside the bay (the
+# bay floats or has no bottom). The change_bay apply drops the stiles
+# flanking such a bay to the floor (mid stile to_floor / end stile
+# extend_*_stile_to_floor) so they carry through the exposed zone, and
+# clears them again on a swap back to a normal preset.
+FLOOR_STILE_CONFIGS = {'LAP_DRAWER', 'SUPPORT_FRAME'}
 
 
 # ---------------------------------------------------------------------------

@@ -2884,6 +2884,72 @@ def _apply_bay_prop_overrides(bay_obj, config, reset):
             setattr(bp, prop, value)
 
 
+def _bay_wants_floor_stiles(bay_obj):
+    """True when a bay's construction implies floor stiles: it floats
+    (lap drawer) or has no bottom (support frame). Inferred from the
+    bay props since bays don't persist their preset id."""
+    bp = bay_obj.face_frame_bay
+    return bool(bp.floating_bay or bp.remove_bottom)
+
+
+def _apply_flanking_stile_floor(root, bay_obj, config, reset):
+    """Toggle the to-floor flag on the stiles flanking `bay_obj`.
+
+    Selecting a bay_presets.FLOOR_STILE_CONFIGS preset (Lap Drawer /
+    Support Frame) drops both flanking stiles to the floor so they
+    carry through the exposed kick zone - the end stile when the bay
+    is first / last, the shared mid stile otherwise. Swapping the bay
+    back to a normal preset (reset=True) clears the flags again,
+    except that a shared mid stile is left down when the bay on its
+    OTHER side still needs floor stiles. The clear path never sets a
+    flag because of a neighbor - it only declines to clear - so bays
+    that float for other reasons (e.g. a floating base cabinet) can't
+    drag stiles to the floor on an unrelated preset swap.
+    Placement-time callers (reset=False) only ever set flags, never
+    clear, mirroring _apply_bay_prop_overrides.
+    """
+    want = config in bay_presets.FLOOR_STILE_CONFIGS
+    if not want and not reset:
+        return
+    cab = root.face_frame_cabinet
+    bay_index = bay_obj.get('hb_bay_index', 0)
+    bays = {b.get('hb_bay_index', 0): b for b in root.children
+            if b.get(types_face_frame.TAG_BAY_CAGE)}
+    last = max(bays) if bays else 0
+
+    def _neighbor_needs(idx):
+        b = bays.get(idx)
+        return b is not None and _bay_wants_floor_stiles(b)
+
+    def _set_mid_stile(gap, neighbor_idx):
+        if not (0 <= gap < len(cab.mid_stile_widths)):
+            return
+        ms = cab.mid_stile_widths[gap]
+        if want:
+            value = True
+        elif ms.to_floor and _neighbor_needs(neighbor_idx):
+            value = True
+        else:
+            value = False
+        if ms.to_floor != value:
+            ms.to_floor = value
+
+    # Left flank: cabinet end stile for the first bay, else the mid
+    # stile at gap bay_index - 1 (shared with the bay to the left).
+    if bay_index == 0:
+        if cab.extend_left_stile_to_floor != want:
+            cab.extend_left_stile_to_floor = want
+    else:
+        _set_mid_stile(bay_index - 1, bay_index - 1)
+
+    # Right flank: end stile for the last bay, else gap bay_index.
+    if bay_index == last:
+        if cab.extend_right_stile_to_floor != want:
+            cab.extend_right_stile_to_floor = want
+    else:
+        _set_mid_stile(bay_index, bay_index + 1)
+
+
 def apply_bay_preset(bay_obj, config, reset_bay_props=False):
     """Wipe `bay_obj`'s contents and rebuild from a bay preset.
     Programmatic equivalent of hb_face_frame.change_bay's execute body,
@@ -2919,6 +2985,7 @@ def apply_bay_preset(bay_obj, config, reset_bay_props=False):
             presets[config], bay_obj, 0, opening_idx, root.face_frame_cabinet,
         )
         _apply_bay_prop_overrides(bay_obj, config, reset_bay_props)
+        _apply_flanking_stile_floor(root, bay_obj, config, reset_bay_props)
         types_face_frame.recalculate_face_frame_cabinet(root)
     return True
 

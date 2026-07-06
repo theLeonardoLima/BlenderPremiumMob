@@ -213,6 +213,8 @@ class FaceFrameLayout:
                     'extend_up_amount': ms.extend_up_amount,
                     'extend_down_amount': ms.extend_down_amount,
                     'to_floor': bool(getattr(ms, 'to_floor', False)),
+                    'division_location': getattr(ms, 'division_location', 'CENTERED'),
+                    'division_offset': getattr(ms, 'division_offset', 0.0),
                 })
             else:
                 self.mid_stiles.append({
@@ -220,6 +222,8 @@ class FaceFrameLayout:
                     'extend_up_amount': 0.0,
                     'extend_down_amount': 0.0,
                     'to_floor': False,
+                    'division_location': 'CENTERED',
+                    'division_offset': 0.0,
                 })
 
     def _read_bay(self, bay_obj):
@@ -955,25 +959,33 @@ def mid_finish_kick_position(layout, gap_index, side):
     if not has_mid_finish_kick(layout, gap_index):
         return None
     center = _mid_stile_center_x(layout, gap_index)
-    dt = layout.division_thickness
     msw = layout.mid_stiles[gap_index]['width']
     if side == 'LEFT':
         x = center - msw / 2.0
     else:
-        x = center + dt / 2.0
+        x = _mid_div_right_outer_x(layout, gap_index)
     return (x, -layout.dim_y + layout.fft, 0.0)
 
 
 def mid_finish_kick_dims(layout, gap_index, side):
     """Length (X) = the FF overhang beyond the division on this side
-    ((msw - dt)/2). Width (Z) = the adjacent bay's kick height. Thickness
-    (Y) = stile back to main finish kick front (same gap the end-stile
-    corner kick fills). Returns None when no filler is needed."""
+    (asymmetric when the division is offset; a flush side needs no
+    filler and returns None). Width (Z) = the adjacent bay's kick
+    height. Thickness (Y) = stile back to main finish kick front (same
+    gap the end-stile corner kick fills). Returns None when no filler
+    is needed."""
     if not has_mid_finish_kick(layout, gap_index):
         return None
-    dt = layout.division_thickness
+    center = _mid_stile_center_x(layout, gap_index)
     msw = layout.mid_stiles[gap_index]['width']
-    length = (msw - dt) / 2.0
+    if side == 'LEFT':
+        length = (_mid_div_left_outer_x(layout, gap_index)
+                  - (center - msw / 2.0))
+    else:
+        length = ((center + msw / 2.0)
+                  - _mid_div_right_outer_x(layout, gap_index))
+    if length <= 1e-6:
+        return None
     bay_idx = gap_index if side == 'LEFT' else gap_index + 1
     width = layout.bays[bay_idx]['kick_height']
     thickness = (layout.tks + layout.tkt
@@ -1720,9 +1732,10 @@ def _carcass_bottom_passthrough(layout, gap_index):
 
 
 def _mid_stile_center_x(layout, gap_index):
-    """World-X of the mid-stile centerline at this gap. The mid-div
-    setup is mirrored about this line: same-depth = single panel
-    centered here; diff-depth = two panels meeting face-to-face here.
+    """World-X of the FACE FRAME mid-stile centerline at this gap. The
+    frame keys off this line; the carcass mid-div setup keys off
+    _mid_div_center_x, which folds in the user's division offset (so
+    the division can sit off-center under the stile, scribe-style).
 
     bay_x_position returns FF-local; add blind_offset_left so this
     function honors its world-X contract regardless of blind state.
@@ -1736,13 +1749,47 @@ def _mid_stile_center_x(layout, gap_index):
     return base_x + msw / 2.0
 
 
+def _mid_div_offset(layout, gap_index):
+    """Signed X shift of the carcass mid-division setup off the stile
+    centerline - the interior analog of the side scribe amount.
+    CENTERED = 0 (historical behavior). FLUSH_LEFT / FLUSH_RIGHT pin
+    the setup's outer face to that stile edge, computed live so flush
+    re-tracks stile width / division thickness changes. OFFSET is the
+    user's typed value (+X = toward the right bay). Only the carcass
+    division and geometry keyed to its faces move; the face frame does
+    not.
+    """
+    ms = layout.mid_stiles[gap_index]
+    loc = ms.get('division_location', 'CENTERED')
+    if loc == 'CENTERED':
+        return 0.0
+    if loc == 'OFFSET':
+        return ms.get('division_offset', 0.0)
+    # Flush: the setup's half-width is dt/2 for the single centered
+    # panel (same-depth) or dt for the two-panel face-to-face setup.
+    bay_a = layout.bays[gap_index]
+    bay_b = layout.bays[gap_index + 1]
+    dt = layout.division_thickness
+    half = dt / 2.0 if _epsilon_eq(bay_a['depth'], bay_b['depth']) else dt
+    extreme = max(0.0, ms['width'] / 2.0 - half)
+    return -extreme if loc == 'FLUSH_LEFT' else extreme
+
+
+def _mid_div_center_x(layout, gap_index):
+    """World-X centerline of the mid-division SETUP: stile centerline
+    plus the division offset. All carcass division geometry (panels,
+    outer faces, meeting points) derives from this."""
+    return (_mid_stile_center_x(layout, gap_index)
+            + _mid_div_offset(layout, gap_index))
+
+
 def _mid_div_left_outer_x(layout, gap_index):
     """X of the LEFT-facing outer face of the mid-div setup. For
     matching bay depths this is the single centered panel's left face;
     for differing depths this is panel A's (bay A's right wall) left
     face.
     """
-    center = _mid_stile_center_x(layout, gap_index)
+    center = _mid_div_center_x(layout, gap_index)
     bay_a = layout.bays[gap_index]
     bay_b = layout.bays[gap_index + 1]
     dt = layout.division_thickness
@@ -1754,7 +1801,7 @@ def _mid_div_left_outer_x(layout, gap_index):
 def _mid_div_right_outer_x(layout, gap_index):
     """X of the RIGHT-facing outer face of the mid-div setup. Mirror
     of _mid_div_left_outer_x."""
-    center = _mid_stile_center_x(layout, gap_index)
+    center = _mid_div_center_x(layout, gap_index)
     bay_a = layout.bays[gap_index]
     bay_b = layout.bays[gap_index + 1]
     dt = layout.division_thickness
@@ -1778,7 +1825,7 @@ def _carcass_meeting_x(layout, gap_index):
     bay_a = layout.bays[gap_index]
     bay_b = layout.bays[gap_index + 1]
     if not _epsilon_eq(bay_a['depth'], bay_b['depth']):
-        return _mid_stile_center_x(layout, gap_index)
+        return _mid_div_center_x(layout, gap_index)
     if bay_bottom_z(layout, gap_index) > bay_bottom_z(layout, gap_index + 1):
         return _mid_div_left_outer_x(layout, gap_index)
     return _mid_div_right_outer_x(layout, gap_index)
@@ -2131,7 +2178,7 @@ def mid_division_panels(layout, gap_index):
     bay_b = layout.bays[gap_index + 1]
     ms = layout.mid_stiles[gap_index]
 
-    center_x = _mid_stile_center_x(layout, gap_index)
+    center_x = _mid_div_center_x(layout, gap_index)
     dt = layout.division_thickness
     # When adjacent bay tops differ (top_offset change at this gap),
     # the partition extends an extra mt past the carcass top so it
@@ -2288,8 +2335,9 @@ def partition_skin_panels(layout, gap_index):
         overhang in Z range from the shallower bay's top panel top
         face (= bay_top_z - top_scribe) up to the deeper bay's top.
 
-    Same-depth gap thickness is (msw - dt) / 2; diff-depth (two-panel
-    partition meeting face-to-face at center) is msw / 2 - dt. Y wraps
+    Thickness is the per-side overhang between the stile edge and the
+    division's outer face (asymmetric when the division is offset; a
+    flush side has zero overhang and drops its skins). Y wraps
     the back panel so origin sits at the bay's back-panel back face
     and width spans forward to the face frame's back face.
     """
@@ -2300,21 +2348,24 @@ def partition_skin_panels(layout, gap_index):
     bay_a = layout.bays[gap_index]
     bay_b = layout.bays[gap_index + 1]
     msw = layout.mid_stiles[gap_index]['width']
-    dt = layout.division_thickness
-    same_depth = _epsilon_eq(bay_a['depth'], bay_b['depth'])
-    if same_depth:
-        thickness = (msw - dt) / 2.0
-    else:
-        thickness = msw / 2.0 - dt
-    if thickness <= 0.0:
+    # Per-side FF overhang beyond the division's outer faces. Asymmetric
+    # when the division is offset off the stile centerline; a side with
+    # no overhang (flush) drops its skins via the filter at the return.
+    stile_center = _mid_stile_center_x(layout, gap_index)
+    left_thickness = (_mid_div_left_outer_x(layout, gap_index)
+                      - (stile_center - msw / 2.0))
+    right_thickness = ((stile_center + msw / 2.0)
+                       - _mid_div_right_outer_x(layout, gap_index))
+    if left_thickness <= 0.0 and right_thickness <= 0.0:
         return skins
-
-    center_x = _mid_stile_center_x(layout, gap_index)
 
     def _x_origin(side):
         if side == 'LEFT':
-            return center_x - msw / 2.0
-        return center_x + (dt / 2.0 if same_depth else dt)
+            return stile_center - msw / 2.0
+        return _mid_div_right_outer_x(layout, gap_index)
+
+    def _side_thickness(side):
+        return left_thickness if side == 'LEFT' else right_thickness
 
     def _y_and_width(skin_bay):
         d = skin_bay['depth']
@@ -2352,7 +2403,7 @@ def partition_skin_panels(layout, gap_index):
             'z':         bottom_z,
             'length':    top_z - bottom_z,
             'width':     width,
-            'thickness': thickness,
+            'thickness': _side_thickness(side),
         })
 
     # ----- Slot 1: top step (Upper / Tall only - solid top panel) -----
@@ -2381,7 +2432,7 @@ def partition_skin_panels(layout, gap_index):
                 'z':         bottom_z,
                 'length':    top_z - bottom_z,
                 'width':     width,
-                'thickness': thickness,
+                'thickness': _side_thickness(side),
             })
 
     # ----- Slot 2: floating-bay finish (base / tall) -----
@@ -2409,10 +2460,11 @@ def partition_skin_panels(layout, gap_index):
             'z':         0.0,
             'length':    top_z,
             'width':     width,
-            'thickness': thickness,
+            'thickness': _side_thickness(side),
         })
 
-    return skins
+    # A flush side has zero overhang - drop its skins.
+    return [s for s in skins if s['thickness'] > 1e-6]
 
 
 # ---------------------------------------------------------------------------

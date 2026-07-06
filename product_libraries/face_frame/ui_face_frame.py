@@ -1192,6 +1192,10 @@ def draw_mid_stile_properties(layout, root, msi):
     col.prop(ms, 'width', text="Width")
     col.prop(ms, 'extend_up_amount', text="Extend Up")
     col.prop(ms, 'extend_down_amount', text="Extend Down")
+    col.separator()
+    col.prop(ms, 'division_location', text="Division")
+    if ms.division_location == 'OFFSET':
+        col.prop(ms, 'division_offset', text="Offset")
 
 
 def draw_end_stile_properties(layout, root, role):

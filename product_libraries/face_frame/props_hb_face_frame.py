@@ -3536,6 +3536,34 @@ class Face_Frame_Mid_Stile_Width(PropertyGroup):
         update=_update_cabinet_dim,
     )  # type: ignore
 
+    # Where the carcass division sits under this stile. CENTERED keeps the
+    # historical behavior (division centered on the stile). FLUSH_LEFT /
+    # FLUSH_RIGHT pin the division's outer face to that edge of the stile
+    # and re-track if the stile width or division thickness changes.
+    # OFFSET uses the typed division_offset, measured from the stile
+    # centerline (the interior analog of the side scribe amount).
+    division_location: EnumProperty(
+        name="Division Location",
+        items=[
+            ('CENTERED', "Centered", "Division centered on the mid stile"),
+            ('FLUSH_LEFT', "Flush Left", "Division's left face flush with the stile's left edge"),
+            ('FLUSH_RIGHT', "Flush Right", "Division's right face flush with the stile's right edge"),
+            ('OFFSET', "Offset", "Signed offset from the stile centerline (+ = toward the right bay)"),
+        ],
+        default='CENTERED',
+        update=_update_cabinet_dim,
+    )  # type: ignore
+
+    division_offset: FloatProperty(
+        name="Division Offset",
+        description="Signed shift of the carcass division off the stile "
+                    "centerline (negative = toward the left bay)",
+        default=0.0,
+        unit='LENGTH',
+        precision=4,
+        update=_update_cabinet_dim,
+    )  # type: ignore
+
 
 # ---------------------------------------------------------------------------
 # Corner cabinet exterior configuration
