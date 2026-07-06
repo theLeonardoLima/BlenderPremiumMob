@@ -214,6 +214,38 @@ def _iter_face_frame_parts(cabinet):
             yield child
 
 
+def _cabinet_shown(cabinet, space=None):
+    """False when the cabinet is hidden in the viewport (wall hidden with
+    its children, subtree hidden, isolate / local view, collection off) so
+    its labels vanish - and stop catching clicks - with it. Mirrors the
+    closet overlay's _starter_shown. The root cage can't carry this test
+    (it is hide_viewport=True by design even when the cabinet is fully on
+    screen), so probe a structural member that is always visible when the
+    cabinet is: the first face-frame part (stiles are never design-hidden;
+    recalc-parked parts carry hide_render and are already skipped). Leg
+    products and other cabinets with NO face-frame roles fall back to the
+    first real mesh part - cages are excluded (their hide flags are
+    selection-mode state, not product visibility) and so are 2D
+    annotations (they can live outside the view layer)."""
+    probe = next(_iter_face_frame_parts(cabinet), None)
+    if probe is None:
+        for child in cabinet.children_recursive:
+            if child.type != 'MESH' or child.hide_render:
+                continue
+            if child.get('IS_GEONODE_CAGE') or child.get('IS_2D_ANNOTATION'):
+                continue
+            probe = child
+            break
+    if probe is None:
+        return True
+    try:
+        if space is not None and getattr(space, 'type', '') == 'VIEW_3D':
+            return probe.visible_get(viewport=space)
+        return probe.visible_get()
+    except Exception:
+        return True
+
+
 def _part_anchor_world(part):
     """World-space centre of a member's bounding box. Unlike cages, parts
     are real built meshes, so bound_box is authoritative."""
@@ -285,7 +317,10 @@ def compute_labels(context, region, rv3d):
     blf.size(0, font_sz)
 
     labels = []
+    space = getattr(context, 'space_data', None)
     for cabinet in _iter_cabinet_roots(scene):
+        if not _cabinet_shown(cabinet, space):
+            continue
         # Displayed values come from the SAME properties a commit writes
         # (face_frame_bay.width / face_frame_opening.size), never the cage
         # dims -- the two differ (frame overlaps), and typing back the
