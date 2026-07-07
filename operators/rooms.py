@@ -227,23 +227,43 @@ class home_builder_OT_duplicate_room(bpy.types.Operator):
     def execute(self, context):
         original_scene = context.scene
         
-        # Create new scene by copying
-        new_scene = original_scene.copy()
+        # FULL_COPY makes a deep, single-user copy of every object and its
+        # data. A plain Scene.copy() only *links* the objects, so edits in the
+        # duplicate would silently mutate the source room.
+        if hb_utils.is_room_scene(original_scene):
+            hb_utils.save_view_state(original_scene)
+
+        before = set(bpy.data.scenes)
+        bpy.ops.scene.new(type='FULL_COPY')
+        new_scene = context.window.scene
+        if new_scene in before:
+            created = [s for s in bpy.data.scenes if s not in before]
+            if created:
+                new_scene = created[0]
+                context.window.scene = new_scene
+
         new_scene.name = self.new_name
+
+        # Force the copy to be a plain room; never inherit source scene roles.
         new_scene['IS_ROOM_SCENE'] = True
-        
-        # Save view state of original scene if it's a room
-        if hb_utils.is_room_scene(original_scene):
-            hb_utils.save_view_state(original_scene)
-        
-        # Save view state of original scene
-        if hb_utils.is_room_scene(original_scene):
-            hb_utils.save_view_state(original_scene)
-        
-        # Switch to new scene
-        context.window.scene = new_scene
-        
-        self.report({'INFO'}, f"Duplicated room as: {self.new_name}")
+        for flag in ('IS_MAIN_SCENE', 'IS_LAYOUT_VIEW',
+                     'IS_DETAIL_VIEW', 'IS_CROWN_DETAIL'):
+            if new_scene.get(flag) is not None:
+                del new_scene[flag]
+
+        # Fall back to the new scene name downstream instead of showing the
+        # source room's label.
+        new_scene.home_builder.room_name = ""
+
+        # Drop the duplicate at the end of the room list.
+        other_rooms = [s for s in bpy.data.scenes
+                       if s is not new_scene
+                       and not s.get('IS_LAYOUT_VIEW')
+                       and not s.get('IS_DETAIL_VIEW')]
+        orders = [s.home_builder.sort_order for s in other_rooms]
+        new_scene.home_builder.sort_order = (max(orders) + 1) if orders else 0
+
+        self.report({'INFO'}, f"Duplicated room as: {new_scene.name}")
         return {'FINISHED'}
 
 
