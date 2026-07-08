@@ -68,6 +68,12 @@ _PLAN_VIEW_THRESHOLD = 0.7
 # wall's centerline, that wall is selected even if the raycast missed.
 _WALL_SNAP_DISTANCE = units.inch(6.0)
 
+# Tolerance for deciding a corner-arm continuation lands against a wall.
+# The new cabinet's back-face midpoint must be within this of a wall face
+# line (and parallel to it) for the run to fill on that wall instead of
+# going peninsula.
+_CORNER_WALL_BEHIND_TOL = units.inch(2.0)
+
 
 def _find_wall_root(obj):
     """Walk obj's parent chain to the nearest object tagged IS_WALL_BP.
@@ -591,6 +597,76 @@ def _compute_corner_right_snap_transform(snap_obj, new_object_width):
     world_offset = Matrix.Rotation(rot_z, 4, 'Z') @ local_offset
     new_loc = mw.translation + world_offset
     return (new_loc, base_rot)
+
+
+def _wall_behind_corner_snap(op, context, corner_obj, side, new_width):
+    """Return the wall the new cabinet's back would sit against if the run
+    continued off ``corner_obj``'s ``side`` arm, or None if that
+    continuation projects into open space (peninsula).
+
+    Distinguishes an inside corner / along-wall run (a wall sits behind the
+    new cabinet -> fill on it) from a corner return projecting into the room
+    (no wall behind -> peninsula). Computes the same corner-snap transform
+    ``_position_free`` would use, takes the new cabinet's back-face midpoint
+    on the floor, and looks for a wall face line coincident (within
+    ``_CORNER_WALL_BEHIND_TOL``) and parallel to the cabinet's width axis.
+    """
+    if side == 'LEFT':
+        snap = _compute_corner_left_snap_transform(corner_obj, new_width)
+    else:
+        snap = _compute_corner_right_snap_transform(corner_obj, new_width)
+    if snap is None:
+        return None
+    new_loc, new_rot = snap
+
+    rot_m = Matrix.Rotation(new_rot.z, 4, 'Z')
+    # Cage origin is back-left-floor (+X width, back face at local y=0).
+    back_mid = new_loc + rot_m @ Vector((new_width / 2.0, 0.0, 0.0))
+    back_mid_2d = Vector((back_mid.x, back_mid.y))
+    x_axis = rot_m @ Vector((1.0, 0.0, 0.0))
+    x_axis_2d = Vector((x_axis.x, x_axis.y))
+    if x_axis_2d.length == 0.0:
+        return None
+    x_axis_2d.normalize()
+
+    best_wall = None
+    best_dist = _CORNER_WALL_BEHIND_TOL
+    for obj in context.scene.objects:
+        if 'IS_WALL_BP' not in obj:
+            continue
+        try:
+            wall = hb_types.GeoNodeWall(obj)
+            if not wall.has_modifier():
+                continue
+            wall_length = wall.get_input('Length')
+            wall_thickness = wall.get_input('Thickness')
+        except Exception:
+            continue
+        wm = obj.matrix_world
+        wdir = wm.to_3x3() @ Vector((1.0, 0.0, 0.0))
+        wdir_2d = Vector((wdir.x, wdir.y))
+        if wdir_2d.length == 0.0:
+            continue
+        wdir_2d.normalize()
+        # The cabinet runs along the wall, so its width axis must be
+        # parallel to the wall (|dot| ~ 1). Skip perpendicular walls the
+        # cabinet's side merely passes near.
+        if abs(wdir_2d.dot(x_axis_2d)) < 0.9:
+            continue
+        # Check both wall faces (front y=0, back y=thickness); the cabinet
+        # back sits against whichever is coincident.
+        for face_y in (0.0, wall_thickness or 0.0):
+            a = wm @ Vector((0.0, face_y, 0.0))
+            b = wm @ Vector((wall_length, face_y, 0.0))
+            closest, percent = intersect_point_line(
+                back_mid_2d, Vector((a.x, a.y)), Vector((b.x, b.y)))
+            if percent < -0.05 or percent > 1.05:
+                continue
+            dist = (back_mid_2d - Vector(closest[:2])).length
+            if dist < best_dist:
+                best_dist = dist
+                best_wall = obj
+    return best_wall
 
 
 def _hit_face_of_cabinet(cab_obj, hit_location):
@@ -2204,17 +2280,22 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
                     context, hit_cab, _bay_under_cursor(self.hit_object))
                 return
 
-        # Corner-cabinet return snap (peninsula). If the cursor is over a
-        # corner cabinet - free-standing OR wall-mounted - hand off to
-        # free placement, whose snap detection continues the run off the
-        # hovered return. Checked BEFORE wall detection: a wall-mounted
-        # corner sits on a wall, so _detect_wall would otherwise grab that
-        # wall and place the new cabinet on it instead of off the return.
-        corner_obj, _corner_side = _corner_snap_target_under_cursor(
+        # Corner-cabinet run continuation. If the cursor is over a corner
+        # cabinet - free-standing OR wall-mounted - decide between filling
+        # on a wall and going peninsula by where the new cabinet would land
+        # off the hovered arm: peninsula ONLY when no wall sits behind that
+        # spot (a return projecting into the room). An inside corner, or a
+        # run continuing along a wall, fills on the wall behind the arm.
+        corner_obj, corner_side = _corner_snap_target_under_cursor(
             self.hit_object, self.hit_location)
         if (corner_obj is not None
                 and corner_obj is not self._preview_cage.obj):
-            self._position_free(context)
+            arm_wall = _wall_behind_corner_snap(
+                self, context, corner_obj, corner_side, self._cabinet_width)
+            if arm_wall is not None:
+                self._position_on_wall(context, arm_wall)
+            else:
+                self._position_free(context)
             return
 
         wall = _detect_wall(self, context)
