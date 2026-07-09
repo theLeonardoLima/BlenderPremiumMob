@@ -49,6 +49,197 @@ def get_font(font_name='Calibri Regular'):
 
 
 # =============================================================================
+# LINE ENGINE (Freestyle vs Grease Pencil Line Art)
+# =============================================================================
+
+# Values for the addon preference and the per-scene stamp. Layout views are
+# stamped at creation so export code can tell how an existing scene draws its
+# lines regardless of what the preference currently says.
+LINE_ENGINE_FREESTYLE = 'FREESTYLE'
+LINE_ENGINE_LINEART = 'LINEART'
+LINE_ENGINE_PROP = 'HB_LINE_ENGINE'
+
+# Tag on the per-scene Grease Pencil object that carries the Line Art
+# modifiers, so lookups survive object renames.
+LINEART_OBJECT_TAG = 'IS_HB_LINEART'
+
+# Paper-space line sizes in inches, converted to world units per drawing
+# scale by update_line_art_sizes. Chosen to match the Freestyle look
+# (solid 1.5px / dashed 1.0px at the 150dpi base).
+LINEART_SOLID_WIDTH_PAPER = 0.010
+LINEART_DASHED_WIDTH_PAPER = 0.0067
+# The dashed layer is resampled to this fixed point spacing because the
+# DASH modifier counts points, not distance -- Line Art emits straight
+# edges as 2-point strokes, which can never dash on their own.
+LINEART_SAMPLE_PAPER = 0.025
+LINEART_DASH_POINTS = 3
+LINEART_GAP_POINTS = 2
+
+
+def get_default_line_engine():
+    """Line engine used for NEW layout views, from addon preferences."""
+    addon = bpy.context.preferences.addons.get(__package__)
+    if addon and hasattr(addon.preferences, 'line_engine'):
+        return addon.preferences.line_engine
+    return LINE_ENGINE_FREESTYLE
+
+
+def get_scene_line_engine(scene):
+    """Line engine an EXISTING layout scene was generated with."""
+    return scene.get(LINE_ENGINE_PROP, LINE_ENGINE_FREESTYLE)
+
+
+def get_line_art_object(scene):
+    """Return the scene's Line Art GP object, or None."""
+    for obj in scene.collection.all_objects:
+        if obj.get(LINEART_OBJECT_TAG):
+            return obj
+    return None
+
+
+def remove_line_art_from_scene(scene):
+    """Delete the scene's Line Art GP object (style pages, engine switch)."""
+    obj = get_line_art_object(scene)
+    if obj is None:
+        return
+    data = obj.data
+    bpy.data.objects.remove(obj)
+    if data is not None and data.users == 0:
+        bpy.data.grease_pencils.remove(data)
+
+
+def _get_lineart_material(name):
+    """Black stroke-only GP material, shared across layout scenes."""
+    mat = bpy.data.materials.get(name)
+    if mat is None:
+        mat = bpy.data.materials.new(name)
+    if not mat.grease_pencil:
+        bpy.data.materials.create_gpencil_data(mat)
+    gpm = mat.grease_pencil
+    gpm.show_stroke = True   # create_gpencil_data() defaults this OFF
+    gpm.show_fill = False
+    gpm.color = (0.0, 0.0, 0.0, 1.0)
+    return mat
+
+
+def setup_line_art_for_scene(scene, solid_collection, dashed_collection,
+                             ignore_collection):
+    """Create (or rebuild) the Grease Pencil Line Art object for a layout scene.
+
+    Mirrors the two Freestyle linesets: a Solid layer with the visible
+    edges of the SOLID collection and a Dashed layer with the hidden
+    (occlusion >= 1) edges of the DASHED collection. A collection-sourced
+    Line Art modifier still occludes against the whole scene, so the
+    lineset semantics carry over unchanged.
+    """
+    remove_line_art_from_scene(scene)
+
+    # Annotations (dims, text, title block) must neither emit nor occlude
+    # line art strokes.
+    if ignore_collection is not None:
+        ignore_collection.lineart_usage = 'EXCLUDE'
+
+    gp_data = bpy.data.grease_pencils.new(f"{scene.name}_LineArt")
+    gp_obj = bpy.data.objects.new(f"{scene.name}_LineArt", gp_data)
+    gp_obj[LINEART_OBJECT_TAG] = True
+    scene.collection.objects.link(gp_obj)
+
+    # Workbench solid shading in OBJECT color mode tints GP strokes by the
+    # object color, not the GP material, so the object itself must be black.
+    gp_obj.color = (0.0, 0.0, 0.0, 1.0)
+    # Hidden lines sit behind the geometry that hides them; draw the whole
+    # object in front so they aren't depth-culled in the viewport or the
+    # OpenGL export render.
+    gp_obj.show_in_front = True
+
+    mat_solid = _get_lineart_material("HB_LineArt_Solid")
+    mat_dashed = _get_lineart_material("HB_LineArt_Dashed")
+    gp_data.materials.append(mat_solid)
+    gp_data.materials.append(mat_dashed)
+
+    # Line art writes into the layer's frame at the current frame; a layer
+    # with no keyframe silently produces nothing.
+    for layer_name in ("Solid", "Dashed"):
+        layer = gp_data.layers.new(layer_name)
+        layer.frames.new(scene.frame_current)
+        layer.use_lights = False
+
+    mod = gp_obj.modifiers.new("Lineart Solid", 'LINEART')
+    mod.source_type = 'COLLECTION'
+    mod.source_collection = solid_collection
+    mod.use_contour = True
+    mod.use_crease = True
+    mod.use_edge_mark = True
+    mod.use_intersection = False
+    mod.use_loose = False
+    mod.use_material = False
+    mod.use_object_instances = True
+    mod.use_multiple_levels = False
+    mod.level_start = 0
+    mod.target_layer = "Solid"
+    mod.target_material = mat_solid
+
+    mod = gp_obj.modifiers.new("Lineart Dashed", 'LINEART')
+    mod.source_type = 'COLLECTION'
+    mod.source_collection = dashed_collection
+    mod.use_contour = True
+    mod.use_crease = True
+    mod.use_edge_mark = True
+    mod.use_intersection = False
+    mod.use_loose = False
+    mod.use_material = False
+    mod.use_object_instances = True
+    # Occlusion >= 1: only edges hidden behind other geometry, the Line
+    # Art equivalent of the Freestyle lineset's visibility = 'HIDDEN'.
+    mod.use_multiple_levels = True
+    mod.level_start = 1
+    mod.level_end = 128
+    mod.target_layer = "Dashed"
+    mod.target_material = mat_dashed
+
+    mod = gp_obj.modifiers.new("Resample Dashed", 'GREASE_PENCIL_SIMPLIFY')
+    mod.mode = 'SAMPLE'
+    mod.material_filter = mat_dashed
+
+    mod = gp_obj.modifiers.new("Dash Hidden", 'GREASE_PENCIL_DASH')
+    mod.material_filter = mat_dashed
+    seg = mod.segments[0]  # a new DASH modifier ships with one segment
+    seg.dash = LINEART_DASH_POINTS
+    seg.gap = LINEART_GAP_POINTS
+
+    update_line_art_sizes(scene)
+    return gp_obj
+
+
+def update_line_art_sizes(scene):
+    """Recompute world-space stroke sizes from the scene's drawing scale.
+
+    GP stroke radius is in world units (unlike Freestyle's pixel
+    thickness), so the paper-space constants are converted through
+    paper_to_world to keep printed line weight scale- and DPI-independent.
+    """
+    gp_obj = get_line_art_object(scene)
+    if gp_obj is None:
+        return
+    scale_str = getattr(scene, 'hb_layout_scale', '') or '1/4"=1\''
+    # Deferred import: operators.layouts imports this module at load time.
+    from .operators.layouts import paper_to_world
+    try:
+        solid_radius = paper_to_world(LINEART_SOLID_WIDTH_PAPER, scale_str) / 2.0
+        dashed_radius = paper_to_world(LINEART_DASHED_WIDTH_PAPER, scale_str) / 2.0
+        sample_length = paper_to_world(LINEART_SAMPLE_PAPER, scale_str)
+    except Exception:
+        return
+    for mod in gp_obj.modifiers:
+        if mod.name == "Lineart Solid":
+            mod.radius = solid_radius
+        elif mod.name == "Lineart Dashed":
+            mod.radius = dashed_radius
+        elif mod.name == "Resample Dashed":
+            mod.length = sample_length
+
+
+# =============================================================================
 # OBJECT CLASSIFICATION
 # =============================================================================
 
@@ -319,15 +510,27 @@ class LayoutView:
         
         # Set shading to solid
         self.scene.display.shading.type = 'SOLID'
-        
-        # Enable Freestyle
-        self.scene.render.use_freestyle = True
-        
-        # Create Freestyle collections
+
+        # Create the SOLID / DASHED / IGNORE routing collections. Both line
+        # engines share them: Freestyle selects linesets by collection and
+        # Line Art sources its modifiers from the same collections.
         self._create_freestyle_collections()
-        
-        # Set up Freestyle line sets
-        self._setup_freestyle_linesets()
+
+        if get_default_line_engine() == LINE_ENGINE_LINEART:
+            # Grease Pencil Line Art: strokes are real objects, so
+            # Freestyle must stay off or every line would render twice.
+            self.scene.render.use_freestyle = False
+            for view_layer in self.scene.view_layers:
+                view_layer.use_freestyle = False
+            self._setup_lineart()
+            self.scene[LINE_ENGINE_PROP] = LINE_ENGINE_LINEART
+        else:
+            # Enable Freestyle
+            self.scene.render.use_freestyle = True
+
+            # Set up Freestyle line sets
+            self._setup_freestyle_linesets()
+            self.scene[LINE_ENGINE_PROP] = LINE_ENGINE_FREESTYLE
     
     def _create_freestyle_collections(self):
         """Create the three Freestyle control collections for this layout."""
@@ -417,6 +620,16 @@ class LayoutView:
             dashed_lineset.linestyle.dash1 = 10
             dashed_lineset.linestyle.gap1 = 5
     
+    def _setup_lineart(self):
+        """Line Art counterpart of _setup_freestyle_linesets."""
+        if not self.scene:
+            return
+        setup_line_art_for_scene(
+            self.scene,
+            self.get_freestyle_collection('SOLID'),
+            self.get_freestyle_collection('DASHED'),
+            self.get_freestyle_collection('IGNORE'))
+
     def get_freestyle_collection(self, collection_type: str):
         """Get the Freestyle collection by type: 'IGNORE', 'DASHED', or 'SOLID'."""
         if not self.scene:

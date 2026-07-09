@@ -259,6 +259,10 @@ def recalculate_annotation_sizes_for_scene(scene):
     hb_scene.annotation_dimension_tick_thickness = paper_to_world(
         hb_scene.annotation_dim_tick_paper_thickness, scale_str)
 
+    # Line-art layout views: stroke widths are world-space, so they track
+    # the drawing scale the same way the annotation sizes above do.
+    hb_layouts.update_line_art_sizes(scene)
+
 
 def update_title_block_border(scene):
     """Update title block border to match current page aspect ratio."""
