@@ -86,6 +86,35 @@ LINEART_SAMPLE_PAPER = 0.025
 LINEART_DASH_POINTS = 3
 LINEART_GAP_POINTS = 2
 
+# --- Marked-parts channel ------------------------------------------------
+# Face frame and front parts sit flush against their neighbours, which
+# leaves their feature edges in occlusion-tie territory: the level-0 solid
+# pass can lose them entirely (e.g. a tall cabinet's face frame top rail).
+# A third Line Art pass re-traces just these parts with a small occlusion
+# tolerance so their lines always survive, without turning the whole
+# drawing into an x-ray.
+LINEART_MARKED_TAG = 'IS_HB_LINEART_MARKED'
+LINEART_MARKED_SUFFIX = ' LA-Marked'
+# Substring match against part object names within each instanced content
+# collection. Doubling the fronts also pushes genuinely-hidden geometry
+# behind them past the marked occlusion range, keeping openings clean.
+LINEART_MARKED_PART_KEYWORDS = (
+    'Rail', 'Stile', 'Door (', 'Blind Panel', 'Drawer Front')
+# 0-2 covers flush-tie casualties (level 1) plus rails that sit behind two
+# coincident planes (level 2) while leaving anything behind a closed front
+# (level 4+ once the front is doubled) hidden.
+LINEART_MARKED_LEVEL_END = 2
+# The isometric cells read badly with the marked pass (protruding door
+# back edges draw); it applies to flat cells only until the iso gets its
+# own treatment.
+LINEART_MARKED_SKIP_PREFIXES = ('Isometric',)
+# The marked duplicates are lifted this far toward the camera. Coplanar
+# duplicates create occlusion ties that can stack past the marked range
+# (drawer front + door + frame + their copies share one plane at the
+# boundary lines); lifting breaks every tie while displacing the drawn
+# lines by exactly zero pixels in an orthographic view.
+LINEART_MARKED_LIFT = 0.001
+
 
 def get_default_line_engine():
     """Line engine used for NEW layout views, from addon preferences."""
@@ -323,7 +352,7 @@ def update_line_art_sizes(scene):
         return
     jitter = _ensure_lineart_camera(scene)
     for mod in gp_obj.modifiers:
-        if mod.name == "Lineart Solid":
+        if mod.name in ("Lineart Solid", "Lineart Marked"):
             mod.radius = solid_radius
         elif mod.name == "Lineart Dashed":
             mod.radius = dashed_radius
@@ -332,6 +361,103 @@ def update_line_art_sizes(scene):
         if mod.type == 'LINEART' and jitter is not None:
             mod.use_custom_camera = True
             mod.source_camera = jitter
+
+
+def build_line_art_marked_channel(scene):
+    """Create or rebuild the marked-parts Line Art channel for a layout view.
+
+    Links the face-frame / front parts of every instanced content
+    collection (matched by LINEART_MARKED_PART_KEYWORDS) into per-content
+    subset collections, instances those at each flat cell's transform,
+    and traces them with a third Line Art pass at occlusion
+    0..LINEART_MARKED_LEVEL_END so flush-joint edges can't be lost.
+
+    Call after the view's content instances exist (end of view
+    generation). Idempotent: clears and rebuilds the marked instances
+    every time. No-op for Freestyle views and scenes without a solid
+    collection.
+    """
+    gp_obj = get_line_art_object(scene)
+    if gp_obj is None:
+        return
+    solid_coll = bpy.data.collections.get(f"{scene.name}_Freestyle_Solid")
+    if solid_coll is None:
+        return
+
+    marked_coll = bpy.data.collections.get(f"{scene.name}_LineArt_Marked")
+    if marked_coll is None:
+        marked_coll = bpy.data.collections.new(f"{scene.name}_LineArt_Marked")
+    if marked_coll.name not in scene.collection.children:
+        scene.collection.children.link(marked_coll)
+
+    # Clear the previous build; only marked instance empties live here.
+    for obj in list(marked_coll.objects):
+        bpy.data.objects.remove(obj)
+
+    # Lift toward the camera (see LINEART_MARKED_LIFT). The camera looks
+    # along its local -Z, so toward-camera is its world +Z axis.
+    lift = Vector((0.0, 0.0, 0.0))
+    if scene.camera is not None:
+        toward_cam = scene.camera.matrix_world.to_quaternion() @ Vector((0.0, 0.0, 1.0))
+        lift = toward_cam.normalized() * LINEART_MARKED_LIFT
+
+    for inst in list(solid_coll.objects):
+        if inst.type != 'EMPTY' or inst.instance_type != 'COLLECTION':
+            continue
+        src = inst.instance_collection
+        if src is None or src.name.endswith(LINEART_MARKED_SUFFIX):
+            continue
+        if any(inst.name.startswith(p) for p in LINEART_MARKED_SKIP_PREFIXES):
+            continue
+
+        subset_name = src.name + LINEART_MARKED_SUFFIX
+        subset = bpy.data.collections.get(subset_name)
+        if subset is None:
+            subset = bpy.data.collections.new(subset_name)
+        for obj in list(subset.objects):
+            subset.objects.unlink(obj)
+        for obj in src.all_objects:
+            if (obj.type == 'MESH'
+                    and any(k in obj.name for k in LINEART_MARKED_PART_KEYWORDS)):
+                subset.objects.link(obj)
+        if len(subset.objects) == 0:
+            continue
+
+        empty = bpy.data.objects.new(inst.name + LINEART_MARKED_SUFFIX, None)
+        empty[LINEART_MARKED_TAG] = True
+        empty.instance_type = 'COLLECTION'
+        empty.instance_collection = subset
+        empty.matrix_world = inst.matrix_world.copy()
+        empty.location = empty.location + lift
+        empty.hide_select = True
+        marked_coll.objects.link(empty)
+
+    mod = gp_obj.modifiers.get("Lineart Marked")
+    if mod is None:
+        mod = gp_obj.modifiers.new("Lineart Marked", 'LINEART')
+        # Keep the dashed post-processing (resample + dash) at the end of
+        # the stack; line art modifier order among themselves is free.
+        names = [m.name for m in gp_obj.modifiers]
+        if "Resample Dashed" in names:
+            gp_obj.modifiers.move(names.index("Lineart Marked"),
+                                  names.index("Resample Dashed"))
+    mod.source_type = 'COLLECTION'
+    mod.source_collection = marked_coll
+    mod.use_contour = True
+    mod.use_crease = True
+    mod.use_edge_mark = True
+    mod.use_intersection = False
+    mod.use_loose = False
+    mod.use_material = False
+    mod.use_object_instances = True
+    mod.use_multiple_levels = True
+    mod.level_start = 0
+    mod.level_end = LINEART_MARKED_LEVEL_END
+    mod.target_layer = "Solid"
+    mod.target_material = _get_lineart_material("HB_LineArt_Solid")
+
+    # Radius + jitter camera for the (possibly new) modifier.
+    update_line_art_sizes(scene)
 
 
 # =============================================================================
