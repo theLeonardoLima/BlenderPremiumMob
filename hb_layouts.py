@@ -63,6 +63,17 @@ LINE_ENGINE_PROP = 'HB_LINE_ENGINE'
 # modifiers, so lookups survive object renames.
 LINEART_OBJECT_TAG = 'IS_HB_LINEART'
 
+# Tag on the per-scene tilted camera the Line Art modifiers evaluate from.
+LINEART_CAMERA_TAG = 'IS_HB_LINEART_CAMERA'
+
+# A perfectly axis-aligned ortho camera makes many cabinet edges degenerate
+# for Line Art: adjacent faces sit exactly edge-on to the view and flush
+# parts project onto coincident image-space lines, so their feature edges
+# are dropped (e.g. door top rails losing their top line). Evaluating from
+# a camera tilted by a fraction of a degree breaks every such degeneracy;
+# strokes still lie on the real geometry, so the drawing is unaffected.
+LINEART_CAMERA_JITTER_DEG = 0.05
+
 # Paper-space line sizes in inches, converted to world units per drawing
 # scale by update_line_art_sizes. Chosen to match the Freestyle look
 # (solid 1.5px / dashed 1.0px at the 150dpi base).
@@ -106,6 +117,54 @@ def remove_line_art_from_scene(scene):
     bpy.data.objects.remove(obj)
     if data is not None and data.users == 0:
         bpy.data.grease_pencils.remove(data)
+
+
+def _ensure_lineart_camera(scene):
+    """Return the tilted camera Line Art evaluates from (see
+    LINEART_CAMERA_JITTER_DEG), creating or repairing it as needed.
+
+    The jitter camera shares the scene camera's data block (so ortho
+    scale and clipping always match) and is parented to it (so it
+    follows framing changes). Returns None until the scene camera
+    exists -- update_line_art_sizes retries on every scale/paper
+    recalculation, which runs after view cameras are created.
+    """
+    cam = scene.camera
+    if cam is None:
+        return None
+    for obj in scene.collection.all_objects:
+        if obj.get(LINEART_CAMERA_TAG):
+            if obj.parent == cam and obj.data == cam.data:
+                return obj
+            # Scene camera was rebuilt since this was created; replace it.
+            bpy.data.objects.remove(obj)
+            break
+    jitter = bpy.data.objects.new(f"{scene.name}_LineArt Camera", cam.data)
+    jitter[LINEART_CAMERA_TAG] = True
+    scene.collection.objects.link(jitter)
+    jitter.parent = cam
+    tilt = math.radians(LINEART_CAMERA_JITTER_DEG)
+    # Local X = pitch, local Y = yaw. (Local Z would be roll around the
+    # view axis, which changes nothing for degeneracy.)
+    jitter.rotation_euler = (tilt, tilt, 0.0)
+    # Never drawn or rendered; Line Art only reads its transform + data.
+    jitter.hide_render = True
+    jitter.hide_viewport = True
+    return jitter
+
+
+def refresh_line_art(scene):
+    """Force the scene's Line Art strokes to recompute on next evaluation.
+
+    Line Art computes once and caches; a view scene that was built or
+    heavily edited programmatically can be left displaying strokes from a
+    mid-build state (missing edges, stub segments). Tagging the GP object
+    makes the next depsgraph pass regenerate from the final geometry.
+    Cheap no-op when the scene has no line art object.
+    """
+    gp_obj = get_line_art_object(scene)
+    if gp_obj is not None:
+        gp_obj.update_tag()
 
 
 def _get_lineart_material(name):
@@ -207,6 +266,9 @@ def setup_line_art_for_scene(scene, solid_collection, dashed_collection,
     seg.dash = LINEART_DASH_POINTS
     seg.gap = LINEART_GAP_POINTS
 
+    # Sizes + jitter camera. The camera usually doesn't exist yet at this
+    # point (views create it after create_scene); update_line_art_sizes
+    # runs again from every scale/paper recalculation and attaches it then.
     update_line_art_sizes(scene)
     return gp_obj
 
@@ -225,11 +287,17 @@ def update_line_art_sizes(scene):
     # Deferred import: operators.layouts imports this module at load time.
     from .operators.layouts import paper_to_world
     try:
-        solid_radius = paper_to_world(LINEART_SOLID_WIDTH_PAPER, scale_str) / 2.0
-        dashed_radius = paper_to_world(LINEART_DASHED_WIDTH_PAPER, scale_str) / 2.0
+        # The modifier's radius value ends up as the stroke's half-width
+        # (point radius = modifier radius / 2), so the paper-space WIDTH
+        # constants convert 1:1 -- do NOT halve them here. Under-width
+        # strokes fall below a pixel at the 150dpi base and whole lines
+        # wash out wherever they land across a pixel boundary.
+        solid_radius = paper_to_world(LINEART_SOLID_WIDTH_PAPER, scale_str)
+        dashed_radius = paper_to_world(LINEART_DASHED_WIDTH_PAPER, scale_str)
         sample_length = paper_to_world(LINEART_SAMPLE_PAPER, scale_str)
     except Exception:
         return
+    jitter = _ensure_lineart_camera(scene)
     for mod in gp_obj.modifiers:
         if mod.name == "Lineart Solid":
             mod.radius = solid_radius
@@ -237,6 +305,9 @@ def update_line_art_sizes(scene):
             mod.radius = dashed_radius
         elif mod.name == "Resample Dashed":
             mod.length = sample_length
+        if mod.type == 'LINEART' and jitter is not None:
+            mod.use_custom_camera = True
+            mod.source_camera = jitter
 
 
 # =============================================================================
