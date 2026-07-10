@@ -608,7 +608,13 @@ def build_line_art_marked_channel(scene):
         empty[LINEART_MARKED_TAG] = True
         empty.instance_type = 'COLLECTION'
         empty.instance_collection = subset
-        empty.matrix_world = inst.matrix_world.copy()
+        # inst.matrix_world is depsgraph-evaluated and still reads as the
+        # identity for instances created earlier in this same operator run
+        # (e.g. fresh per-cabinet split siblings). The authored basis is
+        # never stale, and these instances are unparented, so it IS their
+        # world transform.
+        empty.matrix_world = (inst.matrix_basis.copy() if inst.parent is None
+                              else inst.matrix_world.copy())
         empty.location = empty.location + lift
         # Mirror the source instance's display colour: the marked twin is
         # lifted toward the camera, so in OBJECT colour mode a default
