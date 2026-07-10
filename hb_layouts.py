@@ -545,6 +545,19 @@ def _clear_emission_subset(subset):
             subset.objects.unlink(obj)
 
 
+def _authored_world(obj):
+    """World matrix composed purely from authored channels (matrix_basis +
+    matrix_parent_inverse up the parent chain). Unlike matrix_world this is
+    never depsgraph-stale, so instances created earlier in the same operator
+    run read their real transform."""
+    m = obj.matrix_basis.copy()
+    o = obj
+    while o.parent is not None:
+        m = o.parent.matrix_basis @ o.matrix_parent_inverse @ m
+        o = o.parent
+    return m
+
+
 def build_line_art_marked_channel(scene):
     """Create or rebuild the marked-parts Line Art channel for a layout view.
 
@@ -608,14 +621,19 @@ def build_line_art_marked_channel(scene):
         empty[LINEART_MARKED_TAG] = True
         empty.instance_type = 'COLLECTION'
         empty.instance_collection = subset
+        # Parent to the source instance so repositioning a cell carries its
+        # marked twin along. The local matrix bakes in the world-space lift;
+        # it is composed from authored channels (_authored_world) because
         # inst.matrix_world is depsgraph-evaluated and still reads as the
         # identity for instances created earlier in this same operator run
-        # (e.g. fresh per-cabinet split siblings). The authored basis is
-        # never stale, and these instances are unparented, so it IS their
-        # world transform.
-        empty.matrix_world = (inst.matrix_basis.copy() if inst.parent is None
-                              else inst.matrix_world.copy())
-        empty.location = empty.location + lift
+        # (e.g. fresh per-cabinet split siblings).
+        src_world = _authored_world(inst)
+        empty.parent = inst
+        try:
+            empty.matrix_basis = (src_world.inverted()
+                                  @ Matrix.Translation(lift) @ src_world)
+        except ValueError:
+            pass  # degenerate (zero-scale) source: leave at identity
         # Mirror the source instance's display colour: the marked twin is
         # lifted toward the camera, so in OBJECT colour mode a default
         # (white) twin would paint over any tint on the source instance.
