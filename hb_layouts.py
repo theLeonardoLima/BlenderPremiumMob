@@ -607,6 +607,10 @@ def build_line_art_marked_channel(scene):
         empty.instance_collection = subset
         empty.matrix_world = inst.matrix_world.copy()
         empty.location = empty.location + lift
+        # Mirror the source instance's display colour: the marked twin is
+        # lifted toward the camera, so in OBJECT colour mode a default
+        # (white) twin would paint over any tint on the source instance.
+        empty.color = inst.color
         empty.hide_select = True
         marked_coll.objects.link(empty)
 
