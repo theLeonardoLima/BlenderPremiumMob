@@ -1581,7 +1581,11 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
         if parsed is not None and self.current_wall:
             self.current_wall.set_input('Length', parsed)
             self.update_dimension(bpy.context)
-            self.confirm_current_wall()
+            commit_error = self._wall_commit_error()
+            if commit_error:
+                self.report({'WARNING'}, commit_error)
+            else:
+                self.confirm_current_wall()
         self.stop_typing()
 
     def create_wall(self, context):
@@ -1963,6 +1967,47 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
         # Hide the live wall length dimension — the room is closed
         self._wall_dim_visible = False
 
+    def _wall_commit_error(self):
+        """Return why the current wall can't be committed, or None if it can.
+
+        Zero-length segments and segments lying on top of an existing wall
+        corrupt the endpoint-coincidence adjacency logic (get_connected_wall,
+        find_wall_chains), so they are rejected before the commit."""
+        tolerance = 0.01
+        wall_length = self.current_wall.get_input('Length')
+        if wall_length < tolerance:
+            return "Wall is too short to place"
+
+        angle = self.current_wall.obj.rotation_euler.z
+        direction = Vector((math.cos(angle), math.sin(angle)))
+        p1 = self.start_point.to_2d()
+        p2 = p1 + direction * wall_length
+
+        for obj in bpy.context.scene.objects:
+            if not obj.get('IS_WALL_BP') or obj is self.current_wall.obj:
+                continue
+            start, end = get_wall_endpoints(obj)
+            seg = end - start
+            seg_length = seg.length
+            if seg_length < tolerance:
+                continue
+            seg_dir = seg / seg_length
+            # Only collinear segments can overlap; perpendicular contact
+            # (T-junctions, walls ending against a face) stays valid
+            if abs(seg_dir.x * direction.y - seg_dir.y * direction.x) > 0.01:
+                continue
+            offset = p1 - start
+            if abs(offset.x * seg_dir.y - offset.y * seg_dir.x) > tolerance:
+                continue
+            # Overlap of the 1D spans along the shared axis; touching at a
+            # single endpoint (straight continuation) is allowed
+            t1 = offset.dot(seg_dir)
+            t2 = (p2 - start).dot(seg_dir)
+            overlap = min(max(t1, t2), seg_length) - max(min(t1, t2), 0.0)
+            if overlap > tolerance:
+                return "Wall overlaps an existing wall"
+        return None
+
     def confirm_current_wall(self):
         """Finalize current wall and prepare for next."""
         # Capture the very first start point (before it gets updated)
@@ -2237,7 +2282,11 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
                     hb_placement.clear_header_text(context)
                     return {'FINISHED'}
                 # Confirm wall and start next
-                self.confirm_current_wall()
+                commit_error = self._wall_commit_error()
+                if commit_error:
+                    self.report({'WARNING'}, commit_error)
+                else:
+                    self.confirm_current_wall()
             return {'RUNNING_MODAL'}
 
         # Right click - finish drawing
