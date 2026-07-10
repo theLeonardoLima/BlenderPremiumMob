@@ -124,6 +124,9 @@ LINEART_MARKED_LIFT = 0.001
 # editable strokes (bake_line_art_editable). Baked views keep their
 # modifiers disabled; regenerating the view returns to automatic tracing.
 LINEART_BAKED_PROP = 'HB_LINEART_BAKED'
+# Zero-opacity layer whose strokes mask (inverted) every other layer,
+# so line art can't draw through annotation text.
+LINEART_HOLDOUT_LAYER = 'Holdout'
 
 
 def get_default_line_engine():
@@ -665,9 +668,83 @@ def build_line_art_marked_channel(scene):
     _ensure_lineart_layer(gp_obj.data, scene, "Marked")
     mod.target_layer = "Marked"
     mod.target_material = _get_lineart_material("HB_LineArt_Solid")
+    # A fresh Marked layer misses any text-holdout mask applied earlier.
+    _apply_holdout_masks(gp_obj)
 
     # Radius + jitter camera for the (possibly new) modifier.
     update_line_art_sizes(scene)
+
+
+def _apply_holdout_masks(gp_obj):
+    """Add the holdout layer as an inverted mask on every other layer.
+
+    GreasePencil v3 exposes no data API for creating layer masks, so this
+    goes through the layer_mask_add operator with a context override.
+    No-op until the holdout layer exists; safe to call repeatedly.
+    """
+    gp_data = gp_obj.data
+    if gp_data.layers.get(LINEART_HOLDOUT_LAYER) is None:
+        return
+    prev_active = gp_data.layers.active
+    for layer in gp_data.layers:
+        if layer.name == LINEART_HOLDOUT_LAYER:
+            continue
+        if layer.mask_layers.get(LINEART_HOLDOUT_LAYER) is None:
+            gp_data.layers.active = layer
+            try:
+                with bpy.context.temp_override(active_object=gp_obj,
+                                               object=gp_obj):
+                    bpy.ops.grease_pencil.layer_mask_add(
+                        name=LINEART_HOLDOUT_LAYER)
+            except Exception:
+                continue
+        mask = layer.mask_layers.get(LINEART_HOLDOUT_LAYER)
+        if mask is not None:
+            mask.invert = True
+            layer.use_masks = True
+    gp_data.layers.active = prev_active
+
+
+def build_line_art_text_holdouts(scene, rects):
+    """Keep line art strokes from drawing through annotation text.
+
+    rects: iterable of (center, x_dir, half_width, half_height) in world
+    space -- one per text label, x_dir a unit vector along the text's
+    reading direction. Each rect becomes a fat 2-point stroke (round caps
+    cover the rect's corners) on a zero-opacity holdout layer, and every
+    other layer masks against it INVERTED, clipping strokes wherever text
+    sits. The layer must be zero-opacity, NOT hidden: a hidden layer
+    stops masking. Idempotent -- rebuilds the holdout strokes each call;
+    an empty rects list clears them.
+    """
+    gp_obj = get_line_art_object(scene)
+    if gp_obj is None:
+        return
+    gp_data = gp_obj.data
+    layer = gp_data.layers.get(LINEART_HOLDOUT_LAYER)
+    if layer is None:
+        layer = gp_data.layers.new(LINEART_HOLDOUT_LAYER)
+        layer.use_lights = False
+    layer.opacity = 0.0
+    layer.hide = False
+    drawing = _reset_layer_frame(layer, scene)
+    specs = []
+    for center, x_dir, half_w, half_h in rects:
+        if half_w <= 0.0 or half_h <= 0.0:
+            continue
+        specs.append((center - x_dir * half_w,
+                      center + x_dir * half_w, half_h))
+    if specs:
+        drawing.add_strokes([2] * len(specs))
+        for i, (p1, p2, radius) in enumerate(specs):
+            stroke = drawing.strokes[i]
+            stroke.material_index = 0
+            stroke.points[0].position = p1
+            stroke.points[1].position = p2
+            stroke.points[0].radius = radius
+            stroke.points[1].radius = radius
+        drawing.tag_positions_changed()
+    _apply_holdout_masks(gp_obj)
 
 
 def get_iso_freestyle_collections(scene):
