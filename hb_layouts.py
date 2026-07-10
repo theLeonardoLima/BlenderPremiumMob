@@ -1284,10 +1284,16 @@ class LayoutView:
         
         self.camera.location = location
         self.camera.rotation_euler = rotation
-        
+
+        # Page cameras are positioned by code only; keep them from being
+        # selected or transformed interactively
+        self.camera.lock_location = (True, True, True)
+        self.camera.lock_rotation = (True, True, True)
+        self.camera.hide_select = True
+
         # Set as active camera for scene
         self.scene.camera = self.camera
-        
+
         return self.camera
     
     def set_camera_ortho_scale(self, scale: float):

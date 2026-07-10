@@ -527,12 +527,23 @@ class home_builder_layouts_OT_delete_layout_view(bpy.types.Operator):
                     hb_utils.restore_view_state(target_scene)
             elif other_layouts:
                 context.window.scene = other_layouts[0]
+                hb_utils.set_layout_shading()
                 hb_utils.set_camera_view()
+                lock_layout_camera(other_layouts[0])
         
         bpy.data.scenes.remove(scene)
         
         self.report({'INFO'}, f"Deleted layout view: {scene_name}")
         return {'FINISHED'}
+
+
+def lock_layout_camera(scene):
+    """Lock a layout scene's camera so it can't be moved interactively."""
+    camera = scene.camera
+    if camera:
+        camera.lock_location = (True, True, True)
+        camera.lock_rotation = (True, True, True)
+        camera.hide_select = True
 
 
 class home_builder_layouts_OT_go_to_layout_view(bpy.types.Operator):
@@ -555,10 +566,13 @@ class home_builder_layouts_OT_go_to_layout_view(bpy.types.Operator):
             
             # Set appropriate view for the scene type
             if target_scene.get('IS_LAYOUT_VIEW'):
-                # Layout views use camera view
+                # Layout views use camera view with solid shading
+                hb_utils.set_layout_shading()
                 hb_utils.set_camera_view()
+                lock_layout_camera(target_scene)
             elif target_scene.get('IS_DETAIL_VIEW') or target_scene.get('IS_CROWN_DETAIL'):
                 # Detail views use top-down orthographic and frame all
+                hb_utils.set_layout_shading()
                 hb_utils.set_top_down_view()
                 hb_utils.frame_all_objects()
             elif hb_utils.is_room_scene(target_scene):

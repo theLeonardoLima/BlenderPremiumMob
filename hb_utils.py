@@ -273,7 +273,13 @@ def save_view_state(scene):
                     
                     # Store view perspective mode
                     scene['VIEW_PERSPECTIVE'] = r3d.view_perspective
-                    
+
+                    # Store viewport shading so layout views can switch to
+                    # solid without losing the room scene's shading
+                    scene['VIEW_SHADING_TYPE'] = space.shading.type
+                    scene['VIEW_SHADING_COLOR_TYPE'] = space.shading.color_type
+                    scene['VIEW_SHADING_XRAY'] = space.shading.show_xray
+
                     return True
     return False
 
@@ -309,7 +315,13 @@ def restore_view_state(scene):
                     
                     # Restore view perspective
                     r3d.view_perspective = scene.get('VIEW_PERSPECTIVE', 'PERSP')
-                    
+
+                    # Restore viewport shading if it was saved
+                    if 'VIEW_SHADING_TYPE' in scene:
+                        space.shading.type = scene['VIEW_SHADING_TYPE']
+                        space.shading.color_type = scene.get('VIEW_SHADING_COLOR_TYPE', space.shading.color_type)
+                        space.shading.show_xray = scene.get('VIEW_SHADING_XRAY', False)
+
                     return True
     return False
 
@@ -334,6 +346,21 @@ def set_top_down_view():
                 if space.type == 'VIEW_3D':
                     space.region_3d.view_perspective = 'ORTHO'
                     space.region_3d.view_rotation = Euler((0, 0, 0)).to_quaternion()
+                    return True
+    return False
+
+
+def set_layout_shading():
+    """Set the 3D viewport to solid shading for 2D layout and detail scenes."""
+    for area in bpy.context.screen.areas:
+        if area.type == 'VIEW_3D':
+            for space in area.spaces:
+                if space.type == 'VIEW_3D':
+                    space.shading.type = 'SOLID'
+                    space.shading.color_type = 'OBJECT'
+                    space.shading.show_xray = False
+                    # Keep viewport navigation from moving the page camera
+                    space.lock_camera = False
                     return True
     return False
 
