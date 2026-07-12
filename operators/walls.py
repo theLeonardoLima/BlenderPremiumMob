@@ -4840,6 +4840,14 @@ class home_builder_walls_OT_delete_wall(bpy.types.Operator):
 
 
 
+# Custom-prop marker stamped on every object that "Hide Wall" or
+# "Isolate Selected Walls" hides, so "Show All Walls" can restore
+# EXACTLY those objects without disturbing anything the user hid
+# manually -- or, critically, anything the product logic keeps hidden
+# (cutters, disabled partitions, construction helpers under a cabinet).
+ISOLATE_HIDDEN_TAG = 'HB_ISOLATED_HIDDEN'
+
+
 class home_builder_walls_OT_hide_wall(bpy.types.Operator):
     """Hide the selected wall and all its children"""
     bl_idname = "home_builder_walls.hide_wall"
@@ -4865,34 +4873,33 @@ class home_builder_walls_OT_hide_wall(bpy.types.Operator):
                 wall_bps.add(obj.parent)
 
         for wall_bp in wall_bps:
-            wall_bp.hide_set(True)
-            wall_bp.hide_viewport = True
-            for child in wall_bp.children_recursive:
-                child.hide_set(True)
-                child.hide_viewport = True
+            for obj in [wall_bp] + list(wall_bp.children_recursive):
+                # Skip anything already hidden: internal parts the product
+                # logic keeps hidden, or objects the user hid manually.
+                # Only marker-stamped objects get revealed by Show All
+                # Walls, so those stay hidden afterwards.
+                if obj.hide_get() or obj.hide_viewport:
+                    continue
+                obj.hide_set(True)
+                obj.hide_viewport = True
+                obj[ISOLATE_HIDDEN_TAG] = True
 
         self.report({'INFO'}, f"{len(wall_bps)} wall(s) hidden")
         return {'FINISHED'}
 
 
-# Custom-prop marker stamped on every object that "Isolate Selected
-# Walls" hides, so "Show All Walls" can restore EXACTLY those objects
-# (islands, appliances, other walls' content) without disturbing
-# anything the user hid manually.
-ISOLATE_HIDDEN_TAG = 'HB_ISOLATED_HIDDEN'
-
-
 class home_builder_walls_OT_show_all_walls(bpy.types.Operator):
-    """Show all objects hidden by Isolate Selected Walls"""
+    """Show all objects hidden by Hide Wall / Isolate Selected Walls"""
     bl_idname = "home_builder_walls.show_all_walls"
     bl_label = "Show All Walls"
-    bl_description = "Unhide everything hidden by Isolate Selected Walls"
+    bl_description = "Unhide everything hidden by Hide Wall or Isolate Selected Walls"
     bl_options = {'UNDO'}
 
     def execute(self, context):
         count = 0
-        # Restore everything the isolate command hid (marker-stamped),
-        # clearing the marker as we go.
+        # Restore everything Hide Wall / Isolate hid (marker-stamped),
+        # clearing the marker as we go. Internal product parts were never
+        # stamped (they were already hidden), so they stay hidden.
         for obj in context.scene.objects:
             if obj.get(ISOLATE_HIDDEN_TAG):
                 obj.hide_set(False)
@@ -4900,8 +4907,10 @@ class home_builder_walls_OT_show_all_walls(bpy.types.Operator):
                 del obj[ISOLATE_HIDDEN_TAG]
                 count += 1
 
-        # Backward-compat: blends isolated before the marker existed have
-        # hidden walls + children with no marker. Unhide those too.
+        # Backward-compat: blends hidden/isolated before the marker existed
+        # have hidden walls + children with no marker. Unhide those too --
+        # this CAN reveal internal parts on such old files (a prompt edit
+        # re-hides them); marker-stamped hides never take this path.
         for obj in context.scene.objects:
             if obj.get('IS_WALL_BP') and (obj.hide_get() or obj.hide_viewport):
                 obj.hide_set(False)
