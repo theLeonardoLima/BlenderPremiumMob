@@ -347,12 +347,20 @@ class hb_face_frame_OT_break_cabinet_both(bpy.types.Operator):
         bay.face_frame_bay.unlock_width = True
         # Break right first so the original keeps the active bay; the
         # subsequent break-left then operates on the modified original.
+        # Each break sends its extra width AWAY from the active bay so
+        # both outer cabinets absorb exactly one boundary's worth and
+        # come out the same size (a balanced split would double up on
+        # the left: the right break's left-half share can't land on
+        # the locked active bay, and the left break's right half IS
+        # the locked bay, pushing its whole share left).
         if bay_index < count - 1:
-            if types_face_frame.break_cabinet_at_gap(root, bay_index) is None:
+            if types_face_frame.break_cabinet_at_gap(
+                    root, bay_index, shrink_side='RIGHT') is None:
                 self.report({'ERROR'}, "Break (right) failed")
                 return {'CANCELLED'}
         if bay_index > 0:
-            if types_face_frame.break_cabinet_at_gap(root, bay_index - 1) is None:
+            if types_face_frame.break_cabinet_at_gap(
+                    root, bay_index - 1, shrink_side='LEFT') is None:
                 self.report({'ERROR'}, "Break (left) failed")
                 return {'CANCELLED'}
         return {'FINISHED'}

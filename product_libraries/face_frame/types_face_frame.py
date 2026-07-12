@@ -9247,10 +9247,18 @@ def _resolve_style_stile_width(root, cab_props, row):
         return None
 
 
-def break_cabinet_at_gap(cabinet, gap_index):
+def break_cabinet_at_gap(cabinet, gap_index, shrink_side='AUTO'):
     """Break `cabinet` into two cabinets at the gap between bays
     `gap_index` and `gap_index+1`. Returns the new (right-half)
     cabinet root, or None on invalid input.
+
+    `shrink_side` directs which half absorbs the extra width the break
+    creates (replacing the boundary mid stile with two butt end stiles
+    widens the pair; see the width math below): 'AUTO' splits it between
+    halves that have unlocked bays; 'LEFT' / 'RIGHT' force it onto one
+    half (Break Both uses this so each outer cabinet absorbs exactly one
+    boundary's worth and the outer halves come out equal). A forced side
+    with no unlocked bays falls back to AUTO.
 
     The original keeps bays [0..gap_index]; the new cabinet receives
     bays [gap_index+1..end] reindexed from 0. The boundary mid stile
@@ -9420,7 +9428,11 @@ def break_cabinet_at_gap(cabinet, gap_index):
                                 for b in bays[:gap_index + 1])
         right_has_unlocked = any(not b.face_frame_bay.unlock_width
                                  for b in right_bays)
-        if left_has_unlocked and right_has_unlocked:
+        if shrink_side == 'LEFT' and left_has_unlocked:
+            left_shrink, right_shrink = extra, 0.0
+        elif shrink_side == 'RIGHT' and right_has_unlocked:
+            left_shrink, right_shrink = 0.0, extra
+        elif left_has_unlocked and right_has_unlocked:
             left_shrink, right_shrink = extra / 2.0, extra / 2.0
         elif left_has_unlocked:
             left_shrink, right_shrink = extra, 0.0
