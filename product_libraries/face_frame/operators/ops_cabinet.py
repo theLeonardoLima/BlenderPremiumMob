@@ -465,8 +465,54 @@ class hb_face_frame_OT_equalize_bays(bpy.types.Operator):
 
 
 # ---------------------------------------------------------------------------
-# Operator: selection mode toggle (highlights matching objects, dims others)
+# Selection mode application (highlights matching objects, dims others)
 # ---------------------------------------------------------------------------
+# Module-level so non-operator callers (the live-preview appliance dialog)
+# can re-apply the mode DIRECTLY. Calling the toggle_mode OPERATOR from
+# inside another operator's execute registers it (default bl_options is
+# REGISTER) and steals the "last redo" slot -- which breaks
+# invoke_props_popup live dialogs: their on-edit repeat only fires while
+# the popup's own operator is the last redo op, so the popup stops
+# re-executing and its property UI falls back to defaults.
+
+# Object-marker tags for cage-level modes
+SELECTION_MODE_TAGS = {
+    'Cabinets':       types_face_frame.TAG_CABINET_CAGE,
+    'Bays':           types_face_frame.TAG_BAY_CAGE,
+    'Openings':       'IS_FACE_FRAME_OPENING_CAGE',     # Phase 3c
+    'Interiors':      'IS_FACE_FRAME_INTERIOR_PART',    # Phase 3d
+    # Applied panel roots also carry TAG_CABINET_CAGE (every cabinet
+    # root does); they're discriminated from regular cabinets by the
+    # per-side marker that _reconcile_applied_panels stamps on them.
+    'Applied Panels': types_face_frame.TAG_APPLIED_PANEL_SIDE,
+}
+
+
+def apply_face_frame_selection_mode(context, root_obj=None):
+    """Re-apply the current face-frame selection mode: to ``root_obj``'s
+    subtree when given, else every object in the scene. Function form of
+    the toggle_mode operator's execute (which delegates here) so recalc-
+    style callers can refresh the mode without an operator round-trip."""
+    ff_scene = context.scene.hb_face_frame
+    mode = ff_scene.face_frame_selection_mode
+    # When the master toggle is off, route every object through the
+    # "not highlighted" branch by passing a sentinel mode that no
+    # _matches_mode case recognizes - keeps all face frame parts in
+    # their default render state and hides the cages.
+    # Parts mode also takes the off-path so individual parts render
+    # at default color rather than the cabinet-color highlight; the
+    # mode value is still readable elsewhere for selection scoping.
+    if not ff_scene.face_frame_selection_mode_enabled or mode == 'Parts':
+        mode = '__off__'
+    if root_obj is not None:
+        _selection_mode_toggle_one(root_obj, mode)
+        for child in root_obj.children_recursive:
+            _selection_mode_toggle_one(child, mode)
+    else:
+        for obj in context.scene.objects:
+            _selection_mode_toggle_one(obj, mode)
+
+
 class hb_face_frame_OT_toggle_mode(bpy.types.Operator):
     """Apply visibility/highlighting for the current face frame selection mode.
 
@@ -481,127 +527,103 @@ class hb_face_frame_OT_toggle_mode(bpy.types.Operator):
 
     search_obj_name: bpy.props.StringProperty(name="Search Object Name", default="")  # type: ignore
 
-    # Object-marker tags for cage-level modes
-    MODE_TAGS = {
-        'Cabinets':       types_face_frame.TAG_CABINET_CAGE,
-        'Bays':           types_face_frame.TAG_BAY_CAGE,
-        'Openings':       'IS_FACE_FRAME_OPENING_CAGE',     # Phase 3c
-        'Interiors':      'IS_FACE_FRAME_INTERIOR_PART',    # Phase 3d
-        # Applied panel roots also carry TAG_CABINET_CAGE (every cabinet
-        # root does); they're discriminated from regular cabinets by the
-        # per-side marker that _reconcile_applied_panels stamps on them.
-        'Applied Panels': types_face_frame.TAG_APPLIED_PANEL_SIDE,
-    }
-
-    def _matches_mode(self, obj, mode):
-        """Return True if obj should be highlighted in the given mode."""
-        if mode == 'Face Frame':
-            return obj.get('hb_part_role') in types_face_frame.FACE_FRAME_PART_ROLES
-        if mode == 'Parts':
-            if not obj.get('CABINET_PART'):
-                return False
-            # Conditional parts (corner finish kicks, kick returns,
-            # slot-1 mid-divs / partition skins, etc.) are persistent
-            # children that the recalc layer marks hide_render=True when
-            # currently inactive. Skip those so Parts mode doesn't
-            # surface them as zero-geometry phantom selections.
-            if obj.hide_render:
-                return False
-            return True
-        if mode == 'Cabinets':
-            if obj.get('IS_APPLIANCE'):
-                # Appliances live alongside cabinets in the catalog and
-                # should highlight together in Cabinets mode.
-                return True
-            if obj.get(types_face_frame.TAG_PRODUCT_CAGE):
-                # Non-cabinet products (e.g. Half Wall) show their cage and
-                # are the selection target in Cabinets mode, like appliances.
-                return True
-            # Applied panels are nested cabinet roots that share
-            # TAG_CABINET_CAGE with their host. They get their own
-            # Applied Panels mode (reached via the Show Applied Panels
-            # operator in the Finished Ends and Backs panel) and are
-            # excluded from regular Cabinets mode so the host cabinet
-            # cage stays the single selection target there.
-            if obj.get(types_face_frame.TAG_APPLIED_PANEL_SIDE):
-                return False
-        tag = self.MODE_TAGS.get(mode)
-        if tag is None:
-            return False
-        return tag in obj
-
-    def _toggle_one(self, obj, mode):
-        """Apply highlight/dim to a single object."""
-        # Skip walls, doors, windows, cutting objects - they are not part of
-        # the face frame hierarchy and shouldn't be touched by mode toggling.
-        # 2D annotations (dimension text, numbered callouts) parented onto a
-        # cabinet are skipped too: they author their own colour and must keep
-        # it, otherwise the not-highlighted branch resets them to white and
-        # they disappear on layout-view output.
-        if any(t in obj for t in ('IS_WALL_BP', 'IS_ENTRY_DOOR_BP',
-                                  'IS_WINDOW_BP', 'IS_CUTTING_OBJ',
-                                  'IS_2D_ANNOTATION')):
-            return
-        # A cabinet group cage is a container the user reaches INTO via a
-        # selection mode (Cabinets shows its member cabinet cages, etc.),
-        # so whenever a mode is being applied the group cage gets out of
-        # the way - hide it. It never matches any MODE_TAGS, and without
-        # this it would fall through the cabinet-root guard below
-        # (find_cabinet_root is None, not an appliance, not a product
-        # cage) and stay visible on top of the member cages. "Select
-        # Cabinet Group" re-shows it (hb_face_frame.select_cabinet_group).
-        if obj.get('IS_CAGE_GROUP'):
-            toggle_cabinet_color(obj, False)
-            return
-        # Only touch objects that are part of a face frame cabinet,
-        # an appliance product, or are generic cabinet parts/cages we
-        # know about. Avoids dimming arbitrary scene geometry.
-        if (types_face_frame.find_cabinet_root(obj) is None
-                and not obj.get('IS_APPLIANCE')
-                and not obj.get(types_face_frame.TAG_PRODUCT_CAGE)):
-            return
-
-        # dont_show_parent=False: the frameless toggle_cabinet_color
-        # suppresses a parent whenever any descendant shares the same
-        # type tag. Applied panel roots always carry TAG_CABINET_CAGE,
-        # which would re-hide the host cabinet cage in Cabinets mode
-        # even after _matches_mode correctly excludes the panel itself.
-        # _matches_mode already does the conceptual filtering here.
-        if self._matches_mode(obj, mode):
-            toggle_cabinet_color(obj, True, type_name=self.MODE_TAGS.get(mode, ''),
-                                 dont_show_parent=False)
-            # In Face Frame mode, recolour parts the user has unlocked so
-            # changed-from-default parts stand out from the light-blue highlight.
-            if (mode == 'Face Frame'
-                    and types_face_frame.part_width_is_unlocked(obj)):
-                obj.color = types_face_frame.FACE_FRAME_UNLOCKED_COLOR
-        else:
-            toggle_cabinet_color(obj, False, type_name=self.MODE_TAGS.get(mode, ''))
+    # Kept as a class alias -- external readers reference the mapping here.
+    MODE_TAGS = SELECTION_MODE_TAGS
 
     def execute(self, context):
-        ff_scene = context.scene.hb_face_frame
-        mode = ff_scene.face_frame_selection_mode
-        # When the master toggle is off, route every object through the
-        # "not highlighted" branch by passing a sentinel mode that no
-        # _matches_mode case recognizes - keeps all face frame parts in
-        # their default render state and hides the cages.
-        # Parts mode also takes the off-path so individual parts render
-        # at default color rather than the cabinet-color highlight; the
-        # mode value is still readable elsewhere for selection scoping.
-        if not ff_scene.face_frame_selection_mode_enabled or mode == 'Parts':
-            mode = '__off__'
-
+        root_obj = None
         if self.search_obj_name and self.search_obj_name in bpy.data.objects:
             root_obj = bpy.data.objects[self.search_obj_name]
-            self._toggle_one(root_obj, mode)
-            for child in root_obj.children_recursive:
-                self._toggle_one(child, mode)
-        else:
-            for obj in context.scene.objects:
-                self._toggle_one(obj, mode)
-
+        apply_face_frame_selection_mode(context, root_obj)
         bpy.ops.object.select_all(action='DESELECT')
         return {'FINISHED'}
+
+
+def _selection_mode_matches(obj, mode):
+    """Return True if obj should be highlighted in the given mode."""
+    if mode == 'Face Frame':
+        return obj.get('hb_part_role') in types_face_frame.FACE_FRAME_PART_ROLES
+    if mode == 'Parts':
+        if not obj.get('CABINET_PART'):
+            return False
+        # Conditional parts (corner finish kicks, kick returns,
+        # slot-1 mid-divs / partition skins, etc.) are persistent
+        # children that the recalc layer marks hide_render=True when
+        # currently inactive. Skip those so Parts mode doesn't
+        # surface them as zero-geometry phantom selections.
+        if obj.hide_render:
+            return False
+        return True
+    if mode == 'Cabinets':
+        if obj.get('IS_APPLIANCE'):
+            # Appliances live alongside cabinets in the catalog and
+            # should highlight together in Cabinets mode.
+            return True
+        if obj.get(types_face_frame.TAG_PRODUCT_CAGE):
+            # Non-cabinet products (e.g. Half Wall) show their cage and
+            # are the selection target in Cabinets mode, like appliances.
+            return True
+        # Applied panels are nested cabinet roots that share
+        # TAG_CABINET_CAGE with their host. They get their own
+        # Applied Panels mode (reached via the Show Applied Panels
+        # operator in the Finished Ends and Backs panel) and are
+        # excluded from regular Cabinets mode so the host cabinet
+        # cage stays the single selection target there.
+        if obj.get(types_face_frame.TAG_APPLIED_PANEL_SIDE):
+            return False
+    tag = SELECTION_MODE_TAGS.get(mode)
+    if tag is None:
+        return False
+    return tag in obj
+
+
+def _selection_mode_toggle_one(obj, mode):
+    """Apply highlight/dim to a single object."""
+    # Skip walls, doors, windows, cutting objects - they are not part of
+    # the face frame hierarchy and shouldn't be touched by mode toggling.
+    # 2D annotations (dimension text, numbered callouts) parented onto a
+    # cabinet are skipped too: they author their own colour and must keep
+    # it, otherwise the not-highlighted branch resets them to white and
+    # they disappear on layout-view output.
+    if any(t in obj for t in ('IS_WALL_BP', 'IS_ENTRY_DOOR_BP',
+                              'IS_WINDOW_BP', 'IS_CUTTING_OBJ',
+                              'IS_2D_ANNOTATION')):
+        return
+    # A cabinet group cage is a container the user reaches INTO via a
+    # selection mode (Cabinets shows its member cabinet cages, etc.),
+    # so whenever a mode is being applied the group cage gets out of
+    # the way - hide it. It never matches any MODE_TAGS, and without
+    # this it would fall through the cabinet-root guard below
+    # (find_cabinet_root is None, not an appliance, not a product
+    # cage) and stay visible on top of the member cages. "Select
+    # Cabinet Group" re-shows it (hb_face_frame.select_cabinet_group).
+    if obj.get('IS_CAGE_GROUP'):
+        toggle_cabinet_color(obj, False)
+        return
+    # Only touch objects that are part of a face frame cabinet,
+    # an appliance product, or are generic cabinet parts/cages we
+    # know about. Avoids dimming arbitrary scene geometry.
+    if (types_face_frame.find_cabinet_root(obj) is None
+            and not obj.get('IS_APPLIANCE')
+            and not obj.get(types_face_frame.TAG_PRODUCT_CAGE)):
+        return
+
+    # dont_show_parent=False: the frameless toggle_cabinet_color
+    # suppresses a parent whenever any descendant shares the same
+    # type tag. Applied panel roots always carry TAG_CABINET_CAGE,
+    # which would re-hide the host cabinet cage in Cabinets mode
+    # even after _matches_mode correctly excludes the panel itself.
+    # _matches_mode already does the conceptual filtering here.
+    if _selection_mode_matches(obj, mode):
+        toggle_cabinet_color(obj, True, type_name=SELECTION_MODE_TAGS.get(mode, ''),
+                             dont_show_parent=False)
+        # In Face Frame mode, recolour parts the user has unlocked so
+        # changed-from-default parts stand out from the light-blue highlight.
+        if (mode == 'Face Frame'
+                and types_face_frame.part_width_is_unlocked(obj)):
+            obj.color = types_face_frame.FACE_FRAME_UNLOCKED_COLOR
+    else:
+        toggle_cabinet_color(obj, False, type_name=SELECTION_MODE_TAGS.get(mode, ''))
 
 
 # ---------------------------------------------------------------------------
@@ -4383,9 +4405,14 @@ class hb_face_frame_OT_add_appliance_to_bay(bpy.types.Operator):
             types_face_frame.recalculate_face_frame_cabinet(root)
 
         # Re-apply selection mode so the rebuilt cages render correctly.
+        # DIRECT call, not bpy.ops.hb_face_frame.toggle_mode: calling a
+        # registered operator from inside execute steals the "last redo"
+        # slot, which kills this dialog's invoke_props_popup live updates
+        # (edits stop re-executing and the property UI reverts to
+        # defaults -- the config snapping back to False Front with Doors).
         try:
-            bpy.ops.hb_face_frame.toggle_mode(search_obj_name=root.name)
-        except RuntimeError:
+            apply_face_frame_selection_mode(context, root)
+        except Exception:
             pass
 
         self.report({'INFO'},
