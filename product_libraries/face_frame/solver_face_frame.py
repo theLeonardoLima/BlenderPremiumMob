@@ -235,6 +235,11 @@ class FaceFrameLayout:
             'kick_height':        bp.kick_height,
             'top_offset':         bp.top_offset,
             'front_drop':         bp.front_drop,
+            'front_drop_include_fillers':    bp.front_drop_include_fillers,
+            'front_drop_set_appliance_width': bp.front_drop_set_appliance_width,
+            'front_drop_appliance_width':    bp.front_drop_appliance_width,
+            'front_drop_left_filler':        bp.front_drop_left_filler,
+            'front_drop_right_filler':       bp.front_drop_right_filler,
             'top_rail_width':     bp.top_rail_width,
             'bottom_rail_width':  bp.bottom_rail_width,
             'remove_bottom':      bp.remove_bottom,
@@ -336,6 +341,11 @@ class FaceFrameLayout:
             'kick_height':        self.tkh,
             'top_offset':         0.0,
             'front_drop':         0.0,
+            'front_drop_include_fillers':    False,
+            'front_drop_set_appliance_width': True,
+            'front_drop_appliance_width':    0.0,
+            'front_drop_left_filler':        0.0,
+            'front_drop_right_filler':       0.0,
             'top_rail_width':     self.default_top_rail_width,
             'bottom_rail_width':  self.default_bottom_rail_width,
             'remove_bottom':      False,
@@ -504,6 +514,84 @@ def front_drop(layout, bay_index):
     end / mid stiles all stay at the bay's full height (the countertop
     hides the open band above the dropped rail)."""
     return max(0.0, layout.bays[bay_index].get('front_drop', 0.0))
+
+
+def front_drop_filler_widths(layout, bay_index):
+    """(left, right) widths of the filler stiles inside a bay's dropped
+    band - the open region above the dropped top rail, between the bay's
+    bounding stiles - so the clear width fits a farm sink or cooktop.
+
+    Mirrors appliance_filler_widths' two input modes:
+      * front_drop_set_appliance_width ON  -> the user gives the appliance
+        width; the remainder ``bay width - appliance width`` splits evenly.
+      * OFF -> the user gives each filler width directly; the appliance
+        occupies whatever clear width remains.
+    (0, 0) when the bay has no front_drop or front_drop_include_fillers is
+    off. Widths are clamped >= 0 and scaled down together if they would
+    exceed the band.
+    """
+    bay = layout.bays[bay_index]
+    fd = front_drop(layout, bay_index)
+    if fd <= 0.0 or not bay.get('front_drop_include_fillers'):
+        return (0.0, 0.0)
+    clear = bay['width']
+    if clear <= 0.0:
+        return (0.0, 0.0)
+    if bay.get('front_drop_set_appliance_width', True):
+        appl = max(0.0, min(bay.get('front_drop_appliance_width', 0.0), clear))
+        each = max(0.0, (clear - appl) / 2.0)
+        return (each, each)
+    left = max(0.0, bay.get('front_drop_left_filler', 0.0))
+    right = max(0.0, bay.get('front_drop_right_filler', 0.0))
+    total = left + right
+    if total > clear and total > 0.0:
+        scale = clear / total
+        left *= scale
+        right *= scale
+    return (left, right)
+
+
+def front_drop_filler_segments(layout):
+    """One record per filler stile in a dropped band, across all bays.
+
+    Each filler spans the drop vertically (from the dropped rail's top to
+    the bay top) and sits at the band's left or right edge against the
+    bounding stile. Oriented like an end stile: the LEFT filler anchors at
+    the band's left edge and extends +X (Mirror Y True); the RIGHT filler
+    anchors at the band's right edge and extends -X (Mirror Y False).
+
+    Keys: bay, side ('LEFT'/'RIGHT'), pos (world origin at the band
+    bottom, on the FF outer plane), length (vertical = the drop), width,
+    thickness (fft).
+    """
+    segments = []
+    for i in range(layout.bay_count):
+        fd = front_drop(layout, i)
+        if fd <= 0.0:
+            continue
+        left_w, right_w = front_drop_filler_widths(layout, i)
+        band_left = bay_x_position(layout, i)
+        z0 = bay_top_z(layout, i) - fd
+        if left_w > 0.0:
+            segments.append({
+                'bay':       i,
+                'side':      'LEFT',
+                'pos':       ff_outer_world_pos(layout, band_left, z0),
+                'length':    fd,
+                'width':     left_w,
+                'thickness': layout.fft,
+            })
+        if right_w > 0.0:
+            band_right = band_left + layout.bays[i]['width']
+            segments.append({
+                'bay':       i,
+                'side':      'RIGHT',
+                'pos':       ff_outer_world_pos(layout, band_right, z0),
+                'length':    fd,
+                'width':     right_w,
+                'thickness': layout.fft,
+            })
+    return segments
 
 
 def effective_bottom_rail_width(layout, bay_index):

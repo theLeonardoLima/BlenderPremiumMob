@@ -704,6 +704,17 @@ def draw_bay_properties(layout, bay_obj):
         col.prop(bp, 'top_offset', text="Top Offset")
     if cab_type in ('BASE', 'LAP_DRAWER'):
         col.prop(bp, 'front_drop', text="Front Drop")
+        if bp.front_drop > 0.0:
+            col.prop(bp, 'front_drop_include_fillers', text="Drop Fillers")
+            if bp.front_drop_include_fillers:
+                col.prop(bp, 'front_drop_set_appliance_width',
+                         text="Set Appliance Width")
+                if bp.front_drop_set_appliance_width:
+                    col.prop(bp, 'front_drop_appliance_width',
+                             text="Appliance Width")
+                else:
+                    col.prop(bp, 'front_drop_left_filler', text="Left Filler")
+                    col.prop(bp, 'front_drop_right_filler', text="Right Filler")
     col.separator()
     _draw_locked_rail_row(col, bp, 'top_rail_width',
                           'unlock_top_rail', "Top Rail Width")
@@ -1393,6 +1404,17 @@ def draw_bay_in_prompts(layout, bay_obj):
         col.prop(bp, 'top_offset', text="Top Offset")
     if cab_type in ('BASE', 'LAP_DRAWER'):
         col.prop(bp, 'front_drop', text="Front Drop")
+        if bp.front_drop > 0.0:
+            col.prop(bp, 'front_drop_include_fillers', text="Drop Fillers")
+            if bp.front_drop_include_fillers:
+                col.prop(bp, 'front_drop_set_appliance_width',
+                         text="Set Appliance Width")
+                if bp.front_drop_set_appliance_width:
+                    col.prop(bp, 'front_drop_appliance_width',
+                             text="Appliance Width")
+                else:
+                    col.prop(bp, 'front_drop_left_filler', text="Left Filler")
+                    col.prop(bp, 'front_drop_right_filler', text="Right Filler")
     col.separator()
     _draw_locked_rail_row(col, bp, 'top_rail_width',
                           'unlock_top_rail', "Top Rail Width")

@@ -181,6 +181,10 @@ PART_ROLE_LEFT_REFRIG_STILE = 'LEFT_REFRIG_STILE'
 PART_ROLE_RIGHT_REFRIG_STILE = 'RIGHT_REFRIG_STILE'
 PART_ROLE_MID_STILE = 'MID_STILE'
 PART_ROLE_MID_RAIL = 'MID_RAIL'
+# Filler stiles in a front-dropped bay's open band (above the dropped
+# top rail), fitting a farm sink / cooktop to the drop. Keyed per bay +
+# side and reconciled from solver.front_drop_filler_segments.
+PART_ROLE_FRONT_DROP_FILLER = 'FRONT_DROP_FILLER'
 
 # Splitter members and backings created by H/V splits inside a single
 # bay. Mid rail / mid stile sit in the face frame plane; division /
@@ -196,6 +200,7 @@ FACE_FRAME_PART_ROLES = frozenset({
     PART_ROLE_LEFT_STILE, PART_ROLE_RIGHT_STILE,
     PART_ROLE_MID_STILE, PART_ROLE_MID_RAIL,
     PART_ROLE_BAY_MID_RAIL, PART_ROLE_BAY_MID_STILE,
+    PART_ROLE_FRONT_DROP_FILLER,
 })
 
 BAY_SPLITTER_ROLES = frozenset({
@@ -744,6 +749,7 @@ FF_ROTATION_BASELINE_Z = {
     PART_ROLE_RIGHT_STILE:       math.pi / 2,
     PART_ROLE_LEFT_REFRIG_STILE:  math.pi / 2,
     PART_ROLE_RIGHT_REFRIG_STILE: math.pi / 2,
+    PART_ROLE_FRONT_DROP_FILLER: math.pi / 2,
     PART_ROLE_TOP_RAIL:          0.0,
     PART_ROLE_BOTTOM_RAIL:       0.0,
     PART_ROLE_TOE_KICK_SUBFRONT: 0.0,
@@ -1874,6 +1880,10 @@ class FaceFrameCabinet(GeoNodeCage):
         bottom_segments = solver.bottom_rail_segments(layout)
         self._reconcile_rails(PART_ROLE_TOP_RAIL, top_segments)
         self._reconcile_rails(PART_ROLE_BOTTOM_RAIL, bottom_segments)
+        # Drop fillers: filler stiles in each front-dropped bay's open
+        # band, fitting a farm sink / cooktop (keyed per bay + side).
+        drop_filler_segs = solver.front_drop_filler_segments(layout)
+        self._reconcile_front_drop_fillers(drop_filler_segs)
 
         # Carcass branch - skipped for face-frame-only roots (panels).
         # Empty segment lists make the dispatch loop's carcass branches
@@ -1962,6 +1972,7 @@ class FaceFrameCabinet(GeoNodeCage):
 
         top_seg_by_start = {s['start_bay']: s for s in top_segments}
         bot_seg_by_start = {s['start_bay']: s for s in bottom_segments}
+        drop_filler_by_key = {(s['bay'], s['side']): s for s in drop_filler_segs}
         kick_seg_by_start = {s['start_bay']: s for s in kick_subfront_segs}
         finish_kick_seg_by_start = {s['start_bay']: s for s in finish_kick_segs}
         carc_bot_by_start = {s['start_bay']: s for s in carcass_bottom_segs}
@@ -2159,6 +2170,18 @@ class FaceFrameCabinet(GeoNodeCage):
                 if seg is None:
                     continue
                 child.location = (seg['x'], seg['y'], seg['z'])
+                part.set_input('Length', seg['length'])
+                part.set_input('Width', seg['width'])
+                part.set_input('Thickness', seg['thickness'])
+
+            # ---- Drop fillers (front-dropped sink / cooktop band) ----
+            elif role == PART_ROLE_FRONT_DROP_FILLER:
+                seg = drop_filler_by_key.get(
+                    (child.get('hb_segment_start_bay'),
+                     child.get('hb_drop_filler_side')))
+                if seg is None:
+                    continue
+                child.location = seg['pos']
                 part.set_input('Length', seg['length'])
                 part.set_input('Width', seg['width'])
                 part.set_input('Thickness', seg['thickness'])
@@ -4933,6 +4956,57 @@ class FaceFrameCabinet(GeoNodeCage):
             if seg['start_bay'] in existing_starts:
                 continue
             self._create_rail_part(role, seg['start_bay'])
+
+    def _reconcile_front_drop_fillers(self, segments):
+        """Match drop-filler children against solver.front_drop_filler_
+        segments. Three-pass delete/match/create like _reconcile_rails,
+        keyed by (hb_segment_start_bay, hb_drop_filler_side) since a bay
+        can carry one filler per side.
+        """
+        wanted = {(seg['bay'], seg['side']) for seg in segments}
+
+        to_delete = []
+        for child in list(self.obj.children):
+            if child.get('hb_part_role') != PART_ROLE_FRONT_DROP_FILLER:
+                continue
+            key = (child.get('hb_segment_start_bay'),
+                   child.get('hb_drop_filler_side'))
+            if key not in wanted:
+                to_delete.append(child)
+        for child in to_delete:
+            bpy.data.objects.remove(child, do_unlink=True)
+
+        existing = {
+            (child.get('hb_segment_start_bay'),
+             child.get('hb_drop_filler_side'))
+            for child in self.obj.children
+            if child.get('hb_part_role') == PART_ROLE_FRONT_DROP_FILLER
+        }
+
+        for seg in segments:
+            if (seg['bay'], seg['side']) in existing:
+                continue
+            self._create_front_drop_filler(seg['bay'], seg['side'])
+
+    def _create_front_drop_filler(self, bay_index, side):
+        """Create one drop-filler stile keyed to its bay + side. Oriented
+        like an end stile (Length vertical); the LEFT filler mirrors the
+        left stile's Mirror Y so width extends into the band, the RIGHT
+        filler mirrors the right stile's."""
+        side_label = 'Left' if side == 'LEFT' else 'Right'
+        filler = CabinetPart()
+        filler.create(f'{side_label} Drop Filler {bay_index + 1}')
+        filler.obj.parent = self.obj
+        filler.obj['hb_part_role'] = PART_ROLE_FRONT_DROP_FILLER
+        filler.obj['CABINET_PART'] = True
+        filler.obj['hb_segment_start_bay'] = bay_index
+        filler.obj['hb_drop_filler_side'] = side
+        filler.obj['MENU_ID'] = 'HOME_BUILDER_MT_face_frame_part_commands'
+        filler.obj.rotation_euler.y = math.radians(-90)
+        filler.obj.rotation_euler.z = math.radians(90)
+        filler.set_input('Mirror Y', side == 'LEFT')
+        filler.set_input('Mirror Z', True)
+        return filler
 
     def _reconcile_carcass_bottoms(self, segments):
         """Match Bottom carcass children against segments. Three-pass

@@ -4933,6 +4933,47 @@ class Face_Frame_Bay_Props(PropertyGroup):
         precision=4,
         update=_update_cabinet_dim,
     )  # type: ignore
+    # ---- Front-drop fillers: fit a farm sink / cooktop to the drop ----
+    # With a front_drop set, up to two filler stiles can be added in the
+    # dropped band (above the dropped top rail, between the bay's bounding
+    # stiles) so the clear width matches the appliance. Mirrors the
+    # APPLIANCE opening's filler model: set-width mode splits the remainder
+    # into equal left/right fillers; direct mode types each side. Gated by
+    # front_drop_include_fillers so a drop can exist without fillers.
+    front_drop_include_fillers: BoolProperty(
+        name="Include Drop Fillers",
+        description="Build filler stiles in the dropped band so the clear "
+                    "width fits the farm sink / cooktop",
+        default=False, update=_update_cabinet_dim,
+    )  # type: ignore
+    front_drop_set_appliance_width: BoolProperty(
+        name="Set Appliance Width",
+        description="Enter the appliance width and split the remainder into "
+                    "equal left/right fillers; off lets you type each filler "
+                    "width directly",
+        default=True, update=_update_cabinet_dim,
+    )  # type: ignore
+    front_drop_appliance_width: FloatProperty(
+        name="Appliance Width",
+        description="Width of the farm sink / cooktop the dropped band must "
+                    "fit; fillers fill the remainder",
+        default=units.inch(30.0), unit='LENGTH', precision=4, min=0.0,
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    front_drop_left_filler: FloatProperty(
+        name="Left Drop Filler",
+        description="Width of the left drop filler stile (used directly when "
+                    "Set Appliance Width is off)",
+        default=0.0, unit='LENGTH', precision=4, min=0.0,
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    front_drop_right_filler: FloatProperty(
+        name="Right Drop Filler",
+        description="Width of the right drop filler stile (used directly when "
+                    "Set Appliance Width is off)",
+        default=0.0, unit='LENGTH', precision=4, min=0.0,
+        update=_update_cabinet_dim,
+    )  # type: ignore
 
     top_rail_width: FloatProperty(
         name="Top Rail Width", default=units.inch(1.5), unit='LENGTH', precision=4,

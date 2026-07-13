@@ -4156,6 +4156,38 @@ class hb_face_frame_OT_add_appliance_to_bay(bpy.types.Operator):
                     "sink / cooktop. The back, rear stretcher, sides and "
                     "end stiles stay full height",
     )  # type: ignore
+    # Drop-band fillers: fit a farm sink / cooktop to the dropped opening.
+    # Mirrors the APPLIANCE opening's filler dialog; written through to the
+    # bay's front_drop_* props (see Face_Frame_Bay_Props).
+    include_fillers: bpy.props.BoolProperty(
+        name="Include Fillers", default=False,
+        description="Build filler stiles in the dropped band so the clear "
+                    "width fits the farm sink / cooktop",
+    )  # type: ignore
+    set_appliance_width: bpy.props.BoolProperty(
+        name="Set Appliance Width", default=True,
+        description="Enter the appliance width and split the remainder into "
+                    "equal left/right fillers; off lets you type each filler "
+                    "width directly",
+    )  # type: ignore
+    appliance_width: bpy.props.FloatProperty(
+        name="Appliance Width", unit='LENGTH', precision=4,
+        default=inch(30.0), min=0.0,
+        description="Width of the farm sink / cooktop the dropped band "
+                    "must fit",
+    )  # type: ignore
+    left_filler_amount: bpy.props.FloatProperty(
+        name="Left Filler", unit='LENGTH', precision=4,
+        default=0.0, min=0.0,
+        description="Width of the left drop filler stile (used directly "
+                    "when Set Appliance Width is off)",
+    )  # type: ignore
+    right_filler_amount: bpy.props.FloatProperty(
+        name="Right Filler", unit='LENGTH', precision=4,
+        default=0.0, min=0.0,
+        description="Width of the right drop filler stile (used directly "
+                    "when Set Appliance Width is off)",
+    )  # type: ignore
     config: bpy.props.EnumProperty(
         name="Configuration",
         items=[
@@ -4208,6 +4240,15 @@ class hb_face_frame_OT_add_appliance_to_bay(bpy.types.Operator):
         # the dialog.
         if self.appliance_kind != 'COOKTOP':
             self.interior = 'OPEN'
+        # Seed the drop + filler fields from the bay's current state so
+        # re-running the dialog edits in place instead of resetting.
+        bp = bay.face_frame_bay
+        self.drop_bay_amount = bp.front_drop
+        self.include_fillers = bp.front_drop_include_fillers
+        self.set_appliance_width = bp.front_drop_set_appliance_width
+        self.appliance_width = bp.front_drop_appliance_width
+        self.left_filler_amount = bp.front_drop_left_filler
+        self.right_filler_amount = bp.front_drop_right_filler
         return context.window_manager.invoke_props_dialog(self, width=320)
 
     def draw(self, context):
@@ -4217,6 +4258,20 @@ class hb_face_frame_OT_add_appliance_to_bay(bpy.types.Operator):
         row.prop(self, 'width', text="")
         row = box.row(); row.label(text="Drop Bay Amount:")
         row.prop(self, 'drop_bay_amount', text="")
+        if self.drop_bay_amount > 0.0:
+            # Drop-band fillers, mirroring the appliance opening's dialog.
+            fbox = box.box()
+            fbox.prop(self, 'include_fillers')
+            if self.include_fillers:
+                fbox.prop(self, 'set_appliance_width')
+                if self.set_appliance_width:
+                    row = fbox.row(); row.label(text="Appliance Width:")
+                    row.prop(self, 'appliance_width', text="")
+                else:
+                    row = fbox.row(); row.label(text="Left Filler:")
+                    row.prop(self, 'left_filler_amount', text="")
+                    row = fbox.row(); row.label(text="Right Filler:")
+                    row.prop(self, 'right_filler_amount', text="")
         box.label(text="Configuration:")
         box.prop(self, 'config', expand=True)
         box.label(text="Interior:")
@@ -4268,6 +4323,14 @@ class hb_face_frame_OT_add_appliance_to_bay(bpy.types.Operator):
             # behind the dropped rail. Assigned (not added) so re-running
             # the dialog replaces the drop instead of compounding it.
             bp.front_drop = self.drop_bay_amount
+            # Drop-band fillers: written through even when the drop is 0
+            # or fillers are off - the solver gates on front_drop +
+            # include, so stale filler parts reconcile away.
+            bp.front_drop_include_fillers = self.include_fillers
+            bp.front_drop_set_appliance_width = self.set_appliance_width
+            bp.front_drop_appliance_width = self.appliance_width
+            bp.front_drop_left_filler = self.left_filler_amount
+            bp.front_drop_right_filler = self.right_filler_amount
             # Interior on the door opening(s) only - skip the false-front
             # apron opening. Walk recursively since the preset nests the
             # openings under a vertical split cage.
