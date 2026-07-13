@@ -167,6 +167,28 @@ def update_show_entry_door_and_window_cages(self, context):
             obj.show_in_front = True if self.show_entry_door_and_window_cages else False
 
 
+def update_molding_package(self, context):
+    """Re-apply the room's molding packages whenever a package dropdown
+    (or the recessed-kick toggle) changes - the dropdown IS the UI."""
+    from .molding import ops as molding_ops
+    molding_ops.on_package_changed(self, context)
+
+
+def _molding_crown_items(self, context):
+    from .molding import packages
+    return packages.enum_items('CROWN')
+
+
+def _molding_base_items(self, context):
+    from .molding import packages
+    return packages.enum_items('BASE')
+
+
+def _molding_light_rail_items(self, context):
+    from .molding import packages
+    return packages.enum_items('LIGHT_RAIL')
+
+
 def update_wall_material(self, context):
     """Update all wall material inputs when wall material changes."""
     mat = self.wall_material
@@ -448,6 +470,34 @@ class Home_Builder_Scene_Props(PropertyGroup):
     show_link_objects_from_rooms: BoolProperty(name="Show Link Objects From Rooms", default=False)
 
     show_entry_door_and_window_cages: BoolProperty(name="Show Entry Door and Window Cages", default=True,update=update_show_entry_door_and_window_cages)
+
+    # ---- Room molding packages ----
+    # Per-room dropdowns; picking one applies the package to the whole
+    # room immediately (see molding/ops.apply_scene_packages).
+    molding_crown_package: EnumProperty(
+        name="Crown Molding",
+        description="Crown molding package applied across this room's upper and tall cabinets",
+        items=_molding_crown_items,
+        update=update_molding_package,
+    )  # type: ignore
+    molding_base_package: EnumProperty(
+        name="Base Molding",
+        description="Base molding package applied across this room's base and tall cabinets",
+        items=_molding_base_items,
+        update=update_molding_package,
+    )  # type: ignore
+    molding_light_rail_package: EnumProperty(
+        name="Light Rail",
+        description="Light-rail package applied under this room's upper cabinets",
+        items=_molding_light_rail_items,
+        update=update_molding_package,
+    )  # type: ignore
+    molding_base_include_recessed: BoolProperty(
+        name="Include Recessed Toe Kicks",
+        description="Run base molding across recessed (notched) toe kicks at each cabinet's setback face; otherwise the molding returns into the finished kick",
+        default=False,
+        update=update_molding_package,
+    )  # type: ignore
 
     # Molding library selection
     molding_category: EnumProperty(

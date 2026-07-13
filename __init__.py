@@ -21,6 +21,7 @@ from .product_libraries import closets
 from .product_libraries import face_frame
 from .product_libraries import frameless
 from .product_libraries.common import wood_hoods
+from . import molding
 # Catalog browser - intentionally disabled. The package lives at
 # home_builder_5/catalog/ for future revisit. Re-enable by uncommenting
 # the import here plus the register()/unregister() calls below.
@@ -272,6 +273,7 @@ def register():
     face_frame.register()
     frameless.register()
     wood_hoods.register()
+    molding.register()
     # catalog.register()
 
     hb_assets.ensure_asset_libraries()
@@ -308,6 +310,7 @@ def unregister():
     menus.unregister()
     # catalog.unregister()
     closets.unregister()
+    molding.unregister()
     wood_hoods.unregister()
     face_frame.unregister()
     frameless.unregister()
