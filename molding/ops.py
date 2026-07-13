@@ -118,7 +118,7 @@ def _spawn_sweep(scene, molding_type, chain, segments, profile_ref,
 
 
 def _apply_type(scene, molding_type, align, stack, include_recessed,
-                crown_reveal):
+                crown_reveal, stack_offset):
     targets = adapters.collect_targets(scene, molding_type)
     if not targets:
         return 0
@@ -134,6 +134,10 @@ def _apply_type(scene, molding_type, align, stack, include_recessed,
             continue
         chain = engine.order_chain(component, align=align)
         for profile_ref, fallback_key, dx, dy in stack:
+            # Room-adjustable stack entries (a crown riding a spacer)
+            # resolve their vertical offset from the scene prop.
+            if dy == 'STACK_OFFSET':
+                dy = stack_offset
             if molding_type == 'BASE':
                 segments = engine.kick_sweep_segments(
                     chain, facts, dx, include_recessed)
@@ -164,6 +168,7 @@ def apply_scene_packages(scene):
     clear_scene_molding(scene)
     include_recessed = getattr(hb, 'molding_base_include_recessed', False)
     crown_reveal = getattr(hb, 'molding_crown_reveal', 0.0)
+    stack_offset = getattr(hb, 'molding_crown_stack_offset', 0.0)
     made = 0
     for prop_name, molding_type, align in _TYPES:
         ident = getattr(hb, prop_name, 'NONE')
@@ -173,7 +178,7 @@ def apply_scene_packages(scene):
         if not stack:
             continue
         made += _apply_type(scene, molding_type, align, stack,
-                            include_recessed, crown_reveal)
+                            include_recessed, crown_reveal, stack_offset)
     return made
 
 

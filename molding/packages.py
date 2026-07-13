@@ -56,7 +56,10 @@ CROWN_PACKAGES = [
     ('STACKED', "Stacked w/ Spacer",
      "Flat-stock spacer with a crown profile on top",
      [('Spacer/Square Edge Spacer', 'flat_stock', 0.0, 0.0),
-      ('Crown Molding/51 Crown', 'crown_simple', 0.0, _in(3.5))]),
+      # The crown's height on the spacer is room-adjustable: the
+      # STACK_OFFSET sentinel resolves to the scene's
+      # molding_crown_stack_offset at apply time.
+      ('Crown Molding/51 Crown', 'crown_simple', 0.0, 'STACK_OFFSET')]),
     ('FURNITURE', "Furniture Cap",
      "A flat furniture cap overhanging the cabinet tops",
      [('Furniture Caps/Furniture 3 Inch', 'furniture_cap', 0.0, 0.0)]),
@@ -86,6 +89,14 @@ def package_stack(molding_type, identifier):
         if ident == identifier:
             return stack
     return None
+
+
+def stack_has_adjustable_offset(molding_type, identifier):
+    """True when the package's stack contains a STACK_OFFSET entry -
+    used to enable the room's stack-offset field in the UI."""
+    stack = package_stack(molding_type, identifier)
+    return bool(stack) and any(dy == 'STACK_OFFSET'
+                               for _r, _f, _dx, dy in stack)
 
 
 # Enum item lists are cached at module level: Blender keeps only weak

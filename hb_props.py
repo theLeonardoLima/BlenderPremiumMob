@@ -505,6 +505,13 @@ class Home_Builder_Scene_Props(PropertyGroup):
         unit='LENGTH', precision=4,
         update=update_molding_package,
     )  # type: ignore
+    molding_crown_stack_offset: FloatProperty(
+        name="Stack Offset",
+        description="For stacked crown packages: how far up the spacer the crown molding sits, measured from the spacer's bottom",
+        default=inch(3.5), min=0.0,
+        unit='LENGTH', precision=4,
+        update=update_molding_package,
+    )  # type: ignore
 
     # Molding library selection
     molding_category: EnumProperty(

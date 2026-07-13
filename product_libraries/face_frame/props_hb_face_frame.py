@@ -6995,12 +6995,17 @@ class Face_Frame_Scene_Props(PropertyGroup):
         live on the room's home_builder scene group; picking a package
         applies it to the whole room immediately) plus the recessed-
         kick toggle and a refresh for after cabinet changes."""
+        from ...molding import packages as molding_packages
         hb_scene = context.scene.home_builder
         col = layout.column(align=True)
         col.prop(hb_scene, "molding_crown_package", text="Crown")
         sub = col.row()
         sub.enabled = hb_scene.molding_crown_package != 'NONE'
         sub.prop(hb_scene, "molding_crown_reveal", text="Reveal")
+        sub = col.row()
+        sub.enabled = molding_packages.stack_has_adjustable_offset(
+            'CROWN', hb_scene.molding_crown_package)
+        sub.prop(hb_scene, "molding_crown_stack_offset", text="Stack Offset")
         col.prop(hb_scene, "molding_base_package", text="Base")
         sub = col.row()
         sub.enabled = hb_scene.molding_base_package != 'NONE'
