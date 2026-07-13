@@ -4152,6 +4152,9 @@ class hb_face_frame_OT_add_appliance_to_bay(bpy.types.Operator):
     drop_bay_amount: bpy.props.FloatProperty(
         name="Drop Bay Amount", unit='LENGTH', precision=4,
         default=0.0, min=0.0,
+        description="Lower the bay's top rail and front stretcher for the "
+                    "sink / cooktop. The back, rear stretcher, sides and "
+                    "end stiles stay full height",
     )  # type: ignore
     config: bpy.props.EnumProperty(
         name="Configuration",
@@ -4258,15 +4261,13 @@ class hb_face_frame_OT_add_appliance_to_bay(bpy.types.Operator):
             bp = bay.face_frame_bay
             # Width setter auto-locks unlock_width.
             bp.width = self.width
-            # Drop: lower the bay TOP by the amount, keeping the bottom
-            # fixed - the solver's top-edge model couples top_offset (+)
-            # and height (-) so d(top_offset)+d(height)=0. Held via the
-            # unlock flags so a later redistribution won't undo it.
-            if self.drop_bay_amount > 0.0:
-                bp.unlock_top_offset = True
-                bp.unlock_height = True
-                bp.top_offset += self.drop_bay_amount
-                bp.height -= self.drop_bay_amount
+            # Drop: lower the bay's FRONT construction (top rail + front
+            # stretcher) by the amount. Only the front drops - the back,
+            # rear stretcher, sides and end / mid stiles stay full height
+            # to carry the countertop; the basin occupies the open band
+            # behind the dropped rail. Assigned (not added) so re-running
+            # the dialog replaces the drop instead of compounding it.
+            bp.front_drop = self.drop_bay_amount
             # Interior on the door opening(s) only - skip the false-front
             # apron opening. Walk recursively since the preset nests the
             # openings under a vertical split cage.

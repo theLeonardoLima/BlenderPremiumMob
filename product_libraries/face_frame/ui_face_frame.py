@@ -702,6 +702,8 @@ def draw_bay_properties(layout, bay_obj):
         kick_row.prop(bp, 'unlock_kick_height', text="", icon=lock_icon)
     if cab_type == 'UPPER':
         col.prop(bp, 'top_offset', text="Top Offset")
+    if cab_type in ('BASE', 'LAP_DRAWER'):
+        col.prop(bp, 'front_drop', text="Front Drop")
     col.separator()
     _draw_locked_rail_row(col, bp, 'top_rail_width',
                           'unlock_top_rail', "Top Rail Width")
@@ -1389,6 +1391,8 @@ def draw_bay_in_prompts(layout, bay_obj):
         kick_row.prop(bp, 'unlock_kick_height', text="", icon=lock_icon)
     if cab_type == 'UPPER':
         col.prop(bp, 'top_offset', text="Top Offset")
+    if cab_type in ('BASE', 'LAP_DRAWER'):
+        col.prop(bp, 'front_drop', text="Front Drop")
     col.separator()
     _draw_locked_rail_row(col, bp, 'top_rail_width',
                           'unlock_top_rail', "Top Rail Width")

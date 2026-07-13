@@ -5521,14 +5521,19 @@ class FaceFrameCabinet(GeoNodeCage):
         The build path adds 'Notch Top Front' and 'Notch Top Back' with
         their Flip flags pre-set. Each recalc updates X / Y / Route Depth
         and toggles show_viewport / show_render based on the solver's
-        notch_active flag. Slot-1 mid-divs (diff-depth case) have no
-        notch modifiers and silently no-op here.
+        notch flags. The two gate independently: a front-dropped (sink /
+        cooktop) bay's front stretcher terminates at the division face
+        instead of crossing, so only the rear notch is cut there. Slot-1
+        mid-divs (diff-depth case) have no notch modifiers and silently
+        no-op here.
         """
-        active = panel.get('notch_active', False)
+        back_active = panel.get('notch_active', False)
+        front_active = panel.get('notch_front_active', back_active)
         size_x = panel.get('notch_x', 0.0)
         size_y = panel.get('notch_y', 0.0)
         route = panel.get('notch_route_depth', 0.0)
-        for name in ('Notch Top Front', 'Notch Top Back'):
+        for name, active in (('Notch Top Front', front_active),
+                             ('Notch Top Back', back_active)):
             mod = mid_div_obj.modifiers.get(name)
             if mod is None:
                 continue  # slot 1 lacks these modifiers

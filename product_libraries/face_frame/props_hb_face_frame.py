@@ -4922,6 +4922,17 @@ class Face_Frame_Bay_Props(PropertyGroup):
         precision=4,
         update=_update_cabinet_dim,
     )  # type: ignore
+    front_drop: FloatProperty(
+        name="Front Drop",
+        description="Lower this bay's FRONT construction (top rail and front "
+                    "stretcher) below the bay top for a sink or cooktop. The "
+                    "back, rear stretcher, sides and end stiles stay full "
+                    "height",
+        default=0.0, min=0.0,
+        unit='LENGTH',
+        precision=4,
+        update=_update_cabinet_dim,
+    )  # type: ignore
 
     top_rail_width: FloatProperty(
         name="Top Rail Width", default=units.inch(1.5), unit='LENGTH', precision=4,

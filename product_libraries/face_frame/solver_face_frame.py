@@ -234,6 +234,7 @@ class FaceFrameLayout:
             'depth':              bp.depth,
             'kick_height':        bp.kick_height,
             'top_offset':         bp.top_offset,
+            'front_drop':         bp.front_drop,
             'top_rail_width':     bp.top_rail_width,
             'bottom_rail_width':  bp.bottom_rail_width,
             'remove_bottom':      bp.remove_bottom,
@@ -334,6 +335,7 @@ class FaceFrameLayout:
             'depth':              self.dim_y,
             'kick_height':        self.tkh,
             'top_offset':         0.0,
+            'front_drop':         0.0,
             'top_rail_width':     self.default_top_rail_width,
             'bottom_rail_width':  self.default_bottom_rail_width,
             'remove_bottom':      False,
@@ -493,6 +495,15 @@ def bay_top_z(layout, bay_index):
     if layout.cabinet_type == 'UPPER':
         return layout.dim_z - bay['top_offset']
     return bay['height']
+
+
+def front_drop(layout, bay_index):
+    """Amount this bay's FRONT construction (top rail + front stretcher)
+    is lowered below the bay top - the sink / cooktop bay drop. Only the
+    front drops: the back panel, rear stretcher, carcass sides, and the
+    end / mid stiles all stay at the bay's full height (the countertop
+    hides the open band above the dropped rail)."""
+    return max(0.0, layout.bays[bay_index].get('front_drop', 0.0))
 
 
 def effective_bottom_rail_width(layout, bay_index):
@@ -1210,6 +1221,9 @@ def top_rail_passthrough(layout, gap_index):
     - extend_up_amount > 0 on the mid stile (it pokes through the rail)
     - bay top Z's differ (top_offset for uppers; kick/height for bases)
     - bay top rail widths differ
+    - either bay has a front_drop (a dropped sink / cooktop rail sits
+      below the bay top; the mid stile runs full height past it, so the
+      rail can't continue through the gap)
     """
     if gap_index >= len(layout.mid_stiles):
         return False
@@ -1222,6 +1236,9 @@ def top_rail_passthrough(layout, gap_index):
                        bay_top_z(layout, gap_index + 1)):
         return False
     if not _epsilon_eq(bay_a['top_rail_width'], bay_b['top_rail_width']):
+        return False
+    if (not _epsilon_eq(front_drop(layout, gap_index), 0.0)
+            or not _epsilon_eq(front_drop(layout, gap_index + 1), 0.0)):
         return False
     return True
 
@@ -1290,8 +1307,11 @@ def top_rail_segments(layout):
         for k in range(start, end):
             length += layout.mid_stiles[k]['width']
             length += layout.bays[k + 1]['width']
+        # A front-dropped bay (sink / cooktop) lowers its rail below the
+        # bay top; passthrough breaks at any drop change so `start` speaks
+        # for the whole segment.
         wx, wy, wz = ff_outer_world_pos(
-            layout, ff_x, bay_top_z(layout, start)
+            layout, ff_x, bay_top_z(layout, start) - front_drop(layout, start)
         )
         segments.append({
             'start_bay':  start,
@@ -2055,24 +2075,44 @@ def carcass_top_segments(layout):
     return segments
 
 
+def _front_stretcher_passthrough(layout, gap_index):
+    """True if a FRONT top stretcher spans uninterrupted across gap_index.
+
+    Everything that breaks the shared stretcher passthrough breaks the
+    front one too, plus: either bay carrying a front_drop (sink /
+    cooktop). A dropped front stretcher sits below the carcass top, so
+    it terminates at the mid division's face (like the diff-depth case)
+    instead of crossing through the division's top-front notch. The rear
+    stretcher keeps the shared passthrough - it never drops.
+    """
+    if not _top_stretcher_passthrough(layout, gap_index):
+        return False
+    if (not _epsilon_eq(front_drop(layout, gap_index), 0.0)
+            or not _epsilon_eq(front_drop(layout, gap_index + 1), 0.0)):
+        return False
+    return True
+
+
 def front_stretcher_segments(layout):
     """Per-segment front-of-cabinet top stretchers.
 
     Sits just behind the face frame at each bay's top edge. Replaces
     the older solid carcass top with stretcher-based face frame
     construction (no closed top panel, just front + rear stretchers).
+    A front-dropped bay (sink / cooktop) lowers its stretcher by the
+    drop, tracking its dropped top rail.
 
     Geometry:
       - rotation: none (Cutpart with default axes)
       - origin x: segment left_x (= mt for the leftmost bay segment)
       - origin y: -dim_y + fft  (just behind the face frame)
-      - origin z: carcass_top_z(start)  (held down by top_scribe)
+      - origin z: carcass_top_z(start) - front_drop(start)
       - Length:  segment X span (right_x - left_x)
       - Width:   stretcher depth (Y axis, extends in +Y; Mirror Y = False)
       - Thickness: stretcher thickness (Z axis, extends in -Z; Mirror Z = True)
     """
     segments = []
-    for start, end in _compute_segments(layout, _top_stretcher_passthrough):
+    for start, end in _compute_segments(layout, _front_stretcher_passthrough):
         if layout.bays[start].get('remove_carcass'):
             continue
         left_x, right_x = _stretcher_x_bounds(layout, start, end)
@@ -2081,7 +2121,7 @@ def front_stretcher_segments(layout):
             'end_bay':    end,
             'x':          left_x,
             'y':          -layout.dim_y + layout.fft,
-            'z':          carcass_top_z(layout, start),
+            'z':          carcass_top_z(layout, start) - front_drop(layout, start),
             'length':     right_x - left_x,
             'width':      layout.stretcher_w,
             'thickness':  layout.stretcher_t,
@@ -2144,6 +2184,11 @@ def mid_division_notch_active(layout, gap_index):
       - bay depths match (single panel at this gap), and
       - the stretcher segment actually passes through this gap
         (matching heights, depths, rail widths)
+
+    Gates the top-BACK notch (rear stretcher). The top-FRONT notch is
+    gated separately (mid_division_front_notch_active): a front-dropped
+    bay's stretcher terminates at the division face instead of crossing,
+    so the front corner must stay uncut.
     """
     if not layout.uses_stretchers:
         return False
@@ -2154,6 +2199,16 @@ def mid_division_notch_active(layout, gap_index):
     if not _epsilon_eq(bay_a['depth'], bay_b['depth']):
         return False
     return _top_stretcher_passthrough(layout, gap_index)
+
+
+def mid_division_front_notch_active(layout, gap_index):
+    """Whether the slot-0 mid-div panel's top-FRONT stretcher notch is
+    cut: the shared notch conditions PLUS the front stretcher actually
+    crossing this gap (it stops at the division face when either bay
+    has a front_drop)."""
+    if not mid_division_notch_active(layout, gap_index):
+        return False
+    return _front_stretcher_passthrough(layout, gap_index)
 
 
 def mid_division_panels(layout, gap_index):
@@ -2266,7 +2321,10 @@ def mid_division_panels(layout, gap_index):
             # Stretcher notches at top-front + top-back of the panel.
             # Active when stretchers actually cross this gap; sized to
             # the stretcher's own width and thickness for a flush fit.
+            # The front notch gates separately: a front-dropped bay's
+            # stretcher ends at the panel face instead of crossing.
             'notch_active':       mid_division_notch_active(layout, gap_index),
+            'notch_front_active': mid_division_front_notch_active(layout, gap_index),
             'notch_x':            layout.stretcher_t,
             'notch_y':            layout.stretcher_w,
             'notch_route_depth':  dt,
@@ -2640,12 +2698,15 @@ def _bay_root_reveals(layout, bay_index):
     # bay.height now spans floor to top of top rail, so subtracting just
     # the rails leaves both the FF opening AND the kick recess. Subtract
     # kick_height too so the result is the FF opening only. Uppers carry
-    # kick_height = 0 so this is a no-op there.
+    # kick_height = 0 so this is a no-op there. A front_drop (sink /
+    # cooktop) lowers the top rail, so the opening below it shrinks by
+    # the same amount.
     ff_opening_height = (
         bay['height']
         - bay['top_rail_width']
         - effective_bottom_rail_width(layout, bay_index)
         - bay['kick_height']
+        - front_drop(layout, bay_index)
     )
 
     return {
