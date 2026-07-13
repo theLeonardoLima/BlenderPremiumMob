@@ -314,9 +314,9 @@ def profile_top_height(profile_ref, fallback_key):
 
 
 def profile_front_depth(profile_ref, fallback_key):
-    """How far the profile projects back from its face line (max -X).
-    Used to push the base shoe's path forward so its back lands on the
-    base molding's face."""
+    """The profile's thickness off the sweep path (max X extent on the
+    mounted side). Used to push the base shoe's path forward by the
+    base MOLDING's thickness so the shoe applies to its front."""
     return _profile_metrics(profile_ref, fallback_key)[1]
 
 

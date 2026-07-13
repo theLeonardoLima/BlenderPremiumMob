@@ -572,7 +572,7 @@ class Home_Builder_Scene_Props(PropertyGroup):
     )  # type: ignore
     molding_base_shoe: BoolProperty(
         name="Base Shoe",
-        description="Apply a base shoe against the front of the base molding",
+        description="Apply a base shoe along the toe kicks - against the front of the base molding when one is selected, directly at the kick face otherwise",
         default=False,
         update=update_molding_package,
     )  # type: ignore

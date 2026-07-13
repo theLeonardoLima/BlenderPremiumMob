@@ -202,22 +202,24 @@ def _apply_type(scene, molding_type, align, stack, opts):
 
 def _base_stack(hb, stack):
     """Base stack from the room settings: the package's base molding
-    with the room's base-profile choice swapped in, plus the base shoe
-    against its FRONT when toggled on - the shoe's sweep path shifts
-    forward by its own measured depth so its back face lands on the
-    base molding's face."""
+    (empty when the package is None) with the room's base-profile
+    choice swapped in, plus the base shoe when toggled on. The shoe's
+    sweep path shifts forward by the MOLDING's measured thickness so
+    the shoe applies to the front of the base molding; with no base
+    molding it sits directly at the toe kick face."""
     profile = getattr(hb, 'molding_base_profile', 'DEFAULT')
     out = []
+    molding_depth = 0.0
     for ref, fallback, dx, dy in stack:
         if (profile not in ('DEFAULT', '')
                 and ref.replace("\\", "/").split("/")[0] == 'Base Molding'):
             ref = f"Base Molding/{profile}"
         out.append((ref, fallback, dx, dy))
+        depth = packages.profile_front_depth(ref, fallback)
+        molding_depth = max(molding_depth, dx + depth)
     if getattr(hb, 'molding_base_shoe', False):
-        shoe_depth = packages.profile_front_depth(
-            packages.BASE_SHOE_REF, packages.BASE_SHOE_FALLBACK)
         out.append((packages.BASE_SHOE_REF, packages.BASE_SHOE_FALLBACK,
-                    shoe_depth, 0.0))
+                    molding_depth, 0.0))
     return out
 
 
@@ -256,13 +258,14 @@ def apply_scene_packages(scene):
     made = 0
     for prop_name, molding_type, align in _TYPES:
         ident = getattr(hb, prop_name, 'NONE')
-        if ident == 'NONE':
-            continue
-        stack = packages.package_stack(molding_type, ident)
+        stack = (packages.package_stack(molding_type, ident)
+                 if ident != 'NONE' else None)
+        if molding_type == 'BASE':
+            # The base shoe is independent of the package: with the
+            # package set to None the shoe still runs, at the kick face.
+            stack = _base_stack(hb, stack or [])
         if not stack:
             continue
-        if molding_type == 'BASE':
-            stack = _base_stack(hb, stack)
         made += _apply_type(scene, molding_type, align, stack, opts)
 
     # The furniture cap is an independent toggle: it caps the top line
