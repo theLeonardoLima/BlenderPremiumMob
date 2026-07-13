@@ -43,27 +43,30 @@ def clear_scene_molding(scene, molding_type=None):
             bpy.data.curves.remove(data)
 
 
-def _sweep_z(molding_type, first, dy, facts, crown_reveal):
+def _sweep_z(molding_type, first, dy, facts, opts):
     """Sweep Z in the first member's local frame.
 
     Crown mounts a REVEAL above the door top when the cabinet exposes
     one (face frame: height - top rail + door overlay + reveal, the
     same datum the crown detail drawing uses); cabinets without a
-    face-frame mount (frameless) keep the top line. Base sits on the
-    floor; light rail hangs at the bottom line (upper roots originate
-    at their bottom)."""
+    face-frame mount (frameless) keep the top line. The furniture CAP
+    always caps the top line. Base sits on the floor; light rail hangs
+    at the bottom line (upper roots originate at their bottom)."""
     if molding_type == 'CROWN':
         _, _, height = engine.cage_dims(first)
         mount = (facts.get(id(first)) or {}).get('crown_mount')
         if mount:
             return (height - mount['rail_width'] + mount['door_overlay']
-                    + crown_reveal + dy)
+                    + opts['crown_reveal'] + dy)
+        return height + dy
+    if molding_type == 'CAP':
+        _, _, height = engine.cage_dims(first)
         return height + dy
     return dy
 
 
 def _spawn_sweep(scene, molding_type, chain, segments, profile_ref,
-                 fallback_key, dy, facts, crown_reveal):
+                 fallback_key, dy, facts, opts):
     """Create one sweep object: hidden profile + curve through the
     world-space segments, localized to (and parented on) chain[0]."""
     first = chain[0]
@@ -83,7 +86,7 @@ def _spawn_sweep(scene, molding_type, chain, segments, profile_ref,
     sweep[MOLDING_TYPE] = molding_type
     sweep[MOLDING_MEMBERS] = ",".join(c.name for c in chain)
     sweep.parent = first
-    sweep.location.z = _sweep_z(molding_type, first, dy, facts, crown_reveal)
+    sweep.location.z = _sweep_z(molding_type, first, dy, facts, opts)
     profile.parent = sweep
 
     first_inv = first.matrix_world.inverted()
@@ -117,8 +120,7 @@ def _spawn_sweep(scene, molding_type, chain, segments, profile_ref,
     return sweep
 
 
-def _apply_type(scene, molding_type, align, stack, include_recessed,
-                crown_reveal, stack_offset):
+def _apply_type(scene, molding_type, align, stack, opts):
     targets = adapters.collect_targets(scene, molding_type)
     if not targets:
         return 0
@@ -137,10 +139,16 @@ def _apply_type(scene, molding_type, align, stack, include_recessed,
             # Room-adjustable stack entries (a crown riding a spacer)
             # resolve their vertical offset from the scene prop.
             if dy == 'STACK_OFFSET':
-                dy = stack_offset
+                dy = opts['stack_offset']
+            # Room profile overrides swap the preset's profile for
+            # another one from the same pack category.
+            category = profile_ref.replace("\\", "/").split("/")[0]
+            override = opts['overrides'].get(category)
+            if override:
+                profile_ref = f"{category}/{override}"
             if molding_type == 'BASE':
                 segments = engine.kick_sweep_segments(
-                    chain, facts, dx, include_recessed)
+                    chain, facts, dx, opts['include_recessed'])
                 sweep_chain = chain
             else:
                 result = engine.chain_sweep_points(chain, facts, dx, dx)
@@ -152,7 +160,7 @@ def _apply_type(scene, molding_type, align, stack, include_recessed,
                 continue
             if _spawn_sweep(scene, molding_type, sweep_chain, segments,
                             profile_ref, fallback_key, dy, facts,
-                            crown_reveal) is not None:
+                            opts) is not None:
                 made += 1
     return made
 
@@ -166,9 +174,23 @@ def apply_scene_packages(scene):
     if scene.get('IS_LAYOUT_VIEW') or scene.get('IS_DETAIL_VIEW'):
         return 0
     clear_scene_molding(scene)
-    include_recessed = getattr(hb, 'molding_base_include_recessed', False)
-    crown_reveal = getattr(hb, 'molding_crown_reveal', 0.0)
-    stack_offset = getattr(hb, 'molding_crown_stack_offset', 0.0)
+
+    def _override(prop_name):
+        value = getattr(hb, prop_name, 'DEFAULT')
+        return None if value in ('DEFAULT', '') else value
+
+    opts = {
+        'include_recessed': getattr(hb, 'molding_base_include_recessed',
+                                    False),
+        'crown_reveal': getattr(hb, 'molding_crown_reveal', 0.0),
+        'stack_offset': getattr(hb, 'molding_crown_stack_offset', 0.0),
+        'overrides': {
+            'Crown Molding': _override('molding_crown_profile'),
+            'Spacer': _override('molding_spacer_profile'),
+            'Furniture Caps': _override('molding_cap_profile'),
+        },
+    }
+
     made = 0
     for prop_name, molding_type, align in _TYPES:
         ident = getattr(hb, prop_name, 'NONE')
@@ -177,8 +199,13 @@ def apply_scene_packages(scene):
         stack = packages.package_stack(molding_type, ident)
         if not stack:
             continue
-        made += _apply_type(scene, molding_type, align, stack,
-                            include_recessed, crown_reveal, stack_offset)
+        made += _apply_type(scene, molding_type, align, stack, opts)
+
+    # The furniture cap is an independent toggle: it caps the top line
+    # over whichever crown package (or none) sits at the reveal.
+    if getattr(hb, 'molding_crown_furniture_cap', False):
+        made += _apply_type(scene, 'CAP', 'top',
+                            packages.FURNITURE_CAP_STACK, opts)
     return made
 
 

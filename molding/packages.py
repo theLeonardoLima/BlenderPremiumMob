@@ -37,15 +37,48 @@ def register_profile_path(path):
     pack's own register(); safe to call repeatedly."""
     if path and os.path.isdir(path) and path not in _PROFILE_PATHS:
         _PROFILE_PATHS.append(path)
+        _category_enum_cache.clear()
 
 
 def unregister_profile_path(path):
     if path in _PROFILE_PATHS:
         _PROFILE_PATHS.remove(path)
+        _category_enum_cache.clear()
 
 
 def profile_paths():
     return tuple(_PROFILE_PATHS)
+
+
+# Cached per category: Blender keeps only weak references to dynamic
+# enum strings, so the item lists must outlive the property callbacks.
+_category_enum_cache = {}
+
+
+def profile_enum_items(category):
+    """Enum items for a pack category: DEFAULT (the package preset's
+    profile) plus every profile .blend found across the registered
+    packs. Used by the room's profile-override dropdowns."""
+    cached = _category_enum_cache.get(category)
+    if cached is not None:
+        return cached
+    names = []
+    seen = set()
+    for base in _PROFILE_PATHS:
+        folder = os.path.join(base, category)
+        if not os.path.isdir(folder):
+            continue
+        for f in sorted(os.listdir(folder)):
+            if f.lower().endswith('.blend'):
+                stem = f[:-6]
+                if stem not in seen:
+                    seen.add(stem)
+                    names.append(stem)
+    items = tuple(
+        [('DEFAULT', "Default", "Use the package's standard profile")]
+        + [(n, n, "") for n in names])
+    _category_enum_cache[category] = items
+    return items
 
 
 # (identifier, label, description, stack)
@@ -60,9 +93,13 @@ CROWN_PACKAGES = [
       # STACK_OFFSET sentinel resolves to the scene's
       # molding_crown_stack_offset at apply time.
       ('Crown Molding/51 Crown', 'crown_simple', 0.0, 'STACK_OFFSET')]),
-    ('FURNITURE', "Furniture Cap",
-     "A flat furniture cap overhanging the cabinet tops",
-     [('Furniture Caps/Furniture 3 Inch', 'furniture_cap', 0.0, 0.0)]),
+]
+
+# The furniture cap is an independent room TOGGLE, not a crown package:
+# it caps the cabinet TOP line and composes with whichever crown
+# package (or none) sits at the reveal below it.
+FURNITURE_CAP_STACK = [
+    ('Furniture Caps/Furniture 3 Inch', 'furniture_cap', 0.0, 0.0),
 ]
 
 BASE_PACKAGES = [
@@ -97,6 +134,16 @@ def stack_has_adjustable_offset(molding_type, identifier):
     stack = package_stack(molding_type, identifier)
     return bool(stack) and any(dy == 'STACK_OFFSET'
                                for _r, _f, _dx, dy in stack)
+
+
+def stack_uses_category(molding_type, identifier, category):
+    """True when the package's stack has an entry whose profile lives
+    in `category` - used to enable that category's profile-override
+    dropdown in the UI."""
+    stack = package_stack(molding_type, identifier)
+    return bool(stack) and any(
+        ref.replace("\\", "/").split("/")[0] == category
+        for ref, _f, _dx, _dy in stack)
 
 
 # Enum item lists are cached at module level: Blender keeps only weak

@@ -6997,15 +6997,36 @@ class Face_Frame_Scene_Props(PropertyGroup):
         kick toggle and a refresh for after cabinet changes."""
         from ...molding import packages as molding_packages
         hb_scene = context.scene.home_builder
+        crown_pkg = hb_scene.molding_crown_package
+        # Profile-override dropdowns only make sense when a molding
+        # asset pack is installed; without one the packages fall back
+        # to their placeholder profiles and there is nothing to pick.
+        has_pack = bool(molding_packages.profile_paths())
+
         col = layout.column(align=True)
         col.prop(hb_scene, "molding_crown_package", text="Crown")
         sub = col.row()
-        sub.enabled = hb_scene.molding_crown_package != 'NONE'
+        sub.enabled = crown_pkg != 'NONE'
         sub.prop(hb_scene, "molding_crown_reveal", text="Reveal")
         sub = col.row()
         sub.enabled = molding_packages.stack_has_adjustable_offset(
-            'CROWN', hb_scene.molding_crown_package)
+            'CROWN', crown_pkg)
         sub.prop(hb_scene, "molding_crown_stack_offset", text="Stack Offset")
+        if has_pack:
+            sub = col.row()
+            sub.enabled = crown_pkg != 'NONE'
+            sub.prop(hb_scene, "molding_crown_profile", text="Profile")
+            sub = col.row()
+            sub.enabled = molding_packages.stack_uses_category(
+                'CROWN', crown_pkg, 'Spacer')
+            sub.prop(hb_scene, "molding_spacer_profile", text="Spacer")
+        col.separator()
+        col.prop(hb_scene, "molding_crown_furniture_cap")
+        if has_pack:
+            sub = col.row()
+            sub.enabled = hb_scene.molding_crown_furniture_cap
+            sub.prop(hb_scene, "molding_cap_profile", text="Cap Profile")
+        col.separator()
         col.prop(hb_scene, "molding_base_package", text="Base")
         sub = col.row()
         sub.enabled = hb_scene.molding_base_package != 'NONE'

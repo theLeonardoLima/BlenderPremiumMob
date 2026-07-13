@@ -189,6 +189,21 @@ def _molding_light_rail_items(self, context):
     return packages.enum_items('LIGHT_RAIL')
 
 
+def _molding_crown_profile_items(self, context):
+    from .molding import packages
+    return packages.profile_enum_items('Crown Molding')
+
+
+def _molding_spacer_profile_items(self, context):
+    from .molding import packages
+    return packages.profile_enum_items('Spacer')
+
+
+def _molding_cap_profile_items(self, context):
+    from .molding import packages
+    return packages.profile_enum_items('Furniture Caps')
+
+
 def update_wall_material(self, context):
     """Update all wall material inputs when wall material changes."""
     mat = self.wall_material
@@ -510,6 +525,30 @@ class Home_Builder_Scene_Props(PropertyGroup):
         description="For stacked crown packages: how far up the spacer the crown molding sits, measured from the spacer's bottom",
         default=inch(3.5), min=0.0,
         unit='LENGTH', precision=4,
+        update=update_molding_package,
+    )  # type: ignore
+    molding_crown_furniture_cap: BoolProperty(
+        name="Furniture Cap",
+        description="Cap the cabinet tops with a furniture cap - independent of the crown package below it",
+        default=False,
+        update=update_molding_package,
+    )  # type: ignore
+    molding_crown_profile: EnumProperty(
+        name="Crown Profile",
+        description="Crown profile from the installed molding pack (Default uses the package's standard profile)",
+        items=_molding_crown_profile_items,
+        update=update_molding_package,
+    )  # type: ignore
+    molding_spacer_profile: EnumProperty(
+        name="Spacer Profile",
+        description="Spacer profile from the installed molding pack (Default uses the package's standard profile)",
+        items=_molding_spacer_profile_items,
+        update=update_molding_package,
+    )  # type: ignore
+    molding_cap_profile: EnumProperty(
+        name="Furniture Cap Profile",
+        description="Furniture cap profile from the installed molding pack (Default uses the package's standard profile)",
+        items=_molding_cap_profile_items,
         update=update_molding_package,
     )  # type: ignore
 

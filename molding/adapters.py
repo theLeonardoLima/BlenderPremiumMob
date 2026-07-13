@@ -47,6 +47,7 @@ def collect_targets(scene, molding_type):
     """Eligible molding-carrying roots in the room, across both
     libraries. molding_type in {'CROWN', 'BASE', 'LIGHT_RAIL'}."""
     types = {'CROWN': _CROWN_TYPES,
+             'CAP': _CROWN_TYPES,
              'BASE': _BASE_TYPES,
              'LIGHT_RAIL': _RAIL_TYPES}[molding_type]
     return _face_frame_roots(scene, types) + _frameless_roots(scene, types)
