@@ -20,6 +20,17 @@ PlacementDimSpec = namedtuple(
     defaults=[None],
 )
 
+# Free-standing cabinet roots (islands / peninsulas) that can block wall
+# placement even though they aren't wall children. Tag strings rather
+# than library imports - the product libraries import this module, not
+# the reverse.
+FREE_CABINET_TAGS = (
+    'IS_FACE_FRAME_CABINET_CAGE',
+    'IS_FRAMELESS_CABINET_CAGE',
+    'IS_FRAMELESS_PRODUCT_CAGE',
+    'IS_APPLIANCE',
+)
+
 class PlacementState(Enum):
     """States for placement modal operators"""
     IDLE = auto()
@@ -1006,6 +1017,57 @@ class PlacementMixin:
                 x_end = x_start + child_width
 
             children.append((x_start, x_end, child))
+
+        # Free-standing cabinets (islands / peninsulas) are not wall
+        # children, but one whose footprint reaches into the placement
+        # band along this wall face still blocks placement - the
+        # peninsula case, where a run projects perpendicularly off the
+        # wall. Project each free root's plan footprint into wall-local
+        # space; overlap with the band this object will occupy makes it
+        # an obstacle spanning its along-wall extent.
+        band = object_depth if object_depth else units.inch(24.0)
+        if place_on_front:
+            band_y0, band_y1 = -band, 0.0
+        else:
+            band_y0, band_y1 = wall_thickness, wall_thickness + band
+        wall_inv = wall_obj.matrix_world.inverted()
+        for obj in bpy.context.scene.objects:
+            if obj.parent is not None:
+                continue
+            if exclude_obj is not None and obj == exclude_obj:
+                continue
+            if not any(obj.get(t) for t in FREE_CABINET_TAGS):
+                continue
+            try:
+                geo = hb_types.GeoNodeObject(obj)
+                o_w = geo.get_input('Dim X')
+                o_d = geo.get_input('Dim Y')
+                o_h = geo.get_input('Dim Z')
+            except Exception:
+                continue
+            m = wall_inv @ obj.matrix_world
+            corners = [
+                m @ Vector((0.0, 0.0, 0.0)),
+                m @ Vector((o_w, 0.0, 0.0)),
+                m @ Vector((0.0, -o_d, 0.0)),
+                m @ Vector((o_w, -o_d, 0.0)),
+            ]
+            ys = [c.y for c in corners]
+            if min(ys) >= band_y1 - 1e-5 or max(ys) <= band_y0 + 1e-5:
+                continue
+            if check_vertical:
+                obj_z_start = corners[0].z
+                obj_z_end = obj_z_start + o_h
+                overlaps = (object_z_start < obj_z_end and
+                            obj_z_start < object_z_end)
+                if not overlaps:
+                    continue
+            xs = [c.x for c in corners]
+            x_start = max(min(xs), 0.0)
+            x_end = min(max(xs), wall_length)
+            if x_end - x_start < units.inch(0.25):
+                continue
+            children.append((x_start, x_end, obj))
 
         children.sort(key=lambda x: x[0])
 
