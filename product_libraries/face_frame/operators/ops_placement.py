@@ -1208,6 +1208,23 @@ def _neighbor_blind_side(neighbor_obj, corner_world_pos):
     return 'LEFT' if d_left <= d_right else 'RIGHT'
 
 
+def _blind_side_already_configured(neighbor_obj, side):
+    """True when the neighbor's meeting side already carries a blind
+    configuration from an earlier placement dialog. Guards the dialog
+    against re-popping when a later placement auto-merges into the run
+    that created the corner - the merged survivor's end still sits at
+    the corner, so detection alone would fire again and the width
+    reduction would double-apply. A canceled dialog leaves no config,
+    so the user still gets asked again in that case.
+    """
+    props = neighbor_obj.face_frame_cabinet
+    if side == 'LEFT':
+        return (props.left_stile_type == 'BLIND'
+                or 'HB_BLIND_VOID_LEFT' in neighbor_obj)
+    return (props.right_stile_type == 'BLIND'
+            or 'HB_BLIND_VOID_RIGHT' in neighbor_obj)
+
+
 def _detect_peninsula_blind_neighbor(cab_obj, wall):
     """Peninsula variant of the blind-corner match: a free-standing run
     anchored to THIS wall, perpendicular to it, whose FRONT faces the
@@ -1283,6 +1300,8 @@ def _detect_peninsula_blind_neighbor(cab_obj, wall):
         # nearest the meeting point on the wall face.
         corner_world = wall.matrix_world @ Vector((front_x, 0.0, 0.0))
         blind_side = _neighbor_blind_side(obj, corner_world)
+        if _blind_side_already_configured(obj, blind_side):
+            continue
         return (obj, blind_side, 'BLIND', 90.0, placed_corner_end)
     return None
 
@@ -1376,6 +1395,13 @@ def _detect_blind_corner_neighbor(cab_obj):
             corner_world = wall.matrix_world @ Vector((wall_length, 0.0, 0.0))
 
         blind_side = _neighbor_blind_side(neighbor, corner_world)
+        # An already-configured blind side means a merge extended the
+        # run that created this corner - don't re-pop the dialog. Only
+        # the BLIND kind is guarded; the angled dialog tracks its own
+        # state differently.
+        if (corner_kind == 'BLIND'
+                and _blind_side_already_configured(neighbor, blind_side)):
+            continue
         placed_corner_end = 'LEFT' if direction == 'left' else 'RIGHT'
         return (neighbor, blind_side, corner_kind, interior_deg,
                 placed_corner_end)
