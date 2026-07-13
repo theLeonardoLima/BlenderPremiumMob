@@ -498,6 +498,13 @@ class Home_Builder_Scene_Props(PropertyGroup):
         default=False,
         update=update_molding_package,
     )  # type: ignore
+    molding_crown_reveal: FloatProperty(
+        name="Crown Reveal",
+        description="Exposed face-frame band between the top of the doors and the crown molding - the crown mounts this distance above the door top",
+        default=inch(1.5), min=0.0,
+        unit='LENGTH', precision=4,
+        update=update_molding_package,
+    )  # type: ignore
 
     # Molding library selection
     molding_category: EnumProperty(

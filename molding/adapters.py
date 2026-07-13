@@ -10,6 +10,7 @@ import bpy
 import mathutils
 
 from . import engine
+from .. import hb_types
 
 
 # Roots eligible per molding type, per library.
@@ -70,6 +71,21 @@ def collect_bridges(scene):
 # ---------------------------------------------------------------------------
 
 _RECESSED_FF_KICKS = {'NOTCH', 'LOOSE', 'FLOATING'}
+
+
+def _top_rail_width(cage):
+    """Width of the built TOP_RAIL face-frame part, read from the
+    geometry rather than the style props - it's exactly what's drawn."""
+    for child in cage.children_recursive:
+        if child.get('hb_part_role') != 'TOP_RAIL':
+            continue
+        try:
+            width = hb_types.GeoNodeObject(child).get_input('Width')
+        except Exception:
+            width = None
+        if width:
+            return width
+    return None
 
 
 def _wall_bounds(scene):
@@ -145,8 +161,18 @@ def build_facts(scene, members):
                             'UNFINISHED') not in ('UNFINISHED', '', None)
             fin_r = getattr(ffc, 'right_finished_end_condition',
                             'UNFINISHED') not in ('UNFINISHED', '', None)
+            # Crown mounting datum: the DOOR TOP (face-frame opening top
+            # plus the door's top overlay). The room's crown reveal is
+            # measured up from here, matching the crown detail drawing.
+            crown_mount = None
+            rail = _top_rail_width(obj)
+            if rail:
+                overlay = max(
+                    getattr(ffc, 'default_top_overlay', 0.0) or 0.0, 0.0)
+                crown_mount = {'rail_width': rail, 'door_overlay': overlay}
             facts[id(obj)] = {'role': 'CABINET', 'corner': corner,
                               'kick': kick,
+                              'crown_mount': crown_mount,
                               'finished_left': fin_l,
                               'finished_right': fin_r}
             continue

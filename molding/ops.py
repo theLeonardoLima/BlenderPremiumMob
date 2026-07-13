@@ -43,18 +43,27 @@ def clear_scene_molding(scene, molding_type=None):
             bpy.data.curves.remove(data)
 
 
-def _sweep_z(molding_type, first, dy):
-    """Sweep Z in the first member's local frame: crown rides the top
-    line, base sits on the floor, light rail hangs at the bottom line
-    (upper roots originate at their bottom)."""
+def _sweep_z(molding_type, first, dy, facts, crown_reveal):
+    """Sweep Z in the first member's local frame.
+
+    Crown mounts a REVEAL above the door top when the cabinet exposes
+    one (face frame: height - top rail + door overlay + reveal, the
+    same datum the crown detail drawing uses); cabinets without a
+    face-frame mount (frameless) keep the top line. Base sits on the
+    floor; light rail hangs at the bottom line (upper roots originate
+    at their bottom)."""
     if molding_type == 'CROWN':
         _, _, height = engine.cage_dims(first)
+        mount = (facts.get(id(first)) or {}).get('crown_mount')
+        if mount:
+            return (height - mount['rail_width'] + mount['door_overlay']
+                    + crown_reveal + dy)
         return height + dy
     return dy
 
 
 def _spawn_sweep(scene, molding_type, chain, segments, profile_ref,
-                 fallback_key, dy):
+                 fallback_key, dy, facts, crown_reveal):
     """Create one sweep object: hidden profile + curve through the
     world-space segments, localized to (and parented on) chain[0]."""
     first = chain[0]
@@ -74,7 +83,7 @@ def _spawn_sweep(scene, molding_type, chain, segments, profile_ref,
     sweep[MOLDING_TYPE] = molding_type
     sweep[MOLDING_MEMBERS] = ",".join(c.name for c in chain)
     sweep.parent = first
-    sweep.location.z = _sweep_z(molding_type, first, dy)
+    sweep.location.z = _sweep_z(molding_type, first, dy, facts, crown_reveal)
     profile.parent = sweep
 
     first_inv = first.matrix_world.inverted()
@@ -108,7 +117,8 @@ def _spawn_sweep(scene, molding_type, chain, segments, profile_ref,
     return sweep
 
 
-def _apply_type(scene, molding_type, align, stack, include_recessed):
+def _apply_type(scene, molding_type, align, stack, include_recessed,
+                crown_reveal):
     targets = adapters.collect_targets(scene, molding_type)
     if not targets:
         return 0
@@ -137,7 +147,8 @@ def _apply_type(scene, molding_type, align, stack, include_recessed):
             if not segments:
                 continue
             if _spawn_sweep(scene, molding_type, sweep_chain, segments,
-                            profile_ref, fallback_key, dy) is not None:
+                            profile_ref, fallback_key, dy, facts,
+                            crown_reveal) is not None:
                 made += 1
     return made
 
@@ -152,6 +163,7 @@ def apply_scene_packages(scene):
         return 0
     clear_scene_molding(scene)
     include_recessed = getattr(hb, 'molding_base_include_recessed', False)
+    crown_reveal = getattr(hb, 'molding_crown_reveal', 0.0)
     made = 0
     for prop_name, molding_type, align in _TYPES:
         ident = getattr(hb, prop_name, 'NONE')
@@ -161,7 +173,7 @@ def apply_scene_packages(scene):
         if not stack:
             continue
         made += _apply_type(scene, molding_type, align, stack,
-                            include_recessed)
+                            include_recessed, crown_reveal)
     return made
 
 

@@ -6998,6 +6998,9 @@ class Face_Frame_Scene_Props(PropertyGroup):
         hb_scene = context.scene.home_builder
         col = layout.column(align=True)
         col.prop(hb_scene, "molding_crown_package", text="Crown")
+        sub = col.row()
+        sub.enabled = hb_scene.molding_crown_package != 'NONE'
+        sub.prop(hb_scene, "molding_crown_reveal", text="Reveal")
         col.prop(hb_scene, "molding_base_package", text="Base")
         sub = col.row()
         sub.enabled = hb_scene.molding_base_package != 'NONE'
