@@ -7056,6 +7056,10 @@ class Face_Frame_Scene_Props(PropertyGroup):
         box.label(text="Light Rail", icon='NLA_PUSHDOWN')
         col = box.column(align=True)
         col.prop(hb_scene, "molding_light_rail_package", text="Package")
+        if has_pack:
+            sub = col.row()
+            sub.enabled = hb_scene.molding_light_rail_package != 'NONE'
+            sub.prop(hb_scene, "molding_light_rail_profile", text="Profile")
 
         layout.operator("home_builder.refresh_room_molding",
                         text="Refresh Molding", icon='FILE_REFRESH')

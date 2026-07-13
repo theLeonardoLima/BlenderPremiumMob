@@ -263,6 +263,7 @@ def apply_scene_packages(scene):
             'Crown Molding': _override('molding_crown_profile'),
             'Spacer': _override('molding_spacer_profile'),
             'Furniture Caps': _override('molding_cap_profile'),
+            'Light Rail': _override('molding_light_rail_profile'),
         },
     }
 

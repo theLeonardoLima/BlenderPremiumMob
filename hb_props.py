@@ -209,6 +209,11 @@ def _molding_base_profile_items(self, context):
     return packages.profile_enum_items('Base Molding')
 
 
+def _molding_light_rail_profile_items(self, context):
+    from .molding import packages
+    return packages.profile_enum_items('Light Rail')
+
+
 def update_wall_material(self, context):
     """Update all wall material inputs when wall material changes."""
     mat = self.wall_material
@@ -574,6 +579,12 @@ class Home_Builder_Scene_Props(PropertyGroup):
         name="Base Shoe",
         description="Apply a base shoe along the toe kicks - against the front of the base molding when one is selected, directly at the kick face otherwise",
         default=False,
+        update=update_molding_package,
+    )  # type: ignore
+    molding_light_rail_profile: EnumProperty(
+        name="Light Rail Profile",
+        description="Light-rail profile from the installed molding pack (Default uses the package's standard profile)",
+        items=_molding_light_rail_profile_items,
         update=update_molding_package,
     )  # type: ignore
 
