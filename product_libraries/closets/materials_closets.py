@@ -17,6 +17,8 @@ import math
 import os
 import bpy
 
+from ... import hb_utils
+
 
 MATERIALS_BLEND = os.path.join(os.path.dirname(__file__), 'assets',
                                'materials', 'library.blend')
@@ -152,7 +154,7 @@ def _set_modifier_material(mod, socket_name, mat):
     for item in ng.interface.items_tree:
         if (item.item_type == 'SOCKET' and item.in_out == 'INPUT'
                 and item.name == socket_name):
-            getattr(mod.properties.inputs, item.identifier).value = mat
+            hb_utils.set_gn_input(mod, item.identifier, mat)
             return
 
 

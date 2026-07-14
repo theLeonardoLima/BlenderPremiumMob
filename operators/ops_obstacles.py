@@ -142,20 +142,18 @@ class home_builder_obstacles_OT_place_obstacle(bpy.types.Operator, hb_placement.
         
         for mod in wall.modifiers:
             if mod.type == 'NODES' and mod.node_group:
-                try:
-                    return mod.properties.inputs.Input_2.value
-                except AttributeError:
-                    pass
+                length = hb_utils.try_get_gn_input(mod, 'Input_2')
+                if length is not None:
+                    return length
         return 3.0
     
     def get_wall_thickness(self, wall):
         """Get wall thickness from geometry node input."""
         for mod in wall.modifiers:
             if mod.type == 'NODES' and mod.node_group:
-                try:
-                    return mod.properties.inputs.Input_3.value
-                except AttributeError:
-                    pass
+                thickness = hb_utils.try_get_gn_input(mod, 'Input_3')
+                if thickness is not None:
+                    return thickness
         return units.inch(4.5)
     
     def find_nearest_wall(self, context, location):

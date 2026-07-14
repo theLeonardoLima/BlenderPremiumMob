@@ -19,6 +19,7 @@ for wide bays.
 import bpy
 
 from ... import hb_types
+from ... import hb_utils
 from . import types_face_frame
 
 
@@ -377,7 +378,7 @@ def _ensure_and_drive_notch(part_obj, active, x_val, y_val, flips):
     ):
         node_input = ng.interface.items_tree.get(input_name)
         if node_input is not None:
-            getattr(mod.properties.inputs, node_input.identifier).value = value
+            hb_utils.set_gn_input(mod, node_input.identifier, value)
     mod.show_viewport = active
     mod.show_render = active
 
@@ -709,7 +710,7 @@ def _read_cutpart_length(door_obj):
         if it is None:
             return None
         try:
-            return getattr(m.properties.inputs, it.identifier).value
+            return hb_utils.get_gn_input(m, it.identifier)
         except Exception:
             return None
     return None

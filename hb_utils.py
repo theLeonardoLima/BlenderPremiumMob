@@ -2,6 +2,65 @@ import bpy
 from mathutils import Quaternion, Euler
 
 # =============================================================================
+# GEOMETRY NODE MODIFIER INPUT ACCESS (Blender 5.1 / 5.2 compatibility)
+# =============================================================================
+# Blender 5.2 moved geometry-node modifier inputs from ID properties
+# (mod["Socket_2"]) to RNA (mod.properties.inputs.Socket_2.value). These
+# helpers are the only place that knows both layouts, so call sites stay
+# version-agnostic. A missing input raises KeyError on 5.1 and
+# AttributeError on 5.2 - catch (KeyError, AttributeError) where needed,
+# or use try_get_gn_input for a default instead.
+GN_INPUTS_AS_RNA = bpy.app.version >= (5, 2, 0)
+
+
+def get_gn_input(mod, identifier):
+    """Read a geometry node modifier input value by socket identifier."""
+    if GN_INPUTS_AS_RNA:
+        return getattr(mod.properties.inputs, identifier).value
+    return mod[identifier]
+
+
+def set_gn_input(mod, identifier, value):
+    """Write a geometry node modifier input value by socket identifier."""
+    if GN_INPUTS_AS_RNA:
+        getattr(mod.properties.inputs, identifier).value = value
+    else:
+        mod[identifier] = value
+
+
+def try_get_gn_input(mod, identifier, default=None):
+    """get_gn_input, returning default when the input is missing (or the
+    identifier is empty / the socket has no value, e.g. Geometry)."""
+    if not identifier:
+        return default
+    if GN_INPUTS_AS_RNA:
+        item = getattr(mod.properties.inputs, identifier, None)
+        return getattr(item, 'value', default) if item is not None else default
+    return mod.get(identifier, default)
+
+
+def gn_input_ui_ref(mod, identifier):
+    """(owner, prop_name) pair for layout.prop() on a modifier input,
+    or None when the input isn't drawable (missing / no value socket)."""
+    if GN_INPUTS_AS_RNA:
+        item = getattr(mod.properties.inputs, identifier, None)
+        if item is None or not hasattr(item, 'value'):
+            return None
+        return item, 'value'
+    if identifier not in mod.keys():
+        return None
+    return mod, '["%s"]' % identifier
+
+
+def gn_input_data_path(mod, identifier):
+    """Animatable data path (driver_add / path_resolve) for a geometry
+    node modifier input value."""
+    if GN_INPUTS_AS_RNA:
+        return 'modifiers["%s"].properties.inputs.%s.value' % (mod.name, identifier)
+    return 'modifiers["%s"]["%s"]' % (mod.name, identifier)
+
+
+# =============================================================================
 # BASE POINT HELPER FUNCTIONS
 # =============================================================================
 

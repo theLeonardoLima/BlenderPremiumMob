@@ -248,9 +248,9 @@ class hb_frameless_OT_interior_part_prompts(bpy.types.Operator):
                 if mod.type == 'NODES' and mod.node_group:
                     for input in mod.node_group.interface.items_tree:
                         if input.item_type == 'SOCKET' and input.in_out == 'INPUT':
-                            input_props = getattr(mod.properties.inputs, input.identifier, None)
-                            if input_props is not None and hasattr(input_props, 'value'):
-                                box.prop(input_props, 'value', text=input.name)
+                            ui_ref = hb_utils.gn_input_ui_ref(mod, input.identifier)
+                            if ui_ref is not None:
+                                box.prop(ui_ref[0], ui_ref[1], text=input.name)
 
 
 class hb_frameless_OT_delete_interior_part(bpy.types.Operator):

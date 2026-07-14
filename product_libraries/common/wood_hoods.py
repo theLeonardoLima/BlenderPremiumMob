@@ -19,6 +19,7 @@ import re
 import bpy
 from bpy.props import EnumProperty, FloatProperty
 
+from ... import hb_utils
 from ...hb_types import GeoNodeObject, GeoNodeCutpart
 from ...units import inch
 
@@ -34,12 +35,17 @@ HOOD_MATERIAL = inch(0.75)
 # Pre-5.2 driver paths address modifier inputs as ID properties
 # (modifiers["X"]["Socket_2"]); 5.2 moved them to RNA
 # (modifiers["X"].properties.inputs.Socket_2.value). Snapshots persist in
-# saved files, so restore must migrate old-style paths.
+# saved files and may have been written under either version, so restore
+# migrates paths to whichever format the running Blender uses.
 _OLD_MOD_INPUT_PATH_RE = re.compile(r'(modifiers\["[^"]+"\])\["([A-Za-z0-9_]+)"\]')
+_NEW_MOD_INPUT_PATH_RE = re.compile(
+    r'(modifiers\["[^"]+"\])\.properties\.inputs\.([A-Za-z0-9_]+)\.value')
 
 
 def _migrate_mod_input_path(data_path):
-    return _OLD_MOD_INPUT_PATH_RE.sub(r'\1.properties.inputs.\2.value', data_path)
+    if hb_utils.GN_INPUTS_AS_RNA:
+        return _OLD_MOD_INPUT_PATH_RE.sub(r'\1.properties.inputs.\2.value', data_path)
+    return _NEW_MOD_INPUT_PATH_RE.sub(r'\1["\2"]', data_path)
 
 WOOD_HOOD_STYLE_ITEMS = [
     ('BOX', "Box", "Box wood hood"),
@@ -484,8 +490,8 @@ def snapshot_hood_part(hood_part):
             continue
         ident = item.identifier
         try:
-            sval = _ser_value(getattr(mod.properties.inputs, ident).value)
-        except (AttributeError, TypeError):
+            sval = _ser_value(hb_utils.get_gn_input(mod, ident))
+        except (KeyError, AttributeError, TypeError):
             continue
         if sval is not None:
             data['inputs'][ident] = sval
@@ -542,8 +548,8 @@ def restore_hood_part(hood_part):
     hood_part.home_builder.mod_name = mod.name
     for ident, sval in data.get('inputs', {}).items():
         try:
-            getattr(mod.properties.inputs, ident).value = _deser_value(sval)
-        except (AttributeError, TypeError):
+            hb_utils.set_gn_input(mod, ident, _deser_value(sval))
+        except (KeyError, AttributeError, TypeError):
             pass
     hood_part.location = data.get('location', list(hood_part.location))
     hood_part.rotation_euler = data.get('rotation_euler',

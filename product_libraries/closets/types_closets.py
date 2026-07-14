@@ -22,6 +22,7 @@ Width runs -Y (Mirror Y), Thickness extrudes +X (Mirror Z).
 import bpy
 import math
 
+from ... import hb_utils
 from ...hb_types import (GeoNodeCage, GeoNodeCutpart, GeoNodeObject,
                          GeoNodeDrawerBox, CabinetPartModifier)
 from ...units import inch
@@ -968,8 +969,7 @@ class ClosetStarter(GeoNodeCage):
                     if (item.item_type == 'SOCKET'
                             and item.in_out == 'INPUT'
                             and item.name == 'Left Stile Width'):
-                        prop = getattr(mod.properties.inputs, item.identifier, None)
-                        stile_w = prop.value if prop is not None else None
+                        stile_w = hb_utils.try_get_gn_input(mod, item.identifier)
                         break
             offset = (stile_w / 2.0) if stile_w else h_edge
             if hinge == 'LEFT':

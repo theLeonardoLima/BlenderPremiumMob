@@ -6,6 +6,7 @@ from mathutils import Vector
 from gpu_extras.batch import batch_for_shader
 from bpy_extras.view3d_utils import region_2d_to_location_3d, location_3d_to_region_2d
 import bmesh
+from . import hb_utils
 
 class home_builder_OT_to_do(bpy.types.Operator):
     bl_idname = "home_builder.to_do"
@@ -173,16 +174,16 @@ class home_builder_annotations_OT_apply_settings_to_all(bpy.types.Operator):
                 for mod in obj.modifiers:
                     if mod.type == 'NODES' and mod.node_group:
                         try:
-                            mod.properties.inputs.Socket_3.value = hb_scene.annotation_dimension_text_size
-                        except AttributeError:
+                            hb_utils.set_gn_input(mod, 'Socket_3', hb_scene.annotation_dimension_text_size)
+                        except (KeyError, AttributeError):
                             pass
                         try:
-                            mod.properties.inputs.Socket_4.value = hb_scene.annotation_dimension_tick_length
-                        except AttributeError:
+                            hb_utils.set_gn_input(mod, 'Socket_4', hb_scene.annotation_dimension_tick_length)
+                        except (KeyError, AttributeError):
                             pass
                         try:
-                            mod.properties.inputs.Socket_5.value = hb_scene.annotation_dimension_line_thickness
-                        except AttributeError:
+                            hb_utils.set_gn_input(mod, 'Socket_5', hb_scene.annotation_dimension_line_thickness)
+                        except (KeyError, AttributeError):
                             pass
                 
                 dimensions_updated += 1

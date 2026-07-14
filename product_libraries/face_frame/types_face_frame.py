@@ -23,6 +23,7 @@ from contextlib import contextmanager
 
 from mathutils import Vector, Matrix, Euler
 
+from ... import hb_utils
 from ...hb_types import GeoNodeCage, GeoNodeCutpart, GeoNodeDrawerBox, GeoNodeRectangle
 from ...units import inch
 from ...hb_details import apply_label_style
@@ -2634,7 +2635,7 @@ class FaceFrameCabinet(GeoNodeCage):
                 for it in m.node_group.interface.items_tree:
                     if getattr(it, 'in_out', '') == 'INPUT' and it.name == name:
                         try:
-                            return getattr(m.properties.inputs, it.identifier).value
+                            return hb_utils.get_gn_input(m, it.identifier)
                         except Exception:
                             return None
         return None
@@ -2644,7 +2645,7 @@ class FaceFrameCabinet(GeoNodeCage):
             if m.type == 'NODES' and m.node_group:
                 for it in m.node_group.interface.items_tree:
                     if getattr(it, 'in_out', '') == 'INPUT' and it.name == name:
-                        getattr(m.properties.inputs, it.identifier).value = value
+                        hb_utils.set_gn_input(m, it.identifier, value)
                         return
 
     def _back_ext_line(self, side, extend, depth):
@@ -4590,7 +4591,7 @@ class FaceFrameCabinet(GeoNodeCage):
         ):
             node_input = ng.interface.items_tree.get(input_name)
             if node_input is not None:
-                getattr(mod.properties.inputs, node_input.identifier).value = value
+                hb_utils.set_gn_input(mod, node_input.identifier, value)
         mod.show_viewport = active
         mod.show_render = active
 
@@ -5261,7 +5262,7 @@ class FaceFrameCabinet(GeoNodeCage):
                                   ('Route Depth', route)):
             node_input = ng.interface.items_tree.get(input_name)
             if node_input is not None:
-                getattr(mod.properties.inputs, node_input.identifier).value = value
+                hb_utils.set_gn_input(mod, node_input.identifier, value)
         mod.show_viewport = active
         mod.show_render = active
 
@@ -5585,7 +5586,7 @@ class FaceFrameCabinet(GeoNodeCage):
         ):
             node_input = ng.interface.items_tree.get(input_name)
             if node_input is not None:
-                getattr(mod.properties.inputs, node_input.identifier).value = value
+                hb_utils.set_gn_input(mod, node_input.identifier, value)
         mod.show_viewport = active
         mod.show_render = active
 
@@ -5621,7 +5622,7 @@ class FaceFrameCabinet(GeoNodeCage):
             ):
                 node_input = ng.interface.items_tree.get(input_name)
                 if node_input is not None:
-                    getattr(mod.properties.inputs, node_input.identifier).value = value
+                    hb_utils.set_gn_input(mod, node_input.identifier, value)
             mod.show_viewport = active
             mod.show_render = active
 
@@ -7639,7 +7640,7 @@ class LegProductFaceFrameCabinet(FaceFrameCabinet):
         for input_name, value in (('X', x), ('Y', y), ('Route Depth', route_depth)):
             node_input = ng.interface.items_tree.get(input_name)
             if node_input is not None:
-                getattr(mod.properties.inputs, node_input.identifier).value = value
+                hb_utils.set_gn_input(mod, node_input.identifier, value)
         mod.show_viewport = active
         mod.show_render = active
 
@@ -7917,10 +7918,10 @@ class FloatingShelfFaceFrameCabinet(FaceFrameCabinet):
                           ('End Y', y1), ('Route Depth', depth)):
             ni = ng.interface.items_tree.get(name)
             if ni is not None:
-                getattr(mod.properties.inputs, ni.identifier).value = val
+                hb_utils.set_gn_input(mod, ni.identifier, val)
         fz = ng.interface.items_tree.get('Flip Z')
         if fz is not None:
-            getattr(mod.properties.inputs, fz.identifier).value = flip_z
+            hb_utils.set_gn_input(mod, fz.identifier, flip_z)
         mod.show_viewport = active
         mod.show_render = active
 

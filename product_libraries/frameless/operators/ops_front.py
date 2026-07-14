@@ -27,9 +27,9 @@ class hb_frameless_OT_door_front_prompts(bpy.types.Operator):
     def draw_modifier_input(self, layout, mod, input_name, text):
         if input_name in mod.node_group.interface.items_tree:
             node_input = mod.node_group.interface.items_tree[input_name]
-            input_props = getattr(mod.properties.inputs, node_input.identifier, None)
-            if input_props is not None:
-                layout.prop(input_props, 'value', text=text)
+            ui_ref = hb_utils.gn_input_ui_ref(mod, node_input.identifier)
+            if ui_ref is not None:
+                layout.prop(ui_ref[0], ui_ref[1], text=text)
 
     def invoke(self, context, event):
         self.front = context.object

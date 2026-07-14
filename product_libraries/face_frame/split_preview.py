@@ -10,6 +10,8 @@ import gpu
 from gpu_extras.batch import batch_for_shader
 from mathutils import Vector
 
+from ... import hb_utils
+
 
 # Only one split dialog can be open at a time, so a single handler slot
 # is enough. Module globals persist for the life of the Blender session.
@@ -62,8 +64,8 @@ def _cage_dims(obj):
             ids = {it.name: it.identifier
                    for it in m.node_group.interface.items_tree
                    if getattr(it, 'in_out', None) == 'INPUT'}
-            dx = getattr(getattr(m.properties.inputs, ids.get('Dim X', ''), None), 'value', None)
-            dz = getattr(getattr(m.properties.inputs, ids.get('Dim Z', ''), None), 'value', None)
+            dx = hb_utils.try_get_gn_input(m, ids.get('Dim X', ''))
+            dz = hb_utils.try_get_gn_input(m, ids.get('Dim Z', ''))
             if dx is not None and dz is not None:
                 return dx, dz
     # Fallback: bound box (valid once the cage has been evaluated).

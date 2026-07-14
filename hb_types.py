@@ -51,12 +51,9 @@ def _invalidate_input_cache(node_group):
 
 
 def _gn_input_data_path(mod, identifier):
-    """Animatable data path for a geometry node modifier input value.
-
-    Blender 5.2 moved modifier inputs from ID properties
-    (modifiers["X"]["Socket_2"]) to RNA (modifiers["X"].properties.inputs.Socket_2.value).
-    """
-    return 'modifiers["' + mod.name + '"].properties.inputs.' + identifier + '.value'
+    """Animatable data path for a geometry node modifier input value
+    (version-dependent - see hb_utils.gn_input_data_path)."""
+    return hb_utils.gn_input_data_path(mod, identifier)
 
 
 class Variable():
@@ -317,11 +314,13 @@ class GeoNodeObject:
             raise ValueError(f"Input '{input_name}' not found in geometry node")
         
         node_input = mod.node_group.interface.items_tree[input_name]
-        input_props = getattr(mod.properties.inputs, node_input.identifier)
+        ui_ref = hb_utils.gn_input_ui_ref(mod, node_input.identifier)
+        if ui_ref is None:
+            return
         if icon == '':
-            layout.prop(input_props,'value',text=text)
+            layout.prop(ui_ref[0],ui_ref[1],text=text)
         else:
-            layout.prop(input_props,'value',text=text,icon=icon)
+            layout.prop(ui_ref[0],ui_ref[1],text=text,icon=icon)
 
     def set_input(self, input_name, value):
         """Safely set geometry node input value
@@ -347,13 +346,13 @@ class GeoNodeObject:
 
         ident = _get_input_identifier(mod.node_group, input_name)
         try:
-            getattr(mod.properties.inputs, ident).value = value
-        except AttributeError:
+            hb_utils.set_gn_input(mod, ident, value)
+        except (KeyError, AttributeError):
             # Cached identifier no longer present on the modifier - schema
             # changed since we cached. Force a fresh interface_update and retry.
             _invalidate_input_cache(mod.node_group)
             ident = _get_input_identifier(mod.node_group, input_name)
-            getattr(mod.properties.inputs, ident).value = value
+            hb_utils.set_gn_input(mod, ident, value)
         # Writing a modifier input via Python doesn't reliably tag the owning
         # object for depsgraph re-evaluation - interface_update used to do that
         # as a side effect. update_tag() is ~40x cheaper and restores live
@@ -384,11 +383,11 @@ class GeoNodeObject:
 
         ident = _get_input_identifier(mod.node_group, input_name)
         try:
-            return getattr(mod.properties.inputs, ident).value
-        except AttributeError:
+            return hb_utils.get_gn_input(mod, ident)
+        except (KeyError, AttributeError):
             _invalidate_input_cache(mod.node_group)
             ident = _get_input_identifier(mod.node_group, input_name)
-            return getattr(mod.properties.inputs, ident).value
+            return hb_utils.get_gn_input(mod, ident)
 
     def has_input(self, input_name):
         """Check if a geometry node input exists.
@@ -930,11 +929,11 @@ class CabinetPartModifier(GeoNodeObject):
 
         ident = _get_input_identifier(self.mod.node_group, input_name)
         try:
-            getattr(self.mod.properties.inputs, ident).value = value
-        except AttributeError:
+            hb_utils.set_gn_input(self.mod, ident, value)
+        except (KeyError, AttributeError):
             _invalidate_input_cache(self.mod.node_group)
             ident = _get_input_identifier(self.mod.node_group, input_name)
-            getattr(self.mod.properties.inputs, ident).value = value
+            hb_utils.set_gn_input(self.mod, ident, value)
         # See note in GeoNodeObject.set_input - the explicit tag replaces the
         # implicit dirty-flag that interface_update used to provide.
         self.obj.update_tag()
@@ -956,8 +955,8 @@ class CabinetPartModifier(GeoNodeObject):
 
         ident = _get_input_identifier(self.mod.node_group, input_name)
         try:
-            return getattr(self.mod.properties.inputs, ident).value
-        except AttributeError:
+            return hb_utils.get_gn_input(self.mod, ident)
+        except (KeyError, AttributeError):
             _invalidate_input_cache(self.mod.node_group)
             ident = _get_input_identifier(self.mod.node_group, input_name)
-            return getattr(self.mod.properties.inputs, ident).value
+            return hb_utils.get_gn_input(self.mod, ident)

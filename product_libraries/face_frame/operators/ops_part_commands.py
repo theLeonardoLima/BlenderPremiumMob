@@ -24,6 +24,7 @@ from .. import types_face_frame
 from .. import types_face_frame_corner
 from ....hb_types import GeoNodeCutpart, CabinetPartModifier
 from .... import units
+from .... import hb_utils
 
 
 # Role sets used by each operator's poll and the menu's draw.
@@ -948,7 +949,7 @@ def _mod_input_get(mod, name, default=None):
     try:
         for item in mod.node_group.interface.items_tree:
             if getattr(item, 'item_type', '') == 'SOCKET' and item.name == name:
-                return getattr(mod.properties.inputs, item.identifier).value
+                return hb_utils.get_gn_input(mod, item.identifier)
     except Exception:
         pass
     return default

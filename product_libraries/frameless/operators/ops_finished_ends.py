@@ -30,8 +30,7 @@ def get_door_style_from_front(front_obj):
                 def get_input(name):
                     if name in ng.interface.items_tree:
                         node_input = ng.interface.items_tree[name]
-                        prop = getattr(mod.properties.inputs, node_input.identifier, None)
-                        return getattr(prop, 'value', None)
+                        return hb_utils.try_get_gn_input(mod, node_input.identifier)
                     return None
                 
                 return {
@@ -455,8 +454,7 @@ class hb_frameless_OT_applied_panel_prompts(bpy.types.Operator):
             def get_input(name):
                 if name in ng.interface.items_tree:
                     node_input = ng.interface.items_tree[name]
-                    prop = getattr(self.door_style_mod.properties.inputs, node_input.identifier, None)
-                    return getattr(prop, 'value', None)
+                    return hb_utils.try_get_gn_input(self.door_style_mod, node_input.identifier)
                 return None
             
             trw = get_input('Top Rail Width')
@@ -486,7 +484,7 @@ class hb_frameless_OT_applied_panel_prompts(bpy.types.Operator):
             if name in ng.interface.items_tree:
                 node_input = ng.interface.items_tree[name]
                 ng.interface_update(context)
-                getattr(self.door_style_mod.properties.inputs, node_input.identifier).value = value
+                hb_utils.set_gn_input(self.door_style_mod, node_input.identifier, value)
         
         set_input('Top Rail Width', self.top_rail_width)
         set_input('Bottom Rail Width', self.bottom_rail_width)

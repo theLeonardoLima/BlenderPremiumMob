@@ -20,7 +20,7 @@ import platform
 import subprocess
 from mathutils import Vector
 from .. import props_hb_face_frame
-from .... import hb_types, hb_placement, hb_snap
+from .... import hb_types, hb_placement, hb_snap, hb_utils
 
 
 # ---------------------------------------------------------------------------
@@ -350,12 +350,9 @@ class hb_face_frame_OT_load_cabinet_group_from_library(bpy.types.Operator, hb_pl
                         if (item.item_type == 'SOCKET'
                                 and item.in_out == 'INPUT'
                                 and item.socket_type == 'NodeSocketObject'):
-                            try:
-                                ref_obj = getattr(mod.properties.inputs, item.identifier).value
-                                if ref_obj:
-                                    geo_node_refs.add(ref_obj)
-                            except (AttributeError, TypeError):
-                                pass
+                            ref_obj = hb_utils.try_get_gn_input(mod, item.identifier)
+                            if ref_obj:
+                                geo_node_refs.add(ref_obj)
 
         self.geo_node_refs = geo_node_refs
         for ref_obj in geo_node_refs:

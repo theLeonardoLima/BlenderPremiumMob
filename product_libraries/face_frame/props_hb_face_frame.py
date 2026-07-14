@@ -22,6 +22,7 @@ from bpy.props import (
     EnumProperty,
 )
 from ... import units
+from ... import hb_utils
 from . import finish_colors, wood_materials, style_options
 
 
@@ -1985,15 +1986,14 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
             if 'Door Style' not in mod.name:
                 continue
             tree = mod.node_group.interface.items_tree
-            mod_inputs = mod.properties.inputs
             if 'Stile Material' in tree and finish_mat is not None:
-                getattr(mod_inputs, tree['Stile Material'].identifier).value = finish_mat
+                hb_utils.set_gn_input(mod, tree['Stile Material'].identifier, finish_mat)
             if 'Rail Material' in tree and finish_mat_rotated is not None:
-                getattr(mod_inputs, tree['Rail Material'].identifier).value = finish_mat_rotated
+                hb_utils.set_gn_input(mod, tree['Rail Material'].identifier, finish_mat_rotated)
             if 'Panel Material' in tree and panel_mat is not None:
                 # panel_mat is the glass material for prep-for-glass fronts,
                 # else the finish (rotated for HORIZONTAL grain -- see above).
-                getattr(mod_inputs, tree['Panel Material'].identifier).value = panel_mat
+                hb_utils.set_gn_input(mod, tree['Panel Material'].identifier, panel_mat)
             break
 
     def _apply_materials_to_cabinet(self, cabinet_obj):
