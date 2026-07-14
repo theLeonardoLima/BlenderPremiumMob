@@ -1796,10 +1796,12 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         'TRAY_DIVIDER', 'TRAY_LOCKED_SHELF',
         'VANITY_SHELF', 'VANITY_SUPPORT',
         'INTERIOR_FIXED_SHELF', 'INTERIOR_DIVISION',
-        # Corner cabinet carcass: bottom, top, backs, side panels, and
-        # toe kick subfronts. Corner finish kicks are visible exterior
-        # (listed above); corner sides default to interior - a finished
-        # exposed side is a follow-up, same as standard cabinets.
+        # Corner cabinet carcass kicks. Corner finish kicks are visible
+        # exterior (listed above). The corner sides / backs / angled
+        # back / top / bottom are routed explicitly in
+        # _apply_materials_to_cabinet (finished-end conditions pick the
+        # outer face, corner_finish_interior the cavity face); their
+        # entries below are dead fallbacks kept for safety.
         'CORNER_BOTTOM', 'CORNER_TOP',
         'CORNER_LEFT_BACK', 'CORNER_RIGHT_BACK',
         'CORNER_LEFT_SIDE', 'CORNER_RIGHT_SIDE',
@@ -1826,10 +1828,10 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
     _BAY_FINISH_SHELF_ROLES = {
         'ADJUSTABLE_SHELF', 'INTERIOR_FIXED_SHELF', 'BAY_SHELF', 'VANITY_SHELF',
         # Corner cabinet shelves live under the cabinet root (no bay /
-        # opening cage above them), so the finish walk resolves to
-        # not-finished and they take the interior material -- correct,
-        # and better than the no-material fallthrough they had before.
-        'CORNER_SHELF',
+        # opening cage above them), so the bay / opening finish walk
+        # resolves to not-finished; the cabinet-level
+        # corner_finish_interior toggle finishes them instead.
+        'CORNER_SHELF', 'CORNER_FIXED_SHELF',
     }
 
     def _set_part_surfaces(self, part_obj, surface_mat, edge_mat):
@@ -2018,6 +2020,12 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         ff_cab = cabinet_obj.face_frame_cabinet
         left_side_finished = (ff_cab.left_finished_end_condition == 'FINISHED')
         right_side_finished = (ff_cab.right_finished_end_condition == 'FINISHED')
+        # Corner cabinets: backs sit against the walls, so the back
+        # condition covers both back panels (and the diagonal's angled
+        # back); corner_finish_interior finishes the cavity-facing
+        # surfaces. Read once here like the side conditions above.
+        back_side_finished = (ff_cab.back_finished_end_condition == 'FINISHED')
+        corner_finish_interior = ff_cab.corner_finish_interior
 
         for child in cabinet_obj.children_recursive:
             if 'CABINET_PART' not in child:
@@ -2088,6 +2096,54 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
                 )
                 continue
 
+            # Corner cabinet carcass panels (pie cut + diagonal). Every
+            # vertical corner panel is built with its OUTER face as the
+            # Bottom Surface (verified empirically against both corner
+            # builders), the same convention as FINISHED sides above.
+            # The outer face follows the matching finished-end condition
+            # (sides -> left / right, backs + angled back -> back); the
+            # cavity face follows corner_finish_interior.
+            if role in ('CORNER_LEFT_SIDE', 'CORNER_RIGHT_SIDE',
+                        'CORNER_LEFT_BACK', 'CORNER_RIGHT_BACK',
+                        'CORNER_ANGLED_BACK'):
+                if role == 'CORNER_LEFT_SIDE':
+                    outer_finished = left_side_finished
+                elif role == 'CORNER_RIGHT_SIDE':
+                    outer_finished = right_side_finished
+                else:
+                    outer_finished = back_side_finished
+                self._set_part_surfaces_split(
+                    child,
+                    top_mat=(finish_mat if corner_finish_interior
+                             else interior_mat),
+                    bottom_mat=(finish_mat if outer_finished
+                                else interior_mat),
+                    edge_mat=(finish_mat_rotated
+                              if (corner_finish_interior or outer_finished)
+                              else interior_mat_rotated),
+                )
+                continue
+            # Corner top / bottom: only the cavity-facing surface (Bottom
+            # on the top panel, Top on the bottom panel) takes the finish
+            # when the interior is finished; the outward face is hidden
+            # (under the countertop / against the floor or upper top) and
+            # stays interior either way.
+            if role in ('CORNER_TOP', 'CORNER_BOTTOM'):
+                if corner_finish_interior:
+                    cavity_is_top = (role == 'CORNER_BOTTOM')
+                    self._set_part_surfaces_split(
+                        child,
+                        top_mat=(finish_mat if cavity_is_top
+                                 else interior_mat),
+                        bottom_mat=(interior_mat if cavity_is_top
+                                    else finish_mat),
+                        edge_mat=finish_mat_rotated,
+                    )
+                else:
+                    self._set_part_surfaces(
+                        child, interior_mat, interior_mat_rotated)
+                continue
+
             # Interior shelves in a finished region take the exterior
             # finish so the finished look continues onto the shelving;
             # shelves elsewhere stay interior. A shelf is finished when its
@@ -2102,6 +2158,8 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
                      and bay_cage.face_frame_bay.finish_bay)
                     or (opening_cage is not None
                         and opening_cage.face_frame_opening.finish_opening)
+                    or (corner_finish_interior
+                        and role in ('CORNER_SHELF', 'CORNER_FIXED_SHELF'))
                 )
                 if finish_mat is not None and finished:
                     self._set_part_surfaces(child, finish_mat, finish_mat_rotated)
@@ -4843,6 +4901,18 @@ class Face_Frame_Cabinet_Props(PropertyGroup):
             ('NOT_SO_LAZY_SUSANS',         "Not So Lazy Susan",                     "Pan storage with hooks plus a lower tray"),
         ],
         default='NONE',
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    # Finish the corner cabinet's interior: the cavity-facing surfaces
+    # of the sides / backs / top / bottom and the corner shelves take
+    # the exterior finish material instead of the interior material.
+    # Corner cabinets have no bay / opening cages, so the per-bay
+    # finish_bay / finish_opening flags standard cabinets use can't
+    # reach them - this cabinet-level toggle is their equivalent.
+    corner_finish_interior: BoolProperty(
+        name="Finish Interior",
+        description="Use the exterior finish material on the interior surfaces and shelves of this corner cabinet",
+        default=False,
         update=_update_cabinet_dim,
     )  # type: ignore
     tray_compartment: EnumProperty(

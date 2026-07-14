@@ -112,6 +112,7 @@ def draw_dimensions(layout, root):
             if is_upper:
                 col.prop(cab_props, 'exterior_config', text="Config")
             col.prop(cab_props, 'interior_option',  text="Interior")
+            col.prop(cab_props, 'corner_finish_interior', text="Finish Interior")
             col.prop(cab_props, 'tray_compartment', text="Tray Compartment")
             if cab_props.tray_compartment != 'NONE':
                 col.prop(cab_props, 'tray_compartment_width', text="Tray Comp. Width")
@@ -124,6 +125,7 @@ def draw_dimensions(layout, root):
             col.prop(cab_props, 'exterior_config', text="Config")
             col.prop(cab_props, 'diag_door_swing', text="Door Swing")
             col.prop(cab_props, 'interior_option', text="Interior")
+            col.prop(cab_props, 'corner_finish_interior', text="Finish Interior")
             draw_corner_sections(layout, cab_props)
         elif cab_props.corner_type == 'PIE_CUT_DRAWER':
             col.label(text="Pie Cut Drawer Options")
