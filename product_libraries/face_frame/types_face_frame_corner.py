@@ -2083,11 +2083,12 @@ class CornerFaceFrameCabinet(ff.FaceFrameCabinet):
         cab_props = self.obj.face_frame_cabinet
         if not cab_props.corner_sections:
             props_hb.populate_corner_sections(cab_props)
-        # Open-base configs (Hutch, Open with Shelves): the lowest
-        # section is open, so the carcass bottom and the FF bottom rail
-        # are dropped and the lowest opening runs to the carcass floor.
-        _secs = cab_props.corner_sections
-        open_base = bool(_secs) and _secs[-1].content == 'OPEN'
+        # Open bottom: drops the carcass bottom and the FF bottom rail
+        # so the lowest opening runs to the carcass floor. User-driven
+        # via the Remove Bottom checkbox (any config); the Hutch / Open
+        # with Shelves configs used to force this by their lowest OPEN
+        # section, which removed the bottom even when it was wanted.
+        open_base = bool(cab_props.corner_remove_bottom)
         width = cab_props.width
         depth = cab_props.depth
         height = cab_props.height

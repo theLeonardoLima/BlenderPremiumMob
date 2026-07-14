@@ -3729,8 +3729,8 @@ _EXTERIOR_CONFIG_ITEMS = {
     'UPPER': [
         ('DOORS',         "Doors",             "One door pair"),
         ('STACKED_DOORS', "Stacked Doors",     "Two stacked door pairs"),
-        ('HUTCH',         "Hutch",             "Doors on top, open below, no bottom"),
-        ('OPEN_SHELVES',  "Open with Shelves", "Open shelf section, no bottom"),
+        ('HUTCH',         "Hutch",             "Doors on top, open below"),
+        ('OPEN_SHELVES',  "Open with Shelves", "Open shelf section"),
     ],
     'TALL': [
         ('HUTCH',    "Hutch",    "Upper doors, open middle, base doors"),
@@ -4912,6 +4912,17 @@ class Face_Frame_Cabinet_Props(PropertyGroup):
     corner_finish_interior: BoolProperty(
         name="Finish Interior",
         description="Use the exterior finish material on the interior surfaces and shelves of this corner cabinet",
+        default=False,
+        update=_update_cabinet_dim,
+    )  # type: ignore
+    # Drop the carcass bottom + FF bottom rail so the lowest opening
+    # runs to the carcass floor. The corner equivalent of a bay's
+    # remove_bottom (corner cabinets have no bay cages). Previously the
+    # Hutch / Open with Shelves diagonal upper configs forced this;
+    # it's now user-controlled and available on any config.
+    corner_remove_bottom: BoolProperty(
+        name="Remove Bottom",
+        description="Remove the carcass bottom and the bottom rail; the lowest opening runs to the carcass floor",
         default=False,
         update=_update_cabinet_dim,
     )  # type: ignore
