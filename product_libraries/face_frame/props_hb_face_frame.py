@@ -1727,9 +1727,22 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         'HUTCH_BACK',
         # Over-stool shelf between the extended legs
         'OVERSTOOL_SHELF',
+        # Full-overlay wall-stile cover + appliance-opening fillers +
+        # front-drop filler - proud face-frame-plane parts
+        'FULL_OVERLAY_STILE', 'APPLIANCE_FILLER', 'FRONT_DROP_FILLER',
+        # Refrigerator cabinet deep stiles
+        'LEFT_REFRIG_STILE', 'RIGHT_REFRIG_STILE',
+        # Drawer-look appliance panels (flat slabs mimicking a drawer
+        # stack, plus the inset look's mid rails)
+        'DRAWER_LOOK_FRONT', 'DRAWER_LOOK_RAIL',
+        # Valance product boards
+        'VALANCE_BOARD', 'VALANCE_COVER',
+        'VALANCE_PANEL_LEFT', 'VALANCE_PANEL_RIGHT',
         # Visible toe kick parts
         'CORNER_MID_RAIL', 'CORNER_FALSE_FRONT',
-        'FINISH_TOE_KICK', 'CORNER_LEFT_FINISH_KICK', 'CORNER_RIGHT_FINISH_KICK',
+        'FINISH_TOE_KICK', 'MID_FINISH_KICK',
+        'CORNER_LEFT_FINISH_KICK', 'CORNER_RIGHT_FINISH_KICK',
+        'LEFT_CORNER_FINISH_KICK', 'RIGHT_CORNER_FINISH_KICK',
         'LEFT_KICK_RETURN', 'RIGHT_KICK_RETURN',
         # Loose ladder sub-base boards - finished material
         'LOOSE_KICK_FRONT', 'LOOSE_KICK_REAR',
@@ -1775,6 +1788,8 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         'BAY_DIVISION', 'BAY_SHELF', 'MID_DIVISION',
         # Drawer box
         'DRAWER_BOX',
+        # Sink apron - face-frame-depth panel behind the FF band
+        'APRON',
         # Interior items
         'ADJUSTABLE_SHELF', 'PULLOUT_SHELF', 'PULLOUT_SPACER',
         'ROLLOUT_BOX', 'ROLLOUT_SPACER',
@@ -1794,7 +1809,10 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         'CORNER_LOOSE_REAR_LEFT', 'CORNER_LOOSE_REAR_RIGHT',
         'CORNER_LOOSE_END_LEFT', 'CORNER_LOOSE_END_RIGHT',
         'CORNER_PARTITION', 'CORNER_TRAY_DIVIDER', 'CORNER_SHELF',
-        'CORNER_ANGLED_BACK',
+        'CORNER_FIXED_SHELF', 'CORNER_ANGLED_BACK',
+        # Pie-cut drawer corner: the 45-degree channel walls the drawer
+        # slides between.
+        'CORNER_CHANNEL_LEFT', 'CORNER_CHANNEL_RIGHT',
     }
 
     # Roles that read materials from the 5-piece door modifier instead
@@ -2089,6 +2107,13 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
                     self._set_part_surfaces(child, finish_mat, finish_mat_rotated)
                 else:
                     self._set_part_surfaces(child, interior_mat, interior_mat_rotated)
+                continue
+
+            # Glass shelves render as glass, not wood - same material the
+            # prep-for-glass door panels use.
+            if role == 'GLASS_SHELF':
+                glass = self._get_glass_panel_material()
+                self._set_part_surfaces(child, glass, glass)
                 continue
 
             if role in self._FRONT_ROLES:
