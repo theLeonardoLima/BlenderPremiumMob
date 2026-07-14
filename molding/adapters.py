@@ -126,6 +126,41 @@ def _frameless_end_finished(obj, side, wall_bounds):
     return not _near_wall(probe, wall_bounds)
 
 
+def finish_material(obj):
+    """The exterior finish material of the cabinet's assigned style,
+    resolved through its library's style system. None for appliances
+    or when no style / material resolves."""
+    try:
+        if obj.get('IS_FACE_FRAME_CABINET_CAGE'):
+            style_name = obj.get('STYLE_NAME')
+            if not style_name:
+                return None
+            from ..product_libraries.face_frame import props_hb_face_frame
+            ff = props_hb_face_frame.get_style_props()
+            style = next((cs for cs in ff.cabinet_styles
+                          if cs.name == style_name), None)
+            if style is None:
+                return None
+            material, _rotated = style.get_finish_material()
+            return material
+        if (obj.get('IS_FRAMELESS_CABINET_CAGE')
+                or obj.get('IS_FRAMELESS_PRODUCT_CAGE')):
+            from .. import hb_project
+            main = hb_project.get_main_scene()
+            props = getattr(main, 'hb_frameless', None)
+            if props is None or not props.cabinet_styles:
+                return None
+            index = obj.get('CABINET_STYLE_INDEX', 0)
+            if not 0 <= index < len(props.cabinet_styles):
+                return None
+            material, _rotated = \
+                props.cabinet_styles[index].get_finish_material()
+            return material
+    except Exception:
+        return None
+    return None
+
+
 def build_facts(scene, members):
     """FACTS dict (keyed by id(obj)) for the engine, covering every
     member: role, corner data, kick config, finished ends."""

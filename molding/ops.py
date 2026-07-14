@@ -175,6 +175,15 @@ def _spawn_sweep(scene, molding_type, chain, segments, profile_ref,
         bpy.data.objects.remove(sweep, do_unlink=True)
         bpy.data.objects.remove(profile, do_unlink=True)
         return None
+
+    # Moldings take the run's cabinet finish: the style material of the
+    # first chain member that resolves one (appliance bridges resolve
+    # to None and are skipped).
+    for member in chain:
+        material = adapters.finish_material(member)
+        if material is not None:
+            curve.materials.append(material)
+            break
     return sweep
 
 
