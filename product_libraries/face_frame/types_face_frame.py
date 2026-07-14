@@ -2634,7 +2634,7 @@ class FaceFrameCabinet(GeoNodeCage):
                 for it in m.node_group.interface.items_tree:
                     if getattr(it, 'in_out', '') == 'INPUT' and it.name == name:
                         try:
-                            return m[it.identifier]
+                            return getattr(m.properties.inputs, it.identifier).value
                         except Exception:
                             return None
         return None
@@ -2644,7 +2644,7 @@ class FaceFrameCabinet(GeoNodeCage):
             if m.type == 'NODES' and m.node_group:
                 for it in m.node_group.interface.items_tree:
                     if getattr(it, 'in_out', '') == 'INPUT' and it.name == name:
-                        m[it.identifier] = value
+                        getattr(m.properties.inputs, it.identifier).value = value
                         return
 
     def _back_ext_line(self, side, extend, depth):

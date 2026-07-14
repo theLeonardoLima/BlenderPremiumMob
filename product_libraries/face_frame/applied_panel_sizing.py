@@ -709,7 +709,7 @@ def _read_cutpart_length(door_obj):
         if it is None:
             return None
         try:
-            return m[it.identifier]
+            return getattr(m.properties.inputs, it.identifier).value
         except Exception:
             return None
     return None

@@ -62,8 +62,8 @@ def _cage_dims(obj):
             ids = {it.name: it.identifier
                    for it in m.node_group.interface.items_tree
                    if getattr(it, 'in_out', None) == 'INPUT'}
-            dx = m.get(ids.get('Dim X', ''))
-            dz = m.get(ids.get('Dim Z', ''))
+            dx = getattr(getattr(m.properties.inputs, ids.get('Dim X', ''), None), 'value', None)
+            dz = getattr(getattr(m.properties.inputs, ids.get('Dim Z', ''), None), 'value', None)
             if dx is not None and dz is not None:
                 return dx, dz
     # Fallback: bound box (valid once the cage has been evaluated).
