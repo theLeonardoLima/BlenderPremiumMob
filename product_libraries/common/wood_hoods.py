@@ -23,6 +23,7 @@ from bpy.props import BoolProperty, EnumProperty, FloatProperty, IntProperty
 from ... import hb_utils
 from ...hb_types import GeoNodeObject, GeoNodeCutpart
 from ...units import inch
+from . import door_builder
 
 
 HOOD_PART_TAG = "IS_WOOD_HOOD_PART"
@@ -445,21 +446,20 @@ def _hood_door_overlays(hood_obj):
     return inch(0.5), inch(0.5), inch(0.5), inch(0.5)
 
 
-def _apply_hood_door_style(hood_obj, door_obj):
-    """Apply the hood's cabinet style's door style (slab / 5-piece) to a
-    hood door front, the same way cabinet fronts get theirs. No-op when
-    nothing resolves -- the door stays a plain slab."""
+def _hood_door_style(hood_obj):
+    """The Face_Frame_Door_Style the hood's doors should build from (the
+    hood's cabinet style's door style), or None -- door_builder falls
+    back to its default construction fields."""
     style = _hood_style(hood_obj)
     if style is None:
-        return
+        return None
     try:
         from ..face_frame.props_hb_face_frame import get_style_props
         ff = get_style_props()
-        ds = next((d for d in ff.door_styles if d.name == style.door_style), None)
-        if ds is not None:
-            ds.assign_style_to_front(door_obj)
+        return next((d for d in ff.door_styles if d.name == style.door_style),
+                    None)
     except Exception:
-        pass
+        return None
 
 
 def _get_custom_opts(hood_obj):
@@ -618,49 +618,95 @@ def _front_face_frame(hood_obj, opts, band):
 
     # Bay fronts. Opening j runs x [x0_j, x0_j + ow] with
     # ow = (dim_x - stock) / n and x0_j = (j+1)*sw + j*ow, and
-    # z [band + brw, dim_z - trw]. Fronts follow the cabinet
-    # conventions: cutpart Length = front HEIGHT, Width = front WIDTH,
-    # Mirror Y (assign_style_to_front's door convention), thickness
-    # extending forward from the part origin's y plane.
+    # z [band + brw, dim_z - trw]. Every dimension is linear in the
+    # cage dims, handled as (coef, offset) pairs against dim_x (x /
+    # width) and dim_z (z / height) so door_builder's layout rects
+    # compose straight into driver expressions and everything keeps
+    # tracking the cage.
     gap = inch(0.125)     # inset door reveal (solver DOOR_TO_FRAME_GAP)
     pt = inch(0.25)       # inset panel thickness (cabinet INSET_PANEL)
     ov_l, ov_r, ov_t, ov_b = _hood_door_overlays(hood_obj)
     frame_h = band + brw + trw    # z eaten by band + rails
-    for j, kind in enumerate(_bay_front_list(opts, n)):
-        if kind == 'OVERLAY_DOOR':
-            name, role, th = "Hood Door %d" % (j + 1), 'DOOR', mt
-            x_off, z0 = (j + 1) * sw - ov_l, band + brw - ov_b
-            y_expr = '-dim_y'
-            len_expr = 'dim_z - %f' % (frame_h - ov_t - ov_b)
-            wid_expr = '(dim_x - %f) * %f + %f' % (stock, 1.0 / n, ov_l + ov_r)
-        elif kind == 'INSET_DOOR':
-            name, role, th = "Hood Door %d" % (j + 1), 'DOOR', mt
-            x_off, z0 = (j + 1) * sw + gap, band + brw + gap
-            y_expr = '-dim_y + %f' % mt      # front face flush with frame
-            len_expr = 'dim_z - %f' % (frame_h + 2.0 * gap)
-            wid_expr = '(dim_x - %f) * %f - %f' % (stock, 1.0 / n, 2.0 * gap)
+    ds_info = door_builder.door_style_info(_hood_door_style(hood_obj))
+    cage_w = w.get_input('Dim X')
+    cage_h = w.get_input('Dim Z')
+
+    def front_part(name, xa, xb, za, zb, wa, wb, ha, hb, th, y_off,
+                   role=None):
+        """One bay-front cutpart from linear (coef, offset) dims, its
+        thickness extending forward from the y plane at -dim_y + y_off.
+        Cutpart Length = front HEIGHT, Width = front WIDTH, Mirror Y
+        (the cabinet door convention): local X (Length) up, local -Y
+        (Width) across to the right, thickness toward the viewer."""
+        p = _panel(hood_obj, name)
+        p.obj.rotation_euler = (0.0, math.radians(-90.0), math.radians(90.0))
+        if role:
+            p.obj['hb_part_role'] = role
+        if xa:
+            p.driver_location('x', 'dim_x * %f + %f' % (xa, xb), [dim_x])
         else:
-            name, role, th = "Hood Inset Panel %d" % (j + 1), 'INSET_PANEL', pt
-            x_off, z0 = (j + 1) * sw, band + brw
-            y_expr = '-dim_y + %f' % mt      # back flush with frame back
-            len_expr = 'dim_z - %f' % frame_h
-            wid_expr = '(dim_x - %f) * %f' % (stock, 1.0 / n)
-        pnl = _panel(hood_obj, name)
-        # Stand the cutpart up facing the front: local X (Length) up,
-        # local -Y (Width) across to the right, thickness extending
-        # forward (-Y world) from the origin's y plane.
-        pnl.obj.rotation_euler = (0.0, math.radians(-90.0), math.radians(90.0))
-        pnl.obj['hb_part_role'] = role
-        pnl.obj.location.z = z0
-        pnl.driver_location('x', '(dim_x - %f) * %f + %f'
-                            % (stock, j / n, x_off), [dim_x])
-        pnl.driver_location('y', y_expr, [dim_y])
-        pnl.driver_input("Length", len_expr, [dim_z])
-        pnl.driver_input("Width", wid_expr, [dim_x])
-        pnl.set_input("Thickness", th)
-        pnl.set_input("Mirror Y", True)
-        if role == 'DOOR':
-            _apply_hood_door_style(hood_obj, pnl.obj)
+            p.obj.location.x = xb
+        if za:
+            p.driver_location('z', 'dim_z * %f + %f' % (za, zb), [dim_z])
+        else:
+            p.obj.location.z = zb
+        p.driver_location('y', '-dim_y + %f' % y_off, [dim_y])
+        if ha:
+            p.driver_input("Length", 'dim_z * %f + %f' % (ha, hb), [dim_z])
+        else:
+            p.set_input("Length", hb)
+        if wa:
+            p.driver_input("Width", 'dim_x * %f + %f' % (wa, wb), [dim_x])
+        else:
+            p.set_input("Width", wb)
+        p.set_input("Thickness", th)
+        p.set_input("Mirror Y", True)
+        return p
+
+    for j, kind in enumerate(_bay_front_list(opts, n)):
+        # Opening rect: x = oxa*dim_x + oxb, width = owa*dim_x + owb,
+        # height = dim_z + ohb, bottom at oz0.
+        oxa, oxb = j / n, (j + 1) * sw - stock * (j / n)
+        owa, owb = 1.0 / n, -stock / n
+        oz0, ohb = band + brw, -frame_h
+        if kind == 'PANEL':
+            front_part("Hood Inset Panel %d" % (j + 1),
+                       oxa, oxb, 0.0, oz0, owa, owb, 1.0, ohb,
+                       pt, mt, role='INSET_PANEL')
+            continue
+        # Door rect off the opening: overlay grows it in front of the
+        # frame; inset shrinks it by the reveal, flush with the frame.
+        if kind == 'OVERLAY_DOOR':
+            dxb, dwb = oxb - ov_l, owb + ov_l + ov_r
+            dz0, dhb = oz0 - ov_b, ohb + ov_t + ov_b
+            y_off = 0.0
+        else:
+            dxb, dwb = oxb + gap, owb - 2.0 * gap
+            dz0, dhb = oz0 + gap, ohb - 2.0 * gap
+            y_off = mt
+        # Too small for the style's frame at the current size -> slab.
+        info = ds_info
+        min_w, min_h = door_builder.layout_min_size(info)
+        if owa * cage_w + dwb <= min_w or cage_h + dhb <= min_h:
+            info = dict(info, door_type='SLAB')
+        for part in door_builder.door_layout(info):
+            cx, ox = part['x']
+            cw, ow_ = part['w']
+            cz, oz = part['z']
+            ch, oh = part['h']
+            name = ("Hood Door %d" % (j + 1) if part['key'] == 'slab'
+                    else "Hood Door %d %s" % (j + 1, part['name']))
+            th = mt if part['thickness'] is None else part['thickness']
+            # Panels set back from the door face; the door's back plane
+            # sits at y_off, its front at y_off - mt.
+            part_y = y_off if part['thickness'] is None \
+                else y_off - mt + part['y_inset'] + th
+            front_part(name,
+                       oxa + cx * owa, dxb + cx * dwb + ox,
+                       cz, dz0 + cz * dhb + oz,
+                       cw * owa, cw * dwb + ow_,
+                       ch, ch * dhb + oh,
+                       th, part_y)
 
 
 def _paneled_end(hood_obj, opts, at_right):
@@ -734,6 +780,74 @@ def _paneled_end(hood_obj, opts, at_right):
     pnl.set_input("Thickness", pt)
     pnl.set_input("Mirror Y", True)
     pnl.set_input("Mirror Z", not at_right)
+    return True
+
+
+def _angled_paneled_end(hood_obj, opts, prof, at_right, setback, fz_pe):
+    """Paneled end for an angled / tapered custom hood: the same frame +
+    1/4" inset panel as _paneled_end, built as static mesh prisms that
+    follow the side plane (the x taper) and the side's front edge --
+    vertical below the slope, sloped through it, vertical above,
+    stepping where the side's front edge steps between the straight
+    boxes (one thickness behind the face) and the angled section (the
+    slope's horizontal ``setback``). ``fz_pe`` lifts the frame to sit on
+    a projecting mantle assembly's sides. The panel's back face is flush
+    with the side's inner face. Returns False without building when the
+    side is too small for the frame (caller keeps the plain side)."""
+    sw = max(opts['panel_stile_width'], inch(0.5))
+    trw = max(opts['panel_top_rail_width'], inch(0.5))
+    brw = max(opts['panel_bottom_rail_width'], inch(0.5))
+    mt = HOOD_MATERIAL
+    pt = inch(0.25)
+    W, D, H, td = prof.W, prof.D, prof.H, prof.td
+    if (min(D, td) - mt - 2.0 * sw <= 0.0
+            or (H - fz_pe) - brw - trw <= inch(1.0)):
+        return False
+
+    def front_edge(z, zm):
+        # The side's front edge at height z (zone picked by the span
+        # midpoint zm so rings sitting exactly on a break stay planar
+        # with their span).
+        if prof.z0b < zm < prof.zb:
+            return prof.y_at(z) + setback
+        return prof.y_at(z) + mt
+
+    def strip(name, y0f, y1f, z0, z1, panel=False):
+        for za, zc in prof.split(z0, z1):
+            zm = (za + zc) / 2.0
+
+            def ring(z):
+                xin = prof.x_in_at(z)
+                if panel:
+                    xa, xb = xin + mt - pt, xin + mt
+                else:
+                    xa, xb = xin, xin + mt
+                if at_right:
+                    xa, xb = W - xb, W - xa
+                y0, y1 = y0f(z, zm), y1f(z, zm)
+                return [(xa, y0, z), (xb, y0, z), (xb, y1, z), (xa, y1, z)]
+
+            r0, r1 = ring(za), ring(zc)
+            v = [r0[0], r0[1], r1[1], r1[0], r0[3], r0[2], r1[2], r1[3]]
+            f = [(0, 1, 2, 3), (7, 6, 5, 4), (0, 4, 5, 1),
+                 (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
+            _mesh_part(hood_obj, name, v, f)
+
+    base = "Hood End %s " % ("R" if at_right else "L")
+    z0, z1 = fz_pe, H
+
+    def inner0(z, zm):
+        return front_edge(z, zm) + sw
+
+    def inner1(z, zm):
+        return -sw
+
+    strip(base + "Back Stile", lambda z, zm: -sw, lambda z, zm: 0.0, z0, z1)
+    strip(base + "Front Stile", front_edge,
+          lambda z, zm: front_edge(z, zm) + sw, z0, z1)
+    strip(base + "Bottom Rail", inner0, inner1, z0, z0 + brw)
+    strip(base + "Top Rail", inner0, inner1, z1 - trw, z1)
+    strip(base + "Panel", inner0, inner1, z0 + brw, z1 - trw, panel=True)
     return True
 
 
@@ -988,8 +1102,19 @@ def _build_custom_angled(hood_obj, opts):
             _mesh_box(hood_obj, "Hood Side Upper",
                       x_top, x_top + mt, -td + mt, 0.0, zb, H)
 
-    side(0.0, side_in)
-    side(W - mt, W - side_in - mt)
+    # Paneled ends replace the plain angled sides; a side too small for
+    # its frame falls back to the plain side.
+    pe_fz = zb0 if has_mantle_assy else 0.0
+    left_pe = (bool(opts['left_end_panel'])
+               and _angled_paneled_end(hood_obj, opts, prof, False,
+                                       setback, pe_fz))
+    right_pe = (bool(opts['right_end_panel'])
+                and _angled_paneled_end(hood_obj, opts, prof, True,
+                                        setback, pe_fz))
+    if not left_pe:
+        side(0.0, side_in)
+    if not right_pe:
+        side(W - mt, W - side_in - mt)
     # Applied front, 3/4" thick, full width, covering the sides' front
     # edges. A straight lower front spans the mantle zone, the angled
     # front runs between the breaks, and a straight upper front continues
@@ -1681,7 +1806,6 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
             row.prop(self, 'bay_front_%d' % (j + 1), text="")
 
         row = col.row(align=True)
-        row.active = not (self.angle_front or self.angle_sides)
         row.label(text="Paneled Ends:")
         row.prop(self, 'include_left_end_panel', text="Left", toggle=True)
         row.prop(self, 'include_right_end_panel', text="Right", toggle=True)
