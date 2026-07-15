@@ -314,6 +314,7 @@ _CUSTOM_DEFAULTS = {
     'fan_cutout_width': inch(30.0),  # opening in the bottom liner shelf
     'fan_cutout_depth': inch(12.0),
     'include_front_panel': False,   # applied panel proud of the front
+    'include_shiplap': False,       # shiplap boards on the front
 }
 
 
@@ -404,6 +405,45 @@ def _custom_sloped_panel(hood_obj, W, D, H, td, side_in, fz):
     _mesh_part(hood_obj, "Hood Panel", v, f)
 
 
+def _custom_sloped_shiplap(hood_obj, W, D, H, td, side_in, fz):
+    """Shiplap boards on the (possibly sloped / tapered) custom front: ~6"
+    boards standing 1/2" proud of the face with a 1/8" reveal, as static
+    meshes following the slope. Front only -- the tapered sides don't take
+    wrap boards."""
+    board = inch(6.0)
+    reveal = inch(0.125)
+    proud = inch(0.5)
+    dy, dz = D - td, H
+    ln = math.hypot(dy, dz) or 1.0
+    ny, nz = -dz / ln, dy / ln
+
+    def y_at(z):
+        return -D + (D - td) * (z / H)
+
+    def x_in_at(z):
+        return side_in * (z / H)
+
+    span_z = H - fz
+    if span_z <= 0.0:
+        return
+    slope_len = span_z * ln / H       # face length measured along the slope
+    n = max(2, int(round(slope_len / board)))
+    step = span_z / n
+    rev_z = reveal * H / ln           # 1/8" reveal converted to a z gap
+    for i in range(n):
+        z0 = fz + i * step
+        z1 = min(z0 + step - rev_z, H)
+        if z1 <= z0:
+            continue
+        inner = [(x_in_at(z0), y_at(z0), z0), (W - x_in_at(z0), y_at(z0), z0),
+                 (W - x_in_at(z1), y_at(z1), z1), (x_in_at(z1), y_at(z1), z1)]
+        outer = [(x, y + ny * proud, z + nz * proud) for (x, y, z) in inner]
+        v = inner + outer
+        f = [(0, 1, 2, 3), (7, 6, 5, 4), (0, 4, 5, 1),
+             (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
+        _mesh_part(hood_obj, "Hood Shiplap %d" % i, v, f)
+
+
 def _build_custom_angled(hood_obj, opts):
     """Custom hood with an angled front and/or tapered sides: a general
     frustum -- full W x D at the base narrowing to top_width / top_depth at
@@ -452,6 +492,8 @@ def _build_custom_angled(hood_obj, opts):
         _mesh_box(hood_obj, "Hood Bottom Band",
                   0.0, W, -D - inch(2.0), 0.0, 0.0, band)
     _liner_shelf(hood_obj, opts['fan_cutout_width'], opts['fan_cutout_depth'])
+    if opts['include_shiplap']:
+        _custom_sloped_shiplap(hood_obj, W, D, H, td, side_in, fz)
     if opts['include_front_panel']:
         _custom_sloped_panel(hood_obj, W, D, H, td, side_in, fz)
 
@@ -467,6 +509,8 @@ def _build_custom(hood_obj):
     band = opts['mantle_height'] if opts['include_mantle'] else 0.0
     _build_hood_box(hood_obj, bottom_band=band,
                     band_proj=inch(2.0) if band > 0.0 else 0.0)
+    if opts['include_shiplap']:
+        _shiplap_front(hood_obj, HOOD_MATERIAL, bottom_band=band)
     if opts['include_front_panel']:
         _add_front_panels(hood_obj, HOOD_MATERIAL, bottom_band=band, ndoors=1)
     _liner_shelf(hood_obj, opts['fan_cutout_width'], opts['fan_cutout_depth'])
@@ -860,6 +904,9 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
     include_front_panel: BoolProperty(
         name="Include Front Panel",
         description="Applied decorative panel proud of the front face")  # type: ignore
+    include_shiplap: BoolProperty(
+        name="Include Shiplap",
+        description="Shiplap boards on the front face")  # type: ignore
 
     hood = None
 
@@ -887,6 +934,7 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
         self.fan_cutout_width = opts['fan_cutout_width']
         self.fan_cutout_depth = opts['fan_cutout_depth']
         self.include_front_panel = bool(opts['include_front_panel'])
+        self.include_shiplap = bool(opts['include_shiplap'])
         if self.hood.get(HOOD_CUSTOM_PROP) is None:
             # First time on this hood: seed the taper from the current size.
             self.top_width = self.width / 2.0
@@ -910,6 +958,7 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
                 'fan_cutout_width': self.fan_cutout_width,
                 'fan_cutout_depth': self.fan_cutout_depth,
                 'include_front_panel': self.include_front_panel,
+                'include_shiplap': self.include_shiplap,
             }
         build_wood_hood(self.hood, self.style)
 
@@ -971,6 +1020,7 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
         row.prop(self, 'fan_cutout_depth', text="D")
 
         col.prop(self, 'include_front_panel')
+        col.prop(self, 'include_shiplap')
 
 
 class HOME_BUILDER_OT_revert_hood_part(bpy.types.Operator):
