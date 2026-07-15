@@ -331,82 +331,41 @@ def _get_custom_opts(hood_obj):
 
 
 def _liner_shelf(hood_obj, cutout_w, cutout_d):
-    """Bottom liner-mount shelf: a 3/4" board across the hood bottom, inset
-    between the sides and behind the front, with a centered fan cutout. Built
-    as four driven strips around the opening so the shelf tracks the cage
-    while the opening stays the entered size (clamped to the interior at
-    build time). A zero cutout gives one solid board."""
+    """Bottom liner-mount shelf: one 3/4" board across the hood bottom, inset
+    between the sides and behind the front, with the fan opening cut by a
+    CPM_CUTOUT part modifier -- the same cut Add Cutout applies, so it shows
+    in the 2D machining views and Remove Cutout works on it. The board and
+    the cut are driven, so the opening stays centered (at the entered size,
+    clamped to the interior at build time) as the cage resizes. A zero
+    cutout leaves the board solid."""
     w = _HoodWrap(hood_obj)
     dim_x = w.var_input('Dim X', 'dim_x')
     dim_y = w.var_input('Dim Y', 'dim_y')
     mt = HOOD_MATERIAL
     W = w.get_input('Dim X')
     D = w.get_input('Dim Y')
+
+    shelf = _panel(hood_obj, "Hood Liner Shelf")
+    shelf.obj.location.x = mt
+    shelf.driver_location('y', '-dim_y + %f' % mt, [dim_y])
+    shelf.driver_input("Length", 'dim_x - %f' % (2.0 * mt), [dim_x])
+    shelf.driver_input("Width", 'dim_y - %f' % mt, [dim_y])
+    shelf.set_input("Thickness", mt)
+    shelf.set_input("Mirror Z", False)
+
     cw = max(0.0, min(cutout_w, (W - 2.0 * mt) - inch(2.0)))
     cd = max(0.0, min(cutout_d, (D - mt) - inch(2.0)))
-
-    def _strip(name):
-        s = _panel(hood_obj, name)
-        s.set_input("Thickness", mt)
-        s.set_input("Mirror Z", False)
-        return s
-
     if cw <= 0.0 or cd <= 0.0:
-        sb = _strip("Hood Liner Shelf")
-        sb.obj.location.x = mt
-        sb.driver_location('y', '-dim_y + %f' % mt, [dim_y])
-        sb.driver_input("Length", 'dim_x - %f' % (2.0 * mt), [dim_x])
-        sb.driver_input("Width", 'dim_y - %f' % mt, [dim_y])
         return
-
-    # Front + back rails span the interior width; the fillers between them
-    # flank the opening.
-    rail_w_expr = '(dim_y - %f) * 0.5' % (mt + cd)
-    fr = _strip("Hood Liner Shelf F")
-    fr.obj.location.x = mt
-    fr.driver_location('y', '-dim_y + %f' % mt, [dim_y])
-    fr.driver_input("Length", 'dim_x - %f' % (2.0 * mt), [dim_x])
-    fr.driver_input("Width", rail_w_expr, [dim_y])
-
-    br = _strip("Hood Liner Shelf B")
-    br.obj.location.x = mt
-    br.driver_input("Length", 'dim_x - %f' % (2.0 * mt), [dim_x])
-    br.driver_input("Width", rail_w_expr, [dim_y])
-    br.set_input("Mirror Y", True)
-
-    fill_expr = '(dim_x - %f) * 0.5' % (2.0 * mt + cw)
-    for name, x_expr in (("Hood Liner Shelf L", None),
-                         ("Hood Liner Shelf R", '(dim_x + %f) * 0.5' % cw)):
-        sf = _strip(name)
-        if x_expr is None:
-            sf.obj.location.x = mt
-        else:
-            sf.driver_location('x', x_expr, [dim_x])
-        sf.driver_location('y', '-(dim_y - %f) * 0.5' % (mt + cd), [dim_y])
-        sf.driver_input("Length", fill_expr, [dim_x])
-        sf.set_input("Width", cd)
-        sf.set_input("Mirror Y", True)
-
-
-def _liner_shelf_static(hood_obj, W, D, cutout_w, cutout_d):
-    """Static-mesh version of _liner_shelf for the angled custom hood
-    (rebuilt by the command like the other mesh parts)."""
-    mt = HOOD_MATERIAL
-    ix0, ix1 = mt, W - mt
-    iy0, iy1 = -D + mt, 0.0
-    cw = max(0.0, min(cutout_w, (ix1 - ix0) - inch(2.0)))
-    cd = max(0.0, min(cutout_d, (iy1 - iy0) - inch(2.0)))
-    if cw <= 0.0 or cd <= 0.0:
-        _mesh_box(hood_obj, "Hood Liner Shelf", ix0, ix1, iy0, iy1, 0.0, mt)
-        return
-    rail_w = ((iy1 - iy0) - cd) / 2.0
-    fill_w = ((ix1 - ix0) - cw) / 2.0
-    _mesh_box(hood_obj, "Hood Liner Shelf F", ix0, ix1, iy0, iy0 + rail_w, 0.0, mt)
-    _mesh_box(hood_obj, "Hood Liner Shelf B", ix0, ix1, iy1 - rail_w, iy1, 0.0, mt)
-    _mesh_box(hood_obj, "Hood Liner Shelf L", ix0, ix0 + fill_w,
-              iy0 + rail_w, iy1 - rail_w, 0.0, mt)
-    _mesh_box(hood_obj, "Hood Liner Shelf R", ix1 - fill_w, ix1,
-              iy0 + rail_w, iy1 - rail_w, 0.0, mt)
+    cpm = shelf.add_part_modifier('CPM_CUTOUT', 'Cutout')
+    cpm.mod.show_render = True
+    # Cutout coords are in the part's Length/Width space (Length =
+    # dim_x - 2mt, Width = dim_y - mt): centered means (part - cut) / 2.
+    cpm.driver_input('X', '(dim_x - %f) * 0.5' % (2.0 * mt + cw), [dim_x])
+    cpm.driver_input('End X', '(dim_x - %f) * 0.5' % (2.0 * mt - cw), [dim_x])
+    cpm.driver_input('Y', '(dim_y - %f) * 0.5' % (mt + cd), [dim_y])
+    cpm.driver_input('End Y', '(dim_y - %f) * 0.5' % (mt - cd), [dim_y])
+    cpm.set_input('Route Depth', mt)
 
 
 def _custom_sloped_panel(hood_obj, W, D, H, td, side_in, fz):
@@ -490,8 +449,7 @@ def _build_custom_angled(hood_obj, opts):
     if band > 0.0:
         _mesh_box(hood_obj, "Hood Bottom Band",
                   0.0, W, -D - inch(2.0), 0.0, 0.0, band)
-    _liner_shelf_static(hood_obj, W, D,
-                        opts['fan_cutout_width'], opts['fan_cutout_depth'])
+    _liner_shelf(hood_obj, opts['fan_cutout_width'], opts['fan_cutout_depth'])
     if opts['include_front_panel']:
         _custom_sloped_panel(hood_obj, W, D, H, td, side_in, fz)
 
