@@ -18,7 +18,7 @@ import json
 import math
 import re
 import bpy
-from bpy.props import BoolProperty, EnumProperty, FloatProperty
+from bpy.props import BoolProperty, EnumProperty, FloatProperty, IntProperty
 
 from ... import hb_utils
 from ...hb_types import GeoNodeObject, GeoNodeCutpart
@@ -79,8 +79,11 @@ class _HoodWrap(GeoNodeObject):
 
 
 def _clear_hood_parts(hood_obj):
+    """Wipe the hood's generated parts ahead of a rebuild. Parts the user
+    made editable (IS_MANUAL_PART) are kept -- their hand edits survive the
+    rebuild, alongside the freshly generated parts."""
     for child in list(hood_obj.children):
-        if child.get(HOOD_PART_TAG):
+        if child.get(HOOD_PART_TAG) and not child.get('IS_MANUAL_PART'):
             bpy.data.objects.remove(child, do_unlink=True)
 
 
@@ -91,6 +94,57 @@ def _panel(hood_obj, name):
     p.obj[HOOD_PART_TAG] = True
     p.obj['MENU_ID'] = 'HOME_BUILDER_MT_face_frame_part_commands'
     return p
+
+
+def _mantle_parts(hood_obj, band, depth):
+    """Mantle assembly at the hood bottom -- real parts rather than one
+    solid slab: a full-width front board at the mantle's front plane, side
+    fillers running back to the hood sides' front edges, and (when the
+    depth projects past the applied front) a top board capping the ledge.
+    ``depth`` is the mantle's total front-to-back depth off the sides.
+    All driven so the assembly tracks the cage."""
+    w = _HoodWrap(hood_obj)
+    dim_x = w.var_input('Dim X', 'dim_x')
+    dim_y = w.var_input('Dim Y', 'dim_y')
+    mt = HOOD_MATERIAL
+    depth = max(depth, mt)
+
+    # Front board, full width, its face at the mantle's front plane.
+    mf = _panel(hood_obj, "Hood Mantle Front")
+    mf.obj.rotation_euler.x = math.radians(90)
+    mf.driver_location('y', '-dim_y + %f' % (2.0 * mt - depth), [dim_y])
+    mf.driver_input("Length", 'dim_x', [dim_x])
+    mf.set_input("Width", band)
+    mf.set_input("Thickness", mt)
+    mf.set_input("Mirror Z", False)
+
+    # Side fillers from the hood sides' front edges to the front board.
+    if depth - mt > 0.0:
+        for name, at_right in (("Hood Mantle Side L", False),
+                               ("Hood Mantle Side R", True)):
+            ms = _panel(hood_obj, name)
+            ms.obj.rotation_euler.y = math.radians(-90)
+            if at_right:
+                ms.driver_location('x', 'dim_x', [dim_x])
+            ms.driver_location('y', '-dim_y + %f' % mt, [dim_y])
+            ms.set_input("Length", band)
+            ms.set_input("Width", depth - mt)
+            ms.set_input("Thickness", mt)
+            ms.set_input("Mirror Y", True)
+            ms.set_input("Mirror Z", not at_right)
+
+    # Top board filling the projection past the applied front, flush with
+    # the mantle top.
+    if depth - 2.0 * mt > 0.0:
+        tf = _panel(hood_obj, "Hood Mantle Top")
+        tf.obj.location.x = mt
+        tf.obj.location.z = band
+        tf.driver_location('y', '-dim_y', [dim_y])
+        tf.driver_input("Length", 'dim_x - %f' % (2.0 * mt), [dim_x])
+        tf.set_input("Width", depth - 2.0 * mt)
+        tf.set_input("Thickness", mt)
+        tf.set_input("Mirror Y", True)
+        tf.set_input("Mirror Z", True)
 
 
 def _build_hood_box(hood_obj, bottom_band=0.0, top_crown=0.0, band_proj=0.0):
@@ -139,22 +193,17 @@ def _build_hood_box(hood_obj, bottom_band=0.0, top_crown=0.0, band_proj=0.0):
     front.set_input("Thickness", mt)
     front.set_input("Mirror Z", True)
 
-    # Bottom band (mantle / shelf base), full width, projecting forward.
+    # Bottom mantle / shelf base: a built assembly (front + side fillers +
+    # projection cap) whose total depth off the sides is mt + band_proj.
     if bottom_band > 0.0:
-        bb = _panel(hood_obj, "Hood Bottom Band")
-        bb.obj.rotation_euler.x = math.radians(90)
-        bb.driver_location('y', '-dim_y', [dim_y])
-        bb.driver_input("Length", 'dim_x', [dim_x])
-        bb.set_input("Width", bottom_band)
-        bb.set_input("Thickness", mt + band_proj)
-        bb.set_input("Mirror Z", False)
+        _mantle_parts(hood_obj, bottom_band, mt + band_proj)
 
-    # Top crown band, full width, projecting forward.
+    # Top crown band, full width, back against the sides like the mantle.
     if top_crown > 0.0:
         tc = _panel(hood_obj, "Hood Crown")
         tc.obj.rotation_euler.x = math.radians(90)
         tc.obj.location.z = 0.0
-        tc.driver_location('y', '-dim_y', [dim_y])
+        tc.driver_location('y', '-dim_y + %f' % mt, [dim_y])
         tc.driver_location('z', 'dim_z - %f' % top_crown, [dim_z])
         tc.driver_input("Length", 'dim_x', [dim_x])
         tc.set_input("Width", top_crown)
@@ -309,11 +358,21 @@ _CUSTOM_DEFAULTS = {
     'top_depth': inch(12.0),
     'angle_sides': False,           # taper the sides in to top_width
     'top_width': inch(24.0),
+    'top_height': 0.0,              # straight section at the top of an
+    #                                 angled hood; 0 = angle runs to the top
     'include_mantle': False,        # projecting band at the bottom
     'mantle_height': inch(6.0),
+    'mantle_depth': inch(2.75),     # front-to-back depth of the mantle part
+    'include_mantle_molding': False,  # strips wrapping the mantle top + bottom
+    'mantle_molding_width': inch(1.5),
+    'mantle_molding_thickness': inch(0.75),
     'fan_cutout_width': inch(30.0),  # opening in the bottom liner shelf
     'fan_cutout_depth': inch(12.0),
-    'include_front_panel': False,   # applied panel proud of the front
+    'include_front_panel': False,   # paneled face frame applied to the front
+    'panel_stile_width': inch(2.5),
+    'panel_top_rail_width': inch(2.5),
+    'panel_bottom_rail_width': inch(2.5),
+    'panel_count': 2,               # panels across; mid stiles = count - 1
     'include_shiplap': False,       # shiplap boards on the front
 }
 
@@ -330,29 +389,37 @@ def _get_custom_opts(hood_obj):
         for key in opts:
             if key in stored:
                 opts[key] = stored[key]
+        # Migrate the old single rail width to the split top / bottom pair.
+        if 'panel_rail_width' in stored:
+            for key in ('panel_top_rail_width', 'panel_bottom_rail_width'):
+                if key not in stored:
+                    opts[key] = stored['panel_rail_width']
     return opts
 
 
-def _liner_shelf(hood_obj, cutout_w, cutout_d):
+def _liner_shelf(hood_obj, cutout_w, cutout_d, front_ext=0.0):
     """Bottom liner-mount shelf: one 3/4" board across the hood bottom, inset
     between the sides and behind the front, with the fan opening cut by a
     CPM_CUTOUT part modifier -- the same cut Add Cutout applies, so it shows
-    in the 2D machining views and Remove Cutout works on it. The board and
-    the cut are driven, so the opening stays centered (at the entered size,
-    clamped to the interior at build time) as the cage resizes. A zero
-    cutout leaves the board solid."""
+    in the 2D machining views and Remove Cutout works on it. ``front_ext``
+    extends the board forward past the hood front to close the bottom of a
+    projecting mantle; the fan opening stays centered over the hood
+    interior. The board and the cut are driven, so the opening stays put
+    (at the entered size, clamped to the interior at build time) as the
+    cage resizes. A zero cutout leaves the board solid."""
     w = _HoodWrap(hood_obj)
     dim_x = w.var_input('Dim X', 'dim_x')
     dim_y = w.var_input('Dim Y', 'dim_y')
     mt = HOOD_MATERIAL
     W = w.get_input('Dim X')
     D = w.get_input('Dim Y')
+    ext = max(front_ext, 0.0)
 
     shelf = _panel(hood_obj, "Hood Liner Shelf")
     shelf.obj.location.x = mt
-    shelf.driver_location('y', '-dim_y + %f' % mt, [dim_y])
+    shelf.driver_location('y', '-dim_y + %f' % (mt - ext), [dim_y])
     shelf.driver_input("Length", 'dim_x - %f' % (2.0 * mt), [dim_x])
-    shelf.driver_input("Width", 'dim_y - %f' % mt, [dim_y])
+    shelf.driver_input("Width", 'dim_y - %f' % (mt - ext), [dim_y])
     shelf.set_input("Thickness", mt)
     shelf.set_input("Mirror Z", False)
 
@@ -363,66 +430,258 @@ def _liner_shelf(hood_obj, cutout_w, cutout_d):
     cpm = shelf.add_part_modifier('CPM_CUTOUT', 'Cutout')
     cpm.mod.show_render = True
     # Cutout coords are in the part's Length/Width space (Length =
-    # dim_x - 2mt, Width = dim_y - mt): centered means (part - cut) / 2.
+    # dim_x - 2mt, Width = dim_y - mt + ext): centered over the hood
+    # interior, which starts ``ext`` up the extended board.
     cpm.driver_input('X', '(dim_x - %f) * 0.5' % (2.0 * mt + cw), [dim_x])
     cpm.driver_input('End X', '(dim_x - %f) * 0.5' % (2.0 * mt - cw), [dim_x])
-    cpm.driver_input('Y', '(dim_y - %f) * 0.5' % (mt + cd), [dim_y])
-    cpm.driver_input('End Y', '(dim_y - %f) * 0.5' % (mt - cd), [dim_y])
+    cpm.driver_input('Y', '(dim_y - %f) * 0.5' % (mt + cd - 2.0 * ext), [dim_y])
+    cpm.driver_input('End Y', '(dim_y - %f) * 0.5' % (mt - cd - 2.0 * ext), [dim_y])
     cpm.set_input('Route Depth', mt)
 
 
-def _custom_sloped_panel(hood_obj, W, D, H, td, side_in, fz):
-    """Applied panel standing 1/2" proud of the (possibly sloped / tapered)
-    front face, inset by stile/rail margins. Skipped when the face is too
-    small to hold one."""
-    stile = inch(2.5)
-    rail = inch(2.5)
-    proud = inch(0.5)
-    z0, z1 = fz + rail, H - rail
-    if z1 - z0 < inch(4.0):
+def _mantle_molding(hood_obj, W, y_face, band, m_w, m_th):
+    """Mantle molding: strips of material wrapping the top and bottom of
+    the mantle -- across the mantle front (``y_face``) and back along both
+    hood sides to the wall, mitred at the front corners (45 degrees in
+    plan), standing ``m_th`` proud of the faces. ``m_w`` is the strip
+    height. Static meshes sized at build time."""
+    m_w = min(max(m_w, inch(0.25)), band)
+    m_th = max(m_th, inch(0.125))
+    corners = {
+        'fl_i': (0.0, y_face), 'fr_i': (W, y_face),
+        'fl_o': (-m_th, y_face - m_th), 'fr_o': (W + m_th, y_face - m_th),
+        'bl_i': (0.0, 0.0), 'br_i': (W, 0.0),
+        'bl_o': (-m_th, 0.0), 'br_o': (W + m_th, 0.0),
+    }
+
+    def prism(name, keys, z0, z1):
+        v = ([(corners[k][0], corners[k][1], z0) for k in keys]
+             + [(corners[k][0], corners[k][1], z1) for k in keys])
+        f = [(0, 1, 2, 3), (7, 6, 5, 4), (0, 4, 5, 1),
+             (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
+        _mesh_part(hood_obj, name, v, f)
+
+    for tag, z0, z1 in (("B", 0.0, m_w), ("T", band - m_w, band)):
+        prism("Hood Mantle Molding F" + tag,
+              ('fl_i', 'fr_i', 'fr_o', 'fl_o'), z0, z1)
+        prism("Hood Mantle Molding L" + tag,
+              ('bl_i', 'fl_i', 'fl_o', 'bl_o'), z0, z1)
+        prism("Hood Mantle Molding R" + tag,
+              ('br_i', 'fr_i', 'fr_o', 'br_o'), z0, z1)
+
+
+def _front_face_frame(hood_obj, opts, band):
+    """Paneled face frame applied to the straight front, built like a
+    paneled end: full-height stiles, rails between them, and mid stiles
+    splitting the field into ``panel_count`` openings -- the flat front
+    showing through reads as the recessed panels. 3/4" stock standing
+    proud of the face; driven so it tracks the cage."""
+    w = _HoodWrap(hood_obj)
+    dim_x = w.var_input('Dim X', 'dim_x')
+    dim_y = w.var_input('Dim Y', 'dim_y')
+    dim_z = w.var_input('Dim Z', 'dim_z')
+    sw = max(opts['panel_stile_width'], inch(0.5))
+    trw = max(opts['panel_top_rail_width'], inch(0.5))
+    brw = max(opts['panel_bottom_rail_width'], inch(0.5))
+    n = max(int(opts['panel_count']), 1)
+    proud = HOOD_MATERIAL
+
+    def member(name):
+        p = _panel(hood_obj, name)
+        p.obj.rotation_euler.x = math.radians(90)
+        p.driver_location('y', '-dim_y', [dim_y])
+        p.set_input("Thickness", proud)
+        p.set_input("Mirror Z", False)
+        return p
+
+    # Stiles run the full frame height at the outer edges.
+    for name, x_expr in (("Hood Frame Stile L", None),
+                         ("Hood Frame Stile R", 'dim_x - %f' % sw)):
+        st = member(name)
+        if x_expr is not None:
+            st.driver_location('x', x_expr, [dim_x])
+        st.obj.location.z = band
+        st.set_input("Length", sw)
+        st.driver_input("Width", 'dim_z - %f' % band, [dim_z])
+
+    # Rails between the stiles.
+    for name, width, z_static, z_expr in (
+            ("Hood Frame Rail B", brw, band, None),
+            ("Hood Frame Rail T", trw, None, 'dim_z - %f' % trw)):
+        rl = member(name)
+        rl.obj.location.x = sw
+        if z_expr is None:
+            rl.obj.location.z = z_static
+        else:
+            rl.driver_location('z', z_expr, [dim_z])
+        rl.driver_input("Length", 'dim_x - %f' % (2.0 * sw), [dim_x])
+        rl.set_input("Width", width)
+
+    # Mid stiles between the rails, one less than the panel count. The
+    # openings share the width left after all the stiles: opening =
+    # (dim_x - stile stock) / n; mid stile j sits after opening j.
+    stock = 2.0 * sw + (n - 1) * sw
+    for j in range(1, n):
+        ms = member("Hood Frame Mid Stile %d" % j)
+        ms.driver_location('x', '(dim_x - %f) * %f + %f'
+                           % (stock, j / n, sw + (j - 1) * sw), [dim_x])
+        ms.obj.location.z = band + brw
+        ms.set_input("Length", sw)
+        ms.driver_input("Width", 'dim_z - %f' % (band + brw + trw), [dim_z])
+
+
+def _custom_sloped_frame(hood_obj, opts, prof, fz):
+    """Static version of _front_face_frame following the sloped / tapered
+    custom front: stiles hug the slanted edges, rails run across the top
+    and bottom of the face, mid stiles split the field into panel_count
+    openings. Members stand 3/4" proud along the face normal, follow the
+    straight top section, and kink (mitred outer face) at the break."""
+    sw = max(opts['panel_stile_width'], inch(0.5))
+    trw = max(opts['panel_top_rail_width'], inch(0.5))
+    brw = max(opts['panel_bottom_rail_width'], inch(0.5))
+    n = max(int(opts['panel_count']), 1)
+    proud = HOOD_MATERIAL
+    W = prof.W
+
+    def prism(name, x0f, x1f, z0, z1):
+        for za, zc in prof.split(z0, z1):
+            def ring(z):
+                oy, oz = prof.off_at(z)
+                y = prof.y_at(z)
+                return [(x0f(z), y, z), (x1f(z), y, z),
+                        (x1f(z), y + oy * proud, z + oz * proud),
+                        (x0f(z), y + oy * proud, z + oz * proud)]
+            r0, r1 = ring(za), ring(zc)
+            v = [r0[0], r0[1], r1[1], r1[0], r0[3], r0[2], r1[2], r1[3]]
+            f = [(0, 1, 2, 3), (7, 6, 5, 4), (0, 4, 5, 1),
+                 (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
+            _mesh_part(hood_obj, name, v, f)
+
+    # The frame covers the angled section only -- the straight top_height
+    # stack above the break stays plain. Rail widths are measured along
+    # the face, so lay the frame out in face arc length and map back to
+    # heights.
+    s0 = prof.s_at(fz)
+    s1 = prof.s_at(prof.zb)
+    if (s1 - s0) <= brw + trw or (W - 2.0 * prof.side_in) <= (n + 1) * sw:
         return
-
-    def y_at(z):
-        return -D + (D - td) * (z / H)
-
-    def x_in_at(z):
-        return side_in * (z / H)
-
-    x00, x01 = x_in_at(z0) + stile, W - x_in_at(z0) - stile
-    x10, x11 = x_in_at(z1) + stile, W - x_in_at(z1) - stile
-    if x01 - x00 < inch(4.0) or x11 - x10 < inch(4.0):
-        return
-    # Outward normal of the front plane (in the Y/Z profile).
-    dy, dz = D - td, H
-    ln = math.hypot(dy, dz) or 1.0
-    ny, nz = -dz / ln, dy / ln
-    inner = [(x00, y_at(z0), z0), (x01, y_at(z0), z0),
-             (x11, y_at(z1), z1), (x10, y_at(z1), z1)]
-    outer = [(x, y + ny * proud, z + nz * proud) for (x, y, z) in inner]
-    v = inner + outer
-    f = [(0, 1, 2, 3), (7, 6, 5, 4), (0, 4, 5, 1),
-         (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
-    _mesh_part(hood_obj, "Hood Panel", v, f)
+    z0, z1 = fz, prof.zb
+    zbr = prof.z_at(s0 + brw)         # top of the bottom rail
+    ztr = prof.z_at(s1 - trw)         # bottom of the top rail
+    prism("Hood Frame Stile L",
+          lambda z: prof.x_in_at(z), lambda z: prof.x_in_at(z) + sw, z0, z1)
+    prism("Hood Frame Stile R",
+          lambda z: W - prof.x_in_at(z) - sw, lambda z: W - prof.x_in_at(z),
+          z0, z1)
+    prism("Hood Frame Rail B",
+          lambda z: prof.x_in_at(z) + sw, lambda z: W - prof.x_in_at(z) - sw,
+          z0, zbr)
+    prism("Hood Frame Rail T",
+          lambda z: prof.x_in_at(z) + sw, lambda z: W - prof.x_in_at(z) - sw,
+          ztr, z1)
+    for j in range(1, n):
+        def x0f(z, j=j):
+            avail = (W - 2.0 * prof.x_in_at(z) - 2.0 * sw - (n - 1) * sw)
+            return prof.x_in_at(z) + sw + j * (avail / n) + (j - 1) * sw
+        prism("Hood Frame Mid Stile %d" % j,
+              x0f, lambda z, x0f=x0f: x0f(z) + sw, zbr, ztr)
 
 
-def _wrap_shiplap(hood_obj, W, D, H, td=None, side_in=0.0, fz=0.0):
+class _FrontProfile:
+    """Piecewise custom-hood front / side profile: straight (full depth /
+    width) from the base up to ``z0b`` (the mantle-height bottom section),
+    sloped from there to ``zb`` (where the top depth / width are reached),
+    then straight to the top (the ``top_height`` section; zb == H when
+    there is none). Maps a height to the front plane (y_at), the side
+    taper (x_in_at), face arc length (s_at / z_at -- for laying out boards
+    along the wrapped surface), and the outward proud offset, mitred at
+    the straight / slope breaks (off_at)."""
+
+    def __init__(self, W, D, H, td=None, side_in=0.0, top_h=0.0,
+                 bottom_h=0.0):
+        self.W, self.D, self.H = W, D, H
+        self.td = D if td is None else td
+        self.side_in = side_in
+        self.z0b = min(max(bottom_h, 0.0), max(H - inch(1.0), 0.0))
+        self.zb = min(max(H - max(top_h, 0.0), self.z0b + inch(1.0)), H)
+        self.dy = self.D - self.td
+        self.span = self.zb - self.z0b               # sloped z range
+        self.ln = math.hypot(self.dy, self.span) or 1.0  # sloped-face length
+        self.S = self.z0b + self.ln + (H - self.zb)  # base-to-top face length
+
+    def _t(self, z):
+        """Slope fraction at z (0 below the slope, 1 above it)."""
+        return (min(max(z, self.z0b), self.zb) - self.z0b) / (self.span or 1.0)
+
+    def y_at(self, z):
+        return -self.D + self.dy * self._t(z)
+
+    def x_in_at(self, z):
+        return self.side_in * self._t(z)
+
+    def s_at(self, z):
+        if z <= self.z0b:
+            return z
+        if z <= self.zb:
+            return self.z0b + (z - self.z0b) * self.ln / (self.span or 1.0)
+        return self.z0b + self.ln + (z - self.zb)
+
+    def z_at(self, s):
+        if s <= self.z0b:
+            return s
+        if s <= self.z0b + self.ln:
+            return self.z0b + (s - self.z0b) * (self.span or 1.0) / self.ln
+        return min(self.zb + (s - self.z0b - self.ln), self.H)
+
+    def off_at(self, z):
+        """Outward offset (y, z) per unit of proud at height z; on the
+        straight / slope breaks this is the exact miter direction."""
+        n1 = (-(self.span or 1.0) / self.ln, self.dy / self.ln)
+        vert = (-1.0, 0.0)
+
+        def miter(na, nb):
+            denom = 1.0 + (na[0] * nb[0] + na[1] * nb[1])
+            return ((na[0] + nb[0]) / denom, (na[1] + nb[1]) / denom)
+
+        if self.z0b > 1e-9 and abs(z - self.z0b) <= 1e-9:
+            return miter(vert, n1)
+        if self.zb < self.H - 1e-9 and abs(z - self.zb) <= 1e-9:
+            return miter(n1, vert)
+        if z < self.z0b or z > self.zb:
+            return vert
+        return n1
+
+    def split(self, z0, z1):
+        """(z0, z1) spans split at the straight / slope breaks when
+        crossed, so boards spanning one kink instead of cutting the
+        corner."""
+        spans = []
+        cur = z0
+        for zc in (self.z0b, self.zb):
+            if cur < zc - 1e-6 and z1 > zc + 1e-6:
+                spans.append((cur, zc))
+                cur = zc
+        spans.append((cur, z1))
+        return spans
+
+
+def _wrap_shiplap(hood_obj, prof, fz=0.0):
     """Shiplap wrapping the hood box: ~6" courses standing 1/2" proud of
     the front and side faces, mitred at the front corners (45 degrees in
     plan), with a 1/8" reveal between courses. Static meshes -- rebuilt by
-    the command / prompts -- so the same builder follows a sloped front
-    (td < D) and tapered sides (side_in > 0) as well as the straight box."""
+    the command / prompts. Courses are laid out along the face (arc
+    length), following ``prof``'s slope / taper and its straight top
+    section; a course crossing the break is built as two boards."""
     board = inch(6.0)
     reveal = inch(0.125)
     proud = inch(0.5)
-    if td is None:
-        td = D
-    ln = math.hypot(D - td, H) or 1.0
+    W = prof.W
 
     def plan(z):
         """Inner + outer wrap corners at height z (plan coordinates):
         f/b = front/back (wall), l/r = left/right, i/o = inner/outer."""
-        xi = side_in * (z / H)
-        yf = -D + (D - td) * (z / H)
+        xi = prof.x_in_at(z)
+        yf = prof.y_at(z)
         return {
             'fl_i': (xi, yf), 'fr_i': (W - xi, yf),
             'fl_o': (xi - proud, yf - proud),
@@ -432,23 +691,24 @@ def _wrap_shiplap(hood_obj, W, D, H, td=None, side_in=0.0, fz=0.0):
         }
 
     def prism(name, keys, z0, z1):
-        p0, p1 = plan(z0), plan(z1)
-        v = ([(p0[k][0], p0[k][1], z0) for k in keys]
-             + [(p1[k][0], p1[k][1], z1) for k in keys])
-        f = [(0, 1, 2, 3), (7, 6, 5, 4), (0, 4, 5, 1),
-             (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
-        _mesh_part(hood_obj, name, v, f)
+        for za, zc in prof.split(z0, z1):
+            p0, p1 = plan(za), plan(zc)
+            v = ([(p0[k][0], p0[k][1], za) for k in keys]
+                 + [(p1[k][0], p1[k][1], zc) for k in keys])
+            f = [(0, 1, 2, 3), (7, 6, 5, 4), (0, 4, 5, 1),
+                 (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
+            _mesh_part(hood_obj, name, v, f)
 
-    span_z = H - fz
-    if span_z <= 0.0:
+    s0 = prof.s_at(fz)
+    span_s = prof.S - s0
+    if span_s <= 0.0:
         return
-    slope_len = span_z * ln / H       # face length measured along the slope
-    n = max(2, int(round(slope_len / board)))
-    step = span_z / n
-    rev_z = reveal * H / ln           # 1/8" reveal converted to a z gap
+    n = max(2, int(round(span_s / board)))
+    step = span_s / n
     for i in range(n):
-        z0 = fz + i * step
-        z1 = min(z0 + step - rev_z, H)
+        sa = s0 + i * step
+        sb = min(sa + step - reveal, prof.S)
+        z0, z1 = prof.z_at(sa), prof.z_at(sb)
         if z1 <= z0:
             continue
         # One course = front + left + right boards sharing the 45-degree
@@ -460,9 +720,10 @@ def _wrap_shiplap(hood_obj, W, D, H, td=None, side_in=0.0, fz=0.0):
 
 def _build_custom_angled(hood_obj, opts):
     """Custom hood with an angled front and/or tapered sides: a general
-    frustum -- full W x D at the base narrowing to top_width / top_depth at
-    the top. Custom meshes like _build_angled (static; the prompts rebuild
-    on every change)."""
+    frustum -- full W x D at the base narrowing to top_width / top_depth --
+    optionally topped by a straight ``top_height`` section (chimney-style
+    stack) built as additional parts. Custom meshes like _build_angled
+    (static; the prompts rebuild on every change)."""
     w = _HoodWrap(hood_obj)
     W = w.get_input('Dim X')
     D = w.get_input('Dim Y')
@@ -473,43 +734,92 @@ def _build_custom_angled(hood_obj, opts):
     tw = min(max(opts['top_width'], 2.0 * mt + inch(2.0)), W) \
         if opts['angle_sides'] else W
     side_in = (W - tw) / 2.0
+    fz = band
+    # Straight bottom section (the mantle zone -- the angle starts at the
+    # mantle height) and straight top section (top_height).
+    top_h = min(max(opts['top_height'], 0.0), max(H - fz - inch(1.0), 0.0))
+    prof = _FrontProfile(W, D, H, td, side_in, top_h, bottom_h=fz)
+    zb0, zb = prof.z0b, prof.zb
+    # A projecting mantle assembly supplies the mantle zone's front and
+    # sides itself, so the straight lower front / side parts are skipped.
+    mantle_dep = (opts['mantle_depth']
+                  if band > 0.0 and opts['mantle_depth'] > inch(0.125) else 0.0)
+    has_mantle_assy = mantle_dep > 0.0
 
-    def y_at(z):
-        return -D + (D - td) * (z / H)
-
-    def x_in_at(z):
-        return side_in * (z / H)
+    # The front parts are 3/4" stock applied over the sides: the sides set
+    # back by the front's thickness and butt its inner face. On the slope
+    # the perpendicular 3/4" reads as a larger horizontal setback.
+    setback = mt * prof.ln / (prof.span or 1.0)
 
     def side(x_bot, x_top):
-        v = [(x_bot, 0.0, 0.0), (x_bot, -D, 0.0),
-             (x_top, -td, H), (x_top, 0.0, H),
-             (x_bot + mt, 0.0, 0.0), (x_bot + mt, -D, 0.0),
-             (x_top + mt, -td, H), (x_top + mt, 0.0, H)]
+        if zb0 > 0.0 and not has_mantle_assy:
+            # Straight lower side through the mantle zone (a projecting
+            # mantle's full-depth sides replace it).
+            _mesh_box(hood_obj, "Hood Side Lower",
+                      x_bot, x_bot + mt, -D + mt, 0.0, 0.0, zb0)
+        # Angled section of the side (bottom break to top break).
+        v = [(x_bot, 0.0, zb0), (x_bot, -D + setback, zb0),
+             (x_top, -td + setback, zb), (x_top, 0.0, zb),
+             (x_bot + mt, 0.0, zb0), (x_bot + mt, -D + setback, zb0),
+             (x_top + mt, -td + setback, zb), (x_top + mt, 0.0, zb)]
         f = [(0, 1, 2, 3), (7, 6, 5, 4), (0, 4, 5, 1),
              (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
         _mesh_part(hood_obj, "Hood Side", v, f)
+        if zb < H:
+            # Straight upper side continuing to the top.
+            _mesh_box(hood_obj, "Hood Side Upper",
+                      x_top, x_top + mt, -td + mt, 0.0, zb, H)
 
     side(0.0, side_in)
     side(W - mt, W - side_in - mt)
-    fz = band
-    # Applied front: full width, covering the sides' front edges.
-    _mesh_part(hood_obj, "Hood Front",
-               [(x_in_at(fz), y_at(fz), fz),
-                (W - x_in_at(fz), y_at(fz), fz),
-                (W - side_in, -td, H), (side_in, -td, H)],
-               [(0, 1, 2, 3)])
+    # Applied front, 3/4" thick, full width, covering the sides' front
+    # edges. A straight lower front spans the mantle zone, the angled
+    # front runs between the breaks, and a straight upper front continues
+    # to the top.
+    if zb0 > 0.0 and not has_mantle_assy:
+        _mesh_box(hood_obj, "Hood Front Lower", 0.0, W, -D, -D + mt,
+                  0.0, zb0)
+    sy = prof.span * mt / prof.ln     # outer face -> inner face shift
+    sz = -prof.dy * mt / prof.ln
+    outer = [(prof.x_in_at(fz), prof.y_at(fz), fz),
+             (W - prof.x_in_at(fz), prof.y_at(fz), fz),
+             (W - side_in, -td, zb), (side_in, -td, zb)]
+    inner = [(x, y + sy, z + sz) for (x, y, z) in outer]
+    _mesh_part(hood_obj, "Hood Front", outer + inner,
+               [(0, 1, 2, 3), (7, 6, 5, 4), (0, 4, 5, 1),
+                (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)])
+    if zb < H:
+        _mesh_box(hood_obj, "Hood Front Upper", side_in, W - side_in,
+                  -td, -td + mt, zb, H)
     _mesh_part(hood_obj, "Hood Top",
-               [(mt + side_in, -td, H), (W - mt - side_in, -td, H),
+               [(mt + side_in, -td + mt, H), (W - mt - side_in, -td + mt, H),
                 (W - mt - side_in, 0.0, H), (mt + side_in, 0.0, H)],
                [(0, 1, 2, 3)])
-    if band > 0.0:
-        _mesh_box(hood_obj, "Hood Bottom Band",
-                  0.0, W, -D - inch(2.0), 0.0, 0.0, band)
-    _liner_shelf(hood_obj, opts['fan_cutout_width'], opts['fan_cutout_depth'])
+    if has_mantle_assy:
+        # Mantle assembly: front board, full-depth sides running back to
+        # the wall (these ARE the mantle zone's front / sides), and the
+        # projection cap. Near-zero depth skips it -- the straight lower
+        # front / sides are the flush mantle, mirroring the top section.
+        y_mf = -D - mantle_dep
+        _mesh_box(hood_obj, "Hood Mantle Front", 0.0, W,
+                  y_mf, y_mf + mt, 0.0, band)
+        for x0, x1 in ((0.0, mt), (W - mt, W)):
+            _mesh_box(hood_obj, "Hood Mantle Side", x0, x1,
+                      y_mf + mt, 0.0, 0.0, band)
+        if mantle_dep - mt > 0.0 and band - mt > 0.0:
+            _mesh_box(hood_obj, "Hood Mantle Top", mt, W - mt,
+                      y_mf + mt, -D, band - mt, band)
+    if band > 0.0 and opts['include_mantle_molding']:
+        _mantle_molding(hood_obj, W, -D - mantle_dep, band,
+                        opts['mantle_molding_width'],
+                        opts['mantle_molding_thickness'])
+    # Shelf extends forward under a projecting mantle to close its bottom.
+    _liner_shelf(hood_obj, opts['fan_cutout_width'], opts['fan_cutout_depth'],
+                 front_ext=mantle_dep)
     if opts['include_shiplap']:
-        _wrap_shiplap(hood_obj, W, D, H, td, side_in, fz)
+        _wrap_shiplap(hood_obj, prof, fz=fz)
     if opts['include_front_panel']:
-        _custom_sloped_panel(hood_obj, W, D, H, td, side_in, fz)
+        _custom_sloped_frame(hood_obj, opts, prof, fz)
 
 
 def _build_custom(hood_obj):
@@ -521,21 +831,38 @@ def _build_custom(hood_obj):
         _build_custom_angled(hood_obj, opts)
         return
     band = opts['mantle_height'] if opts['include_mantle'] else 0.0
+    # band thickness builds as mt + band_proj, so proj = depth - mt gives the
+    # mantle its full front-to-back depth off the sides' front edges.
     _build_hood_box(hood_obj, bottom_band=band,
-                    band_proj=inch(2.0) if band > 0.0 else 0.0)
+                    band_proj=max(opts['mantle_depth'] - HOOD_MATERIAL, 0.0)
+                    if band > 0.0 else 0.0)
+    if band > 0.0 and opts['include_mantle_molding']:
+        w2 = _HoodWrap(hood_obj)
+        W = w2.get_input('Dim X')
+        D = w2.get_input('Dim Y')
+        # The mantle front face: sides' front edge minus the mantle depth
+        # (flush with the applied front when the depth is 3/4" or less).
+        y_face = -D + HOOD_MATERIAL - max(opts['mantle_depth'], HOOD_MATERIAL)
+        _mantle_molding(hood_obj, W, y_face, band,
+                        opts['mantle_molding_width'],
+                        opts['mantle_molding_thickness'])
     if opts['include_shiplap']:
         _add_wrap_shiplap(hood_obj, fz=band)
     if opts['include_front_panel']:
-        _add_front_panels(hood_obj, HOOD_MATERIAL, bottom_band=band, ndoors=1)
-    _liner_shelf(hood_obj, opts['fan_cutout_width'], opts['fan_cutout_depth'])
+        _front_face_frame(hood_obj, opts, band)
+    # Shelf extends forward under a projecting mantle to close its bottom.
+    _liner_shelf(hood_obj, opts['fan_cutout_width'], opts['fan_cutout_depth'],
+                 front_ext=max(opts['mantle_depth'] - HOOD_MATERIAL, 0.0)
+                 if band > 0.0 else 0.0)
 
 
 def _add_wrap_shiplap(hood_obj, fz=0.0):
     """Mitred wrap shiplap on a straight box hood, sized from the cage's
     current dims (static -- rebuilt by the command / prompts)."""
     w = _HoodWrap(hood_obj)
-    _wrap_shiplap(hood_obj, w.get_input('Dim X'), w.get_input('Dim Y'),
-                  w.get_input('Dim Z'), fz=fz)
+    prof = _FrontProfile(w.get_input('Dim X'), w.get_input('Dim Y'),
+                         max(w.get_input('Dim Z'), inch(1.0)))
+    _wrap_shiplap(hood_obj, prof, fz=fz)
 
 
 def _build_shiplap_mantle(hood_obj):
@@ -864,6 +1191,12 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
         name="Top Width", unit='LENGTH', precision=5,
         default=_CUSTOM_DEFAULTS['top_width'],
         description="Hood width at the top when the sides are angled")  # type: ignore
+    top_height: FloatProperty(
+        name="Top Height", unit='LENGTH', precision=5, min=0.0,
+        default=_CUSTOM_DEFAULTS['top_height'],
+        description="Height of the straight section at the top of an angled "
+                    "hood; the angle stops there and the hood continues "
+                    "straight to the top (0 = angle runs all the way up)")  # type: ignore
     include_mantle: BoolProperty(
         name="Include Mantle",
         description="Projecting mantle band at the bottom of the hood")  # type: ignore
@@ -871,6 +1204,23 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
         name="Mantle Height", unit='LENGTH', precision=5,
         default=_CUSTOM_DEFAULTS['mantle_height'],
         description="Height of the mantle band")  # type: ignore
+    mantle_depth: FloatProperty(
+        name="Mantle Depth", unit='LENGTH', precision=5,
+        default=_CUSTOM_DEFAULTS['mantle_depth'],
+        description="Front-to-back depth of the mantle part, measured from "
+                    "the sides' front edges")  # type: ignore
+    include_mantle_molding: BoolProperty(
+        name="Mantle Molding",
+        description="Strips of material wrapping the top and bottom of the "
+                    "mantle, mitred at the front corners")  # type: ignore
+    mantle_molding_width: FloatProperty(
+        name="Molding Width", unit='LENGTH', precision=5,
+        default=_CUSTOM_DEFAULTS['mantle_molding_width'],
+        description="Height of the molding strip")  # type: ignore
+    mantle_molding_thickness: FloatProperty(
+        name="Molding Thickness", unit='LENGTH', precision=5,
+        default=_CUSTOM_DEFAULTS['mantle_molding_thickness'],
+        description="How far the molding stands proud of the mantle faces")  # type: ignore
     fan_cutout_width: FloatProperty(
         name="Fan Cutout Width", unit='LENGTH', precision=5,
         default=_CUSTOM_DEFAULTS['fan_cutout_width'],
@@ -881,7 +1231,24 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
         description="Depth of the fan opening in the bottom liner shelf")  # type: ignore
     include_front_panel: BoolProperty(
         name="Include Front Panel",
-        description="Applied decorative panel proud of the front face")  # type: ignore
+        description="Paneled face frame applied to the front (stiles, rails, "
+                    "mid stiles; the front shows through as recessed panels)")  # type: ignore
+    panel_stile_width: FloatProperty(
+        name="Stile Width", unit='LENGTH', precision=5,
+        default=_CUSTOM_DEFAULTS['panel_stile_width'],
+        description="Width of the frame stiles (outer and mid)")  # type: ignore
+    panel_top_rail_width: FloatProperty(
+        name="Top Rail Width", unit='LENGTH', precision=5,
+        default=_CUSTOM_DEFAULTS['panel_top_rail_width'],
+        description="Width of the top frame rail")  # type: ignore
+    panel_bottom_rail_width: FloatProperty(
+        name="Bottom Rail Width", unit='LENGTH', precision=5,
+        default=_CUSTOM_DEFAULTS['panel_bottom_rail_width'],
+        description="Width of the bottom frame rail")  # type: ignore
+    panel_count: IntProperty(
+        name="Panels", min=1, max=10,
+        default=_CUSTOM_DEFAULTS['panel_count'],
+        description="Number of panels across; mid stiles = panels - 1")  # type: ignore
     include_shiplap: BoolProperty(
         name="Include Shiplap",
         description="Shiplap boards on the front face")  # type: ignore
@@ -907,11 +1274,20 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
         self.top_depth = opts['top_depth']
         self.angle_sides = bool(opts['angle_sides'])
         self.top_width = opts['top_width']
+        self.top_height = opts['top_height']
         self.include_mantle = bool(opts['include_mantle'])
         self.mantle_height = opts['mantle_height']
+        self.mantle_depth = opts['mantle_depth']
+        self.include_mantle_molding = bool(opts['include_mantle_molding'])
+        self.mantle_molding_width = opts['mantle_molding_width']
+        self.mantle_molding_thickness = opts['mantle_molding_thickness']
         self.fan_cutout_width = opts['fan_cutout_width']
         self.fan_cutout_depth = opts['fan_cutout_depth']
         self.include_front_panel = bool(opts['include_front_panel'])
+        self.panel_stile_width = opts['panel_stile_width']
+        self.panel_top_rail_width = opts['panel_top_rail_width']
+        self.panel_bottom_rail_width = opts['panel_bottom_rail_width']
+        self.panel_count = int(opts['panel_count'])
         self.include_shiplap = bool(opts['include_shiplap'])
         if self.hood.get(HOOD_CUSTOM_PROP) is None:
             # First time on this hood: seed the taper from the current size.
@@ -931,11 +1307,20 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
                 'top_depth': self.top_depth,
                 'angle_sides': self.angle_sides,
                 'top_width': self.top_width,
+                'top_height': self.top_height,
                 'include_mantle': self.include_mantle,
                 'mantle_height': self.mantle_height,
+                'mantle_depth': self.mantle_depth,
+                'include_mantle_molding': self.include_mantle_molding,
+                'mantle_molding_width': self.mantle_molding_width,
+                'mantle_molding_thickness': self.mantle_molding_thickness,
                 'fan_cutout_width': self.fan_cutout_width,
                 'fan_cutout_depth': self.fan_cutout_depth,
                 'include_front_panel': self.include_front_panel,
+                'panel_stile_width': self.panel_stile_width,
+                'panel_top_rail_width': self.panel_top_rail_width,
+                'panel_bottom_rail_width': self.panel_bottom_rail_width,
+                'panel_count': self.panel_count,
                 'include_shiplap': self.include_shiplap,
             }
         build_wood_hood(self.hood, self.style)
@@ -987,10 +1372,24 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
         sub.prop(self, 'top_width', text="Top Width")
 
         row = col.row(align=True)
+        row.active = self.angle_front or self.angle_sides
+        row.label(text="Top Height:")
+        row.prop(self, 'top_height', text="")
+
+        row = col.row(align=True)
         row.prop(self, 'include_mantle')
         sub = row.row(align=True)
         sub.active = self.include_mantle
-        sub.prop(self, 'mantle_height', text="Height")
+        sub.prop(self, 'mantle_height', text="H")
+        sub.prop(self, 'mantle_depth', text="D")
+
+        row = col.row(align=True)
+        row.active = self.include_mantle
+        row.prop(self, 'include_mantle_molding')
+        sub = row.row(align=True)
+        sub.active = self.include_mantle and self.include_mantle_molding
+        sub.prop(self, 'mantle_molding_width', text="W")
+        sub.prop(self, 'mantle_molding_thickness', text="T")
 
         row = col.row(align=True)
         row.label(text="Fan Cutout:")
@@ -998,6 +1397,17 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
         row.prop(self, 'fan_cutout_depth', text="D")
 
         col.prop(self, 'include_front_panel')
+        sub = col.column(align=True)
+        sub.active = self.include_front_panel
+        row = sub.row(align=True)
+        row.label(text="Stile:")
+        row.prop(self, 'panel_stile_width', text="")
+        row = sub.row(align=True)
+        row.label(text="Rails:")
+        row.prop(self, 'panel_top_rail_width', text="T")
+        row.prop(self, 'panel_bottom_rail_width', text="B")
+        sub.prop(self, 'panel_count')
+
         col.prop(self, 'include_shiplap')
 
 

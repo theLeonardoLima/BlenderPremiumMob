@@ -1414,7 +1414,13 @@ def _can_make_editable(obj):
         if not role or role in _FRONT_EDITABLE_ROLES:
             return False
     mn = obj.home_builder.mod_name
-    return bool(mn) and mn in obj.modifiers
+    if bool(mn) and mn in obj.modifiers:
+        return True
+    # Static wood-hood parts (angled bodies, shiplap wrap, sloped panels)
+    # are plain meshes with no cutpart modifier: nothing to apply, but they
+    # still take the manual flag so hood rebuilds leave them alone.
+    return bool(obj.get('IS_WOOD_HOOD_PART')) and not any(
+        m.type == 'NODES' for m in obj.modifiers)
 
 
 def _can_make_front_editable(obj):
@@ -1472,9 +1478,12 @@ class hb_face_frame_OT_make_part_editable(bpy.types.Operator):
             _stash_part_inputs(obj)
         # Apply only the cutpart modifier; any downstream system modifier
         # (e.g. a corner notch) stays live on top of the now-real mesh.
-        with context.temp_override(object=obj, active_object=obj,
-                                   selected_objects=[obj]):
-            bpy.ops.object.modifier_apply(modifier=mn)
+        # Static wood-hood parts have no modifier -- already real mesh, they
+        # just take the manual flag.
+        if mn and mn in obj.modifiers:
+            with context.temp_override(object=obj, active_object=obj,
+                                       selected_objects=[obj]):
+                bpy.ops.object.modifier_apply(modifier=mn)
         obj['IS_MANUAL_PART'] = True
 
     @staticmethod
