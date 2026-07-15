@@ -405,23 +405,39 @@ def _custom_sloped_panel(hood_obj, W, D, H, td, side_in, fz):
     _mesh_part(hood_obj, "Hood Panel", v, f)
 
 
-def _custom_sloped_shiplap(hood_obj, W, D, H, td, side_in, fz):
-    """Shiplap boards on the (possibly sloped / tapered) custom front: ~6"
-    boards standing 1/2" proud of the face with a 1/8" reveal, as static
-    meshes following the slope. Front only -- the tapered sides don't take
-    wrap boards."""
+def _wrap_shiplap(hood_obj, W, D, H, td=None, side_in=0.0, fz=0.0):
+    """Shiplap wrapping the hood box: ~6" courses standing 1/2" proud of
+    the front and side faces, mitred at the front corners (45 degrees in
+    plan), with a 1/8" reveal between courses. Static meshes -- rebuilt by
+    the command / prompts -- so the same builder follows a sloped front
+    (td < D) and tapered sides (side_in > 0) as well as the straight box."""
     board = inch(6.0)
     reveal = inch(0.125)
     proud = inch(0.5)
-    dy, dz = D - td, H
-    ln = math.hypot(dy, dz) or 1.0
-    ny, nz = -dz / ln, dy / ln
+    if td is None:
+        td = D
+    ln = math.hypot(D - td, H) or 1.0
 
-    def y_at(z):
-        return -D + (D - td) * (z / H)
+    def plan(z):
+        """Inner + outer wrap corners at height z (plan coordinates):
+        f/b = front/back (wall), l/r = left/right, i/o = inner/outer."""
+        xi = side_in * (z / H)
+        yf = -D + (D - td) * (z / H)
+        return {
+            'fl_i': (xi, yf), 'fr_i': (W - xi, yf),
+            'fl_o': (xi - proud, yf - proud),
+            'fr_o': (W - xi + proud, yf - proud),
+            'bl_i': (xi, 0.0), 'br_i': (W - xi, 0.0),
+            'bl_o': (xi - proud, 0.0), 'br_o': (W - xi + proud, 0.0),
+        }
 
-    def x_in_at(z):
-        return side_in * (z / H)
+    def prism(name, keys, z0, z1):
+        p0, p1 = plan(z0), plan(z1)
+        v = ([(p0[k][0], p0[k][1], z0) for k in keys]
+             + [(p1[k][0], p1[k][1], z1) for k in keys])
+        f = [(0, 1, 2, 3), (7, 6, 5, 4), (0, 4, 5, 1),
+             (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
+        _mesh_part(hood_obj, name, v, f)
 
     span_z = H - fz
     if span_z <= 0.0:
@@ -435,13 +451,11 @@ def _custom_sloped_shiplap(hood_obj, W, D, H, td, side_in, fz):
         z1 = min(z0 + step - rev_z, H)
         if z1 <= z0:
             continue
-        inner = [(x_in_at(z0), y_at(z0), z0), (W - x_in_at(z0), y_at(z0), z0),
-                 (W - x_in_at(z1), y_at(z1), z1), (x_in_at(z1), y_at(z1), z1)]
-        outer = [(x, y + ny * proud, z + nz * proud) for (x, y, z) in inner]
-        v = inner + outer
-        f = [(0, 1, 2, 3), (7, 6, 5, 4), (0, 4, 5, 1),
-             (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
-        _mesh_part(hood_obj, "Hood Shiplap %d" % i, v, f)
+        # One course = front + left + right boards sharing the 45-degree
+        # miter line from each inner front corner to its outer corner.
+        prism("Hood Shiplap F%d" % i, ('fl_i', 'fr_i', 'fr_o', 'fl_o'), z0, z1)
+        prism("Hood Shiplap L%d" % i, ('bl_i', 'fl_i', 'fl_o', 'bl_o'), z0, z1)
+        prism("Hood Shiplap R%d" % i, ('br_i', 'fr_i', 'fr_o', 'br_o'), z0, z1)
 
 
 def _build_custom_angled(hood_obj, opts):
@@ -493,7 +507,7 @@ def _build_custom_angled(hood_obj, opts):
                   0.0, W, -D - inch(2.0), 0.0, 0.0, band)
     _liner_shelf(hood_obj, opts['fan_cutout_width'], opts['fan_cutout_depth'])
     if opts['include_shiplap']:
-        _custom_sloped_shiplap(hood_obj, W, D, H, td, side_in, fz)
+        _wrap_shiplap(hood_obj, W, D, H, td, side_in, fz)
     if opts['include_front_panel']:
         _custom_sloped_panel(hood_obj, W, D, H, td, side_in, fz)
 
@@ -510,69 +524,33 @@ def _build_custom(hood_obj):
     _build_hood_box(hood_obj, bottom_band=band,
                     band_proj=inch(2.0) if band > 0.0 else 0.0)
     if opts['include_shiplap']:
-        _shiplap_front(hood_obj, HOOD_MATERIAL, bottom_band=band)
+        _add_wrap_shiplap(hood_obj, fz=band)
     if opts['include_front_panel']:
         _add_front_panels(hood_obj, HOOD_MATERIAL, bottom_band=band, ndoors=1)
     _liner_shelf(hood_obj, opts['fan_cutout_width'], opts['fan_cutout_depth'])
 
 
-def _shiplap_front(hood_obj, mt, bottom_band=0.0, top_crown=0.0, wrap_sides=True):
-    """Horizontal shiplap boards on the front (and, with wrap_sides, the
-    left/right sides), ~6" boards standing 1/2" proud of the flat faces with
-    a 1/8" reveal gap between each. Board count fixed at build time from the
-    current height; widths/z driven so they track the hood."""
+def _add_wrap_shiplap(hood_obj, fz=0.0):
+    """Mitred wrap shiplap on a straight box hood, sized from the cage's
+    current dims (static -- rebuilt by the command / prompts)."""
     w = _HoodWrap(hood_obj)
-    dim_x = w.var_input('Dim X', 'dim_x')
-    dim_y = w.var_input('Dim Y', 'dim_y')
-    dim_z = w.var_input('Dim Z', 'dim_z')
-    board = inch(6.0)
-    reveal = inch(0.125)
-    proud = inch(0.5)
-    cap = bottom_band + top_crown
-    front_h = max(w.get_input('Dim Z') - cap, board)
-    n = max(2, int(round(front_h / board)))
-    inv = 1.0 / n
-    height_expr = 'dim_z * %f - %f' % (inv, cap * inv + reveal)
-    for i in range(n):
-        z_expr = 'dim_z * %f + %f' % (i * inv, bottom_band - i * cap * inv)
-        # Front board (full width -- the front is applied over the sides).
-        fb = _panel(hood_obj, "Hood Shiplap F%d" % i)
-        fb.obj.rotation_euler.x = math.radians(90)
-        fb.driver_location('y', '-dim_y', [dim_y])
-        fb.driver_location('z', z_expr, [dim_z])
-        fb.driver_input("Length", 'dim_x', [dim_x])
-        fb.driver_input("Width", height_expr, [dim_z])
-        fb.set_input("Thickness", proud)
-        fb.set_input("Mirror Z", False)
-        if not wrap_sides:
-            continue
-        # Left + right side boards (run the full depth, proud of the sides).
-        for name, at_right in (("Hood Shiplap L%d" % i, False), ("Hood Shiplap R%d" % i, True)):
-            sb = _panel(hood_obj, name)
-            sb.obj.rotation_euler.y = math.radians(-90)
-            if at_right:
-                sb.driver_location('x', 'dim_x', [dim_x])
-            sb.driver_location('z', z_expr, [dim_z])
-            sb.driver_input("Length", height_expr, [dim_z])
-            sb.driver_input("Width", 'dim_y', [dim_y])
-            sb.set_input("Thickness", proud)
-            sb.set_input("Mirror Y", True)
-            sb.set_input("Mirror Z", at_right)
+    _wrap_shiplap(hood_obj, w.get_input('Dim X'), w.get_input('Dim Y'),
+                  w.get_input('Dim Z'), fz=fz)
 
 
 def _build_shiplap_mantle(hood_obj):
     _build_hood_box(hood_obj, bottom_band=inch(6), band_proj=inch(2))
-    _shiplap_front(hood_obj, HOOD_MATERIAL, bottom_band=inch(6))
+    _add_wrap_shiplap(hood_obj, fz=inch(6))
 
 
 def _build_shiplap_peninsula(hood_obj):
     _build_hood_box(hood_obj)
-    _shiplap_front(hood_obj, HOOD_MATERIAL)
+    _add_wrap_shiplap(hood_obj)
 
 
 def _build_shiplap_box(hood_obj):
     _build_hood_box(hood_obj)
-    _shiplap_front(hood_obj, HOOD_MATERIAL)
+    _add_wrap_shiplap(hood_obj)
 
 
 _STYLE_BUILDERS = {
