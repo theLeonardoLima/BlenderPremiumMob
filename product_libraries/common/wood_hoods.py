@@ -95,10 +95,10 @@ def _panel(hood_obj, name):
 
 def _build_hood_box(hood_obj, bottom_band=0.0, top_crown=0.0, band_proj=0.0):
     """Core box carcass: full left/right sides, a top cap inset between
-    them, and a front face between the sides. Optional projecting bands at
+    them, and an applied front -- full width, in front of the sides and
+    top, which stop 3/4" short of the face. Optional projecting bands at
     the bottom (mantle / shelf base) and top (crown). All driven off the
-    cage Dim X/Y/Z and butted on 3/4" material; the front sits between the
-    bands."""
+    cage Dim X/Y/Z and butted on 3/4" material."""
     w = _HoodWrap(hood_obj)
     dim_x = w.var_input('Dim X', 'dim_x')
     dim_y = w.var_input('Dim Y', 'dim_y')
@@ -106,36 +106,36 @@ def _build_hood_box(hood_obj, bottom_band=0.0, top_crown=0.0, band_proj=0.0):
     mt = HOOD_MATERIAL
     two_mt = 2.0 * mt
 
-    # Left + right sides (full height x full depth at the ends).
+    # Left + right sides (full height, stopping behind the applied front).
     for name, at_right in (("Hood Left Side", False), ("Hood Right Side", True)):
         s = _panel(hood_obj, name)
         s.obj.rotation_euler.y = math.radians(-90)
         if at_right:
             s.driver_location('x', 'dim_x', [dim_x])
         s.driver_input("Length", 'dim_z', [dim_z])
-        s.driver_input("Width", 'dim_y', [dim_y])
+        s.driver_input("Width", 'dim_y - %f' % mt, [dim_y])
         s.set_input("Thickness", mt)
         s.set_input("Mirror Y", True)
         s.set_input("Mirror Z", not at_right)
 
-    # Top cap, inset between the sides.
+    # Top cap, inset between the sides, stopping behind the applied front.
     top = _panel(hood_obj, "Hood Top")
     top.obj.location.x = mt
     top.driver_location('z', 'dim_z', [dim_z])
     top.driver_input("Length", 'dim_x - %f' % two_mt, [dim_x])
-    top.driver_input("Width", 'dim_y', [dim_y])
+    top.driver_input("Width", 'dim_y - %f' % mt, [dim_y])
     top.set_input("Thickness", mt)
     top.set_input("Mirror Y", True)
     top.set_input("Mirror Z", True)
 
-    # Front face, between the sides and between the bands.
+    # Applied front: full width, covering the side + top edges, between
+    # the bands.
     front = _panel(hood_obj, "Hood Front")
     front.obj.rotation_euler.x = math.radians(90)
-    front.obj.location.x = mt
     front.obj.location.z = bottom_band
     front.driver_location('y', '-dim_y', [dim_y])
-    front.driver_input("Length", 'dim_x - %f' % two_mt, [dim_x])
-    front.driver_input("Width", 'dim_z - %f' % (mt + bottom_band + top_crown), [dim_z])
+    front.driver_input("Length", 'dim_x', [dim_x])
+    front.driver_input("Width", 'dim_z - %f' % (bottom_band + top_crown), [dim_z])
     front.set_input("Thickness", mt)
     front.set_input("Mirror Z", True)
 
@@ -178,14 +178,16 @@ def _add_front_panels(hood_obj, mt, bottom_band=0.0, top_crown=0.0, ndoors=2):
     rail = inch(2.5)
     center = inch(3.0)
     proud = inch(0.5)
+    # Margins measure from the hood edges: the front is applied full width,
+    # so the panels inset by stile alone.
     height_expr = 'dim_z - %f' % (bottom_band + top_crown + 2.0 * rail)
     if ndoors == 2:
-        width_expr = '(dim_x - %f) * 0.5' % (2.0 * mt + 2.0 * stile + center)
-        doors = [("Hood Panel L", mt + stile, None),
+        width_expr = '(dim_x - %f) * 0.5' % (2.0 * stile + center)
+        doors = [("Hood Panel L", stile, None),
                  ("Hood Panel R", None, 'dim_x * 0.5 + %f' % (center * 0.5))]
     else:
-        width_expr = 'dim_x - %f' % (2.0 * mt + 2.0 * stile)
-        doors = [("Hood Panel", mt + stile, None)]
+        width_expr = 'dim_x - %f' % (2.0 * stile)
+        doors = [("Hood Panel", stile, None)]
     for name, x_static, x_expr in doors:
         pnl = _panel(hood_obj, name)
         pnl.obj.rotation_euler.x = math.radians(90)
@@ -372,7 +374,6 @@ def _custom_sloped_panel(hood_obj, W, D, H, td, side_in, fz):
     """Applied panel standing 1/2" proud of the (possibly sloped / tapered)
     front face, inset by stile/rail margins. Skipped when the face is too
     small to hold one."""
-    mt = HOOD_MATERIAL
     stile = inch(2.5)
     rail = inch(2.5)
     proud = inch(0.5)
@@ -386,8 +387,8 @@ def _custom_sloped_panel(hood_obj, W, D, H, td, side_in, fz):
     def x_in_at(z):
         return side_in * (z / H)
 
-    x00, x01 = mt + x_in_at(z0) + stile, W - mt - x_in_at(z0) - stile
-    x10, x11 = mt + x_in_at(z1) + stile, W - mt - x_in_at(z1) - stile
+    x00, x01 = x_in_at(z0) + stile, W - x_in_at(z0) - stile
+    x10, x11 = x_in_at(z1) + stile, W - x_in_at(z1) - stile
     if x01 - x00 < inch(4.0) or x11 - x10 < inch(4.0):
         return
     # Outward normal of the front plane (in the Y/Z profile).
@@ -437,10 +438,11 @@ def _build_custom_angled(hood_obj, opts):
     side(0.0, side_in)
     side(W - mt, W - side_in - mt)
     fz = band
+    # Applied front: full width, covering the sides' front edges.
     _mesh_part(hood_obj, "Hood Front",
-               [(mt + x_in_at(fz), y_at(fz), fz),
-                (W - mt - x_in_at(fz), y_at(fz), fz),
-                (W - mt - side_in, -td, H), (mt + side_in, -td, H)],
+               [(x_in_at(fz), y_at(fz), fz),
+                (W - x_in_at(fz), y_at(fz), fz),
+                (W - side_in, -td, H), (side_in, -td, H)],
                [(0, 1, 2, 3)])
     _mesh_part(hood_obj, "Hood Top",
                [(mt + side_in, -td, H), (W - mt - side_in, -td, H),
@@ -482,20 +484,19 @@ def _shiplap_front(hood_obj, mt, bottom_band=0.0, top_crown=0.0, wrap_sides=True
     board = inch(6.0)
     reveal = inch(0.125)
     proud = inch(0.5)
-    cap = bottom_band + top_crown + mt
+    cap = bottom_band + top_crown
     front_h = max(w.get_input('Dim Z') - cap, board)
     n = max(2, int(round(front_h / board)))
     inv = 1.0 / n
     height_expr = 'dim_z * %f - %f' % (inv, cap * inv + reveal)
     for i in range(n):
         z_expr = 'dim_z * %f + %f' % (i * inv, bottom_band - i * cap * inv)
-        # Front board.
+        # Front board (full width -- the front is applied over the sides).
         fb = _panel(hood_obj, "Hood Shiplap F%d" % i)
         fb.obj.rotation_euler.x = math.radians(90)
-        fb.obj.location.x = mt
         fb.driver_location('y', '-dim_y', [dim_y])
         fb.driver_location('z', z_expr, [dim_z])
-        fb.driver_input("Length", 'dim_x - %f' % (2.0 * mt), [dim_x])
+        fb.driver_input("Length", 'dim_x', [dim_x])
         fb.driver_input("Width", height_expr, [dim_z])
         fb.set_input("Thickness", proud)
         fb.set_input("Mirror Z", False)
