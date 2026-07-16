@@ -940,7 +940,50 @@ def _door_style_mod(obj):
 
 
 def has_door_style_modifier(obj):
-    return _door_style_mod(obj) is not None
+    """True for a 5-piece styled front: python-built (the HB_DOOR_FRAME
+    stamp from assign_style_to_front) or the GN fallback's 'Door Style'
+    modifier. Slab fronts have neither."""
+    if obj is None:
+        return False
+    return 'HB_DOOR_FRAME' in obj or _door_style_mod(obj) is not None
+
+
+def _front_frame_values(front):
+    """The rendered frame values of a 5-piece front as a plain dict
+    (left / right stile, top / bottom rail, add_mid, center_mid, mid_w,
+    mid_loc), read off the HB_DOOR_FRAME stamp (python-built door) or
+    the 'Door Style' modifier inputs (GN fallback). None for slabs."""
+    if front is None:
+        return None
+    stamp = front.get('HB_DOOR_FRAME')
+    if stamp is not None:
+        return {
+            'left': stamp.get('left_stile', 0.0),
+            'right': stamp.get('right_stile', 0.0),
+            'top': stamp.get('top_rail', 0.0),
+            'bottom': stamp.get('bottom_rail', 0.0),
+            'add_mid': bool(stamp.get('add_mid_rail', False)),
+            'center_mid': bool(stamp.get('mid_center', True)),
+            'mid_w': stamp.get('mid_rail_width', 0.0),
+            'mid_loc': stamp.get('mid_loc', 0.0),
+        }
+    mod = _door_style_mod(front)
+    if mod is None:
+        return None
+    # The CPM_5PIECEDOOR node renders its Left / Right stile inputs on
+    # the OPPOSITE visual sides from their names, so reads swap the
+    # same way assign_style_to_front's writes do: the node's 'Left
+    # Stile Width' input carries the viewer's RIGHT stile.
+    return {
+        'left': _mod_input_get(mod, "Right Stile Width", 0.0),
+        'right': _mod_input_get(mod, "Left Stile Width", 0.0),
+        'top': _mod_input_get(mod, "Top Rail Width", 0.0),
+        'bottom': _mod_input_get(mod, "Bottom Rail Width", 0.0),
+        'add_mid': bool(_mod_input_get(mod, "Add Mid Rail", False)),
+        'center_mid': bool(_mod_input_get(mod, "Center Mid Rail", True)),
+        'mid_w': _mod_input_get(mod, "Mid Rail Width", 0.0),
+        'mid_loc': _mod_input_get(mod, "Mid Rail Location", 0.0),
+    }
 
 
 def _mod_input_get(mod, name, default=None):
@@ -986,33 +1029,28 @@ def _door_frame_for_dialog(op):
 
 def _front_panel_openings(front):
     """Live interior-panel (opening) heights of a 5-piece front for a
-    read-only readout. Reads the 'Door Style' modifier + the cutpart Length,
+    read-only readout. Reads the rendered frame values + the cutpart Length,
     so it reflects the rendered geometry regardless of the mid-rail mode (the
-    Set Door Frame dialog is live-bound, so the modifier already carries any
+    Set Door Frame dialog is live-bound, so the front already carries any
     pending edit). The rail spans [loc - Rm/2, loc + Rm/2] about its centerline
     loc within the [0, L] door.
 
     Returns (bottom_opening, top_opening) in metres when a mid rail is present,
     (full_opening, None) when it isn't, or None if the front can't be read.
     """
-    mod = _door_style_mod(front)
-    if front is None or mod is None:
+    vals = _front_frame_values(front)
+    if vals is None:
         return None
     try:
         length = GeoNodeCutpart(front).get_input("Length")
     except Exception:
         return None
-    top_rail = _mod_input_get(mod, "Top Rail Width", 0.0)
-    bottom_rail = _mod_input_get(mod, "Bottom Rail Width", 0.0)
-    if not _mod_input_get(mod, "Add Mid Rail", False):
-        return (length - top_rail - bottom_rail, None)
-    half = _mod_input_get(mod, "Mid Rail Width", 0.0) / 2.0
-    if _mod_input_get(mod, "Center Mid Rail", True):
-        loc = length / 2.0
-    else:
-        loc = _mod_input_get(mod, "Mid Rail Location", length / 2.0)
-    bottom_opening = (loc - half) - bottom_rail
-    top_opening = (length - top_rail) - (loc + half)
+    if not vals['add_mid']:
+        return (length - vals['top'] - vals['bottom'], None)
+    half = vals['mid_w'] / 2.0
+    loc = length / 2.0 if vals['center_mid'] else vals['mid_loc']
+    bottom_opening = (loc - half) - vals['bottom']
+    top_opening = (length - vals['top']) - (loc + half)
     return (bottom_opening, top_opening)
 
 
@@ -1172,31 +1210,31 @@ class hb_face_frame_OT_set_door_frame(bpy.types.Operator):
 
     def invoke(self, context, event):
         obj = context.active_object
-        mod = _door_style_mod(obj)
+        vals = _front_frame_values(obj) or {}
         store = _frame_store(obj)
         locked = bool(store.get('HB_FRAME_FRAME_LOCKED', False))
         # Seed BEFORE source_obj_name is set so the callbacks bail and the
         # seed writes don't fan back. Locked -> show the pinned store values;
-        # unlocked -> show the front's live (style-driven) modifier values.
-        def seed(ovr_key, mod_name):
+        # unlocked -> show the front's live (style-driven) rendered values.
+        def seed(ovr_key, field):
             if locked and ovr_key in store.keys():
                 return store[ovr_key]
-            return _mod_input_get(mod, mod_name, 0.0)
-        self.left_stile = seed('HB_FRAME_OVR_LEFT_STILE', "Left Stile Width")
-        self.right_stile = seed('HB_FRAME_OVR_RIGHT_STILE', "Right Stile Width")
-        self.top_rail = seed('HB_FRAME_OVR_TOP_RAIL', "Top Rail Width")
-        self.bottom_rail = seed('HB_FRAME_OVR_BOTTOM_RAIL', "Bottom Rail Width")
+            return vals.get(field, 0.0)
+        self.left_stile = seed('HB_FRAME_OVR_LEFT_STILE', 'left')
+        self.right_stile = seed('HB_FRAME_OVR_RIGHT_STILE', 'right')
+        self.top_rail = seed('HB_FRAME_OVR_TOP_RAIL', 'top')
+        self.bottom_rail = seed('HB_FRAME_OVR_BOTTOM_RAIL', 'bottom')
         mode = store.get('HB_FRAME_OVR_MID_RAIL_MODE') if locked else None
         if not mode:
-            if not _mod_input_get(mod, "Add Mid Rail", False):
+            if not vals.get('add_mid', False):
                 mode = 'NONE'
             else:
-                mode = 'CENTERED' if _mod_input_get(mod, "Center Mid Rail", True) else 'CUSTOM'
+                mode = 'CENTERED' if vals.get('center_mid', True) else 'CUSTOM'
         self.mid_rail_mode = mode
         if locked and 'HB_FRAME_OVR_MID_RAIL_LOCATION' in store.keys():
             self.mid_rail_location = store['HB_FRAME_OVR_MID_RAIL_LOCATION']
         else:
-            self.mid_rail_location = _mod_input_get(mod, "Mid Rail Location", 0.0)
+            self.mid_rail_location = vals.get('mid_loc', 0.0)
         self.lock_frame = locked
         self.source_obj_name = obj.name
         return context.window_manager.invoke_props_dialog(self, width=260)
@@ -1492,11 +1530,20 @@ class hb_face_frame_OT_make_part_editable(bpy.types.Operator):
         Door Style) to real mesh, then flag the front AND its opening cage so
         the recalc stops rebuilding it. No dim / mirror stash is needed -
         Revert lets the solver rebuild the front from scratch."""
-        for mname in [m.name for m in obj.modifiers if m.type == 'NODES']:
-            if mname in obj.modifiers:
-                with context.temp_override(object=obj, active_object=obj,
-                                           selected_objects=[obj]):
-                    bpy.ops.object.modifier_apply(modifier=mname)
+        if 'HB_DOOR_FRAME' in obj:
+            # Python-built door: the base mesh already IS the geometry and
+            # the disabled cutpart modifier only carries inputs. Drop the
+            # modifiers (applying the cutpart would overwrite the door with
+            # its box) and the stamp, which marks a style-driven front.
+            for mod in [m for m in obj.modifiers if m.type == 'NODES']:
+                obj.modifiers.remove(mod)
+            del obj['HB_DOOR_FRAME']
+        else:
+            for mname in [m.name for m in obj.modifiers if m.type == 'NODES']:
+                if mname in obj.modifiers:
+                    with context.temp_override(object=obj, active_object=obj,
+                                               selected_objects=[obj]):
+                        bpy.ops.object.modifier_apply(modifier=mname)
         obj['IS_MANUAL_PART'] = True
         cage = _front_opening_cage(obj)
         if cage is not None:

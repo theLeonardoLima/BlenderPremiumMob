@@ -1964,9 +1964,10 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         return mat
 
     def _set_door_modifier_materials(self, front_obj, finish_mat, finish_mat_rotated):
-        """Set Stile / Rail / Panel material on a front's 'Door Style'
-        CPM_5PIECEDOOR modifier, when present. Slab fronts have no
-        such modifier and skip silently. Rails get the rotated variant
+        """Set Stile / Rail / Panel material on a 5-piece front: the mesh's
+        material slots for a python-built door (HB_DOOR_FRAME), else the
+        'Door Style' CPM_5PIECEDOOR modifier, when present. Slab fronts
+        have neither and skip silently. Rails get the rotated variant
         so cross-grain reads correctly. The PANEL follows the door style's
         grain_direction: VERTICAL -> finish_mat, HORIZONTAL -> the rotated
         variant (falling back to finish_mat when no rotated material exists).
@@ -1980,6 +1981,21 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         # Prep-for-glass fronts render the centre panel as glass, not wood.
         if self._door_style_is_glass(front_obj):
             panel_mat = self._get_glass_panel_material()
+        if 'HB_DOOR_FRAME' in front_obj:
+            # Python-built door: build_door_mesh indexes faces against
+            # fixed slots (0 stile, 1 rail, 2 panel). Assign by index --
+            # never clear the slot list, that drops the material_index
+            # face attribute along with it.
+            me = front_obj.data
+            while len(me.materials) < 3:
+                me.materials.append(None)
+            if finish_mat is not None:
+                me.materials[0] = finish_mat
+            if finish_mat_rotated is not None:
+                me.materials[1] = finish_mat_rotated
+            if panel_mat is not None:
+                me.materials[2] = panel_mat
+            return
         for mod in front_obj.modifiers:
             if mod.type != 'NODES' or not mod.node_group:
                 continue
@@ -2747,6 +2763,30 @@ def _front_frame_store(front_obj):
     return front_obj
 
 
+def _front_cutpart_mod(front_obj):
+    """The front's GeoNodeCutpart NODES modifier (box generator carrying
+    the Length / Width / Thickness inputs), or None."""
+    for mod in front_obj.modifiers:
+        if (mod.type == 'NODES' and mod.node_group
+                and mod.node_group.name == 'GeoNodeCutpart'):
+            return mod
+    return None
+
+
+def _clear_static_door(front_obj):
+    """Undo a python-built door on a front: drop the HB_DOOR_FRAME stamp
+    and the static mesh, and re-enable the cutpart box so the front
+    renders as a plain slab again. No-op on a front that never had one."""
+    if 'HB_DOOR_FRAME' not in front_obj:
+        return
+    del front_obj['HB_DOOR_FRAME']
+    front_obj.data.clear_geometry()
+    cut = _front_cutpart_mod(front_obj)
+    if cut is not None:
+        cut.show_viewport = True
+        cut.show_render = True
+
+
 def _door_rail_for_front(style, front_obj):
     """Rail width of the door style paired with ``front_obj``'s cabinet
     (front -> cabinet cage -> cabinet style -> door style), or None when
@@ -3014,11 +3054,14 @@ class Face_Frame_Door_Style(PropertyGroup):
     def assign_style_to_front(self, front_obj, record_override=False):
         """Apply this door style to a face frame front object.
 
-        SLAB: remove any existing 'Door Style' modifier so the front
-        renders as a flat slab.
-        5_PIECE: add or update a CPM_5PIECEDOOR modifier named
-        'Door Style' with the configured stile/rail widths, mid rail,
-        panel thickness/inset.
+        SLAB: strip any 5-piece geometry so the front renders as the
+        plain cutpart box.
+        5_PIECE: build the door as a static mesh from door_builder
+        (stiles / rails / panel boxes in the front's mesh, the cutpart
+        modifier kept disabled for its Length / Width / Thickness
+        inputs) and stamp the effective frame values on HB_DOOR_FRAME
+        for downstream readers. With door_builder.USE_PYTHON_DOORS off,
+        fall back to the CPM_5PIECEDOOR 'Door Style' modifier instead.
 
         Returns:
             True on success.
@@ -3061,12 +3104,14 @@ class Face_Frame_Door_Style(PropertyGroup):
         front_obj['IS_PREP_FOR_GLASS'] = (self.front_panel == 'Prep for Glass')
 
         from ... import hb_types
+        from ..common import door_builder
 
-        # Slab: strip any existing door style modifier and tag.
+        # Slab: strip any existing door style modifier / static door and tag.
         if self.door_type == 'SLAB':
             for mod in list(front_obj.modifiers):
                 if mod.type == 'NODES' and 'Door Style' in mod.name:
                     front_obj.modifiers.remove(mod)
+            _clear_static_door(front_obj)
             # Slabs carry no rails; drop a stale rail-size callout left
             # over from a live 5-piece -> slab style edit.
             _sync_rail_size_annotation(front_obj, None, 0.0, 0.0, False)
@@ -3088,15 +3133,15 @@ class Face_Frame_Door_Style(PropertyGroup):
         auto_mid_rail_threshold = units.inch(45.5)
         needs_auto_mid_rail = front_length > auto_mid_rail_threshold
 
-        # Per-side frame-width overrides (tri-view mirror doors). When the
-        # front object carries an HB_FRAME_OVR_* custom prop, that side's
-        # stile / rail width comes from it (0.0 = no stile, so adjacent
-        # mirrors butt) instead of the uniform door-style width.
-        # The per-front stile / rail / mid-rail overrides only take effect
-        # when the front's frame is LOCKED (HB_FRAME_FRAME_LOCKED). Locked
-        # pins the whole Set Door Frame interface so a cabinet edit can't
-        # overwrite it; unlocked, the front follows the door style and is
-        # recomputed on any cabinet change.
+        # Per-side frame-width overrides, visual-true (eff_left renders on
+        # the viewer's left). Two sources:
+        # - The user's Set Door Frame lock: the whole interface is pinned
+        #   on the OPENING-cage store (HB_FRAME_FRAME_LOCKED) so a cabinet
+        #   edit can't overwrite it.
+        # - Unlocked, the solver's per-leaf stamps on the front object
+        #   (tri-view mirror doors zero the interior stiles so adjacent
+        #   mirrors butt; re-stamped on every recalc), falling back to the
+        #   uniform door-style widths.
         frame_store = _front_frame_store(front_obj)
         frame_locked = bool(frame_store.get('HB_FRAME_FRAME_LOCKED', False))
         if frame_locked:
@@ -3105,10 +3150,10 @@ class Face_Frame_Door_Style(PropertyGroup):
             eff_top_rail    = frame_store.get('HB_FRAME_OVR_TOP_RAIL',    self.rail_width)
             eff_bottom_rail = frame_store.get('HB_FRAME_OVR_BOTTOM_RAIL', self.rail_width)
         else:
-            eff_left_stile  = self.stile_width
-            eff_right_stile = self.stile_width
-            eff_top_rail    = self.rail_width
-            eff_bottom_rail = self.rail_width
+            eff_left_stile  = front_obj.get('HB_FRAME_OVR_LEFT_STILE',  self.stile_width)
+            eff_right_stile = front_obj.get('HB_FRAME_OVR_RIGHT_STILE', self.stile_width)
+            eff_top_rail    = front_obj.get('HB_FRAME_OVR_TOP_RAIL',    self.rail_width)
+            eff_bottom_rail = front_obj.get('HB_FRAME_OVR_BOTTOM_RAIL', self.rail_width)
 
         # Locked NONE mode removes the mid rail entirely, overriding both the
         # style's add_mid_rail and the tall-door auto rail.
@@ -3146,83 +3191,139 @@ class Face_Frame_Door_Style(PropertyGroup):
             return (f"Front too short ({front_length:.3f}m) for rail "
                     f"widths (need {min_height:.3f}m)")
 
-        # Find or add the 'Door Style' CPM_5PIECEDOOR modifier.
-        existing_mod = None
-        for mod in front_obj.modifiers:
-            if mod.type == 'NODES' and 'Door Style' in mod.name:
-                existing_mod = mod
-                break
-        if existing_mod is not None:
-            door_style_mod = hb_types.CabinetPartModifier()
-            door_style_mod.obj = front_obj
-            door_style_mod.mod = existing_mod
-        else:
-            door_style_mod = part.add_part_modifier('CPM_5PIECEDOOR', 'Door Style')
-
-        door_style_mod.set_input("Left Stile Width", eff_left_stile)
-        door_style_mod.set_input("Right Stile Width", eff_right_stile)
-        door_style_mod.set_input("Top Rail Width", eff_top_rail)
-        door_style_mod.set_input("Bottom Rail Width", eff_bottom_rail)
-        door_style_mod.set_input("Panel Thickness", self.panel_thickness)
-        door_style_mod.set_input("Panel Inset", self.panel_inset)
-
         # Per-front mid rail override (durable, set from the Set Door Frame
         # popup) wins over the style / auto-center. CENTERED centers it; THIRD /
         # QUARTER place it by fraction; CUSTOM, TOP_PANEL and BOTTOM_PANEL use the
         # single stored value (a from-bottom centerline, or an interior panel
         # height that the solver converts to a centerline). Presence of an
-        # override also forces a mid rail on.
+        # override also forces a mid rail on. Resolved here to plain values
+        # (on / centered / absolute centerline from the bottom) so both
+        # geometry paths consume the same decision.
+        mid_on = False
+        mid_center = True
+        mid_loc = 0.0
         if ovr_mid_mode != 'NONE' and (needs_auto_mid_rail or self.add_mid_rail or ovr_mid_mode):
-            try:
-                door_style_mod.set_input("Add Mid Rail", True)
-                door_style_mod.set_input("Mid Rail Width", self.mid_rail_width)
-                if ovr_mid_mode == 'CENTERED':
-                    door_style_mod.set_input("Center Mid Rail", True)
-                elif ovr_mid_mode == 'THIRD':
-                    door_style_mod.set_input("Center Mid Rail", False)
-                    # Mid Rail Location is the rail CENTERLINE measured from the
-                    # BOTTOM, so 2/3 up puts the rail near the top (bottom opening
-                    # = 2/3, top = 1/3).
-                    door_style_mod.set_input("Mid Rail Location", front_length * 2.0 / 3.0)
-                elif ovr_mid_mode == 'QUARTER':
-                    door_style_mod.set_input("Center Mid Rail", False)
-                    # 3/4 up from the bottom (bottom opening = 3/4, top = 1/4).
-                    door_style_mod.set_input("Mid Rail Location", front_length * 3.0 / 4.0)
-                elif ovr_mid_mode in ('CUSTOM', 'TOP_PANEL', 'BOTTOM_PANEL'):
-                    door_style_mod.set_input("Center Mid Rail", False)
-                    # One stored value, interpreted by mode. The door spans
-                    # [0, L] along its length; the rail spans [loc - Rm/2,
-                    # loc + Rm/2] about its centerline loc. So the bottom opening
-                    # is (loc - Rm/2) - bottom_rail and the top opening is
-                    # (L - top_rail) - (loc + Rm/2). CUSTOM stores loc directly;
-                    # the panel modes store the opening height on that side and we
-                    # solve for loc, clamping so a too-large height can't push the
-                    # rail past either end rail.
-                    stored = frame_store.get('HB_FRAME_OVR_MID_RAIL_LOCATION',
-                                             self.mid_rail_location)
-                    half_rm = self.mid_rail_width / 2.0
-                    if ovr_mid_mode == 'BOTTOM_PANEL':
-                        loc = eff_bottom_rail + stored + half_rm
-                    elif ovr_mid_mode == 'TOP_PANEL':
-                        loc = front_length - eff_top_rail - stored - half_rm
-                    else:
-                        loc = stored
-                    loc_min = eff_bottom_rail + half_rm
-                    loc_max = front_length - eff_top_rail - half_rm
-                    if loc_max >= loc_min:
-                        loc = max(loc_min, min(loc, loc_max))
-                    door_style_mod.set_input("Mid Rail Location", loc)
-                elif needs_auto_mid_rail:
-                    door_style_mod.set_input("Center Mid Rail", True)
-                else:
-                    door_style_mod.set_input("Center Mid Rail", self.center_mid_rail)
-                    if not self.center_mid_rail:
-                        door_style_mod.set_input("Mid Rail Location", self.mid_rail_location)
-            except Exception:
+            mid_on = True
+            if ovr_mid_mode == 'CENTERED':
                 pass
-        else:
+            elif ovr_mid_mode == 'THIRD':
+                # The centerline is measured from the BOTTOM, so 2/3 up puts
+                # the rail near the top (bottom opening = 2/3, top = 1/3).
+                mid_center = False
+                mid_loc = front_length * 2.0 / 3.0
+            elif ovr_mid_mode == 'QUARTER':
+                # 3/4 up from the bottom (bottom opening = 3/4, top = 1/4).
+                mid_center = False
+                mid_loc = front_length * 3.0 / 4.0
+            elif ovr_mid_mode in ('CUSTOM', 'TOP_PANEL', 'BOTTOM_PANEL'):
+                # One stored value, interpreted by mode. The door spans
+                # [0, L] along its length; the rail spans [loc - Rm/2,
+                # loc + Rm/2] about its centerline loc. So the bottom opening
+                # is (loc - Rm/2) - bottom_rail and the top opening is
+                # (L - top_rail) - (loc + Rm/2). CUSTOM stores loc directly;
+                # the panel modes store the opening height on that side and we
+                # solve for loc, clamping so a too-large height can't push the
+                # rail past either end rail.
+                mid_center = False
+                stored = frame_store.get('HB_FRAME_OVR_MID_RAIL_LOCATION',
+                                         self.mid_rail_location)
+                half_rm = self.mid_rail_width / 2.0
+                if ovr_mid_mode == 'BOTTOM_PANEL':
+                    loc = eff_bottom_rail + stored + half_rm
+                elif ovr_mid_mode == 'TOP_PANEL':
+                    loc = front_length - eff_top_rail - stored - half_rm
+                else:
+                    loc = stored
+                loc_min = eff_bottom_rail + half_rm
+                loc_max = front_length - eff_top_rail - half_rm
+                if loc_max >= loc_min:
+                    loc = max(loc_min, min(loc, loc_max))
+                mid_loc = loc
+            elif needs_auto_mid_rail:
+                pass
+            else:
+                mid_center = self.center_mid_rail
+                if not mid_center:
+                    mid_loc = self.mid_rail_location
+
+        if door_builder.USE_PYTHON_DOORS:
+            # Python-built door: static boxes in the front's own mesh. The
+            # cutpart modifier stays for its Length / Width / Thickness
+            # inputs (the solver keeps writing them) but its box is hidden;
+            # any modifier from the GN fallback is dropped.
+            for mod in list(front_obj.modifiers):
+                if mod.type == 'NODES' and 'Door Style' in mod.name:
+                    front_obj.modifiers.remove(mod)
             try:
-                door_style_mod.set_input("Add Mid Rail", False)
+                front_thickness = part.get_input("Thickness")
+            except Exception:
+                front_thickness = units.inch(0.75)
+            info = door_builder.door_style_info(self)
+            info.update(
+                door_type='5_PIECE',
+                left_stile_width=eff_left_stile,
+                right_stile_width=eff_right_stile,
+                top_rail_width=eff_top_rail,
+                bottom_rail_width=eff_bottom_rail,
+                add_mid_rail=False,
+                mid_rail_z=(((0.5, 0.0) if mid_center else (0.0, mid_loc))
+                            if mid_on else None),
+            )
+            door_builder.build_door_mesh(front_obj.data, info,
+                                         front_width, front_length,
+                                         front_thickness)
+            cut = _front_cutpart_mod(front_obj)
+            if cut is not None:
+                cut.show_viewport = False
+                cut.show_render = False
+            # Effective frame record for readers that used to consult the
+            # modifier inputs (Set Door Frame dialog, panel-opening readout,
+            # the Spaces glass-hatch pass).
+            front_obj['HB_DOOR_FRAME'] = {
+                'left_stile': eff_left_stile,
+                'right_stile': eff_right_stile,
+                'top_rail': eff_top_rail,
+                'bottom_rail': eff_bottom_rail,
+                'add_mid_rail': mid_on,
+                'mid_center': mid_center,
+                'mid_loc': mid_loc,
+                'mid_rail_width': self.mid_rail_width,
+            }
+        else:
+            # GN fallback: find or add the 'Door Style' CPM_5PIECEDOOR
+            # modifier (undoing any python-built door first).
+            _clear_static_door(front_obj)
+            existing_mod = None
+            for mod in front_obj.modifiers:
+                if mod.type == 'NODES' and 'Door Style' in mod.name:
+                    existing_mod = mod
+                    break
+            if existing_mod is not None:
+                door_style_mod = hb_types.CabinetPartModifier()
+                door_style_mod.obj = front_obj
+                door_style_mod.mod = existing_mod
+            else:
+                door_style_mod = part.add_part_modifier('CPM_5PIECEDOOR', 'Door Style')
+
+            # The node renders its Left / Right stile inputs on the OPPOSITE
+            # visual sides from their names, so the visual-true values are
+            # swapped at this boundary: the node's 'Left Stile Width' input
+            # has always carried the viewer's RIGHT stile (readers swap the
+            # same way -- see _front_frame_values).
+            door_style_mod.set_input("Left Stile Width", eff_right_stile)
+            door_style_mod.set_input("Right Stile Width", eff_left_stile)
+            door_style_mod.set_input("Top Rail Width", eff_top_rail)
+            door_style_mod.set_input("Bottom Rail Width", eff_bottom_rail)
+            door_style_mod.set_input("Panel Thickness", self.panel_thickness)
+            door_style_mod.set_input("Panel Inset", self.panel_inset)
+
+            try:
+                door_style_mod.set_input("Add Mid Rail", mid_on)
+                if mid_on:
+                    door_style_mod.set_input("Mid Rail Width", self.mid_rail_width)
+                    door_style_mod.set_input("Center Mid Rail", mid_center)
+                    if not mid_center:
+                        door_style_mod.set_input("Mid Rail Location", mid_loc)
             except Exception:
                 pass
 

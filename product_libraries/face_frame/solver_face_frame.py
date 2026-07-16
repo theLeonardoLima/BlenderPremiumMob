@@ -3574,21 +3574,20 @@ def _triple_door_leaves(layout, rect, cab_props, opening_props, role):
         }
 
     rails = {'top_rail': fw, 'bottom_rail': fw}
-    # NOTE: the CPM_5PIECEDOOR node's 'Left Stile Width' / 'Right Stile Width'
-    # inputs render on the OPPOSITE sides from their names, so the override
-    # values are swapped here: the left door's OUTER stile is fed via
-    # 'right_stile', and vice versa. Flip-for-now; revisit if the node is
-    # corrected to match its input names.
+    # The overrides are visual-true (left_stile = the viewer's left):
+    # assign_style_to_front renders them as named and swaps at the
+    # CPM_5PIECEDOOR boundary itself when on the GN fallback (that
+    # node renders its Left / Right inputs on the opposite sides).
     return [
         # Left door: keep OUTER (left) stile, drop INTERIOR (right)
         _right_hinged('Door (Left)',   x0,
-                      {'left_stile': 0.0, 'right_stile': fw,  **rails}),
+                      {'left_stile': fw,  'right_stile': 0.0, **rails}),
         # Center door: no stiles (mirror runs full width)
         _right_hinged('Door (Center)', x1,
                       {'left_stile': 0.0, 'right_stile': 0.0, **rails}),
         # Right door: drop INTERIOR (left), keep OUTER (right) stile
         _left_hinged('Door (Right)',   x2,
-                     {'left_stile': fw,  'right_stile': 0.0, **rails}),
+                     {'left_stile': 0.0, 'right_stile': fw,  **rails}),
     ]
 
 

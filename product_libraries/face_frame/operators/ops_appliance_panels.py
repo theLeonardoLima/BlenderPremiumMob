@@ -212,15 +212,19 @@ def _solve_layout(config, dim_x, dim_z, front_sizes, front_holds, col_widths, co
 
 
 def _set_front_geometry(obj, front_y, rect):
-    """Push a solved rect onto an existing panel front (no object churn). The
-    Door Style modifier is downstream of the cutpart, so updating Width/Length
-    reflows the 5-piece frame automatically. front_y is the front's depth
-    position (shifts forward of a Type B/C backer)."""
+    """Push a solved rect onto an existing panel front (no object churn).
+    front_y is the front's depth position (shifts forward of a Type B/C
+    backer). A GN 'Door Style' modifier reflows from the cutpart inputs by
+    itself; a python-built door (HB_DOOR_FRAME) is a static mesh, so its
+    style is re-applied to rebuild it at the new size."""
     x0, x1, z0, z1 = rect
     part = hb_types.GeoNodeCutpart(obj)
     obj.location = (x0, front_y, z0)
     part.set_input('Width', x1 - x0)
     part.set_input('Length', z1 - z0)
+    if 'HB_DOOR_FRAME' in obj:
+        from . import ops_part_commands
+        ops_part_commands._reapply_front_style(obj)
 
 
 def _build_backer(appliance_obj, dim_x, dim_y, dim_z, backer_t, panel_type):
