@@ -5089,6 +5089,36 @@ def series_is_slab(series):
     return SERIES_FRAME.get(series, {}).get('is_slab', False)
 
 
+# Profile picks per series: names into the face_frame_assets/
+# door_profiles library (outside / inside edge sweeps, raised panel).
+# A missing key means square edge / flat panel. The 'panel' entry only
+# takes effect on a Raised panel choice. Seeded from the profile file
+# names that match a series; series without a match render square
+# until their profiles are filled in here.
+SERIES_PROFILES = {
+    'Brunswick':   {'inside': 'InsideBrunswickDoorProfile'},
+    'Century':     {'inside': 'InsideCentryDoorProfile'},
+    'Classic':     {'panel': 'PanelProfileClassic'},
+    'Colonial':    {'panel': 'PanelProfileColonial'},
+    'Craftsman':   {'inside': 'InsideCraftsmanDoorProfile'},
+    'Hampton':     {'inside': 'InsideHamptonDoorProfile'},
+    'Havana':      {'inside': 'InsideHavanaDoorProfile',
+                    'panel': 'PanelProfileHavana'},
+    'Highlander':  {'panel': 'PanelProfileHighlander'},
+    'Joviso':      {'panel': 'PanelProfileJoviso'},
+    'Marketplace': {'inside': 'InsideMarketplaceDoorProfile'},
+    'Metro':       {'inside': 'InsideMetroDoorProfile'},
+    'Traditional': {'inside': 'InsideTraditionalDoorProfile'},
+}
+
+
+def profiles_for_series(series):
+    """Profile pick dict for a series: {[outside], [inside], [panel]},
+    names into the shipped door_profiles library. Empty when the series
+    has no mapped profiles (square edges, flat panel)."""
+    return SERIES_PROFILES.get(series, {})
+
+
 # === Special effects (baked from the upcharge compatibility matrix) ===
 # Available effects are gated by the style's wood AND color; the Add
 # Special Effects dialog shows the intersection of the two.

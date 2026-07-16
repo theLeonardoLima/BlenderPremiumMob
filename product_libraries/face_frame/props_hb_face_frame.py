@@ -441,6 +441,18 @@ def _apply_series_frame_to_door_style(self):
         self.panel_inset = units.inch(spec['panel_inset'])
     if 'panel_thickness' in spec:
         self.panel_thickness = units.inch(spec['panel_thickness'])
+    # Profile picks follow the series unless the dealer unlocked them.
+    # The raised-panel profile only applies to a Raised panel choice;
+    # everything else keeps the flat panel.
+    if not getattr(self, 'unlock_profiles', False):
+        prof = style_options.profiles_for_series(self.front_series)
+        _set_enum_safe(self, 'outside_profile_name',
+                       prof.get('outside', 'NONE'))
+        _set_enum_safe(self, 'inside_profile_name',
+                       prof.get('inside', 'NONE'))
+        _set_enum_safe(self, 'panel_profile_name',
+                       prof.get('panel', 'NONE')
+                       if 'Raised' in (self.front_panel or '') else 'NONE')
 
 
 def update_front_shape(self, context):
@@ -2951,6 +2963,13 @@ class Face_Frame_Door_Style(PropertyGroup):
         update=_propagate_door_style,
     )  # type: ignore
 
+    unlock_profiles: BoolProperty(
+        name="Unlock Profiles",
+        description="Override the series' outside / inside / panel profiles",
+        default=False,
+        update=update_unlock_frame_widths,
+    )  # type: ignore
+
     outside_profile: PointerProperty(
         name="Outside Profile",
         type=bpy.types.Object,
@@ -3331,13 +3350,16 @@ class Face_Frame_Door_Style(PropertyGroup):
                 mid_rail_z=(((0.5, 0.0) if mid_center else (0.0, mid_loc))
                             if mid_on else None),
             )
-            # Profile sweeps: a custom curve pointer wins; else the
-            # named pick from the shipped library. Anything broken or
+            # Profile sweeps: with profiles unlocked a custom curve
+            # pointer wins; else the named pick (series-derived when
+            # locked) from the shipped library. Anything broken or
             # missing falls back to a square edge / flat panel.
             from ..common import door_profiles
+            _unlocked = getattr(self, 'unlock_profiles', False)
 
             def _resolve_profile(pointer, name, category):
-                pr = door_profiles.profile_from_object(pointer)
+                pr = door_profiles.profile_from_object(
+                    pointer if _unlocked else None)
                 if pr is None and name and name != 'NONE':
                     pr = door_profiles.load_profile(category, name)
                 return pr
@@ -3492,18 +3514,24 @@ class Face_Frame_Door_Style(PropertyGroup):
             if _front_is_drawer(self):
                 box.prop(self, "match_door_rail_width",
                          text="Match Door Rail Width When Possible")
-            # Profile picks from the shipped library; a custom curve
-            # object set below overrides the corresponding pick.
-            box.label(text="Profiles:")
+            # Profile picks derive from the catalog series (locked, like
+            # the frame widths); unlock to hand-pick from the shipped
+            # library. A custom curve object overrides the named pick.
+            prow = box.row(align=True)
+            prow.label(text="Profiles:")
+            prow.prop(self, "unlock_profiles", text="",
+                      icon='UNLOCKED' if self.unlock_profiles else 'LOCKED')
             pcol = box.column(align=True)
+            pcol.enabled = self.unlock_profiles
             pcol.prop(self, "outside_profile_name", text="Outside")
             pcol.prop(self, "inside_profile_name", text="Inside")
             pcol.prop(self, "panel_profile_name", text="Panel")
-            ccol = box.column(align=True)
-            ccol.label(text="Custom Curves (override):")
-            ccol.prop(self, "outside_profile", text="Outside")
-            ccol.prop(self, "inside_profile", text="Inside")
-            ccol.prop(self, "panel_profile", text="Panel")
+            if self.unlock_profiles:
+                ccol = box.column(align=True)
+                ccol.label(text="Custom Curves (override):")
+                ccol.prop(self, "outside_profile", text="Outside")
+                ccol.prop(self, "inside_profile", text="Inside")
+                ccol.prop(self, "panel_profile", text="Panel")
 
         # Assign by Painting starts a modal brush: click fronts in the
         # viewport to apply THIS style. Door styles paint door fronts,
