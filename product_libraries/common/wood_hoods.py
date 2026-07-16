@@ -1037,6 +1037,110 @@ def _wrap_shiplap(hood_obj, prof, fz=0.0):
         prism("Hood Shiplap R%d" % i, ('br_i', 'fr_i', 'fr_o', 'br_o'), z0, z1)
 
 
+def _sloped_bay_fronts(hood_obj, opts, prof, fz):
+    """Bay fronts filling the sloped face frame's openings: the same
+    per-bay choices as the straight hood (overlay door / inset door /
+    1/4" inset panel), built as static prisms lying in (inset) or on
+    (overlay) the sloped front plane. Doors are 5-piece assemblies from
+    door_builder laid out along the face -- height runs up the slope in
+    face arc length, width follows the side taper, so parts on a tapered
+    hood are trapezoids like the frame members. Uses the same stile /
+    rail layout math as _custom_sloped_frame (which must have built)."""
+    sw = max(opts['panel_stile_width'], inch(0.5))
+    trw = max(opts['panel_top_rail_width'], inch(0.5))
+    brw = max(opts['panel_bottom_rail_width'], inch(0.5))
+    n = max(int(opts['panel_count']), 1)
+    mt = HOOD_MATERIAL
+    pt = inch(0.25)
+    gap = inch(0.125)
+    W = prof.W
+    n_y = -(prof.span or 1.0) / prof.ln
+    n_z = prof.dy / prof.ln
+    ov_l, ov_r, ov_t, ov_b = _hood_door_overlays(hood_obj)
+    ds_info = door_builder.door_style_info(_hood_door_style(hood_obj))
+
+    s_lo = prof.s_at(fz)               # face span of the framed area
+    s_hi = prof.s_at(prof.zb)
+    s0 = s_lo + brw                    # opening span, between the rails
+    s1 = s_hi - trw
+
+    def prism(name, x0f, x1f, sa, sb, d0, d1):
+        """Face-plane prism: x edges x0f(z) / x1f(z), face span sa..sb
+        (arc length up the slope), depth band d0..d1 inward along the
+        slope normal from the face plane (negative = proud)."""
+        za, zc = prof.z_at(sa), prof.z_at(sb)
+
+        def ring(z):
+            y = prof.y_at(z)
+            pts = []
+            for d in (d0, d1):
+                yd, zd = y - n_y * d, z - n_z * d
+                pts.append(((x0f(z), yd, zd), (x1f(z), yd, zd)))
+            (a0, b0), (a1, b1) = pts
+            return [a0, b0, b1, a1]
+
+        r0, r1 = ring(za), ring(zc)
+        v = [r0[0], r0[1], r1[1], r1[0], r0[3], r0[2], r1[2], r1[3]]
+        f = [(0, 1, 2, 3), (7, 6, 5, 4), (0, 4, 5, 1),
+             (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
+        _mesh_part(hood_obj, name, v, f)
+
+    def opening_w(z):
+        return (W - 2.0 * prof.x_in_at(z) - (n + 1) * sw) / n
+
+    def opening_left(z, j):
+        return prof.x_in_at(z) + sw + j * (opening_w(z) + sw)
+
+    for j, kind in enumerate(_bay_front_list(opts, n)):
+        if kind == 'PANEL':
+            # Back face flush with the frame's inner face, like the
+            # straight hood / cabinet INSET_PANEL convention.
+            prism("Hood Inset Panel %d" % (j + 1),
+                  lambda z, j=j: opening_left(z, j),
+                  lambda z, j=j: opening_left(z, j) + opening_w(z),
+                  s0, s1, mt - pt, mt)
+            continue
+        if kind == 'OVERLAY_DOOR':
+            dl, dw = -ov_l, ov_l + ov_r
+            ds0 = max(s0 - ov_b, s_lo)
+            ds1 = min(s1 + ov_t, s_hi)
+            d_front = -mt              # proud of the frame face
+        else:
+            dl, dw = gap, -2.0 * gap
+            ds0, ds1 = s0 + gap, s1 - gap
+            d_front = 0.0              # in the frame layer, flush face
+        h_s = ds1 - ds0
+
+        def door_left(z, j=j, dl=dl):
+            return opening_left(z, j) + dl
+
+        def door_w(z, dw=dw):
+            return opening_w(z) + dw
+
+        # Too small for the style's frame (at the door's narrowest) -> slab.
+        info = ds_info
+        min_w, min_h = door_builder.layout_min_size(info)
+        if (min(door_w(prof.z_at(ds0)), door_w(prof.z_at(ds1))) <= min_w
+                or h_s <= min_h):
+            info = dict(info, door_type='SLAB')
+        for part in door_builder.door_layout(info):
+            cx, ox = part['x']
+            cw, ow = part['w']
+            cz, oz = part['z']
+            ch, oh = part['h']
+            name = ("Hood Door %d" % (j + 1) if part['key'] == 'slab'
+                    else "Hood Door %d %s" % (j + 1, part['name']))
+            th = mt if part['thickness'] is None else part['thickness']
+            d0 = d_front if part['thickness'] is None \
+                else d_front + part['y_inset']
+            prism(name,
+                  lambda z, cx=cx, ox=ox: door_left(z) + cx * door_w(z) + ox,
+                  lambda z, cx=cx, cw=cw, ox=ox, ow=ow:
+                      door_left(z) + (cx + cw) * door_w(z) + ox + ow,
+                  ds0 + cz * h_s + oz, ds0 + (cz + ch) * h_s + oz + oh,
+                  d0, d0 + th)
+
+
 def _build_custom_angled(hood_obj, opts):
     """Custom hood with an angled front and/or tapered sides: a general
     frustum -- full W x D at the base narrowing to top_width / top_depth --
@@ -1112,25 +1216,20 @@ def _build_custom_angled(hood_obj, opts):
     if zb0 > 0.0 and not has_mantle_assy:
         _mesh_box(hood_obj, "Hood Front Lower", 0.0, W, -D, -D + mt,
                   0.0, zb0)
-    sy = prof.span * mt / prof.ln     # outer face -> inner face shift
-    sz = -prof.dy * mt / prof.ln
     if framed_front:
-        # Recessed panel behind the frame openings: the angled front
-        # shifted one thickness inward and inset between the sides.
-        outer = [(prof.x_in_at(fz) + mt, prof.y_at(fz) + sy, fz + sz),
-                 (W - prof.x_in_at(fz) - mt, prof.y_at(fz) + sy, fz + sz),
-                 (W - side_in - mt, -td + sy, zb + sz),
-                 (side_in + mt, -td + sy, zb + sz)]
-        front_name = "Hood Front Panel"
+        # Per-bay fronts fill the frame's openings (doors / inset
+        # panels), the same choices as the straight hood.
+        _sloped_bay_fronts(hood_obj, opts, prof, fz)
     else:
+        sy = prof.span * mt / prof.ln     # outer face -> inner face shift
+        sz = -prof.dy * mt / prof.ln
         outer = [(prof.x_in_at(fz), prof.y_at(fz), fz),
                  (W - prof.x_in_at(fz), prof.y_at(fz), fz),
                  (W - side_in, -td, zb), (side_in, -td, zb)]
-        front_name = "Hood Front"
-    inner = [(x, y + sy, z + sz) for (x, y, z) in outer]
-    _mesh_part(hood_obj, front_name, outer + inner,
-               [(0, 1, 2, 3), (7, 6, 5, 4), (0, 4, 5, 1),
-                (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)])
+        inner = [(x, y + sy, z + sz) for (x, y, z) in outer]
+        _mesh_part(hood_obj, "Hood Front", outer + inner,
+                   [(0, 1, 2, 3), (7, 6, 5, 4), (0, 4, 5, 1),
+                    (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)])
     if zb < H:
         _mesh_box(hood_obj, "Hood Front Upper", side_in, W - side_in,
                   -td, -td + mt, zb, H)
@@ -1784,11 +1883,8 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
         row.label(text="Rails:")
         row.prop(self, 'panel_top_rail_width', text="T")
         row.prop(self, 'panel_bottom_rail_width', text="B")
-        # Bay layout + per-bay fronts apply to the straight face frame
-        # only (an angled front keeps its fixed recessed-panel frame).
         bays = col.column(align=True)
-        bays.active = (self.include_front_panel
-                       and not (self.angle_front or self.angle_sides))
+        bays.active = self.include_front_panel
         bays.prop(self, 'panel_count')
         for j in range(self.panel_count):
             row = bays.row(align=True)
