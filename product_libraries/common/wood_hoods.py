@@ -387,6 +387,8 @@ _CUSTOM_DEFAULTS = {
     'right_end_panel': False,       # paneled end replacing the right side
     'left_end_front': 'PANEL',      # what fills the left end frame
     'right_end_front': 'PANEL',     # what fills the right end frame
+    'door_mid_rails': 0,            # mid rails on every hood door
+    'door_mid_stiles': 0,           # mid stiles on every hood door
     'include_shiplap': False,       # shiplap boards on the front
 }
 
@@ -468,6 +470,17 @@ def _hood_door_style(hood_obj):
                     None)
     except Exception:
         return None
+
+
+def _hood_door_info(hood_obj, opts):
+    """door_builder construction info for this hood's doors: the
+    resolved door style's fields with the hood's door-grid options
+    (mid rail / mid stile counts) layered on top. A zero count leaves
+    the style's own mid rail setting in charge."""
+    info = door_builder.door_style_info(_hood_door_style(hood_obj))
+    info['mid_rail_count'] = max(int(opts.get('door_mid_rails', 0)), 0)
+    info['mid_stile_count'] = max(int(opts.get('door_mid_stiles', 0)), 0)
+    return info
 
 
 def _get_custom_opts(hood_obj):
@@ -635,7 +648,7 @@ def _front_face_frame(hood_obj, opts, band):
     pt = inch(0.25)       # inset panel thickness (cabinet INSET_PANEL)
     ov_l, ov_r, ov_t, ov_b = _hood_door_overlays(hood_obj)
     frame_h = band + brw + trw    # z eaten by band + rails
-    ds_info = door_builder.door_style_info(_hood_door_style(hood_obj))
+    ds_info = _hood_door_info(hood_obj, opts)
     cage_w = w.get_input('Dim X')
     cage_h = w.get_input('Dim Z')
 
@@ -847,7 +860,7 @@ def _paneled_end(hood_obj, opts, at_right):
         p.set_input("Mirror Z", not at_right)
         return p
 
-    info = door_builder.door_style_info(_hood_door_style(hood_obj))
+    info = _hood_door_info(hood_obj, opts)
     min_w, min_h = door_builder.layout_min_size(info)
     if (w.get_input('Dim Y') + wb <= min_w
             or w.get_input('Dim Z') + hb <= min_h):
@@ -958,7 +971,7 @@ def _angled_paneled_end(hood_obj, opts, prof, at_right, setback):
     def door_w(z, adj_f=adj_f, adj_b=adj_b):
         return (inner1(z) + adj_b) - (inner0(z) + adj_f)
 
-    info = door_builder.door_style_info(_hood_door_style(hood_obj))
+    info = _hood_door_info(hood_obj, opts)
     min_w, min_h = door_builder.layout_min_size(info)
     if min(door_w(dz0), door_w(dz1)) <= min_w or h_d <= min_h:
         info = dict(info, door_type='SLAB')
@@ -1198,7 +1211,7 @@ def _sloped_bay_fronts(hood_obj, opts, prof, fz):
     n_y = -(prof.span or 1.0) / prof.ln
     n_z = prof.dy / prof.ln
     ov_l, ov_r, ov_t, ov_b = _hood_door_overlays(hood_obj)
-    ds_info = door_builder.door_style_info(_hood_door_style(hood_obj))
+    ds_info = _hood_door_info(hood_obj, opts)
 
     s_lo = prof.s_at(fz)               # face span of the framed area
     s_hi = prof.s_at(prof.zb)
@@ -1859,6 +1872,15 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
     right_end_front: EnumProperty(
         name="Right End Front", items=BAY_FRONT_ITEMS, default='PANEL',
         description="What fills the right paneled end's frame")  # type: ignore
+    door_mid_rails: IntProperty(
+        name="Door Mid Rails", min=0, max=6, default=0,
+        description="Mid rails on every hood door, splitting it into "
+                    "panel rows (0 = the door style's own mid rail "
+                    "setting)")  # type: ignore
+    door_mid_stiles: IntProperty(
+        name="Door Mid Stiles", min=0, max=6, default=0,
+        description="Mid stiles on every hood door, splitting each "
+                    "panel row into columns")  # type: ignore
     include_shiplap: BoolProperty(
         name="Include Shiplap",
         description="Shiplap boards on the front face")  # type: ignore
@@ -1905,6 +1927,8 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
         self.include_right_end_panel = bool(opts['right_end_panel'])
         self.left_end_front = _end_front_kind(opts, False)
         self.right_end_front = _end_front_kind(opts, True)
+        self.door_mid_rails = max(int(opts.get('door_mid_rails', 0)), 0)
+        self.door_mid_stiles = max(int(opts.get('door_mid_stiles', 0)), 0)
         self.include_shiplap = bool(opts['include_shiplap'])
         if self.hood.get(HOOD_CUSTOM_PROP) is None:
             # First time on this hood: seed the taper from the current size.
@@ -1946,6 +1970,8 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
                 'right_end_panel': self.include_right_end_panel,
                 'left_end_front': self.left_end_front,
                 'right_end_front': self.right_end_front,
+                'door_mid_rails': self.door_mid_rails,
+                'door_mid_stiles': self.door_mid_stiles,
                 'include_shiplap': self.include_shiplap,
             }
         build_wood_hood(self.hood, self.style)
@@ -2054,6 +2080,11 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
             row = col.row(align=True)
             row.label(text="Right End:")
             row.prop(self, 'right_end_front', text="")
+
+        row = col.row(align=True)
+        row.label(text="Door Grid:")
+        row.prop(self, 'door_mid_rails', text="Rails")
+        row.prop(self, 'door_mid_stiles', text="Stiles")
 
         col.prop(self, 'include_shiplap')
 
