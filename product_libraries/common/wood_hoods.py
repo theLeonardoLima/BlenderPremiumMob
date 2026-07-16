@@ -1818,6 +1818,19 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
     depth: FloatProperty(name="Depth", unit='LENGTH', precision=5)  # type: ignore
     style: EnumProperty(name="Style", items=WOOD_HOOD_STYLE_ITEMS, default='BOX')  # type: ignore
 
+    # Dialog-only: which CUSTOM options section is showing. Not stored
+    # on the hood; it just keeps the dialog readable.
+    ui_tab: EnumProperty(
+        name="Section",
+        items=[
+            ('SHAPE', "Shape", "Angles, top section, and shiplap"),
+            ('MANTLE', "Mantle", "Mantle band and molding"),
+            ('FRONT', "Front", "Face frame, bays, and door grid"),
+            ('ENDS', "Ends", "Paneled ends and their fronts"),
+            ('LINER', "Liner", "Fan cutout and floor"),
+        ],
+        default='SHAPE')  # type: ignore
+
     # CUSTOM-style options (shown when style == 'CUSTOM'; persisted on the
     # hood cage as HOOD_CUSTOM_PROP so they survive rebuilds / reopening).
     angle_front: BoolProperty(
@@ -1997,7 +2010,7 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
         if self.hood.get(HOOD_CUSTOM_PROP) is None:
             # First time on this hood: seed the taper from the current size.
             self.top_width = self.width / 2.0
-        return context.window_manager.invoke_props_dialog(self, width=300)
+        return context.window_manager.invoke_props_dialog(self, width=330)
 
     def _apply(self):
         # Set the cage size before rebuilding so the static styles, which read
@@ -2056,27 +2069,23 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
         layout = self.layout
         box = layout.box()
         col = box.column(align=True)
-
-        row = col.row(align=True)
-        row.label(text="Width:")
-        row.prop(self, 'width', text="")
-
-        row = col.row(align=True)
-        row.label(text="Height:")
-        row.prop(self, 'height', text="")
-
-        row = col.row(align=True)
-        row.label(text="Depth:")
-        row.prop(self, 'depth', text="")
+        for label, prop in (("Width:", 'width'), ("Height:", 'height'),
+                            ("Depth:", 'depth')):
+            row = col.row(align=True)
+            row.label(text=label)
+            row.prop(self, prop, text="")
 
         layout.prop(self, 'style')
 
         if self.style != 'CUSTOM':
             return
+        row = layout.row(align=True)
+        row.prop(self, 'ui_tab', expand=True)
         box = layout.box()
-        box.label(text="Custom Options:")
-        col = box.column(align=True)
+        getattr(self, '_draw_' + self.ui_tab.lower())(box)
 
+    def _draw_shape(self, box):
+        col = box.column(align=True)
         row = col.row(align=True)
         row.prop(self, 'angle_front')
         sub = row.row(align=True)
@@ -2094,6 +2103,15 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
         row.label(text="Top Height:")
         row.prop(self, 'top_height', text="")
 
+        col.separator()
+        row = col.row(align=True)
+        row.prop(self, 'include_shiplap')
+        sub = row.row(align=True)
+        sub.active = self.include_shiplap
+        sub.prop(self, 'shiplap_board_width', text="")
+
+    def _draw_mantle(self, box):
+        col = box.column(align=True)
         row = col.row(align=True)
         row.prop(self, 'include_mantle')
         sub = row.row(align=True)
@@ -2109,19 +2127,8 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
         sub.prop(self, 'mantle_molding_width', text="W")
         sub.prop(self, 'mantle_molding_thickness', text="T")
 
-        row = col.row(align=True)
-        row.label(text="Fan Cutout:")
-        row.prop(self, 'fan_cutout_width', text="W")
-        row.prop(self, 'fan_cutout_depth', text="D")
-
-        row = col.row(align=True)
-        row.label(text="Cutout Offset:")
-        row.prop(self, 'fan_cutout_offset', text="")
-
-        row = col.row(align=True)
-        row.label(text="Floor Height:")
-        row.prop(self, 'floor_height', text="")
-
+    def _draw_front(self, box):
+        col = box.column(align=True)
         col.prop(self, 'include_front_panel')
         # Stile / rail widths feed the front face frame AND the paneled
         # ends, so they light up when either is on.
@@ -2135,6 +2142,7 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
         row.label(text="Rails:")
         row.prop(self, 'panel_top_rail_width', text="T")
         row.prop(self, 'panel_bottom_rail_width', text="B")
+
         bays = col.column(align=True)
         bays.active = self.include_front_panel
         bays.prop(self, 'panel_count')
@@ -2143,29 +2151,43 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
             row.label(text="Bay %d:" % (j + 1))
             row.prop(self, 'bay_front_%d' % (j + 1), text="")
 
-        row = col.row(align=True)
-        row.label(text="Paneled Ends:")
-        row.prop(self, 'include_left_end_panel', text="Left", toggle=True)
-        row.prop(self, 'include_right_end_panel', text="Right", toggle=True)
-        if self.include_left_end_panel:
-            row = col.row(align=True)
-            row.label(text="Left End:")
-            row.prop(self, 'left_end_front', text="")
-        if self.include_right_end_panel:
-            row = col.row(align=True)
-            row.label(text="Right End:")
-            row.prop(self, 'right_end_front', text="")
-
+        col.separator()
         row = col.row(align=True)
         row.label(text="Door Grid:")
         row.prop(self, 'door_mid_rails', text="Rails")
         row.prop(self, 'door_mid_stiles', text="Stiles")
 
+    def _draw_ends(self, box):
+        col = box.column(align=True)
         row = col.row(align=True)
-        row.prop(self, 'include_shiplap')
-        sub = row.row(align=True)
-        sub.active = self.include_shiplap
-        sub.prop(self, 'shiplap_board_width', text="")
+        row.label(text="Paneled Ends:")
+        row.prop(self, 'include_left_end_panel', text="Left", toggle=True)
+        row.prop(self, 'include_right_end_panel', text="Right", toggle=True)
+        row = col.row(align=True)
+        row.active = self.include_left_end_panel
+        row.label(text="Left End:")
+        row.prop(self, 'left_end_front', text="")
+        row = col.row(align=True)
+        row.active = self.include_right_end_panel
+        row.label(text="Right End:")
+        row.prop(self, 'right_end_front', text="")
+        # The frame widths live on the Front tab; door grids apply to
+        # end doors too.
+
+    def _draw_liner(self, box):
+        col = box.column(align=True)
+        row = col.row(align=True)
+        row.label(text="Fan Cutout:")
+        row.prop(self, 'fan_cutout_width', text="W")
+        row.prop(self, 'fan_cutout_depth', text="D")
+
+        row = col.row(align=True)
+        row.label(text="Cutout Offset:")
+        row.prop(self, 'fan_cutout_offset', text="")
+
+        row = col.row(align=True)
+        row.label(text="Floor Height:")
+        row.prop(self, 'floor_height', text="")
 
 
 class HOME_BUILDER_OT_revert_hood_part(bpy.types.Operator):
