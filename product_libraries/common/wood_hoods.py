@@ -377,6 +377,8 @@ _CUSTOM_DEFAULTS = {
     'mantle_molding_thickness': inch(0.75),
     'fan_cutout_width': inch(30.0),  # opening in the bottom liner shelf
     'fan_cutout_depth': inch(12.0),
+    'fan_cutout_offset': 0.0,        # shift the opening front (+) / back (-)
+    'floor_height': 0.0,             # raise the liner shelf off the bottom
     'include_front_panel': False,   # paneled face frame replacing the front
     'panel_stile_width': inch(2.5),
     'panel_top_rail_width': inch(2.5),
@@ -503,45 +505,61 @@ def _get_custom_opts(hood_obj):
     return opts
 
 
-def _liner_shelf(hood_obj, cutout_w, cutout_d, front_ext=0.0):
+def _liner_shelf(hood_obj, cutout_w, cutout_d, front_ext=0.0,
+                 cutout_offset=0.0, floor_z=0.0):
     """Bottom liner-mount shelf: one 3/4" board across the hood bottom, inset
     between the sides and behind the front, with the fan opening cut by a
     CPM_CUTOUT part modifier -- the same cut Add Cutout applies, so it shows
     in the 2D machining views and Remove Cutout works on it. ``front_ext``
     extends the board forward past the hood front to close the bottom of a
-    projecting mantle; the fan opening stays centered over the hood
-    interior. The board and the cut are driven, so the opening stays put
-    (at the entered size, clamped to the interior at build time) as the
-    cage resizes. A zero cutout leaves the board solid."""
+    projecting mantle; a NEGATIVE value insets its front edge (an angled
+    hood's floor raised into the slope). ``floor_z`` raises the shelf off
+    the hood bottom. The fan opening centers over the hood interior;
+    ``cutout_offset`` then shifts it toward the front (+) or the wall (-),
+    clamped so the opening stays on the board. The board and the cut are
+    driven, so the opening stays put (at the entered size, clamped to the
+    interior at build time) as the cage resizes. A zero cutout leaves the
+    board solid."""
     w = _HoodWrap(hood_obj)
     dim_x = w.var_input('Dim X', 'dim_x')
     dim_y = w.var_input('Dim Y', 'dim_y')
     mt = HOOD_MATERIAL
     W = w.get_input('Dim X')
     D = w.get_input('Dim Y')
-    ext = max(front_ext, 0.0)
+    H = w.get_input('Dim Z')
+    ext = front_ext
 
     shelf = _panel(hood_obj, "Hood Liner Shelf")
     shelf.obj.location.x = mt
+    shelf.obj.location.z = min(max(floor_z, 0.0), max(H - inch(2.0), 0.0))
     shelf.driver_location('y', '-dim_y + %f' % (mt - ext), [dim_y])
     shelf.driver_input("Length", 'dim_x - %f' % (2.0 * mt), [dim_x])
     shelf.driver_input("Width", 'dim_y - %f' % (mt - ext), [dim_y])
     shelf.set_input("Thickness", mt)
     shelf.set_input("Mirror Z", False)
 
+    # Interior depth available to the opening (a front-inset board has
+    # less; a mantle-extended board still keeps the opening over the
+    # hood interior proper).
+    interior = (D - mt) + min(ext, 0.0)
     cw = max(0.0, min(cutout_w, (W - 2.0 * mt) - inch(2.0)))
-    cd = max(0.0, min(cutout_d, (D - mt) - inch(2.0)))
+    cd = max(0.0, min(cutout_d, interior - inch(2.0)))
     if cw <= 0.0 or cd <= 0.0:
         return
+    slack = max((interior - cd) / 2.0, 0.0)
+    off = max(-slack, min(cutout_offset, slack))
     cpm = shelf.add_part_modifier('CPM_CUTOUT', 'Cutout')
     cpm.mod.show_render = True
     # Cutout coords are in the part's Length/Width space (Length =
     # dim_x - 2mt, Width = dim_y - mt + ext): centered over the hood
-    # interior, which starts ``ext`` up the extended board.
+    # interior, which starts ``ext`` up the extended board, then
+    # shifted forward by ``off``.
     cpm.driver_input('X', '(dim_x - %f) * 0.5' % (2.0 * mt + cw), [dim_x])
     cpm.driver_input('End X', '(dim_x - %f) * 0.5' % (2.0 * mt - cw), [dim_x])
-    cpm.driver_input('Y', '(dim_y - %f) * 0.5' % (mt + cd - 2.0 * ext), [dim_y])
-    cpm.driver_input('End Y', '(dim_y - %f) * 0.5' % (mt - cd - 2.0 * ext), [dim_y])
+    cpm.driver_input('Y', '(dim_y - %f) * 0.5'
+                     % (mt + cd - 2.0 * ext + 2.0 * off), [dim_y])
+    cpm.driver_input('End Y', '(dim_y - %f) * 0.5'
+                     % (mt - cd - 2.0 * ext + 2.0 * off), [dim_y])
     cpm.set_input('Route Depth', mt)
 
 
@@ -1409,9 +1427,17 @@ def _build_custom_angled(hood_obj, opts):
         _mantle_molding(hood_obj, W, -D - mantle_dep, band,
                         opts['mantle_molding_width'],
                         opts['mantle_molding_thickness'])
-    # Shelf extends forward under a projecting mantle to close its bottom.
+    # Shelf extends forward under a projecting mantle to close its
+    # bottom (only while it sits at the bottom); a floor raised into the
+    # slope insets its front edge to the interior depth at that height.
+    floor_z = min(max(opts['floor_height'], 0.0), max(H - inch(2.0), 0.0))
+    z_top = min(floor_z + mt, H)
+    shrink = max(D + prof.y_at(z_top), 0.0)
+    if shrink > 0.0:
+        shrink += setback
     _liner_shelf(hood_obj, opts['fan_cutout_width'], opts['fan_cutout_depth'],
-                 front_ext=mantle_dep)
+                 front_ext=(mantle_dep if floor_z <= 0.0 else 0.0) - shrink,
+                 cutout_offset=opts['fan_cutout_offset'], floor_z=floor_z)
     if opts['include_shiplap']:
         _wrap_shiplap(hood_obj, prof, fz=fz)
 
@@ -1452,10 +1478,13 @@ def _build_custom(hood_obj):
         _add_wrap_shiplap(hood_obj, fz=band)
     if opts['include_front_panel']:
         _front_face_frame(hood_obj, opts, band)
-    # Shelf extends forward under a projecting mantle to close its bottom.
+    # Shelf extends forward under a projecting mantle to close its
+    # bottom (only while it sits at the bottom).
     _liner_shelf(hood_obj, opts['fan_cutout_width'], opts['fan_cutout_depth'],
                  front_ext=max(opts['mantle_depth'] - HOOD_MATERIAL, 0.0)
-                 if band > 0.0 else 0.0)
+                 if band > 0.0 and opts['floor_height'] <= 0.0 else 0.0,
+                 cutout_offset=opts['fan_cutout_offset'],
+                 floor_z=opts['floor_height'])
 
 
 def _add_wrap_shiplap(hood_obj, fz=0.0):
@@ -1831,6 +1860,16 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
         name="Fan Cutout Depth", unit='LENGTH', precision=5,
         default=_CUSTOM_DEFAULTS['fan_cutout_depth'],
         description="Depth of the fan opening in the bottom liner shelf")  # type: ignore
+    fan_cutout_offset: FloatProperty(
+        name="Cutout Offset", unit='LENGTH', precision=5,
+        default=_CUSTOM_DEFAULTS['fan_cutout_offset'],
+        description="Shift the fan opening toward the front (+) or the "
+                    "wall (-)")  # type: ignore
+    floor_height: FloatProperty(
+        name="Floor Height", unit='LENGTH', precision=5, min=0.0,
+        default=_CUSTOM_DEFAULTS['floor_height'],
+        description="Raise the hood's bottom liner shelf this far up "
+                    "from the hood bottom")  # type: ignore
     include_front_panel: BoolProperty(
         name="Include Front Panel",
         description="Paneled face frame that replaces the plain front "
@@ -1915,6 +1954,8 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
         self.mantle_molding_thickness = opts['mantle_molding_thickness']
         self.fan_cutout_width = opts['fan_cutout_width']
         self.fan_cutout_depth = opts['fan_cutout_depth']
+        self.fan_cutout_offset = opts['fan_cutout_offset']
+        self.floor_height = opts['floor_height']
         self.include_front_panel = bool(opts['include_front_panel'])
         self.panel_stile_width = opts['panel_stile_width']
         self.panel_top_rail_width = opts['panel_top_rail_width']
@@ -1957,6 +1998,8 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
                 'mantle_molding_thickness': self.mantle_molding_thickness,
                 'fan_cutout_width': self.fan_cutout_width,
                 'fan_cutout_depth': self.fan_cutout_depth,
+                'fan_cutout_offset': self.fan_cutout_offset,
+                'floor_height': self.floor_height,
                 'include_front_panel': self.include_front_panel,
                 'panel_stile_width': self.panel_stile_width,
                 'panel_top_rail_width': self.panel_top_rail_width,
@@ -2046,6 +2089,14 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
         row.label(text="Fan Cutout:")
         row.prop(self, 'fan_cutout_width', text="W")
         row.prop(self, 'fan_cutout_depth', text="D")
+
+        row = col.row(align=True)
+        row.label(text="Cutout Offset:")
+        row.prop(self, 'fan_cutout_offset', text="")
+
+        row = col.row(align=True)
+        row.label(text="Floor Height:")
+        row.prop(self, 'floor_height', text="")
 
         col.prop(self, 'include_front_panel')
         # Stile / rail widths feed the front face frame AND the paneled
