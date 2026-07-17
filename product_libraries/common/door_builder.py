@@ -559,6 +559,159 @@ def _emit_grooved_panel(verts, faces, slots, part, thickness, grooves):
     return True
 
 
+def _clip_half(poly, a, b, c):
+    """Sutherland-Hodgman clip of a convex polygon [(x, z), ...] to the
+    half-plane a*x + b*z <= c."""
+    out = []
+    n = len(poly)
+    for i in range(n):
+        p = poly[i]
+        q = poly[(i + 1) % n]
+        fp = a * p[0] + b * p[1] - c
+        fq = a * q[0] + b * q[1] - c
+        if fp <= 1e-12:
+            out.append(p)
+        if (fp < -1e-12 and fq > 1e-12) or (fp > 1e-12 and fq < -1e-12):
+            t = fp / (fp - fq)
+            out.append((p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t))
+    return out
+
+
+def _mullion_layout(pattern, w, h, bw):
+    """Bar footprints for a straight-bar mullion pattern over a w x h
+    opening: a list of convex polygons [(x, z), ...] in opening-local
+    coords. Muntin construction: verticals run through, horizontals
+    butt between them; the X pattern half-laps its falling diagonal
+    around the rising one. Patterns follow the CWP Enhanced Panel
+    Options specs (catalog pdf 143-144):
+
+    GRID    -- Wood Mullion: 2 lites across, rows by the height chart
+               (24/36/48 -> 2/3/4 lites high, else 5).
+    MISSION -- (3) equal-width lites at the top, 1/3 of the opening
+               height; plain glass below.
+    PRAIRIE -- border bars leaving a 2 x 2 lite in each corner.
+    X       -- corner-to-corner diagonals.
+
+    Returns [] when the opening is too small for the pattern."""
+    hb = bw / 2.0
+    polys = []
+    if pattern == 'GRID':
+        rows = (2 if h <= inch(24.0) else 3 if h <= inch(36.0)
+                else 4 if h <= inch(48.0) else 5)
+        cx = w / 2.0
+        if w > bw + inch(2.0):
+            polys.append([(cx - hb, 0.0), (cx + hb, 0.0),
+                          (cx + hb, h), (cx - hb, h)])
+            spans = [(0.0, cx - hb), (cx + hb, w)]
+        else:
+            spans = [(0.0, w)]
+        for j in range(1, rows):
+            zc = h * j / rows
+            if zc - hb <= inch(1.0) or zc + hb >= h - inch(1.0):
+                continue
+            for (xa, xb) in spans:
+                polys.append([(xa, zc - hb), (xb, zc - hb),
+                              (xb, zc + hb), (xa, zc + hb)])
+    elif pattern == 'MISSION':
+        zb0 = h - h / 3.0 - bw
+        if zb0 <= inch(1.0) or w <= 3.0 * bw + inch(3.0):
+            return []
+        polys.append([(0.0, zb0), (w, zb0), (w, zb0 + bw), (0.0, zb0 + bw)])
+        lw = (w - 2.0 * bw) / 3.0
+        for i in (1, 2):
+            xa = i * lw + (i - 1) * bw
+            polys.append([(xa, zb0 + bw), (xa + bw, zb0 + bw),
+                          (xa + bw, h), (xa, h)])
+    elif pattern == 'PRAIRIE':
+        m = inch(2.0)
+        if w <= 2.0 * (m + bw) + inch(1.0) or h <= 2.0 * (m + bw) + inch(1.0):
+            return []
+        for xa in (m, w - m - bw):
+            polys.append([(xa, 0.0), (xa + bw, 0.0),
+                          (xa + bw, h), (xa, h)])
+        spans = [(0.0, m), (m + bw, w - m - bw), (w - m, w)]
+        for za in (m, h - m - bw):
+            for (xa, xb) in spans:
+                polys.append([(xa, za), (xb, za), (xb, za + bw), (xa, za + bw)])
+    elif pattern == 'X':
+        rect = ((1.0, 0.0, w), (-1.0, 0.0, 0.0), (0.0, 1.0, h),
+                (0.0, -1.0, 0.0))
+
+        def strip_quad(p0, p1):
+            dx, dz = p1[0] - p0[0], p1[1] - p0[1]
+            length = math.hypot(dx, dz)
+            if length <= 1e-9:
+                return None
+            nx, nz = -dz / length, dx / length
+            poly = [(p0[0] + nx * hb, p0[1] + nz * hb),
+                    (p1[0] + nx * hb, p1[1] + nz * hb),
+                    (p1[0] - nx * hb, p1[1] - nz * hb),
+                    (p0[0] - nx * hb, p0[1] - nz * hb)]
+            for (a, b, c) in rect:
+                poly = _clip_half(poly, a, b, c)
+                if len(poly) < 3:
+                    return None
+            return poly
+
+        rising = strip_quad((0.0, 0.0), (w, h))
+        falling = strip_quad((0.0, h), (w, 0.0))
+        if rising:
+            polys.append(rising)
+        if falling and rising:
+            length = math.hypot(w, h)
+            nx, nz = -h / length, w / length      # rising centerline normal
+            for pc in (_clip_half(falling, nx, nz, -hb),
+                       _clip_half(falling, -nx, -nz, -hb)):
+                if len(pc) >= 3:
+                    polys.append(pc)
+        elif falling:
+            polys.append(falling)
+    return polys
+
+
+def _emit_mullion_bars(verts, faces, slots, part, thickness, spec):
+    """Mullion bars over a glass opening cell: each _mullion_layout
+    polygon becomes a prism from the door's front face back to the
+    glass plane (spec['depth'] behind the face). Bars index the stile
+    material slot. Returns False when the pattern doesn't fit or the
+    depth is degenerate."""
+    x_off, z_off = part['x0'], part['z0']
+    w = part['x1'] - x_off
+    h = part['z1'] - z_off
+    depth = spec.get('depth', 0.0)
+    if depth <= 1e-6 or w <= 0.0 or h <= 0.0:
+        return False
+    bw = spec.get('bar_width', inch(0.875))
+    polys = _mullion_layout(spec.get('pattern', 'GRID'), w, h, bw)
+    if not polys:
+        return False
+    z_front = thickness
+    z_back = thickness - depth
+    for poly in polys:
+        pts = [(z_off + pz, -(x_off + px)) for (px, pz) in poly]
+        n = len(pts)
+        area = sum(pts[i][0] * pts[(i + 1) % n][1]
+                   - pts[(i + 1) % n][0] * pts[i][1] for i in range(n))
+        if abs(area) < 1e-10:
+            continue
+        if area < 0.0:
+            pts.reverse()
+        base = len(verts)
+        for (mx, my) in pts:
+            verts.append((mx, my, z_front))
+        for (mx, my) in pts:
+            verts.append((mx, my, z_back))
+        faces.append(tuple(base + i for i in range(n)))
+        slots.append(0)
+        faces.append(tuple(base + n + (n - 1 - i) for i in range(n)))
+        slots.append(0)
+        for i in range(n):
+            j = (i + 1) % n
+            faces.append((base + i, base + n + i, base + n + j, base + j))
+            slots.append(0)
+    return True
+
+
 # Part keys whose boxes may carry the door's outer edge profile. Panels
 # and mid members never do: a zero-width outer member exposing them to
 # the outline is the butted-mirror-pair case, where the shared edge is
@@ -632,7 +785,7 @@ def build_door_mesh(mesh, info, width, height, thickness, materials=None,
                     panel_section=None, inner_rail_section=None,
                     inner_stile_section=None, member_section=None,
                     applied_section=None, applied_scope='ALL',
-                    panel_grooves=None):
+                    panel_grooves=None, mullion=None):
     """Replace ``mesh``'s geometry with the door built as static boxes
     in front-cutpart local space: the door height runs along +X from
     the bottom edge at x=0, the width along -Y (a front cutpart with
@@ -730,6 +883,13 @@ def build_door_mesh(mesh, info, width, height, thickness, materials=None,
             _emit_strip_rings(verts, faces, face_slots, part, thickness,
                               applied_section, applied_section,
                               scope=applied_scope)
+    # Mullion bars over glass openings (dict(pattern=..., bar_width=,
+    # depth=) -- see _mullion_layout / _emit_mullion_bars). Independent
+    # of the frame construction, so mitered doors get them too.
+    if info.get('door_type') != 'SLAB' and mullion is not None:
+        for part in cells:
+            _emit_mullion_bars(verts, faces, face_slots, part, thickness,
+                               mullion)
     mesh.clear_geometry()
     mesh.from_pydata(verts, [], faces)
     # Slots first: clearing materials drops the material_index layer.

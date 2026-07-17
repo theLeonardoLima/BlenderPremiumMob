@@ -5178,8 +5178,11 @@ def recessed_panel_spec(series):
 #   RAISED  -- raised panel (series raise profile + the style's panel
 #              fields)
 #   GLASS   -- glass center panel (3D glass material + the 2D drawing
-#              hatch). Mullion choices read as plain glass until the
-#              mullion-bar generator lands (phase 2).
+#              hatch). A 'mullion' entry adds straight bars over the
+#              glass (door_builder._mullion_layout pattern name; an
+#              optional 'bar_width' overrides the 7/8" default). The
+#              curved mullions (Gothic / Double Gothic / Double Bow /
+#              Interloken) read as plain glass until phase 4.
 #   GROOVED -- flat recessed panel with vertical grooves cut into the
 #              face: 'style' BEAD (quirk-bead beadboard) or KERF
 #              (square kerf slots), 'spacing' in inches.
@@ -5192,15 +5195,17 @@ PANEL_KINDS = {
     'Bezel Glass Panel': {'kind': 'GLASS'},
     'Brink Glass Panel': {'kind': 'GLASS'},
     'Notable Glass Panel': {'kind': 'GLASS'},
-    'Wood Mullion': {'kind': 'GLASS'},
-    'Mission Mullion': {'kind': 'GLASS'},
-    'Prairie Mullion up to 30"': {'kind': 'GLASS'},
-    'Prairie Mullion up to 48"': {'kind': 'GLASS'},
+    'Wood Mullion': {'kind': 'GLASS', 'mullion': 'GRID'},
+    'Mission Mullion': {'kind': 'GLASS', 'mullion': 'MISSION'},
+    # The two Prairie entries are catalog price tiers (door height),
+    # same geometry.
+    'Prairie Mullion up to 30"': {'kind': 'GLASS', 'mullion': 'PRAIRIE'},
+    'Prairie Mullion up to 48"': {'kind': 'GLASS', 'mullion': 'PRAIRIE'},
     'Gothic Mullion': {'kind': 'GLASS'},
     'Double Gothic Mullion': {'kind': 'GLASS'},
     'Double Bow Mullion': {'kind': 'GLASS'},
     'Interloken Mullion': {'kind': 'GLASS'},
-    'X-Mullion': {'kind': 'GLASS'},
+    'X-Mullion': {'kind': 'GLASS', 'mullion': 'X'},
     '3/8" MDF Reverse Panel': {'kind': 'FLAT', 'thickness': 0.375},
     'MDF Beadboard': {'kind': 'GROOVED', 'style': 'BEAD', 'spacing': 1.6},
     'Solid Wood Beadboard': {'kind': 'GROOVED', 'style': 'BEAD',

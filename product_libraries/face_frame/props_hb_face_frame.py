@@ -3599,6 +3599,14 @@ class Face_Frame_Door_Style(PropertyGroup):
                 panel_grv = dict(
                     style=_pkind.get('style', 'BEAD'),
                     spacing=units.inch(_pkind.get('spacing', 2.0)))
+            # Straight-bar mullion choices: bars over the glass, front
+            # flush with the door face, back at the glass plane.
+            mull = None
+            if _pkind['kind'] == 'GLASS' and _pkind.get('mullion'):
+                mull = dict(
+                    pattern=_pkind['mullion'],
+                    bar_width=units.inch(_pkind.get('bar_width', 0.875)),
+                    depth=eff_panel_inset)
             door_builder.build_door_mesh(front_obj.data, info,
                                          front_width, front_length,
                                          front_thickness,
@@ -3610,7 +3618,8 @@ class Face_Frame_Door_Style(PropertyGroup):
                                          member_section=member_sec,
                                          applied_section=applied_sec,
                                          applied_scope=applied_scope,
-                                         panel_grooves=panel_grv)
+                                         panel_grooves=panel_grv,
+                                         mullion=mull)
             cut = _front_cutpart_mod(front_obj)
             if cut is not None:
                 cut.show_viewport = False
