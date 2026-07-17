@@ -347,14 +347,18 @@ def _resample_loop(loop, n):
 
 
 def _emit_strip_rings(verts, faces, slots, part, thickness,
-                      loop_rail, loop_stile, scope='ALL'):
+                      loop_rail, loop_stile, scope='ALL',
+                      top_pts=None, bottom_pts=None):
     """Applied sticking strip around one opening cell: a closed
     cross-section swept along the opening perimeter, mitred at the
     corners like a real applied molding, seated against the
     rectangular members. u runs from the member edge INTO the opening,
     v from the front face. With different rail / stile loops the
-    corner mitre planes are closed with transition strips. Skipped
-    (returns False) when the cell is too small for the strips."""
+    corner mitre planes are closed with transition strips. top_pts /
+    bottom_pts sweep the strip along a shaped (arched) edge instead of
+    the straight one (ignored for scope RAILS -- no shaped series uses
+    it). Skipped (returns False) when the cell is too small for the
+    strips."""
     x0, x1 = part['x0'], part['x1']
     z0, z1 = part['z0'], part['z1']
     wr = max(u for u, v in loop_rail)
@@ -402,31 +406,37 @@ def _emit_strip_rings(verts, faces, slots, part, thickness,
     else:
         lr = ls = loop_rail
         n = len(lr)
-    corners = ((x0, z0), (x1, z0), (x1, z1), (x0, z1))
-    dirs = ((1.0, 1.0), (-1.0, 1.0), (-1.0, -1.0), (1.0, -1.0))
     secs = (lr, ls, lr, ls)   # bottom, right, top, left
-    rings = []
-    for c in range(4):
-        sec = secs[c]
+    # Perimeter stations (shaped cells add curve stations along the
+    # top / bottom edge); each side closes on the next side's corner,
+    # so the flat rect reduces to the classic 4-corner ring pairs.
+    by_side = [[], [], [], []]
+    for st in _cell_perimeter(part, top_pts, bottom_pts):
+        by_side[st[2]].append(st)
+    ring_first = []
+    ring_last = []
+    for s in range(4):
+        sec = secs[s]
+        seq = by_side[s] + [by_side[(s + 1) % 4][0]]
         bases = []
-        for cc in (c, (c + 1) % 4):
+        for (pos, dv, _s) in seq:
             base = len(verts)
-            cx, cz = corners[cc]
-            dx, dz = dirs[cc]
             for (u, v) in sec:
-                emit(cx + dx * u, cz + dz * u, v)
+                emit(pos[0] + dv[0] * u, pos[1] + dv[1] * u, v)
             bases.append(base)
-        b0, b1 = bases
-        for k in range(n):
-            k2 = (k + 1) % n
-            faces.append((b0 + k, b0 + k2, b1 + k2, b1 + k))
-            slots.append(_PART_MAT_SLOT['mid_rail' if c % 2 == 0
-                                        else 'mid_stile'])
-        rings.append((b0, b1))
+        for i in range(len(bases) - 1):
+            a, b = bases[i], bases[i + 1]
+            for k in range(n):
+                k2 = (k + 1) % n
+                faces.append((a + k, a + k2, b + k2, b + k))
+                slots.append(_PART_MAT_SLOT['mid_rail' if s % 2 == 0
+                                            else 'mid_stile'])
+        ring_first.append(bases[0])
+        ring_last.append(bases[-1])
     if mixed:
-        for c in range(4):
-            a = rings[c][1]
-            b = rings[(c + 1) % 4][0]
+        for s in range(4):
+            a = ring_last[s]
+            b = ring_first[(s + 1) % 4]
             for k in range(n):
                 k2 = (k + 1) % n
                 faces.append((a + k, a + k2, b + k2, b + k))
@@ -434,14 +444,17 @@ def _emit_strip_rings(verts, faces, slots, part, thickness,
     return True
 
 
-def _emit_raised_panel(verts, faces, slots, part, thickness, panel_section):
+def _emit_raised_panel(verts, faces, slots, part, thickness, panel_section,
+                       top_pts=None, bottom_pts=None):
     """Raised panel for one opening cell, appended to the caller's
     lists in cutpart-local space: a mitred sweep of the panel section
     around the cell (field end first, u inward from the cell edge, v
     behind the field plane), a flat field plate, and a back plate
     flush with the door back like a flat panel. The field plane sits
-    at the part's y_inset. Returns False -- caller keeps the flat box
-    -- when the cell is too small for the raise."""
+    at the part's y_inset. top_pts / bottom_pts run the raise along a
+    shaped (arched) edge -- the cathedral raised panel -- via the
+    shared perimeter-station sweep. Returns False -- caller keeps the
+    flat box -- when the cell is too small for the raise."""
     x0, x1 = part['x0'], part['x1']
     z0, z1 = part['z0'], part['z1']
     fu = panel_section['field_u']
@@ -459,25 +472,24 @@ def _emit_raised_panel(verts, faces, slots, part, thickness, panel_section):
         verts.append((z, -x, thickness - (pf + v)))
         return len(verts) - 1
 
-    corners = ((x0, z0), (x1, z0), (x1, z1), (x0, z1))
-    dirs = ((1.0, 1.0), (-1.0, 1.0), (-1.0, -1.0), (1.0, -1.0))
+    stations = _cell_perimeter(part, top_pts, bottom_pts)
     n = len(sec)
+    m = len(stations)
     base = len(verts)
-    for (cx, cz), (dx, dz) in zip(corners, dirs):
+    for (pos, dv, _s) in stations:
         for (u, v) in sec:
-            emit(cx + dx * u, cz + dz * u, v)
-    for c in range(4):
+            emit(pos[0] + dv[0] * u, pos[1] + dv[1] * u, v)
+    for c in range(m):
         a = base + c * n
-        b = base + ((c + 1) % 4) * n
+        b = base + ((c + 1) % m) * n
         for k in range(n - 1):
             faces.append((a + k, a + k + 1, b + k + 1, b + k))
             slots.append(2)
-    # Field plate between the four rings' field points.
-    faces.append((base + 0 * n, base + 1 * n, base + 2 * n, base + 3 * n))
+    # Field plate between the rings' field points.
+    faces.append(tuple(base + c * n for c in range(m)))
     slots.append(2)
     # Back plate between the rings' back points.
-    faces.append((base + 3 * n + n - 1, base + 2 * n + n - 1,
-                  base + 1 * n + n - 1, base + 0 * n + n - 1))
+    faces.append(tuple(base + (m - 1 - c) * n + n - 1 for c in range(m)))
     slots.append(2)
     return True
 
@@ -557,6 +569,92 @@ def _emit_grooved_panel(verts, faces, slots, part, thickness, grooves):
     faces.append(tuple(base + 2 * n - 1 - i for i in range(n)))
     slots.append(2)
     return True
+
+
+# ---- Shaped (arched) opening edges ---------------------------------
+
+def shape_rise(curve, w):
+    """Peak rise of a shaped opening edge across a cell of width w.
+    Proportions read off the catalog series drawings; capped so wide
+    doors keep believable arches."""
+    if curve == 'CROWN':
+        return min(0.16 * w, inch(1.75))
+    return min(0.20 * w, inch(2.25))    # ARCH
+
+
+def _shape_curve_pts(curve, w, rise, segs=16):
+    """Shaped opening-edge polyline across a cell of width w:
+    [(x, rise), ...] left to right, x in [0, w], rise >= 0, both
+    endpoints at 0. ARCH is the circular eyebrow arc through the peak;
+    CROWN the cathedral ogee (reverse curves rising to a flat-topped
+    center hump). Returns None for a degenerate span."""
+    if rise <= 1e-6 or w <= 1e-6:
+        return None
+    if curve == 'CROWN':
+        p0, p1, p2, p3 = ((0.0, 0.0), (0.22 * w, 0.0),
+                          (0.30 * w, rise), (0.5 * w, rise))
+        m = max(segs // 2, 4)
+        half = []
+        for i in range(m + 1):
+            t = i / m
+            mt = 1.0 - t
+            half.append((mt ** 3 * p0[0] + 3.0 * mt * mt * t * p1[0]
+                         + 3.0 * mt * t * t * p2[0] + t ** 3 * p3[0],
+                         mt ** 3 * p0[1] + 3.0 * mt * mt * t * p1[1]
+                         + 3.0 * mt * t * t * p2[1] + t ** 3 * p3[1]))
+        pts = half + [(w - x, z) for (x, z) in reversed(half[:-1])]
+    else:
+        radius = (rise * rise + (w * 0.5) ** 2) / (2.0 * rise)
+        cx, cz = w * 0.5, rise - radius
+        a0 = math.atan2(-cz, -cx)
+        a1 = math.atan2(-cz, w - cx)
+        pts = []
+        for i in range(segs + 1):
+            a = a0 + (a1 - a0) * i / segs
+            pts.append((cx + radius * math.cos(a),
+                        max(cz + radius * math.sin(a), 0.0)))
+    pts[0] = (0.0, 0.0)
+    pts[-1] = (w, 0.0)
+    return pts
+
+
+def _cell_perimeter(part, top_pts=None, bottom_pts=None):
+    """Sweep stations around a cell perimeter, counter-clockwise from
+    the bottom-left corner: [(pos, dir, side)] where a swept section
+    point at inward distance u sits at ``pos + dir * u`` (dir is the
+    angle-bisector mitre direction, stretched 1/(1 + n1.n2) so offset
+    edges meet -- the flat-rect corners reduce to the classic (1, 1)
+    diagonals) and side is 0..3 (bottom / right / top / left).
+    top_pts / bottom_pts replace the straight top / bottom edge with
+    shaped polylines in absolute coords, left to right."""
+    x0, x1 = part['x0'], part['x1']
+    z0, z1 = part['z0'], part['z1']
+    bot = list(bottom_pts) if bottom_pts else [(x0, z0), (x1, z0)]
+    top = (list(reversed(top_pts)) if top_pts
+           else [(x1, z1), (x0, z1)])
+    sides = (bot, [bot[-1], top[0]], top, [top[-1], bot[0]])
+
+    def seg_normal(a, b):
+        tx, tz = b[0] - a[0], b[1] - a[1]
+        length = math.hypot(tx, tz) or 1.0
+        return (-tz / length, tx / length)
+
+    def mitre(na, nb):
+        d = max(1.0 + na[0] * nb[0] + na[1] * nb[1], 0.2)
+        return ((na[0] + nb[0]) / d, (na[1] + nb[1]) / d)
+
+    stations = []
+    for s in range(4):
+        poly = sides[s]
+        prev = sides[(s - 1) % 4]
+        stations.append((poly[0],
+                         mitre(seg_normal(prev[-2], prev[-1]),
+                               seg_normal(poly[0], poly[1])), s))
+        for i in range(1, len(poly) - 1):
+            stations.append((poly[i],
+                             mitre(seg_normal(poly[i - 1], poly[i]),
+                                   seg_normal(poly[i], poly[i + 1])), s))
+    return stations
 
 
 def _clip_half(poly, a, b, c):
@@ -669,12 +767,86 @@ def _mullion_layout(pattern, w, h, bw):
     return polys
 
 
-def _emit_mullion_bars(verts, faces, slots, part, thickness, spec):
+def _emit_prism(verts, faces, slots, poly, x_off, z_off, z_front, z_back,
+                slot):
+    """Planar polygon in cell-local (x, z) coords as a prism between
+    two depth planes (mesh space, front cap toward +z). Winding is
+    normalized from the polygon's signed area, so callers can pass
+    loops in either order. Skips degenerate polygons."""
+    pts = [(z_off + pz, -(x_off + px)) for (px, pz) in poly]
+    n = len(pts)
+    if n < 3:
+        return
+    area = sum(pts[i][0] * pts[(i + 1) % n][1]
+               - pts[(i + 1) % n][0] * pts[i][1] for i in range(n))
+    if abs(area) < 1e-10:
+        return
+    if area < 0.0:
+        pts.reverse()
+    base = len(verts)
+    for (mx, my) in pts:
+        verts.append((mx, my, z_front))
+    for (mx, my) in pts:
+        verts.append((mx, my, z_back))
+    faces.append(tuple(base + i for i in range(n)))
+    slots.append(slot)
+    faces.append(tuple(base + n + (n - 1 - i) for i in range(n)))
+    slots.append(slot)
+    for i in range(n):
+        j = (i + 1) % n
+        faces.append((base + i, base + n + i, base + n + j, base + j))
+        slots.append(slot)
+
+
+def _curve_clip_planes(pts, x_off, z_off, below):
+    """Half-plane (a, b, c) triples for _clip_half keeping the region
+    below (or above) a shaped-edge polyline, cell-local coords. Chord
+    half-planes under-fill slightly where the curve is convex -- bars
+    end a hair short instead of poking through the rail."""
+    planes = []
+    for i in range(len(pts) - 1):
+        px, pz = pts[i][0] - x_off, pts[i][1] - z_off
+        qx, qz = pts[i + 1][0] - x_off, pts[i + 1][1] - z_off
+        a = -(qz - pz)
+        b = qx - px
+        c = a * px + b * pz
+        if not below:
+            a, b, c = -a, -b, -c
+        planes.append((a, b, c))
+    return planes
+
+
+def _emit_shaped_panel(verts, faces, slots, part, thickness, top_pts,
+                       bottom_pts):
+    """Flat panel for a shaped cell: the front-face outline with its
+    top / bottom edge following the shaped curve, extruded through the
+    panel thickness at the part's y_inset."""
+    x0, x1 = part['x0'], part['x1']
+    z0, z1 = part['z0'], part['z1']
+    th = thickness if part['thickness'] is None else part['thickness']
+    zf = thickness - part['y_inset']
+    zb = zf - th
+    if zb < -1e-9:
+        zb = 0.0
+    loop = list(bottom_pts) if bottom_pts else [(x0, z0), (x1, z0)]
+    loop += list(reversed(top_pts)) if top_pts else [(x1, z1), (x0, z1)]
+    out = []
+    for p in loop:
+        if not out or abs(p[0] - out[-1][0]) > 1e-9 \
+                or abs(p[1] - out[-1][1]) > 1e-9:
+            out.append(p)
+    _emit_prism(verts, faces, slots, out, 0.0, 0.0, zf, zb, 2)
+    return True
+
+
+def _emit_mullion_bars(verts, faces, slots, part, thickness, spec,
+                       top_pts=None, bottom_pts=None):
     """Mullion bars over a glass opening cell: each _mullion_layout
     polygon becomes a prism from the door's front face back to the
     glass plane (spec['depth'] behind the face). Bars index the stile
-    material slot. Returns False when the pattern doesn't fit or the
-    depth is degenerate."""
+    material slot; on shaped cells they are clipped under / above the
+    curve. Returns False when the pattern doesn't fit or the depth is
+    degenerate."""
     x_off, z_off = part['x0'], part['z0']
     w = part['x1'] - x_off
     h = part['z1'] - z_off
@@ -685,30 +857,22 @@ def _emit_mullion_bars(verts, faces, slots, part, thickness, spec):
     polys = _mullion_layout(spec.get('pattern', 'GRID'), w, h, bw)
     if not polys:
         return False
+    planes = []
+    if top_pts:
+        planes += _curve_clip_planes(top_pts, x_off, z_off, True)
+    if bottom_pts:
+        planes += _curve_clip_planes(bottom_pts, x_off, z_off, False)
     z_front = thickness
     z_back = thickness - depth
     for poly in polys:
-        pts = [(z_off + pz, -(x_off + px)) for (px, pz) in poly]
-        n = len(pts)
-        area = sum(pts[i][0] * pts[(i + 1) % n][1]
-                   - pts[(i + 1) % n][0] * pts[i][1] for i in range(n))
-        if abs(area) < 1e-10:
+        for (a, b, c) in planes:
+            poly = _clip_half(poly, a, b, c)
+            if len(poly) < 3:
+                break
+        if len(poly) < 3:
             continue
-        if area < 0.0:
-            pts.reverse()
-        base = len(verts)
-        for (mx, my) in pts:
-            verts.append((mx, my, z_front))
-        for (mx, my) in pts:
-            verts.append((mx, my, z_back))
-        faces.append(tuple(base + i for i in range(n)))
-        slots.append(0)
-        faces.append(tuple(base + n + (n - 1 - i) for i in range(n)))
-        slots.append(0)
-        for i in range(n):
-            j = (i + 1) % n
-            faces.append((base + i, base + n + i, base + n + j, base + j))
-            slots.append(0)
+        _emit_prism(verts, faces, slots, poly, x_off, z_off,
+                    z_front, z_back, 0)
     return True
 
 
@@ -780,12 +944,92 @@ def _emit_edge_profiled_box(verts, faces, slots, part, thickness, section,
     return True
 
 
+def _emit_shaped_rail(verts, faces, slots, part, thickness, curve_segs,
+                      side, outer_section, width, height):
+    """Top / bottom rail whose opening edge follows the shaped
+    curve(s): a ring loop around the part perimeter -- edge-profile
+    section rings at the four corners (outline gates as in
+    _emit_edge_profiled_box), plain through-thickness rings at each
+    curve station -- latticed ring to ring with ngon front / back
+    caps. curve_segs are per-cell absolute polylines along the shaped
+    edge (the edge stays flat between them, over mid stiles); side is
+    'TOP' for a top rail (curve on its bottom edge) or 'BOTTOM'."""
+    x0, x1 = part['x0'], part['x1']
+    z0, z1 = part['z0'], part['z1']
+    tol = 1e-6
+    on_l = x0 <= tol
+    on_r = x1 >= width - tol
+    on_b = z0 <= tol
+    on_t = z1 >= height - tol
+    stations = []
+    for seg in curve_segs:
+        for (sx, sz) in seg:
+            if sx <= x0 + tol or sx >= x1 - tol:
+                continue
+            stations.append((sx, sz))
+    if not stations:
+        return False
+    edge_z = z0 if side == 'TOP' else z1
+    peak = max(abs(sz - edge_z) for (sx, sz) in stations)
+    sec = None
+    if outer_section is not None:
+        sec = [(u, min(v, thickness)) for (u, v) in outer_section]
+        if sec[-1][1] < thickness - 1e-9:
+            sec.append((sec[-1][0], thickness))
+        u_max = max(u for u, v in sec)
+        # The curve eats into the rail: the profile must fit the
+        # material left above (below) the peak.
+        if (u_max >= (z1 - z0) - peak - tol
+                or (int(on_l) + int(on_r)) * u_max >= (x1 - x0) - tol):
+            sec = None
+    if sec is None:
+        sec = [(0.0, 0.0), (0.0, thickness)]
+    n = len(sec)
+    slot = _PART_MAT_SLOT[part['key']]
+
+    rings = []
+
+    def ring_at(px, pz, ox, oz):
+        base = len(verts)
+        for (u, v) in sec:
+            verts.append((pz + oz * u, -(px + ox * u), thickness - v))
+        rings.append(base)
+
+    corners = ((x0, z0), (x1, z0), (x1, z1), (x0, z1))
+    dirs = ((1.0, 1.0), (-1.0, 1.0), (-1.0, -1.0), (1.0, -1.0))
+    gate_x = (on_l, on_r, on_r, on_l)
+    gate_z = (on_b, on_b, on_t, on_t)
+    for c in range(4):
+        (cx, cz), (dx, dz) = corners[c], dirs[c]
+        ring_at(cx, cz,
+                dx if gate_x[c] else 0.0,
+                dz if gate_z[c] else 0.0)
+        if c == 0 and side == 'TOP':
+            for (sx, sz) in stations:
+                ring_at(sx, sz, 0.0, 0.0)
+        elif c == 2 and side == 'BOTTOM':
+            for (sx, sz) in reversed(stations):
+                ring_at(sx, sz, 0.0, 0.0)
+    m = len(rings)
+    for i in range(m):
+        a = rings[i]
+        b = rings[(i + 1) % m]
+        for k in range(n - 1):
+            faces.append((a + k, a + k + 1, b + k + 1, b + k))
+            slots.append(slot)
+    faces.append(tuple(rings))
+    slots.append(slot)
+    faces.append(tuple(r + n - 1 for r in reversed(rings)))
+    slots.append(slot)
+    return True
+
+
 def build_door_mesh(mesh, info, width, height, thickness, materials=None,
                     outer_section=None, inner_section=None,
                     panel_section=None, inner_rail_section=None,
                     inner_stile_section=None, member_section=None,
                     applied_section=None, applied_scope='ALL',
-                    panel_grooves=None, mullion=None):
+                    panel_grooves=None, mullion=None, shape=None):
     """Replace ``mesh``'s geometry with the door built as static boxes
     in front-cutpart local space: the door height runs along +X from
     the bottom edge at x=0, the width along -Y (a front cutpart with
@@ -814,6 +1058,14 @@ def build_door_mesh(mesh, info, width, height, thickness, materials=None,
     lie on the door outline (_emit_edge_profiled_box), falling back to
     square edges per part when the section doesn't fit.
 
+    ``shape`` (dict(curve='ARCH'|'CROWN', double=bool, rise=<m cap>))
+    arches the top opening edge -- and the bottom for the Double
+    shapes -- per top/bottom-row cell: the rails' opening edges follow
+    the curve (_emit_shaped_rail), flat panels become shaped prisms,
+    raised panels and sticking strips sweep the curved perimeter, and
+    mullion bars clip under it. The caller widens the shaped rails by
+    the peak rise so the catalog rail width survives at the crest.
+
     ``materials`` is an optional (stile, rail, panel) triple assigned
     as the mesh's material slots; face material indices are set either
     way (mid stiles index as stiles, mid rails as rails). Zero-size
@@ -828,22 +1080,83 @@ def build_door_mesh(mesh, info, width, height, thickness, materials=None,
         verts = []
         faces = []
         face_slots = []
+    parts = evaluate_layout(info, width, height)
+    # Shaped (arched) top / bottom opening edges: one curve per cell in
+    # the top row (and bottom row for the Double shapes), the rails'
+    # opening edges following the same polylines. shape['rise'] caps
+    # the rise at the band the caller widened the rail by.
+    shaped_top = {}
+    shaped_bottom = {}
+    top_rail_segs = []
+    bottom_rail_segs = []
+    if (shape is not None and not mitered
+            and info.get('door_type') != 'SLAB'):
+        curve = shape.get('curve', 'ARCH')
+        cap = shape.get('rise')
+        panels = [p for p in parts if p['key'] == 'panel'
+                  and p['x1'] > p['x0'] and p['z1'] > p['z0']]
+        rows = []
+        if panels:
+            z_top = max(p['z1'] for p in panels)
+            rows.append(('top', [p for p in panels
+                                 if abs(p['z1'] - z_top) < 1e-6]))
+            if shape.get('double'):
+                z_bot = min(p['z0'] for p in panels)
+                rows.append(('bottom', [p for p in panels
+                                        if abs(p['z0'] - z_bot) < 1e-6]))
+        for where, row in rows:
+            for p in sorted(row, key=lambda q: q['x0']):
+                w = p['x1'] - p['x0']
+                rise = shape_rise(curve, w)
+                if cap is not None:
+                    rise = min(rise, cap)
+                c = _shape_curve_pts(curve, w, rise)
+                if not c:
+                    continue
+                if where == 'top':
+                    pts = [(p['x0'] + x, p['z1'] + r) for (x, r) in c]
+                    shaped_top[id(p)] = pts
+                    top_rail_segs.append(pts)
+                else:
+                    pts = [(p['x0'] + x, p['z0'] - r) for (x, r) in c]
+                    shaped_bottom[id(p)] = pts
+                    bottom_rail_segs.append(pts)
     cells = []
-    for part in evaluate_layout(info, width, height):
+    for part in parts:
         if mitered and part['key'] != 'panel':
             continue
         if part['x1'] - part['x0'] <= 0.0 or part['z1'] - part['z0'] <= 0.0:
             continue
         if part['key'] == 'panel':
             cells.append(part)
+        t_pts = shaped_top.get(id(part))
+        b_pts = shaped_bottom.get(id(part))
         if (part['key'] == 'panel' and panel_section is not None
                 and _emit_raised_panel(verts, faces, face_slots, part,
-                                       thickness, panel_section)):
+                                       thickness, panel_section,
+                                       t_pts, b_pts)):
             continue
         if (part['key'] == 'panel' and panel_section is None
                 and panel_grooves is not None
+                and not t_pts and not b_pts
                 and _emit_grooved_panel(verts, faces, face_slots, part,
                                         thickness, panel_grooves)):
+            continue
+        # Shaped flat cell (grooved kinds fall back here too -- the
+        # groove prism can't take a curved top yet).
+        if (part['key'] == 'panel' and (t_pts or b_pts)
+                and _emit_shaped_panel(verts, faces, face_slots, part,
+                                       thickness, t_pts, b_pts)):
+            continue
+        if (part['key'] == 'top_rail' and top_rail_segs
+                and _emit_shaped_rail(verts, faces, face_slots, part,
+                                      thickness, top_rail_segs, 'TOP',
+                                      outer_section, width, height)):
+            continue
+        if (part['key'] == 'bottom_rail' and bottom_rail_segs
+                and _emit_shaped_rail(verts, faces, face_slots, part,
+                                      thickness, bottom_rail_segs, 'BOTTOM',
+                                      outer_section, width, height)):
             continue
         if (outer_section is not None and not mitered
                 and part['key'] in _OUTLINE_EDGE_KEYS
@@ -874,7 +1187,9 @@ def build_door_mesh(mesh, info, width, height, thickness, materials=None,
         ls = inner_stile_section or inner_section or inner_rail_section
         for part in cells:
             _emit_strip_rings(verts, faces, face_slots, part, thickness,
-                              lr, ls)
+                              lr, ls,
+                              top_pts=shaped_top.get(id(part)),
+                              bottom_pts=shaped_bottom.get(id(part)))
     # Applied decorative molding: another loop around each opening,
     # seated proud on the door face (door_profiles.applied_strip).
     if (not mitered and info.get('door_type') != 'SLAB'
@@ -889,7 +1204,9 @@ def build_door_mesh(mesh, info, width, height, thickness, materials=None,
     if info.get('door_type') != 'SLAB' and mullion is not None:
         for part in cells:
             _emit_mullion_bars(verts, faces, face_slots, part, thickness,
-                               mullion)
+                               mullion,
+                               top_pts=shaped_top.get(id(part)),
+                               bottom_pts=shaped_bottom.get(id(part)))
     mesh.clear_geometry()
     mesh.from_pydata(verts, [], faces)
     # Slots first: clearing materials drops the material_index layer.

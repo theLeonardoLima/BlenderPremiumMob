@@ -5227,6 +5227,28 @@ def panel_kind(name):
     return PANEL_KINDS.get((name or '').strip(), _PANEL_KIND_FLAT)
 
 
+# === Shape construction kinds ===
+# Curved-top geometry per catalog shape-choice name (DOOR_CASCADE
+# middle level). 'curve' picks the door_builder curve family (ARCH =
+# circular eyebrow, CROWN = cathedral ogee); 'double' mirrors it onto
+# the bottom rail; 'twin' forces a mid stile so each lite gets its own
+# arch. Names not listed (Square, the slab-series plank widths / grain
+# orientations, Tudor pending its curve) build square.
+SHAPE_KINDS = {
+    'Arch': {'curve': 'ARCH'},
+    'Crown': {'curve': 'CROWN'},
+    'Double Arch': {'curve': 'ARCH', 'double': True},
+    'Double Crown': {'curve': 'CROWN', 'double': True},
+    'Twin': {'curve': 'ARCH', 'twin': True},
+}
+
+
+def shape_kind(name):
+    """Kind dict for a catalog shape-choice name, or None for square /
+    non-curved shapes."""
+    return SHAPE_KINDS.get((name or '').strip())
+
+
 # === Special effects (baked from the upcharge compatibility matrix) ===
 # Available effects are gated by the style's wood AND color; the Add
 # Special Effects dialog shows the intersection of the two.

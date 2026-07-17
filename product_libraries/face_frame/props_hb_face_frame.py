@@ -462,6 +462,10 @@ def update_front_shape(self, context):
     items = table.get((self.front_series, self.front_shape), [])
     if items:
         _set_enum_safe(self, "front_panel", items[0][0])
+    # The shape drives geometry (arched tops); the panel reset above
+    # only propagates when the panel value actually changes, so push
+    # explicitly -- shape-only changes must rebuild fronts too.
+    _propagate_door_style(self, context)
 
 
 def update_front_panel(self, context):
@@ -3375,6 +3379,30 @@ class Face_Frame_Door_Style(PropertyGroup):
                     eff_top_rail = eff_bottom_rail = door_rail
                     rail_matched = True
 
+        # Shaped (arched) top edge: widen the shaped rail(s) by the
+        # curve's peak rise so the catalog rail width survives at the
+        # crest; the geometry follows in build_door_mesh (shape=).
+        # Twin forces a mid stile below (one arch per lite). Mitered
+        # members keep their own profile -- the catalog offers no
+        # shapes there.
+        shape_k = None
+        shape_rise_cap = 0.0
+        if member_sec is None:
+            shape_k = style_options.shape_kind(self.front_shape)
+        if shape_k is not None:
+            _msw = getattr(self, 'mid_stile_width', 0.0) or self.stile_width
+            _n_ms = 1 if shape_k.get('twin') else 0
+            _cell_w = (front_width - eff_left_stile - eff_right_stile
+                       - _n_ms * _msw) / (_n_ms + 1)
+            if _cell_w > units.inch(2):
+                shape_rise_cap = door_builder.shape_rise(
+                    shape_k['curve'], _cell_w)
+                eff_top_rail += shape_rise_cap
+                if shape_k.get('double'):
+                    eff_bottom_rail += shape_rise_cap
+            else:
+                shape_k = None
+
         min_width = eff_left_stile + eff_right_stile + units.inch(1)
         min_height = eff_top_rail + eff_bottom_rail + units.inch(1)
         if ovr_mid_mode != 'NONE' and (self.add_mid_rail or needs_auto_mid_rail):
@@ -3492,6 +3520,10 @@ class Face_Frame_Door_Style(PropertyGroup):
                 mid_rail_z=(((0.5, 0.0) if mid_center else (0.0, mid_loc))
                             if mid_on else None),
             )
+            if shape_k is not None and shape_k.get('twin') \
+                    and not info.get('mid_stile_count'):
+                info['mid_stile_count'] = 1
+                info['mid_stile_width'] = _msw
             # Profile sweeps: with profiles unlocked a custom curve
             # pointer wins; else the named pick (series-derived when
             # locked) from the shipped library. Anything broken or
@@ -3619,7 +3651,10 @@ class Face_Frame_Door_Style(PropertyGroup):
                                          applied_section=applied_sec,
                                          applied_scope=applied_scope,
                                          panel_grooves=panel_grv,
-                                         mullion=mull)
+                                         mullion=mull,
+                                         shape=(dict(shape_k,
+                                                     rise=shape_rise_cap)
+                                                if shape_k else None))
             cut = _front_cutpart_mod(front_obj)
             if cut is not None:
                 cut.show_viewport = False
