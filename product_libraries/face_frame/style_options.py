@@ -5178,11 +5178,12 @@ def recessed_panel_spec(series):
 #   RAISED  -- raised panel (series raise profile + the style's panel
 #              fields)
 #   GLASS   -- glass center panel (3D glass material + the 2D drawing
-#              hatch). A 'mullion' entry adds straight bars over the
-#              glass (door_builder._mullion_layout pattern name; an
-#              optional 'bar_width' overrides the 7/8" default). The
-#              curved mullions (Gothic / Double Gothic / Double Bow /
-#              Interloken) read as plain glass until phase 4.
+#              hatch). A 'mullion' entry adds bars over the glass:
+#              straight patterns via door_builder._mullion_layout,
+#              curved ones (Gothic / Double Gothic / Double Bow /
+#              Interloken) via centerlines traced from the catalog
+#              drawings. An optional 'bar_width' overrides the 7/8"
+#              default.
 #   GROOVED -- flat recessed panel with vertical grooves cut into the
 #              face: 'style' BEAD (quirk-bead beadboard) or KERF
 #              (square kerf slots), 'spacing' in inches.
@@ -5201,10 +5202,10 @@ PANEL_KINDS = {
     # same geometry.
     'Prairie Mullion up to 30"': {'kind': 'GLASS', 'mullion': 'PRAIRIE'},
     'Prairie Mullion up to 48"': {'kind': 'GLASS', 'mullion': 'PRAIRIE'},
-    'Gothic Mullion': {'kind': 'GLASS'},
-    'Double Gothic Mullion': {'kind': 'GLASS'},
-    'Double Bow Mullion': {'kind': 'GLASS'},
-    'Interloken Mullion': {'kind': 'GLASS'},
+    'Gothic Mullion': {'kind': 'GLASS', 'mullion': 'GOTHIC'},
+    'Double Gothic Mullion': {'kind': 'GLASS', 'mullion': 'DBL_GOTHIC'},
+    'Double Bow Mullion': {'kind': 'GLASS', 'mullion': 'DBL_BOW'},
+    'Interloken Mullion': {'kind': 'GLASS', 'mullion': 'INTERLOKEN'},
     'X-Mullion': {'kind': 'GLASS', 'mullion': 'X'},
     '3/8" MDF Reverse Panel': {'kind': 'FLAT', 'thickness': 0.375},
     'MDF Beadboard': {'kind': 'GROOVED', 'style': 'BEAD', 'spacing': 1.6},
