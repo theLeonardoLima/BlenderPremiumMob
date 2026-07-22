@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Blender temporaries
+*.blend
+*.blend1
+*.blend2
+
+# Tool & Agent folders
+.agent/
+.agents/
+.claude/
+.codex/
+.reversa/
+_reversa_sdd/
+
+# Extra files
+manual-treinamento-promob.pdf
+blendertomob.zip
