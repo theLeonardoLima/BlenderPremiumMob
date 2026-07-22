@@ -392,6 +392,16 @@ class BTM_PG_ComponentConfig(bpy.types.PropertyGroup):
 # ---------------------------------------------------------------------------
 
 class BTM_PG_SceneSettings(bpy.types.PropertyGroup):
+    btm_active_tab: bpy.props.EnumProperty(
+        name="Aba Ativa",
+        items=[
+            ('CONSTRUTOR', "CONSTRUTOR", "Ferramentas de desenho e construção", 'GREASEPENCIL', 0),
+            ('GALERIA', "GALERIA", "Galeria de móveis e componentes", 'ASSET_MANAGER', 1),
+            ('CONFIGURACOES', "CONFIGURAÇÕES", "Configurações do projeto e dimensões", 'PREFERENCES', 2),
+        ],
+        default='CONSTRUTOR'
+    )
+
     # Dropdown de Unidade do add-on
     btm_unit: bpy.props.EnumProperty(
         name="Unidade",
