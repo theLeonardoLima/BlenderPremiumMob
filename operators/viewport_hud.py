@@ -401,22 +401,38 @@ _MODAL_TOGGLE_BUTTONS = [
 ]
 
 
+class _WallEditorButton:
+    """Button in HUD for Editor de Parede 🧱"""
+    @property
+    def width(self):
+        return int(130 * _s())
+
+    def visible(self, context):
+        return True
+
+    def draw(self, shader, font_id, rect, context, mouse):
+        rx, ry, rw, rh = rect
+        hovered = point_in_rect(mouse[0], mouse[1], rect)
+        draw_rect(shader, rx, ry, rw, rh, BTN_HOVER_BG if hovered else BTN_BG)
+        draw_rect_outline(shader, rx, ry, rw, rh, BTN_BORDER)
+        _draw_centered_text(font_id, rect, FONT_SIZE * _s(), TEXT_NORMAL, "🧱 Editor de Parede")
+
+    def on_click(self, context, area, region):
+        bpy.ops.home_builder_walls.interactive_wall_editor('INVOKE_DEFAULT')
+
+
+_WALL_EDITOR_BUTTON = _WallEditorButton()
+
+
 def _rows():
     """Centered HUD rows, top to bottom. Each row is a list of widget groups;
     groups are separated by GROUP_GAP, widgets within a group by BTN_GAP, and
-    the whole row is centered along the top of the viewport.
-
-    The scene-navigator button is NOT in these rows -- compute_layout places
-    it separately, left-anchored just past the toolbar.
-
-    The first row holds the selection-mode picker; the second holds the grab
-    toggles. The toggles' visible() checks gate on selection mode and
-    modal-active state, so that row contains at most one rendered button at a
-    time (or zero, in which case compute_layout skips the row entirely)."""
+    the whole row is centered along the top of the viewport."""
     return [
-        [_MODE_BUTTONS],
+        [[_WALL_EDITOR_BUTTON] + _MODE_BUTTONS],
         [_MODAL_TOGGLE_BUTTONS],
     ]
+
 
 
 def compute_layout(context, area):

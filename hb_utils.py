@@ -60,6 +60,19 @@ def gn_input_data_path(mod, identifier):
     return 'modifiers["%s"]["%s"]' % (mod.name, identifier)
 
 
+def get_builtin_shader(name_3d='UNIFORM_COLOR', name_2d='2D_UNIFORM_COLOR'):
+    """Safe GPU shader retriever across Blender 3.6, 4.x, 5.0.2, and 5.1+."""
+    import gpu
+    try:
+        return gpu.shader.from_builtin(name_3d)
+    except Exception:
+        try:
+            return gpu.shader.from_builtin(name_2d)
+        except Exception:
+            return gpu.shader.from_builtin('UNIFORM_COLOR')
+
+
+
 # =============================================================================
 # BASE POINT HELPER FUNCTIONS
 # =============================================================================

@@ -62,4 +62,55 @@ def unit_to_string(unit_settings, value):
             rounded_inches = round_to_sixteenth(inches)
             return format_number(rounded_inches) + '"'
     else:
-        return format_number(round(value, 4))    
+        return format_number(round(value, 4))
+
+
+# =============================================================================
+# DYNAMIC UNIT CONVERSION HELPERS (mm, cm, m, in, ft)
+# =============================================================================
+
+UNIT_CONVERSION_TO_METERS = {
+    'MM': 0.001,
+    'CM': 0.01,
+    'M': 1.0,
+    'IN': 0.0254,
+    'FT': 0.3048,
+}
+
+UNIT_LABELS = {
+    'MM': 'mm',
+    'CM': 'cm',
+    'M': 'm',
+    'IN': 'in',
+    'FT': 'ft',
+}
+
+
+def convert_to_meters(value, unit_code='MM'):
+    """Convert a value in unit_code ('MM','CM','M','IN','FT') to meters."""
+    scale = UNIT_CONVERSION_TO_METERS.get(unit_code.upper(), 0.001)
+    return value * scale
+
+
+def convert_from_meters(meters_val, unit_code='MM'):
+    """Convert a value in meters to unit_code ('MM','CM','M','IN','FT')."""
+    scale = UNIT_CONVERSION_TO_METERS.get(unit_code.upper(), 0.001)
+    if scale == 0:
+        return meters_val
+    return meters_val / scale
+
+
+def format_length_unit(meters_val, unit_code='MM'):
+    """Format a value in meters into a string in unit_code representation."""
+    code = unit_code.upper()
+    val = convert_from_meters(meters_val, code)
+    label = UNIT_LABELS.get(code, 'mm')
+    if code in ('MM', 'CM'):
+        return f"{format_number(round(val, 2))} {label}"
+    elif code == 'M':
+        return f"{format_number(round(val, 3))} {label}"
+    elif code == 'IN':
+        return f"{format_number(round(val, 3))} {label}"
+    elif code == 'FT':
+        return f"{format_number(round(val, 3))} {label}"
+    return f"{format_number(round(val, 3))} {label}"

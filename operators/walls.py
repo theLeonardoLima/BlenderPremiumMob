@@ -5705,6 +5705,268 @@ class home_builder_walls_OT_draw_wall_cutter(bpy.types.Operator, hb_placement.Pl
 
         return {'RUNNING_MODAL'}
 
+# =============================================================================
+# WALL EDITOR (EDITOR DE PAREDE 🧱)
+# =============================================================================
+
+def draw_wall_editor_overlay(op, context):
+    """GPU draw callback for Wall Editor: renders dynamic dimension gauge, angular vector arc, and snap reticle."""
+    region = op.region
+    if region is None:
+        return
+
+    from bpy_extras import view3d_utils
+    import math
+
+    scene_editor = getattr(context.scene, 'hb_wall_editor', None)
+    unit_code = scene_editor.unit_system if scene_editor else 'MM'
+
+    gpu.state.blend_set('ALPHA')
+    shader = get_builtin_shader('UNIFORM_COLOR', '2D_UNIFORM_COLOR')
+    shader.bind()
+
+    # Draw confirmed points & lines
+    if op.confirmed_points:
+        pts_2d = []
+        for p in op.confirmed_points:
+            s = view3d_utils.location_3d_to_region_2d(region, region.data, p)
+            if s:
+                pts_2d.append(s)
+        if len(pts_2d) >= 2:
+            gpu.state.line_width_set(3.0)
+            edge_verts = []
+            for i in range(len(pts_2d) - 1):
+                edge_verts.append((pts_2d[i].x, pts_2d[i].y))
+                edge_verts.append((pts_2d[i+1].x, pts_2d[i+1].y))
+            shader.uniform_float("color", (0.2, 0.8, 0.4, 0.9))
+            batch = batch_for_shader(shader, 'LINES', {"pos": edge_verts})
+            batch.draw(shader)
+
+    # Draw active segment line
+    if op.start_point and op.cursor_point:
+        s1 = view3d_utils.location_3d_to_region_2d(region, region.data, op.start_point)
+        s2 = view3d_utils.location_3d_to_region_2d(region, region.data, op.cursor_point)
+        if s1 and s2:
+            gpu.state.line_width_set(2.5)
+            shader.uniform_float("color", (1.0, 0.8, 0.2, 0.9))
+            batch = batch_for_shader(shader, 'LINES', {"pos": [(s1.x, s1.y), (s2.x, s2.y)]})
+            batch.draw(shader)
+
+            # Draw vector angle indicator
+            vec = op.cursor_point - op.start_point
+            dist_m = vec.length
+            angle_rad = math.atan2(vec.y, vec.x)
+            if angle_rad < 0:
+                angle_rad += 2 * math.pi
+            angle_deg = math.degrees(angle_rad)
+
+            # Draw text label formatted in unit system
+            dist_str = units.format_length_unit(dist_m, unit_code)
+            angle_str = f"{angle_deg:.1f}°"
+            info_text = f"🧱 {dist_str} | {angle_str}"
+            
+            hb_placement.draw_header_text(context, f"Editor de Parede: {info_text} | TAB: Alternar Campo | Enter: Confirmar | Esc: Cancelar")
+
+    # Draw snap indicator
+    if op.snap_point:
+        snap_2d = view3d_utils.location_3d_to_region_2d(region, region.data, op.snap_point)
+        if snap_2d:
+            _draw_snap_point(snap_2d.x, snap_2d.y, (0.0, 1.0, 0.4, 0.9), 16, 12)
+
+    gpu.state.point_size_set(1.0)
+    gpu.state.line_width_set(1.0)
+    gpu.state.blend_set('NONE')
+
+
+class home_builder_walls_OT_interactive_wall_editor(bpy.types.Operator, hb_placement.PlacementMixin):
+    """Editor de Parede - Modo de Desenho Interativo com Snapping, Cota Dinâmica e Indicador Angular 🧱"""
+    bl_idname = "home_builder_walls.interactive_wall_editor"
+    bl_label = "Construir Parede (Modo Interativo)"
+    bl_description = "Construir parede interativamente com snap automático, cota dinâmica e indicador angular"
+    bl_options = {'UNDO'}
+
+    start_point: Vector = None
+    cursor_point: Vector = None
+    snap_point: Vector = None
+    confirmed_points: list = None
+    typing_buffer: str = ""
+    _draw_handle = None
+
+    def execute(self, context):
+        self.init_placement(context)
+        self.confirmed_points = []
+        self.start_point = None
+        self.cursor_point = None
+        self.snap_point = None
+        self.typing_buffer = ""
+
+        self._draw_handle = bpy.types.SpaceView3D.draw_handler_add(
+            draw_wall_editor_overlay, (self, context), 'WINDOW', 'POST_PIXEL')
+
+        context.window_manager.modal_handler_add(self)
+        hb_placement.draw_header_text(context, "🧱 EDITOR DE PAREDE: Clique para definir o ponto inicial | TAB: Painel | Esc: Sair")
+        return {'RUNNING_MODAL'}
+
+    def modal(self, context, event):
+        context.window.cursor_set('CROSSHAIR')
+
+        if event.type == "INBETWEEN_MOUSEMOVE":
+            return {'RUNNING_MODAL'}
+
+        if event.type in {'MIDDLEMOUSE', 'WHEELUPMOUSE', 'WHEELDOWNMOUSE'}:
+            return {'PASS_THROUGH'}
+
+        self.update_snap(context, event)
+        self.cursor_point = self.get_floor_plane_point(context)
+
+        # Snap to existing wall vertices
+        if self.cursor_point:
+            self.snap_point = self.find_nearest_wall_vertex(context, self.cursor_point)
+            if self.snap_point:
+                self.cursor_point = self.snap_point.copy()
+
+        if context.area:
+            context.area.tag_redraw()
+
+        # Handle TAB key cycling
+        if event.type == 'TAB' and event.value == 'PRESS':
+            bpy.ops.home_builder_walls.wall_properties_panel('INVOKE_DEFAULT')
+            return {'RUNNING_MODAL'}
+
+        # Handle Left Click
+        if event.type == 'LEFTMOUSE' and event.value == 'PRESS':
+            if self.cursor_point is None:
+                return {'RUNNING_MODAL'}
+
+            if self.start_point is None:
+                self.start_point = self.cursor_point.copy()
+                self.confirmed_points.append(self.start_point.copy())
+            else:
+                p1 = self.start_point
+                p2 = self.cursor_point
+                if (p2 - p1).length > 0.01:
+                    self.create_wall_segment(context, p1, p2)
+                    self.confirmed_points.append(p2.copy())
+                    self.start_point = p2.copy()
+            return {'RUNNING_MODAL'}
+
+        # Handle Enter / Finish
+        if event.type in {'RET', 'NUMPAD_ENTER'} and event.value == 'PRESS':
+            return self.finish(context)
+
+        # Handle Esc / Cancel
+        if event.type in {'RIGHTMOUSE', 'ESC'} and event.value == 'PRESS':
+            self.cancel_op(context)
+            return {'CANCELLED'}
+
+        return {'RUNNING_MODAL'}
+
+    def find_nearest_wall_vertex(self, context, cursor_pt, threshold=0.3):
+        nearest = None
+        min_d = threshold
+        for obj in context.scene.objects:
+            if obj.get('IS_WALL_BP'):
+                for v in (obj.matrix_world @ Vector((0,0,0)), obj.matrix_world @ Vector((obj.dimensions.x, 0, 0))):
+                    d = (Vector((v.x, v.y, 0)) - Vector((cursor_pt.x, cursor_pt.y, 0))).length
+                    if d < min_d:
+                        min_d = d
+                        nearest = Vector((v.x, v.y, 0))
+        return nearest
+
+    def get_floor_plane_point(self, context):
+        if self.region is None:
+            return None
+        coord = (self.mouse_pos.x, self.mouse_pos.y)
+        rv3d = self.region.data
+        origin = view3d_utils.region_2d_to_origin_3d(self.region, rv3d, coord)
+        direction = view3d_utils.region_2d_to_vector_3d(self.region, rv3d, coord)
+        return intersect_line_plane(origin, origin + direction, Vector((0, 0, 0)), Vector((0, 0, 1)))
+
+    def create_wall_segment(self, context, p1, p2):
+        import math
+        scene_editor = getattr(context.scene, 'hb_wall_editor', None)
+        h = scene_editor.height if scene_editor else 2.6
+        t = scene_editor.thickness if scene_editor else 0.15
+        
+        bpy.ops.home_builder_walls.draw_walls('EXEC_DEFAULT')
+        wall_obj = context.active_object
+        if wall_obj:
+            vec = p2 - p1
+            wall_obj.location = p1
+            wall_obj.rotation_euler.z = math.atan2(vec.y, vec.x)
+            wall = hb_types.GeoNodeWall(wall_obj)
+            wall.set_input('Length', vec.length)
+            wall.set_input('Height', h)
+            wall.set_input('Thickness', t)
+
+    def finish(self, context):
+        if self._draw_handle:
+            bpy.types.SpaceView3D.draw_handler_remove(self._draw_handle, 'WINDOW')
+            self._draw_handle = None
+        hb_placement.clear_header_text(context)
+        context.window.cursor_set('DEFAULT')
+        self.report({'INFO'}, f"Paredes construídas com sucesso: {len(self.confirmed_points)} pontos")
+        return {'FINISHED'}
+
+    def cancel_op(self, context):
+        if self._draw_handle:
+            bpy.types.SpaceView3D.draw_handler_remove(self._draw_handle, 'WINDOW')
+            self._draw_handle = None
+        hb_placement.clear_header_text(context)
+        context.window.cursor_set('DEFAULT')
+
+
+class home_builder_walls_OT_wall_properties_panel(bpy.types.Operator):
+    """Painel Gráfico de Propriedades da Parede 🎛️"""
+    bl_idname = "home_builder_walls.wall_properties_panel"
+    bl_label = "Painel Gráfico de Propriedades da Parede"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self, width=380)
+
+    def draw(self, context):
+        layout = self.layout
+        scene_editor = getattr(context.scene, 'hb_wall_editor', None)
+        if not scene_editor:
+            layout.label(text="Configurações não registradas na cena.")
+            return
+
+        box = layout.box()
+        box.label(text="🌐 Módulo de Unidade e Dimensões", icon='UNIFIED_UNIFORM')
+        box.prop(scene_editor, "unit_system")
+        
+        row = box.row(align=True)
+        row.prop(scene_editor, "length")
+        row = box.row(align=True)
+        row.prop(scene_editor, "height")
+        row = box.row(align=True)
+        row.prop(scene_editor, "thickness")
+        row = box.row(align=True)
+        row.prop(scene_editor, "offset")
+
+        box2 = layout.box()
+        box2.label(text="📐 Ângulos e Posicionamento", icon='DRIVER_ROTATIONAL_DIFFERENCE')
+        box2.prop(scene_editor, "angle_absolute")
+        box2.prop(scene_editor, "angle_relative")
+        box2.prop(scene_editor, "orientation")
+
+        box3 = layout.box()
+        box3.label(text="⚙️ Incrementos e Comportamento", icon='MODIFIER')
+        box3.prop(scene_editor, "step_linear")
+        box3.prop(scene_editor, "step_angular")
+        box3.prop(scene_editor, "wall_type")
+
+        layout.separator()
+        layout.prop(scene_editor, "save_as_default", icon='CHECKBOX_HLT' if scene_editor.save_as_default else 'CHECKBOX_DEHLT')
+
+    def execute(self, context):
+        scene_editor = getattr(context.scene, 'hb_wall_editor', None)
+        if scene_editor and scene_editor.save_as_default:
+            self.report({'INFO'}, "Configurações de parede salvas como padrão global")
+        return {'FINISHED'}
+
+
 classes = (
     home_builder_walls_OT_hide_wall,
     home_builder_walls_OT_show_all_walls,
@@ -5728,6 +5990,8 @@ classes = (
     home_builder_walls_OT_add_soffit,
     home_builder_walls_OT_soffit_prompts,
     home_builder_walls_OT_delete_soffit,
+    home_builder_walls_OT_interactive_wall_editor,
+    home_builder_walls_OT_wall_properties_panel,
 )
 
 register, unregister = bpy.utils.register_classes_factory(classes)

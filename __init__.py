@@ -35,7 +35,7 @@ bl_info = {
     "name": "Home Builder 5",
     "author": "Andrew Peel",
     "version": (5, 1, 31),
-    "blender": (5, 0, 0),
+    "blender": (3, 6, 0),
     "location": "3D Viewport Sidebar",
     "description": "Library for Designing Interior Spaces",
     "warning": "",

@@ -85,3 +85,16 @@ def gn_input_data_path(mod, input_name):
     if GN_INPUTS_AS_RNA:
         return f'modifiers["{mod.name}"].properties.inputs.{ident}.value'
     return f'modifiers["{mod.name}"]["{ident}"]'
+
+
+def get_builtin_shader(name_3d='UNIFORM_COLOR', name_2d='2D_UNIFORM_COLOR'):
+    """Retorna o shader builtin de forma compatível entre Blender 3.6, 4.x e 5.x."""
+    import gpu
+    try:
+        return gpu.shader.from_builtin(name_3d)
+    except Exception:
+        try:
+            return gpu.shader.from_builtin(name_2d)
+        except Exception:
+            return gpu.shader.from_builtin('UNIFORM_COLOR')
+

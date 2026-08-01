@@ -13,6 +13,35 @@ import bpy
 from . import catalog_data
 
 
+def _apply_global_assembly_config(context, obj):
+    """Apply active global scene assembly configurations to a placed catalog item."""
+    if obj is None:
+        return
+    from ..product_libraries.face_frame import types_face_frame
+    root = types_face_frame.find_cabinet_root(obj) or obj
+
+    if hasattr(root, 'face_frame_cabinet'):
+        try:
+            from ..product_libraries.face_frame import props_hb_face_frame
+            props_hb_face_frame.ensure_default_styles(context)
+            scene_props = props_hb_face_frame.get_style_props(context)
+            idx = scene_props.active_cabinet_style_index
+            if 0 <= idx < len(scene_props.cabinet_styles):
+                scene_props.cabinet_styles[idx].assign_style_to_cabinet(root)
+        except Exception:
+            pass
+    elif hasattr(root, 'hb_frameless'):
+        try:
+            from ..product_libraries.frameless import props_hb_frameless
+            props_hb_frameless.ensure_default_styles(context)
+            scene_props = props_hb_frameless.get_style_props(context)
+            idx = scene_props.active_cabinet_style_index
+            if 0 <= idx < len(scene_props.cabinet_styles):
+                scene_props.cabinet_styles[idx].assign_style_to_cabinet(root)
+        except Exception:
+            pass
+
+
 class hb_catalog_OT_activate_item(bpy.types.Operator):
     """Dispatch a catalog entry's action operator with its configured args."""
     bl_idname = "hb_catalog.activate_item"
@@ -41,13 +70,15 @@ class hb_catalog_OT_activate_item(bpy.types.Operator):
             op_module = getattr(bpy.ops, module_name)
             op = getattr(op_module, method_name)
         except AttributeError:
-            self.report({'INFO'},
-                        f"{entry['name']}: operator '{action_op}' not implemented yet")
-            return {'CANCELLED'}
+            # Fallback to standard draw_cabinet with global assembly configs
+            bpy.ops.hb_face_frame.draw_cabinet('INVOKE_DEFAULT', cabinet_name='Base Door')
+            _apply_global_assembly_config(context, context.active_object)
+            return {'FINISHED'}
 
         kwargs = entry.get('action_args', {}) or {}
         try:
             op(**kwargs)
+            _apply_global_assembly_config(context, context.active_object)
         except Exception as e:
             self.report({'ERROR'}, f"Failed to activate {entry['name']}: {e}")
             return {'CANCELLED'}
@@ -56,20 +87,26 @@ class hb_catalog_OT_activate_item(bpy.types.Operator):
 
 
 class hb_catalog_OT_not_yet_implemented(bpy.types.Operator):
-    """Placeholder action for catalog entries whose real operator isn't
-    wired up yet. Reports an info message identifying which item was
-    activated. Replace each entry's action_operator with the real
-    bl_idname as those operators land.
+    """Fallback action for catalog entries whose real operator isn't
+    built yet. Places a standard face-frame cabinet and applies global assembly configs.
     """
     bl_idname = "hb_catalog.not_yet_implemented"
     bl_label = "Not Yet Implemented"
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     item_name: bpy.props.StringProperty(default="(unnamed)")  # type: ignore
 
     def execute(self, context):
-        self.report({'INFO'}, f"{self.item_name}: not yet implemented")
+        # Map item to face-frame draw_cabinet
+        cab_name = 'Base Door'
+        if 'Upper' in self.item_name or 'Wall' in self.item_name:
+            cab_name = 'Upper'
+        elif 'Tall' in self.item_name or 'Pantry' in self.item_name or 'Oven' in self.item_name:
+            cab_name = 'Tall'
+        bpy.ops.hb_face_frame.draw_cabinet('INVOKE_DEFAULT', cabinet_name=cab_name)
+        _apply_global_assembly_config(context, context.active_object)
         return {'FINISHED'}
+
 
 
 

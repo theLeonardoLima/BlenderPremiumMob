@@ -827,12 +827,133 @@ class Home_Builder_Window_Manager_Props(PropertyGroup):
         if hasattr(bpy.types.WindowManager, 'home_builder'):
             del bpy.types.WindowManager.home_builder
 
+class HB_Wall_Editor_Props(PropertyGroup):
+    """Propriedades globais e de instância para a ferramenta Editor de Parede."""
+    unit_system: EnumProperty(
+        name="Unidade de Medida",
+        description="Unidade selecionada para entrada e exibição dinâmica",
+        items=[
+            ('MM', "mm (Milímetros)", "Milímetros"),
+            ('CM', "cm (Centímetros)", "Centímetros"),
+            ('M', "m (Metros)", "Metros"),
+            ('IN', "in (Polegadas)", "Polegadas"),
+            ('FT', "ft (Pés)", "Pés"),
+        ],
+        default='MM'
+    ) # type: ignore
+
+    length: FloatProperty(
+        name="Comprimento",
+        description="Comprimento da parede em metros",
+        default=1.7,
+        unit='LENGTH',
+        precision=4
+    ) # type: ignore
+
+    height: FloatProperty(
+        name="Altura",
+        description="Altura da parede em metros",
+        default=2.6,
+        unit='LENGTH',
+        precision=4
+    ) # type: ignore
+
+    thickness: FloatProperty(
+        name="Espessura",
+        description="Espessura da parede em metros",
+        default=0.15,
+        unit='LENGTH',
+        precision=4
+    ) # type: ignore
+
+    offset: FloatProperty(
+        name="Afastamento",
+        description="Afastamento do chão (nível) em metros",
+        default=0.0,
+        unit='LENGTH',
+        precision=4
+    ) # type: ignore
+
+    angle_absolute: FloatProperty(
+        name="Ângulo Absoluto",
+        description="Ângulo absoluto no plano (padrão 270° - aponta para baixo)",
+        default=4.71238898,
+        unit='ANGLE',
+        precision=4
+    ) # type: ignore
+
+    angle_relative: FloatProperty(
+        name="Ângulo Relativo",
+        description="Ângulo em relação à parede anterior",
+        default=4.71238898,
+        unit='ANGLE',
+        precision=4
+    ) # type: ignore
+
+    orientation: EnumProperty(
+        name="Orientação",
+        description="Lado da espessura em relação ao eixo de desenho",
+        items=[
+            ('RIGHT', "Direita", "Espessura alinhada à direita do vetor"),
+            ('LEFT', "Esquerda", "Espessura alinhada à esquerda do vetor"),
+        ],
+        default='RIGHT'
+    ) # type: ignore
+
+    step_linear: FloatProperty(
+        name="Incr. Linear",
+        description="Passo de ajuste linear",
+        default=0.05,
+        unit='LENGTH',
+        precision=4
+    ) # type: ignore
+
+    step_angular: FloatProperty(
+        name="Incr. Angular",
+        description="Trava magnética de rotação (padrão 45°)",
+        default=0.78539816,
+        unit='ANGLE',
+        precision=4
+    ) # type: ignore
+
+    wall_type: EnumProperty(
+        name="Tipo da Parede",
+        description="Tipo de estrutura da parede",
+        items=[
+            ('NORMAL', "Normal", "Parede alvenaria / padrão"),
+            ('DRYWALL', "Drywall", "Parede gesso drywall"),
+        ],
+        default='NORMAL'
+    ) # type: ignore
+
+    save_as_default: BoolProperty(
+        name="Utilizar valores como padrão",
+        description="Salvar estes valores como padrão para as próximas paredes",
+        default=False
+    ) # type: ignore
+
+    @classmethod
+    def register(cls):
+        bpy.types.Scene.hb_wall_editor = PointerProperty(
+            name="Wall Editor Props",
+            description="Propriedades do Editor de Parede",
+            type=cls,
+        )
+        
+    @classmethod
+    def unregister(cls):
+        if hasattr(bpy.types.Scene, 'hb_wall_editor'):
+            del bpy.types.Scene.hb_wall_editor
+
+
 classes = (
     Calculator_Prompt,
     Calculator,
     Home_Builder_Object_Props,
     Home_Builder_Scene_Props,
     Home_Builder_Window_Manager_Props,
+    HB_Wall_Editor_Props,
 )
 
-register, unregister = bpy.utils.register_classes_factory(classes)                     
+register, unregister = bpy.utils.register_classes_factory(classes)
+                     
