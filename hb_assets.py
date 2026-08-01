@@ -245,7 +245,7 @@ def refresh_user_libraries():
     _cleanup_orphaned_libraries()
 
 
-class HB_AssetLibraryEntry(bpy.types.PropertyGroup):
+class BTM_AssetLibraryEntry(bpy.types.PropertyGroup):
     """A single user asset library entry."""
     name = bpy.props.StringProperty(
         name="Name",
@@ -392,7 +392,7 @@ class HB_OT_assign_asset_catalog(bpy.types.Operator):
 
 
 classes = (
-    HB_AssetLibraryEntry,
+    BTM_AssetLibraryEntry,
     HB_UL_asset_libraries,
     HB_OT_add_asset_library,
     HB_OT_remove_asset_library,
@@ -404,12 +404,8 @@ classes = (
 
 def register():
     for cls in classes:
-        reg_cls = getattr(bpy.types, cls.__name__, None)
-        if reg_cls:
-            try:
-                bpy.utils.unregister_class(reg_cls)
-            except Exception:
-                pass
+        if hasattr(bpy.types, cls.__name__):
+            continue
         try:
             bpy.utils.register_class(cls)
         except Exception:
@@ -422,10 +418,9 @@ def unregister():
     except Exception:
         pass
     for cls in reversed(classes):
-        reg_cls = getattr(bpy.types, cls.__name__, None)
-        if reg_cls:
+        if hasattr(bpy.types, cls.__name__):
             try:
-                bpy.utils.unregister_class(reg_cls)
+                bpy.utils.unregister_class(getattr(bpy.types, cls.__name__))
             except Exception:
                 pass
 

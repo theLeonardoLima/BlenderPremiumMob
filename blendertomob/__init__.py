@@ -148,7 +148,7 @@ class BTM_AddonPreferences(bpy.types.AddonPreferences):
         default=True
     )  # type: ignore
 
-    asset_libraries = bpy.props.CollectionProperty(type=hb_assets.HB_AssetLibraryEntry)  # type: ignore
+    asset_libraries = bpy.props.CollectionProperty(type=hb_assets.BTM_AssetLibraryEntry)  # type: ignore
     asset_libraries_index = bpy.props.IntProperty(name="Biblioteca Ativa", default=0)  # type: ignore
 
     def draw(self, context):
@@ -187,16 +187,11 @@ class BTM_AddonPreferences(bpy.types.AddonPreferences):
 def register():
     # Register assets first
     hb_assets.register()
-    reg_prefs = getattr(bpy.types, BTM_AddonPreferences.__name__, None)
-    if reg_prefs:
+    if not hasattr(bpy.types, BTM_AddonPreferences.__name__):
         try:
-            bpy.utils.unregister_class(reg_prefs)
+            bpy.utils.register_class(BTM_AddonPreferences)
         except Exception:
             pass
-    try:
-        bpy.utils.register_class(BTM_AddonPreferences)
-    except Exception:
-        pass
 
     # Register modern data layer and translation
     data.register()

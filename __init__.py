@@ -206,7 +206,7 @@ class Home_Builder_AddonPreferences(bpy.types.AddonPreferences):
     )  # type: ignore
 
     asset_libraries = bpy.props.CollectionProperty(
-		type=hb_assets.HB_AssetLibraryEntry,
+		type=hb_assets.BTM_AssetLibraryEntry,
 	)  # type: ignore
 
     asset_libraries_index = bpy.props.IntProperty(
@@ -249,16 +249,11 @@ class Home_Builder_AddonPreferences(bpy.types.AddonPreferences):
 
 def register():
     hb_assets.register()
-    reg_prefs = getattr(bpy.types, Home_Builder_AddonPreferences.__name__, None)
-    if reg_prefs:
+    if not hasattr(bpy.types, Home_Builder_AddonPreferences.__name__):
         try:
-            bpy.utils.unregister_class(reg_prefs)
+            bpy.utils.register_class(Home_Builder_AddonPreferences)
         except Exception:
             pass
-    try:
-        bpy.utils.register_class(Home_Builder_AddonPreferences)
-    except Exception:
-        pass
 
     hb_props.register()
     hb_project.register()
