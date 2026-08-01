@@ -263,6 +263,9 @@ class BTM_AssetLibraryEntry(bpy.types.PropertyGroup):
         default="",
     )  # type: ignore
 
+# Backward-compatibility alias for cached sys.modules and legacy imports
+HB_AssetLibraryEntry = BTM_AssetLibraryEntry
+
 
 class HB_UL_asset_libraries(bpy.types.UIList):
     """UIList for displaying user asset libraries."""
