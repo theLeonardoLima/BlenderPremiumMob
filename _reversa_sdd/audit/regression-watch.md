@@ -14,6 +14,7 @@
 | Aplicação de Medidas em Móveis | Props & Solvers | 🟢 PASS | Suporte a `format_length_unit` e callback em `units.py` |
 | Configurações Globais na Galeria | Catalog & Assembly | 🟢 PASS | `_apply_global_assembly_config` chamado em `catalog/ops_catalog.py` |
 | Editor de Parede 🧱 | Operador Modal & HUD | 🟢 PASS | Operador `home_builder_walls.interactive_wall_editor` e painel de propriedades integrados |
+| Registro de Propriedades RNA | `HB_Wall_Editor_Props` | 🟢 PASS | `unit='ROTATION'` e `subtype='ANGLE'` aplicados para `angle_absolute`, `angle_relative` e `step_angular`, corrigindo o erro de registro no Blender 5.2.0 |
 
 ---
 

@@ -29,6 +29,7 @@
 | `A006` | **MEDIUM** | Consistency | Dynamic unit converter (`mm`, `cm`, `m`, `in`, `ft`) requires consistent bi-directional formatting across 3D viewport overlays and property panels during modal placement and editing. | [units.py](file:///home/theleoinfo/www/BlenderToMob/units.py#L1-L60), [hb_placement.py](file:///home/theleoinfo/www/BlenderToMob/hb_placement.py#L1650-L1700) |
 | `A007` | **MEDIUM** | Legacy Coherence | GPU overlay shaders (`UNIFORM_COLOR` vs `3D_UNIFORM_COLOR` / `POLYLINE_UNIFORM_COLOR`) require fallback handling to prevent viewport draw crashes on Blender 3.6 / 4.x / 5.0.2 / 5.1+. | [hb_placement.py](file:///home/theleoinfo/www/BlenderToMob/hb_placement.py#L1651), [hb_gpu_draw.py](file:///home/theleoinfo/www/BlenderToMob/hb_gpu_draw.py#L1-L100) |
 | `A008` | **LOW** | UI Polish | UI icon for Wall Editor button should fall back gracefully if custom emojis/icons `🧱` are not rendered natively in older Blender UI fonts. | [operators/viewport_hud.py](file:///home/theleoinfo/www/BlenderToMob/operators/viewport_hud.py#L500-L600) |
+| `A009` | **CRITICAL** | API Registration | `HB_Wall_Editor_Props` FloatProperty registration error on `angle_absolute`, `angle_relative`, `step_angular` due to invalid `unit='ANGLE'` instead of `unit='ROTATION'`, `subtype='ANGLE'`. | [hb_props.py](file:///home/theleoinfo/www/BlenderToMob/hb_props.py#L876-L916), [blendertomob/hb_props.py](file:///home/theleoinfo/www/BlenderToMob/blendertomob/hb_props.py#L876-L916) |
 
 ---
 

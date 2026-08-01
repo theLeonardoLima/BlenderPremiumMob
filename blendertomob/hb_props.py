@@ -878,7 +878,8 @@ class HB_Wall_Editor_Props(PropertyGroup):
         name="Ângulo Absoluto",
         description="Ângulo absoluto no plano (padrão 270° - aponta para baixo)",
         default=4.71238898,
-        unit='ANGLE',
+        unit='ROTATION',
+        subtype='ANGLE',
         precision=4
     ) # type: ignore
 
@@ -886,7 +887,8 @@ class HB_Wall_Editor_Props(PropertyGroup):
         name="Ângulo Relativo",
         description="Ângulo em relação à parede anterior",
         default=4.71238898,
-        unit='ANGLE',
+        unit='ROTATION',
+        subtype='ANGLE',
         precision=4
     ) # type: ignore
 
@@ -912,7 +914,8 @@ class HB_Wall_Editor_Props(PropertyGroup):
         name="Incr. Angular",
         description="Trava magnética de rotação (padrão 45°)",
         default=0.78539816,
-        unit='ANGLE',
+        unit='ROTATION',
+        subtype='ANGLE',
         precision=4
     ) # type: ignore
 
