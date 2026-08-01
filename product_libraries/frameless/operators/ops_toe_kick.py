@@ -685,4 +685,25 @@ classes = (
     hb_frameless_OT_assign_toe_kick_to_cabinets,
 )
 
-register, unregister = bpy.utils.register_classes_factory(classes)
+def register():
+    for cls in classes:
+        reg_cls = getattr(bpy.types, cls.__name__, None)
+        if reg_cls:
+            try:
+                bpy.utils.unregister_class(reg_cls)
+            except Exception:
+                pass
+        try:
+            bpy.utils.register_class(cls)
+        except Exception:
+            pass
+
+
+def unregister():
+    for cls in reversed(classes):
+        reg_cls = getattr(bpy.types, cls.__name__, None)
+        if reg_cls:
+            try:
+                bpy.utils.unregister_class(reg_cls)
+            except Exception:
+                pass
