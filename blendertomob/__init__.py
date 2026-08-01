@@ -47,6 +47,16 @@ from . import molding
 from . import hb_layouts
 from . import hb_assets
 
+# Force reload of submodules in case of re-installation in same Blender session
+import sys
+import importlib
+for mod_name in list(sys.modules.keys()):
+    if ("hb_assets" in mod_name or "blendertomob" in mod_name) and mod_name != __name__:
+        try:
+            importlib.reload(sys.modules[mod_name])
+        except Exception:
+            pass
+
 
 @persistent
 def load_file_post(scene):
@@ -148,7 +158,9 @@ class BTM_AddonPreferences(bpy.types.AddonPreferences):
         default=True
     )  # type: ignore
 
-    asset_libraries = bpy.props.CollectionProperty(type=hb_assets.BTM_AssetLibraryEntry)  # type: ignore
+    asset_libraries = bpy.props.CollectionProperty(
+        type=getattr(hb_assets, 'BTM_AssetLibraryEntry', getattr(hb_assets, 'HB_AssetLibraryEntry', None))
+    )  # type: ignore
     asset_libraries_index = bpy.props.IntProperty(name="Biblioteca Ativa", default=0)  # type: ignore
 
     def draw(self, context):
