@@ -460,8 +460,8 @@ class Home_Builder_Scene_Props(PropertyGroup):
                           default='FRAMELESS',
                           update=update_product_tab)# type: ignore
 
-    room_name: StringProperty(name="Room Name", default="")
-    room_type: StringProperty(name="Room Type", default="")
+    room_name: StringProperty(name="Room Name", default="")  # type: ignore
+    room_type: StringProperty(name="Room Type", default="")  # type: ignore
     sort_order: IntProperty(name="Sort Order", default=0, description="Order for sorting scenes") # type: ignore
 
     wall_type: EnumProperty(name="Wall Type",
@@ -471,30 +471,30 @@ class Home_Builder_Scene_Props(PropertyGroup):
                                  ('Fake',"Fake","Fake Wall")],
                           default='Exterior')# type: ignore  
 
-    ceiling_height: FloatProperty(name="Ceiling Height", default=inch(96),subtype='DISTANCE',precision=5,update=update_ceiling_height)
-    half_wall_height: FloatProperty(name="Half Wall Height", default=inch(42),subtype='DISTANCE',precision=5)
-    fake_wall_height: FloatProperty(name="Fake Wall Height", default=inch(34),subtype='DISTANCE',precision=5)
-    wall_thickness: FloatProperty(name="Wall Thickness", default=inch(4.5),subtype='DISTANCE',precision=5)
+    ceiling_height: FloatProperty(name="Ceiling Height", default=inch(96),subtype='DISTANCE',precision=5,update=update_ceiling_height)  # type: ignore
+    half_wall_height: FloatProperty(name="Half Wall Height", default=inch(42),subtype='DISTANCE',precision=5)  # type: ignore
+    fake_wall_height: FloatProperty(name="Fake Wall Height", default=inch(34),subtype='DISTANCE',precision=5)  # type: ignore
+    wall_thickness: FloatProperty(name="Wall Thickness", default=inch(4.5),subtype='DISTANCE',precision=5)  # type: ignore
     exterior_wall_thickness: FloatProperty(name="Exterior Wall Thickness", default=inch(6),subtype='DISTANCE',precision=5)# type: ignore
     interior_wall_thickness: FloatProperty(name="Interior Wall Thickness", default=inch(4.5),subtype='DISTANCE',precision=5)# type: ignore
 
-    door_single_width: FloatProperty(name="Door Single Width", default=inch(36),subtype='DISTANCE',precision=5)
-    door_double_width: FloatProperty(name="Door Double Width", default=inch(72),subtype='DISTANCE',precision=5)
-    door_height: FloatProperty(name="Door Height", default=inch(84),subtype='DISTANCE',precision=5)
-    window_width: FloatProperty(name="Window Width", default=inch(34),subtype='DISTANCE',precision=5)
-    window_height: FloatProperty(name="Window Height", default=inch(34),subtype='DISTANCE',precision=5)
-    window_height_from_floor: FloatProperty(name="Window Height From Floor", default=inch(36),subtype='DISTANCE',precision=5)
+    door_single_width: FloatProperty(name="Door Single Width", default=inch(36),subtype='DISTANCE',precision=5)  # type: ignore
+    door_double_width: FloatProperty(name="Door Double Width", default=inch(72),subtype='DISTANCE',precision=5)  # type: ignore
+    door_height: FloatProperty(name="Door Height", default=inch(84),subtype='DISTANCE',precision=5)  # type: ignore
+    window_width: FloatProperty(name="Window Width", default=inch(34),subtype='DISTANCE',precision=5)  # type: ignore
+    window_height: FloatProperty(name="Window Height", default=inch(34),subtype='DISTANCE',precision=5)  # type: ignore
+    window_height_from_floor: FloatProperty(name="Window Height From Floor", default=inch(36),subtype='DISTANCE',precision=5)  # type: ignore
 
     wall_material: PointerProperty(name="Wall Material", type=bpy.types.Material, update=update_wall_material)# type: ignore
 
-    show_entry_doors_and_windows: BoolProperty(name="Show Entry Doors and Windows", default=False)
-    show_obstacles: BoolProperty(name="Show Obstacles", default=False)
-    show_decorations: BoolProperty(name="Show Decorations", default=False)
-    show_materials: BoolProperty(name="Show Materials", default=False)
-    show_room_settings: BoolProperty(name="Show Room Settings", default=False)
-    show_link_objects_from_rooms: BoolProperty(name="Show Link Objects From Rooms", default=False)
+    show_entry_doors_and_windows: BoolProperty(name="Show Entry Doors and Windows", default=False)  # type: ignore
+    show_obstacles: BoolProperty(name="Show Obstacles", default=False)  # type: ignore
+    show_decorations: BoolProperty(name="Show Decorations", default=False)  # type: ignore
+    show_materials: BoolProperty(name="Show Materials", default=False)  # type: ignore
+    show_room_settings: BoolProperty(name="Show Room Settings", default=False)  # type: ignore
+    show_link_objects_from_rooms: BoolProperty(name="Show Link Objects From Rooms", default=False)  # type: ignore
 
-    show_entry_door_and_window_cages: BoolProperty(name="Show Entry Door and Window Cages", default=True,update=update_show_entry_door_and_window_cages)
+    show_entry_door_and_window_cages: BoolProperty(name="Show Entry Door and Window Cages", default=True,update=update_show_entry_door_and_window_cages)  # type: ignore
 
     # ---- Room molding packages ----
     # Per-room dropdowns; picking one applies the package to the whole
