@@ -503,7 +503,7 @@ class hb_face_frame_OT_add_countertops(bpy.types.Operator):
     bl_description = "Add countertops to face frame base cabinets"
     bl_options = {'REGISTER', 'UNDO'}
 
-    selected_only: bpy.props.BoolProperty(
+    selected_only = bpy.props.BoolProperty(
         name="Selected Only",
         description="Only add countertops to selected face frame cabinets",
         default=False,

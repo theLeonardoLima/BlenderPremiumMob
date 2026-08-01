@@ -14,7 +14,7 @@ class hb_frameless_OT_create_toe_kick_detail(bpy.types.Operator):
     bl_description = "Create a new toe kick detail with a 2D profile scene"
     bl_options = {'REGISTER', 'UNDO'}
     
-    name: bpy.props.StringProperty(
+    name = bpy.props.StringProperty(
         name="Name",
         description="Name for the toe kick detail",
         default="Toe Kick Detail"

@@ -21,13 +21,13 @@ class hb_face_frame_OT_draw_cabinet(bpy.types.Operator):
     bl_label = "Draw Face Frame Cabinet"
     bl_options = {'REGISTER', 'UNDO'}
 
-    cabinet_name: bpy.props.StringProperty(
+    cabinet_name = bpy.props.StringProperty(
         name="Cabinet Name",
         description="The face frame cabinet type to draw",
         default="",
     )  # type: ignore
 
-    bay_qty: bpy.props.IntProperty(
+    bay_qty = bpy.props.IntProperty(
         name="Bay Quantity",
         description="Number of bays to create on the cabinet (1-10)",
         default=1, min=1, max=10,
@@ -525,7 +525,7 @@ class hb_face_frame_OT_toggle_mode(bpy.types.Operator):
     bl_label = "Toggle Face Frame Selection Mode"
     bl_description = "Highlight objects matching the current face frame selection mode"
 
-    search_obj_name: bpy.props.StringProperty(name="Search Object Name", default="")  # type: ignore
+    search_obj_name = bpy.props.StringProperty(name="Search Object Name", default="")  # type: ignore
 
     # Kept as a class alias -- external readers reference the mapping here.
     MODE_TAGS = SELECTION_MODE_TAGS
@@ -645,7 +645,7 @@ class hb_face_frame_OT_cabinet_prompts(bpy.types.Operator):
 
     # Tab state lives on the operator instance so it persists across
     # the dialog's draw calls. Default lands on General each open.
-    active_tab: bpy.props.EnumProperty(
+    active_tab = bpy.props.EnumProperty(
         name="Tab",
         items=[
             ('GENERAL',      "General",      "Dimensions"),
@@ -739,7 +739,7 @@ class hb_face_frame_OT_split_opening(bpy.types.Operator):
     )
     bl_options = {'REGISTER', 'UNDO'}
 
-    axis: bpy.props.EnumProperty(
+    axis = bpy.props.EnumProperty(
         name="Axis",
         items=[
             ('H', "Horizontal", "Add mid rails; new openings above, original below"),
@@ -748,30 +748,30 @@ class hb_face_frame_OT_split_opening(bpy.types.Operator):
         default='H',
         update=split_preview.tag_redraw,
     )  # type: ignore
-    count: bpy.props.IntProperty(
+    count = bpy.props.IntProperty(
         name="Openings",
         description="Total number of openings the split should produce (including the original)",
         default=2, min=2, max=MAX_SPLIT_OPENINGS,
         update=split_preview.tag_redraw,
     )  # type: ignore
-    mid_rail_width: bpy.props.FloatProperty(
+    mid_rail_width = bpy.props.FloatProperty(
         name="Mid Rail Width",
         description="Width of mid rails for this split (H-axis only)",
         default=inch(1.5), unit='LENGTH', precision=4,
         update=split_preview.tag_redraw,
     )  # type: ignore
-    mid_stile_width: bpy.props.FloatProperty(
+    mid_stile_width = bpy.props.FloatProperty(
         name="Mid Stile Width",
         description="Width of mid stiles for this split (V-axis only)",
         default=inch(2.0), unit='LENGTH', precision=4,
         update=split_preview.tag_redraw,
     )  # type: ignore
-    add_backing: bpy.props.BoolProperty(
+    add_backing = bpy.props.BoolProperty(
         name="Add Backing",
         description="Add a carcass shelf (H-split) or division (V-split) behind each splitter",
         default=True,
     )  # type: ignore
-    sizes: bpy.props.FloatVectorProperty(
+    sizes = bpy.props.FloatVectorProperty(
         name="Sizes",
         description="Per-opening size (used only when the matching unlock flag is on)",
         size=MAX_SPLIT_OPENINGS,
@@ -779,7 +779,7 @@ class hb_face_frame_OT_split_opening(bpy.types.Operator):
         unit='LENGTH', precision=4,
         update=split_preview.tag_redraw,
     )  # type: ignore
-    unlocks: bpy.props.BoolVectorProperty(
+    unlocks = bpy.props.BoolVectorProperty(
         name="Unlocks",
         description="When on, the opening's size is held at the typed value during redistribution",
         size=MAX_SPLIT_OPENINGS,
@@ -789,35 +789,35 @@ class hb_face_frame_OT_split_opening(bpy.types.Operator):
     # Per-opening contents (front type). No EnumVectorProperty exists, so
     # one enum per slot; slot i maps to opening i, the original takes the
     # last slot (count - 1), mirroring `sizes` / `unlocks`.
-    front_type_0: bpy.props.EnumProperty(
+    front_type_0 = bpy.props.EnumProperty(
         name="Contents", items=props_hb_face_frame.FRONT_TYPE_ITEMS,
         default='NONE',
     )  # type: ignore
-    front_type_1: bpy.props.EnumProperty(
+    front_type_1 = bpy.props.EnumProperty(
         name="Contents", items=props_hb_face_frame.FRONT_TYPE_ITEMS,
         default='NONE',
     )  # type: ignore
-    front_type_2: bpy.props.EnumProperty(
+    front_type_2 = bpy.props.EnumProperty(
         name="Contents", items=props_hb_face_frame.FRONT_TYPE_ITEMS,
         default='NONE',
     )  # type: ignore
-    front_type_3: bpy.props.EnumProperty(
+    front_type_3 = bpy.props.EnumProperty(
         name="Contents", items=props_hb_face_frame.FRONT_TYPE_ITEMS,
         default='NONE',
     )  # type: ignore
-    front_type_4: bpy.props.EnumProperty(
+    front_type_4 = bpy.props.EnumProperty(
         name="Contents", items=props_hb_face_frame.FRONT_TYPE_ITEMS,
         default='NONE',
     )  # type: ignore
-    front_type_5: bpy.props.EnumProperty(
+    front_type_5 = bpy.props.EnumProperty(
         name="Contents", items=props_hb_face_frame.FRONT_TYPE_ITEMS,
         default='NONE',
     )  # type: ignore
-    front_type_6: bpy.props.EnumProperty(
+    front_type_6 = bpy.props.EnumProperty(
         name="Contents", items=props_hb_face_frame.FRONT_TYPE_ITEMS,
         default='NONE',
     )  # type: ignore
-    front_type_7: bpy.props.EnumProperty(
+    front_type_7 = bpy.props.EnumProperty(
         name="Contents", items=props_hb_face_frame.FRONT_TYPE_ITEMS,
         default='NONE',
     )  # type: ignore
@@ -1040,7 +1040,7 @@ class hb_face_frame_OT_opening_prompts(bpy.types.Operator):
     bl_description = "Edit a single opening's properties"
     bl_options = {'UNDO'}
 
-    opening_name: bpy.props.StringProperty(
+    opening_name = bpy.props.StringProperty(
         default='', options={'HIDDEN', 'SKIP_SAVE'},
     )  # type: ignore
 
@@ -1097,7 +1097,7 @@ class hb_face_frame_OT_bay_prompts(bpy.types.Operator):
     # SKIP_SAVE so a fresh right-click invocation starts with an empty
     # bay_name and falls back to the active object, rather than reusing
     # whatever bay the previous dialog navigated to.
-    bay_name: bpy.props.StringProperty(
+    bay_name = bpy.props.StringProperty(
         name="Bay Name",
         description=("Object name of the bay cage to edit; empty "
                      "resolves from the active object"),
@@ -1287,19 +1287,19 @@ class hb_face_frame_OT_add_interior_item(bpy.types.Operator):
     )
     bl_options = {'UNDO'}
 
-    kind: bpy.props.EnumProperty(
+    kind = bpy.props.EnumProperty(
         name="Kind",
         items=props_hb_face_frame.Face_Frame_Interior_Item.INTERIOR_KIND_ITEMS,
         default='ADJUSTABLE_SHELF',
     )  # type: ignore
 
-    half_depth: bpy.props.BoolProperty(
+    half_depth = bpy.props.BoolProperty(
         name="Half Depth",
         description="Create a half-depth adjustable shelf (kind = ADJUSTABLE_SHELF, shelf_setback = 6\")",
         default=False,
     )  # type: ignore
 
-    target_name: bpy.props.StringProperty(
+    target_name = bpy.props.StringProperty(
         name="Target Name",
         description="Object name to target instead of active_object "
                     "(used when the panel renders inside a modal popup)",
@@ -1366,13 +1366,13 @@ class hb_face_frame_OT_remove_interior_item(bpy.types.Operator):
     bl_description = "Remove the selected interior item from this opening"
     bl_options = {'UNDO'}
 
-    index: bpy.props.IntProperty(
+    index = bpy.props.IntProperty(
         name="Index",
         description="Item index to remove (-1 uses the active index)",
         default=-1,
     )  # type: ignore
 
-    target_name: bpy.props.StringProperty(
+    target_name = bpy.props.StringProperty(
         name="Target Name",
         description="Object name to target instead of active_object",
         default="",
@@ -1416,8 +1416,8 @@ class hb_face_frame_OT_add_rollout_box(bpy.types.Operator):
     bl_description = "Add another drawer box to this rollout stack"
     bl_options = {'UNDO'}
 
-    item_index: bpy.props.IntProperty(default=-1)  # type: ignore
-    target_name: bpy.props.StringProperty(default="")  # type: ignore
+    item_index = bpy.props.IntProperty(default=-1)  # type: ignore
+    target_name = bpy.props.StringProperty(default="")  # type: ignore
 
     def execute(self, context):
         target = _resolve_interior_target(self, context)
@@ -1444,9 +1444,9 @@ class hb_face_frame_OT_remove_rollout_box(bpy.types.Operator):
     bl_description = "Remove this drawer box from the rollout stack"
     bl_options = {'UNDO'}
 
-    item_index: bpy.props.IntProperty(default=-1)  # type: ignore
-    box_index: bpy.props.IntProperty(default=-1)  # type: ignore
-    target_name: bpy.props.StringProperty(default="")  # type: ignore
+    item_index = bpy.props.IntProperty(default=-1)  # type: ignore
+    box_index = bpy.props.IntProperty(default=-1)  # type: ignore
+    target_name = bpy.props.StringProperty(default="")  # type: ignore
 
     def execute(self, context):
         target = _resolve_interior_target(self, context)
@@ -1631,7 +1631,7 @@ class hb_face_frame_OT_add_interior_division(bpy.types.Operator):
     )
     bl_options = {'UNDO'}
 
-    target_name: bpy.props.StringProperty(
+    target_name = bpy.props.StringProperty(
         name="Target Name", default="",
     )  # type: ignore
 
@@ -1682,7 +1682,7 @@ class hb_face_frame_OT_add_interior_fixed_shelf(bpy.types.Operator):
     )
     bl_options = {'UNDO'}
 
-    target_name: bpy.props.StringProperty(
+    target_name = bpy.props.StringProperty(
         name="Target Name", default="",
     )  # type: ignore
 
@@ -1765,7 +1765,7 @@ class hb_face_frame_OT_remove_interior_split(bpy.types.Operator):
     )
     bl_options = {'UNDO'}
 
-    target_name: bpy.props.StringProperty(
+    target_name = bpy.props.StringProperty(
         name="Target Name",
         description="Region object whose parent split should be removed",
         default="",
@@ -1870,7 +1870,7 @@ class hb_face_frame_OT_show_interior_add_menu(bpy.types.Operator):
     )
     bl_options = {'UNDO'}
 
-    target_name: bpy.props.StringProperty(
+    target_name = bpy.props.StringProperty(
         name="Target Name", default="",
     )  # type: ignore
 
@@ -2233,7 +2233,7 @@ class hb_face_frame_OT_change_opening(bpy.types.Operator):
     )
     bl_options = {'UNDO'}
 
-    config: bpy.props.EnumProperty(
+    config = bpy.props.EnumProperty(
         name="Configuration",
         items=[
             ('OPEN',              "Open",              "Open opening with no interior items"),
@@ -2373,12 +2373,12 @@ class hb_face_frame_OT_add_pullout_accessory(bpy.types.Operator):
     )
     bl_options = {'UNDO'}
 
-    category: bpy.props.EnumProperty(name="Category", items=_pullout_category_enum)  # type: ignore
-    product: bpy.props.EnumProperty(name="Model", items=_pullout_product_enum)  # type: ignore
+    category = bpy.props.EnumProperty(name="Category", items=_pullout_category_enum)  # type: ignore
+    product = bpy.props.EnumProperty(name="Model", items=_pullout_product_enum)  # type: ignore
     # Explicit target so the bay route (where the active object is the bay,
     # not the freshly-built pullout opening) doesn't depend on selection.
-    opening_name: bpy.props.StringProperty(default="", options={'HIDDEN'})  # type: ignore
-    opening_width: bpy.props.FloatProperty(
+    opening_name = bpy.props.StringProperty(default="", options={'HIDDEN'})  # type: ignore
+    opening_width = bpy.props.FloatProperty(
         name="Opening Width", unit='LENGTH', precision=4, min=0.0,
         description="Clear opening width for the pullout (sets the bay width)",
     )  # type: ignore
@@ -2500,9 +2500,9 @@ class hb_face_frame_OT_add_interior_accessory(bpy.types.Operator):
     )
     bl_options = {'UNDO'}
 
-    target_name: bpy.props.StringProperty(default="", options={'HIDDEN'})  # type: ignore
-    host: bpy.props.StringProperty(default=_INTERIOR_HOST, options={'HIDDEN'})  # type: ignore
-    product: bpy.props.EnumProperty(name="Accessory", items=_interior_product_enum)  # type: ignore
+    target_name = bpy.props.StringProperty(default="", options={'HIDDEN'})  # type: ignore
+    host = bpy.props.StringProperty(default=_INTERIOR_HOST, options={'HIDDEN'})  # type: ignore
+    product = bpy.props.EnumProperty(name="Accessory", items=_interior_product_enum)  # type: ignore
 
     @classmethod
     def poll(cls, context):
@@ -2703,12 +2703,12 @@ class hb_face_frame_OT_add_accessory(bpy.types.Operator):
     )
     bl_options = {'UNDO'}
 
-    target_name: bpy.props.StringProperty(default="", options={'HIDDEN'})  # type: ignore
-    section: bpy.props.StringProperty(default="", options={'HIDDEN'})  # type: ignore
-    group: bpy.props.StringProperty(default="", options={'HIDDEN'})  # type: ignore
-    code: bpy.props.StringProperty(default="", options={'HIDDEN'})  # type: ignore
-    product: bpy.props.EnumProperty(name="Model", items=_accessory_product_enum)  # type: ignore
-    opening_width: bpy.props.FloatProperty(
+    target_name = bpy.props.StringProperty(default="", options={'HIDDEN'})  # type: ignore
+    section = bpy.props.StringProperty(default="", options={'HIDDEN'})  # type: ignore
+    group = bpy.props.StringProperty(default="", options={'HIDDEN'})  # type: ignore
+    code = bpy.props.StringProperty(default="", options={'HIDDEN'})  # type: ignore
+    product = bpy.props.EnumProperty(name="Model", items=_accessory_product_enum)  # type: ignore
+    opening_width = bpy.props.FloatProperty(
         name="Opening Width", unit='LENGTH', precision=4, min=0.0,
         description="Clear opening width for a pullout (sets the bay width)",
     )  # type: ignore
@@ -2839,9 +2839,9 @@ class hb_face_frame_OT_accessory_menu(bpy.types.Operator):
     bl_label = "Add Accessory"
     bl_description = "Browse and add a catalog accessory to the opening"
 
-    target_name: bpy.props.StringProperty(default="", options={'HIDDEN'})  # type: ignore
+    target_name = bpy.props.StringProperty(default="", options={'HIDDEN'})  # type: ignore
     # "" = root (section list); otherwise the section whose groups to show.
-    path: bpy.props.StringProperty(default="", options={'HIDDEN'})  # type: ignore
+    path = bpy.props.StringProperty(default="", options={'HIDDEN'})  # type: ignore
 
     @classmethod
     def poll(cls, context):
@@ -2895,11 +2895,11 @@ class hb_face_frame_OT_accessory_menu(bpy.types.Operator):
 
 class AccessorySearchRow(bpy.types.PropertyGroup):
     """One result row in the accessory search dialog."""
-    code: bpy.props.StringProperty()  # type: ignore
-    label: bpy.props.StringProperty()  # type: ignore
-    name: bpy.props.StringProperty()  # type: ignore
-    section: bpy.props.StringProperty()  # type: ignore
-    group: bpy.props.StringProperty()  # type: ignore
+    code = bpy.props.StringProperty()  # type: ignore
+    label = bpy.props.StringProperty()  # type: ignore
+    name = bpy.props.StringProperty()  # type: ignore
+    section = bpy.props.StringProperty()  # type: ignore
+    group = bpy.props.StringProperty()  # type: ignore
 
 
 class HB_UL_face_frame_accessory_search(bpy.types.UIList):
@@ -2927,14 +2927,14 @@ class hb_face_frame_OT_search_accessory(bpy.types.Operator):
     bl_idname = "hb_face_frame.search_accessory"
     bl_label = "Search Accessory"
 
-    target_name: bpy.props.StringProperty(default="", options={'HIDDEN'})  # type: ignore
-    filter_text: bpy.props.StringProperty(
+    target_name = bpy.props.StringProperty(default="", options={'HIDDEN'})  # type: ignore
+    filter_text = bpy.props.StringProperty(
         name="Search",
         description="Filter accessories by name, section, group or code",
         options={'TEXTEDIT_UPDATE'}, update=_accessory_search_update,
     )  # type: ignore
-    matches: bpy.props.CollectionProperty(type=AccessorySearchRow)  # type: ignore
-    active_index: bpy.props.IntProperty(default=0)  # type: ignore
+    matches = bpy.props.CollectionProperty(type=AccessorySearchRow)  # type: ignore
+    active_index = bpy.props.IntProperty(default=0)  # type: ignore
 
     @classmethod
     def poll(cls, context):
@@ -3279,7 +3279,7 @@ class hb_face_frame_OT_change_bay(bpy.types.Operator):
     )
     bl_options = {'UNDO'}
 
-    config: bpy.props.StringProperty(
+    config = bpy.props.StringProperty(
         name="Configuration",
         description="Bay preset id from bay_presets (or CUSTOM_VERTICAL / CUSTOM_HORIZONTAL)",
     )  # type: ignore
@@ -3382,12 +3382,12 @@ class hb_face_frame_OT_insert_bay(bpy.types.Operator):
     bl_description = "Insert a new bay before or after the chosen bay"
     bl_options = {'REGISTER', 'UNDO'}
 
-    bay_index: bpy.props.IntProperty(
+    bay_index = bpy.props.IntProperty(
         name="Bay Index",
         description="Index of the existing bay this insert is anchored to",
         default=0, min=0,
     )  # type: ignore
-    direction: bpy.props.EnumProperty(
+    direction = bpy.props.EnumProperty(
         name="Direction",
         items=[
             ('BEFORE', "Before", "Insert to the left of the anchor bay"),
@@ -3439,7 +3439,7 @@ class hb_face_frame_OT_delete_bay(bpy.types.Operator):
                       "Deleting the only bay deletes the cabinet")
     bl_options = {'REGISTER', 'UNDO'}
 
-    bay_index: bpy.props.IntProperty(
+    bay_index = bpy.props.IntProperty(
         name="Bay Index",
         description="Index of the bay to remove",
         default=0, min=0,
@@ -4049,9 +4049,9 @@ class hb_face_frame_OT_duplicate_floating_shelf(bpy.types.Operator):
     bl_description = "Add stacked copies of this floating shelf at a set spacing"
     bl_options = {'UNDO'}
 
-    quantity: bpy.props.IntProperty(
+    quantity = bpy.props.IntProperty(
         name="Quantity to Add", default=1, min=1, max=20)  # type: ignore
-    spacing: bpy.props.FloatProperty(
+    spacing = bpy.props.FloatProperty(
         name="Spacing Between Shelves", default=inch(12.0),
         unit='LENGTH', precision=4)  # type: ignore
 
@@ -4175,7 +4175,7 @@ class hb_face_frame_OT_add_appliance_to_bay(bpy.types.Operator):
     )
     bl_options = {'REGISTER', 'UNDO'}
 
-    appliance_kind: bpy.props.EnumProperty(
+    appliance_kind = bpy.props.EnumProperty(
         name="Appliance",
         items=[
             ('KITCHEN_SINK', "Kitchen Sink", "Kitchen sink bay"),
@@ -4185,20 +4185,20 @@ class hb_face_frame_OT_add_appliance_to_bay(bpy.types.Operator):
         default='KITCHEN_SINK',
         options={'SKIP_SAVE'},
     )  # type: ignore
-    bay_name: bpy.props.StringProperty(default="", options={'SKIP_SAVE'})  # type: ignore
+    bay_name = bpy.props.StringProperty(default="", options={'SKIP_SAVE'})  # type: ignore
     # The bay preset applied by the last execute run. invoke_props_popup
     # re-runs execute on every edit with state persisting between runs, so
     # this keeps the destructive front-layout rebuild to actual
     # configuration / door-count changes.
-    last_preset: bpy.props.StringProperty(default="", options={'SKIP_SAVE'})  # type: ignore
+    last_preset = bpy.props.StringProperty(default="", options={'SKIP_SAVE'})  # type: ignore
     # Which dialog session this instance belongs to (see
     # _appliance_dialog_session). 0 = not invoked through the popup
     # (direct EXEC / scripting), which is always allowed to run.
-    session_id: bpy.props.IntProperty(default=0, options={'SKIP_SAVE', 'HIDDEN'})  # type: ignore
-    width: bpy.props.FloatProperty(
+    session_id = bpy.props.IntProperty(default=0, options={'SKIP_SAVE', 'HIDDEN'})  # type: ignore
+    width = bpy.props.FloatProperty(
         name="Width", unit='LENGTH', precision=4, default=inch(36.0),
     )  # type: ignore
-    drop_bay_amount: bpy.props.FloatProperty(
+    drop_bay_amount = bpy.props.FloatProperty(
         name="Drop Bay Amount", unit='LENGTH', precision=4,
         default=0.0, min=0.0,
         description="Lower the bay's top rail and front stretcher for the "
@@ -4208,36 +4208,36 @@ class hb_face_frame_OT_add_appliance_to_bay(bpy.types.Operator):
     # Drop-band fillers: fit a farm sink / cooktop to the dropped opening.
     # Mirrors the APPLIANCE opening's filler dialog; written through to the
     # bay's front_drop_* props (see Face_Frame_Bay_Props).
-    include_fillers: bpy.props.BoolProperty(
+    include_fillers = bpy.props.BoolProperty(
         name="Include Fillers", default=False,
         description="Build filler stiles in the dropped band so the clear "
                     "width fits the farm sink / cooktop",
     )  # type: ignore
-    set_appliance_width: bpy.props.BoolProperty(
+    set_appliance_width = bpy.props.BoolProperty(
         name="Set Appliance Width", default=True,
         description="Enter the appliance width and split the remainder into "
                     "equal left/right fillers; off lets you type each filler "
                     "width directly",
     )  # type: ignore
-    appliance_width: bpy.props.FloatProperty(
+    appliance_width = bpy.props.FloatProperty(
         name="Appliance Width", unit='LENGTH', precision=4,
         default=inch(30.0), min=0.0,
         description="Width of the farm sink / cooktop the dropped band "
                     "must fit",
     )  # type: ignore
-    left_filler_amount: bpy.props.FloatProperty(
+    left_filler_amount = bpy.props.FloatProperty(
         name="Left Filler", unit='LENGTH', precision=4,
         default=0.0, min=0.0,
         description="Width of the left drop filler stile (used directly "
                     "when Set Appliance Width is off)",
     )  # type: ignore
-    right_filler_amount: bpy.props.FloatProperty(
+    right_filler_amount = bpy.props.FloatProperty(
         name="Right Filler", unit='LENGTH', precision=4,
         default=0.0, min=0.0,
         description="Width of the right drop filler stile (used directly "
                     "when Set Appliance Width is off)",
     )  # type: ignore
-    config: bpy.props.EnumProperty(
+    config = bpy.props.EnumProperty(
         name="Configuration",
         items=[
             ('FALSE_FRONT_DOORS', "False Front with Doors",
@@ -4249,7 +4249,7 @@ class hb_face_frame_OT_add_appliance_to_bay(bpy.types.Operator):
         ],
         default='FALSE_FRONT_DOORS',
     )  # type: ignore
-    interior: bpy.props.EnumProperty(
+    interior = bpy.props.EnumProperty(
         name="Interior",
         items=[
             ('OPEN',           "Open",           "No interior shelves"),
@@ -4462,7 +4462,7 @@ class hb_face_frame_OT_remove_appliance_from_bay(bpy.types.Operator):
     )
     bl_options = {'UNDO'}
 
-    bay_name: bpy.props.StringProperty(default="", options={'SKIP_SAVE'})  # type: ignore
+    bay_name = bpy.props.StringProperty(default="", options={'SKIP_SAVE'})  # type: ignore
 
     @classmethod
     def poll(cls, context):
@@ -4534,9 +4534,9 @@ class hb_face_frame_OT_refresh_top_drawer_openings(bpy.types.Operator):
 
 class FloatingShelfRow(bpy.types.PropertyGroup):
     """One row in the multi-shelf adjust dialog: a shelf's elevation + thickness."""
-    obj_name: bpy.props.StringProperty()  # type: ignore
-    elevation: bpy.props.FloatProperty(name="Elevation", unit='LENGTH', precision=5)  # type: ignore
-    thickness: bpy.props.FloatProperty(name="Thickness", unit='LENGTH', precision=5)  # type: ignore
+    obj_name = bpy.props.StringProperty()  # type: ignore
+    elevation = bpy.props.FloatProperty(name="Elevation", unit='LENGTH', precision=5)  # type: ignore
+    thickness = bpy.props.FloatProperty(name="Thickness", unit='LENGTH', precision=5)  # type: ignore
 
 
 def _selected_floating_shelf_roots(context):
@@ -4563,9 +4563,9 @@ class hb_face_frame_OT_adjust_floating_shelves(bpy.types.Operator):
     bl_description = "Set the floor height, spacing, and thickness of the selected floating shelves"
     bl_options = {'UNDO'}
 
-    bottom_height: bpy.props.FloatProperty(name="Bottom Height", unit='LENGTH', precision=5)  # type: ignore
-    spacing: bpy.props.FloatProperty(name="Spacing", unit='LENGTH', precision=5)  # type: ignore
-    shelves: bpy.props.CollectionProperty(type=FloatingShelfRow)  # type: ignore
+    bottom_height = bpy.props.FloatProperty(name="Bottom Height", unit='LENGTH', precision=5)  # type: ignore
+    spacing = bpy.props.FloatProperty(name="Spacing", unit='LENGTH', precision=5)  # type: ignore
+    shelves = bpy.props.CollectionProperty(type=FloatingShelfRow)  # type: ignore
 
     # Previous summary values, used to detect which field the user edited.
     _prev_bottom = 0.0

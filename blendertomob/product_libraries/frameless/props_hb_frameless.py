@@ -596,20 +596,20 @@ class Frameless_Cabinet_Style(PropertyGroup):
         default='MATCHING'
     )  # type: ignore
 
-    material: bpy.props.PointerProperty(name="Material",type=bpy.types.Material)# type: ignore
-    material_rotated: bpy.props.PointerProperty(name="Material Rotated",type=bpy.types.Material)# type: ignore
-    interior_material: bpy.props.PointerProperty(name="Interior Material",type=bpy.types.Material)# type: ignore
-    interior_material_rotated: bpy.props.PointerProperty(name="Interior Material Rotated",type=bpy.types.Material)# type: ignore
+    material = bpy.props.PointerProperty(name="Material",type=bpy.types.Material)# type: ignore
+    material_rotated = bpy.props.PointerProperty(name="Material Rotated",type=bpy.types.Material)# type: ignore
+    interior_material = bpy.props.PointerProperty(name="Interior Material",type=bpy.types.Material)# type: ignore
+    interior_material_rotated = bpy.props.PointerProperty(name="Interior Material Rotated",type=bpy.types.Material)# type: ignore
 
-    custom_material: bpy.props.PointerProperty(name="Custom Exterior Material",type=bpy.types.Material)# type: ignore
-    custom_interior_material: bpy.props.PointerProperty(name="Custom Interior Material",type=bpy.types.Material)# type: ignore
-    custom_edge_material: bpy.props.PointerProperty(name="Custom Edge Material",type=bpy.types.Material)# type: ignore
+    custom_material = bpy.props.PointerProperty(name="Custom Exterior Material",type=bpy.types.Material)# type: ignore
+    custom_interior_material = bpy.props.PointerProperty(name="Custom Interior Material",type=bpy.types.Material)# type: ignore
+    custom_edge_material = bpy.props.PointerProperty(name="Custom Edge Material",type=bpy.types.Material)# type: ignore
 
     # Custom Procedural Material Properties
-    custom_wood_color_1: bpy.props.FloatVectorProperty(
+    custom_wood_color_1 = bpy.props.FloatVectorProperty(
         name="Wood Color 1", subtype='COLOR', size=3, min=0.0, max=1.0,
         default=(0.8, 0.65, 0.45), update=update_custom_procedural_material)# type: ignore
-    custom_wood_color_2: bpy.props.FloatVectorProperty(
+    custom_wood_color_2 = bpy.props.FloatVectorProperty(
         name="Wood Color 2", subtype='COLOR', size=3, min=0.0, max=1.0,
         default=(0.6, 0.45, 0.3), update=update_custom_procedural_material)# type: ignore
     custom_noise_scale_1: FloatProperty(name="Noise Scale 1", default=3.5, min=0.0, max=50.0, update=update_custom_procedural_material)# type: ignore
@@ -1387,7 +1387,7 @@ class Frameless_Scene_Props(PropertyGroup):
     active_cabinet_style_index: IntProperty(name="Active Cabinet Style Index", default=0)# type: ignore
 
     #CABINET OPTIONS
-    fill_cabinets: bpy.props.BoolProperty(name="Fill Cabinets",default = True)# type: ignore
+    fill_cabinets = bpy.props.BoolProperty(name="Fill Cabinets",default = True)# type: ignore
 
     base_exterior: EnumProperty(name="Base Exterior",
                                items=[('Doors',"Doors","Doors"),
@@ -1398,7 +1398,7 @@ class Frameless_Scene_Props(PropertyGroup):
                                       ('Open','Open','Open')],
                                default='Door Drawer')# type: ignore
 
-    include_drawer_boxes: bpy.props.BoolProperty(name="Include Drawer Boxes",default = True,update=update_include_drawer_boxes)# type: ignore
+    include_drawer_boxes = bpy.props.BoolProperty(name="Include Drawer Boxes",default = True,update=update_include_drawer_boxes)# type: ignore
 
     base_corner_type: EnumProperty(name="Base Corner Type",
                                items=[('Diagonal Corner','Diagonal Corner','Diagonal Corner'),
@@ -1553,7 +1553,7 @@ class Frameless_Scene_Props(PropertyGroup):
                                     precision=4)# type: ignore
     
     #CABINET GENERAL CONSTRUCTION OPTIONS
-    show_machining: bpy.props.BoolProperty(name="Show Machining",default = True,update=update_show_machining)# type: ignore
+    show_machining = bpy.props.BoolProperty(name="Show Machining",default = True,update=update_show_machining)# type: ignore
 
     default_carcass_part_thickness: FloatProperty(name="Default Carcass Part Thickness",
                                                  description="",

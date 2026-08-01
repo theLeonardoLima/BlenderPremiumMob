@@ -349,7 +349,7 @@ class home_builder_layouts_OT_create_3d_view(bpy.types.Operator):
     bl_description = "Create a 3D perspective view"
     bl_options = {'UNDO'}
     
-    perspective: bpy.props.BoolProperty(
+    perspective = bpy.props.BoolProperty(
         name="Perspective",
         description="Use perspective projection (unchecked = isometric)",
         default=True
@@ -389,31 +389,31 @@ class home_builder_layouts_OT_create_multi_view(bpy.types.Operator):
     bl_description = "Create a multi-view layout showing plan, elevation, and side views"
     bl_options = {'UNDO'}
     
-    include_plan: bpy.props.BoolProperty(
+    include_plan = bpy.props.BoolProperty(
         name="Plan View (Top)",
         description="Include a top-down plan view",
         default=True
     )  # type: ignore
     
-    include_front: bpy.props.BoolProperty(
+    include_front = bpy.props.BoolProperty(
         name="Front Elevation",
         description="Include a front elevation view",
         default=True
     )  # type: ignore
     
-    include_back: bpy.props.BoolProperty(
+    include_back = bpy.props.BoolProperty(
         name="Back Elevation",
         description="Include a back elevation view",
         default=False
     )  # type: ignore
     
-    include_left: bpy.props.BoolProperty(
+    include_left = bpy.props.BoolProperty(
         name="Left Side",
         description="Include a left side elevation view",
         default=True
     )  # type: ignore
     
-    include_right: bpy.props.BoolProperty(
+    include_right = bpy.props.BoolProperty(
         name="Right Side",
         description="Include a right side elevation view",
         default=False
@@ -502,7 +502,7 @@ class home_builder_layouts_OT_delete_layout_view(bpy.types.Operator):
     bl_description = "Delete the layout view"
     bl_options = {'UNDO'}
     
-    scene_name: bpy.props.StringProperty(name="Scene Name")  # type: ignore
+    scene_name = bpy.props.StringProperty(name="Scene Name")  # type: ignore
     
     def execute(self, context):
         if self.scene_name and self.scene_name in bpy.data.scenes:
@@ -552,7 +552,7 @@ class home_builder_layouts_OT_go_to_layout_view(bpy.types.Operator):
     bl_description = "Switch to a layout view scene"
     bl_options = {'UNDO'}
     
-    scene_name: bpy.props.StringProperty(name="Scene Name")  # type: ignore
+    scene_name = bpy.props.StringProperty(name="Scene Name")  # type: ignore
     
     def execute(self, context):
         if self.scene_name in bpy.data.scenes:
@@ -808,14 +808,14 @@ class home_builder_layouts_OT_export_all_to_pdf(bpy.types.Operator):
     bl_description = "Render all layout views and export to a single PDF file"
     bl_options = {'UNDO'}
     
-    filepath: bpy.props.StringProperty(
+    filepath = bpy.props.StringProperty(
         name="File Path",
         description="Path to save the PDF file",
         subtype='FILE_PATH',
         default="//layouts.pdf"
     )  # type: ignore
     
-    dpi: bpy.props.EnumProperty(
+    dpi = bpy.props.EnumProperty(
         name="DPI",
         description="Resolution for rendering (higher = better quality, larger file)",
         items=[
@@ -827,7 +827,7 @@ class home_builder_layouts_OT_export_all_to_pdf(bpy.types.Operator):
         default='300'
     )  # type: ignore
     
-    filter_glob: bpy.props.StringProperty(
+    filter_glob = bpy.props.StringProperty(
         default="*.pdf",
         options={'HIDDEN'}
     )  # type: ignore
@@ -3881,7 +3881,7 @@ class home_builder_layouts_OT_add_detail_to_layout(bpy.types.Operator):
     bl_description = "Add a 2D detail to the current layout view"
     bl_options = {'UNDO'}
     
-    detail_scene_name: bpy.props.StringProperty(name="Detail Scene")  # type: ignore
+    detail_scene_name = bpy.props.StringProperty(name="Detail Scene")  # type: ignore
     
     @classmethod
     def poll(cls, context):
@@ -3970,7 +3970,7 @@ class home_builder_layouts_OT_move_layout_view(bpy.types.Operator):
     bl_description = "Move layout view up or down in the list"
     bl_options = {'UNDO'}
     
-    move_up: bpy.props.BoolProperty(name="Move Up") # type: ignore
+    move_up = bpy.props.BoolProperty(name="Move Up") # type: ignore
 
     def ensure_sort_orders_initialized(self, layout_views):
         """Make sure all scenes have unique sort_order values."""
@@ -4184,8 +4184,8 @@ class home_builder_layouts_OT_place_room_label(bpy.types.Operator):
     bl_description = "Click two corners to define a room rectangle. Auto-calculates dimensions"
     bl_options = {'UNDO'}
 
-    room_name: bpy.props.StringProperty(name="Room Name", default="ROOM NAME")  # type: ignore
-    ceiling_height: bpy.props.StringProperty(name="Ceiling Height", default="")  # type: ignore
+    room_name = bpy.props.StringProperty(name="Room Name", default="ROOM NAME")  # type: ignore
+    ceiling_height = bpy.props.StringProperty(name="Ceiling Height", default="")  # type: ignore
 
     # Modal state
     first_corner = None
@@ -4432,13 +4432,13 @@ class home_builder_layouts_OT_link_objects_to_layout(bpy.types.Operator):
     bl_description = "Link the selected objects to a layout view so they appear in that view"
     bl_options = {'UNDO'}
 
-    target_layout: bpy.props.EnumProperty(
+    target_layout = bpy.props.EnumProperty(
         name="Layout View",
         description="Choose which layout view to add the objects to",
         items=get_layout_view_items,
     )  # type: ignore
 
-    include_children: bpy.props.BoolProperty(
+    include_children = bpy.props.BoolProperty(
         name="Include Children",
         description="Also link all child objects recursively",
         default=True,

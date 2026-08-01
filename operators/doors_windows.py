@@ -1091,8 +1091,8 @@ class home_builder_doors_windows_OT_door_prompts(bpy.types.Operator):
     bl_description = "Edit door properties"
     bl_options = {'UNDO'}
 
-    door_width: bpy.props.FloatProperty(name="Width", unit='LENGTH', precision=5)  # type: ignore
-    door_height: bpy.props.FloatProperty(name="Height", unit='LENGTH', precision=5)  # type: ignore
+    door_width = bpy.props.FloatProperty(name="Width", unit='LENGTH', precision=5)  # type: ignore
+    door_height = bpy.props.FloatProperty(name="Height", unit='LENGTH', precision=5)  # type: ignore
 
     door = None
 
@@ -1138,9 +1138,9 @@ class home_builder_doors_windows_OT_window_prompts(bpy.types.Operator):
     bl_description = "Edit window properties"
     bl_options = {'UNDO'}
 
-    window_width: bpy.props.FloatProperty(name="Width", unit='LENGTH', precision=5)  # type: ignore
-    window_height: bpy.props.FloatProperty(name="Height", unit='LENGTH', precision=5)  # type: ignore
-    height_from_floor: bpy.props.FloatProperty(name="Height From Floor", unit='LENGTH', precision=5)  # type: ignore
+    window_width = bpy.props.FloatProperty(name="Width", unit='LENGTH', precision=5)  # type: ignore
+    window_height = bpy.props.FloatProperty(name="Height", unit='LENGTH', precision=5)  # type: ignore
+    height_from_floor = bpy.props.FloatProperty(name="Height From Floor", unit='LENGTH', precision=5)  # type: ignore
 
     window = None
 
@@ -1271,7 +1271,7 @@ class home_builder_doors_windows_OT_delete_door_window(bpy.types.Operator):
     bl_description = "Delete the selected door or window"
     bl_options = {'UNDO'}
 
-    object_type: bpy.props.StringProperty(name="Object Type", default='DOOR')  # type: ignore
+    object_type = bpy.props.StringProperty(name="Object Type", default='DOOR')  # type: ignore
 
     @classmethod
     def poll(cls, context):

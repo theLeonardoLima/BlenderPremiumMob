@@ -96,7 +96,7 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
     bl_description = "Change the type of opening in this bay"
     bl_options = {'UNDO'}
 
-    opening_type: bpy.props.EnumProperty(
+    opening_type = bpy.props.EnumProperty(
         name="Opening Type",
         items=[
             # Doors
@@ -141,7 +141,7 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
         default='LEFT_DOOR'
     ) # type: ignore
     
-    appliance_name: bpy.props.StringProperty(
+    appliance_name = bpy.props.StringProperty(
         name="Appliance Name",
         default="Appliance"
     ) # type: ignore
@@ -708,7 +708,7 @@ class hb_frameless_OT_opening_prompts(bpy.types.Operator):
     bl_description = "Edit opening properties"
     bl_options = {'UNDO'}
 
-    door_swing: bpy.props.EnumProperty(
+    door_swing = bpy.props.EnumProperty(
         name="Door Swing",
         items=[
             ('0', "Left", "Left swing"),
@@ -718,11 +718,11 @@ class hb_frameless_OT_opening_prompts(bpy.types.Operator):
         default='2'
     ) # type: ignore
 
-    inset_front: bpy.props.BoolProperty(name="Inset Front", default=False) # type: ignore
-    half_overlay_top: bpy.props.BoolProperty(name="Half Overlay Top", default=False) # type: ignore
-    half_overlay_bottom: bpy.props.BoolProperty(name="Half Overlay Bottom", default=False) # type: ignore
-    half_overlay_left: bpy.props.BoolProperty(name="Half Overlay Left", default=False) # type: ignore
-    half_overlay_right: bpy.props.BoolProperty(name="Half Overlay Right", default=False) # type: ignore
+    inset_front = bpy.props.BoolProperty(name="Inset Front", default=False) # type: ignore
+    half_overlay_top = bpy.props.BoolProperty(name="Half Overlay Top", default=False) # type: ignore
+    half_overlay_bottom = bpy.props.BoolProperty(name="Half Overlay Bottom", default=False) # type: ignore
+    half_overlay_left = bpy.props.BoolProperty(name="Half Overlay Left", default=False) # type: ignore
+    half_overlay_right = bpy.props.BoolProperty(name="Half Overlay Right", default=False) # type: ignore
 
     opening = None
 
@@ -811,7 +811,7 @@ class hb_frameless_OT_change_opening_type(bpy.types.Operator):
     bl_description = "Change this opening to a different type"
     bl_options = {'UNDO'}
 
-    opening_type: bpy.props.EnumProperty(
+    opening_type = bpy.props.EnumProperty(
         name="Opening Type",
         items=[
             ('LEFT_DOOR', "Left Door", "Single left swing door"),
@@ -1101,27 +1101,27 @@ class hb_frameless_OT_custom_vertical_splitter(bpy.types.Operator):
     bl_description = "Create custom vertical openings with adjustable sizes"
     bl_options = {'UNDO'}
 
-    opening_count: bpy.props.IntProperty(
+    opening_count = bpy.props.IntProperty(
         name="Number of Openings",
         min=2, max=10,
         default=2
     ) # type: ignore
     
-    previous_opening_count: bpy.props.IntProperty(default=0) # type: ignore
-    splitter_obj_name: bpy.props.StringProperty(name="Splitter Object") # type: ignore
-    parent_obj_name: bpy.props.StringProperty(name="Parent Object") # type: ignore
+    previous_opening_count = bpy.props.IntProperty(default=0) # type: ignore
+    splitter_obj_name = bpy.props.StringProperty(name="Splitter Object") # type: ignore
+    parent_obj_name = bpy.props.StringProperty(name="Parent Object") # type: ignore
 
     # Opening inserts
-    opening_1_insert: bpy.props.EnumProperty(name="Opening 1", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
-    opening_2_insert: bpy.props.EnumProperty(name="Opening 2", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
-    opening_3_insert: bpy.props.EnumProperty(name="Opening 3", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
-    opening_4_insert: bpy.props.EnumProperty(name="Opening 4", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
-    opening_5_insert: bpy.props.EnumProperty(name="Opening 5", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
-    opening_6_insert: bpy.props.EnumProperty(name="Opening 6", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
-    opening_7_insert: bpy.props.EnumProperty(name="Opening 7", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
-    opening_8_insert: bpy.props.EnumProperty(name="Opening 8", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
-    opening_9_insert: bpy.props.EnumProperty(name="Opening 9", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
-    opening_10_insert: bpy.props.EnumProperty(name="Opening 10", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
+    opening_1_insert = bpy.props.EnumProperty(name="Opening 1", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
+    opening_2_insert = bpy.props.EnumProperty(name="Opening 2", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
+    opening_3_insert = bpy.props.EnumProperty(name="Opening 3", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
+    opening_4_insert = bpy.props.EnumProperty(name="Opening 4", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
+    opening_5_insert = bpy.props.EnumProperty(name="Opening 5", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
+    opening_6_insert = bpy.props.EnumProperty(name="Opening 6", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
+    opening_7_insert = bpy.props.EnumProperty(name="Opening 7", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
+    opening_8_insert = bpy.props.EnumProperty(name="Opening 8", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
+    opening_9_insert = bpy.props.EnumProperty(name="Opening 9", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
+    opening_10_insert = bpy.props.EnumProperty(name="Opening 10", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
 
     @classmethod
     def poll(cls, context):
@@ -1439,27 +1439,27 @@ class hb_frameless_OT_custom_horizontal_splitter(bpy.types.Operator):
     bl_description = "Create custom horizontal openings with adjustable sizes"
     bl_options = {'UNDO'}
 
-    opening_count: bpy.props.IntProperty(
+    opening_count = bpy.props.IntProperty(
         name="Number of Openings",
         min=2, max=10,
         default=2
     ) # type: ignore
     
-    previous_opening_count: bpy.props.IntProperty(default=0) # type: ignore
-    splitter_obj_name: bpy.props.StringProperty(name="Splitter Object") # type: ignore
-    parent_obj_name: bpy.props.StringProperty(name="Parent Object") # type: ignore
+    previous_opening_count = bpy.props.IntProperty(default=0) # type: ignore
+    splitter_obj_name = bpy.props.StringProperty(name="Splitter Object") # type: ignore
+    parent_obj_name = bpy.props.StringProperty(name="Parent Object") # type: ignore
 
     # Opening inserts
-    opening_1_insert: bpy.props.EnumProperty(name="Opening 1", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
-    opening_2_insert: bpy.props.EnumProperty(name="Opening 2", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
-    opening_3_insert: bpy.props.EnumProperty(name="Opening 3", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
-    opening_4_insert: bpy.props.EnumProperty(name="Opening 4", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
-    opening_5_insert: bpy.props.EnumProperty(name="Opening 5", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
-    opening_6_insert: bpy.props.EnumProperty(name="Opening 6", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
-    opening_7_insert: bpy.props.EnumProperty(name="Opening 7", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
-    opening_8_insert: bpy.props.EnumProperty(name="Opening 8", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
-    opening_9_insert: bpy.props.EnumProperty(name="Opening 9", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
-    opening_10_insert: bpy.props.EnumProperty(name="Opening 10", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
+    opening_1_insert = bpy.props.EnumProperty(name="Opening 1", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
+    opening_2_insert = bpy.props.EnumProperty(name="Opening 2", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
+    opening_3_insert = bpy.props.EnumProperty(name="Opening 3", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
+    opening_4_insert = bpy.props.EnumProperty(name="Opening 4", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
+    opening_5_insert = bpy.props.EnumProperty(name="Opening 5", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
+    opening_6_insert = bpy.props.EnumProperty(name="Opening 6", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
+    opening_7_insert = bpy.props.EnumProperty(name="Opening 7", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
+    opening_8_insert = bpy.props.EnumProperty(name="Opening 8", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
+    opening_9_insert = bpy.props.EnumProperty(name="Opening 9", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
+    opening_10_insert = bpy.props.EnumProperty(name="Opening 10", items=[('DOORS', "Doors", ""), ('DRAWER', "Drawer", ""), ('OPEN', "Open", "")], default='DOORS') # type: ignore
 
     @classmethod
     def poll(cls, context):

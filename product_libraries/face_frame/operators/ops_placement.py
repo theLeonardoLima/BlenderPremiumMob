@@ -1756,26 +1756,26 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
     )
     bl_options = {'REGISTER', 'UNDO'}
 
-    cabinet_name: bpy.props.StringProperty(
+    cabinet_name = bpy.props.StringProperty(
         name="Cabinet Name",
         description="Face frame cabinet type to place",
         default="",
     )  # type: ignore
 
-    bay_qty: bpy.props.IntProperty(
+    bay_qty = bpy.props.IntProperty(
         name="Bay Quantity",
         description="Number of bays (1-10)",
         default=1, min=_BAY_QTY_MIN, max=_BAY_QTY_MAX,
     )  # type: ignore
 
-    source_cabinet_name: bpy.props.StringProperty(
+    source_cabinet_name = bpy.props.StringProperty(
         name="Source Cabinet Name",
         description="When set, duplicate this existing cabinet root "
                     "instead of building a new cabinet from defaults",
         default="",
     )  # type: ignore
 
-    mirror: bpy.props.BoolProperty(
+    mirror = bpy.props.BoolProperty(
         name="Mirror",
         description="Duplicate mode only: flip the copy left-to-right "
                     "(bay order, door swings, finished ends, stiles)",
@@ -3876,7 +3876,7 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
     )
     bl_options = {'REGISTER', 'UNDO'}
 
-    appliance_name: bpy.props.StringProperty(
+    appliance_name = bpy.props.StringProperty(
         name="Appliance Name",
         description="Catalog name of the appliance to place",
         default="",
@@ -4642,7 +4642,7 @@ class hb_face_frame_OT_place_corner_cabinet(bpy.types.Operator,
     )
     bl_options = {'REGISTER', 'UNDO'}
 
-    cabinet_name: bpy.props.StringProperty(
+    cabinet_name = bpy.props.StringProperty(
         name="Cabinet Name",
         description="Corner cabinet type to place",
         default="",
@@ -5445,22 +5445,22 @@ class hb_face_frame_OT_set_blind_corner_void_amount(bpy.types.Operator):
     )
     bl_options = {'UNDO'}
 
-    blind_cabinet_name: bpy.props.StringProperty(
+    blind_cabinet_name = bpy.props.StringProperty(
         name="Blind Cabinet Name", default="",
     )  # type: ignore
-    current_cabinet_name: bpy.props.StringProperty(
+    current_cabinet_name = bpy.props.StringProperty(
         name="Placed Cabinet Name", default="",
     )  # type: ignore
     # 'LEFT' = neighbor's left side becomes blind (placed cabinet near
     # the right end of its wall); 'RIGHT' = neighbor's right side blind
     # (placed cabinet near the left end).
-    blind_side: bpy.props.EnumProperty(
+    blind_side = bpy.props.EnumProperty(
         name="Blind Side",
         items=[('LEFT', "Left", ""), ('RIGHT', "Right", "")],
         default='LEFT',
     )  # type: ignore
 
-    match_cabinet_depth: bpy.props.BoolProperty(
+    match_cabinet_depth = bpy.props.BoolProperty(
         name="Match Cabinet Depth",
         description=(
             "Auto-set the void so the blind cabinet's exposed end "
@@ -5468,11 +5468,11 @@ class hb_face_frame_OT_set_blind_corner_void_amount(bpy.types.Operator):
         ),
         default=False,
     )  # type: ignore
-    void_amount: bpy.props.FloatProperty(
+    void_amount = bpy.props.FloatProperty(
         name="Void Amount", default=units.inch(1.0),
         min=0.0, unit='LENGTH', precision=4,
     )  # type: ignore
-    blind_stile_width: bpy.props.FloatProperty(
+    blind_stile_width = bpy.props.FloatProperty(
         name="Exposed Blind Stile Width",
         description=(
             "Visible portion of the blind end stile; the 0.75 inch "
@@ -5482,7 +5482,7 @@ class hb_face_frame_OT_set_blind_corner_void_amount(bpy.types.Operator):
         default=units.inch(3.0),
         min=0.0, unit='LENGTH', precision=4,
     )  # type: ignore
-    placed_stile_width: bpy.props.FloatProperty(
+    placed_stile_width = bpy.props.FloatProperty(
         name="Placed Cabinet Stile Width",
         description=(
             "Width of the placed cabinet's corner stile that meets the "
@@ -5666,17 +5666,17 @@ class hb_face_frame_OT_set_angled_corner_void_amount(bpy.types.Operator):
     bl_description = "Configure how cabinets meet at an angled wall corner"
     bl_options = {'UNDO'}
 
-    angled_cabinet_name: bpy.props.StringProperty(
+    angled_cabinet_name = bpy.props.StringProperty(
         name="Angled Cabinet Name", default="",
     )  # type: ignore
-    current_cabinet_name: bpy.props.StringProperty(
+    current_cabinet_name = bpy.props.StringProperty(
         name="Placed Cabinet Name", default="",
     )  # type: ignore
     # Which side of the NEIGHBOR meets the corner. 'LEFT' = the placed
     # cabinet sits near the right end of its wall and the neighbor's left
     # end is at the corner; 'RIGHT' = mirror. The placed cabinet trims
     # its opposite end (the one facing the corner).
-    meeting_side: bpy.props.EnumProperty(
+    meeting_side = bpy.props.EnumProperty(
         name="Meeting Side",
         items=[('LEFT', "Left", ""), ('RIGHT', "Right", "")],
         default='LEFT',
@@ -5684,15 +5684,15 @@ class hb_face_frame_OT_set_angled_corner_void_amount(bpy.types.Operator):
     # Which end of the PLACED cabinet faces the corner: 'LEFT' = its
     # low-x (origin) end, 'RIGHT' = its high-x end. Drives which edge is
     # anchored to the corner vertex.
-    placed_corner_end: bpy.props.EnumProperty(
+    placed_corner_end = bpy.props.EnumProperty(
         name="Placed Corner End",
         items=[('LEFT', "Left", ""), ('RIGHT', "Right", "")],
         default='RIGHT',
     )  # type: ignore
-    corner_angle_deg: bpy.props.FloatProperty(
+    corner_angle_deg = bpy.props.FloatProperty(
         name="Corner Angle (degrees)", default=135.0,
     )  # type: ignore
-    action: bpy.props.EnumProperty(
+    action = bpy.props.EnumProperty(
         name="Action",
         items=[
             ('VOID', "Create Void",

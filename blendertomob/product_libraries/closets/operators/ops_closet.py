@@ -299,7 +299,7 @@ class hb_closets_OT_toggle_mode(bpy.types.Operator):
     bl_label = "Toggle Closet Selection Mode"
     bl_description = "Highlight objects matching the current closet selection mode"
 
-    search_obj_name: bpy.props.StringProperty(name="Search Object Name", default="")  # type: ignore
+    search_obj_name = bpy.props.StringProperty(name="Search Object Name", default="")  # type: ignore
 
     MODE_TAGS = {
         'Starters': types_closets.TAG_STARTER_CAGE,
@@ -406,17 +406,17 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
     bl_label = "Place Closet Starter"
     bl_options = {'UNDO'}
 
-    starter_name: bpy.props.StringProperty(
+    starter_name = bpy.props.StringProperty(
         name="Starter Name", default="Base")  # type: ignore
-    bay_qty: bpy.props.IntProperty(
+    bay_qty = bpy.props.IntProperty(
         name="Bay Quantity", default=4,
         min=_BAY_QTY_MIN, max=_BAY_QTY_MAX)  # type: ignore
-    source_starter_name: bpy.props.StringProperty(
+    source_starter_name = bpy.props.StringProperty(
         name="Source Starter Name",
         description="When set, duplicate this existing starter root "
                     "instead of building a new starter from defaults",
         default="")  # type: ignore
-    mirror: bpy.props.BoolProperty(
+    mirror = bpy.props.BoolProperty(
         name="Mirror",
         description="Duplicate mode only: flip the copy left-to-right "
                     "(bay order and door swings)",
@@ -1492,7 +1492,7 @@ class hb_closets_OT_insert_bay(bpy.types.Operator):
     bl_label = "Insert Closet Bay"
     bl_options = {'UNDO'}
 
-    direction: bpy.props.EnumProperty(
+    direction = bpy.props.EnumProperty(
         name="Direction",
         items=[('BEFORE', "Left", "Insert to the left of this bay"),
                ('AFTER', "Right", "Insert to the right of this bay")],
@@ -1560,7 +1560,7 @@ class hb_closets_OT_add_part(bpy.types.Operator,
     bl_label = "Add Closet Part"
     bl_options = {'UNDO'}
 
-    part_type: bpy.props.EnumProperty(
+    part_type = bpy.props.EnumProperty(
         name="Part Type",
         items=[('FIXED_SHELF', "Fixed Shelf", "Fixed shelf at a set height"),
                ('ROD', "Closet Rod", "Closet rod at a set height")],
@@ -1791,7 +1791,7 @@ class hb_closets_OT_add_adj_shelves(bpy.types.Operator):
     bl_label = "Adjustable Shelves"
     bl_options = {'UNDO'}
 
-    qty: bpy.props.IntProperty(name="Shelf Quantity", default=3,
+    qty = bpy.props.IntProperty(name="Shelf Quantity", default=3,
                                min=0, max=20)  # type: ignore
 
     @classmethod
@@ -1920,9 +1920,9 @@ class hb_closets_OT_add_drawers(_ClosetInsertDialog, bpy.types.Operator):
     bl_label = "Drawers"
     bl_options = {'UNDO'}
 
-    qty: bpy.props.IntProperty(name="Drawer Quantity", default=3,
+    qty = bpy.props.IntProperty(name="Drawer Quantity", default=3,
                                min=0, max=10)  # type: ignore
-    front_height: bpy.props.FloatProperty(
+    front_height = bpy.props.FloatProperty(
         name="Front Height", default=0.1905,  # 7.5"
         unit='LENGTH', precision=4)  # type: ignore
 
@@ -1988,14 +1988,14 @@ class hb_closets_OT_add_doors(_ClosetInsertDialog, bpy.types.Operator):
     bl_label = "Add Door"
     bl_options = {'UNDO'}
 
-    swing: bpy.props.EnumProperty(
+    swing = bpy.props.EnumProperty(
         name="Swing",
         items=[('NONE', "None", "Remove doors"),
                ('LEFT', "Left", "Single door hinged left"),
                ('RIGHT', "Right", "Single door hinged right"),
                ('DOUBLE', "Double", "Pair of doors")],
         default='LEFT')  # type: ignore
-    is_hamper: bpy.props.BoolProperty(
+    is_hamper = bpy.props.BoolProperty(
         name="Hamper (tilt-out)", default=False)  # type: ignore
 
     def invoke(self, context, event):
@@ -2046,8 +2046,8 @@ class hb_closets_OT_add_cubbies(_ClosetInsertDialog, bpy.types.Operator):
     bl_label = "Cubbies"
     bl_options = {'UNDO'}
 
-    cols: bpy.props.IntProperty(name="Columns", default=3, min=1, max=12)  # type: ignore
-    rows: bpy.props.IntProperty(name="Rows", default=3, min=1, max=12)  # type: ignore
+    cols = bpy.props.IntProperty(name="Columns", default=3, min=1, max=12)  # type: ignore
+    rows = bpy.props.IntProperty(name="Rows", default=3, min=1, max=12)  # type: ignore
 
     def invoke(self, context, event):
         opening = _active_opening_for_insert(context)
@@ -2071,7 +2071,7 @@ class hb_closets_OT_change_bay(bpy.types.Operator):
     bl_label = "Bay Configuration"
     bl_options = {'UNDO'}
 
-    config: bpy.props.EnumProperty(
+    config = bpy.props.EnumProperty(
         name="Configuration",
         items=[(cid, label, "") for cid, label in types_closets.BAY_CONFIGS],
         default='ADJ_SHELVES')  # type: ignore
@@ -2208,7 +2208,7 @@ class hb_closets_OT_change_opening(bpy.types.Operator):
     bl_label = "Change Opening"
     bl_options = {'UNDO'}
 
-    config: bpy.props.EnumProperty(
+    config = bpy.props.EnumProperty(
         name="Configuration",
         items=[(cid, label, "")
                for cid, label in types_closets.OPENING_CONFIGS],
@@ -2299,7 +2299,7 @@ class hb_closets_OT_adj_shelf_step(bpy.types.Operator):
     bl_label = "Adjustable Shelf"
     bl_options = {'UNDO'}
 
-    delta: bpy.props.IntProperty(default=1)  # type: ignore
+    delta = bpy.props.IntProperty(default=1)  # type: ignore
 
     @classmethod
     def poll(cls, context):
@@ -2514,56 +2514,56 @@ class hb_closets_OT_set_corner_clearance(bpy.types.Operator):
     bl_label = "Corner Clearance"
     bl_options = {'UNDO'}
 
-    closet_name: bpy.props.StringProperty(
+    closet_name = bpy.props.StringProperty(
         name="Closet Name", default="",
         options={'HIDDEN', 'SKIP_SAVE'})  # type: ignore
-    has_left: bpy.props.BoolProperty(
+    has_left = bpy.props.BoolProperty(
         name="Has Left", default=False,
         options={'HIDDEN', 'SKIP_SAVE'})  # type: ignore
-    has_right: bpy.props.BoolProperty(
+    has_right = bpy.props.BoolProperty(
         name="Has Right", default=False,
         options={'HIDDEN', 'SKIP_SAVE'})  # type: ignore
-    neighbor_left: bpy.props.StringProperty(
+    neighbor_left = bpy.props.StringProperty(
         name="Left Neighbor", default="",
         options={'HIDDEN', 'SKIP_SAVE'})  # type: ignore
-    neighbor_right: bpy.props.StringProperty(
+    neighbor_right = bpy.props.StringProperty(
         name="Right Neighbor", default="",
         options={'HIDDEN', 'SKIP_SAVE'})  # type: ignore
-    gap_left: bpy.props.FloatProperty(
+    gap_left = bpy.props.FloatProperty(
         name="Left Gap", default=0.0, subtype='DISTANCE', unit='LENGTH',
         options={'HIDDEN', 'SKIP_SAVE'})  # type: ignore
-    gap_right: bpy.props.FloatProperty(
+    gap_right = bpy.props.FloatProperty(
         name="Right Gap", default=0.0, subtype='DISTANCE', unit='LENGTH',
         options={'HIDDEN', 'SKIP_SAVE'})  # type: ignore
 
-    clearance_left: bpy.props.FloatProperty(
+    clearance_left = bpy.props.FloatProperty(
         name="Clearance", subtype='DISTANCE', unit='LENGTH',
         default=units.inch(12.0), min=0.0,
         description=(
             "Gap between this closet's left end panel and the adjacent "
             "closet's body"))  # type: ignore
-    top_left: bpy.props.BoolProperty(
+    top_left = bpy.props.BoolProperty(
         name="Include Top Bridge Shelf", default=True,
         description=(
             "Span the clearance gap with a shelf at the corner bay's "
             "top shelf height"))  # type: ignore
-    bottom_left: bpy.props.BoolProperty(
+    bottom_left = bpy.props.BoolProperty(
         name="Include Bottom Bridge", default=False,
         description=(
             "Also bridge the gap at the bottom shelf height (adds a "
             "kick strip on floor-mounted bays)"))  # type: ignore
-    clearance_right: bpy.props.FloatProperty(
+    clearance_right = bpy.props.FloatProperty(
         name="Clearance", subtype='DISTANCE', unit='LENGTH',
         default=units.inch(12.0), min=0.0,
         description=(
             "Gap between this closet's right end panel and the adjacent "
             "closet's body"))  # type: ignore
-    top_right: bpy.props.BoolProperty(
+    top_right = bpy.props.BoolProperty(
         name="Include Top Bridge Shelf", default=True,
         description=(
             "Span the clearance gap with a shelf at the corner bay's "
             "top shelf height"))  # type: ignore
-    bottom_right: bpy.props.BoolProperty(
+    bottom_right = bpy.props.BoolProperty(
         name="Include Bottom Bridge", default=False,
         description=(
             "Also bridge the gap at the bottom shelf height (adds a "
@@ -2664,7 +2664,7 @@ class hb_closets_OT_change_hanger(bpy.types.Operator):
         from .. import pulls_closets
         return pulls_closets.hanger_override_enum_items(self, context)
 
-    hanger_model: bpy.props.EnumProperty(
+    hanger_model = bpy.props.EnumProperty(
         name="Hanger", items=_items)  # type: ignore
 
     @classmethod
@@ -2759,9 +2759,9 @@ class hb_closets_OT_install_model_pack(bpy.types.Operator):
     bl_idname = "hb_closets.install_model_pack"
     bl_label = "Install Model Pack"
 
-    filepath: bpy.props.StringProperty(
+    filepath = bpy.props.StringProperty(
         subtype='FILE_PATH', options={'SKIP_SAVE'})  # type: ignore
-    filter_glob: bpy.props.StringProperty(
+    filter_glob = bpy.props.StringProperty(
         default="*.zip", options={'HIDDEN'})  # type: ignore
 
     def invoke(self, context, event):

@@ -81,7 +81,7 @@ class hb_frameless_OT_update_door_and_drawer_front_style(bpy.types.Operator):
     bl_label = "Update Door and Drawer Front Style"
     bl_options = {'REGISTER', 'UNDO'}
 
-    selected_index: bpy.props.IntProperty(name="Selected Index", default=-1)# type: ignore
+    selected_index = bpy.props.IntProperty(name="Selected Index", default=-1)# type: ignore
 
     def execute(self, context):
         main_scene = hb_project.get_main_scene()

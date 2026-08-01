@@ -62,7 +62,7 @@ class hb_frameless_OT_update_finished_end(bpy.types.Operator):
     bl_description = "Update the finished end condition for the selected cabinet"
     bl_options = {'UNDO'}
 
-    side: bpy.props.EnumProperty(
+    side = bpy.props.EnumProperty(
         name="Side",
         items=[
             ('LEFT', "Left", "Left side"),
@@ -72,7 +72,7 @@ class hb_frameless_OT_update_finished_end(bpy.types.Operator):
         default='LEFT'
     )  # type: ignore
 
-    finished_end_type: bpy.props.EnumProperty(
+    finished_end_type = bpy.props.EnumProperty(
         name="Finished End Type",
         items=[
             ('NONE', "None (Remove)", "Remove finished end"),
@@ -82,33 +82,33 @@ class hb_frameless_OT_update_finished_end(bpy.types.Operator):
         default='5PIECE'
     )  # type: ignore
 
-    panel_to_floor: bpy.props.BoolProperty(
+    panel_to_floor = bpy.props.BoolProperty(
         name="Panel to Floor",
         description="Extend panel to floor (below toe kick)",
         default=True
     )  # type: ignore
 
-    match_door_style: bpy.props.BoolProperty(
+    match_door_style = bpy.props.BoolProperty(
         name="Match Door Style",
         description="Match rail/stile dimensions from cabinet door",
         default=True
     )  # type: ignore
 
-    top_rail_width: bpy.props.FloatProperty(
+    top_rail_width = bpy.props.FloatProperty(
         name="Top Rail Width",
         default=inch(2.5),
         unit='LENGTH',
         precision=4
     )  # type: ignore
 
-    bottom_rail_width: bpy.props.FloatProperty(
+    bottom_rail_width = bpy.props.FloatProperty(
         name="Bottom Rail Width",
         default=inch(2.5),
         unit='LENGTH',
         precision=4
     )  # type: ignore
 
-    stile_width: bpy.props.FloatProperty(
+    stile_width = bpy.props.FloatProperty(
         name="Stile Width",
         default=inch(2.5),
         unit='LENGTH',
@@ -401,28 +401,28 @@ class hb_frameless_OT_applied_panel_prompts(bpy.types.Operator):
     bl_description = "Edit applied panel properties"
     bl_options = {'UNDO'}
 
-    top_rail_width: bpy.props.FloatProperty(
+    top_rail_width = bpy.props.FloatProperty(
         name="Top Rail Width",
         default=inch(2.5),
         unit='LENGTH',
         precision=4
     )  # type: ignore
 
-    bottom_rail_width: bpy.props.FloatProperty(
+    bottom_rail_width = bpy.props.FloatProperty(
         name="Bottom Rail Width",
         default=inch(2.5),
         unit='LENGTH',
         precision=4
     )  # type: ignore
 
-    left_stile_width: bpy.props.FloatProperty(
+    left_stile_width = bpy.props.FloatProperty(
         name="Left Stile Width",
         default=inch(2.5),
         unit='LENGTH',
         precision=4
     )  # type: ignore
 
-    right_stile_width: bpy.props.FloatProperty(
+    right_stile_width = bpy.props.FloatProperty(
         name="Right Stile Width",
         default=inch(2.5),
         unit='LENGTH',

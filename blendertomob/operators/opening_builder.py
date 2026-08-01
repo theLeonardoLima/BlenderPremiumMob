@@ -14,7 +14,7 @@ class BTM_OT_InsertOpening(bpy.types.Operator):
     bl_label = "Inserir Abertura"
     bl_options = {'REGISTER', 'UNDO'}
 
-    opening_type: bpy.props.EnumProperty(
+    opening_type = bpy.props.EnumProperty(
         name="Tipo",
         items=[
             ('DOOR', "Porta", "Porta de ambiente"),
@@ -22,21 +22,21 @@ class BTM_OT_InsertOpening(bpy.types.Operator):
         ],
         default='DOOR'
     )
-    width: bpy.props.FloatProperty(
+    width = bpy.props.FloatProperty(
         name="Largura",
         default=0.8,
         min=0.1,
         max=5.0,
         subtype='DISTANCE'
     )
-    height: bpy.props.FloatProperty(
+    height = bpy.props.FloatProperty(
         name="Altura",
         default=2.1,
         min=0.1,
         max=5.0,
         subtype='DISTANCE'
     )
-    sill_height: bpy.props.FloatProperty(
+    sill_height = bpy.props.FloatProperty(
         name="Peitoril",
         description="Afastamento do piso até a base (0 para portas)",
         default=0.0,

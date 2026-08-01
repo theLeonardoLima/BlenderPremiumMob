@@ -2351,10 +2351,10 @@ class home_builder_walls_OT_wall_prompts(bpy.types.Operator):
     wall: hb_types.GeoNodeWall = None
     previous_rotation: float = 0.0
 
-    wall_length: bpy.props.FloatProperty(name="Width",unit='LENGTH',precision=6)# type: ignore
-    wall_height: bpy.props.FloatProperty(name="Height",unit='LENGTH',precision=6)# type: ignore
-    wall_end_height: bpy.props.FloatProperty(name="End Height",unit='LENGTH',precision=6)# type: ignore
-    wall_thickness: bpy.props.FloatProperty(name="Depth",unit='LENGTH',precision=6)# type: ignore
+    wall_length = bpy.props.FloatProperty(name="Width",unit='LENGTH',precision=6)# type: ignore
+    wall_height = bpy.props.FloatProperty(name="Height",unit='LENGTH',precision=6)# type: ignore
+    wall_end_height = bpy.props.FloatProperty(name="End Height",unit='LENGTH',precision=6)# type: ignore
+    wall_thickness = bpy.props.FloatProperty(name="Depth",unit='LENGTH',precision=6)# type: ignore
 
     @classmethod
     def poll(cls, context):
@@ -3787,7 +3787,7 @@ class home_builder_walls_OT_add_room_lights(bpy.types.Operator):
     bl_description = "Add ceiling lights to the room based on room size"
     bl_options = {'UNDO'}
 
-    light_spacing: bpy.props.FloatProperty(
+    light_spacing = bpy.props.FloatProperty(
         name="Light Spacing",
         description="Minimum spacing between lights",
         default=1.2192,  # 4 feet in meters
@@ -3796,7 +3796,7 @@ class home_builder_walls_OT_add_room_lights(bpy.types.Operator):
         unit='LENGTH'
     )  # type: ignore
 
-    edge_offset: bpy.props.FloatProperty(
+    edge_offset = bpy.props.FloatProperty(
         name="Edge Offset",
         description="Distance from walls to lights",
         default=0.6096,  # 2 feet in meters
@@ -3805,7 +3805,7 @@ class home_builder_walls_OT_add_room_lights(bpy.types.Operator):
         unit='LENGTH'
     )  # type: ignore
 
-    light_power: bpy.props.FloatProperty(
+    light_power = bpy.props.FloatProperty(
         name="Light Power",
         description="Power of each light in watts",
         default=200.0,
@@ -3814,7 +3814,7 @@ class home_builder_walls_OT_add_room_lights(bpy.types.Operator):
         unit='POWER'
     )  # type: ignore
 
-    light_temperature: bpy.props.FloatProperty(
+    light_temperature = bpy.props.FloatProperty(
         name="Color Temperature",
         description="Light color temperature in Kelvin",
         default=3000.0,
@@ -3822,7 +3822,7 @@ class home_builder_walls_OT_add_room_lights(bpy.types.Operator):
         max=6500.0
     )  # type: ignore
 
-    ceiling_offset: bpy.props.FloatProperty(
+    ceiling_offset = bpy.props.FloatProperty(
         name="Ceiling Offset", 
         description="Distance below ceiling to place lights",
         default=0.0254,  # 1 inch
@@ -4115,7 +4115,7 @@ class home_builder_walls_OT_update_room_lights(bpy.types.Operator):
     bl_description = "Update properties of all room lights"
     bl_options = {'UNDO'}
 
-    light_power: bpy.props.FloatProperty(
+    light_power = bpy.props.FloatProperty(
         name="Light Power",
         description="Power of each light in watts",
         default=200.0,
@@ -4124,7 +4124,7 @@ class home_builder_walls_OT_update_room_lights(bpy.types.Operator):
         unit='POWER'
     )  # type: ignore
 
-    light_temperature: bpy.props.FloatProperty(
+    light_temperature = bpy.props.FloatProperty(
         name="Color Temperature",
         description="Light color temperature in Kelvin",
         default=3000.0,
@@ -4132,7 +4132,7 @@ class home_builder_walls_OT_update_room_lights(bpy.types.Operator):
         max=6500.0
     )  # type: ignore
 
-    light_radius: bpy.props.FloatProperty(
+    light_radius = bpy.props.FloatProperty(
         name="Shadow Softness",
         description="Light source radius for shadow softness",
         default=0.1,
@@ -4307,7 +4307,7 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
     bl_description = "Setup world environment lighting using HDRI or Sky texture"
     bl_options = {'REGISTER', 'UNDO'}
     
-    lighting_type: bpy.props.EnumProperty(
+    lighting_type = bpy.props.EnumProperty(
         name="Lighting Type",
         items=[
             ('HDRI', 'HDRI Environment', 'Use an HDRI image for environment lighting'),
@@ -4316,7 +4316,7 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
         default='HDRI'
     )  # type: ignore
     
-    hdri_choice: bpy.props.EnumProperty(
+    hdri_choice = bpy.props.EnumProperty(
         name="HDRI",
         items=[
             ('studio.exr', 'Studio', 'Clean studio lighting'),
@@ -4331,7 +4331,7 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
         default='studio.exr'
     )  # type: ignore
     
-    hdri_strength: bpy.props.FloatProperty(
+    hdri_strength = bpy.props.FloatProperty(
         name="Strength",
         description="Brightness of the environment",
         default=1.0,
@@ -4339,7 +4339,7 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
         max=10.0
     )  # type: ignore
     
-    hdri_rotation: bpy.props.FloatProperty(
+    hdri_rotation = bpy.props.FloatProperty(
         name="Rotation",
         description="Rotate the environment horizontally",
         default=0.0,
@@ -4349,7 +4349,7 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
     )  # type: ignore
     
     # Sky texture options
-    sky_type: bpy.props.EnumProperty(
+    sky_type = bpy.props.EnumProperty(
         name="Sky Type",
         items=[
             ('PREETHAM', 'Preetham', 'Simple sky model'),
@@ -4360,7 +4360,7 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
         default='MULTIPLE_SCATTERING'
     )  # type: ignore
     
-    sun_elevation: bpy.props.FloatProperty(
+    sun_elevation = bpy.props.FloatProperty(
         name="Sun Elevation",
         description="Angle of the sun above the horizon",
         default=0.7854,  # 45 degrees
@@ -4369,7 +4369,7 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
         subtype='ANGLE'
     )  # type: ignore
     
-    sun_rotation: bpy.props.FloatProperty(
+    sun_rotation = bpy.props.FloatProperty(
         name="Sun Rotation",
         description="Horizontal rotation of the sun",
         default=0.0,
@@ -4378,7 +4378,7 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
         subtype='ANGLE'
     )  # type: ignore
     
-    sky_strength: bpy.props.FloatProperty(
+    sky_strength = bpy.props.FloatProperty(
         name="Strength",
         description="Brightness of the sky",
         default=1.0,
@@ -4557,12 +4557,12 @@ class home_builder_walls_OT_add_soffit(bpy.types.Operator):
     bl_description = "Add a soffit to the selected wall(s)"
     bl_options = {'UNDO'}
 
-    height: bpy.props.FloatProperty(
+    height = bpy.props.FloatProperty(
         name="Height",
         description="Soffit height (drop below the ceiling)",
         default=units.inch(12), min=units.inch(1), max=units.inch(48),
         unit='LENGTH', precision=4)  # type: ignore
-    depth: bpy.props.FloatProperty(
+    depth = bpy.props.FloatProperty(
         name="Depth",
         description="Soffit depth from the wall face",
         default=units.inch(13), min=units.inch(1), max=units.inch(60),
@@ -4664,12 +4664,12 @@ class home_builder_walls_OT_soffit_prompts(bpy.types.Operator):
     bl_description = "Edit the soffit's height and depth"
     bl_options = {'UNDO'}
 
-    height: bpy.props.FloatProperty(
+    height = bpy.props.FloatProperty(
         name="Height",
         description="Soffit height (drop below the ceiling)",
         default=units.inch(12), min=units.inch(1), max=units.inch(48),
         unit='LENGTH', precision=4)  # type: ignore
-    depth: bpy.props.FloatProperty(
+    depth = bpy.props.FloatProperty(
         name="Depth",
         description="Soffit depth from the wall face",
         default=units.inch(13), min=units.inch(1), max=units.inch(60),

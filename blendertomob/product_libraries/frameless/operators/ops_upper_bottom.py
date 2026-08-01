@@ -14,7 +14,7 @@ class hb_frameless_OT_create_upper_bottom_detail(bpy.types.Operator):
     bl_description = "Create a new upper cabinet bottom detail with a 2D profile scene"
     bl_options = {'REGISTER', 'UNDO'}
     
-    name: bpy.props.StringProperty(
+    name = bpy.props.StringProperty(
         name="Name",
         description="Name for the upper bottom detail",
         default="Upper Bottom Detail"
