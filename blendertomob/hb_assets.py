@@ -279,7 +279,7 @@ class HB_UL_asset_libraries(bpy.types.UIList):
 
 class HB_OT_add_asset_library(bpy.types.Operator):
     """Add a new asset library entry"""
-    bl_idname = "blendertomob.add_asset_library"
+    bl_idname = "home_builder.add_asset_library"
     bl_label = "Add Asset Library"
 
     def execute(self, context):
@@ -293,7 +293,7 @@ class HB_OT_add_asset_library(bpy.types.Operator):
 
 class HB_OT_remove_asset_library(bpy.types.Operator):
     """Remove the selected asset library entry"""
-    bl_idname = "blendertomob.remove_asset_library"
+    bl_idname = "home_builder.remove_asset_library"
     bl_label = "Remove Asset Library"
 
     def execute(self, context):
@@ -311,7 +311,7 @@ class HB_OT_remove_asset_library(bpy.types.Operator):
 
 class HB_OT_refresh_asset_libraries(bpy.types.Operator):
     """Refresh all user asset libraries"""
-    bl_idname = "blendertomob.refresh_asset_libraries"
+    bl_idname = "home_builder.refresh_asset_libraries"
     bl_label = "Refresh Asset Libraries"
 
     def execute(self, context):
@@ -341,7 +341,7 @@ class VIEW3D_AST_home_builder(bpy.types.AssetShelf):
 
 class HB_OT_assign_asset_catalog(bpy.types.Operator):
     """Assign a catalog to all assets in a .blend file"""
-    bl_idname = "blendertomob.assign_asset_catalog"
+    bl_idname = "home_builder.assign_asset_catalog"
     bl_label = "Assign Asset Catalog"
     bl_description = "Assign a catalog category to all marked assets in the current file"
     bl_options = {'REGISTER', 'UNDO'}

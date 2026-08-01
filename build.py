@@ -24,8 +24,8 @@ def build_zip():
                 
             for file in files:
                 file_path = os.path.join(root, file)
-                # Keep file path relative to zip archive
-                arcname = os.path.relpath(file_path, os.path.dirname(source_dir))
+                # Keep file path relative to source directory (root of zip)
+                arcname = os.path.relpath(file_path, source_dir)
                 zipf.write(file_path, arcname)
                 print(f"  Added: {arcname}")
                 
