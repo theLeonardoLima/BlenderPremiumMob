@@ -5717,6 +5717,7 @@ def draw_wall_editor_overlay(op, context):
 
     from bpy_extras import view3d_utils
     import math
+    from hb_utils import get_builtin_shader
 
     scene_editor = getattr(context.scene, 'hb_wall_editor', None)
     unit_code = scene_editor.unit_system if scene_editor else 'MM'
