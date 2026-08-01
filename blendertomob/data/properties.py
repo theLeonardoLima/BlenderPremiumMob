@@ -525,23 +525,58 @@ classes = (
 
 def register():
     for cls in classes:
-        bpy.utils.register_class(cls)
+        reg_cls = getattr(bpy.types, cls.__name__, None)
+        if reg_cls:
+            try:
+                bpy.utils.unregister_class(reg_cls)
+            except Exception:
+                pass
+        try:
+            bpy.utils.register_class(cls)
+        except Exception:
+            pass
 
     # Register property pointers on Blender data types
-    bpy.types.Object.btm_wall = bpy.props.PointerProperty(type=BTM_PG_WallSegment)
-    bpy.types.Object.btm_plane = bpy.props.PointerProperty(type=BTM_PG_InsertionPlane)
-    bpy.types.Object.btm_opening = bpy.props.PointerProperty(type=BTM_PG_OpeningProperties)
-    bpy.types.Object.btm_cabinet = bpy.props.PointerProperty(type=BTM_PG_CabinetProperties)
-    bpy.types.Scene.btm_settings = bpy.props.PointerProperty(type=BTM_PG_SceneSettings)
+    try:
+        bpy.types.Object.btm_wall = bpy.props.PointerProperty(type=BTM_PG_WallSegment)
+    except Exception:
+        pass
+    try:
+        bpy.types.Object.btm_plane = bpy.props.PointerProperty(type=BTM_PG_InsertionPlane)
+    except Exception:
+        pass
+    try:
+        bpy.types.Object.btm_opening = bpy.props.PointerProperty(type=BTM_PG_OpeningProperties)
+    except Exception:
+        pass
+    try:
+        bpy.types.Object.btm_cabinet = bpy.props.PointerProperty(type=BTM_PG_CabinetProperties)
+    except Exception:
+        pass
+    try:
+        bpy.types.Scene.btm_settings = bpy.props.PointerProperty(type=BTM_PG_SceneSettings)
+    except Exception:
+        pass
 
 
 def unregister():
     # Remove properties from data types
-    del bpy.types.Object.btm_wall
-    del bpy.types.Object.btm_plane
-    del bpy.types.Object.btm_opening
-    del bpy.types.Object.btm_cabinet
-    del bpy.types.Scene.btm_settings
+    for attr in ("btm_wall", "btm_plane", "btm_opening", "btm_cabinet"):
+        if hasattr(bpy.types.Object, attr):
+            try:
+                delattr(bpy.types.Object, attr)
+            except Exception:
+                pass
+    if hasattr(bpy.types.Scene, "btm_settings"):
+        try:
+            delattr(bpy.types.Scene, "btm_settings")
+        except Exception:
+            pass
 
     for cls in reversed(classes):
-        bpy.utils.unregister_class(cls)
+        reg_cls = getattr(bpy.types, cls.__name__, None)
+        if reg_cls:
+            try:
+                bpy.utils.unregister_class(reg_cls)
+            except Exception:
+                pass
