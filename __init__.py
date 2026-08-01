@@ -249,14 +249,16 @@ class Home_Builder_AddonPreferences(bpy.types.AddonPreferences):
 
 def register():
     hb_assets.register()
-    try:
-        bpy.utils.register_class(Home_Builder_AddonPreferences)
-    except ValueError:
+    reg_prefs = getattr(bpy.types, Home_Builder_AddonPreferences.__name__, None)
+    if reg_prefs:
         try:
-            bpy.utils.unregister_class(Home_Builder_AddonPreferences)
+            bpy.utils.unregister_class(reg_prefs)
         except Exception:
             pass
+    try:
         bpy.utils.register_class(Home_Builder_AddonPreferences)
+    except Exception:
+        pass
 
     hb_props.register()
     hb_project.register()
