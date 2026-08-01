@@ -187,7 +187,14 @@ class BTM_AddonPreferences(bpy.types.AddonPreferences):
 def register():
     # Register assets first
     hb_assets.register()
-    bpy.utils.register_class(BTM_AddonPreferences)
+    try:
+        bpy.utils.register_class(BTM_AddonPreferences)
+    except ValueError:
+        try:
+            bpy.utils.unregister_class(BTM_AddonPreferences)
+        except Exception:
+            pass
+        bpy.utils.register_class(BTM_AddonPreferences)
 
     # Register modern data layer and translation
     data.register()

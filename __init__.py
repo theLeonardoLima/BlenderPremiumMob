@@ -1,11 +1,11 @@
-import bpy
+import bpy  # type: ignore
 from . import hb_props
 from . import hb_project
 from . import hb_props_obstacles
 from . import ops
-from .ui import view3d_sidebar
-from .ui import menu_apend
-from .ui import menus
+from .ui import view3d_sidebar  # type: ignore
+from .ui import menu_apend  # type: ignore
+from .ui import menus  # type: ignore
 from .operators import walls
 from .operators import doors_windows
 from .operators import layouts
@@ -29,7 +29,7 @@ from . import molding
 from . import hb_layouts
 from . import hb_assets
 
-from bpy.app.handlers import persistent
+from bpy.app.handlers import persistent  # type: ignore
 
 bl_info = {
     "name": "Home Builder 5",
@@ -79,75 +79,75 @@ def _update_use_viewport_hud(self, context):
 class Home_Builder_AddonPreferences(bpy.types.AddonPreferences):
     bl_idname = __package__
 
-    use_viewport_hud: bpy.props.BoolProperty(
+    use_viewport_hud = bpy.props.BoolProperty(
         name="Viewport Controls",
         description="Draw the scene navigator and selection mode controls "
                     "in the 3D viewport instead of the sidebar",
         default=False,
         update=_update_use_viewport_hud,
-    ) # type: ignore
+    )  # type: ignore
 
-    hide_2d_drawing_panels: bpy.props.BoolProperty(
+    hide_2d_drawing_panels = bpy.props.BoolProperty(
         name="Hide 2D Drawing Panels",
         description="Hide the Layout Views, 2D Details, and Annotations ",
         default=False,
-    ) # type: ignore
+    )  # type: ignore
 
-    wall_color: bpy.props.FloatVectorProperty(name="Wall Color",
+    wall_color = bpy.props.FloatVectorProperty(name="Wall Color",
                                    description="The color of walls",
                                    size=4,
                                    min=0,
                                    max=1,
                                    default=(0.252832,0.500434,0.735662,1.000000),
-                                   subtype="COLOR") # type: ignore
+                                   subtype="COLOR")  # type: ignore
 
-    cabinet_color: bpy.props.FloatVectorProperty(name="Cabinet Color",
+    cabinet_color = bpy.props.FloatVectorProperty(name="Cabinet Color",
                                    description="The color of cabinets",
                                    size=4,
                                    min=0,
                                    max=1,
                                    default=(0.000000,0.500000,0.700000,0.300000),
-                                   subtype="COLOR") # type: ignore    
+                                   subtype="COLOR")  # type: ignore    
     
-    door_window_color: bpy.props.FloatVectorProperty(name="Door Window Color",
+    door_window_color = bpy.props.FloatVectorProperty(name="Door Window Color",
                                    description="The color of doors and windows",
                                    size=4,
                                    min=0,
                                    max=1,
                                    default=(0.000000,0.500000,0.700000,0.100000),
-                                   subtype="COLOR") # type: ignore  
+                                   subtype="COLOR")  # type: ignore  
                                    
-    annotation_color: bpy.props.FloatVectorProperty(name="Text Color",
+    annotation_color = bpy.props.FloatVectorProperty(name="Text Color",
                                 description="The color of text",
                                 size=4,
                                 min=0,
                                 max=1,
                                 default=(0.000000, 0.000000, 0.000000, 1.000000),
-                                subtype="COLOR") # type: ignore    
+                                subtype="COLOR")  # type: ignore    
     
-    annotation_highlight_color: bpy.props.FloatVectorProperty(name="Text Highlight Color",
+    annotation_highlight_color = bpy.props.FloatVectorProperty(name="Text Highlight Color",
                             description="The color of text when highlighted",
                             size=4,
                             min=0,
                             max=1,
                             default=(1.000000, 1.000000, 0.000000, 1.000000),
-                            subtype="COLOR") # type: ignore  
+                            subtype="COLOR")  # type: ignore  
     
-    obstacle_color: bpy.props.FloatVectorProperty(name="Obstacle Color",
+    obstacle_color = bpy.props.FloatVectorProperty(name="Obstacle Color",
                             description="The default color of obstacles",
                             size=4,
                             min=0,
                             max=1,
                             default=(0.900000, 0.700000, 0.400000, 0.800000),
-                            subtype="COLOR") # type: ignore  
+                            subtype="COLOR")  # type: ignore  
     
-    designer_name: bpy.props.StringProperty(
+    designer_name = bpy.props.StringProperty(
 		name="Designer name",
         description="Enter the designer name you want to have appear on reports"
-	)# type: ignore
+	)  # type: ignore
 
     # Layout view defaults
-    line_engine: bpy.props.EnumProperty(
+    line_engine = bpy.props.EnumProperty(
         name="2D Line Engine",
         description="How newly generated 2D layout views draw their line work",
         items=[
@@ -158,9 +158,9 @@ class Home_Builder_AddonPreferences(bpy.types.AddonPreferences):
              'and much faster to render'),
         ],
         default='FREESTYLE'
-    )# type: ignore
+    )  # type: ignore
 
-    default_paper_size: bpy.props.EnumProperty(
+    default_paper_size = bpy.props.EnumProperty(
         name="Default Paper Size",
         description="Default paper size for new layout views",
         items=[
@@ -171,9 +171,9 @@ class Home_Builder_AddonPreferences(bpy.types.AddonPreferences):
             ('A3', 'A3 (297 x 420mm)', ''),
         ],
         default='LEGAL'
-    )# type: ignore
+    )  # type: ignore
 
-    default_layout_scale: bpy.props.EnumProperty(
+    default_layout_scale = bpy.props.EnumProperty(
         name="Default Scale",
         description="Default drawing scale for new layout views",
         items=[
@@ -197,22 +197,22 @@ class Home_Builder_AddonPreferences(bpy.types.AddonPreferences):
             ('1:200', '1:200', 'Site plans'),
         ],
         default='1/4"=1\''
-    )# type: ignore
+    )  # type: ignore
 
-    default_paper_landscape: bpy.props.BoolProperty(
+    default_paper_landscape = bpy.props.BoolProperty(
         name="Default Landscape",
         description="Default orientation for new layout views",
         default=True
-    )# type: ignore
+    )  # type: ignore
 
-    asset_libraries: bpy.props.CollectionProperty(
+    asset_libraries = bpy.props.CollectionProperty(
 		type=hb_assets.HB_AssetLibraryEntry,
-	)# type: ignore
+	)  # type: ignore
 
-    asset_libraries_index: bpy.props.IntProperty(
+    asset_libraries_index = bpy.props.IntProperty(
 		name="Active Library Index",
 		default=0,
-	)# type: ignore
+	)  # type: ignore
 
     def draw(self, context):
         layout = self.layout
@@ -249,7 +249,14 @@ class Home_Builder_AddonPreferences(bpy.types.AddonPreferences):
 
 def register():
     hb_assets.register()
-    bpy.utils.register_class(Home_Builder_AddonPreferences)
+    try:
+        bpy.utils.register_class(Home_Builder_AddonPreferences)
+    except ValueError:
+        try:
+            bpy.utils.unregister_class(Home_Builder_AddonPreferences)
+        except Exception:
+            pass
+        bpy.utils.register_class(Home_Builder_AddonPreferences)
 
     hb_props.register()
     hb_project.register()

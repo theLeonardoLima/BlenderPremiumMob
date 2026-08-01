@@ -404,10 +404,24 @@ classes = (
 
 def register():
     for cls in classes:
-        bpy.utils.register_class(cls)
+        try:
+            bpy.utils.register_class(cls)
+        except ValueError:
+            try:
+                bpy.utils.unregister_class(cls)
+            except Exception:
+                pass
+            bpy.utils.register_class(cls)
 
 
 def unregister():
-    remove_asset_libraries()
-    for cls in classes:
-        bpy.utils.unregister_class(cls)
+    try:
+        remove_asset_libraries()
+    except Exception:
+        pass
+    for cls in reversed(classes):
+        try:
+            bpy.utils.unregister_class(cls)
+        except Exception:
+            pass
+
