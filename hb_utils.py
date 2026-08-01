@@ -60,19 +60,6 @@ def gn_input_data_path(mod, identifier):
     return 'modifiers["%s"]["%s"]' % (mod.name, identifier)
 
 
-def get_builtin_shader(name_3d='UNIFORM_COLOR', name_2d='2D_UNIFORM_COLOR'):
-    """Safe GPU shader retriever across Blender 3.6, 4.x, 5.0.2, and 5.1+."""
-    import gpu
-    try:
-        return gpu.shader.from_builtin(name_3d)
-    except Exception:
-        try:
-            return gpu.shader.from_builtin(name_2d)
-        except Exception:
-            return gpu.shader.from_builtin('UNIFORM_COLOR')
-
-
-
 # =============================================================================
 # BASE POINT HELPER FUNCTIONS
 # =============================================================================
@@ -222,7 +209,7 @@ def run_calc_fix(context, obj=None, passes=2):
 
     # Collect all calculators
     for o in objects_to_update:
-        for calculator in o.home_builder.calculators:
+        for calculator in o.blendertomob.calculators:
             home_builder_calculators.append(calculator)
 
     # Run multiple passes to ensure all dependencies resolve
@@ -255,7 +242,7 @@ def run_calc_fix(context, obj=None, passes=2):
         if o.type == 'MESH':
             try:
                 o.evaluated_get(depsgraph)
-            except:
+            except Exception:
                 pass
 
 

@@ -332,7 +332,7 @@ def _find_calibri():
 def get_label_font(scene):
     """Resolve the font for annotation / label text.
 
-    home_builder.annotation_font wins when the user has set one. With no
+    blendertomob.annotation_font wins when the user has set one. With no
     font set, Calibri is loaded from the system font directory -
     load(check_existing=True) reuses an already-loaded datablock instead
     of duplicating it. When Calibri isn't available (non-Windows, or
@@ -355,7 +355,7 @@ def apply_label_style(text_obj, scene):
     """Apply the resolved annotation font and color to a FONT object.
 
     Font comes from get_label_font (user preference -> Calibri ->
-    Bfont). Color comes from home_builder.annotation_text_color, written
+    Bfont). Color comes from blendertomob.annotation_text_color, written
     to both the object color and a shared Principled material so the
     text reads correctly in every shading mode.
     """

@@ -242,7 +242,7 @@ def run_calc_fix(context, obj=None, passes=2):
         if o.type == 'MESH':
             try:
                 o.evaluated_get(depsgraph)
-            except:
+            except Exception:
                 pass
 
 

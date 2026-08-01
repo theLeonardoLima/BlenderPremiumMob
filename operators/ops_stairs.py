@@ -76,12 +76,12 @@ def add_flight_to_bmesh(bm, num_steps, stair_width, actual_riser, tread_depth, t
     if len(left_verts) >= 3:
         try:
             bm.faces.new(left_verts)
-        except:
+        except Exception:
             pass
     if len(right_verts) >= 3:
         try:
             bm.faces.new(list(reversed(right_verts)))
-        except:
+        except Exception:
             pass
 
     # Back wall

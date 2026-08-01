@@ -704,7 +704,7 @@ class home_builder_layouts_OT_render_layout(bpy.types.Operator):
             # Clean up temp file
             try:
                 os.remove(temp_path)
-            except:
+            except Exception:
                 pass
             
             # Open in Image Editor if available, otherwise open new window
@@ -982,7 +982,7 @@ class home_builder_layouts_OT_export_all_to_pdf(bpy.types.Operator):
             for temp_path in temp_images:
                 try:
                     os.remove(temp_path)
-                except:
+                except Exception:
                     pass
             
             # Restore original scene
@@ -1136,7 +1136,7 @@ class home_builder_layouts_OT_add_dimension(bpy.types.Operator, hb_placement.Dim
             try:
                 eval_obj = obj.evaluated_get(depsgraph)
                 mesh = eval_obj.to_mesh()
-            except:
+            except Exception:
                 continue
             
             for vert in mesh.vertices:
@@ -1186,7 +1186,7 @@ class home_builder_layouts_OT_add_dimension(bpy.types.Operator, hb_placement.Dim
             try:
                 eval_obj = obj.evaluated_get(depsgraph)
                 mesh = eval_obj.to_mesh()
-            except:
+            except Exception:
                 continue
             
             for vert in mesh.vertices:
@@ -1533,7 +1533,7 @@ class home_builder_layouts_OT_add_dimension_3d(bpy.types.Operator, hb_placement.
             try:
                 eval_obj = obj.evaluated_get(depsgraph)
                 mesh = eval_obj.to_mesh()
-            except:
+            except Exception:
                 continue
             
             for vert in mesh.vertices:
@@ -1961,7 +1961,7 @@ class home_builder_layouts_OT_draw_line(bpy.types.Operator, hb_placement.Placeme
             try:
                 eval_obj = obj.evaluated_get(depsgraph)
                 mesh = eval_obj.to_mesh()
-            except:
+            except Exception:
                 continue
             
             for vert in mesh.vertices:
@@ -2016,7 +2016,7 @@ class home_builder_layouts_OT_draw_line(bpy.types.Operator, hb_placement.Placeme
             try:
                 eval_obj = obj.evaluated_get(depsgraph)
                 mesh = eval_obj.to_mesh()
-            except:
+            except Exception:
                 continue
             
             for vert in mesh.vertices:
@@ -2660,7 +2660,7 @@ class home_builder_layouts_OT_draw_rectangle(bpy.types.Operator, hb_placement.Pl
             try:
                 eval_obj = obj.evaluated_get(depsgraph)
                 mesh = eval_obj.to_mesh()
-            except:
+            except Exception:
                 continue
             
             for vert in mesh.vertices:
@@ -2702,7 +2702,7 @@ class home_builder_layouts_OT_draw_rectangle(bpy.types.Operator, hb_placement.Pl
             try:
                 eval_obj = obj.evaluated_get(depsgraph)
                 mesh = eval_obj.to_mesh()
-            except:
+            except Exception:
                 continue
             
             for vert in mesh.vertices:
@@ -3202,7 +3202,7 @@ class home_builder_layouts_OT_draw_circle(bpy.types.Operator, hb_placement.Place
             try:
                 eval_obj = obj.evaluated_get(depsgraph)
                 mesh = eval_obj.to_mesh()
-            except:
+            except Exception:
                 continue
             
             for vert in mesh.vertices:
@@ -3244,7 +3244,7 @@ class home_builder_layouts_OT_draw_circle(bpy.types.Operator, hb_placement.Place
             try:
                 eval_obj = obj.evaluated_get(depsgraph)
                 mesh = eval_obj.to_mesh()
-            except:
+            except Exception:
                 continue
             
             for vert in mesh.vertices:
@@ -3655,7 +3655,7 @@ class home_builder_layouts_OT_add_text(bpy.types.Operator, hb_placement.Placemen
             try:
                 eval_obj = obj.evaluated_get(depsgraph)
                 mesh = eval_obj.to_mesh()
-            except:
+            except Exception:
                 continue
             
             for vert in mesh.vertices:
@@ -3697,7 +3697,7 @@ class home_builder_layouts_OT_add_text(bpy.types.Operator, hb_placement.Placemen
             try:
                 eval_obj = obj.evaluated_get(depsgraph)
                 mesh = eval_obj.to_mesh()
-            except:
+            except Exception:
                 continue
             
             for vert in mesh.vertices:
@@ -4075,7 +4075,7 @@ class home_builder_layouts_OT_generate_2d_plan(bpy.types.Operator):
                     try:
                         cage = hb_types.GeoNodeCage(child)
                         dim_x = cage.get_input('Dim X')
-                    except:
+                    except Exception:
                         dim_x = 0
                     openings.append((child.location.x, dim_x))
 
@@ -4102,11 +4102,11 @@ class home_builder_layouts_OT_generate_2d_plan(bpy.types.Operator):
             # Get miter angles for mitered corner geometry
             try:
                 left_angle = wall.get_input('Left Angle')
-            except:
+            except Exception:
                 left_angle = 0.0
             try:
                 right_angle = wall.get_input('Right Angle')
-            except:
+            except Exception:
                 right_angle = 0.0
 
             left_offset = thickness * math.tan(left_angle) if abs(left_angle) > 0.001 else 0.0

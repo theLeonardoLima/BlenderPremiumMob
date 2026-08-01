@@ -485,7 +485,7 @@ class PlacementMixin:
                     height = geo_obj.get_input('Dim Z')
                     x_end = x_start + width
                     child_z_end = child_z_start + height
-                except:
+                except Exception:
                     pass
             # Vertical filtering (opt-in): skip children whose Z range doesn't
             # overlap the placed object, so e.g. a base cabinet doesn't block a

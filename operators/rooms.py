@@ -7,7 +7,7 @@ from .. import hb_project
 # =============================================================================
 
 class home_builder_OT_create_room(bpy.types.Operator):
-    bl_idname = "home_builder.create_room"
+    bl_idname = "blendertomob.create_room"
     bl_label = "Create Room"
     bl_description = "Create a new room scene"
     bl_options = {'UNDO'}
@@ -47,12 +47,12 @@ class home_builder_OT_create_room(bpy.types.Operator):
         use_snap_backface_culling = tool_settings.use_snap_backface_culling
         
         # Store the active product library so the new room keeps it
-        product_tab = original_scene.home_builder.product_tab
+        product_tab = original_scene.blendertomob.product_tab
 
         # Create new scene
         new_scene = bpy.data.scenes.new(self.room_name)
         new_scene['IS_ROOM_SCENE'] = True
-        new_scene.home_builder.product_tab = product_tab
+        new_scene.blendertomob.product_tab = product_tab
         
         # Save view state of original scene if it's a room
         if hb_utils.is_room_scene(original_scene):
@@ -84,7 +84,7 @@ class home_builder_OT_create_room(bpy.types.Operator):
 
 
 class home_builder_OT_switch_room(bpy.types.Operator):
-    bl_idname = "home_builder.switch_room"
+    bl_idname = "blendertomob.switch_room"
     bl_label = "Switch Room"
     bl_description = "Switch to a different room scene"
     bl_options = {'UNDO'}
@@ -113,7 +113,7 @@ class home_builder_OT_switch_room(bpy.types.Operator):
 
 
 class home_builder_OT_delete_room(bpy.types.Operator):
-    bl_idname = "home_builder.delete_room"
+    bl_idname = "blendertomob.delete_room"
     bl_label = "Delete Room"
     bl_description = "Delete a room scene"
     bl_options = {'UNDO'}
@@ -169,7 +169,7 @@ class home_builder_OT_delete_room(bpy.types.Operator):
 
 
 class home_builder_OT_rename_room(bpy.types.Operator):
-    bl_idname = "home_builder.rename_room"
+    bl_idname = "blendertomob.rename_room"
     bl_label = "Rename Room"
     bl_description = "Rename a room"
     bl_options = {'UNDO'}
@@ -215,7 +215,7 @@ class home_builder_OT_rename_room(bpy.types.Operator):
 
 
 class home_builder_OT_duplicate_room(bpy.types.Operator):
-    bl_idname = "home_builder.duplicate_room"
+    bl_idname = "blendertomob.duplicate_room"
     bl_label = "Duplicate Room"
     bl_description = "Duplicate the current room scene"
     bl_options = {'UNDO'}
@@ -266,15 +266,15 @@ class home_builder_OT_duplicate_room(bpy.types.Operator):
 
         # Fall back to the new scene name downstream instead of showing the
         # source room's label.
-        new_scene.home_builder.room_name = ""
+        new_scene.blendertomob.room_name = ""
 
         # Drop the duplicate at the end of the room list.
         other_rooms = [s for s in bpy.data.scenes
                        if s is not new_scene
                        and not s.get('IS_LAYOUT_VIEW')
                        and not s.get('IS_DETAIL_VIEW')]
-        orders = [s.home_builder.sort_order for s in other_rooms]
-        new_scene.home_builder.sort_order = (max(orders) + 1) if orders else 0
+        orders = [s.blendertomob.sort_order for s in other_rooms]
+        new_scene.blendertomob.sort_order = (max(orders) + 1) if orders else 0
 
         self.report({'INFO'}, f"Duplicated room as: {new_scene.name}")
         return {'FINISHED'}
@@ -282,7 +282,7 @@ class home_builder_OT_duplicate_room(bpy.types.Operator):
 
 class home_builder_OT_move_room_scene(bpy.types.Operator):
     """Move room scene up or down in the list"""
-    bl_idname = "home_builder.move_room_scene"
+    bl_idname = "blendertomob.move_room_scene"
     bl_label = "Move Room Scene"
     bl_description = "Move room scene up or down in the list"
     bl_options = {'UNDO'}
@@ -291,16 +291,16 @@ class home_builder_OT_move_room_scene(bpy.types.Operator):
 
     def ensure_sort_orders_initialized(self, room_scenes):
         """Make sure all scenes have unique sort_order values."""
-        orders = [s.home_builder.sort_order for s in room_scenes]
+        orders = [s.blendertomob.sort_order for s in room_scenes]
         if len(set(orders)) != len(orders):
             # Any duplicate makes a neighbor swap invisible (two equal
             # values swap to the same list). Re-sequence in the currently
             # displayed order (sort_order, then name -- matching the UI's
             # stable sort) so normalizing never reshuffles the list.
             displayed = sorted(room_scenes,
-                               key=lambda s: (s.home_builder.sort_order, s.name))
+                               key=lambda s: (s.blendertomob.sort_order, s.name))
             for i, scene in enumerate(displayed):
-                scene.home_builder.sort_order = i
+                scene.blendertomob.sort_order = i
 
     def execute(self, context):
         # Get room scenes (not layout or detail views)
@@ -314,7 +314,7 @@ class home_builder_OT_move_room_scene(bpy.types.Operator):
         self.ensure_sort_orders_initialized(room_scenes)
         
         # Sort by sort_order
-        room_scenes = sorted(room_scenes, key=lambda s: s.home_builder.sort_order)
+        room_scenes = sorted(room_scenes, key=lambda s: s.blendertomob.sort_order)
         
         scene = context.scene
         
@@ -337,8 +337,8 @@ class home_builder_OT_move_room_scene(bpy.types.Operator):
             neighbor = room_scenes[idx + 1]
         
         # Swap sort_order values
-        scene.home_builder.sort_order, neighbor.home_builder.sort_order = \
-            neighbor.home_builder.sort_order, scene.home_builder.sort_order
+        scene.blendertomob.sort_order, neighbor.blendertomob.sort_order = \
+            neighbor.blendertomob.sort_order, scene.blendertomob.sort_order
         
         return {'FINISHED'}
 
@@ -460,7 +460,7 @@ def organize_room_collections(scene):
 
 
 class home_builder_OT_toggle_link_room(bpy.types.Operator):
-    bl_idname = "home_builder.toggle_link_room"
+    bl_idname = "blendertomob.toggle_link_room"
     bl_label = "Toggle Link Room"
     bl_description = "Link or unlink a room in the current scene"
     bl_options = {'UNDO'}
@@ -479,7 +479,7 @@ class home_builder_OT_toggle_link_room(bpy.types.Operator):
         # Check if already linked — if so, unlink
         for obj in target_scene.objects:
             if obj.get('IS_LINKED_ROOM') and obj.get('LINKED_ROOM_SOURCE') == room_name:
-                bpy.ops.home_builder.unlink_room(object_name=obj.name)
+                bpy.ops.blendertomob.unlink_room(object_name=obj.name)
                 return {'FINISHED'}
         
         # Not linked yet — link it
@@ -537,7 +537,7 @@ class home_builder_OT_toggle_link_room(bpy.types.Operator):
 
 
 class home_builder_OT_toggle_linked_room_category(bpy.types.Operator):
-    bl_idname = "home_builder.toggle_linked_room_category"
+    bl_idname = "blendertomob.toggle_linked_room_category"
     bl_label = "Toggle Linked Category"
     bl_description = "Toggle whether a category is included in the linked room"
     bl_options = {'UNDO'}
@@ -594,7 +594,7 @@ class home_builder_OT_toggle_linked_room_category(bpy.types.Operator):
 
 
 class home_builder_OT_unlink_room(bpy.types.Operator):
-    bl_idname = "home_builder.unlink_room"
+    bl_idname = "blendertomob.unlink_room"
     bl_label = "Unlink Room"
     bl_description = "Remove a linked room from the current scene"
     bl_options = {'UNDO'}

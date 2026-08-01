@@ -543,7 +543,7 @@ class hb_frameless_OT_place_cabinet(bpy.types.Operator, WallObjectPlacementMixin
             cage_height = cage.get_input('Dim Z')
             cage_z_start = cage_obj.location.z
             cage_z_end = cage_z_start + cage_height
-        except:
+        except Exception:
             return None
         
         # Get cabinet vertical bounds

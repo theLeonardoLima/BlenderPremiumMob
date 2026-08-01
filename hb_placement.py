@@ -477,7 +477,7 @@ class PlacementMixin:
             x_end = x_start
             child_z_start = child.location.z
             child_z_end = child_z_start
-            if hasattr(child, 'home_builder') and child.home_builder.mod_name:
+            if hasattr(child, 'home_builder') and child.blendertomob.mod_name:
                 try:
                     from . import hb_types
                     geo_obj = hb_types.GeoNodeObject(child)
@@ -485,7 +485,7 @@ class PlacementMixin:
                     height = geo_obj.get_input('Dim Z')
                     x_end = x_start + width
                     child_z_end = child_z_start + height
-                except:
+                except Exception:
                     pass
             # Vertical filtering (opt-in): skip children whose Z range doesn't
             # overlap the placed object, so e.g. a base cabinet doesn't block a
@@ -976,7 +976,7 @@ class PlacementMixin:
             child_z_start = child.location.z
             child_z_end = child_z_start
             child_width = 0
-            if hasattr(child, 'home_builder') and child.home_builder.mod_name:
+            if hasattr(child, 'home_builder') and child.blendertomob.mod_name:
                 try:
                     geo_obj = hb_types.GeoNodeObject(child)
                     child_width = geo_obj.get_input('Dim X')

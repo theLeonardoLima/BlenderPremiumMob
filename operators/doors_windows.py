@@ -222,7 +222,7 @@ class WallObjectPlacementMixin(hb_placement.PlacementMixin):
                     for space in area.spaces:
                         if space.type == 'VIEW_3D':
                             return space.region_3d.view_distance
-        except:
+        except Exception:
             pass
         return 10.0
     
@@ -1206,7 +1206,7 @@ class home_builder_doors_windows_OT_flip_door_swing(bpy.types.Operator):
                     current = door_swing.get_input('Swing Inside')
                     door_swing.set_input('Swing Inside', not current)
                     self.report({'INFO'}, "Door swing flipped")
-                except:
+                except Exception:
                     self.report({'WARNING'}, "Could not find Swing Inside input")
                 break
         return {'FINISHED'}
@@ -1232,7 +1232,7 @@ class home_builder_doors_windows_OT_flip_door_hand(bpy.types.Operator):
                     current = door_swing.get_input('Is Left')
                     door_swing.set_input('Is Left', not current)
                     self.report({'INFO'}, "Door hand flipped")
-                except:
+                except Exception:
                     self.report({'WARNING'}, "Could not find Is Left input")
                 break
         return {'FINISHED'}
@@ -1259,7 +1259,7 @@ class home_builder_doors_windows_OT_toggle_double_door(bpy.types.Operator):
                     door_swing.set_input('Is Double', not current)
                     status = "double" if not current else "single"
                     self.report({'INFO'}, f"Door set to {status}")
-                except:
+                except Exception:
                     self.report({'WARNING'}, "Could not find Is Double input")
                 break
         return {'FINISHED'}
@@ -1319,8 +1319,8 @@ def _copy_geo_value_inputs(src_geo, dst_geo):
     either node group are skipped. Clones a placed door/window's edited state
     onto its duplicate."""
     try:
-        src_mod = src_geo.obj.modifiers[src_geo.obj.home_builder.mod_name]
-        dst_mod = dst_geo.obj.modifiers[dst_geo.obj.home_builder.mod_name]
+        src_mod = src_geo.obj.modifiers[src_geo.obj.blendertomob.mod_name]
+        dst_mod = dst_geo.obj.modifiers[dst_geo.obj.blendertomob.mod_name]
     except (KeyError, AttributeError, TypeError):
         return
     if not src_mod.node_group or not dst_mod.node_group:

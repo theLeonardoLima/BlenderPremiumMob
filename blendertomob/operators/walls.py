@@ -1655,7 +1655,7 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
                     for space in area.spaces:
                         if space.type == 'VIEW_3D':
                             return space.region_3d.view_distance
-        except:
+        except Exception:
             pass
         return 10.0  # Default fallback
 

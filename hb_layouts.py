@@ -1932,12 +1932,12 @@ class PlanView(LayoutView):
             # Get child dimensions if it's a geo node object
             child_width = 0
             child_height = 0
-            if hasattr(child, 'home_builder') and child.home_builder.mod_name:
+            if hasattr(child, 'home_builder') and child.blendertomob.mod_name:
                 try:
                     geo_obj = hb_types.GeoNodeObject(child)
-                    child_width = geo_obj.get_input('Dim X') if 'Dim X' in [i.name for i in geo_obj.obj.modifiers[geo_obj.obj.home_builder.mod_name].node_group.interface.items_tree] else 0
-                    child_height = geo_obj.get_input('Dim Z') if 'Dim Z' in [i.name for i in geo_obj.obj.modifiers[geo_obj.obj.home_builder.mod_name].node_group.interface.items_tree] else 0
-                except:
+                    child_width = geo_obj.get_input('Dim X') if 'Dim X' in [i.name for i in geo_obj.obj.modifiers[geo_obj.obj.blendertomob.mod_name].node_group.interface.items_tree] else 0
+                    child_height = geo_obj.get_input('Dim Z') if 'Dim Z' in [i.name for i in geo_obj.obj.modifiers[geo_obj.obj.blendertomob.mod_name].node_group.interface.items_tree] else 0
+                except Exception:
                     pass
             
             # Update bounds
@@ -2116,12 +2116,12 @@ class View3D(LayoutView):
             # Get child dimensions if it's a geo node object
             child_width = 0
             child_height = 0
-            if hasattr(child, 'home_builder') and child.home_builder.mod_name:
+            if hasattr(child, 'home_builder') and child.blendertomob.mod_name:
                 try:
                     geo_obj = hb_types.GeoNodeObject(child)
-                    child_width = geo_obj.get_input('Dim X') if 'Dim X' in [i.name for i in geo_obj.obj.modifiers[geo_obj.obj.home_builder.mod_name].node_group.interface.items_tree] else 0
-                    child_height = geo_obj.get_input('Dim Z') if 'Dim Z' in [i.name for i in geo_obj.obj.modifiers[geo_obj.obj.home_builder.mod_name].node_group.interface.items_tree] else 0
-                except:
+                    child_width = geo_obj.get_input('Dim X') if 'Dim X' in [i.name for i in geo_obj.obj.modifiers[geo_obj.obj.blendertomob.mod_name].node_group.interface.items_tree] else 0
+                    child_height = geo_obj.get_input('Dim Z') if 'Dim Z' in [i.name for i in geo_obj.obj.modifiers[geo_obj.obj.blendertomob.mod_name].node_group.interface.items_tree] else 0
+                except Exception:
                     pass
             
             # Update bounds
@@ -2846,7 +2846,7 @@ class MultiView(LayoutView):
             depth = cage.get_input('Dim Y')
             height = cage.get_input('Dim Z')
             return (width, depth, height)
-        except:
+        except Exception:
             pass
         
         # Fallback to bounding box

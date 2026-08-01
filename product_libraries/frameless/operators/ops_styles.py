@@ -991,7 +991,7 @@ class hb_frameless_OT_update_cabinet_pulls(bpy.types.Operator):
                         updated_count += 1
                     updated_objs.append(obj)
                     updated_objs.append(parent)
-            except:
+            except Exception:
                 pass
 
         # Force driver recalculation

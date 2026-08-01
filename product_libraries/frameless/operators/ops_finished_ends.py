@@ -211,7 +211,7 @@ class hb_frameless_OT_update_finished_end(bpy.types.Operator):
         tkh_value = 0
         try:
             tkh_value = cabinet_obj.get('Toe Kick Height', 0)
-        except:
+        except Exception:
             pass
         
         # Create the base panel
@@ -302,7 +302,7 @@ class hb_frameless_OT_update_finished_end(bpy.types.Operator):
                 door_style_mod.set_input("Stile Material", material)
                 door_style_mod.set_input("Rail Material", material)
                 door_style_mod.set_input("Panel Material", material)
-            except:
+            except Exception:
                 pass  # Some inputs may not exist
         
         door_style_mod.mod.show_viewport = True

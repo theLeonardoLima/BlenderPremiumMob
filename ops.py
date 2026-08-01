@@ -9,7 +9,7 @@ import bmesh
 from . import hb_utils
 
 class home_builder_OT_to_do(bpy.types.Operator):
-    bl_idname = "home_builder.to_do"
+    bl_idname = "blendertomob.to_do"
     bl_label = "To Do"
     bl_description = "This is a placeholder for a to do list"
 
@@ -28,7 +28,7 @@ class home_builder_OT_to_do(bpy.types.Operator):
 
 
 class home_builder_OT_set_recommended_settings(bpy.types.Operator):
-    bl_idname = "home_builder.set_recommended_settings"
+    bl_idname = "blendertomob.set_recommended_settings"
     bl_label = "Set Recommended Settings"
     bl_description = "This will set the recommended blender settings"
 
@@ -196,7 +196,7 @@ class home_builder_annotations_OT_apply_settings_to_all(bpy.types.Operator):
 
 
 class home_builder_OT_rendering_settings(bpy.types.Operator):
-    bl_idname = "home_builder.rendering_settings"
+    bl_idname = "blendertomob.rendering_settings"
     bl_label = "Rendering Settings"
     bl_description = "Configure common Eevee rendering settings"
     bl_options = {'REGISTER', 'UNDO'}
@@ -269,7 +269,7 @@ class home_builder_OT_rendering_settings(bpy.types.Operator):
 
 
 class home_builder_OT_create_camera(bpy.types.Operator):
-    bl_idname = "home_builder.create_camera"
+    bl_idname = "blendertomob.create_camera"
     bl_label = "Create Camera"
     bl_description = "Create a camera from the current viewport view"
     bl_options = {'REGISTER', 'UNDO'}
@@ -541,7 +541,7 @@ def _draw_scale_line(operator, context):
 
 
 class home_builder_OT_set_scale_with_two_points(bpy.types.Operator):
-    bl_idname = "home_builder.set_scale_with_two_points"
+    bl_idname = "blendertomob.set_scale_with_two_points"
     bl_label = "Set Image Scale"
     bl_description = "Scale a reference image by clicking two points of a known distance"
     bl_options = {'UNDO'}

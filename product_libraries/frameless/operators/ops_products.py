@@ -369,12 +369,12 @@ class hb_frameless_OT_convert_to_door_panel(bpy.types.Operator):
                         door_style_mod.set_input("Center Mid Rail", door_style.center_mid_rail)
                         if not door_style.center_mid_rail:
                             door_style_mod.set_input("Mid Rail Location", door_style.mid_rail_location)
-                except:
+                except Exception:
                     pass
             else:
                 try:
                     door_style_mod.set_input("Add Mid Rail", False)
-                except:
+                except Exception:
                     pass
 
             # Materials from cabinet style
@@ -390,7 +390,7 @@ class hb_frameless_OT_convert_to_door_panel(bpy.types.Operator):
                             door_style_mod.set_input("Panel Material", glass_mat)
                         else:
                             door_style_mod.set_input("Panel Material", material)
-                    except:
+                    except Exception:
                         pass
         else:
             # No door style - use sensible defaults

@@ -1073,7 +1073,7 @@ class Frameless_Door_Style(PropertyGroup):
             try:
                 front_height = front.get_input("Length")
                 front_width = front.get_input("Width")
-            except:
+            except Exception:
                 return "Could not read front dimensions"
             
             print(f"Front height: {units.meter_to_inch(front_height)}, Front width: {units.meter_to_inch(front_width)}")
@@ -1134,13 +1134,13 @@ class Frameless_Door_Style(PropertyGroup):
                         door_style_mod.set_input("Center Mid Rail", self.center_mid_rail)
                         if not self.center_mid_rail:
                             door_style_mod.set_input("Mid Rail Location", self.mid_rail_location)
-                except:
+                except Exception:
                     pass  # Input may not exist on all door style modifiers
             else:
                 # Disable mid rail if not needed
                 try:
                     door_style_mod.set_input("Add Mid Rail", False)
-                except:
+                except Exception:
                     pass
             
             # Inherit materials from parent cabinet's style

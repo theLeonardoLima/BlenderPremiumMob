@@ -29,7 +29,7 @@ def load_library_index() -> dict:
         try:
             with open(index_path, 'r', encoding='utf-8') as f:
                 return json.load(f)
-        except:
+        except Exception:
             pass
     
     return {"details": []}
