@@ -22,7 +22,6 @@ outward), and returned as world XY point lists ready for the caller
 to localize and extrude.
 """
 
-import bpy
 import math
 import mathutils
 

@@ -1600,7 +1600,7 @@ class LShelfClosetStarter(GeoNodeCage):
             shelf.obj['hb_l_index'] = len(shelves)
             shelf.obj['MENU_ID'] = 'HOME_BUILDER_MT_closet_part_commands'
             shelf.set_input('Mirror Y', True)
-            notch = shelf.add_part_modifier('CPM_CORNERNOTCH', 'L Notch')
+            shelf.add_part_modifier('CPM_CORNERNOTCH', 'L Notch')
             shelves.append(shelf.obj)
         return shelves
 
@@ -1672,10 +1672,10 @@ class LShelfClosetStarter(GeoNodeCage):
             # the rest evenly between. Footprint W x D with the inner
             # front corner notched away to leave the two wings.
             shelves = self._reconcile_l_shelves()
-            interior_lo = kick + (st if floor else st)
+            kick + (st if floor else st)
             z_bottom = kick
             z_top = H - st
-            n_mid = max(0, len(shelves) - 2)
+            max(0, len(shelves) - 2)
             for i, shelf in enumerate(shelves):
                 if i == 0:
                     z = z_bottom

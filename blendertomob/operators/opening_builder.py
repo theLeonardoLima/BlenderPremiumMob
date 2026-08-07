@@ -1,5 +1,4 @@
 import bpy
-import math
 import gpu
 import json
 from gpu_extras.batch import batch_for_shader
@@ -86,7 +85,7 @@ class BTM_OT_InsertOpening(bpy.types.Operator):
 
         self.wall_t = 0.5  # meio do segmento
         self.target_seg_idx = 0
-        
+
         self.sill = self.sill_height
         if self.opening_type == 'DOOR':
             self.sill = 0.0
@@ -210,14 +209,14 @@ class BTM_OT_InsertOpening(bpy.types.Operator):
                     segments.append((start_local, end_local, seg['thickness'], seg['height']))
             except Exception:
                 pass
-        
+
         if not segments:
             # Fallback
             length = wall_obj.btm_wall.length
             start_local = Vector((0.0, 0.0, 0.0))
             end_local = Vector((length, 0.0, 0.0))
             segments.append((start_local, end_local, wall_obj.btm_wall.thickness, wall_obj.btm_wall.height_start))
-            
+
         return segments
 
     # -------------------------------------------------------------------
@@ -265,7 +264,7 @@ class BTM_OT_InsertOpening(bpy.types.Operator):
             for idx, seg in enumerate(segments):
                 A = wall_obj.matrix_world @ seg[0]
                 B = wall_obj.matrix_world @ seg[1]
-                
+
                 dist, t = self._distance_to_segment(self.mouse_pos_3d, A, B)
                 if dist < min_dist:
                     min_dist = dist
@@ -305,7 +304,7 @@ class BTM_OT_InsertOpening(bpy.types.Operator):
             if abs(denom) > 0.0001:
                 t_ray = (A - self.ray_origin).dot(normal_vec) / denom
                 P_hit = self.ray_origin + t_ray * self.ray_direction
-                
+
                 if self.opening_type == 'DOOR':
                     self.sill = 0.0
                 else:
@@ -493,7 +492,7 @@ class BTM_OT_InsertOpening(bpy.types.Operator):
         # 1. Linhas de extensão (cinza translúcido)
         gpu.state.blend_set('ALPHA')
         shader = gpu.shader.from_builtin('POLYLINE_UNIFORM_COLOR')
-        
+
         ext_verts = [A, A_off, B, B_off, P_door, P_off]
         batch_ext = batch_for_shader(shader, 'LINES', {"pos": ext_verts})
         shader.bind()
@@ -553,7 +552,7 @@ class BTM_OT_InsertOpening(bpy.types.Operator):
                 blf.color(font_id, 0.0, 0.0, 0.0, 0.9)
                 blf.position(font_id, co_2d_sill.x + 1, co_2d_sill.y - 1, 0)
                 blf.draw(font_id, sill_formatted)
-                
+
                 blf.color(font_id, 1.0, 0.8, 0.2, 1.0)
                 blf.position(font_id, co_2d_sill.x, co_2d_sill.y, 0)
                 blf.draw(font_id, sill_formatted)

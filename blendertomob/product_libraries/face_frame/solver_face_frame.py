@@ -1780,7 +1780,7 @@ def mid_stile_dims(layout, gap_index):
         return (0.0, 0.0, layout.fft)
 
     bay_a = layout.bays[gap_index]
-    bay_b = layout.bays[gap_index + 1]
+    layout.bays[gap_index + 1]
     ms = layout.mid_stiles[gap_index]
 
     # Bottom Z (matches mid_stile_position)
@@ -2647,7 +2647,7 @@ def bay_cage_position(layout, bay_index):
     this bay. X = bay's left FF edge. Y = back face of panel. Z = top
     of bottom rail.
     """
-    bay = layout.bays[bay_index]
+    layout.bays[bay_index]
     if layout.cabinet_type == 'PANEL':
         x = bay_x_position(layout, bay_index)
         y = -layout.dim_y
@@ -3353,7 +3353,6 @@ def _single_door_leaf_pivot(layout, rect, cab_props, opening_props):
     Shared between DOOR and PULLOUT (PULLOUT in v1 uses door geometry
     but its pivot rotation is forced to identity by the caller).
     """
-    door_thickness = cab_props.door_thickness
     width, height = _door_panel_size(rect, cab_props, opening_props)
     left_overlay = resolved_overlay(cab_props, opening_props, 'left')
     bottom_overlay = resolved_overlay(cab_props, opening_props, 'bottom')
@@ -4656,7 +4655,7 @@ def intra_bay_boundaries(cabinet_obj, layout, bay_index):
     splitters = bo.get('splitters', [])
     if not splitters:
         return
-    bay = layout.bays[bay_index]
+    layout.bays[bay_index]
     cage_left_x, _ = _cage_x_bounds(layout, bay_index)
     cage_bottom_z = bay_bottom_z(layout, bay_index) + effective_bottom_rail_width(layout, bay_index)
 

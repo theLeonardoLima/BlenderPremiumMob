@@ -42,7 +42,7 @@ from .. import bay_presets
 from .. import props_hb_face_frame
 from .. import exposure
 from . import ops_cabinet
-from .... import hb_placement, hb_types, units
+from .... import hb_placement, hb_types
 
 
 _MAX_BAY_WIDTH = units.inch(36.0)

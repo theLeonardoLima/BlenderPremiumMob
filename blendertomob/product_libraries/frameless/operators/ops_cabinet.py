@@ -1,9 +1,7 @@
 import bpy
 import math
 from .. import types_frameless
-from .. import props_hb_frameless
 from . import ops_placement
-import os
 from mathutils import Vector
 from .... import hb_utils, hb_types, hb_project, units
 
@@ -42,7 +40,7 @@ class hb_frameless_OT_cabinet_prompts(bpy.types.Operator):
         self.cabinet_width = self.cabinet.get_input('Dim X')
         self.cabinet_height = self.cabinet.get_input('Dim Z')
         self.cabinet_depth = self.cabinet.get_input('Dim Y')
-        
+
         # Get toe kick properties if they exist (BASE and TALL cabinets)
         if 'Toe Kick Height' in cabinet_bp:
             self.toe_kick_height = cabinet_bp['Toe Kick Height']
@@ -51,7 +49,7 @@ class hb_frameless_OT_cabinet_prompts(bpy.types.Operator):
         if 'Remove Bottom' in cabinet_bp:
             self.remove_bottom = cabinet_bp['Remove Bottom']
         self.finished_interior = cabinet_bp.get('Finished Interior', False)
-        
+
         wm = context.window_manager
         return wm.invoke_props_dialog(self, width=300)
 
@@ -59,7 +57,7 @@ class hb_frameless_OT_cabinet_prompts(bpy.types.Operator):
         self.cabinet.set_input('Dim X', self.cabinet_width)
         self.cabinet.set_input('Dim Z', self.cabinet_height)
         self.cabinet.set_input('Dim Y', self.cabinet_depth)
-        
+
         # Set toe kick properties if they exist
         if 'Toe Kick Height' in self.cabinet.obj:
             self.cabinet.obj['Toe Kick Height'] = self.toe_kick_height
@@ -92,43 +90,43 @@ class hb_frameless_OT_cabinet_prompts(bpy.types.Operator):
         layout = self.layout
         box = layout.box()
         col = box.column(align=True)
-        
+
         row = col.row(align=True)
         row.label(text="Width:")
         row.prop(self, 'cabinet_width', text="")
-        
+
         row = col.row(align=True)
         row.label(text="Height:")
         row.prop(self, 'cabinet_height', text="")
-        
+
         row = col.row(align=True)
         row.label(text="Depth:")
         row.prop(self, 'cabinet_depth', text="")
-        
+
         # Show toe kick options for BASE and TALL cabinets
         if 'Toe Kick Height' in self.cabinet.obj:
             box = layout.box()
             box.label(text="Toe Kick")
             col = box.column(align=True)
-            
+
             row = col.row(align=True)
             row.label(text="Height:")
             row.prop(self, 'toe_kick_height', text="")
-            
+
             row = col.row(align=True)
             row.label(text="Setback:")
             row.prop(self, 'toe_kick_setback', text="")
-            
+
             row = col.row()
             row.prop(self, 'remove_bottom')
-        
+
         # Base Top Construction for BASE cabinets
         if self.cabinet.obj.get('CABINET_TYPE') == 'BASE':
             box = layout.box()
             box.label(text="Base Top Construction")
             row = box.row()
             self.cabinet.draw_prop(row, 'Base Top Construction', text="")
-        
+
         # Finished Interior option
         box = layout.box()
         box.label(text="Interior")
@@ -161,16 +159,16 @@ class hb_frameless_OT_drop_cabinet_to_countertop(bpy.types.Operator):
 
         main_scene = hb_project.get_main_scene()
         props = main_scene.hb_frameless
-        
+
         countertop_top = props.base_cabinet_height + props.countertop_thickness
         current_height = cabinet.get_input('Dim Z')
         current_top = cabinet_bp.location.z + current_height
-        
+
         new_height = current_top - countertop_top
         cabinet.set_input('Dim Z', new_height)
         cabinet_bp.location.z = countertop_top
         hb_utils.run_calc_fix(context, cabinet.obj)
-        
+
         return {'FINISHED'}
 
 
@@ -214,36 +212,36 @@ class hb_frameless_OT_add_applied_end(bpy.types.Operator):
 
     def create_applied_end(self, context, cabinet_obj, side):
         """Create an applied end panel on the specified side.
-        
+
         Panel covers full cabinet height (including toe kick area) and
         extends past the front to be flush with doors/drawers.
         """
         props = bpy.context.scene.hb_frameless
         cabinet = hb_types.GeoNodeCage(cabinet_obj)
-        
+
         # Get cabinet dimensions
         dim_x = cabinet.var_input('Dim X', 'dim_x')
         dim_y = cabinet.var_input('Dim Y', 'dim_y')
         dim_z = cabinet.var_input('Dim Z', 'dim_z')
-        
+
         # Extension to be flush with door front:
         # door_to_cabinet_gap (0.125") + front_thickness (0.75") = 0.875"
         door_to_cab_gap = units.inch(0.125)
         front_thickness = units.inch(0.75)
         front_extension = door_to_cab_gap + front_thickness
-        
+
         # Create the applied end panel
         panel = types_frameless.CabinetPart()
         panel.create(f'Applied End {side.title()}')
         panel.obj['IS_APPLIED_END_' + side] = True
         panel.obj['MENU_ID'] = 'HOME_BUILDER_MT_cabinet_commands'
         panel.obj['Finish Top'] = True
-        panel.obj['Finish Bottom'] = True        
+        panel.obj['Finish Bottom'] = True
         panel.obj.parent = cabinet_obj
-        
+
         # Position at floor level (Z=0) for full height coverage
         panel.obj.location.z = 0
-        
+
         if side == 'LEFT':
             # Rotate panel to vertical orientation (side panel)
             panel.obj.rotation_euler.y = math.radians(-90)
@@ -254,7 +252,7 @@ class hb_frameless_OT_add_applied_end(bpy.types.Operator):
             panel.driver_input("Length", 'dim_z', [dim_z])
             # Depth extends past front to be flush with door/drawer fronts
             panel.driver_input("Width", f'dim_y+{front_extension}', [dim_y])
-            
+
         elif side == 'RIGHT':
             # Rotate panel to vertical orientation (side panel)
             panel.obj.rotation_euler.y = math.radians(-90)
@@ -265,7 +263,7 @@ class hb_frameless_OT_add_applied_end(bpy.types.Operator):
             panel.driver_input("Length", 'dim_z', [dim_z])
             # Depth extends past front to be flush with door/drawer fronts
             panel.driver_input("Width", f'dim_y+{front_extension}', [dim_y])
-            
+
         elif side == 'BACK':
             # Back panel - at back of cabinet
             panel.obj.rotation_euler.x = math.radians(90)
@@ -276,10 +274,10 @@ class hb_frameless_OT_add_applied_end(bpy.types.Operator):
             panel.driver_input("Length", 'dim_x', [dim_x])
             # Height is full cabinet height
             panel.driver_input("Width", 'dim_z', [dim_z])
-        
+
         # Set thickness
         panel.set_input("Thickness", props.default_carcass_part_thickness)
-        
+
         # Assign cabinet style material to the applied end
         style_index = cabinet_obj.get('CABINET_STYLE_INDEX', 0)
         main_scene = hb_project.get_main_scene()
@@ -294,14 +292,14 @@ class hb_frameless_OT_add_applied_end(bpy.types.Operator):
                 panel.set_input("Edge W2", material_rotated)
                 panel.set_input("Edge L1", material_rotated)
                 panel.set_input("Edge L2", material_rotated)
-                
+
                 # Also set Material input on any cabinet part modifiers
                 for mod in panel.obj.modifiers:
                     if mod.type == 'NODES' and mod.node_group:
                         if 'Material' in mod.node_group.interface.items_tree:
                             node_input = mod.node_group.interface.items_tree['Material']
                             hb_utils.set_gn_input(mod, node_input.identifier, material)
-        
+
         return panel.obj
 
     def execute(self, context):
@@ -309,7 +307,7 @@ class hb_frameless_OT_add_applied_end(bpy.types.Operator):
         if not cabinet_bp:
             self.report({'ERROR'}, "Could not find cabinet")
             return {'CANCELLED'}
-        
+
         sides_to_add = []
         if self.side == 'LEFT':
             sides_to_add = ['LEFT']
@@ -319,18 +317,18 @@ class hb_frameless_OT_add_applied_end(bpy.types.Operator):
             sides_to_add = ['BACK']
         else:  # BOTH
             sides_to_add = ['LEFT', 'RIGHT']
-        
+
         for side in sides_to_add:
             # Remove existing applied end if present
             if self.has_applied_end(cabinet_bp, side):
                 self.remove_applied_end(cabinet_bp, side)
-            
+
             # Create new applied end
             self.create_applied_end(context, cabinet_bp, side)
-        
+
         # Run calc fix
         hb_utils.run_calc_fix(context, cabinet_bp)
-        
+
         return {'FINISHED'}
 
 
@@ -368,7 +366,7 @@ class hb_frameless_OT_remove_applied_end(bpy.types.Operator):
         if not cabinet_bp:
             self.report({'ERROR'}, "Could not find cabinet")
             return {'CANCELLED'}
-        
+
         sides_to_remove = []
         if self.side == 'LEFT':
             sides_to_remove = ['LEFT']
@@ -378,12 +376,12 @@ class hb_frameless_OT_remove_applied_end(bpy.types.Operator):
             sides_to_remove = ['BACK']
         else:  # BOTH
             sides_to_remove = ['LEFT', 'RIGHT']
-        
+
         for side in sides_to_remove:
             for child in list(cabinet_bp.children):
                 if child.get('IS_APPLIED_END_' + side):
                     hb_utils.delete_obj_and_children(child)
-        
+
         return {'FINISHED'}
 
 class hb_frameless_OT_delete_cabinet(bpy.types.Operator):
@@ -425,11 +423,11 @@ class hb_frameless_OT_create_cabinet_group(bpy.types.Operator):
             if any(marker in obj for marker in self.CABINET_LIKE_MARKERS):
                 cabinet_cage = types_frameless.Cabinet(obj)
                 selected_cabinets.append(cabinet_cage)
-        
+
         if not selected_cabinets:
             self.report({'WARNING'}, "No cabinets, products, or appliances selected")
             return {'CANCELLED'}
-        
+
         # Find overall size and base point for new group
         base_point_location, base_point_rotation, overall_width, overall_depth, overall_height = \
             self.calculate_group_bounds(selected_cabinets)
@@ -445,7 +443,7 @@ class hb_frameless_OT_create_cabinet_group(bpy.types.Operator):
         cabinet_group.set_input('Dim Y', overall_depth)
         cabinet_group.set_input('Dim Z', overall_height)
         cabinet_group.set_input('Mirror Y', True)
-        
+
         bpy.ops.object.select_all(action='DESELECT')
 
         # Reparent all selected cabinets to the new group
@@ -453,38 +451,38 @@ class hb_frameless_OT_create_cabinet_group(bpy.types.Operator):
         for selected_cabinet in selected_cabinets:
             # Store world matrix before reparenting
             world_matrix = selected_cabinet.obj.matrix_world.copy()
-            
+
             # Set new parent
             selected_cabinet.obj.parent = cabinet_group.obj
-            
+
             # Restore world position by calculating new local matrix
             selected_cabinet.obj.matrix_world = world_matrix
-        
+
         cabinet_group.obj.select_set(True)
         context.view_layer.objects.active = cabinet_group.obj
 
         bpy.ops.hb_frameless.select_cabinet_group(toggle_on=True,cabinet_group_name=cabinet_group.obj.name)
 
         return {'FINISHED'}
-    
+
     def calculate_group_bounds(self, selected_cabinets):
         """
         Calculate the overall bounds of selected cabinets in world space.
         Works for kitchen islands with cabinets at any rotation (0°, 90°, 180°, 270°).
-        
+
         Cabinet coordinate system:
         - Origin at back-left-bottom
         - Dim X extends in +X (local)
         - Dim Y is MIRRORED, extends in -Y (local) toward front
         - Dim Z extends in +Z (local)
-        
+
         Returns (location, rotation, width, depth, height)
         Location is at back-left-bottom of the world-space bounding box.
         """
 
         if not selected_cabinets:
             return (Vector((0, 0, 0)), (0, 0, 0), 0, 0, 0)
-        
+
         # Initialize world-space bounds
         min_x = float('inf')
         max_x = float('-inf')
@@ -492,7 +490,7 @@ class hb_frameless_OT_create_cabinet_group(bpy.types.Operator):
         max_y = float('-inf')
         min_z = float('inf')
         max_z = float('-inf')
-        
+
         for cabinet in selected_cabinets:
             # Skip cabinets whose modifier has been applied - they're static
             # meshes and we can't read their parametric dimensions.
@@ -502,7 +500,7 @@ class hb_frameless_OT_create_cabinet_group(bpy.types.Operator):
             cab_width = cabinet.get_input('Dim X')
             cab_depth = cabinet.get_input('Dim Y')
             cab_height = cabinet.get_input('Dim Z')
-            
+
             # Define the 8 corners in cabinet's LOCAL space
             # Y is mirrored, so depth extends in -Y direction
             local_corners = [
@@ -515,7 +513,7 @@ class hb_frameless_OT_create_cabinet_group(bpy.types.Operator):
                 Vector((0, -cab_depth, cab_height)),  # front-left-top
                 Vector((cab_width, -cab_depth, cab_height)),  # front-right-top
             ]
-            
+
             # Transform each corner to world space using cabinet's full matrix
             world_matrix = cabinet.obj.matrix_world
             for local_corner in local_corners:
@@ -526,19 +524,19 @@ class hb_frameless_OT_create_cabinet_group(bpy.types.Operator):
                 max_y = max(max_y, world_corner.y)
                 min_z = min(min_z, world_corner.z)
                 max_z = max(max_z, world_corner.z)
-        
+
         # Calculate overall dimensions
         overall_width = max_x - min_x
         overall_depth = max_y - min_y
         overall_height = max_z - min_z
-        
+
         # Group cage location: back-left-bottom of world AABB
         # Since group cage also has mirrored Y, origin is at back (max_y), not front (min_y)
         base_point_location = Vector((min_x, max_y, min_z))
-        
+
         # Group rotation is (0, 0, 0) since we're using world-space AABB
         base_point_rotation = (0, 0, 0)
-        
+
         return (base_point_location, base_point_rotation, overall_width, overall_depth, overall_height)
 
 

@@ -272,16 +272,16 @@ def draw_dimension_labels():
             p2 = bottom_verts[i + 1] if i + 1 < len(bottom_verts) else bottom_verts[0]
             midpoint = p1 + (p2 - p1) * 0.5
             midpoint.z = 0.05
-            
+
             co_2d = location_3d_to_region_2d(region, rv3d, midpoint)
             if co_2d:
                 length_str = units.format_value((p2 - p1).length, scene)
-                
+
                 # Shadow
                 blf.color(font_id, 0.0, 0.0, 0.0, 0.9)
                 blf.position(font_id, co_2d.x + 1, co_2d.y - 1, 0)
                 blf.draw(font_id, length_str)
-                
+
                 # Main text
                 blf.color(font_id, 0.0, 0.8, 1.0, 1.0)
                 blf.position(font_id, co_2d.x, co_2d.y, 0)

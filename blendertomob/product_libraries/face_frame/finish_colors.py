@@ -223,11 +223,11 @@ def get_all_paint_colors():
 
 def get_color_data(color_name, color_type='stain'):
     """Get full color data dict for a given color name.
-    
+
     Args:
         color_name: Name of the color
         color_type: 'stain' or 'paint'
-    
+
     Returns:
         dict with at minimum 'color_1' and 'color_2' keys,
         plus any shader overrides. Returns Natural/Arctic White fallback.
@@ -244,13 +244,13 @@ def get_color_data(color_name, color_type='stain'):
             'color_1': [0.806947, 0.752943, 0.679543, 1.0],
             'color_2': [0.806947, 0.752943, 0.679543, 1.0],
         })
-    
+
     return colors.get(color_name, fallback)
 
 
 def save_custom_color(name, color_data, color_type='stain'):
     """Save a custom color to the user library.
-    
+
     Args:
         name: Color name
         color_data: dict with color_1, color_2, and optional shader overrides
@@ -264,13 +264,13 @@ def save_custom_color(name, color_data, color_type='stain'):
 def delete_custom_color(name, color_type='stain'):
     """Delete a custom color from the user library.
     Cannot delete built-in defaults.
-    
+
     Returns True if deleted, False if not found or is a default.
     """
     defaults = DEFAULT_STAIN_COLORS if color_type == 'stain' else DEFAULT_PAINT_COLORS
     if name in defaults:
         return False  # Can't delete defaults
-    
+
     custom = _load_custom_colors()
     if name in custom.get(color_type, {}):
         del custom[color_type][name]

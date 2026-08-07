@@ -4,7 +4,7 @@ def IF(statement,true,false):
         true - value to return if statement is True
         false - value to return if statement is False
     """
-    if statement == True:
+    if statement:
         return true
     else:
         return false
@@ -23,4 +23,4 @@ def AND(*vars):
     for var in vars:
         if not var:
             return False
-    return True        
+    return True

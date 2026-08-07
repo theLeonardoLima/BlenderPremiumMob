@@ -1226,7 +1226,6 @@ def draw_end_stile_properties(layout, root, role):
 def draw_rail_properties(layout, root, rail_obj, role):
     """Rails are segment-keyed; the editable property is the bay's rail
     width override at the segment's start bay."""
-    cab_props = root.face_frame_cabinet
     seg_start = rail_obj.get('hb_segment_start_bay', 0)
     bays = sorted(
         [c for c in root.children if c.get(types_face_frame.TAG_BAY_CAGE)],

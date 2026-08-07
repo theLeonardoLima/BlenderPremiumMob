@@ -7020,7 +7020,6 @@ class Face_Frame_Scene_Props(PropertyGroup):
     # UI: cabinet sizes section
     # =====================================================================
     def draw_cabinet_sizes_ui(self, layout, context):
-        unit_settings = context.scene.unit_settings
 
         row = layout.row()
         row.label(text="Top Cabinet Clearance:")

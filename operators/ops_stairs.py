@@ -2,7 +2,7 @@ import bpy
 import math
 import bmesh
 from mathutils import Vector, Matrix
-from .. import hb_snap, hb_utils, units
+from .. import hb_snap, units
 
 
 # ---------------------------------------------------------------------------

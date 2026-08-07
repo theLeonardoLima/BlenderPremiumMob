@@ -31,7 +31,6 @@ from bpy_extras import view3d_utils
 
 from ... import units
 from ... import hb_placement
-from ...hb_types import GeoNodeCutpart
 from ...hb_gpu_draw import get_visible_window_bounds
 from . import types_closets
 from . import const_closets as const

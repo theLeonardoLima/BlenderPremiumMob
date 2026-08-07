@@ -1,16 +1,15 @@
 import bpy
 from .. import types_frameless
-from .. import props_hb_frameless
 from .... import hb_utils, hb_types, units
 from . import ops_interior
 
 
 def get_door_height(door_obj):
     """Get the door's height (Length) from the geometry node modifier.
-    
+
     Args:
         door_obj: The door object
-        
+
     Returns:
         Door height in meters, or 0 if not found
     """
@@ -22,27 +21,27 @@ def get_door_height(door_obj):
 
 def get_pull_location_from_position(door_obj):
     """Determine pull location based on the door's world position and size.
-    
-    Uses the door's world Z position to determine whether the pull should be 
-    at Base (top of door), Upper (bottom of door), or Tall (middle of door) 
+
+    Uses the door's world Z position to determine whether the pull should be
+    at Base (top of door), Upper (bottom of door), or Tall (middle of door)
     position. Also checks if the door is tall enough for the Tall pull location.
-    
+
     Args:
         door_obj: The door object (must have world matrix calculated)
-        
+
     Returns:
         'Base', 'Tall', or 'Upper'
     """
     # Get the door's world position
     world_matrix = door_obj.matrix_world
-    
+
     # Get Z position of door bottom in world space
     door_bottom_z = world_matrix.translation.z
-    
+
     # Thresholds in meters (converted from inches)
     BASE_THRESHOLD = units.inch(36)    # Below 36" from floor - use Base
     UPPER_THRESHOLD = units.inch(48)   # Above 48" from floor - use Upper
-    
+
     # First determine location based on position
     if door_bottom_z < BASE_THRESHOLD:
         return 'Base'
@@ -52,7 +51,7 @@ def get_pull_location_from_position(door_obj):
         # Would be Tall, but check if door is tall enough
         door_height = get_door_height(door_obj)
         tall_pull_location = door_obj.get('Tall Pull Vertical Location', units.inch(36))
-        
+
         # If the door height is less than the tall pull vertical location,
         # the pull would be placed off the door - use Base or Upper instead
         if door_height > 0 and door_height < tall_pull_location:
@@ -62,29 +61,29 @@ def get_pull_location_from_position(door_obj):
                 return 'Base'
             else:
                 return 'Upper'
-        
+
         return 'Tall'
 
 
 def assign_pull_locations_to_cabinet(cabinet_bp):
     """Assign appropriate pull locations to all doors in a cabinet.
-    
+
     Scans all door fronts in the cabinet and assigns pull locations
     based on their world positions and sizes.
-    
+
     Args:
         cabinet_bp: The cabinet base point object
     """
     # Update the scene to ensure world matrices are current
     bpy.context.view_layer.update()
-    
+
     for child in cabinet_bp.children_recursive:
         if child.get('IS_DOOR_FRONT'):
             pull_location = get_pull_location_from_position(child)
-            
+
             # Set the Pull Location property (0=Base, 1=Tall, 2=Upper)
             pull_index = {'Base': 0, 'Tall': 1, 'Upper': 2}.get(pull_location, 0)
-            
+
             # Set the Pull Location directly on the object
             if 'Pull Location' in child:
                 child['Pull Location'] = pull_index
@@ -140,7 +139,7 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
         ],
         default='LEFT_DOOR'
     ) # type: ignore
-    
+
     appliance_name = bpy.props.StringProperty(
         name="Appliance Name",
         default="Appliance"
@@ -184,12 +183,12 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
 
     def get_pull_location(self, cabinet_type, position, total_openings):
         """Determine pull location based on cabinet type and opening position.
-        
+
         Args:
             cabinet_type: 'BASE', 'UPPER', or 'TALL'
             position: 0-indexed position from top (0 = top opening)
             total_openings: Total number of openings in the split
-            
+
         Returns:
             'Base', 'Tall', or 'Upper'
         """
@@ -216,12 +215,12 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
     def create_doors(self, bay, door_swing):
         """Create doors opening with specified swing direction."""
         cabinet_type = self.get_cabinet_type(bay.obj)
-        
+
         doors = types_frameless.Doors()
         doors.door_pull_location = self.get_pull_location(cabinet_type, 0, 1)
-        
+
         self.add_cage_to_bay(bay, doors)
-        
+
         # Set door swing: 0=Left, 1=Right, 2=Double
         doors.obj['Door Swing'] = door_swing
 
@@ -256,27 +255,27 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
     def create_built_in_appliance(self, bay):
         """Create built-in appliance: doors on top, appliance 30" in center, doors on bottom."""
         cabinet_type = self.get_cabinet_type(bay.obj)
-        
+
         # Top doors (position 0 of 3)
         top_doors = types_frameless.Doors()
         top_doors.door_pull_location = self.get_pull_location(cabinet_type, 0, 3)
         top_doors.half_overlay_bottom = True
-        
+
         # Center appliance (position 1 of 3)
         appliance = types_frameless.Appliance()
         appliance.appliance_name = "Appliance"
-        
+
         # Bottom doors (position 2 of 3)
         bottom_doors = types_frameless.Doors()
         bottom_doors.door_pull_location = self.get_pull_location(cabinet_type, 2, 3)
         bottom_doors.half_overlay_top = True
-        
+
         splitter = types_frameless.SplitterVertical()
         splitter.splitter_qty = 2
         splitter.opening_sizes = [0, units.inch(30), 0]  # Equal top/bottom, 30" center
         splitter.opening_inserts = [top_doors, appliance, bottom_doors]
         self.add_cage_to_bay(bay, splitter)
-        
+
         # Set double doors
         for child in bay.obj.children_recursive:
             if 'Door Swing' in child:
@@ -286,30 +285,30 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
         """Create built-in double appliance: doors on top, two appliances in center, drawer on bottom."""
         props = bpy.context.scene.hb_frameless
         cabinet_type = self.get_cabinet_type(bay.obj)
-        
+
         # Top doors (position 0 of 4)
         top_doors = types_frameless.Doors()
         top_doors.door_pull_location = self.get_pull_location(cabinet_type, 0, 4)
         top_doors.half_overlay_bottom = True
-        
+
         # First appliance (position 1 of 4)
         appliance1 = types_frameless.Appliance()
         appliance1.appliance_name = "Appliance"
-        
+
         # Second appliance (position 2 of 4)
         appliance2 = types_frameless.Appliance()
         appliance2.appliance_name = "Appliance"
-        
+
         # Bottom drawer (position 3 of 4)
         drawer = types_frameless.Drawer()
         drawer.half_overlay_top = True
-        
+
         splitter = types_frameless.SplitterVertical()
         splitter.splitter_qty = 3
         splitter.opening_sizes = [0, units.inch(30), units.inch(30), props.top_drawer_front_height]
         splitter.opening_inserts = [top_doors, appliance1, appliance2, drawer]
         self.add_cage_to_bay(bay, splitter)
-        
+
         # Set double doors
         for child in bay.obj.children_recursive:
             if 'Door Swing' in child:
@@ -327,34 +326,34 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
 
     def create_stacked_doors(self, bay, door_swing, stack_count=2):
         """Create stacked doors (2 or 3 high).
-        
+
         Args:
             bay: The bay to add to
             door_swing: 0=Left, 1=Right, 2=Double
             stack_count: Number of doors stacked (2 or 3)
         """
         cabinet_type = self.get_cabinet_type(bay.obj)
-        
+
         # Create door inserts for each opening with proper half overlays and pull locations
         inserts = []
         for i in range(stack_count):
             doors = types_frameless.Doors()
             doors.door_pull_location = self.get_pull_location(cabinet_type, i, stack_count)
-            
+
             # Set half overlays: top door needs bottom, bottom door needs top, middle needs both
             if i > 0:  # Not the top door
                 doors.half_overlay_top = True
             if i < stack_count - 1:  # Not the bottom door
                 doors.half_overlay_bottom = True
-            
+
             inserts.append(doors)
-        
+
         splitter = types_frameless.SplitterVertical()
         splitter.splitter_qty = stack_count - 1
         splitter.opening_sizes = [0] * stack_count  # Equal sizes
         splitter.opening_inserts = inserts
         self.add_cage_to_bay(bay, splitter)
-        
+
         # Set door swing after creation
         for child in bay.obj.children_recursive:
             if 'Door Swing' in child:
@@ -364,20 +363,20 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
         """Create 1 drawer over double doors (base cabinet)."""
         props = bpy.context.scene.hb_frameless
         cabinet_type = self.get_cabinet_type(bay.obj)
-        
+
         drawer = types_frameless.Drawer()
         drawer.half_overlay_bottom = True
-        
+
         doors = types_frameless.Doors()
         doors.door_pull_location = self.get_pull_location(cabinet_type, 1, 2)  # position 1 of 2
         doors.half_overlay_top = True
-        
+
         splitter = types_frameless.SplitterVertical()
         splitter.splitter_qty = 1
         splitter.opening_sizes = [props.top_drawer_front_height, 0]
         splitter.opening_inserts = [drawer, doors]
         self.add_cage_to_bay(bay, splitter)
-        
+
         # Set double doors
         for child in bay.obj.children_recursive:
             if 'Door Swing' in child:
@@ -387,12 +386,12 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
         """Create 2 horizontal drawers (side by side) over double doors (base cabinet)."""
         props = bpy.context.scene.hb_frameless
         cabinet_type = self.get_cabinet_type(bay.obj)
-        
+
         # Create horizontal splitter with two drawers side by side
         horiz_splitter = types_frameless.SplitterHorizontal()
         horiz_splitter.splitter_qty = 1
         horiz_splitter.opening_sizes = [0, 0]  # Equal widths
-        
+
         drawer1 = types_frameless.Drawer()
         drawer1.half_overlay_right = True
         drawer1.half_overlay_bottom = True
@@ -400,19 +399,19 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
         drawer2.half_overlay_left = True
         drawer2.half_overlay_bottom = True
         horiz_splitter.opening_inserts = [drawer1, drawer2]
-        
+
         # Create doors for bottom
         doors = types_frameless.Doors()
         doors.door_pull_location = self.get_pull_location(cabinet_type, 1, 2)  # position 1 of 2
         doors.half_overlay_top = True
-        
+
         # Create vertical splitter with horizontal drawer section on top, doors below
         splitter = types_frameless.SplitterVertical()
         splitter.splitter_qty = 1
         splitter.opening_sizes = [props.top_drawer_front_height, 0]
         splitter.opening_inserts = [horiz_splitter, doors]
         self.add_cage_to_bay(bay, splitter)
-        
+
         # Set double doors
         for child in bay.obj.children_recursive:
             if 'Door Swing' in child:
@@ -422,14 +421,14 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
         """Create pullout with drawer above."""
         props = bpy.context.scene.hb_frameless
         cabinet_type = self.get_cabinet_type(bay.obj)
-        
+
         drawer = types_frameless.Drawer()
         drawer.half_overlay_bottom = True
-        
+
         pullout = types_frameless.Pullout()
         pullout.door_pull_location = self.get_pull_location(cabinet_type, 1, 2)
         pullout.half_overlay_top = True
-        
+
         splitter = types_frameless.SplitterVertical()
         splitter.splitter_qty = 1
         splitter.opening_sizes = [props.top_drawer_front_height, 0]
@@ -441,17 +440,17 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
         splitter = types_frameless.SplitterVertical()
         splitter.splitter_qty = 1
         splitter.opening_sizes = [0, units.inch(6)]  # Microwave space, small drawer
-        
+
         appliance = types_frameless.Appliance()
         appliance.appliance_name = "Microwave"
         drawer = types_frameless.Drawer()
-        
+
         splitter.opening_inserts = [appliance, drawer]
         self.add_cage_to_bay(bay, splitter)
 
     def create_doors_with_drawers(self, bay, drawer_count=1):
         """Create doors above drawers (upper cabinet style).
-        
+
         Args:
             bay: The bay to add to
             drawer_count: Number of drawers below (1, 2, or 3)
@@ -459,15 +458,15 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
         props = bpy.context.scene.hb_frameless
         cabinet_type = self.get_cabinet_type(bay.obj)
         total_openings = drawer_count + 1
-        
+
         # Doors on top with half overlay on bottom
         doors = types_frameless.Doors()
         doors.door_pull_location = self.get_pull_location(cabinet_type, 0, total_openings)  # position 0
         doors.half_overlay_bottom = True
-        
+
         inserts = [doors]
         sizes = [0]  # Doors get remaining space
-        
+
         # Add drawers with proper half overlays
         for i in range(drawer_count):
             drawer = types_frameless.Drawer()
@@ -476,7 +475,7 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
                 drawer.half_overlay_bottom = True
             inserts.append(drawer)
             sizes.append(props.top_drawer_front_height)
-        
+
         splitter = types_frameless.SplitterVertical()
         splitter.splitter_qty = drawer_count
         splitter.opening_sizes = sizes
@@ -486,15 +485,15 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
     def create_doors_with_pullout(self, bay):
         """Create doors above pullout (upper cabinet style)."""
         cabinet_type = self.get_cabinet_type(bay.obj)
-        
+
         doors = types_frameless.Doors()
         doors.door_pull_location = self.get_pull_location(cabinet_type, 0, 2)  # position 0 of 2
         doors.half_overlay_bottom = True
-        
+
         pullout = types_frameless.Pullout()
         pullout.door_pull_location = self.get_pull_location(cabinet_type, 1, 2)
         pullout.half_overlay_top = True
-        
+
         splitter = types_frameless.SplitterVertical()
         splitter.splitter_qty = 1
         splitter.opening_sizes = [0, units.inch(8)]  # Doors, pullout
@@ -511,21 +510,21 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
     def create_doors_with_tall_pullout(self, bay, door_swing=2):
         """Create doors above tall pullout (tall cabinet)."""
         cabinet_type = self.get_cabinet_type(bay.obj)
-        
+
         doors = types_frameless.Doors()
         doors.door_pull_location = self.get_pull_location(cabinet_type, 0, 2)  # position 0 of 2
         doors.half_overlay_bottom = True
-        
+
         pullout = types_frameless.Pullout()
         pullout.door_pull_location = self.get_pull_location(cabinet_type, 1, 2)
         pullout.half_overlay_top = True
-        
+
         splitter = types_frameless.SplitterVertical()
         splitter.splitter_qty = 1
         splitter.opening_sizes = [units.inch(18), 0]  # Doors, tall pullout
         splitter.opening_inserts = [doors, pullout]
         self.add_cage_to_bay(bay, splitter)
-        
+
         # Set door swing
         for child in bay.obj.children_recursive:
             if 'Door Swing' in child:
@@ -535,10 +534,10 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
         """Create door/drawer combo (drawer on top, single door below)."""
         props = bpy.context.scene.hb_frameless
         cabinet_type = self.get_cabinet_type(bay.obj)
-        
+
         drawer = types_frameless.Drawer()
         drawer.half_overlay_bottom = True
-        
+
         door = types_frameless.Doors()
         door.half_overlay_top = True
         door.door_pull_location = self.get_pull_location(cabinet_type, 1, 2)  # position 1 of 2
@@ -548,7 +547,7 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
         splitter.opening_sizes = [props.top_drawer_front_height, 0]
         splitter.opening_inserts = [drawer, door]
         self.add_cage_to_bay(bay, splitter)
-        
+
         # Set single door (left swing)
         for child in bay.obj.children_recursive:
             if 'Door Swing' in child:
@@ -557,7 +556,7 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
     def create_drawer_stack(self, bay, count):
         """Create a stack of drawers."""
         props = bpy.context.scene.hb_frameless
-        
+
         # 2 drawers are always equal, 3+ use top_drawer_front_height setting
         if count == 2:
             top_drawer_height = 0  # Equal
@@ -568,7 +567,7 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
 
         splitter = types_frameless.SplitterVertical()
         splitter.splitter_qty = count - 1
-        
+
         for i in range(count):
             drawer = types_frameless.Drawer()
             if i == 0:
@@ -582,7 +581,7 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
                 drawer.half_overlay_bottom = True
                 splitter.opening_sizes.append(0)
             splitter.opening_inserts.append(drawer)
-        
+
         self.add_cage_to_bay(bay, splitter)
 
     def execute(self, context):
@@ -595,21 +594,21 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
                 bay_bp = hb_utils.get_bay_bp(obj)
                 if bay_bp and bay_bp not in bay_objs:
                     bay_objs.append(bay_bp)
-        
+
         if not bay_objs:
             self.report({'ERROR'}, "Could not find any bays in selection")
             return {'CANCELLED'}
-        
+
         # Track cabinets that need style reassignment
         cabinets_to_update = set()
-        
+
         # Apply change to all selected bays
         for bay_obj in bay_objs:
             bay = types_frameless.CabinetBay(bay_obj)
-            
+
             # Delete existing bay children
             self.delete_bay_children(bay_obj)
-            
+
             # Create new opening based on type
             # Single Doors
             if self.opening_type == 'LEFT_DOOR':
@@ -680,25 +679,25 @@ class hb_frameless_OT_change_bay_opening(bpy.types.Operator):
                 self.create_built_in_appliance(bay)
             elif self.opening_type == 'DOUBLE_APPLIANCE':
                 self.create_built_in_double_appliance(bay)
-            
+
             hb_utils.run_calc_fix(context, bay.obj)
             hb_utils.run_calc_fix(context, bay.obj)
-            
+
             # Track cabinet for style reassignment
             cabinet_bp = hb_utils.get_cabinet_bp(bay_obj)
             if cabinet_bp:
                 cabinets_to_update.add(cabinet_bp.name)
-        
+
         # Assign pull locations based on world position
         for cabinet_name in cabinets_to_update:
             cabinet_bp = bpy.data.objects.get(cabinet_name)
             if cabinet_bp:
                 assign_pull_locations_to_cabinet(cabinet_bp)
-        
+
         # Reassign cabinet styles to apply materials to new parts
         for cabinet_name in cabinets_to_update:
             bpy.ops.hb_frameless.assign_cabinet_style(cabinet_name=cabinet_name)
-        
+
         return {'FINISHED'}
 
 
@@ -739,7 +738,7 @@ class hb_frameless_OT_opening_prompts(bpy.types.Operator):
     def invoke(self, context, event):
         opening_bp = context.object if 'IS_FRAMELESS_OPENING_CAGE' in context.object else hb_utils.get_opening_bp(context.object)
         self.opening = hb_types.GeoNodeCage(opening_bp)
-        
+
         if 'Door Swing' in opening_bp:
             self.door_swing = str(opening_bp['Door Swing'])
         if 'Inset Front' in opening_bp:
@@ -752,7 +751,7 @@ class hb_frameless_OT_opening_prompts(bpy.types.Operator):
             self.half_overlay_left = opening_bp['Half Overlay Left']
         if 'Half Overlay Right' in opening_bp:
             self.half_overlay_right = opening_bp['Half Overlay Right']
-        
+
         wm = context.window_manager
         return wm.invoke_props_dialog(self, width=250)
 
@@ -778,23 +777,23 @@ class hb_frameless_OT_opening_prompts(bpy.types.Operator):
     def draw(self, context):
         layout = self.layout
         box = layout.box()
-        
+
         if 'Door Swing' in self.opening.obj:
             row = box.row()
             row.label(text="Door Swing:")
             row.prop(self, 'door_swing', text="")
-        
+
         if 'Inset Front' in self.opening.obj:
             row = box.row()
             row.prop(self, 'inset_front')
-        
+
         # Half Overlay Properties
         has_half_overlay = any(prop in self.opening.obj for prop in ['Half Overlay Top', 'Half Overlay Bottom', 'Half Overlay Left', 'Half Overlay Right'])
         if has_half_overlay:
             box = layout.box()
             box.label(text="Half Overlay")
             col = box.column(align=True)
-            
+
             if 'Half Overlay Top' in self.opening.obj:
                 col.prop(self, 'half_overlay_top')
             if 'Half Overlay Bottom' in self.opening.obj:
@@ -861,7 +860,7 @@ class hb_frameless_OT_change_opening_type(bpy.types.Operator):
         half_bottom = False
         half_left = False
         half_right = False
-        
+
         # Check if parent is a vertical or horizontal splitter
         parent = opening_obj.parent
         if parent:
@@ -869,7 +868,7 @@ class hb_frameless_OT_change_opening_type(bpy.types.Operator):
                 # Find all sibling openings to determine position
                 siblings = [c for c in parent.children if 'IS_FRAMELESS_OPENING_CAGE' in c]
                 siblings.sort(key=lambda o: o.location.z)  # Sort by Z for vertical splitter
-                
+
                 if len(siblings) > 1:
                     idx = siblings.index(opening_obj) if opening_obj in siblings else -1
                     if idx >= 0:
@@ -877,12 +876,12 @@ class hb_frameless_OT_change_opening_type(bpy.types.Operator):
                             half_bottom = True
                         if idx < len(siblings) - 1:  # Not the top opening
                             half_top = True
-                            
+
             elif 'IS_FRAMELESS_SPLITTER_HORIZONTAL_CAGE' in parent:
                 # Find all sibling openings to determine position
                 siblings = [c for c in parent.children if 'IS_FRAMELESS_OPENING_CAGE' in c]
                 siblings.sort(key=lambda o: o.location.x)  # Sort by X for horizontal splitter
-                
+
                 if len(siblings) > 1:
                     idx = siblings.index(opening_obj) if opening_obj in siblings else -1
                     if idx >= 0:
@@ -890,7 +889,7 @@ class hb_frameless_OT_change_opening_type(bpy.types.Operator):
                             half_left = True
                         if idx < len(siblings) - 1:  # Not the rightmost opening
                             half_right = True
-        
+
         return half_top, half_bottom, half_left, half_right
 
     def add_insert_to_opening(self, opening, insert):
@@ -907,15 +906,15 @@ class hb_frameless_OT_change_opening_type(bpy.types.Operator):
     def create_doors(self, opening, door_swing, half_top, half_bottom, half_left, half_right):
         """Create doors with specified swing direction."""
         cabinet_type = self.get_cabinet_type(opening.obj)
-        
+
         doors = types_frameless.Doors()
-        
+
         # Determine pull location based on cabinet type and position
         # half_top=True means there's an opening above (not at top)
         # half_bottom=True means there's an opening below (not at bottom)
         is_top = not half_top
         is_bottom = not half_bottom
-        
+
         if cabinet_type == 'UPPER':
             doors.door_pull_location = "Upper"
         elif cabinet_type == 'TALL':
@@ -931,28 +930,28 @@ class hb_frameless_OT_change_opening_type(bpy.types.Operator):
                 doors.door_pull_location = "Tall"
         else:
             doors.door_pull_location = "Base"
-        
+
         # Apply half overlays based on position in splitter
         doors.half_overlay_top = half_top
         doors.half_overlay_bottom = half_bottom
         doors.half_overlay_left = half_left
         doors.half_overlay_right = half_right
-        
+
         self.add_insert_to_opening(opening, doors)
-        
+
         # Set door swing: 0=Left, 1=Right, 2=Double
         doors.obj['Door Swing'] = door_swing
 
     def create_drawer(self, opening, half_top, half_bottom, half_left, half_right):
         """Create single drawer."""
         drawer = types_frameless.Drawer()
-        
+
         # Apply half overlays based on position in splitter
         drawer.half_overlay_top = half_top
         drawer.half_overlay_bottom = half_bottom
         drawer.half_overlay_left = half_left
         drawer.half_overlay_right = half_right
-        
+
         self.add_insert_to_opening(opening, drawer)
 
     def create_pullout(self, opening, half_top, half_bottom, half_left, half_right):
@@ -976,37 +975,37 @@ class hb_frameless_OT_change_opening_type(bpy.types.Operator):
                 pullout.door_pull_location = "Tall"
         else:
             pullout.door_pull_location = "Base"
-        
+
         # Apply half overlays based on position in splitter
         pullout.half_overlay_top = half_top
         pullout.half_overlay_bottom = half_bottom
         pullout.half_overlay_left = half_left
         pullout.half_overlay_right = half_right
-        
+
         self.add_insert_to_opening(opening, pullout)
 
     def create_flip_up_door(self, opening, half_top, half_bottom, half_left, half_right):
         """Create flip up door (hinged at top, swings up)."""
         flip_up = types_frameless.FlipUpDoor()
-        
+
         # Apply half overlays based on position in splitter
         flip_up.half_overlay_top = half_top
         flip_up.half_overlay_bottom = half_bottom
         flip_up.half_overlay_left = half_left
         flip_up.half_overlay_right = half_right
-        
+
         self.add_insert_to_opening(opening, flip_up)
 
     def create_false_front(self, opening, half_top, half_bottom, half_left, half_right):
         """Create false front (decorative panel with no hardware)."""
         false_front = types_frameless.FalseFront()
-        
+
         # Apply half overlays based on position in splitter
         false_front.half_overlay_top = half_top
         false_front.half_overlay_bottom = half_bottom
         false_front.half_overlay_left = half_left
         false_front.half_overlay_right = half_right
-        
+
         self.add_insert_to_opening(opening, false_front)
 
     def execute(self, context):
@@ -1014,15 +1013,15 @@ class hb_frameless_OT_change_opening_type(bpy.types.Operator):
         if not opening_obj:
             self.report({'ERROR'}, "Could not find opening")
             return {'CANCELLED'}
-        
+
         opening = types_frameless.CabinetOpening(opening_obj)
-        
+
         # Read half overlay from the opening's own custom properties
         half_top = bool(opening_obj.get('Half Overlay Top', False))
         half_bottom = bool(opening_obj.get('Half Overlay Bottom', False))
         half_left = bool(opening_obj.get('Half Overlay Left', False))
         half_right = bool(opening_obj.get('Half Overlay Right', False))
-        
+
         # Also check children for FORCE_HALF_OVERLAY flags before deleting
         for child in opening_obj.children:
             if child.get('FORCE_HALF_OVERLAY_TOP'):
@@ -1033,13 +1032,13 @@ class hb_frameless_OT_change_opening_type(bpy.types.Operator):
                 half_left = True
             if child.get('FORCE_HALF_OVERLAY_RIGHT'):
                 half_right = True
-        
+
         # Delete existing opening children
         self.delete_opening_children(opening_obj)
-        
+
         # Create new insert based on type
         if self.opening_type == 'LEFT_DOOR':
-            self.create_doors(opening, door_swing=0, half_top=half_top, half_bottom=half_bottom, 
+            self.create_doors(opening, door_swing=0, half_top=half_top, half_bottom=half_bottom,
                             half_left=half_left, half_right=half_right)
         elif self.opening_type == 'RIGHT_DOOR':
             self.create_doors(opening, door_swing=1, half_top=half_top, half_bottom=half_bottom,
@@ -1072,7 +1071,7 @@ class hb_frameless_OT_change_opening_type(bpy.types.Operator):
         elif self.opening_type == 'APPLIANCE':
             appliance = types_frameless.Appliance()
             self.add_insert_to_opening(opening, appliance)
-        
+
         # Re-apply FORCE_HALF_OVERLAY flags to new insert children
         for child in opening_obj.children:
             if half_top:
@@ -1083,14 +1082,14 @@ class hb_frameless_OT_change_opening_type(bpy.types.Operator):
                 child['FORCE_HALF_OVERLAY_LEFT'] = True
             if half_right:
                 child['FORCE_HALF_OVERLAY_RIGHT'] = True
-        
+
         # Run calc fix to update
         cabinet_bp = hb_utils.get_cabinet_bp(opening_obj)
         if cabinet_bp:
             hb_utils.run_calc_fix(context, cabinet_bp)
             # Assign pull locations based on world position
             assign_pull_locations_to_cabinet(cabinet_bp)
-        
+
         return {'FINISHED'}
 
 
@@ -1106,7 +1105,7 @@ class hb_frameless_OT_custom_vertical_splitter(bpy.types.Operator):
         min=2, max=10,
         default=2
     ) # type: ignore
-    
+
     previous_opening_count = bpy.props.IntProperty(default=0) # type: ignore
     splitter_obj_name = bpy.props.StringProperty(name="Splitter Object") # type: ignore
     parent_obj_name = bpy.props.StringProperty(name="Parent Object") # type: ignore
@@ -1162,22 +1161,22 @@ class hb_frameless_OT_custom_vertical_splitter(bpy.types.Operator):
         """Create or recreate the splitter with current settings."""
         # Delete existing children of parent
         self.delete_children(parent_obj)
-        
+
         # Create empty splitter (no inserts yet - just for sizing)
         splitter = types_frameless.SplitterVertical()
         splitter.splitter_qty = self.opening_count - 1
         splitter.opening_sizes = [0] * self.opening_count  # All equal initially
         splitter.opening_inserts = [None] * self.opening_count  # No inserts yet
         splitter.create()
-        
+
         # Parent to bay/opening and set up dimension drivers
         splitter.obj.parent = parent_obj
-        
+
         if 'IS_FRAMELESS_BAY_CAGE' in parent_obj:
             bay = types_frameless.CabinetBay(parent_obj)
         else:
             bay = types_frameless.CabinetOpening(parent_obj)
-            
+
         dim_x = bay.var_input('Dim X', 'dim_x')
         dim_y = bay.var_input('Dim Y', 'dim_y')
         dim_z = bay.var_input('Dim Z', 'dim_z')
@@ -1185,15 +1184,15 @@ class hb_frameless_OT_custom_vertical_splitter(bpy.types.Operator):
         splitter.driver_input('Dim Y', 'dim_y', [dim_y])
         splitter.driver_input('Dim Z', 'dim_z', [dim_z])
         hb_utils.run_calc_fix(context, splitter.obj,passes=3)
-        
+
         self.splitter_obj_name = splitter.obj.name
         self.previous_opening_count = self.opening_count
-        
+
         # Run calc fix
         cabinet_bp = hb_utils.get_cabinet_bp(parent_obj)
         if cabinet_bp:
             hb_utils.run_calc_fix(context, cabinet_bp,passes=3)
-        
+
         return splitter.obj
 
     def invoke(self, context, event):
@@ -1201,18 +1200,18 @@ class hb_frameless_OT_custom_vertical_splitter(bpy.types.Operator):
         obj = context.object
         opening_bp = hb_utils.get_opening_bp(obj)
         bay_bp = hb_utils.get_bay_bp(obj)
-        
+
         # Prioritize opening over bay
         parent_obj = opening_bp if opening_bp else bay_bp
         if not parent_obj:
             self.report({'ERROR'}, "Could not find bay or opening")
             return {'CANCELLED'}
-        
+
         self.parent_obj_name = parent_obj.name
-        
+
         # Create initial splitter
         self.create_splitter(context, parent_obj)
-        
+
         wm = context.window_manager
         return wm.invoke_props_dialog(self, width=400)
 
@@ -1220,27 +1219,27 @@ class hb_frameless_OT_custom_vertical_splitter(bpy.types.Operator):
         parent_obj = self.get_parent_obj()
         if not parent_obj:
             return False
-        
+
         # If opening count changed, recreate the splitter
         if self.opening_count != self.previous_opening_count:
             self.create_splitter(context, parent_obj)
             return True
-        
+
         # Otherwise just recalculate
         splitter_obj = self.get_splitter_obj()
         if splitter_obj:
             for calculator in splitter_obj.blendertomob.calculators:
                 calculator.calculate()
-            
+
             cabinet_bp = hb_utils.get_cabinet_bp(splitter_obj)
             if cabinet_bp:
                 hb_utils.run_calc_fix(context, cabinet_bp)
-        
+
         return True
 
     def create_insert(self, insert_type, cabinet_type, is_top, is_bottom, opening_bottom_z=0):
         """Create an insert based on the type.
-        
+
         Args:
             insert_type: Type of insert ('DOORS', 'DRAWER', 'OPEN')
             cabinet_type: Cabinet type ('BASE', 'TALL', 'UPPER')
@@ -1250,7 +1249,7 @@ class hb_frameless_OT_custom_vertical_splitter(bpy.types.Operator):
         """
         if insert_type == 'DOORS':
             doors = types_frameless.Doors()
-            
+
             # Determine pull location based on cabinet type and position
             if cabinet_type == 'UPPER':
                 doors.door_pull_location = "Upper"
@@ -1267,7 +1266,7 @@ class hb_frameless_OT_custom_vertical_splitter(bpy.types.Operator):
                     doors.door_pull_location = "Tall"
             else:
                 doors.door_pull_location = "Base"
-            
+
             if not is_top:
                 doors.half_overlay_top = True
             if not is_bottom:
@@ -1286,11 +1285,11 @@ class hb_frameless_OT_custom_vertical_splitter(bpy.types.Operator):
     def execute(self, context):
         parent_obj = self.get_parent_obj()
         splitter_obj = self.get_splitter_obj()
-        
+
         if not parent_obj or not splitter_obj:
             self.report({'ERROR'}, "Could not find objects")
             return {'CANCELLED'}
-        
+
         # Get the current calculator values before recreating
         opening_sizes = []
         for calculator in splitter_obj.blendertomob.calculators:
@@ -1299,42 +1298,42 @@ class hb_frameless_OT_custom_vertical_splitter(bpy.types.Operator):
                     opening_sizes.append(0)
                 else:
                     opening_sizes.append(prompt.distance_value)
-        
+
         # Delete existing and create final splitter with inserts
         self.delete_children(parent_obj)
-        
+
         cabinet_type = self.get_cabinet_type(parent_obj)
-        
+
         # Calculate opening Z positions for pull location logic
         # Get parent bay/opening dimensions
         if 'IS_FRAMELESS_BAY_CAGE' in parent_obj:
             parent_cage = types_frameless.CabinetBay(parent_obj)
         else:
             parent_cage = types_frameless.CabinetOpening(parent_obj)
-        
+
         parent_dim_z = parent_cage.get_input('Dim Z')
-        
+
         # Get parent's world Z position (bottom of the bay/opening)
         parent_world_z = parent_obj.matrix_world.translation.z
-        
+
         # Calculate actual opening sizes (resolve equal-sized openings)
         props = bpy.context.scene.hb_frameless
         divider_thickness = props.default_carcass_part_thickness
         total_dividers = (self.opening_count - 1) * divider_thickness
         available_height = parent_dim_z - total_dividers
-        
+
         # Count equal-sized openings and sum of fixed sizes
         equal_count = opening_sizes.count(0)
         fixed_sum = sum(s for s in opening_sizes if s > 0)
-        
+
         if equal_count > 0:
             equal_size = (available_height - fixed_sum) / equal_count
         else:
             equal_size = 0
-        
+
         # Calculate actual sizes
         actual_sizes = [s if s > 0 else equal_size for s in opening_sizes]
-        
+
         # Calculate bottom Z position for each opening (from floor)
         # Openings are ordered top to bottom, so opening 0 is at top
         opening_bottom_z_positions = []
@@ -1344,14 +1343,14 @@ class hb_frameless_OT_custom_vertical_splitter(bpy.types.Operator):
             dividers_below = (self.opening_count - 1 - i) * divider_thickness
             bottom_z = parent_world_z + height_below + dividers_below
             opening_bottom_z_positions.append(bottom_z)
-        
+
         insert_props = [
             self.opening_1_insert, self.opening_2_insert, self.opening_3_insert,
             self.opening_4_insert, self.opening_5_insert, self.opening_6_insert,
             self.opening_7_insert, self.opening_8_insert, self.opening_9_insert,
             self.opening_10_insert
         ]
-        
+
         opening_inserts = []
         for i in range(self.opening_count):
             is_top = (i == 0)
@@ -1359,22 +1358,22 @@ class hb_frameless_OT_custom_vertical_splitter(bpy.types.Operator):
             opening_bottom_z = opening_bottom_z_positions[i]
             insert = self.create_insert(insert_props[i], cabinet_type, is_top, is_bottom, opening_bottom_z)
             opening_inserts.append(insert)
-        
+
         # Create final splitter with inserts
         splitter = types_frameless.SplitterVertical()
         splitter.splitter_qty = self.opening_count - 1
         splitter.opening_sizes = opening_sizes
         splitter.opening_inserts = opening_inserts
         splitter.create()
-        
+
         # Parent and set up drivers
         splitter.obj.parent = parent_obj
-        
+
         if 'IS_FRAMELESS_BAY_CAGE' in parent_obj:
             bay = types_frameless.CabinetBay(parent_obj)
         else:
             bay = types_frameless.CabinetOpening(parent_obj)
-            
+
         dim_x = bay.var_input('Dim X', 'dim_x')
         dim_y = bay.var_input('Dim Y', 'dim_y')
         dim_z = bay.var_input('Dim Z', 'dim_z')
@@ -1382,7 +1381,7 @@ class hb_frameless_OT_custom_vertical_splitter(bpy.types.Operator):
         splitter.driver_input('Dim Y', 'dim_y', [dim_y])
         splitter.driver_input('Dim Z', 'dim_z', [dim_z])
         hb_utils.run_calc_fix(context, splitter.obj,passes=3)
-        
+
         # Run calc fix
         cabinet_bp = hb_utils.get_cabinet_bp(parent_obj)
         if cabinet_bp:
@@ -1391,21 +1390,21 @@ class hb_frameless_OT_custom_vertical_splitter(bpy.types.Operator):
             assign_pull_locations_to_cabinet(cabinet_bp)
             # Reassign cabinet style to apply materials to new parts
             bpy.ops.hb_frameless.assign_cabinet_style(cabinet_name=cabinet_bp.name)
-        
+
         return {'FINISHED'}
 
     def draw(self, context):
         layout = self.layout
-        
+
         box = layout.box()
         box.prop(self, 'opening_count')
-        
+
         splitter_obj = self.get_splitter_obj()
-        
+
         # Opening sizes from calculator
         box = layout.box()
         box.label(text="Opening Heights:", icon='SNAP_GRID')
-        
+
         if splitter_obj:
             for calculator in splitter_obj.blendertomob.calculators:
                 col = box.column(align=True)
@@ -1414,18 +1413,18 @@ class hb_frameless_OT_custom_vertical_splitter(bpy.types.Operator):
                     row.active = not prompt.equal
                     row.prop(prompt, 'distance_value', text=prompt.name)
                     row.prop(prompt, 'equal', text="", icon='LINKED' if prompt.equal else 'UNLINKED')
-        
+
         # Insert types
         box = layout.box()
         box.label(text="Opening Types:", icon='MESH_PLANE')
-        
+
         insert_props = [
             'opening_1_insert', 'opening_2_insert', 'opening_3_insert',
             'opening_4_insert', 'opening_5_insert', 'opening_6_insert',
             'opening_7_insert', 'opening_8_insert', 'opening_9_insert',
             'opening_10_insert'
         ]
-        
+
         col = box.column(align=True)
         for i in range(self.opening_count):
             row = col.row(align=True)
@@ -1444,7 +1443,7 @@ class hb_frameless_OT_custom_horizontal_splitter(bpy.types.Operator):
         min=2, max=10,
         default=2
     ) # type: ignore
-    
+
     previous_opening_count = bpy.props.IntProperty(default=0) # type: ignore
     splitter_obj_name = bpy.props.StringProperty(name="Splitter Object") # type: ignore
     parent_obj_name = bpy.props.StringProperty(name="Parent Object") # type: ignore
@@ -1500,22 +1499,22 @@ class hb_frameless_OT_custom_horizontal_splitter(bpy.types.Operator):
         """Create or recreate the splitter with current settings."""
         # Delete existing children of parent
         self.delete_children(parent_obj)
-        
+
         # Create empty splitter (no inserts yet - just for sizing)
         splitter = types_frameless.SplitterHorizontal()
         splitter.splitter_qty = self.opening_count - 1
         splitter.opening_sizes = [0] * self.opening_count  # All equal initially
         splitter.opening_inserts = [None] * self.opening_count  # No inserts yet
         splitter.create()
-        
+
         # Parent to bay/opening and set up dimension drivers
         splitter.obj.parent = parent_obj
-        
+
         if 'IS_FRAMELESS_BAY_CAGE' in parent_obj:
             bay = types_frameless.CabinetBay(parent_obj)
         else:
             bay = types_frameless.CabinetOpening(parent_obj)
-            
+
         dim_x = bay.var_input('Dim X', 'dim_x')
         dim_y = bay.var_input('Dim Y', 'dim_y')
         dim_z = bay.var_input('Dim Z', 'dim_z')
@@ -1523,15 +1522,15 @@ class hb_frameless_OT_custom_horizontal_splitter(bpy.types.Operator):
         splitter.driver_input('Dim Y', 'dim_y', [dim_y])
         splitter.driver_input('Dim Z', 'dim_z', [dim_z])
         hb_utils.run_calc_fix(context, splitter.obj, passes=3)
-        
+
         self.splitter_obj_name = splitter.obj.name
         self.previous_opening_count = self.opening_count
-        
+
         # Run calc fix
         cabinet_bp = hb_utils.get_cabinet_bp(parent_obj)
         if cabinet_bp:
             hb_utils.run_calc_fix(context, cabinet_bp, passes=3)
-        
+
         return splitter.obj
 
     def invoke(self, context, event):
@@ -1539,18 +1538,18 @@ class hb_frameless_OT_custom_horizontal_splitter(bpy.types.Operator):
         obj = context.object
         opening_bp = hb_utils.get_opening_bp(obj)
         bay_bp = hb_utils.get_bay_bp(obj)
-        
+
         # Prioritize opening over bay
         parent_obj = opening_bp if opening_bp else bay_bp
         if not parent_obj:
             self.report({'ERROR'}, "Could not find bay or opening")
             return {'CANCELLED'}
-        
+
         self.parent_obj_name = parent_obj.name
-        
+
         # Create initial splitter
         self.create_splitter(context, parent_obj)
-        
+
         wm = context.window_manager
         return wm.invoke_props_dialog(self, width=400)
 
@@ -1558,22 +1557,22 @@ class hb_frameless_OT_custom_horizontal_splitter(bpy.types.Operator):
         parent_obj = self.get_parent_obj()
         if not parent_obj:
             return False
-        
+
         # If opening count changed, recreate the splitter
         if self.opening_count != self.previous_opening_count:
             self.create_splitter(context, parent_obj)
             return True
-        
+
         # Otherwise just recalculate
         splitter_obj = self.get_splitter_obj()
         if splitter_obj:
             for calculator in splitter_obj.blendertomob.calculators:
                 calculator.calculate()
-            
+
             cabinet_bp = hb_utils.get_cabinet_bp(splitter_obj)
             if cabinet_bp:
                 hb_utils.run_calc_fix(context, cabinet_bp)
-        
+
         return True
 
     def create_insert(self, insert_type, cabinet_type, is_left, is_right):
@@ -1608,11 +1607,11 @@ class hb_frameless_OT_custom_horizontal_splitter(bpy.types.Operator):
     def execute(self, context):
         parent_obj = self.get_parent_obj()
         splitter_obj = self.get_splitter_obj()
-        
+
         if not parent_obj or not splitter_obj:
             self.report({'ERROR'}, "Could not find objects")
             return {'CANCELLED'}
-        
+
         # Get the current calculator values before recreating
         opening_sizes = []
         for calculator in splitter_obj.blendertomob.calculators:
@@ -1621,41 +1620,41 @@ class hb_frameless_OT_custom_horizontal_splitter(bpy.types.Operator):
                     opening_sizes.append(0)
                 else:
                     opening_sizes.append(prompt.distance_value)
-        
+
         # Delete existing and create final splitter with inserts
         self.delete_children(parent_obj)
-        
+
         cabinet_type = self.get_cabinet_type(parent_obj)
-        
+
         insert_props = [
             self.opening_1_insert, self.opening_2_insert, self.opening_3_insert,
             self.opening_4_insert, self.opening_5_insert, self.opening_6_insert,
             self.opening_7_insert, self.opening_8_insert, self.opening_9_insert,
             self.opening_10_insert
         ]
-        
+
         opening_inserts = []
         for i in range(self.opening_count):
             is_left = (i == 0)
             is_right = (i == self.opening_count - 1)
             insert = self.create_insert(insert_props[i], cabinet_type, is_left, is_right)
             opening_inserts.append(insert)
-        
+
         # Create final splitter with inserts
         splitter = types_frameless.SplitterHorizontal()
         splitter.splitter_qty = self.opening_count - 1
         splitter.opening_sizes = opening_sizes
         splitter.opening_inserts = opening_inserts
         splitter.create()
-        
+
         # Parent and set up drivers
         splitter.obj.parent = parent_obj
-        
+
         if 'IS_FRAMELESS_BAY_CAGE' in parent_obj:
             bay = types_frameless.CabinetBay(parent_obj)
         else:
             bay = types_frameless.CabinetOpening(parent_obj)
-            
+
         dim_x = bay.var_input('Dim X', 'dim_x')
         dim_y = bay.var_input('Dim Y', 'dim_y')
         dim_z = bay.var_input('Dim Z', 'dim_z')
@@ -1663,7 +1662,7 @@ class hb_frameless_OT_custom_horizontal_splitter(bpy.types.Operator):
         splitter.driver_input('Dim Y', 'dim_y', [dim_y])
         splitter.driver_input('Dim Z', 'dim_z', [dim_z])
         hb_utils.run_calc_fix(context, splitter.obj, passes=3)
-        
+
         # Run calc fix
         cabinet_bp = hb_utils.get_cabinet_bp(parent_obj)
         if cabinet_bp:
@@ -1672,21 +1671,21 @@ class hb_frameless_OT_custom_horizontal_splitter(bpy.types.Operator):
             assign_pull_locations_to_cabinet(cabinet_bp)
             # Reassign cabinet style to apply materials to new parts
             bpy.ops.hb_frameless.assign_cabinet_style(cabinet_name=cabinet_bp.name)
-        
+
         return {'FINISHED'}
 
     def draw(self, context):
         layout = self.layout
-        
+
         box = layout.box()
         box.prop(self, 'opening_count')
-        
+
         splitter_obj = self.get_splitter_obj()
-        
+
         # Opening widths from calculator
         box = layout.box()
         box.label(text="Opening Widths:", icon='SNAP_GRID')
-        
+
         if splitter_obj:
             for calculator in splitter_obj.blendertomob.calculators:
                 col = box.column(align=True)
@@ -1695,18 +1694,18 @@ class hb_frameless_OT_custom_horizontal_splitter(bpy.types.Operator):
                     row.active = not prompt.equal
                     row.prop(prompt, 'distance_value', text=prompt.name)
                     row.prop(prompt, 'equal', text="", icon='LINKED' if prompt.equal else 'UNLINKED')
-        
+
         # Insert types
         box = layout.box()
         box.label(text="Opening Types:", icon='MESH_PLANE')
-        
+
         insert_props = [
             'opening_1_insert', 'opening_2_insert', 'opening_3_insert',
             'opening_4_insert', 'opening_5_insert', 'opening_6_insert',
             'opening_7_insert', 'opening_8_insert', 'opening_9_insert',
             'opening_10_insert'
         ]
-        
+
         col = box.column(align=True)
         for i in range(self.opening_count):
             row = col.row(align=True)
@@ -1750,28 +1749,28 @@ class hb_frameless_OT_edit_splitter_openings(bpy.types.Operator):
         obj = context.object
         if not obj:
             return None
-        
+
         # Check if this object is a splitter
         if 'IS_FRAMELESS_SPLITTER_VERTICAL_CAGE' in obj or 'IS_FRAMELESS_SPLITTER_HORIZONTAL_CAGE' in obj:
             return obj
-        
+
         # Check parents (closest splitter going up)
         current = obj.parent
         while current:
             if 'IS_FRAMELESS_SPLITTER_VERTICAL_CAGE' in current or 'IS_FRAMELESS_SPLITTER_HORIZONTAL_CAGE' in current:
                 return current
             current = current.parent
-        
+
         # Check direct children first (for when bay is selected)
         for child in obj.children:
             if 'IS_FRAMELESS_SPLITTER_VERTICAL_CAGE' in child or 'IS_FRAMELESS_SPLITTER_HORIZONTAL_CAGE' in child:
                 return child
-        
+
         # Check recursive children as fallback
         for child in obj.children_recursive:
             if 'IS_FRAMELESS_SPLITTER_VERTICAL_CAGE' in child or 'IS_FRAMELESS_SPLITTER_HORIZONTAL_CAGE' in child:
                 return child
-        
+
         return None
 
     def invoke(self, context, event):
@@ -1784,7 +1783,7 @@ class hb_frameless_OT_edit_splitter_openings(bpy.types.Operator):
             # Recalculate the calculator
             for calculator in splitter_obj.blendertomob.calculators:
                 calculator.calculate()
-            
+
             # Run calc fix to update all sizes
             cabinet_bp = hb_utils.get_cabinet_bp(splitter_obj)
             if cabinet_bp:
@@ -1796,31 +1795,31 @@ class hb_frameless_OT_edit_splitter_openings(bpy.types.Operator):
         if not splitter_obj:
             self.report({'ERROR'}, "Could not find splitter")
             return {'CANCELLED'}
-        
+
         # Recalculate the calculator
         for calculator in splitter_obj.blendertomob.calculators:
             calculator.calculate()
-        
+
         # Run calc fix to update all sizes
         cabinet_bp = hb_utils.get_cabinet_bp(splitter_obj)
         if cabinet_bp:
             hb_utils.run_calc_fix(context, cabinet_bp)
-        
+
         return {'FINISHED'}
 
     def draw(self, context):
         layout = self.layout
         splitter_obj = self.get_splitter_obj(context)
-        
+
         if not splitter_obj:
             layout.label(text="No splitter found")
             return
-        
+
         is_vertical = 'IS_FRAMELESS_SPLITTER_VERTICAL_CAGE' in splitter_obj
-        
+
         box = layout.box()
         box.label(text="Vertical Openings:" if is_vertical else "Horizontal Openings:", icon='SNAP_GRID')
-        
+
         # Draw calculator prompts
         for calculator in splitter_obj.blendertomob.calculators:
             col = box.column(align=True)

@@ -333,7 +333,8 @@ def panel_profile_section(profile, max_depth):
         k = max(range(len(chain)), key=lambda i: abs(chain[i][0] - edge_x))
         a, b = chain[:k + 1], chain[k:]
         field_y = chain[k][1]
-        dev = lambda c: max(abs(p[1] - field_y) for p in c) if len(c) > 1 else 0.0
+        def dev(c):
+            return max(abs(p[1] - field_y) for p in c) if len(c) > 1 else 0.0
         cut = a if dev(a) > dev(b) else b
     else:
         # Open drawing: strip the back-face run (a y-extreme, joining

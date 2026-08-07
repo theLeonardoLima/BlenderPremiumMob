@@ -1,7 +1,5 @@
 import bpy
-from .. import types_frameless
-from .. import props_hb_frameless
-from .... import hb_utils, hb_types, units
+from .... import hb_utils, hb_types
 
 class hb_frameless_OT_appliance_prompts(bpy.types.Operator):
     bl_idname = "hb_frameless.appliance_prompts"
@@ -45,15 +43,15 @@ class hb_frameless_OT_appliance_prompts(bpy.types.Operator):
         layout = self.layout
         box = layout.box()
         col = box.column(align=True)
-        
+
         row = col.row(align=True)
         row.label(text="Width:")
         row.prop(self, 'appliance_width', text="")
-        
+
         row = col.row(align=True)
         row.label(text="Height:")
         row.prop(self, 'appliance_height', text="")
-        
+
         row = col.row(align=True)
         row.label(text="Depth:")
         row.prop(self, 'appliance_depth', text="")

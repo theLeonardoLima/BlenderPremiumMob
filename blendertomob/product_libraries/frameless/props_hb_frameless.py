@@ -1,4 +1,3 @@
-from typing import Any
 import bpy
 import os
 from bpy.types import (
@@ -37,12 +36,12 @@ def get_all_pull_paths():
 
 def get_pull_categories():
     """Get list of pull categories (subfolders) across all library paths.
-    
+
     Loose .blend files in the root are grouped under 'General'.
     """
     categories_set = set()
     has_loose_files = False
-    
+
     for pulls_path in get_all_pull_paths():
         if not os.path.exists(pulls_path):
             continue
@@ -52,13 +51,13 @@ def get_pull_categories():
                 categories_set.add(item)
             elif item.endswith('.blend'):
                 has_loose_files = True
-    
+
     categories = [('ALL', 'All', 'Show all pulls')]
     if has_loose_files:
         categories.append(('General', 'General', 'Uncategorized pulls'))
     for c in sorted(categories_set):
         categories.append((c, c, c))
-    
+
     return categories
 
 
@@ -69,27 +68,27 @@ def get_pull_category_enum_items(self, context):
 
 def get_pulls_in_category(category):
     """Get list of pull items in a specific category across all library paths.
-    
+
     Returns list of dicts with 'name', 'filename', 'filepath', 'thumbnail'.
     """
     items = []
     seen_names = set()
-    
+
     for pulls_path in get_all_pull_paths():
         if not os.path.exists(pulls_path):
             continue
-        
+
         if category == 'General':
             search_path = pulls_path
             # Only get loose files, not subfolder contents
-            entries = [f for f in sorted(os.listdir(pulls_path)) 
+            entries = [f for f in sorted(os.listdir(pulls_path))
                       if os.path.isfile(os.path.join(pulls_path, f))]
         else:
             search_path = os.path.join(pulls_path, category)
             if not os.path.exists(search_path):
                 continue
             entries = sorted(os.listdir(search_path))
-        
+
         for f in entries:
             if f.endswith('.blend'):
                 name = os.path.splitext(f)[0]
@@ -109,10 +108,10 @@ def get_pulls_in_category(category):
 def get_pull_enum_items(self, context):
     """Dynamic enum items for pull selection, filtered by category."""
     items = []
-    
+
     # Get category from the property group
     category = getattr(self, 'pull_category', 'ALL')
-    
+
     if category == 'ALL':
         # Get all pulls from all categories
         all_cats = get_pull_categories()
@@ -127,9 +126,9 @@ def get_pull_enum_items(self, context):
                                  f"Use {pull['name']}", 'OBJECT_DATA', len(items)))
     elif category:
         for pull in get_pulls_in_category(category):
-            items.append((pull['filename'], pull['name'], 
+            items.append((pull['filename'], pull['name'],
                          f"Use {pull['name']}", 'OBJECT_DATA', len(items)))
-    
+
     items.append(('NONE', "No Pulls", "Don't add pulls to cabinets", 'X', len(items)))
     items.append(('CUSTOM', "Custom", "Use a custom pull object from the scene", 'EYEDROPPER', len(items)))
     return items
@@ -137,12 +136,12 @@ def get_pull_enum_items(self, context):
 
 def find_pull_file(pull_filename):
     """Find a pull file across all library paths and their category subfolders.
-    
+
     Returns full path or None.
     """
     if not pull_filename or pull_filename == 'NONE':
         return None
-    
+
     for pulls_path in get_all_pull_paths():
         # Check root level
         file_path = os.path.join(pulls_path, pull_filename)
@@ -254,42 +253,42 @@ def get_pull_finish_enum_items(self, context):
 
 def get_or_create_pull_finish_material(finish_key):
     """Get or create a material for the specified pull finish"""
-    
+
     if finish_key not in PULL_FINISHES:
         return None
-    
+
     finish_data = PULL_FINISHES[finish_key]
     mat_name = f"Pull Finish - {finish_data['name']}"
-    
+
     # Check if material already exists
     if mat_name in bpy.data.materials:
         return bpy.data.materials[mat_name]
-    
+
     # Create new material
     mat = bpy.data.materials.new(name=mat_name)
     mat.use_nodes = True
-    
+
     # Get the Principled BSDF node
     nodes = mat.node_tree.nodes
     principled = nodes.get('Principled BSDF')
-    
+
     if principled:
         principled.inputs['Base Color'].default_value = finish_data['color']
         principled.inputs['Metallic'].default_value = finish_data['metallic']
         principled.inputs['Roughness'].default_value = finish_data['roughness']
-    
+
     return mat
 
 
 def get_or_create_glass_material():
     """Get or create a glass material for cabinet door panels.
-    
+
     Creates a glass material using Glass BSDF mixed with Transparent BSDF
     for better EEVEE viewport display.
     """
 
     mat_name = "Cabinet_Door_Panel_Glass"
-    
+
     # Check if material already exists and has correct setup
     if mat_name in bpy.data.materials:
         mat = bpy.data.materials[mat_name]
@@ -305,48 +304,48 @@ def get_or_create_glass_material():
         else:
             # Remove incorrect material
             bpy.data.materials.remove(mat)
-    
+
     # Create new glass material
     mat = bpy.data.materials.new(name=mat_name)
     mat.use_nodes = True
-    
+
     # Enable transparency settings for EEVEE
     mat.blend_method = 'BLEND'
     mat.use_backface_culling = False
-    
+
     # Get the node tree
     nodes = mat.node_tree.nodes
     links = mat.node_tree.links
-    
+
     # Clear default nodes
     nodes.clear()
-    
+
     # Create output node
     output = nodes.new('ShaderNodeOutputMaterial')
     output.location = (400, 0)
-    
+
     # Create Mix Shader to blend Glass and Transparent
     mix_shader = nodes.new('ShaderNodeMixShader')
     mix_shader.location = (200, 0)
     mix_shader.inputs['Fac'].default_value = 0.2  # 20% transparent, 80% glass
-    
+
     # Create Glass BSDF
     glass = nodes.new('ShaderNodeBsdfGlass')
     glass.location = (0, 100)
     glass.inputs['Color'].default_value = (0.85, 0.92, 0.95, 1.0)  # Slight blue tint
     glass.inputs['Roughness'].default_value = 0.0
     glass.inputs['IOR'].default_value = 1.45
-    
+
     # Create Transparent BSDF
     transparent = nodes.new('ShaderNodeBsdfTransparent')
     transparent.location = (0, -100)
     transparent.inputs['Color'].default_value = (1.0, 1.0, 1.0, 1.0)
-    
+
     # Connect nodes
     links.new(glass.outputs['BSDF'], mix_shader.inputs[1])
     links.new(transparent.outputs['BSDF'], mix_shader.inputs[2])
     links.new(mix_shader.outputs['Shader'], output.inputs['Surface'])
-    
+
     return mat
 
 
@@ -383,16 +382,16 @@ def get_cabinet_previews():
 def load_library_thumbnail(filepath, name):
     """Load a thumbnail image into the preview collection."""
     pcoll = get_library_previews()
-    
+
     # Check if already loaded
     if name in pcoll:
         return pcoll[name].icon_id
-    
+
     # Load the thumbnail
     if os.path.exists(filepath):
         thumb = pcoll.load(name, filepath, 'IMAGE')
         return thumb.icon_id
-    
+
     return 0  # Return 0 if no thumbnail
 
 def get_cabinet_thumbnail_path():
@@ -402,20 +401,20 @@ def get_cabinet_thumbnail_path():
 def load_cabinet_thumbnail(name):
     """Load a standard cabinet thumbnail by name (without extension)."""
     pcoll = get_cabinet_previews()
-    
+
     # Check if already loaded
     if name in pcoll:
         return pcoll[name].icon_id
-    
+
     # Build the filepath
     thumbnails_dir = get_cabinet_thumbnail_path()
     filepath = os.path.join(thumbnails_dir, f"{name}.png")
-    
+
     # Load the thumbnail
     if os.path.exists(filepath):
         thumb = pcoll.load(name, filepath, 'IMAGE')
         return thumb.icon_id
-    
+
     return 0  # Return 0 if no thumbnail
 
 def clear_library_previews():
@@ -426,11 +425,11 @@ def clear_library_previews():
 
 def update_top_cabinet_clearance(self, context):
     hb_props = context.scene.home_builder
-    
+
     # Calculate heights based on clearance settings
     # Tall cabinet: goes from floor to ceiling minus clearance
     self.tall_cabinet_height = hb_props.ceiling_height - self.default_top_cabinet_clearance
-    
+
     # Upper cabinet: fits between wall_cabinet_location and ceiling minus clearance
     self.upper_cabinet_height = hb_props.ceiling_height - self.default_top_cabinet_clearance - self.default_wall_cabinet_location
 
@@ -515,7 +514,7 @@ def update_cabinet_style_name(self, context):
 
 class Frameless_Cabinet_Style(PropertyGroup):
     """Cabinet style defining wood, finish, interior, and door overlay settings."""
-    
+
     name: StringProperty(
         name="Name",
         description="Cabinet style name",
@@ -528,7 +527,7 @@ class Frameless_Cabinet_Style(PropertyGroup):
         description="Show expanded style options",
         default=False
     )  # type: ignore
-    
+
     # Wood/Material selection
     wood_species: EnumProperty(
         name="Wood Species",
@@ -547,20 +546,20 @@ class Frameless_Cabinet_Style(PropertyGroup):
         ],
         default='MAPLE'
     )  # type: ignore
-    
+
     # Finish/Stain
     stain_color: EnumProperty(
         name="Stain Color",
         description="Stain color for cabinet finish",
         items=get_stain_color_enum_items,
     )  # type: ignore
-    
+
     paint_color: EnumProperty(
         name="Paint Color",
         description="Paint color for cabinet finish",
         items=get_paint_color_enum_items,
     )  # type: ignore
-    
+
     # Interior material
     interior_material_type: EnumProperty(
         name="Interior Material",
@@ -572,7 +571,7 @@ class Frameless_Cabinet_Style(PropertyGroup):
         ],
         default='MAPLE_PLY'
     )  # type: ignore
-    
+
     # Door overlay
     door_overlay_type: EnumProperty(
         name="Door Overlay",
@@ -584,7 +583,7 @@ class Frameless_Cabinet_Style(PropertyGroup):
         ],
         default='FULL'
     )  # type: ignore
-    
+
     # Additional style options
     edge_banding: EnumProperty(
         name="Edge Banding",
@@ -626,7 +625,7 @@ class Frameless_Cabinet_Style(PropertyGroup):
     custom_knots_bump_strength: FloatProperty(name="Knots Bump Strength", default=0.15, min=0.0, max=1.0, update=update_custom_procedural_material)# type: ignore
     custom_wood_bump_strength: FloatProperty(name="Wood Bump Strength", default=0.2, min=0.0, max=1.0, update=update_custom_procedural_material)# type: ignore
     show_custom_grain_options: BoolProperty(name="Show Grain Options", default=False)# type: ignore
-    
+
     # Advanced color editing
     show_advanced_color: BoolProperty(
         name="Show Advanced Color Options",
@@ -658,9 +657,9 @@ class Frameless_Cabinet_Style(PropertyGroup):
         else:
             library_path = os.path.join(os.path.dirname(__file__),'frameless_assets','materials','cabinet_material.blend')
             with bpy.data.libraries.load(library_path) as (data_from, data_to):
-                data_to.materials = ["Wood"]  
-            
-            material = data_to.materials[0]            
+                data_to.materials = ["Wood"]
+
+            material = data_to.materials[0]
             material.name = self.name + " Finish"
             self.material = material
             rotated_mat = material.copy()
@@ -681,9 +680,9 @@ class Frameless_Cabinet_Style(PropertyGroup):
         else:
             library_path = os.path.join(os.path.dirname(__file__),'frameless_assets','materials','cabinet_material.blend')
             with bpy.data.libraries.load(library_path) as (data_from, data_to):
-                data_to.materials = ["Wood"]  
-            
-            material = data_to.materials[0]            
+                data_to.materials = ["Wood"]
+
+            material = data_to.materials[0]
             material.name = self.name + " Interior"
             self.interior_material = material
             rotated_mat = material.copy()
@@ -757,27 +756,27 @@ class Frameless_Cabinet_Style(PropertyGroup):
                 # Set Inset Front based on overlay type
                 if 'Inset Front' in child:
                     child['Inset Front'] = (self.door_overlay_type == 'INSET')
-                
+
                 # Set Half Overlay properties based on overlay type
                 # FULL: all half overlays False
                 # HALF: all half overlays True (except where adjacent to cabinet edge)
                 # INSET: half overlay doesn't matter, but set False for consistency
                 is_half = (self.door_overlay_type == 'HALF')
-                
+
                 if 'Half Overlay Top' in child:
                     # Only set to half if not already overridden (e.g., stacked cabinets)
                     # Check if this is at the top of the cabinet
                     if not child.get('FORCE_HALF_OVERLAY_TOP', False):
                         child['Half Overlay Top'] = is_half
-                        
+
                 if 'Half Overlay Bottom' in child:
                     if not child.get('FORCE_HALF_OVERLAY_BOTTOM', False):
                         child['Half Overlay Bottom'] = is_half
-                        
+
                 if 'Half Overlay Left' in child:
                     if not child.get('FORCE_HALF_OVERLAY_LEFT', False):
                         child['Half Overlay Left'] = is_half
-                        
+
                 if 'Half Overlay Right' in child:
                     if not child.get('FORCE_HALF_OVERLAY_RIGHT', False):
                         child['Half Overlay Right'] = is_half
@@ -801,7 +800,7 @@ class Frameless_Cabinet_Style(PropertyGroup):
     def draw_cabinet_style_ui(self, layout, context):
         box = layout.box()
         box.prop(self, "name", text="Style Name")
-        
+
         # Exterior material
         col = box.column(align=True)
         col.prop(self, "wood_species", text="Exterior")
@@ -834,27 +833,27 @@ class Frameless_Cabinet_Style(PropertyGroup):
             col.prop(self, "paint_color", text="Paint Color")
         else:
             col.prop(self, "stain_color", text="Stain Color")
-        
+
         # Interior material
         col = box.column(align=True)
         col.prop(self, "interior_material_type", text="Interior")
         if self.interior_material_type == 'CUSTOM':
             col.prop(self, "custom_interior_material", text="")
-        
+
         # Edge banding
         col = box.column(align=True)
         col.prop(self, "edge_banding", text="Edge Banding")
         if self.edge_banding == 'CUSTOM':
             col.prop(self, "custom_edge_material", text="")
-        
+
         # Door overlay
         box.prop(self, "door_overlay_type", text="Door Overlay")
-        
+
         # Action buttons
         row = box.row()
         row.scale_y = 1.3
         row.operator("hb_frameless.assign_cabinet_style_to_selected_cabinets", text="Assign Style", icon='BRUSH_DATA')
-        
+
         row = box.row()
         row.scale_y = 1.3
         if context.window_manager.blendertomob.progress < 1.0:
@@ -869,7 +868,7 @@ class Frameless_Cabinet_Style(PropertyGroup):
 
 class HB_UL_cabinet_styles(UIList):
     """UIList for displaying cabinet styles."""
-    
+
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         row = layout.row(align=True)
         row.prop(item, "name", text="", emboss=False, icon='MATERIAL')
@@ -877,7 +876,7 @@ class HB_UL_cabinet_styles(UIList):
 
 class HB_UL_door_styles(UIList):
     """UIList for displaying door styles."""
-    
+
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         row = layout.row(align=True)
         row.prop(item, "name", text="", emboss=False)
@@ -890,13 +889,13 @@ class HB_UL_door_styles(UIList):
 
 class Frameless_Door_Style(PropertyGroup):
     """Door/Drawer Front style defining construction type, dimensions, and materials."""
-    
+
     show_expanded: BoolProperty(
         name="Show Expanded",
         description="Show expanded style options",
         default=False
     )  # type: ignore
-    
+
     # Door construction type
     door_type: EnumProperty(
         name="Door Type",
@@ -907,7 +906,7 @@ class Frameless_Door_Style(PropertyGroup):
         ],
         default='SLAB'
     )  # type: ignore
-    
+
     # Panel/Center material
     panel_material: EnumProperty(
         name="Panel Material",
@@ -918,19 +917,19 @@ class Frameless_Door_Style(PropertyGroup):
         ],
         default='MATCH_CABINET'
     )  # type: ignore
-    
+
     # Outside profile object (for routing/edge detail)
     outside_profile: PointerProperty(
         name="Outside Profile",
         type=bpy.types.Object
     )  # type: ignore
-    
+
     # Inside profile object (for frame inner edge)
     inside_profile: PointerProperty(
-        name="Inside Profile", 
+        name="Inside Profile",
         type=bpy.types.Object
     )  # type: ignore
-    
+
     # 5 Piece Door Dimensions
     stile_width: FloatProperty(
         name="Stile Width",
@@ -939,7 +938,7 @@ class Frameless_Door_Style(PropertyGroup):
         unit='LENGTH',
         precision=4
     )  # type: ignore
-    
+
     rail_width: FloatProperty(
         name="Rail Width",
         description="Width of top and bottom rails",
@@ -947,20 +946,20 @@ class Frameless_Door_Style(PropertyGroup):
         unit='LENGTH',
         precision=4
     )  # type: ignore
-    
+
     # Mid Rail Options
     add_mid_rail: BoolProperty(
         name="Add Mid Rail",
         description="Add a horizontal mid rail",
         default=False
     )  # type: ignore
-    
+
     center_mid_rail: BoolProperty(
         name="Center Mid Rail",
         description="Center the mid rail vertically",
         default=True
     )  # type: ignore
-    
+
     mid_rail_width: FloatProperty(
         name="Mid Rail Width",
         description="Width of the mid rail",
@@ -968,7 +967,7 @@ class Frameless_Door_Style(PropertyGroup):
         unit='LENGTH',
         precision=4
     )  # type: ignore
-    
+
     mid_rail_location: FloatProperty(
         name="Mid Rail Location",
         description="Distance from bottom of door to mid rail (if not centered)",
@@ -976,7 +975,7 @@ class Frameless_Door_Style(PropertyGroup):
         unit='LENGTH',
         precision=4
     )  # type: ignore
-    
+
     # Panel Options
     panel_thickness: FloatProperty(
         name="Panel Thickness",
@@ -985,7 +984,7 @@ class Frameless_Door_Style(PropertyGroup):
         unit='LENGTH',
         precision=4
     )  # type: ignore
-    
+
     panel_inset: FloatProperty(
         name="Panel Inset",
         description="How far panel is inset from frame face",
@@ -993,7 +992,7 @@ class Frameless_Door_Style(PropertyGroup):
         unit='LENGTH',
         precision=4
     )  # type: ignore
-    
+
     # Edge Profile
     edge_profile_type: EnumProperty(
         name="Edge Profile",
@@ -1010,12 +1009,12 @@ class Frameless_Door_Style(PropertyGroup):
 
     def get_parent_cabinet_style(self, front_obj):
         """Find the parent cabinet and return its cabinet style.
-        
+
         Walks up the object hierarchy to find the cabinet cage,
         then returns the cabinet style associated with it.
         """
         from ... import hb_project
-        
+
         # Walk up the hierarchy to find the cabinet
         current = front_obj
         cabinet_obj = None
@@ -1024,27 +1023,27 @@ class Frameless_Door_Style(PropertyGroup):
                 cabinet_obj = current
                 break
             current = current.parent
-        
+
         if not cabinet_obj:
             return None
-        
+
         # Get the cabinet style index
         style_index = cabinet_obj.get('CABINET_STYLE_INDEX', 0)
-        
+
         # Get cabinet styles from main scene
         main_scene = hb_project.get_main_scene()
         props = main_scene.hb_frameless
-        
+
         if style_index < len(props.cabinet_styles):
             return props.cabinet_styles[style_index]
         elif len(props.cabinet_styles) > 0:
             return props.cabinet_styles[0]
-        
+
         return None
 
     def assign_style_to_front(self, front_obj):
         """Assign this door style to a door or drawer front object.
-        
+
         Returns:
             True if style was applied successfully
             False if style could not be applied (e.g., front too small)
@@ -1052,7 +1051,7 @@ class Frameless_Door_Style(PropertyGroup):
         """
         from . import types_frameless
         from ... import hb_types
-        
+
         # Get the front wrapper
         if 'IS_DOOR_FRONT' in front_obj:
             front = types_frameless.CabinetDoor(front_obj)
@@ -1060,7 +1059,7 @@ class Frameless_Door_Style(PropertyGroup):
             front = types_frameless.CabinetDrawerFront(front_obj)
         else:
             return False
-        
+
         # Apply style based on door type
         if self.door_type == 'SLAB':
             # Remove any existing door style modifier
@@ -1075,31 +1074,31 @@ class Frameless_Door_Style(PropertyGroup):
                 front_width = front.get_input("Width")
             except Exception:
                 return "Could not read front dimensions"
-            
+
             print(f"Front height: {units.meter_to_inch(front_height)}, Front width: {units.meter_to_inch(front_width)}")
             # Calculate minimum dimensions needed
             min_width = self.stile_width * 2 + units.inch(1) # Left + Right stiles
             min_height = self.rail_width * 2 + units.inch(1) # Top + Bottom rails
-            
+
             # Add mid rail height if enabled in style OR if door is tall enough to auto-add
             auto_mid_rail_height = units.inch(45.5)
             if self.add_mid_rail or front_height > auto_mid_rail_height:
                 min_height += self.mid_rail_width
-            
+
             # Check if front is large enough
             if front_width < min_width:
                 return f"Front too narrow ({front_width:.3f}m) for stile widths ({min_width:.3f}m minimum)"
-            
+
             if front_height < min_height:
                 return f"Front too short ({front_height:.3f}m) for rail widths ({min_height:.3f}m minimum)"
-            
+
             # Check if door style modifier already exists
             existing_mod = None
             for mod in front_obj.modifiers:
                 if mod.type == 'NODES' and 'Door Style' in mod.name:
                     existing_mod = mod
                     break
-            
+
             if existing_mod:
                 # Wrap existing modifier with CabinetPartModifier
                 door_style_mod = hb_types.CabinetPartModifier()
@@ -1108,24 +1107,24 @@ class Frameless_Door_Style(PropertyGroup):
             else:
                 # Add new modifier
                 door_style_mod = front.add_part_modifier('CPM_5PIECEDOOR', 'Door Style')
-            
+
             door_style_mod.set_input("Left Stile Width", self.stile_width)
             door_style_mod.set_input("Right Stile Width", self.stile_width)
             door_style_mod.set_input("Top Rail Width", self.rail_width)
             door_style_mod.set_input("Bottom Rail Width", self.rail_width)
             door_style_mod.set_input("Panel Thickness", self.panel_thickness)
             door_style_mod.set_input("Panel Inset", self.panel_inset)
-            
+
             # Automatically add centered mid rail for doors taller than 45.5"
             auto_mid_rail_height = units.inch(45.5)
             needs_auto_mid_rail = front_height > auto_mid_rail_height
-            
+
             # Mid rail: auto-add for tall doors, or use style setting
             if needs_auto_mid_rail or self.add_mid_rail:
                 try:
                     door_style_mod.set_input("Add Mid Rail", True)
                     door_style_mod.set_input("Mid Rail Width", self.mid_rail_width)
-                    
+
                     if needs_auto_mid_rail:
                         # Tall doors always get centered mid rail
                         door_style_mod.set_input("Center Mid Rail", True)
@@ -1142,7 +1141,7 @@ class Frameless_Door_Style(PropertyGroup):
                     door_style_mod.set_input("Add Mid Rail", False)
                 except Exception:
                     pass
-            
+
             # Inherit materials from parent cabinet's style
             cabinet_style = self.get_parent_cabinet_style(front_obj)
             if cabinet_style:
@@ -1157,7 +1156,7 @@ class Frameless_Door_Style(PropertyGroup):
                     door_style_mod.set_input("Panel Material", glass_mat)
                 else:
                     door_style_mod.set_input("Panel Material", material)
-        
+
         # Store style reference on the object (only after successful application)
         front_obj['DOOR_STYLE_NAME'] = self.name
         return True
@@ -1166,12 +1165,12 @@ class Frameless_Door_Style(PropertyGroup):
         """Draw the UI for this door style."""
         box = layout.box()
         box.prop(self, "name", text="Style Name")
-        
+
         # Door type
         col = box.column(align=True)
         col.label(text="Construction:")
         col.prop(self, "door_type", text="Type")
-        
+
         # Show relevant options based on door type
         if self.door_type == 'SLAB':
             col = box.column(align=True)
@@ -1184,25 +1183,25 @@ class Frameless_Door_Style(PropertyGroup):
             col.prop(self, "stile_width", text="Stile Width")
             col.prop(self, "rail_width", text="Rail Width")
             col.prop(self, "mid_rail_width", text="Mid Rail Width")
-            
+
             col = box.column(align=True)
             col.label(text="Panel:")
             col.prop(self, "panel_material", text="Material")
             col.prop(self, "panel_thickness", text="Thickness")
             col.prop(self, "panel_inset", text="Inset")
-        
+
         # Profile objects
         col = box.column(align=True)
         col.label(text="Profiles:")
         col.prop(self, "outside_profile", text="Outside")
         if self.door_type != 'SLAB':
             col.prop(self, "inside_profile", text="Inside")
-        
+
         # Assign button
         row = box.row()
         row.scale_y = 1.3
         row.operator("hb_frameless.assign_door_style_to_selected_fronts", text="Assign Style", icon='BRUSH_DATA')
-        
+
         # Update fronts button
         row = box.row()
         row.scale_y = 1.3
@@ -1218,19 +1217,19 @@ class CalculatorCabinet(PropertyGroup):
 
 class Crown_Detail(PropertyGroup):
     """Crown molding detail stored as a reference to a detail scene."""
-    
+
     # Reference to the detail scene where the crown profile is drawn
     detail_scene_name: StringProperty(
         name="Detail Scene",
         description="Name of the detail scene containing the crown profile"
     )  # type: ignore
-    
+
     description: StringProperty(
-        name="Description", 
+        name="Description",
         description="Description of this crown molding detail",
         default=""
     )  # type: ignore
-    
+
     def get_detail_scene(self):
         """Get the detail scene object, if it exists."""
         if self.detail_scene_name and self.detail_scene_name in bpy.data.scenes:
@@ -1240,18 +1239,18 @@ class Crown_Detail(PropertyGroup):
 
 class Toe_Kick_Detail(PropertyGroup):
     """Toe kick detail stored as a reference to a detail scene."""
-    
+
     detail_scene_name: StringProperty(
         name="Detail Scene",
         description="Name of the detail scene containing the toe kick profile"
     )  # type: ignore
-    
+
     description: StringProperty(
-        name="Description", 
+        name="Description",
         description="Description of this toe kick detail",
         default=""
     )  # type: ignore
-    
+
     def get_detail_scene(self):
         """Get the detail scene object, if it exists."""
         if self.detail_scene_name and self.detail_scene_name in bpy.data.scenes:
@@ -1266,18 +1265,18 @@ class HB_UL_toe_kick_details(UIList):
 
 class Upper_Bottom_Detail(PropertyGroup):
     """Upper cabinet bottom detail stored as a reference to a detail scene."""
-    
+
     detail_scene_name: StringProperty(
         name="Detail Scene",
         description="Name of the detail scene containing the upper bottom profile"
     )  # type: ignore
-    
+
     description: StringProperty(
-        name="Description", 
+        name="Description",
         description="Description of this upper bottom detail",
         default=""
     )  # type: ignore
-    
+
     def get_detail_scene(self):
         """Get the detail scene object, if it exists."""
         if self.detail_scene_name and self.detail_scene_name in bpy.data.scenes:
@@ -1294,33 +1293,33 @@ class HB_MT_crown_detail_library(bpy.types.Menu):
     """Menu for loading crown details from library."""
     bl_label = "Crown Detail Library"
     bl_idname = "HB_MT_crown_detail_library"
-    
+
     def draw(self, context):
         from ... import hb_detail_library
-        
+
         layout = self.layout
-        
+
         # Check if we're in a crown detail view - show save option
         is_crown_detail = context.scene.get('IS_CROWN_DETAIL', False)
         if is_crown_detail:
-            layout.operator("home_builder_details.save_to_library", 
+            layout.operator("home_builder_details.save_to_library",
                            text="Save Current Crown Detail", icon='FILE_NEW')
             layout.separator()
-        
+
         # List saved crown details
         crown_details = hb_detail_library.get_library_details(detail_type="crown")
-        
+
         if crown_details:
             layout.label(text="Load from Library:", icon='FILE_FOLDER')
             for detail in crown_details:
                 op = layout.operator("home_builder_details.create_from_library",
-                                    text=detail.get("name", "Unnamed"), 
+                                    text=detail.get("name", "Unnamed"),
                                     icon='IMPORT')
                 op.filepath = detail.get("filepath", "")
                 op.name = detail.get("name", "Crown Detail")
         else:
             layout.label(text="No saved crown details", icon='INFO')
-        
+
         layout.separator()
         layout.operator("home_builder_details.open_library_folder",
                        text="Open Library Folder", icon='FILE_FOLDER')
@@ -1328,7 +1327,7 @@ class HB_MT_crown_detail_library(bpy.types.Menu):
 
 class HB_UL_crown_details(UIList):
     """UIList for displaying crown details."""
-    
+
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         row = layout.row(align=True)
         row.prop(item, "name", text="", emboss=False, icon='MOD_SIMPLEDEFORM')
@@ -1339,8 +1338,8 @@ class HB_UL_crown_details(UIList):
             row.label(text="", icon='ERROR')
 
 
-class Frameless_Scene_Props(PropertyGroup):   
-    
+class Frameless_Scene_Props(PropertyGroup):
+
     frameless_selection_mode: EnumProperty(name="Frameless Selection Mode",
                     items=[('Cabinets',"Cabinets","Cabinets"),
                            ('Bays',"Bays","Bays"),
@@ -1354,7 +1353,7 @@ class Frameless_Scene_Props(PropertyGroup):
     frameless_tabs: EnumProperty(name="Frameless Tabs",
                        items=[('LIBRARY',"Library","Library"),
                               ('OPTIONS',"Options","Options")],
-                       default='LIBRARY')# type: ignore  
+                       default='LIBRARY')# type: ignore
 
     show_cabinet_sizes: BoolProperty(name="Show Cabinet Sizes",description="Show Cabinet Sizes.",default=True)# type: ignore
     show_cabinet_library: BoolProperty(name="Show Cabinet Library",description="Show Cabinet Library.",default=True)# type: ignore
@@ -1406,28 +1405,28 @@ class Frameless_Scene_Props(PropertyGroup):
                                       ('Pie Cut 2 Drawer Base','Pie Cut 2 Drawer Base','Pie Cut 2 Drawer Base'),
                                       ('Pie Cut 3 Drawer Base','Pie Cut 3 Drawer Base','Pie Cut 3 Drawer Base'),
                                       ('Pie Cut 4 Drawer Base','Pie Cut 4 Drawer Base','Pie Cut 4 Drawer Base')],
-                               default='Pie Cut Corner')# type: ignore  
+                               default='Pie Cut Corner')# type: ignore
 
     upper_corner_type: EnumProperty(name="Upper Corner Type",
                                items=[('Diagonal Corner','Diagonal Corner','Diagonal Corner'),
                                       ('Diagonal Stacked Corner','Diagonal Stacked Corner','Diagonal Stacked Corner'),
                                       ('Pie Cut Corner','Pie Cut Corner','Pie Cut Corner'),
                                       ('Pie Cut Stacked Corner','Pie Cut Stacked Corner','Pie Cut Stacked Corner')],
-                               default='Pie Cut Corner')# type: ignore  
+                               default='Pie Cut Corner')# type: ignore
 
     upper_and_tall_corner_type: EnumProperty(name="Upper Corner Type",
                                items=[('Diagonal','Diagonal','Diagonal'),
                                       ('Diagonal Stacked','Diagonal Stacked','Diagonal Stacked'),
                                       ('Pie Cut','Pie Cut','Pie Cut'),
                                       ('Pie Cut Stacked','Pie Cut Stacked','Pie Cut Stacked')],
-                               default='Diagonal')# type: ignore   
+                               default='Diagonal')# type: ignore
 
     #APPLIANCE SIZES
     refrigerator_height: FloatProperty(name="Refrigerator Height",
                                          description="Default Refrigerator height",
                                          default=units.inch(62.0),
                                          unit='LENGTH',
-                                         precision=4)# type: ignore   
+                                         precision=4)# type: ignore
 
     refrigerator_cabinet_width: FloatProperty(name="Refrigerator Cabinet Width",
                                          description="Default Refrigerator cabinet width",
@@ -1439,7 +1438,7 @@ class Frameless_Scene_Props(PropertyGroup):
                                description="Default Dishwasher Width",
                                default=units.inch(36.0),
                                unit='LENGTH',
-                               precision=4)# type: ignore     
+                               precision=4)# type: ignore
 
     dishwasher_width: FloatProperty(name="Dishwasher Width",
                                     description="Default Dishwasher Width",
@@ -1453,39 +1452,39 @@ class Frameless_Scene_Props(PropertyGroup):
                                                  default=units.inch(12.0),
                                                  unit='LENGTH',
                                                  precision=4,
-                                                 update=update_top_cabinet_clearance)# type: ignore              
+                                                 update=update_top_cabinet_clearance)# type: ignore
 
     default_wall_cabinet_location: FloatProperty(name="Default Wall Cabinet Location",
                                                  description="Distance from Floor to Bottom of Wall Cabinet",
                                                  default=units.inch(54.0),
                                                  unit='LENGTH',
                                                  precision=4,
-                                                 update=update_top_cabinet_clearance)# type: ignore  
-    
+                                                 update=update_top_cabinet_clearance)# type: ignore
+
     default_cabinet_width: FloatProperty(name="Default Cabinet Width",
                                                  description="Default width for cabinets",
                                                  default=units.inch(36.0),
                                                  unit='LENGTH',
                                                  precision=4)# type: ignore
-        
+
     base_cabinet_depth: FloatProperty(name="Base Cabinet Depth",
                                                  description="Default depth for base cabinets",
                                                  default=units.inch(23.125),
                                                  unit='LENGTH',
                                                  precision=4)# type: ignore
-    
+
     base_cabinet_height: FloatProperty(name="Base Cabinet Height",
                                                   description="Default height for base cabinets",
                                                   default=units.inch(34.5),
                                                   unit='LENGTH',
                                                   precision=4)# type: ignore
-    
+
     base_inside_corner_size: FloatProperty(name="Base Inside Corner Size",
                                            description="Default width and depth for the inside base corner cabinets",
                                            default=units.inch(36.0),
                                            unit='LENGTH',
                                            precision=4)# type: ignore
-    
+
     tall_inside_corner_size: FloatProperty(name="Tall Inside Corner Size",
                                            description="Default width and depth for the inside tall corner cabinets",
                                            default=units.inch(36.0),
@@ -1503,31 +1502,31 @@ class Frameless_Scene_Props(PropertyGroup):
                                                  default=units.inch(25.5),
                                                  unit='LENGTH',
                                                  precision=4)# type: ignore
-    
+
     tall_cabinet_height: FloatProperty(name="Tall Cabinet Height",
                                                   description="Default height for tall cabinets",
                                                   default=units.inch(84.0),
                                                   unit='LENGTH',
                                                   precision=4)# type: ignore
-    
+
     upper_cabinet_depth: FloatProperty(name="Upper Cabinet Depth",
                                                   description="Default depth for upper cabinets",
                                                   default=units.inch(13.0),
                                                   unit='LENGTH',
                                                   precision=4)# type: ignore
-    
+
     upper_cabinet_height: FloatProperty(name="Upper Cabinet Height",
                                                    description="Default height for upper cabinets",
                                                    default=units.inch(30),
                                                    unit='LENGTH',
                                                    precision=4)# type: ignore
-    
+
     base_width_blind: FloatProperty(name="Base Width Blind",
                                                description="Default width for base blind corner cabinets",
                                                default=units.inch(48.0),
                                                unit='LENGTH',
                                                precision=4)# type: ignore
-    
+
     tall_width_blind: FloatProperty(name="Tall Width Blind",
                                                description="Default width for tall blind corner cabinets",
                                                default=units.inch(48.0),
@@ -1539,7 +1538,7 @@ class Frameless_Scene_Props(PropertyGroup):
                                                 default=units.inch(36.0),
                                                 unit='LENGTH',
                                                 precision=4)# type: ignore
-    
+
     tall_cabinet_split_height: FloatProperty(name="Tall Cabinet Split Height",
                                                   description="Default height for the bottom opening of the tall split cabinet",
                                                   default=units.inch(54),
@@ -1551,7 +1550,7 @@ class Frameless_Scene_Props(PropertyGroup):
                                     default=units.inch(15),
                                     unit='LENGTH',
                                     precision=4)# type: ignore
-    
+
     #CABINET GENERAL CONSTRUCTION OPTIONS
     show_machining = bpy.props.BoolProperty(name="Show Machining",default = True,update=update_show_machining)# type: ignore
 
@@ -1564,12 +1563,12 @@ class Frameless_Scene_Props(PropertyGroup):
                                                  description="",
                                                  default=units.inch(4),
                                                  unit='LENGTH')# type: ignore
-    
+
     default_toe_kick_setback: FloatProperty(name="Default Toe Kick Setback",
                                                  description="",
                                                  default=units.inch(2.5),
                                                  unit='LENGTH')# type: ignore
-    
+
     default_toe_kick_type: EnumProperty(name="Toe Kick Type",
                        items=[('Notch Ends to Floor',"Notch Ends to Floor","Notch Ends to Floor"),
                               ('Ladder Style',"Ladder Style","Ladder Style"),
@@ -1587,10 +1586,10 @@ class Frameless_Scene_Props(PropertyGroup):
                               ('Full Top',"Full Top","Full Top")],
                        default='Stretchers')# type: ignore
 
-    equal_drawer_stack_heights: BoolProperty(name="Equal Drawer Stack Heights", 
-                                             description="Check this make all drawer stack heights equal. Otherwise the Top Drawer Height will be set.", 
+    equal_drawer_stack_heights: BoolProperty(name="Equal Drawer Stack Heights",
+                                             description="Check this make all drawer stack heights equal. Otherwise the Top Drawer Height will be set.",
                                                         default=False)# type: ignore
-    
+
     top_drawer_front_height: FloatProperty(name="Top Drawer Front Height",
                                            description="Default top drawer front height.",
                                            default=units.inch(6.0),
@@ -1617,7 +1616,7 @@ class Frameless_Scene_Props(PropertyGroup):
     upper_bottom_details: CollectionProperty(type=Upper_Bottom_Detail, name="Upper Bottom Details")# type: ignore
     active_upper_bottom_detail_index: IntProperty(name="Active Upper Bottom Detail Index", default=0)# type: ignore
 
-    
+
     #CABINET PULL OPTIONS
     current_door_pull_object: PointerProperty(type=bpy.types.Object)# type: ignore
     current_drawer_front_pull_object: PointerProperty(type=bpy.types.Object)# type: ignore
@@ -1647,9 +1646,9 @@ class Frameless_Scene_Props(PropertyGroup):
                                                  description="Distance from Top of Drawer Front to Center of Pull",
                                                  default=units.inch(1.5),
                                                  unit='LENGTH')# type: ignore
-    
-    center_pulls_on_drawer_front: BoolProperty(name="Center Pulls on Drawer Front", 
-                                                        description="Check this to center pulls on drawer fronts. Otherwise vertical location will be used.", 
+
+    center_pulls_on_drawer_front: BoolProperty(name="Center Pulls on Drawer Front",
+                                                        description="Check this to center pulls on drawer fronts. Otherwise vertical location will be used.",
                                                         default=True)# type: ignore
 
     # Pull selection from library
@@ -1664,13 +1663,13 @@ class Frameless_Scene_Props(PropertyGroup):
         description="Select pull style for doors",
         items=get_pull_enum_items,
     )# type: ignore
-    
+
     drawer_pull_selection: EnumProperty(
-        name="Drawer Pull", 
+        name="Drawer Pull",
         description="Select pull style for drawers",
         items=get_pull_enum_items,
     )# type: ignore
-    
+
     pull_finish: EnumProperty(
         name="Pull Finish",
         description="Select finish for cabinet pulls",
@@ -1709,7 +1708,7 @@ class Frameless_Scene_Props(PropertyGroup):
         if len(props.cabinet_styles) == 0:
             style = props.cabinet_styles.add()
             style.name = "Default Style"
-    
+
     def get_active_style(self):
         """Get the currently active cabinet style."""
 
@@ -1735,14 +1734,14 @@ class Frameless_Scene_Props(PropertyGroup):
             props, "active_cabinet_style_index",
             rows=3
         )
-        
+
         # Add/Remove buttons
         col = row.column(align=True)
         col.operator("hb_frameless.add_cabinet_style", icon='ADD', text="")
         col.operator("hb_frameless.remove_cabinet_style", icon='REMOVE', text="")
         col.separator()
         col.operator("hb_frameless.duplicate_cabinet_style", icon='DUPLICATE', text="")
-        
+
         # Active style properties
         if props.cabinet_styles and props.active_cabinet_style_index < len(props.cabinet_styles):
             style = props.cabinet_styles[props.active_cabinet_style_index]
@@ -1757,7 +1756,7 @@ class Frameless_Scene_Props(PropertyGroup):
         if len(props.door_styles) == 0:
             style = props.door_styles.add()
             style.name = "Default Door Style"
-    
+
     def get_active_door_style(self):
         """Get the currently active door style."""
         # Get Door Styles from Main Scene
@@ -1775,7 +1774,7 @@ class Frameless_Scene_Props(PropertyGroup):
         # Get Door Styles from Main Scene
         main_scene = hb_project.get_main_scene()
         props = main_scene.hb_frameless
-        
+
         # UIList for styles
         row = layout.row()
         row.template_list(
@@ -1784,65 +1783,65 @@ class Frameless_Scene_Props(PropertyGroup):
             props, "active_door_style_index",
             rows=3
         )
-        
+
         # Add/Remove buttons
         col = row.column(align=True)
         col.operator("hb_frameless.add_door_style", icon='ADD', text="")
         col.operator("hb_frameless.remove_door_style", icon='REMOVE', text="")
         col.separator()
         col.operator("hb_frameless.duplicate_door_style", icon='DUPLICATE', text="")
-        
+
         # Active style properties
         if props.door_styles and props.active_door_style_index < len(props.door_styles):
             style = props.door_styles[props.active_door_style_index]
-            style.draw_door_style_ui(layout, context)   
+            style.draw_door_style_ui(layout, context)
 
     def draw_cabinet_sizes_ui(self,layout,context):
-        unit_settings = context.scene.unit_settings      
+        unit_settings = context.scene.unit_settings
         row = layout.row()
         row.label(text="Top Cabinet Clearance:")
-        row.prop(self,'default_top_cabinet_clearance',text="")  
-        row.operator('hb_frameless.update_cabinet_sizes',text="",icon='FILE_REFRESH')     
+        row.prop(self,'default_top_cabinet_clearance',text="")
+        row.operator('hb_frameless.update_cabinet_sizes',text="",icon='FILE_REFRESH')
         row = layout.row()
         row.label(text="Upper Cabinet Dim to Floor:")
-        row.prop(self,'default_wall_cabinet_location',text="")  
+        row.prop(self,'default_wall_cabinet_location',text="")
         row.label(text="",icon='BLANK1')
         row = layout.row()
         row.label(text="Sizes")
         row.label(text="Base")
-        row.label(text="Tall")      
+        row.label(text="Tall")
         row.label(text="Upper")
         row = layout.row()
         row.label(text="Depth:")
         row.prop(self,'base_cabinet_depth',text="")
         row.prop(self,'tall_cabinet_depth',text="")
-        row.prop(self,'upper_cabinet_depth',text="")   
+        row.prop(self,'upper_cabinet_depth',text="")
         row = layout.row()
         row.label(text="Height:")
         row.prop(self,'base_cabinet_height',text="")
         row.label(text=units.unit_to_string(unit_settings,self.tall_cabinet_height))
         row.label(text=units.unit_to_string(unit_settings,self.upper_cabinet_height))
         row = layout.row()
-        row.label(text="Stacked Top Cabinet Height:") 
+        row.label(text="Stacked Top Cabinet Height:")
         row.prop(self,'upper_top_stacked_cabinet_height',text="")
         row = layout.row()
-        row.label(text="Tall Split Height:") 
+        row.label(text="Tall Split Height:")
         row.prop(self,'tall_cabinet_split_height',text="")
 
     def draw_user_library_ui(self,layout,context):
         from .operators import ops_library
-        
+
         # Header row with refresh and folder buttons
         row = layout.row()
         row.label(text="User Library")
         row.operator('hb_frameless.refresh_user_library', text="", icon='FILE_REFRESH')
         row.operator('hb_frameless.open_user_library_folder', text="", icon='FILE_FOLDER')
-        
+
         # Create/Save buttons
         col = layout.column(align=True)
         col.operator('hb_frameless.create_cabinet_group', text="Create Cabinet Group", icon='ADD')
         col.operator('hb_frameless.save_cabinet_group_to_user_library', text="Save to Library", icon='FILE_TICK')
-        
+
         layout.separator()
 
         # Category dropdown
@@ -1853,7 +1852,7 @@ class Frameless_Scene_Props(PropertyGroup):
         # Get library items filtered by category
         category = self.cabinet_group_category if hasattr(self, 'cabinet_group_category') else 'ALL'
         library_items = ops_library.get_user_library_items(None if category == 'ALL' else category)
-        
+
         if not library_items:
             box = layout.box()
             box.label(text="No saved cabinet groups", icon='INFO')
@@ -1862,28 +1861,28 @@ class Frameless_Scene_Props(PropertyGroup):
             # Display library items
             box = layout.box()
             box.label(text=f"Saved Groups ({len(library_items)})", icon='ASSET_MANAGER')
-            
+
             # Grid layout for items with thumbnails
             flow = box.column_flow(columns=2, align=True)
-            
+
             for item in library_items:
                 item_box = flow.box()
-                
+
                 # Item name with delete button
                 row = item_box.row()
                 row.label(text=item['name'])
                 del_op = row.operator('hb_frameless.delete_library_item', text="", icon='X', emboss=False)
                 del_op.filepath = item['filepath']
                 del_op.item_name = item['name']
-                
+
                 # Show thumbnail if available
                 if item['thumbnail']:
                     icon_id = load_library_thumbnail(item['thumbnail'], item['name'])
                     if icon_id:
                         item_box.template_icon(icon_value=icon_id, scale=5.0)
-                
+
                 # Load button
-                op = item_box.operator('hb_frameless.load_cabinet_group_from_library', 
+                op = item_box.operator('hb_frameless.load_cabinet_group_from_library',
                                        text="Add to Scene", icon='IMPORT')
                 op.filepath = item['filepath']
 
@@ -1895,42 +1894,42 @@ class Frameless_Scene_Props(PropertyGroup):
             ("Drawer", "Base Drawer", "Base Drw"),
             ("Lap Drawer", "Lap Drawer", "Lap Drw"),
         ]
-        
+
         upper_and_tall_cabinets = [
             ("Upper", "Upper", "Upper"),
             ("Upper Stacked", "Upper Stacked", "Upper Stacked"),
             ("Tall", "Tall", "Tall"),
             ("Tall Stacked", "Tall Stacked", "Tall Stacked"),
         ]
-        
+
         # Base cabinets
         layout.label(text="Base Cabinets:")
         flow = layout.grid_flow(row_major=True, columns=4, even_columns=True, even_rows=True, align=True)
         for display_name, cabinet_name, thumb_name in base_cabinets:
             box = flow.box()
             box.scale_y = 0.9
-            
+
             # Show thumbnail
             icon_id = load_cabinet_thumbnail(thumb_name)
             if icon_id:
                 box.template_icon(icon_value=icon_id, scale=4.0)
-            
+
             # Button
             op = box.operator('hb_frameless.draw_cabinet', text=display_name)
             op.cabinet_name = cabinet_name
-        
+
         # Upper and Tall cabinets combined on one line
         layout.label(text="Upper & Tall Cabinets:")
         flow = layout.grid_flow(row_major=True, columns=4, even_columns=True, even_rows=True, align=True)
         for display_name, cabinet_name, thumb_name in upper_and_tall_cabinets:
             box = flow.box()
             box.scale_y = 0.9
-            
+
             # Show thumbnail
             icon_id = load_cabinet_thumbnail(thumb_name)
             if icon_id:
                 box.template_icon(icon_value=icon_id, scale=4.0)
-            
+
             # Button
             op = box.operator('hb_frameless.draw_cabinet', text=display_name)
             op.cabinet_name = cabinet_name
@@ -1942,7 +1941,7 @@ class Frameless_Scene_Props(PropertyGroup):
         row.prop(self,'base_inside_corner_size',text="Base")
         row.prop(self,'tall_inside_corner_size',text="Tall")
         row.prop(self,'upper_inside_corner_size',text="Upper")
-        
+
         # Diagonal corner cabinet definitions: (display_name, cabinet_name, thumbnail_name)
         # layout.label(text="Diagonal Corner")
         # diagonal_cabinets = [
@@ -1950,17 +1949,17 @@ class Frameless_Scene_Props(PropertyGroup):
         #     ("Tall", "Diagonal Corner Tall", "Frameless Tall Corner"),
         #     ("Upper", "Diagonal Corner Upper", "Frameless Upper Corner"),
         # ]
-        
+
         # flow = layout.grid_flow(row_major=True, columns=3, even_columns=True, even_rows=True, align=True)
         # for display_name, cabinet_name, thumb_name in diagonal_cabinets:
         #     cab_box = flow.box()
         #     cab_box.scale_y = 0.9
-            
+
         #     # Show thumbnail
         #     icon_id = load_cabinet_thumbnail(thumb_name)
         #     if icon_id:
         #         cab_box.template_icon(icon_value=icon_id, scale=4.0)
-            
+
         #     # Button
         #     op = cab_box.operator('hb_frameless.draw_cabinet', text=display_name)
         #     op.cabinet_name = cabinet_name
@@ -1972,21 +1971,21 @@ class Frameless_Scene_Props(PropertyGroup):
             ("Tall", "Pie Cut Corner Tall", "Frameless Tall Corner"),
             ("Upper", "Pie Cut Corner Upper", "Frameless Upper Corner"),
         ]
-        
+
         flow = layout.grid_flow(row_major=True, columns=3, even_columns=True, even_rows=True, align=True)
         for display_name, cabinet_name, thumb_name in piecut_cabinets:
             cab_box = flow.box()
             cab_box.scale_y = 0.9
-            
+
             # Show thumbnail
             icon_id = load_cabinet_thumbnail(thumb_name)
             if icon_id:
                 cab_box.template_icon(icon_value=icon_id, scale=4.0)
-            
+
             # Button
             op = cab_box.operator('hb_frameless.draw_cabinet', text=display_name)
             op.cabinet_name = cabinet_name
-    
+
     def draw_appliance_library_ui(self,layout,context):
         row = layout.row()
         row.label(text="Refrigerator Height")
@@ -1997,7 +1996,7 @@ class Frameless_Scene_Props(PropertyGroup):
         row.prop(self,'refrigerator_cabinet_width',text="Refrigerator")
         row = layout.row()
         row.prop(self,'dishwasher_width',text="Dishwasher")
-        row.prop(self,'range_width',text="Range")       
+        row.prop(self,'range_width',text="Range")
 
         # Appliance cabinets: (display_name, cabinet_name, thumbnail_name)
         appliance_cabinets = [
@@ -2009,21 +2008,21 @@ class Frameless_Scene_Props(PropertyGroup):
             ("Range", "Range", "Range"),
             ("Range Hood", "Range Hood", "Range Hood"),
         ]
-        
+
         flow = layout.grid_flow(row_major=True, columns=4, even_columns=True, even_rows=True, align=True)
         for display_name, cabinet_name, thumb_name in appliance_cabinets:
             app_box = flow.box()
             app_box.scale_y = 0.9
-            
+
             # Show thumbnail
             icon_id = load_cabinet_thumbnail(thumb_name)
             if icon_id:
                 app_box.template_icon(icon_value=icon_id, scale=4.0)
-            
+
             # Button
             op = app_box.operator('hb_frameless.draw_cabinet', text=display_name)
-            op.cabinet_name = cabinet_name  
-    
+            op.cabinet_name = cabinet_name
+
     def draw_part_library_ui(self,layout,context):
         # Parts definitions: (display_name, cabinet_name, thumbnail_name)
         parts = [
@@ -2037,23 +2036,22 @@ class Frameless_Scene_Props(PropertyGroup):
             ("Upper Leg", "Upper Leg", "Leg"),
             ("Panel", "Panel", "Panel"),
         ]
-        
+
         flow = layout.grid_flow(row_major=True, columns=4, even_columns=True, even_rows=True, align=True)
         for display_name, cabinet_name, thumb_name in parts:
             part_box = flow.box()
             part_box.scale_y = 0.9
-            
+
             # Show thumbnail
             icon_id = load_cabinet_thumbnail(thumb_name)
             if icon_id:
                 part_box.template_icon(icon_value=icon_id, scale=4.0)
-            
+
             # Button
             op = part_box.operator('hb_frameless.draw_cabinet', text=display_name)
             op.cabinet_name = cabinet_name
 
     def draw_cabinet_options_general(self,layout,context):
-        unit_settings = context.scene.unit_settings
         size_box = layout.box()
         row = size_box.row()
         row.label(text="Carcass:")
@@ -2076,8 +2074,8 @@ class Frameless_Scene_Props(PropertyGroup):
         row = size_box.row()
         row.label(text="Base Top Construction:")
         row.prop(self,'base_top_construction',text="")
-        row.operator('hb_frameless.update_base_top_construction_prompts',text="",icon='FILE_REFRESH')        
-        size_box = layout.box()            
+        row.operator('hb_frameless.update_base_top_construction_prompts',text="",icon='FILE_REFRESH')
+        size_box = layout.box()
         row = size_box.row()
         row.label(text="Drawers:")
         row.operator('hb_frameless.update_drawer_front_height_prompts',text="",icon='FILE_REFRESH')
@@ -2091,7 +2089,7 @@ class Frameless_Scene_Props(PropertyGroup):
         from ... import hb_project
         main_scene = hb_project.get_main_scene()
         props = main_scene.hb_frameless
-        
+
         # Pull Category
         row = layout.row(align=True)
         row.label(text="Category:")
@@ -2135,25 +2133,25 @@ class Frameless_Scene_Props(PropertyGroup):
         row = layout.row(align=True)
         row.label(text="Finish:")
         row.prop(props, 'pull_finish', text="")
-        
+
         # Pull Locations - compact grid
         col = layout.column(align=True)
         col.label(text="Handle Location:")
         col.prop(props, 'pull_dim_from_edge', text="Edge Distance")
-        
+
         col.separator()
         col.label(text="Vertical Location:")
         row = col.row(align=True)
         row.prop(props, 'pull_vertical_location_base', text="Base")
         row.prop(props, 'pull_vertical_location_tall', text="Tall")
         row.prop(props, 'pull_vertical_location_upper', text="Upper")
-        
+
         col.separator()
         row = col.row(align=True)
         row.prop(props, 'center_pulls_on_drawer_front', text="Center Drawer Pulls")
         if not props.center_pulls_on_drawer_front:
             col.prop(props, 'pull_vertical_location_drawers', text="Drawer Pull Height")
-        
+
         row = layout.row()
         row.scale_y = 1.3
         row.operator('hb_frameless.update_all_pulls', text="Update Pulls", icon='FILE_REFRESH')
@@ -2161,19 +2159,19 @@ class Frameless_Scene_Props(PropertyGroup):
     def draw_crown_details_ui(self, layout, context):
         """Draw the crown molding details UI section."""
         from ... import hb_project
-        
+
         # Get Crown Details from Main Scene
         main_scene = hb_project.get_main_scene()
         props = main_scene.hb_frameless
-        
+
         # Create new crown detail button with library dropdown
         row = layout.row(align=True)
         row.scale_y = 1.3
         row.operator("hb_frameless.create_crown_detail", text="Create Crown Detail", icon='ADD')
         row.menu("HB_MT_crown_detail_library", text="", icon='DOWNARROW_HLT')
-        
+
         layout.separator()
-        
+
         # UIList for crown details
         if len(props.crown_details) > 0:
             row = layout.row()
@@ -2183,22 +2181,22 @@ class Frameless_Scene_Props(PropertyGroup):
                 props, "active_crown_detail_index",
                 rows=3
             )
-            
+
             # Add/Remove buttons
             col = row.column(align=True)
             col.operator("hb_frameless.create_crown_detail", icon='ADD', text="")
             col.operator("hb_frameless.delete_crown_detail", icon='REMOVE', text="")
             col.separator()
             col.operator("hb_frameless.edit_crown_detail", icon='GREASEPENCIL', text="")
-            
+
             # Active crown detail properties
             if props.crown_details and props.active_crown_detail_index < len(props.crown_details):
                 crown = props.crown_details[props.active_crown_detail_index]
-                
+
                 box = layout.box()
                 box.prop(crown, "name", text="Name")
                 box.prop(crown, "description", text="Description")
-                
+
                 # Show detail scene status
                 detail_scene = crown.get_detail_scene()
                 if detail_scene:
@@ -2207,7 +2205,7 @@ class Frameless_Scene_Props(PropertyGroup):
                 else:
                     row = box.row()
                     row.label(text="No profile scene", icon='ERROR')
-                
+
                 # Assign to cabinets button
                 row = layout.row()
                 row.scale_y = 1.3
@@ -2228,18 +2226,18 @@ class Frameless_Scene_Props(PropertyGroup):
     def draw_toe_kick_details_ui(self, layout, context):
         """Draw the toe kick details UI section."""
         from ... import hb_project
-        
+
         # Get Toe Kick Details from Main Scene
         main_scene = hb_project.get_main_scene()
         props = main_scene.hb_frameless
-        
+
         # Create new toe kick detail button
         row = layout.row(align=True)
         row.scale_y = 1.3
         row.operator("hb_frameless.create_toe_kick_detail", text="Create Toe Kick Detail", icon='ADD')
-        
+
         layout.separator()
-        
+
         # UIList for toe kick details
         if len(props.toe_kick_details) > 0:
             row = layout.row()
@@ -2249,22 +2247,22 @@ class Frameless_Scene_Props(PropertyGroup):
                 props, "active_toe_kick_detail_index",
                 rows=3
             )
-            
+
             # Add/Remove buttons
             col = row.column(align=True)
             col.operator("hb_frameless.create_toe_kick_detail", icon='ADD', text="")
             col.operator("hb_frameless.delete_toe_kick_detail", icon='REMOVE', text="")
             col.separator()
             col.operator("hb_frameless.edit_toe_kick_detail", icon='GREASEPENCIL', text="")
-            
+
             # Active toe kick detail properties
             if props.toe_kick_details and props.active_toe_kick_detail_index < len(props.toe_kick_details):
                 toe_kick = props.toe_kick_details[props.active_toe_kick_detail_index]
-                
+
                 box = layout.box()
                 box.prop(toe_kick, "name", text="Name")
                 box.prop(toe_kick, "description", text="Description")
-                
+
                 # Show detail scene status
                 detail_scene = toe_kick.get_detail_scene()
                 if detail_scene:
@@ -2273,7 +2271,7 @@ class Frameless_Scene_Props(PropertyGroup):
                 else:
                     row = box.row()
                     row.label(text="No profile scene", icon='ERROR')
-                
+
                 # Assign to cabinets button
                 row = layout.row(align=True)
                 row.scale_y = 1.3
@@ -2286,18 +2284,18 @@ class Frameless_Scene_Props(PropertyGroup):
     def draw_upper_bottom_details_ui(self, layout, context):
         """Draw the upper bottom details UI section."""
         from ... import hb_project
-        
+
         # Get Upper Bottom Details from Main Scene
         main_scene = hb_project.get_main_scene()
         props = main_scene.hb_frameless
-        
+
         # Create new upper bottom detail button
         row = layout.row(align=True)
         row.scale_y = 1.3
         row.operator("hb_frameless.create_upper_bottom_detail", text="Create Upper Bottom Detail", icon='ADD')
-        
+
         layout.separator()
-        
+
         # UIList for upper bottom details
         if len(props.upper_bottom_details) > 0:
             row = layout.row()
@@ -2307,22 +2305,22 @@ class Frameless_Scene_Props(PropertyGroup):
                 props, "active_upper_bottom_detail_index",
                 rows=3
             )
-            
+
             # Add/Remove buttons
             col = row.column(align=True)
             col.operator("hb_frameless.create_upper_bottom_detail", icon='ADD', text="")
             col.operator("hb_frameless.delete_upper_bottom_detail", icon='REMOVE', text="")
             col.separator()
             col.operator("hb_frameless.edit_upper_bottom_detail", icon='GREASEPENCIL', text="")
-            
+
             # Active upper bottom detail properties
             if props.upper_bottom_details and props.active_upper_bottom_detail_index < len(props.upper_bottom_details):
                 upper_bottom = props.upper_bottom_details[props.active_upper_bottom_detail_index]
-                
+
                 box = layout.box()
                 box.prop(upper_bottom, "name", text="Name")
                 box.prop(upper_bottom, "description", text="Description")
-                
+
                 # Show detail scene status
                 detail_scene = upper_bottom.get_detail_scene()
                 if detail_scene:
@@ -2331,7 +2329,7 @@ class Frameless_Scene_Props(PropertyGroup):
                 else:
                     row = box.row()
                     row.label(text="No profile scene", icon='ERROR')
-                
+
                 # Assign to cabinets button
                 row = layout.row(align=True)
                 row.scale_y = 1.3
@@ -2344,11 +2342,11 @@ class Frameless_Scene_Props(PropertyGroup):
     def draw_drawer_box_ui(self, layout, context):
         """Draw the drawer box options UI section."""
         from ... import hb_project
-        
+
         # Get props from main scene
         main_scene = hb_project.get_main_scene()
         props = main_scene.hb_frameless
-        
+
         # Include drawer boxes toggle
         row = layout.row()
         row.prop(props, 'include_drawer_boxes', text="Include Drawer Boxes in New Cabinets")
@@ -2388,54 +2386,54 @@ class Frameless_Scene_Props(PropertyGroup):
         row = col.row(align=True)
         row.scale_y = 1.3
         row.prop_enum(self, "frameless_tabs", 'LIBRARY', icon='ASSET_MANAGER')
-        row.prop_enum(self, "frameless_tabs", 'OPTIONS', icon='PREFERENCES') 
+        row.prop_enum(self, "frameless_tabs", 'OPTIONS', icon='PREFERENCES')
 
         if self.frameless_tabs == 'LIBRARY':
             box = col.box()
             row = box.row()
-            row.alignment = 'LEFT'        
+            row.alignment = 'LEFT'
             row.prop(self,'show_cabinet_sizes',text="Cabinet Sizes",icon='TRIA_DOWN' if self.show_cabinet_sizes else 'TRIA_RIGHT',emboss=False)
-            if self.show_cabinet_sizes:           
+            if self.show_cabinet_sizes:
                 self.draw_cabinet_sizes_ui(box,context)
 
             box = col.box()
             row = box.row()
-            row.alignment = 'LEFT'        
+            row.alignment = 'LEFT'
             row.prop(self,'show_cabinet_library',text="Cabinets",icon='TRIA_DOWN' if self.show_cabinet_library else 'TRIA_RIGHT',emboss=False)
             if self.show_cabinet_library:
                 self.draw_cabinet_library_ui(box,context)
 
             box = col.box()
             row = box.row()
-            row.alignment = 'LEFT'        
+            row.alignment = 'LEFT'
             row.prop(self,'show_corner_cabinet_library',text="Corner Cabinets",icon='TRIA_DOWN' if self.show_corner_cabinet_library else 'TRIA_RIGHT',emboss=False)
             if self.show_corner_cabinet_library:
                 self.draw_corner_cabinet_library_ui(box,context)
 
             box = col.box()
             row = box.row()
-            row.alignment = 'LEFT'        
+            row.alignment = 'LEFT'
             row.prop(self,'show_appliance_library',text="Appliances",icon='TRIA_DOWN' if self.show_appliance_library else 'TRIA_RIGHT',emboss=False)
             if self.show_appliance_library:
                 self.draw_appliance_library_ui(box,context)
 
             box = col.box()
             row = box.row()
-            row.alignment = 'LEFT'        
+            row.alignment = 'LEFT'
             row.prop(self,'show_part_library',text="Parts & Miscellaneous",icon='TRIA_DOWN' if self.show_part_library else 'TRIA_RIGHT',emboss=False)
             if self.show_part_library:
                 self.draw_part_library_ui(box,context)
 
             box = col.box()
             row = box.row()
-            row.alignment = 'LEFT'        
+            row.alignment = 'LEFT'
             row.prop(self,'show_user_library',text="User",icon='TRIA_DOWN' if self.show_user_library else 'TRIA_RIGHT',emboss=False)
             if self.show_user_library:
                 self.draw_user_library_ui(box,context)
 
             box = col.box()
             row = box.row()
-            row.alignment = 'LEFT'        
+            row.alignment = 'LEFT'
             row.prop(self,'show_elevation_templates',text="Elevation Templates",icon='TRIA_DOWN' if self.show_elevation_templates else 'TRIA_RIGHT',emboss=False)
             if self.show_elevation_templates:
                 self.draw_elevation_templates_ui(box,context)
@@ -2444,21 +2442,21 @@ class Frameless_Scene_Props(PropertyGroup):
             # CABINET STYLES - Show first in OPTIONS tab
             box = col.box()
             row = box.row()
-            row.alignment = 'LEFT'        
+            row.alignment = 'LEFT'
             row.prop(self,'show_cabinet_styles',text="Cabinet Styles",icon='TRIA_DOWN' if self.show_cabinet_styles else 'TRIA_RIGHT',emboss=False)
             if self.show_cabinet_styles:
                 self.draw_cabinet_styles_ui(box, context)
 
             box = col.box()
             row = box.row()
-            row.alignment = 'LEFT'        
+            row.alignment = 'LEFT'
             row.prop(self,'show_front_options',text="Door and Drawer Front Styles",icon='TRIA_DOWN' if self.show_front_options else 'TRIA_RIGHT',emboss=False)
             if self.show_front_options:
                 self.draw_door_styles_ui(box,context)
 
             box = col.box()
             row = box.row()
-            row.alignment = 'LEFT'        
+            row.alignment = 'LEFT'
             row.prop(self,'show_handle_options',text="Handles",icon='TRIA_DOWN' if self.show_handle_options else 'TRIA_RIGHT',emboss=False)
             if self.show_handle_options:
                 size_box = box.box()
@@ -2466,35 +2464,35 @@ class Frameless_Scene_Props(PropertyGroup):
 
             box = col.box()
             row = box.row()
-            row.alignment = 'LEFT'        
+            row.alignment = 'LEFT'
             row.prop(self,'show_general_options',text="General Construction",icon='TRIA_DOWN' if self.show_general_options else 'TRIA_RIGHT',emboss=False)
             if self.show_general_options:
                 self.draw_cabinet_options_general(box,context)
 
             box = col.box()
             row = box.row()
-            row.alignment = 'LEFT'        
+            row.alignment = 'LEFT'
             row.prop(self,'show_drawer_options',text="Drawer Boxes",icon='TRIA_DOWN' if self.show_drawer_options else 'TRIA_RIGHT',emboss=False)
             if self.show_drawer_options:
                 self.draw_drawer_box_ui(box, context)
-                
+
             box = col.box()
             row = box.row()
-            row.alignment = 'LEFT'        
+            row.alignment = 'LEFT'
             row.prop(self,'show_crown_details',text="Crown Details",icon='TRIA_DOWN' if self.show_crown_details else 'TRIA_RIGHT',emboss=False)
             if self.show_crown_details:
                 self.draw_crown_details_ui(box,context)
 
             box = col.box()
             row = box.row()
-            row.alignment = 'LEFT'        
+            row.alignment = 'LEFT'
             row.prop(self,'show_toe_kick_details',text="Toe Kick Details",icon='TRIA_DOWN' if self.show_toe_kick_details else 'TRIA_RIGHT',emboss=False)
             if self.show_toe_kick_details:
                 self.draw_toe_kick_details_ui(box,context)
 
             box = col.box()
             row = box.row()
-            row.alignment = 'LEFT'        
+            row.alignment = 'LEFT'
             row.prop(self,'show_upper_bottom_details',text="Upper Bottom Details",icon='TRIA_DOWN' if self.show_upper_bottom_details else 'TRIA_RIGHT',emboss=False)
             if self.show_upper_bottom_details:
                 self.draw_upper_bottom_details_ui(box,context)
@@ -2513,7 +2511,7 @@ class Frameless_Scene_Props(PropertyGroup):
             description="Frameless Props",
             type=cls,
         )
-        
+
     @classmethod
     def unregister(cls):
         if hasattr(bpy.types.Scene, 'hb_frameless'):
@@ -2573,4 +2571,4 @@ def unregister():
     # Clean up preview collections
     for pcoll in preview_collections.values():
         bpy.utils.previews.remove(pcoll)
-    preview_collections.clear()         
+    preview_collections.clear()

@@ -2,9 +2,8 @@ import bpy
 import math
 import os
 from mathutils import Vector
-from .. import types_frameless
 from .. import props_hb_frameless
-from .... import hb_utils, hb_project, hb_details, hb_types, units
+from .... import hb_project, hb_details, hb_types, units
 
 
 def get_bundled_molding_path():
@@ -59,20 +58,20 @@ class hb_frameless_OT_create_crown_detail(bpy.types.Operator):
     bl_label = "Create Crown Detail"
     bl_description = "Create a new crown molding detail with a 2D profile scene"
     bl_options = {'REGISTER', 'UNDO'}
-    
+
     name = bpy.props.StringProperty(
         name="Name",
         description="Name for the crown detail",
         default="Crown Detail"
     )  # type: ignore
-    
-    
+
+
     def execute(self, context):
 
         # Get main scene props
         main_scene = hb_project.get_main_scene()
         props = main_scene.hb_frameless
-        
+
         # Create a new crown detail entry
         crown = props.crown_details.add()
         crown.name = self.name
@@ -81,52 +80,52 @@ class hb_frameless_OT_create_crown_detail(bpy.types.Operator):
         detail = hb_details.DetailView()
         scene = detail.create(f"Crown - {self.name}")
         scene['IS_CROWN_DETAIL'] = True
-        
+
         # Store the scene name reference
         crown.detail_scene_name = scene.name
-        
+
         # Set as active
         props.active_crown_detail_index = len(props.crown_details) - 1
-        
+
         # Set crown detail defaults
         hb_scene = scene.home_builder
         hb_scene.annotation_line_thickness = units.inch(0.02)
-        
+
         # Set Calibri font as default if available
         for font in bpy.data.fonts:
             if 'calibri' in font.name.lower():
                 hb_scene.annotation_font = font
                 break
-        
+
         # Draw a cabinet side detail as starting point to add crown molding details to
         self._draw_cabinet_side_detail(context, scene, props)
-        
+
         # Switch to the detail scene
         bpy.ops.home_builder_layouts.go_to_layout_view(scene_name=scene.name)
-        
+
         self.report({'INFO'}, f"Created crown detail: {self.name}")
         return {'FINISHED'}
-    
+
     def _draw_cabinet_side_detail(self, context, scene, props):
         """Draw the top-front corner of cabinet side profile (4 inch section)."""
 
         # Make sure we're in the right scene
         original_scene = context.scene
         context.window.scene = scene
-        
+
         # Get cabinet dimensions from props
         part_thickness = props.default_carcass_part_thickness
         door_to_cab_gap = units.inch(0.125) # Standard door gap TODO: look to frameless props for this
         door_overlay = part_thickness - units.inch(.0625) # Standard door overlay TODO: look to cabinet style door overlay
         door_thickness = units.inch(0.75)  # Standard door thickness
-        
+
         # Only show 4" of the corner
         corner_size = units.inch(4)
-        
+
         # Position the detail so the top-front corner of the cabinet side is at origin
         # -X axis goes toward the back (depth), +Y axis goes up (height)
         # Origin (0,0) is at the top-front corner of the cabinet side panel
-        
+
         hb_scene = scene.home_builder
 
         # Draw cabinet side profile - L-shaped corner section
@@ -138,14 +137,14 @@ class hb_frameless_OT_create_crown_detail(bpy.types.Operator):
         side_profile.add_point(Vector((0, 0, 0)))
         # Go back along top edge (4" toward back)
         side_profile.add_point(Vector((-corner_size, 0, 0)))
-        
+
         # Draw top panel - just the front portion visible in the corner
         top_panel = hb_details.GeoNodePolyline()
         top_panel.create("Cabinet Top")
         # Draw single line to show the top panel
         top_panel.set_point(0, Vector((0, -part_thickness, 0)))
         top_panel.add_point(Vector((-corner_size, -part_thickness, 0)))
-        
+
         # Draw door profile - just the top portion visible in the corner
         door_profile = hb_details.GeoNodePolyline()
         door_profile.create("Door Face")
@@ -165,25 +164,25 @@ class hb_frameless_OT_create_crown_detail(bpy.types.Operator):
         clearance_dim.obj.data.splines[0].points[1].co = (top_clearance, 0, 0, 1)
         clearance_dim.set_input("Leader Length", units.inch(-0.5))
         clearance_dim.set_decimal()
-        
+
         # --- CEILING LINE ---
         # Get ceiling height and top cabinet clearance
         main_scene_hb = hb_project.get_main_scene().home_builder
         ceiling_height = main_scene_hb.ceiling_height
         top_clearance = props.default_top_cabinet_clearance
-        
+
         # Ceiling line is at top_clearance above the top of the cabinet (Y=0)
         ceiling_y = top_clearance
-        
+
         # Draw ceiling line spanning the detail width
         detail_left = -corner_size - units.inch(1)
         detail_right = door_to_cab_gap + door_thickness + units.inch(2)
-        
+
         ceiling_line = hb_details.GeoNodePolyline()
         ceiling_line.create("Ceiling Line")
         ceiling_line.set_point(0, Vector((detail_left, ceiling_y, 0)))
         ceiling_line.add_point(Vector((detail_right, ceiling_y, 0)))
-        
+
         # Add ceiling height label
         ceiling_height_inches = round(ceiling_height / units.inch(1))
         ceiling_text = hb_details.GeoNodeText()
@@ -192,7 +191,7 @@ class hb_frameless_OT_create_crown_detail(bpy.types.Operator):
             ceiling_text.obj.data.font = hb_scene.annotation_font
         ceiling_text.set_location(Vector((detail_right + units.inch(0.25), ceiling_y, 0)))
         ceiling_text.set_alignment('LEFT', 'CENTER')
-        
+
         # --- DOOR OVERLAY LABEL ---
         # Get overlay type from active cabinet style
         overlay_type_text = "FULL OVERLAY"
@@ -207,17 +206,17 @@ class hb_frameless_OT_create_crown_detail(bpy.types.Operator):
                     overlay_type_text = "HALF OVERLAY"
                 elif overlay_type == 'INSET':
                     overlay_type_text = "INSET"
-        
+
         # Draw leader line pointing to the door
         door_center_x = door_to_cab_gap + door_thickness / 2
         door_mid_y = (-part_thickness + door_overlay + (-corner_size)) / 2
         leader_end_x = door_to_cab_gap + door_thickness + units.inch(2)
-        
+
         door_leader = hb_details.GeoNodePolyline()
         door_leader.create("Door Overlay Leader")
         door_leader.set_point(0, Vector((door_center_x, door_mid_y, 0)))
         door_leader.add_point(Vector((leader_end_x, door_mid_y, 0)))
-        
+
         # Add overlay type text at end of leader
         overlay_text = hb_details.GeoNodeText()
         overlay_text.create("Door Overlay Label", overlay_type_text, hb_scene.annotation_text_size)
@@ -233,7 +232,7 @@ class hb_frameless_OT_create_crown_detail(bpy.types.Operator):
             text.obj.data.font = hb_scene.annotation_font
         text.set_location(Vector((0, -corner_size - units.inch(1), 0)))
         text.set_alignment('CENTER', 'TOP')
-        
+
         # Switch back to original scene
         context.window.scene = original_scene
 
@@ -244,27 +243,27 @@ class hb_frameless_OT_delete_crown_detail(bpy.types.Operator):
     bl_label = "Delete Crown Detail"
     bl_description = "Delete the selected crown molding detail and its profile scene"
     bl_options = {'REGISTER', 'UNDO'}
-    
+
     @classmethod
     def poll(cls, context):
         main_scene = hb_project.get_main_scene()
         props = main_scene.hb_frameless
         return len(props.crown_details) > 0
-    
+
     def invoke(self, context, event):
         return context.window_manager.invoke_confirm(self, event)
-    
+
     def execute(self, context):
         main_scene = hb_project.get_main_scene()
         props = main_scene.hb_frameless
-        
+
         if not props.crown_details:
             self.report({'WARNING'}, "No crown details to delete")
             return {'CANCELLED'}
-        
+
         index = props.active_crown_detail_index
         crown = props.crown_details[index]
-        
+
         # Delete the associated detail scene if it exists
         detail_scene = crown.get_detail_scene()
         if detail_scene:
@@ -272,17 +271,17 @@ class hb_frameless_OT_delete_crown_detail(bpy.types.Operator):
             if context.scene == detail_scene:
                 # Switch to main scene first
                 context.window.scene = main_scene
-            
+
             bpy.data.scenes.remove(detail_scene)
-        
+
         # Remove from collection
         crown_name = crown.name
         props.crown_details.remove(index)
-        
+
         # Update active index
         if props.active_crown_detail_index >= len(props.crown_details):
             props.active_crown_detail_index = max(0, len(props.crown_details) - 1)
-        
+
         self.report({'INFO'}, f"Deleted crown detail: {crown_name}")
         return {'FINISHED'}
 
@@ -293,7 +292,7 @@ class hb_frameless_OT_edit_crown_detail(bpy.types.Operator):
     bl_label = "Edit Crown Detail"
     bl_description = "Open the crown detail profile scene for editing"
     bl_options = {'REGISTER', 'UNDO'}
-    
+
     @classmethod
     def poll(cls, context):
         main_scene = hb_project.get_main_scene()
@@ -302,21 +301,21 @@ class hb_frameless_OT_edit_crown_detail(bpy.types.Operator):
             return False
         crown = props.crown_details[props.active_crown_detail_index]
         return crown.get_detail_scene() is not None
-    
+
     def execute(self, context):
         main_scene = hb_project.get_main_scene()
         props = main_scene.hb_frameless
-        
+
         crown = props.crown_details[props.active_crown_detail_index]
         detail_scene = crown.get_detail_scene()
-        
+
         if not detail_scene:
             self.report({'ERROR'}, "Crown detail scene not found")
             return {'CANCELLED'}
-        
+
         # Switch to the detail scene
         bpy.ops.home_builder_layouts.go_to_layout_view(scene_name=detail_scene.name)
-        
+
         self.report({'INFO'}, f"Editing crown detail: {crown.name}")
         return {'FINISHED'}
 
@@ -327,7 +326,7 @@ class hb_frameless_OT_assign_crown_to_cabinets(bpy.types.Operator):
     bl_label = "Assign Crown to Cabinets"
     bl_description = "Create crown molding extrusions on selected cabinets using the active crown detail"
     bl_options = {'REGISTER', 'UNDO'}
-    
+
     @classmethod
     def poll(cls, context):
         main_scene = hb_project.get_main_scene()
@@ -339,7 +338,7 @@ class hb_frameless_OT_assign_crown_to_cabinets(bpy.types.Operator):
             if obj.get('IS_CABINET_BP') or obj.get('IS_FRAMELESS_CABINET_CAGE'):
                 return True
         return False
-    
+
     def execute(self, context):
         # Collect unique cabinets from selection (only UPPER and TALL get crown)
         cabinets = []
@@ -433,37 +432,37 @@ class hb_frameless_OT_assign_crown_to_cabinets(bpy.types.Operator):
         group_count = len(cabinet_groups) + len(corner_chains)
         self.report({'INFO'}, f"Created crown molding on {total_cabs} cabinet(s) in {group_count} group(s)")
         return {'FINISHED'}
-    
+
     def _remove_existing_crown(self, cabinet):
         """Remove any existing crown molding children from the cabinet."""
         children_to_remove = []
         for child in cabinet.children:
             if child.get('IS_CROWN_MOLDING') or child.get('IS_CROWN_PROFILE_COPY'):
                 children_to_remove.append(child)
-        
+
         for child in children_to_remove:
             bpy.data.objects.remove(child, do_unlink=True)
-    
+
     def _get_cabinet_bounds(self, cabinet):
         """Get world-space bounds of a cabinet using evaluated bounding box corners."""
         matrix = cabinet.matrix_world
-        
+
         # Use evaluated object to get proper bound_box for geometry node objects
         depsgraph = bpy.context.evaluated_depsgraph_get()
         eval_obj = cabinet.evaluated_get(depsgraph)
-        
+
         # Transform all bounding box corners to world space
         world_corners = [matrix @ Vector(corner) for corner in eval_obj.bound_box]
-        
+
         # Find min/max in each axis
         xs = [c.x for c in world_corners]
         ys = [c.y for c in world_corners]
         zs = [c.z for c in world_corners]
-        
+
         min_x, max_x = min(xs), max(xs)
         min_y, max_y = min(ys), max(ys)
         min_z, max_z = min(zs), max(zs)
-        
+
         return {
             'left_x': min_x,
             'right_x': max_x,
@@ -475,17 +474,17 @@ class hb_frameless_OT_assign_crown_to_cabinets(bpy.types.Operator):
             'depth': max_y - min_y,
             'height': max_z - min_z,
         }
-    
+
     def _is_against_wall(self, cabinet, side, walls, tolerance=0.05):
         """Check if cabinet side is against a wall.
-        
+
         Uses world-space bounding boxes for both cabinet and wall to handle
         rotated walls. 'side' is relative to the cabinet arrangement:
           'left' = start of run, 'right' = end of run, 'back' = wall side
         """
         bounds = self._get_cabinet_bounds(cabinet)
         axis = self._get_wall_direction(cabinet)
-        
+
         for wall in walls:
             # Use world-space bounding box for rotated walls
             corners = [wall.matrix_world @ Vector(c) for c in wall.bound_box]
@@ -495,39 +494,39 @@ class hb_frameless_OT_assign_crown_to_cabinets(bpy.types.Operator):
             w_min_y, w_max_y = min(wys), max(wys)
             w_thickness_x = w_max_x - w_min_x
             w_thickness_y = w_max_y - w_min_y
-            
+
             if side == 'left':
                 if axis == 'X':
                     # Left = min X edge; wall should be thin in X (perpendicular wall)
                     if w_thickness_x < 0.2:
-                        if (abs(bounds['left_x'] - w_max_x) < tolerance or 
+                        if (abs(bounds['left_x'] - w_max_x) < tolerance or
                             abs(bounds['left_x'] - w_min_x) < tolerance):
                             if bounds['front_y'] >= w_min_y - tolerance and bounds['back_y'] <= w_max_y + tolerance:
                                 return True
                 else:
                     # Y-axis run: left = max Y (start); wall should be thin in Y (perpendicular wall)
                     if w_thickness_y < 0.2:
-                        if (abs(bounds['back_y'] - w_max_y) < tolerance or 
+                        if (abs(bounds['back_y'] - w_max_y) < tolerance or
                             abs(bounds['back_y'] - w_min_y) < tolerance):
                             if bounds['left_x'] >= w_min_x - tolerance and bounds['right_x'] <= w_max_x + tolerance:
                                 return True
-            
+
             elif side == 'right':
                 if axis == 'X':
                     # Right = max X edge; wall should be thin in X
                     if w_thickness_x < 0.2:
-                        if (abs(bounds['right_x'] - w_min_x) < tolerance or 
+                        if (abs(bounds['right_x'] - w_min_x) < tolerance or
                             abs(bounds['right_x'] - w_max_x) < tolerance):
                             if bounds['front_y'] >= w_min_y - tolerance and bounds['back_y'] <= w_max_y + tolerance:
                                 return True
                 else:
                     # Y-axis run: right = min Y (end); wall should be thin in Y
                     if w_thickness_y < 0.2:
-                        if (abs(bounds['front_y'] - w_min_y) < tolerance or 
+                        if (abs(bounds['front_y'] - w_min_y) < tolerance or
                             abs(bounds['front_y'] - w_max_y) < tolerance):
                             if bounds['left_x'] >= w_min_x - tolerance and bounds['right_x'] <= w_max_x + tolerance:
                                 return True
-            
+
             elif side == 'back':
                 if axis == 'X':
                     # Back = max Y; wall thin in Y
@@ -541,9 +540,9 @@ class hb_frameless_OT_assign_crown_to_cabinets(bpy.types.Operator):
                         if abs(bounds['right_x'] - w_min_x) < tolerance or abs(bounds['right_x'] - w_max_x) < tolerance:
                             if bounds['front_y'] >= w_min_y - tolerance and bounds['back_y'] <= w_max_y + tolerance:
                                 return True
-        
+
         return False
-    
+
     def _get_wall_direction(self, cabinet):
         """Get the wall direction for a cabinet. Returns 'X' or 'Y'."""
         if cabinet.parent and (cabinet.parent.get('IS_WALL_BP') or cabinet.parent.get('IS_WALL')):
@@ -554,28 +553,28 @@ class hb_frameless_OT_assign_crown_to_cabinets(bpy.types.Operator):
             if abs(angle - math.pi/2) < 0.1:
                 return 'Y'
         return 'X'
-    
+
     def _find_adjacent_cabinet(self, cabinet, side, all_cabinets, tolerance=0.02):
         """Find a cabinet adjacent to the given side. Works for both X and Y arrangements."""
         bounds = self._get_cabinet_bounds(cabinet)
-        cab_type = cabinet.get('CABINET_TYPE', '')
+        cabinet.get('CABINET_TYPE', '')
         axis = self._get_wall_direction(cabinet)
-        
+
         for other in all_cabinets:
             if other == cabinet:
                 continue
-            
+
             other_bounds = self._get_cabinet_bounds(other)
             other_type = other.get('CABINET_TYPE', '')
-            
+
             # Only consider UPPER and TALL cabinets for crown
             if other_type not in ('UPPER', 'TALL'):
                 continue
-            
+
             # Check if tops are at same height (with tolerance)
             if abs(bounds['top_z'] - other_bounds['top_z']) > tolerance:
                 continue
-            
+
             if axis == 'X':
                 if side == 'left':
                     if abs(other_bounds['right_x'] - bounds['left_x']) < tolerance:
@@ -592,35 +591,35 @@ class hb_frameless_OT_assign_crown_to_cabinets(bpy.types.Operator):
                     # "Right" = the end with lower Y (end of run)
                     if abs(other_bounds['back_y'] - bounds['front_y']) < tolerance:
                         return other
-        
+
         return None
-    
+
     def _group_adjacent_cabinets(self, selected_cabinets, all_cabinets, walls):
         """Group selected cabinets that are adjacent to each other."""
         if not selected_cabinets:
             return []
-        
+
         # Determine arrangement axis from first cabinet's wall
         axis = self._get_wall_direction(selected_cabinets[0])
-        
+
         # Sort cabinets by position along the arrangement axis
         if axis == 'X':
             sorted_cabs = sorted(selected_cabinets, key=lambda c: self._get_cabinet_bounds(c)['left_x'])
         else:
             # For Y axis, sort by back_y descending (highest Y = start of run)
             sorted_cabs = sorted(selected_cabinets, key=lambda c: self._get_cabinet_bounds(c)['back_y'], reverse=True)
-        
+
         groups = []
         used = set()
-        
+
         for cabinet in sorted_cabs:
             if cabinet in used:
                 continue
-            
+
             # Start a new group
             group_cabs = [cabinet]
             used.add(cabinet)
-            
+
             # Find all connected cabinets to the right (end of run)
             current = cabinet
             while True:
@@ -631,19 +630,19 @@ class hb_frameless_OT_assign_crown_to_cabinets(bpy.types.Operator):
                     current = right_neighbor
                 else:
                     break
-            
+
             # Analyze group
             first_cab = group_cabs[0]
             last_cab = group_cabs[-1]
-            
+
             # Check wall adjacency
             left_against_wall = self._is_against_wall(first_cab, 'left', walls)
             right_against_wall = self._is_against_wall(last_cab, 'right', walls)
-            
+
             # Check if there's an unselected adjacent cabinet (for returns)
             left_adjacent = self._find_adjacent_cabinet(first_cab, 'left', all_cabinets)
             right_adjacent = self._find_adjacent_cabinet(last_cab, 'right', all_cabinets)
-            
+
             groups.append({
                 'cabinets': group_cabs,
                 'left_wall': left_against_wall,
@@ -652,19 +651,19 @@ class hb_frameless_OT_assign_crown_to_cabinets(bpy.types.Operator):
                 'right_adjacent': right_adjacent,
                 'axis': axis,
             })
-        
+
         return groups
-    
+
     def _get_wall_aligned_bounds(self, bounds, axis):
         """Map world-space bounds to wall-aligned coordinates.
-        
+
         Returns dict with:
             along_start: Start position along the wall (left/first end)
-            along_end: End position along the wall (right/last end)  
+            along_end: End position along the wall (right/last end)
             front: Front face position (into room)
             back: Back face position (against wall)
             depth: Cabinet depth (back - front for X, or right_x - left_x for Y)
-        
+
         For X-axis walls: along=X, depth=Y (front=min_y, back=max_y)
         For Y-axis walls: along=-Y, depth=-X (front=min_x, back=max_x)
         """
@@ -684,7 +683,7 @@ class hb_frameless_OT_assign_crown_to_cabinets(bpy.types.Operator):
                 'back': bounds['right_x'],          # Max X = back (wall)
                 'depth': bounds['right_x'] - bounds['left_x'],
             }
-    
+
     def _make_world_point(self, along, depth, axis):
         """Convert wall-aligned (along, depth) coordinates to world XY point.
 
@@ -1098,7 +1097,7 @@ class hb_frameless_OT_assign_crown_to_cabinets(bpy.types.Operator):
         world_points = [Vector((p.x, p.y, 0.0)) for p in off]
         return self._extrude_profile_along_path(
             context, world_points, chain[0], profile, target_scene)
-    
+
     def _extrude_profile_along_path(self, context, world_points, first_cab,
                                     profile, target_scene):
         """Copy the profile, build a 2D poly curve through world_points
@@ -1200,14 +1199,14 @@ class hb_frameless_OT_assign_crown_to_cabinets(bpy.types.Operator):
 
         # Build path points in WORLD coordinates
         world_points = []
-        
+
         first_bounds = self._get_cabinet_bounds(first_cab)
         last_bounds = self._get_cabinet_bounds(last_cab)
-        
+
         # Get wall-aligned bounds
         first_wb = self._get_wall_aligned_bounds(first_bounds, axis)
         last_wb = self._get_wall_aligned_bounds(last_bounds, axis)
-        
+
         # Calculate profile adjustments
         if profile_offset_x < 0:
             inset = abs(profile_offset_x)
@@ -1215,10 +1214,10 @@ class hb_frameless_OT_assign_crown_to_cabinets(bpy.types.Operator):
         else:
             inset = 0
             extend = profile_offset_x
-        
+
         # Along-wall sign: +1 for X (increasing), -1 for Y (decreasing)
         a_sign = 1 if axis == 'X' else -1
-        
+
         # === LEFT SIDE (start of run) ===
         if group['left_wall']:
             start_along = first_wb['along_start'] + a_sign * inset
@@ -1227,18 +1226,18 @@ class hb_frameless_OT_assign_crown_to_cabinets(bpy.types.Operator):
             adj_bounds = self._get_cabinet_bounds(group['left_adjacent'])
             adj_wb = self._get_wall_aligned_bounds(adj_bounds, axis)
             adj_type = group['left_adjacent'].get('CABINET_TYPE', '')
-            
+
             start_along = first_wb['along_start'] + a_sign * inset
-            
+
             if adj_type == 'TALL' and first_cab.get('CABINET_TYPE') == 'UPPER':
                 world_points.append(self._make_world_point(start_along, adj_wb['front'] - extend + inset, axis))
-            
+
             world_points.append(self._make_world_point(start_along, first_wb['front'] - extend + inset, axis))
         else:
             back_along = first_wb['along_start'] + a_sign * inset - a_sign * extend
             world_points.append(self._make_world_point(back_along, first_wb['back'], axis))
             world_points.append(self._make_world_point(back_along, first_wb['front'] - extend + inset, axis))
-        
+
         # === MIDDLE - transitions between cabinets ===
         for i in range(len(cabinets) - 1):
             current_cab = cabinets[i]
@@ -1247,14 +1246,14 @@ class hb_frameless_OT_assign_crown_to_cabinets(bpy.types.Operator):
             next_bounds = self._get_cabinet_bounds(next_cab)
             current_wb = self._get_wall_aligned_bounds(current_bounds, axis)
             next_wb = self._get_wall_aligned_bounds(next_bounds, axis)
-            
+
             current_type = current_cab.get('CABINET_TYPE', '')
             next_type = next_cab.get('CABINET_TYPE', '')
-            
+
             trans_along = current_wb['along_end']
-            
+
             depth_diff = abs(current_wb['depth'] - next_wb['depth'])
-            
+
             if depth_diff > 0.01:
                 if current_type == 'TALL' and next_type == 'UPPER':
                     trans_adj = trans_along - a_sign * inset + a_sign * extend
@@ -1264,7 +1263,7 @@ class hb_frameless_OT_assign_crown_to_cabinets(bpy.types.Operator):
                     trans_adj = trans_along + a_sign * inset - a_sign * extend
                     world_points.append(self._make_world_point(trans_adj, current_wb['front'] - extend + inset, axis))
                     world_points.append(self._make_world_point(trans_adj, next_wb['front'] - extend + inset, axis))
-        
+
         # === RIGHT SIDE (end of run) ===
         if group['right_wall']:
             end_along = last_wb['along_end'] - a_sign * inset
@@ -1273,11 +1272,11 @@ class hb_frameless_OT_assign_crown_to_cabinets(bpy.types.Operator):
             adj_bounds = self._get_cabinet_bounds(group['right_adjacent'])
             adj_wb = self._get_wall_aligned_bounds(adj_bounds, axis)
             adj_type = group['right_adjacent'].get('CABINET_TYPE', '')
-            
+
             end_along = last_wb['along_end'] - a_sign * inset
-            
+
             world_points.append(self._make_world_point(end_along, last_wb['front'] - extend + inset, axis))
-            
+
             if adj_type == 'TALL' and last_cab.get('CABINET_TYPE') == 'UPPER':
                 world_points.append(self._make_world_point(end_along, adj_wb['front'] - extend + inset, axis))
         else:
@@ -1327,43 +1326,43 @@ class hb_frameless_OT_add_molding_profile(bpy.types.Operator):
     bl_label = "Add Molding Profile"
     bl_description = "Add a molding profile from the library to the current crown detail"
     bl_options = {'REGISTER', 'UNDO'}
-    
+
     filepath = bpy.props.StringProperty(
         name="Filepath",
         description="Path to the molding blend file"
     )  # type: ignore
-    
+
     molding_name = bpy.props.StringProperty(
         name="Name",
         description="Name of the molding"
     )  # type: ignore
-    
+
     @classmethod
     def poll(cls, context):
         # Must be in a crown detail scene
         return context.scene.get('IS_CROWN_DETAIL', False) or context.scene.get('IS_DETAIL_VIEW', False)
-    
+
     def execute(self, context):
-        
+
         if not self.filepath or not os.path.exists(self.filepath):
             self.report({'ERROR'}, f"Molding file not found: {self.filepath}")
             return {'CANCELLED'}
-        
+
         # Load the molding profile from the blend file
         with bpy.data.libraries.load(self.filepath, link=False) as (data_from, data_to):
             data_to.objects = data_from.objects
-        
+
         # Link the loaded objects to the current scene
         imported_objects = []
         for obj in data_to.objects:
             if obj is not None:
                 context.scene.collection.objects.link(obj)
                 imported_objects.append(obj)
-                
+
                 # Mark as molding profile
                 obj['IS_MOLDING_PROFILE'] = True
                 obj['MOLDING_NAME'] = self.molding_name
-                
+
                 # Apply scene annotation settings if it's a curve
                 if obj.type == 'CURVE':
                     obj.data.dimensions = '2D'
@@ -1372,18 +1371,18 @@ class hb_frameless_OT_add_molding_profile(bpy.types.Operator):
                     obj.data.bevel_depth = hb_scene.annotation_line_thickness
                     color = tuple(hb_scene.annotation_line_color) + (1.0,)
                     obj.color = color
-        
+
         # Select the imported objects
         bpy.ops.object.select_all(action='DESELECT')
         for obj in imported_objects:
             obj.select_set(True)
-        
+
         if imported_objects:
             context.view_layer.objects.active = imported_objects[0]
             # Position at origin for user to move
             for obj in imported_objects:
                 obj.location = (0, 0, 0)
-        
+
         self.report({'INFO'}, f"Added molding profile: {self.molding_name}")
         return {'FINISHED'}
 
@@ -1394,7 +1393,7 @@ class hb_frameless_OT_add_solid_lumber(bpy.types.Operator):
     bl_label = "Add Solid Lumber"
     bl_description = "Add a custom solid lumber rectangle profile to the current detail"
     bl_options = {'REGISTER', 'UNDO'}
-    
+
     thickness = bpy.props.FloatProperty(
         name="Thickness",
         description="Thickness of the lumber",
@@ -1403,7 +1402,7 @@ class hb_frameless_OT_add_solid_lumber(bpy.types.Operator):
         unit='LENGTH',
         precision=4
     )  # type: ignore
-    
+
     width = bpy.props.FloatProperty(
         name="Width",
         description="Width of the lumber",
@@ -1412,7 +1411,7 @@ class hb_frameless_OT_add_solid_lumber(bpy.types.Operator):
         unit='LENGTH',
         precision=4
     )  # type: ignore
-    
+
     orientation = bpy.props.EnumProperty(
         name="Orientation",
         description="Orientation of the lumber profile",
@@ -1422,29 +1421,27 @@ class hb_frameless_OT_add_solid_lumber(bpy.types.Operator):
         ],
         default='HORIZONTAL'
     )  # type: ignore
-    
+
     @classmethod
     def poll(cls, context):
         # Must be in a detail view scene
         return context.scene.get('IS_CROWN_DETAIL', False) or context.scene.get('IS_DETAIL_VIEW', False)
-    
+
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self, width=250)
-    
+
     def draw(self, context):
         layout = self.layout
-        
+
         layout.prop(self, "thickness")
         layout.prop(self, "width")
-        
+
         layout.separator()
         layout.label(text="Orientation:")
         layout.prop(self, "orientation", expand=True)
-    
+
     def execute(self, context):
-        scene = context.scene
-        hb_scene = scene.home_builder
-        
+
         # Determine dimensions based on orientation
         if self.orientation == 'HORIZONTAL':
             rect_width = self.width
@@ -1452,34 +1449,34 @@ class hb_frameless_OT_add_solid_lumber(bpy.types.Operator):
         else:  # VERTICAL
             rect_width = self.thickness
             rect_height = self.width
-        
+
         # Create a rectangle polyline for the lumber profile
         lumber = hb_details.GeoNodePolyline()
         lumber.create("Solid Lumber")
-        
+
         # Draw rectangle starting at origin
         lumber.set_point(0, Vector((0, 0, 0)))
         lumber.add_point(Vector((rect_width, 0, 0)))
         lumber.add_point(Vector((rect_width, rect_height, 0)))
         lumber.add_point(Vector((0, rect_height, 0)))
         lumber.close()
-        
+
         # Mark as solid lumber
         lumber.obj['IS_SOLID_LUMBER'] = True
         lumber.obj['LUMBER_THICKNESS'] = self.thickness
         lumber.obj['LUMBER_WIDTH'] = self.width
         lumber.obj['LUMBER_ORIENTATION'] = self.orientation
-        
+
         # Select the new object
         bpy.ops.object.select_all(action='DESELECT')
         lumber.obj.select_set(True)
         context.view_layer.objects.active = lumber.obj
-        
+
         # Report dimensions in inches for user feedback
         thickness_in = self.thickness * 39.3701
         width_in = self.width * 39.3701
         self.report({'INFO'}, f"Added {thickness_in:.2f}\" x {width_in:.2f}\" solid lumber ({self.orientation.lower()})")
-        
+
         return {'FINISHED'}
 
 
@@ -1489,55 +1486,55 @@ class hb_frameless_OT_browse_molding_library(bpy.types.Operator):
     bl_label = "Molding Library"
     bl_description = "Browse molding profiles and add them to the current detail"
     bl_options = {'REGISTER'}
-    
+
     category = bpy.props.EnumProperty(
         name="Category",
         description="Molding category",
         items=lambda self, context: get_molding_categories()
     )  # type: ignore
-    
+
     @classmethod
     def poll(cls, context):
         return context.scene.get('IS_CROWN_DETAIL', False) or context.scene.get('IS_DETAIL_VIEW', False)
-    
+
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self, width=400)
-    
+
     def draw(self, context):
         layout = self.layout
-        
+
         # Category selector
         layout.prop(self, "category", text="Category")
-        
+
         layout.separator()
-        
+
         # Get items in selected category
         items = get_molding_items(self.category)
-        
+
         if not items:
             layout.label(text="No moldings in this category", icon='INFO')
             return
-        
+
         # Display items in a grid
         box = layout.box()
         flow = box.column_flow(columns=2, align=True)
-        
+
         for item in items:
             item_box = flow.box()
             item_box.label(text=item['name'])
-            
+
             # Show thumbnail if available
             if item['thumbnail']:
                 # Load thumbnail into preview collection
                 icon_id = props_hb_frameless.load_library_thumbnail(item['thumbnail'], item['name'])
                 if icon_id:
                     item_box.template_icon(icon_value=icon_id, scale=4.0)
-            
+
             # Add button
             op = item_box.operator("hb_frameless.add_molding_profile", text="Add", icon='ADD')
             op.filepath = item['filepath']
             op.molding_name = item['name']
-    
+
     def execute(self, context):
         return {'FINISHED'}
 

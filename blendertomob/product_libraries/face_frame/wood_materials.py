@@ -4,16 +4,16 @@ from . import finish_colors, style_options
 
 def get_color(color_name, color_type='stain'):
     """Get color pair for a given color name.
-    
+
     Args:
         color_name: Name of the color (e.g. 'Natural', 'Espresso')
         color_type: 'stain' or 'paint'
-    
+
     Returns:
         (c1, c2) tuple of RGBA lists
     """
     data = finish_colors.get_color_data(color_name, color_type)
-    
+
     c1 = data.get('color_1', [1, 1, 1, 1])
     c2 = data.get('color_2', [1, 1, 1, 1])
     return c1, c2
@@ -21,7 +21,7 @@ def get_color(color_name, color_type='stain'):
 
 def update_finish_material(cabinet_style):
     """Update the finish material nodes based on the cabinet style settings.
-    
+
     Reads wood species + color settings from the cabinet style,
     applies all shader parameters to the Wood node group.
     """
@@ -75,7 +75,7 @@ def update_finish_material(cabinet_style):
         texture_variation_2 = 12.5
         noise_detail = 15.0
         voronoi_detail_1 = 0.0
-        voronoi_detail_2 = 0.2 
+        voronoi_detail_2 = 0.2
     elif cabinet_style.wood_species == 'OAK':
         noise_scale_1 = 15.0
         noise_scale_2 = 2.5
@@ -83,7 +83,7 @@ def update_finish_material(cabinet_style):
         texture_variation_2 = 1.0
         noise_detail = 15.0
         voronoi_detail_1 = 0.0
-        voronoi_detail_2 = 0.2  
+        voronoi_detail_2 = 0.2
     elif cabinet_style.wood_species == 'CHERRY':
         noise_scale_1 = 3.5
         noise_scale_2 = 2.5
@@ -91,7 +91,7 @@ def update_finish_material(cabinet_style):
         texture_variation_2 = 5.0
         noise_detail = 15.0
         voronoi_detail_1 = 0.0
-        voronoi_detail_2 = 0.2 
+        voronoi_detail_2 = 0.2
     elif cabinet_style.wood_species == 'WALNUT':
         noise_scale_1 = 3.5
         noise_scale_2 = 2.5
@@ -99,7 +99,7 @@ def update_finish_material(cabinet_style):
         texture_variation_2 = 11.0
         noise_detail = 15.0
         voronoi_detail_1 = 0.0
-        voronoi_detail_2 = 0.2 
+        voronoi_detail_2 = 0.2
     elif cabinet_style.wood_species == 'BIRCH':
         noise_scale_1 = 3.5
         noise_scale_2 = 0.5
@@ -107,7 +107,7 @@ def update_finish_material(cabinet_style):
         texture_variation_2 = 16.0
         noise_detail = 0
         voronoi_detail_1 = 0.0
-        voronoi_detail_2 = 0.2  
+        voronoi_detail_2 = 0.2
     elif cabinet_style.wood_species == 'HICKORY':
         noise_scale_1 = 3.5
         noise_scale_2 = 2.5
@@ -115,7 +115,7 @@ def update_finish_material(cabinet_style):
         texture_variation_2 = 15.0
         noise_detail = 15.0
         voronoi_detail_1 = 0.0
-        voronoi_detail_2 = 0.2 
+        voronoi_detail_2 = 0.2
     elif cabinet_style.wood_species == 'ALDER':
         noise_scale_1 = 3.5
         noise_scale_2 = 2.5
@@ -123,7 +123,7 @@ def update_finish_material(cabinet_style):
         texture_variation_2 = 11.0
         noise_detail = 15.0
         voronoi_detail_1 = 0.0
-        voronoi_detail_2 = 0.2 
+        voronoi_detail_2 = 0.2
 
     # --- Apply color overrides from color data (user adjustable) ---
     roughness = color_data.get('roughness', finish_colors.SHADER_DEFAULTS['roughness'])

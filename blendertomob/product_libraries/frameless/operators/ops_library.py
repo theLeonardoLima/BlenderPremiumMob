@@ -6,7 +6,7 @@ import subprocess
 from mathutils import Vector
 from .. import types_frameless
 from .. import props_hb_frameless
-from .... import hb_utils, hb_placement, hb_snap, units
+from .... import hb_utils, hb_placement, hb_snap
 
 def get_user_library_path():
     """Get the default user library path for cabinet groups."""
@@ -23,12 +23,12 @@ def get_all_cabinet_group_paths():
 
 def get_cabinet_group_categories():
     """Get list of cabinet group categories across all library paths.
-    
+
     Loose .blend files in the root are grouped under 'General'.
     """
     categories_set = set()
     has_loose_files = False
-    
+
     for groups_path in get_all_cabinet_group_paths():
         if not os.path.exists(groups_path):
             continue
@@ -40,13 +40,13 @@ def get_cabinet_group_categories():
                     categories_set.add(item)
             elif item.endswith('.blend'):
                 has_loose_files = True
-    
+
     categories = [('ALL', 'All', 'Show all cabinet groups')]
     if has_loose_files:
         categories.append(('General', 'General', 'Uncategorized cabinet groups'))
     for c in sorted(categories_set):
         categories.append((c, c, c))
-    
+
     return categories
 
 def get_cabinet_group_category_enum_items(self, context):
@@ -107,7 +107,7 @@ class hb_frameless_OT_save_cabinet_group_to_user_library(bpy.types.Operator):
         name="Cabinet Group Name",
         default=""
     )  # type: ignore
-    
+
     save_path = bpy.props.StringProperty(
         name="Save Location",
         subtype='DIR_PATH',
@@ -119,7 +119,7 @@ class hb_frameless_OT_save_cabinet_group_to_user_library(bpy.types.Operator):
         description="Category subfolder to save into (leave empty for root)",
         default=""
     )  # type: ignore
-    
+
     create_thumbnail = bpy.props.BoolProperty(
         name="Create Thumbnail",
         description="Generate a thumbnail image for the library",
@@ -135,33 +135,33 @@ class hb_frameless_OT_save_cabinet_group_to_user_library(bpy.types.Operator):
         if 'IS_CAGE_GROUP' in obj:
             return True
         return False
-    
+
     def invoke(self, context, event):
         self.cabinet_group_name = context.object.name
-        
+
         # Set default save path to user library
         self.save_path = get_user_library_path()
-        
+
         return context.window_manager.invoke_props_dialog(self, width=400)
-    
+
     def draw(self, context):
         layout = self.layout
         layout.prop(self, "cabinet_group_name")
         layout.prop(self, "save_path")
         layout.prop(self, "save_category")
         layout.prop(self, "create_thumbnail")
-    
+
     def execute(self, context):
         cabinet_group = context.object
-        
+
         if not self.cabinet_group_name:
             self.report({'ERROR'}, "Please enter a name for the cabinet group")
             return {'CANCELLED'}
-        
+
         if not self.save_path:
             self.report({'ERROR'}, "Please select a save location")
             return {'CANCELLED'}
-        
+
         # Append category subfolder if specified
         actual_save_path = self.save_path
         if self.save_category.strip():
@@ -169,22 +169,22 @@ class hb_frameless_OT_save_cabinet_group_to_user_library(bpy.types.Operator):
 
         # Create directory if it doesn't exist
         os.makedirs(actual_save_path, exist_ok=True)
-        
+
         # Sanitize filename
         safe_name = "".join(c for c in self.cabinet_group_name if c.isalnum() or c in (' ', '-', '_')).strip()
         blend_filename = f"{safe_name}.blend"
         blend_filepath = os.path.join(actual_save_path, blend_filename)
-        
+
         # Check if file already exists
         if os.path.exists(blend_filepath):
             self.report({'WARNING'}, f"File already exists: {blend_filename}. Overwriting.")
-        
+
         # Collect all objects to save (cabinet group and all descendants)
         objects_to_save = self._collect_objects_recursive(cabinet_group)
-        
+
         # Collect all data blocks used by these objects
         data_blocks = self._collect_data_blocks(objects_to_save)
-        
+
         # Save to blend file
         bpy.data.libraries.write(
             blend_filepath,
@@ -192,32 +192,32 @@ class hb_frameless_OT_save_cabinet_group_to_user_library(bpy.types.Operator):
             path_remap='RELATIVE_ALL',
             fake_user=True
         )
-        
+
         # Generate thumbnail if requested
         if self.create_thumbnail:
             self._create_thumbnail(context, cabinet_group, actual_save_path, safe_name)
-        
+
         self.report({'INFO'}, f"Saved cabinet group to: {blend_filepath}")
         return {'FINISHED'}
-    
+
     def _collect_objects_recursive(self, obj):
         """Collect object and all its descendants."""
         objects = {obj}
         for child in obj.children:
             objects.update(self._collect_objects_recursive(child))
         return objects
-    
+
     def _collect_data_blocks(self, objects):
         """Collect all data blocks needed to save the objects."""
         data_blocks = set()
-        
+
         for obj in objects:
             data_blocks.add(obj)
-            
+
             # Add object data (mesh, curve, etc.)
             if obj.data:
                 data_blocks.add(obj.data)
-            
+
             # Add materials
             if hasattr(obj, 'data') and obj.data and hasattr(obj.data, 'materials'):
                 for mat in obj.data.materials:
@@ -228,14 +228,14 @@ class hb_frameless_OT_save_cabinet_group_to_user_library(bpy.types.Operator):
                             for node in mat.node_tree.nodes:
                                 if node.type == 'TEX_IMAGE' and node.image:
                                     data_blocks.add(node.image)
-            
+
             # Add modifiers' objects (like geometry nodes)
             for mod in obj.modifiers:
                 if mod.type == 'NODES' and mod.node_group:
                     data_blocks.add(mod.node_group)
-        
+
         return data_blocks
-    
+
     def _create_thumbnail(self, context, cabinet_group, save_path, name):
         """Create a thumbnail image for the cabinet group."""
 
@@ -246,35 +246,35 @@ class hb_frameless_OT_save_cabinet_group_to_user_library(bpy.types.Operator):
         original_render_percentage = context.scene.render.resolution_percentage
         original_engine = context.scene.render.engine
         original_filepath = context.scene.render.filepath
-        
+
         try:
             # Get cabinet group bounds
             cage = types_frameless.Cabinet(cabinet_group)
             width = cage.get_input('Dim X')
             depth = cage.get_input('Dim Y')
             height = cage.get_input('Dim Z')
-            
+
             # Create temporary camera
             cam_data = bpy.data.cameras.new("ThumbnailCam")
             cam_data.type = 'ORTHO'
             cam_obj = bpy.data.objects.new("ThumbnailCam", cam_data)
             context.scene.collection.objects.link(cam_obj)
-            
+
             # Position camera for isometric-ish view
             center = cabinet_group.matrix_world @ Vector((width/2, -depth/2, height/2))
-            
+
             # Camera distance based on largest dimension
             max_dim = max(width, depth, height)
             cam_data.ortho_scale = max_dim * 1.5
-            
+
             # Position for 3/4 view
             cam_obj.location = center + Vector((max_dim, -max_dim, max_dim * 0.8))
-            
+
             # Point camera at center
             direction = center - cam_obj.location
             rot_quat = direction.to_track_quat('-Z', 'Y')
             cam_obj.rotation_euler = rot_quat.to_euler()
-            
+
             # Set up render
             context.scene.camera = cam_obj
             context.scene.render.resolution_x = 256
@@ -284,19 +284,19 @@ class hb_frameless_OT_save_cabinet_group_to_user_library(bpy.types.Operator):
             context.scene.render.film_transparent = True
             context.scene.render.use_freestyle = True
             context.scene.render.line_thickness = .5
-            
+
             # Render thumbnail
             thumbnail_path = os.path.join(save_path, f"{name}.png")
             context.scene.render.filepath = thumbnail_path
             bpy.ops.render.render(write_still=True)
-            
+
             # Cleanup
             bpy.data.objects.remove(cam_obj)
             bpy.data.cameras.remove(cam_data)
-            
+
         except Exception as e:
             print(f"Failed to create thumbnail: {e}")
-        
+
         finally:
             # Restore original state
             context.scene.camera = original_camera
@@ -351,7 +351,7 @@ class hb_frameless_OT_load_cabinet_group_from_library(bpy.types.Operator, hb_pla
             elif obj.parent is None:
                 # Register orphan objects (e.g. pulls) for cleanup on cancel
                 self.register_placement_object(obj)
-        
+
         # Find objects referenced by geometry node Object inputs (e.g. hardware meshes)
         # These need to stay in the scene but should be hidden
         geo_node_refs = set()
@@ -483,11 +483,11 @@ class hb_frameless_OT_refresh_user_library(bpy.types.Operator):
     def execute(self, context):
         # Clear cached previews so they get reloaded
         props_hb_frameless.clear_library_previews()
-        
+
         # Force UI redraw
         for area in context.screen.areas:
             area.tag_redraw()
-        
+
         self.report({'INFO'}, "User library refreshed")
         return {'FINISHED'}
 
@@ -499,12 +499,12 @@ class hb_frameless_OT_open_user_library_folder(bpy.types.Operator):
     bl_description = "Open the user library folder in file explorer"
 
     def execute(self, context):
-        
+
         library_path = get_user_library_path()
-        
+
         if not os.path.exists(library_path):
             os.makedirs(library_path, exist_ok=True)
-        
+
         # Open folder in system file explorer
         if platform.system() == 'Windows':
             os.startfile(library_path)
@@ -512,7 +512,7 @@ class hb_frameless_OT_open_user_library_folder(bpy.types.Operator):
             subprocess.Popen(['open', library_path])
         else:  # Linux
             subprocess.Popen(['xdg-open', library_path])
-        
+
         return {'FINISHED'}
 
 
@@ -526,37 +526,37 @@ class hb_frameless_OT_delete_library_item(bpy.types.Operator):
         name="File Path",
         subtype='FILE_PATH'
     )  # type: ignore
-    
+
     item_name = bpy.props.StringProperty(
         name="Item Name"
     )  # type: ignore
 
     def invoke(self, context, event):
         return context.window_manager.invoke_confirm(self, event)
-    
+
     def execute(self, context):
-        
+
         if not self.filepath or not os.path.exists(self.filepath):
             self.report({'ERROR'}, f"File not found: {self.filepath}")
             return {'CANCELLED'}
-        
+
         # Delete the blend file
         os.remove(self.filepath)
-        
+
         # Delete thumbnail if it exists
         thumbnail_path = self.filepath.replace('.blend', '.png')
         if os.path.exists(thumbnail_path):
             os.remove(thumbnail_path)
-        
+
         # Clear preview cache so it doesn't show deleted item
         props_hb_frameless.clear_library_previews()
-        
+
         self.report({'INFO'}, f"Deleted: {self.item_name}")
-        
+
         # Force UI redraw
         for area in context.screen.areas:
             area.tag_redraw()
-        
+
         return {'FINISHED'}
 
 

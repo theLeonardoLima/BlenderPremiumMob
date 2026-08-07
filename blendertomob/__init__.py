@@ -54,12 +54,12 @@ def load_file_post(scene):
     import inspect
     from . import hb_driver_functions
     from . import hb_project
-    
+
     # Load driver functions
     for name, obj in inspect.getmembers(hb_driver_functions):
         if name not in bpy.app.driver_namespace:
             bpy.app.driver_namespace[name] = obj
-    
+
     # Ensure a main scene is tagged for project data
     main_scene = hb_project.ensure_main_scene()
 
@@ -101,7 +101,7 @@ class BTM_AddonPreferences(bpy.types.AddonPreferences):
     annotation_color = bpy.props.FloatVectorProperty(name="Cor dos Textos", size=4, min=0, max=1, default=(0.0, 0.0, 0.0, 1.0), subtype="COLOR")  # type: ignore
     annotation_highlight_color = bpy.props.FloatVectorProperty(name="Cor de Destaque", size=4, min=0, max=1, default=(1.0, 1.0, 0.0, 1.0), subtype="COLOR")  # type: ignore
     obstacle_color = bpy.props.FloatVectorProperty(name="Cor dos Obstáculos", size=4, min=0, max=1, default=(0.9, 0.7, 0.4, 0.8), subtype="COLOR")  # type: ignore
-    
+
     designer_name = bpy.props.StringProperty(
         name="Nome do Designer",
         description="Nome impresso nas pranchas e relatórios técnicos"
@@ -155,7 +155,7 @@ class BTM_AddonPreferences(bpy.types.AddonPreferences):
         layout = self.layout
         layout.prop(self, "use_viewport_hud")
         layout.prop(self, "hide_2d_drawing_panels")
-        
+
         box = layout.box()
         box.label(text="Padrões do Layout 2D", icon='RENDERLAYERS')
         col = box.column(align=True)
@@ -163,9 +163,9 @@ class BTM_AddonPreferences(bpy.types.AddonPreferences):
         col.prop(self, "default_paper_size")
         col.prop(self, "default_layout_scale")
         col.prop(self, "default_paper_landscape")
-        
+
         layout.separator()
-        
+
         box = layout.box()
         box.label(text="Bibliotecas de Ativos", icon='ASSET_MANAGER')
         row = box.row()
@@ -175,7 +175,7 @@ class BTM_AddonPreferences(bpy.types.AddonPreferences):
         col.operator("home_builder.remove_asset_library", text="", icon='REMOVE')
         col.separator()
         col.operator("home_builder.refresh_asset_libraries", text="", icon='FILE_REFRESH')
-        
+
         layout.prop(self, "wall_color")
         layout.prop(self, "cabinet_color")
         layout.prop(self, "door_window_color")
@@ -195,12 +195,12 @@ def register():
 
     # Register modern data layer and translation
     data.register()
-    
+
     # Register legacy properties
     hb_props.register()
     hb_project.register()
     hb_props_obstacles.register()
-    
+
     # Register legacy operators
     ops_obstacles.register()
     walls.register()
@@ -214,16 +214,16 @@ def register():
     viewport_hud.register()
     ops_general.register()
     ops.register()
-    
+
     # Register modern UI & draw handlers
     ui.register()
     overlays.register()
-    
+
     # Register legacy UI
     view3d_sidebar.register()
     menu_apend.register()
     menus.register()
-    
+
     # Register product libraries
     closets.register()
     face_frame.register()
@@ -244,23 +244,23 @@ def register():
 
 def unregister():
     bpy.app.handlers.load_post.remove(load_file_post)
-    
+
     # Unregister libraries
     closets.unregister()
     molding.unregister()
     wood_hoods.unregister()
     face_frame.unregister()
     frameless.unregister()
-    
+
     # Unregister legacy UI
     menus.unregister()
     menu_apend.unregister()
     view3d_sidebar.unregister()
-    
+
     # Unregister modern UI & draw handlers
     overlays.unregister()
     ui.unregister()
-    
+
     # Unregister legacy operators
     ops.unregister()
     ops_general.unregister()
@@ -274,15 +274,15 @@ def unregister():
     layouts.unregister()
     walls.unregister()
     ops_obstacles.unregister()
-    
+
     # Unregister properties
     hb_props_obstacles.unregister()
     hb_project.unregister()
     hb_props.unregister()
-    
+
     # Unregister modern data
     data.unregister()
-    
+
     bpy.utils.unregister_class(BTM_AddonPreferences)
     hb_assets.unregister()
 

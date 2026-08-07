@@ -4,7 +4,6 @@ CONSTRUTOR, GALERIA DE MÓDULOS e CONFIGURAÇÕES (com Configurador de Dimensõe
 """
 
 import bpy  # type: ignore
-import os
 from ..cutting.nesting import NestingPart, optimize_nesting
 from ..data import units
 
@@ -164,7 +163,7 @@ class BTM_PT_EnvironmentBuilder(bpy.types.Panel):
             box_config = layout.box()
             box_config.label(text="Configurador de Móveis", icon='PROPERTIES')
             box_config.prop(settings, "config_active_component", text="Peça")
-            
+
             comp_type = settings.config_active_component
             comp = None
             if comp_type == 'LATERAL':
@@ -186,7 +185,7 @@ class BTM_PT_EnvironmentBuilder(bpy.types.Panel):
                 col.prop(comp, "max_width", text="Largura Máx.")
                 col.prop(comp, "max_length", text="Comprimento Máx.")
                 col.prop(comp, "thickness", text="Espessura")
-                
+
                 # Fitas de Borda
                 box_border = box_config.box()
                 box_border.label(text="Fitas de Borda (Espessura)", icon='ALIGN_JUSTIFY')
@@ -204,16 +203,16 @@ class BTM_PT_EnvironmentBuilder(bpy.types.Panel):
 
                 box_rooms = layout.box()
                 box_rooms.label(text="Gerenciador de Ambientes", icon='HOME')
-                
+
                 col_rooms = box_rooms.column(align=True)
                 for r_scene in room_scenes:
                     row = col_rooms.row(align=True)
                     is_selected = r_scene == context.scene
                     icon = 'CHECKBOX_HLT' if is_selected else 'CHECKBOX_DEHLT'
-                    
+
                     op = row.operator("home_builder.switch_room", text=r_scene.name, icon=icon)
                     op.scene_name = r_scene.name
-                    
+
                     if len(room_scenes) > 1:
                         del_op = row.operator("home_builder.delete_room", text="", icon='X')
                         del_op.scene_name = r_scene.name
@@ -229,17 +228,17 @@ class BTM_PT_EnvironmentBuilder(bpy.types.Panel):
 
             box_layouts = layout.box()
             box_layouts.label(text="Layouts & Elevações 2D", icon='VIEW_ORTHO')
-            
+
             if layout_views:
                 col_layouts = box_layouts.column(align=True)
                 for view in layout_views:
                     row = col_layouts.row(align=True)
                     is_selected = view == context.scene
                     icon = 'CHECKBOX_HLT' if is_selected else 'CHECKBOX_DEHLT'
-                    
+
                     op = row.operator("home_builder_layouts.go_to_layout_view", text=view.name, icon=icon)
                     op.scene_name = view.name
-                    
+
                     del_op = row.operator("home_builder_layouts.delete_layout_view", text="", icon='X')
                     del_op.scene_name = view.name
 

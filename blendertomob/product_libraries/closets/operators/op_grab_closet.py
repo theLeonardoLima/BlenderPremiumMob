@@ -22,7 +22,6 @@ no HUD (core) changes.
 import bpy
 import gpu
 import blf
-import math
 from mathutils import Vector
 from gpu_extras.batch import batch_for_shader
 from bpy_extras import view3d_utils
@@ -786,7 +785,6 @@ class hb_closets_OT_grab_drag(bpy.types.Operator):
         b = self._drag_boundary
         snap = self._snapshot
         root = bpy.data.objects.get(b['root'])
-        us = context.scene.unit_settings
         if b['kind'] == 'PANEL':
             left = bpy.data.objects.get(b['left'])
             right = bpy.data.objects.get(b['right'])

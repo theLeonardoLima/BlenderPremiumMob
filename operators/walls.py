@@ -15,17 +15,17 @@ def calculate_wall_miter_angles(wall_obj):
     """
     Calculate and set the miter angles for a wall based on connected walls.
     Uses the GeoNodeWall.get_connected_wall() method to find connections.
-    
+
     The miter angle formula:
     - turn_angle = connected_wall_rotation - this_wall_rotation (normalized to -180° to 180°)
     - For the RIGHT end (end of wall): right_angle = -turn_angle / 2
     - For the LEFT end (start of wall): left_angle = turn_angle / 2
     """
     import math
-    
+
     wall = hb_types.GeoNodeWall(wall_obj)
     this_rot = wall_obj.rotation_euler.z
-    
+
     # Get connected wall on the left (at our START)
     left_wall = wall.get_connected_wall('left')
     if left_wall:
@@ -34,12 +34,12 @@ def calculate_wall_miter_angles(wall_obj):
         # Normalize turn angle to -pi to pi
         while turn > math.pi: turn -= 2 * math.pi
         while turn < -math.pi: turn += 2 * math.pi
-        
+
         left_angle = turn / 2
         wall.set_input('Left Angle', left_angle)
     else:
         wall.set_input('Left Angle', 0)
-    
+
     # Get connected wall on the right (at our END)
     right_wall = wall.get_connected_wall('right')
     if right_wall:
@@ -48,7 +48,7 @@ def calculate_wall_miter_angles(wall_obj):
         # Normalize turn angle to -pi to pi
         while turn > math.pi: turn -= 2 * math.pi
         while turn < -math.pi: turn += 2 * math.pi
-        
+
         right_angle = -turn / 2
         wall.set_input('Right Angle', right_angle)
     else:
@@ -85,57 +85,57 @@ def point_in_polygon(point, polygon):
     x, y = point.x, point.y
     n = len(polygon)
     inside = False
-    
+
     j = n - 1
     for i in range(n):
         xi, yi = polygon[i].x, polygon[i].y
         xj, yj = polygon[j].x, polygon[j].y
-        
+
         if ((yi > y) != (yj > y)) and (x < (xj - xi) * (y - yi) / (yj - yi) + xi):
             inside = not inside
         j = i
-    
+
     return inside
-  
+
 def get_wall_endpoints(wall_obj):
     """Get the start and end points of a wall in world coordinates."""
-    
+
     world_matrix = wall_obj.matrix_world
     start = world_matrix.translation.copy()
-    
+
     rot_z = wall_obj.matrix_world.to_euler().z
-    
+
     # Find obj_x child to get wall length
     length = 0
     for child in wall_obj.children:
         if 'obj_x' in child.name.lower():
             length = child.location.x
             break
-    
+
     direction = Vector((math.cos(rot_z), math.sin(rot_z), 0))
     end = start + direction * length
-    
+
     return start.to_2d(), end.to_2d()
 
 def find_wall_chains():
     """Find connected chains of walls in the current scene, returning list of ordered wall objects.
-    
+
     Handles both open chains (interior walls) and closed loops (room perimeters).
     Supports junction points where multiple walls share the same start/end location.
     Closed loops are detected first so interior branches don't steal perimeter walls.
     """
     walls = [obj for obj in bpy.context.scene.objects if obj.get('IS_WALL_BP')]
-    
+
     if not walls:
         return []
-    
+
     wall_data = {}
     for wall in walls:
         start, end = get_wall_endpoints(wall)
         wall_data[wall.name] = {'obj': wall, 'start': start, 'end': end}
-    
+
     tolerance = 0.01
-    
+
     # Build adjacency lists — each wall can have multiple successors
     connections = {}
     for name1, data1 in wall_data.items():
@@ -144,46 +144,46 @@ def find_wall_chains():
             if name1 != name2 and (data1['end'] - data2['start']).length < tolerance:
                 succs.append(name2)
         connections[name1] = succs
-    
+
     chains = []
     used = set()
-    
+
     # --- First pass: find closed loops ---
     # Try each wall as a potential loop start. Interior branches won't form loops,
     # so only true perimeters (and closed interior rooms) get claimed here.
     for name in wall_data:
         if name in used:
             continue
-        
+
         chain = []
         current = name
         trace_visited = set()
         is_loop = False
-        
+
         while current and current not in trace_visited and current not in used:
             trace_visited.add(current)
             chain.append(current)
             all_succs = connections.get(current, [])
-            
+
             # Check if any successor closes the loop back to the start
             if name in all_succs and len(chain) > 2:
                 is_loop = True
                 break
-            
+
             # Pick an unused successor (not visited in this trace, not globally used)
             next_succs = [s for s in all_succs if s not in trace_visited and s not in used]
             current = next_succs[0] if next_succs else None
-        
+
         if is_loop:
             used.update(chain)
             chains.append([wall_data[n]['obj'] for n in chain])
-    
+
     # --- Second pass: trace remaining walls as open chains ---
     has_predecessor = set()
     for succs in connections.values():
         has_predecessor.update(succs)
     start_walls = [name for name in wall_data if name not in has_predecessor and name not in used]
-    
+
     def trace_open_chain(start_name):
         chain = []
         current = start_name
@@ -193,36 +193,36 @@ def find_wall_chains():
             unused_succs = [s for s in connections.get(current, []) if s not in used]
             current = unused_succs[0] if unused_succs else None
         return chain
-    
+
     for start_name in start_walls:
         if start_name not in used:
             chain = trace_open_chain(start_name)
             if chain:
                 chains.append(chain)
-    
+
     # Third pass: pick up any remaining isolated walls
     for name in wall_data:
         if name not in used:
             chain = trace_open_chain(name)
             if chain:
                 chains.append(chain)
-    
+
     return chains
 
 def get_room_boundary_points(wall_chain):
     """Extract boundary points from a chain of walls."""
 
     points = []
-    
+
     for wall in wall_chain:
         start, end = get_wall_endpoints(wall)
         if not points or (Vector(points[-1]) - Vector((start.x, start.y, 0))).length > 0.01:
             points.append(Vector((start.x, start.y, 0)))
-    
+
     if wall_chain:
         start, end = get_wall_endpoints(wall_chain[-1])
         points.append(Vector((end.x, end.y, 0)))
-    
+
     return points
 
 def is_closed_loop(points, tolerance=0.01):
@@ -230,7 +230,7 @@ def is_closed_loop(points, tolerance=0.01):
     if len(points) < 3:
         return False
     return (points[0] - points[-1]).length < tolerance
-    
+
 
 
 
@@ -541,7 +541,7 @@ def _draw_wall_snap_dimensions(region, wall_obj, snap_point_3d, face,
     Draw left/right dimension lines along the wall face from the snap point.
     Shows the distance from the snap point to each end of the wall,
     with a visible gap for the drawing wall's thickness.
-    
+
     Args:
         drawing_gap: Width of the drawing wall projected onto the target face (meters).
         gap_direction: Signed float indicating which direction along the target face
@@ -949,7 +949,7 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
     previous_wall = None
     start_point: Vector = None
     dim = None
-    
+
     # Track if we've placed the first point
     has_start_point: bool = False
 
@@ -958,10 +958,10 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
     # a distance from that track point along that axis.
     _track_type_anchor = None       # Vector: the tracking point to measure from
     _track_type_direction = None    # Vector: unit +/-X or +/-Y
-    
+
     # Free rotation mode (Alt toggles, snaps to 15° increments)
     free_rotation: bool = False
-    
+
     # Endpoint snapping state
     snap_wall = None  # Wall we're snapping to
     snap_endpoint = None  # 'start' or 'end'
@@ -1061,25 +1061,25 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
     def find_nearby_wall_endpoint(self, context, threshold=0.15):
         """
         Find if mouse is near any existing wall endpoint.
-        
+
         Args:
             context: Blender context
             threshold: Distance threshold in meters
-            
+
         Returns:
             Tuple of (wall_obj, endpoint_type, endpoint_location) or (None, None, None)
             endpoint_type is 'start' or 'end'
         """
         if not self.hit_location:
             return None, None, None
-        
+
         mouse_loc = Vector((self.hit_location[0], self.hit_location[1], 0))
-        
+
         best_wall = None
         best_endpoint = None
         best_location = None
         best_distance = threshold
-        
+
         for obj in context.view_layer.objects:
             if 'IS_WALL_BP' not in obj:
                 continue
@@ -1089,12 +1089,12 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
             # Skip the previously drawn wall
             if self.previous_wall and obj == self.previous_wall.obj:
                 continue
-            
+
             # Get wall endpoints
             start, end = get_wall_endpoints(obj)
             start_3d = Vector((start.x, start.y, 0))
             end_3d = Vector((end.x, end.y, 0))
-            
+
             # Check start point
             dist_start = (mouse_loc - start_3d).length
             if dist_start < best_distance:
@@ -1102,7 +1102,7 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
                 best_wall = obj
                 best_endpoint = 'start'
                 best_location = start_3d
-            
+
             # Check end point
             dist_end = (mouse_loc - end_3d).length
             if dist_end < best_distance:
@@ -1110,21 +1110,21 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
                 best_wall = obj
                 best_endpoint = 'end'
                 best_location = end_3d
-        
+
         return best_wall, best_endpoint, best_location
 
     def highlight_wall(self, wall_obj, highlight=True):
         """Highlight or unhighlight a wall."""
         if wall_obj is None:
             return
-        
+
         # Check if object is still valid and in the view layer
         try:
             if wall_obj.name not in bpy.context.view_layer.objects:
                 return
         except ReferenceError:
             return
-        
+
         if highlight:
             # Store original color and set highlight color
             if 'original_color' not in wall_obj:
@@ -1295,7 +1295,7 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
         """
         Find if mouse is over/near a wall surface.
         Uses raycast in perspective/side views, 2D proximity in top view.
-        
+
         Returns:
             Tuple of (wall_obj, snap_location, face) or (None, None, None)
             face is 'front' or 'back'
@@ -1303,11 +1303,11 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
         # In top view, use 2D proximity detection
         if self.is_top_view(context):
             return self.find_wall_surface_snap_2d(context)
-        
+
         # Otherwise use raycast-based detection
         if not self.hit_object or not self.hit_location:
             return None, None, None
-        
+
         # Check if we hit a wall (could be the wall itself or a child)
         wall_obj = None
         check_obj = self.hit_object
@@ -1316,17 +1316,17 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
                 wall_obj = check_obj
                 break
             check_obj = check_obj.parent
-        
+
         if not wall_obj:
             return None, None, None
-        
+
         # Skip the current wall being drawn
         if self.current_wall and wall_obj == self.current_wall.obj:
             return None, None, None
         # Skip the previously drawn wall
         if self.previous_wall and wall_obj == self.previous_wall.obj:
             return None, None, None
-        
+
         wall = hb_types.GeoNodeWall(wall_obj)
         # The wall may have had its geo node modifier applied (baked to mesh).
         # Without the modifier we can't query Length/Thickness, so bail out
@@ -1334,26 +1334,26 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
         if not wall.has_modifier():
             return None, None, None
         wall_length = wall.get_input('Length')
-        wall_thickness = wall.get_input('Thickness')
-        
+        wall.get_input('Thickness')
+
         # Transform hit position to wall's local space
         world_matrix = wall_obj.matrix_world
         local_matrix = world_matrix.inverted()
         local_hit = local_matrix @ Vector((self.hit_location[0], self.hit_location[1], self.hit_location[2]))
-        
+
         # Clamp X position to wall length
         snap_x = max(0, min(wall_length, local_hit.x))
-        
+
         # Determine which face based on local Y
         if local_hit.y >= 0:
             face = 'front'
         else:
             face = 'back'
-        
+
         # Keep the Y from the hit (it's on the surface), set Z to 0
         local_snap = Vector((snap_x, local_hit.y, 0))
         world_snap = world_matrix @ local_snap
-        
+
         return wall_obj, Vector((world_snap.x, world_snap.y, 0)), face
 
 
@@ -1361,7 +1361,7 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
         """
         Check if the current wall's endpoint is near or would cross an existing wall face.
         Snaps the wall length so it ends cleanly at the front or back face.
-        
+
         When the wall would pass through both faces of an existing wall,
         snaps to the FIRST face hit (smallest t) so the wall stops at the
         near side rather than punching through.
@@ -1465,14 +1465,14 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
 
     def find_chain_start(self, wall_obj):
         """Trace back through wall chain to find the first wall and count walls.
-        
+
         Returns:
             Tuple of (first_wall_obj, wall_count) or (None, 0)
         """
         visited = set()
         current = hb_types.GeoNodeWall(wall_obj)
         count = 1
-        
+
         while True:
             visited.add(current.obj.name)
             left_wall = current.get_connected_wall('left')
@@ -1481,22 +1481,22 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
                 count += 1
             else:
                 break
-        
+
         return current, count
 
     def connect_to_existing_wall(self, wall_obj, endpoint):
         """
         Connect current wall to an existing wall's endpoint and set up for continued drawing.
-        
+
         Args:
             wall_obj: The existing wall to connect to
             endpoint: 'start' or 'end' - which endpoint to connect to
         """
         existing_wall = hb_types.GeoNodeWall(wall_obj)
-        
+
         # Get the endpoint location
         start, end = get_wall_endpoints(wall_obj)
-        
+
         if endpoint == 'end':
             # Connect to end of existing wall - our wall starts there
             connect_location = Vector((end.x, end.y, 0))
@@ -1504,7 +1504,7 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
             self.previous_wall = existing_wall
             # Use constraint to connect
             self.current_wall.connect_to_wall(existing_wall)
-            
+
             # Trace chain to find first wall for room closing
             first_wall_geonode, chain_count = self.find_chain_start(wall_obj)
             if chain_count >= 2:
@@ -1519,7 +1519,7 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
             connect_location = Vector((start.x, start.y, 0))
             # Position our wall at the start point
             self.current_wall.obj.location = connect_location
-        
+
         self.start_point = connect_location
         self.has_start_point = True
 
@@ -1620,12 +1620,12 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
             self.current_wall.obj['IS_HALF_WALL'] = True
         elif wall_type == 'Fake':
             self.current_wall.obj['IS_FAKE_WALL'] = True
-        
+
         # Register for cleanup on cancel
         self.register_placement_object(self.current_wall.obj)
         for child in self.current_wall.obj.children:
             self.register_placement_object(child)
-        
+
         if self.previous_wall:
             self.current_wall.connect_to_wall(self.previous_wall)
 
@@ -1667,10 +1667,10 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
             self._wall_dim_visible = True
 
     # ========== Wall Tracking ==========
-    
+
     def find_nearby_endpoint_for_tracking(self, context, threshold=0.15):
         """Find a nearby wall endpoint for track point acquisition.
-        
+
         Like find_nearby_wall_endpoint but only skips the current wall being
         drawn so we can track off the previously drawn wall too.
         """
@@ -1692,7 +1692,7 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
                     best_dist = d
                     best_loc = pt_3d
         return best_loc
-    
+
     def find_existing_track_point_at(self, loc, eps=0.01):
         """Return an existing track point near loc, or None."""
         if loc is None:
@@ -1701,10 +1701,10 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
             if (tp - loc).length < eps:
                 return tp
         return None
-    
+
     def update_track_hover(self, context):
         """Detect dwell-based track point acquisition.
-        
+
         Called every modal event. If the cursor stays on an endpoint that
         is not already a track point for self._hover_dwell seconds, that
         endpoint is promoted to a track point.
@@ -1729,7 +1729,7 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
             self.track_points.append(candidate.copy())
             self._hover_candidate = None
             self._hover_start_time = 0.0
-    
+
     def acquire_or_remove_track_point_at_cursor(self, context):
         """T key handler: acquire endpoint at cursor, or remove if already a track point."""
         candidate = self.find_nearby_endpoint_for_tracking(context)
@@ -1743,10 +1743,10 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
         self._hover_candidate = None
         self._hover_start_time = 0.0
         return True
-    
+
     def apply_track_snap_to_position(self, context, world_pos):
         """Apply tracking to a world position.
-        
+
         Returns (new_pos, snapped_axes) where snapped_axes is a list of
         (track_point, 'x'|'y') tuples describing what was snapped.
         """
@@ -1756,7 +1756,7 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
         rv3d = region.data
         mouse2d = Vector((self.mouse_pos.x, self.mouse_pos.y))
         threshold = self._track_pixel_threshold
-        
+
         best_x = None
         best_y = None
         for tp in self.track_points:
@@ -1774,7 +1774,7 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
                 d = (mouse2d - scr).length
                 if d < threshold and (best_y is None or d < best_y[0]):
                     best_y = (d, tp)
-        
+
         new_pos = Vector(world_pos)
         snapped_axes = []
         if best_x is not None:
@@ -1784,14 +1784,14 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
             new_pos.y = best_y[1].y
             snapped_axes.append((best_y[1], 'y'))
         return new_pos, snapped_axes
-    
+
     def clear_track_points(self):
         """Clear all acquired track points and hover state."""
         self.track_points = []
         self._hover_candidate = None
         self._hover_start_time = 0.0
         self._active_track_lines = []
-    
+
     def _remove_track_timer(self, context):
         """Remove the modal timer used for dwell detection."""
         if getattr(self, '_track_timer', None) is not None:
@@ -1800,9 +1800,9 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
             except Exception:
                 pass
             self._track_timer = None
-    
+
     # ========== End Wall Tracking ==========
-    
+
     def set_wall_position_from_mouse(self):
         """Update wall position/rotation based on mouse location."""
         higher_priority_snap = bool(self.snap_wall and (self.snap_endpoint or self.snap_surface))
@@ -1870,7 +1870,7 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
 
             x = eff_vec.x - self.start_point[0]
             y = eff_vec.y - self.start_point[1]
-            
+
             if self.free_rotation:
                 # Free rotation mode - snap to 15° increments
                 angle = math.atan2(y, x)
@@ -1925,29 +1925,29 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
         """Close the room by connecting the current wall back to the first wall."""
         closing_wall = self.current_wall
         first_wall = self.first_wall
-        
+
         # Calculate angle and distance to first wall's origin
         first_loc = first_wall.obj.location
         dx = first_loc.x - self.start_point.x
         dy = first_loc.y - self.start_point.y
         closing_length = math.sqrt(dx * dx + dy * dy)
-        
+
         if closing_length < 0.01:
             return
-        
+
         closing_angle = math.atan2(dy, dx)
         closing_wall.obj.rotation_euler.z = closing_angle
         closing_wall.set_input('Length', closing_length)
-        
+
         # Connect closing wall's end to first wall
         closing_wall.obj_x.blendertomob.connected_object = first_wall.obj
-        
+
         context.view_layer.update()
-        
+
         # Update miter angles for previous wall and closing wall's left side
         calculate_wall_miter_angles(closing_wall.obj)
         calculate_wall_miter_angles(self.previous_wall.obj)
-        
+
         # Set miter angles between closing wall's end and first wall's start
         closing_rot = closing_wall.obj.rotation_euler.z
         first_rot = first_wall.obj.rotation_euler.z
@@ -1956,14 +1956,14 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
         while turn < -math.pi: turn += 2 * math.pi
         closing_wall.set_input('Right Angle', -turn / 2)
         first_wall.set_input('Left Angle', turn / 2)
-        
+
         # Remove closing wall from cancel list (it's confirmed)
         if closing_wall.obj in self.placement_objects:
             self.placement_objects.remove(closing_wall.obj)
         for child in closing_wall.obj.children:
             if child in self.placement_objects:
                 self.placement_objects.remove(child)
-        
+
         # Hide the live wall length dimension — the room is closed
         self._wall_dim_visible = False
 
@@ -2013,17 +2013,17 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
         # Capture the very first start point (before it gets updated)
         if self.first_start_point is None:
             self.first_start_point = self.start_point.copy()
-        
+
         # Update start point to end of current wall
         wall_length = self.current_wall.get_input('Length')
         angle = self.current_wall.obj.rotation_euler.z
-        
+
         self.start_point = Vector((
             self.start_point.x + math.cos(angle) * wall_length,
             self.start_point.y + math.sin(angle) * wall_length,
             0
         ))
-        
+
         # Current wall becomes previous, remove from cancel list (it's confirmed)
         if self.current_wall.obj in self.placement_objects:
             self.placement_objects.remove(self.current_wall.obj)
@@ -2101,13 +2101,13 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
                 text = f"Click to start on wall ({self.snap_surface} face){track_hint} | T: track | Esc to cancel"
             else:
                 text = f"Click to place first point{track_hint} | T: track point (hover 0.5s or press T) | Esc to cancel"
-        
+
         hb_placement.draw_header_text(context, text)
 
     def execute(self, context):
         # Initialize placement mixin
         self.init_placement(context)
-        
+
         # Reset wall-specific state
         self.current_wall = None
         self.previous_wall = None
@@ -2119,22 +2119,22 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
         self.first_start_point = None
         self.first_wall = None
         self.confirmed_wall_count = 0
-        
+
         # Reset endpoint snapping state
         self.snap_wall = None
         self.snap_endpoint = None
         self.snap_surface = None
         self.snap_location = None
         self.highlighted_wall = None
-        
+
         # End-of-wall snap state (during drawing)
         self.end_snap_wall = None
         self.end_snap_face = None
-        
+
         # Surface snap hysteresis (prevents face flicker in top view)
         self._last_surface_wall = None
         self._last_surface_face = None
-        
+
         # Fine snap mode (Shift held = 1/16" imperial, 1mm metric)
         self.fine_snap = False
 
@@ -2200,14 +2200,14 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
         if not self.has_start_point:
             # First check for endpoint snap (higher priority)
             snap_wall, snap_endpoint, snap_location = self.find_nearby_wall_endpoint(context)
-            
+
             if snap_wall:
                 # Endpoint snap found
                 if snap_wall != self.highlighted_wall:
                     self.clear_wall_highlight()
                     self.highlight_wall(snap_wall, highlight=True)
                     self.highlighted_wall = snap_wall
-                
+
                 self.snap_wall = snap_wall
                 self.snap_endpoint = snap_endpoint
                 self.snap_surface = None
@@ -2216,14 +2216,14 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
             else:
                 # No endpoint - check for wall surface snap
                 surface_wall, surface_location, surface_face = self.find_wall_surface_snap(context)
-                
+
                 if surface_wall:
                     # Surface snap found
                     if surface_wall != self.highlighted_wall:
                         self.clear_wall_highlight()
                         self.highlight_wall(surface_wall, highlight=True)
                         self.highlighted_wall = surface_wall
-                    
+
                     self.snap_wall = surface_wall
                     self.snap_endpoint = None
                     self.snap_surface = surface_face
@@ -2370,10 +2370,10 @@ class home_builder_walls_OT_wall_prompts(bpy.types.Operator):
         left_wall = self.wall.get_connected_wall('left')
         if left_wall:
             calculate_wall_miter_angles(left_wall.obj)
-        
+
         right_wall = self.wall.get_connected_wall('right')
         if right_wall:
-            calculate_wall_miter_angles(right_wall.obj)        
+            calculate_wall_miter_angles(right_wall.obj)
         return True
 
     def invoke(self, context, event):
@@ -2397,22 +2397,22 @@ class home_builder_walls_OT_wall_prompts(bpy.types.Operator):
             bp = obj.constraints[0].target.parent
             return self.get_first_wall_bp(context,bp)
         else:
-            return obj   
+            return obj
 
     def draw(self, context):
         layout = self.layout
 
         box = layout.box()
         row = box.row()
-        
+
         col = row.column(align=True)
         row1 = col.row(align=True)
         row1.label(text='Length:')
         row1.prop(self, 'wall_length', text="")
-        
+
         row1 = col.row(align=True)
         row1.label(text='Height:')
-        row1.prop(self, 'wall_height', text="")      
+        row1.prop(self, 'wall_height', text="")
 
         if self.wall.has_input('End Height'):
             row1 = col.row(align=True)
@@ -2421,7 +2421,7 @@ class home_builder_walls_OT_wall_prompts(bpy.types.Operator):
 
         row1 = col.row(align=True)
         row1.label(text='Thickness:')
-        row1.prop(self, 'wall_thickness', text="") 
+        row1.prop(self, 'wall_thickness', text="")
 
         if len(self.wall.obj.constraints) > 0:
             first_wall = self.get_first_wall_bp(context,self.wall.obj)
@@ -2429,21 +2429,21 @@ class home_builder_walls_OT_wall_prompts(bpy.types.Operator):
             col.label(text="Location X:")
             col.label(text="Location Y:")
             col.label(text="Location Z:")
-        
+
             col = row.column(align=True)
-            col.prop(first_wall,'location',text="")            
+            col.prop(first_wall,'location',text="")
         else:
             col = row.column(align=True)
             col.label(text="Location X:")
             col.label(text="Location Y:")
             col.label(text="Location Z:")
-        
+
             col = row.column(align=True)
             col.prop(self.wall.obj,'location',text="")
-        
+
         row = box.row()
         row.label(text='Rotation Z:')
-        row.prop(self.wall.obj,'rotation_euler',index=2,text="")  
+        row.prop(self.wall.obj,'rotation_euler',index=2,text="")
 
 # Module-level helper: re-uses HB5's typed-distance parser (scene units,
 # feet/inches, fractions, explicit units, negatives). We don't want the full
@@ -3527,46 +3527,46 @@ class home_builder_walls_OT_add_floor(bpy.types.Operator):
 
     def create_floor_mesh(self,name, points):
         """Create a floor mesh from boundary points with thickness for boolean support."""
-        
+
         mesh = bpy.data.meshes.new(name)
         obj = bpy.data.objects.new(name, mesh)
-        
+
         bpy.context.collection.objects.link(obj)
-        
+
         bm = bmesh.new()
-        
+
         # If closed loop, remove duplicate closing point
         closed = is_closed_loop(points)
         if closed:
             points = points[:-1]
-        
+
         # Add vertices at Z=0 (top surface)
         verts = [bm.verts.new(p) for p in points]
         bm.verts.ensure_lookup_table()
-        
+
         # Create boundary edges
         edges = []
         for i in range(len(verts)):
             next_i = (i + 1) % len(verts)
             edge = bm.edges.new((verts[i], verts[next_i]))
             edges.append(edge)
-        
+
         # Fill to create faces (handles non-convex shapes)
         bmesh.ops.triangle_fill(bm, use_beauty=True, use_dissolve=False, edges=edges)
-        
+
         # Ensure all normals point upward (+Z) for consistent floor orientation
         bm.normal_update()
         for face in bm.faces:
             if face.normal.z < 0:
                 face.normal_flip()
-        
+
         # Extrude downward to give the floor thickness (needed for boolean cuts)
         floor_thickness = 0.01  # 10mm / ~3/8"
         top_faces = list(bm.faces)
         extrude_result = bmesh.ops.extrude_face_region(bm, geom=top_faces)
         extruded_verts = [g for g in extrude_result['geom'] if isinstance(g, bmesh.types.BMVert)]
         bmesh.ops.translate(bm, verts=extruded_verts, vec=Vector((0, 0, -floor_thickness)))
-        
+
         # Recalculate normals outward on the solid
         bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
         bm.normal_update()
@@ -3576,19 +3576,19 @@ class home_builder_walls_OT_add_floor(bpy.types.Operator):
         for face in bm.faces:
             for loop in face.loops:
                 loop[uv_layer].uv = (loop.vert.co.x, loop.vert.co.y)
-        
+
         bm.to_mesh(mesh)
         bm.free()
-        
-        return obj      
+
+        return obj
 
     def execute(self, context):
         chains = find_wall_chains()
-        
+
         if not chains:
             self.report({'WARNING'}, "No connected walls found")
             return {'CANCELLED'}
-        
+
         # Separate closed loops from open chains
         closed_chains = []
         open_chains = []
@@ -3598,9 +3598,9 @@ class home_builder_walls_OT_add_floor(bpy.types.Operator):
                 closed_chains.append((chain, points))
             else:
                 open_chains.append(chain)
-        
+
         floors_created = 0
-        
+
         if closed_chains:
             # Closed loops exist — use only those (open chains are interior walls)
             for chain, points in closed_chains:
@@ -3616,21 +3616,21 @@ class home_builder_walls_OT_add_floor(bpy.types.Operator):
                     start, end = get_wall_endpoints(wall)
                     all_points.append(Vector((start.x, start.y, 0)))
                     all_points.append(Vector((end.x, end.y, 0)))
-                
+
                 if len(all_points) < 2:
                     continue
-                
+
                 min_x = min(p.x for p in all_points)
                 max_x = max(p.x for p in all_points)
                 min_y = min(p.y for p in all_points)
                 max_y = max(p.y for p in all_points)
-                
+
                 # Ensure valid rectangle (not a line)
                 if abs(max_x - min_x) < 0.01:
                     max_x = min_x + 3.0
                 if abs(max_y - min_y) < 0.01:
                     max_y = min_y + 3.0
-                
+
                 points = [
                     Vector((min_x, min_y, 0)),
                     Vector((max_x, min_y, 0)),
@@ -3638,12 +3638,12 @@ class home_builder_walls_OT_add_floor(bpy.types.Operator):
                     Vector((min_x, max_y, 0)),
                     Vector((min_x, min_y, 0)),
                 ]
-                
+
                 name = "Floor" if floors_created == 0 else f"Floor.{floors_created:03d}"
                 floor_obj = self.create_floor_mesh(name, points)
                 floor_obj['IS_FLOOR_BP'] = True
                 floors_created += 1
-        
+
         if floors_created > 0:
             self.report({'INFO'}, f"Created {floors_created} floor(s)")
             return {'FINISHED'}
@@ -3720,9 +3720,9 @@ class home_builder_walls_OT_add_ceiling(bpy.types.Operator):
                 closed_chains.append((chain, points))
             else:
                 open_chains.append(chain)
-        
+
         ceilings_created = 0
-        
+
         if closed_chains:
             for chain, points in closed_chains:
                 wall = hb_types.GeoNodeWall(chain[0])
@@ -3741,20 +3741,20 @@ class home_builder_walls_OT_add_ceiling(bpy.types.Operator):
                     start, end = get_wall_endpoints(w)
                     all_points.append(Vector((start.x, start.y, 0)))
                     all_points.append(Vector((end.x, end.y, 0)))
-                
+
                 if len(all_points) < 2:
                     continue
-                
+
                 min_x = min(p.x for p in all_points)
                 max_x = max(p.x for p in all_points)
                 min_y = min(p.y for p in all_points)
                 max_y = max(p.y for p in all_points)
-                
+
                 if abs(max_x - min_x) < 0.01:
                     max_x = min_x + 3.0
                 if abs(max_y - min_y) < 0.01:
                     max_y = min_y + 3.0
-                
+
                 points = [
                     Vector((min_x, min_y, 0)),
                     Vector((max_x, min_y, 0)),
@@ -3823,7 +3823,7 @@ class home_builder_walls_OT_add_room_lights(bpy.types.Operator):
     )  # type: ignore
 
     ceiling_offset = bpy.props.FloatProperty(
-        name="Ceiling Offset", 
+        name="Ceiling Offset",
         description="Distance below ceiling to place lights",
         default=0.0254,  # 1 inch
         min=0.0,
@@ -3834,12 +3834,12 @@ class home_builder_walls_OT_add_room_lights(bpy.types.Operator):
     def calculate_light_grid(self,boundary_points, min_spacing=1.2, edge_offset=0.6):
         """
         Calculate optimal light positions for a room.
-        
+
         Args:
             boundary_points: List of 2D vectors defining room boundary
             min_spacing: Minimum spacing between lights in meters
             edge_offset: Distance from walls in meters
-        
+
         Returns:
             List of 2D Vector positions for lights
         """
@@ -3848,47 +3848,47 @@ class home_builder_walls_OT_add_room_lights(bpy.types.Operator):
         ys = [p.y for p in boundary_points]
         min_x, max_x = min(xs), max(xs)
         min_y, max_y = min(ys), max(ys)
-        
+
         width = max_x - min_x
         depth = max_y - min_y
-        
+
         usable_width = width - (2 * edge_offset)
         usable_depth = depth - (2 * edge_offset)
-        
+
         # Ensure at least 1 light
         num_x = max(1, int(usable_width / min_spacing) + 1)
         num_y = max(1, int(usable_depth / min_spacing) + 1)
-        
+
         spacing_x = usable_width / max(1, num_x - 1) if num_x > 1 else 0
         spacing_y = usable_depth / max(1, num_y - 1) if num_y > 1 else 0
-        
+
         positions = []
         start_x = min_x + edge_offset
         start_y = min_y + edge_offset
-        
+
         for i in range(num_x):
             for j in range(num_y):
                 if num_x == 1:
                     x = (min_x + max_x) / 2
                 else:
                     x = start_x + i * spacing_x
-                
+
                 if num_y == 1:
                     y = (min_y + max_y) / 2
                 else:
                     y = start_y + j * spacing_y
-                
+
                 pos = Vector((x, y))
                 if point_in_polygon(pos, boundary_points):
                     positions.append(pos)
-        
+
         return positions
 
     def kelvin_to_rgb(self,temperature):
         """Convert color temperature in Kelvin to RGB values."""
         # Attempt approximation of blackbody radiation curve
         temp = temperature / 100.0
-        
+
         # Red
         if temp <= 66:
             red = 255
@@ -3896,7 +3896,7 @@ class home_builder_walls_OT_add_room_lights(bpy.types.Operator):
             red = temp - 60
             red = 329.698727446 * (red ** -0.1332047592)
             red = max(0, min(255, red))
-        
+
         # Green
         if temp <= 66:
             green = temp
@@ -3905,7 +3905,7 @@ class home_builder_walls_OT_add_room_lights(bpy.types.Operator):
             green = temp - 60
             green = 288.1221695283 * (green ** -0.0755148492)
         green = max(0, min(255, green))
-        
+
         # Blue
         if temp >= 66:
             blue = 255
@@ -3915,26 +3915,26 @@ class home_builder_walls_OT_add_room_lights(bpy.types.Operator):
             blue = temp - 10
             blue = 138.5177312231 * math.log(blue) - 305.0447927307
             blue = max(0, min(255, blue))
-        
+
         return (red / 255.0, green / 255.0, blue / 255.0)
 
 
     def create_room_lights(self,light_positions, height, light_power=200, light_temperature=3000):
         """
         Create point lights at the specified positions.
-        
+
         Args:
             light_positions: List of 2D Vector positions
             height: Z height for lights
             light_power: Power in watts
             light_temperature: Color temperature in Kelvin
-        
+
         Returns:
             List of created light objects
         """
 
         lights = []
-        
+
         # Create or get scene-specific collection for lights
         scene = bpy.context.scene
         light_collection_name = f"{scene.name} - Lights"
@@ -3946,29 +3946,29 @@ class home_builder_walls_OT_add_room_lights(bpy.types.Operator):
             # Ensure it's linked to the current scene
             if light_collection.name not in scene.collection.children:
                 scene.collection.children.link(light_collection)
-        
+
         # Get color from temperature
         color = self.kelvin_to_rgb(light_temperature)
-        
+
         for i, pos in enumerate(light_positions):
             # Create light data
             light_data = bpy.data.lights.new(name=f"Room_Light_{i:03d}", type='POINT')
             light_data.energy = light_power
             light_data.shadow_soft_size = 0.1  # Soft shadows
             light_data.color = color
-            
+
             # Create light object
             light_obj = bpy.data.objects.new(name=f"Room_Light_{i:03d}", object_data=light_data)
             light_obj.location = (pos.x, pos.y, height)
-            
+
             # Link to collection
             light_collection.objects.link(light_obj)
-            
+
             # Mark as room light
             light_obj['IS_ROOM_LIGHT'] = True
-            
+
             lights.append(light_obj)
-        
+
         return lights
 
     def invoke(self, context, event):
@@ -3977,13 +3977,13 @@ class home_builder_walls_OT_add_room_lights(bpy.types.Operator):
 
     def draw(self, context):
         layout = self.layout
-        
+
         box = layout.box()
         box.label(text="Light Placement", icon='LIGHT')
         col = box.column(align=True)
         col.prop(self, 'light_spacing')
         col.prop(self, 'edge_offset')
-        
+
         box = layout.box()
         box.label(text="Light Properties", icon='OUTLINER_OB_LIGHT')
         col = box.column(align=True)
@@ -3993,11 +3993,11 @@ class home_builder_walls_OT_add_room_lights(bpy.types.Operator):
 
     def execute(self, context):
         chains = find_wall_chains()
-        
+
         if not chains:
             self.report({'WARNING'}, "No connected walls found")
             return {'CANCELLED'}
-        
+
         # Separate closed loops from open chains
         closed_chains = []
         open_chains = []
@@ -4007,7 +4007,7 @@ class home_builder_walls_OT_add_room_lights(bpy.types.Operator):
                 closed_chains.append((chain, points))
             else:
                 open_chains.append(chain)
-        
+
         # Use closed loops if available, otherwise fall back to bounding boxes
         use_chains = []
         if closed_chains:
@@ -4037,25 +4037,25 @@ class home_builder_walls_OT_add_room_lights(bpy.types.Operator):
                     Vector((min_x, min_y, 0)),
                 ]
                 use_chains.append((chain, points))
-        
+
         total_lights = 0
-        
+
         for chain, points in use_chains:
-            
+
             # Get ceiling height from first wall in chain
             wall = hb_types.GeoNodeWall(chain[0])
             ceiling_height = wall.get_input('Height')
-            
+
             # Calculate light positions
             light_positions = self.calculate_light_grid(
-                points, 
-                min_spacing=self.light_spacing, 
+                points,
+                min_spacing=self.light_spacing,
                 edge_offset=self.edge_offset
             )
-            
+
             if not light_positions:
                 continue
-            
+
             # Create lights
             lights = self.create_room_lights(
                 light_positions,
@@ -4063,9 +4063,9 @@ class home_builder_walls_OT_add_room_lights(bpy.types.Operator):
                 light_power=self.light_power,
                 light_temperature=self.light_temperature
             )
-            
+
             total_lights += len(lights)
-        
+
         if total_lights > 0:
             self.report({'INFO'}, f"Created {total_lights} light(s)")
             return {'FINISHED'}
@@ -4306,7 +4306,7 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
     bl_label = "Setup World Lighting"
     bl_description = "Setup world environment lighting using HDRI or Sky texture"
     bl_options = {'REGISTER', 'UNDO'}
-    
+
     lighting_type = bpy.props.EnumProperty(
         name="Lighting Type",
         items=[
@@ -4315,7 +4315,7 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
         ],
         default='HDRI'
     )  # type: ignore
-    
+
     hdri_choice = bpy.props.EnumProperty(
         name="HDRI",
         items=[
@@ -4330,7 +4330,7 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
         ],
         default='studio.exr'
     )  # type: ignore
-    
+
     hdri_strength = bpy.props.FloatProperty(
         name="Strength",
         description="Brightness of the environment",
@@ -4338,7 +4338,7 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
         min=0.0,
         max=10.0
     )  # type: ignore
-    
+
     hdri_rotation = bpy.props.FloatProperty(
         name="Rotation",
         description="Rotate the environment horizontally",
@@ -4347,7 +4347,7 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
         max=360.0,
         subtype='ANGLE'
     )  # type: ignore
-    
+
     # Sky texture options
     sky_type = bpy.props.EnumProperty(
         name="Sky Type",
@@ -4359,7 +4359,7 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
         ],
         default='MULTIPLE_SCATTERING'
     )  # type: ignore
-    
+
     sun_elevation = bpy.props.FloatProperty(
         name="Sun Elevation",
         description="Angle of the sun above the horizon",
@@ -4368,7 +4368,7 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
         max=1.5708,  # 90 degrees
         subtype='ANGLE'
     )  # type: ignore
-    
+
     sun_rotation = bpy.props.FloatProperty(
         name="Sun Rotation",
         description="Horizontal rotation of the sun",
@@ -4377,7 +4377,7 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
         max=6.2832,  # 360 degrees
         subtype='ANGLE'
     )  # type: ignore
-    
+
     sky_strength = bpy.props.FloatProperty(
         name="Strength",
         description="Brightness of the sky",
@@ -4399,32 +4399,32 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
         if not world:
             world = bpy.data.worlds.new("World")
             context.scene.world = world
-        
+
         world.use_nodes = True
         nodes = world.node_tree.nodes
         links = world.node_tree.links
-        
+
         # Clear existing nodes
         nodes.clear()
-        
+
         # Create nodes
         output = nodes.new(type='ShaderNodeOutputWorld')
         output.location = (400, 0)
-        
+
         background = nodes.new(type='ShaderNodeBackground')
         background.location = (200, 0)
         background.inputs['Strength'].default_value = self.hdri_strength
-        
+
         env_tex = nodes.new(type='ShaderNodeTexEnvironment')
         env_tex.location = (-200, 0)
-        
+
         tex_coord = nodes.new(type='ShaderNodeTexCoord')
         tex_coord.location = (-600, 0)
-        
+
         mapping = nodes.new(type='ShaderNodeMapping')
         mapping.location = (-400, 0)
         mapping.inputs['Rotation'].default_value[2] = self.hdri_rotation
-        
+
         # Load HDRI image
         hdri_path = os.path.join(self.get_hdri_path(), self.hdri_choice)
         if os.path.exists(hdri_path):
@@ -4433,13 +4433,13 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
         else:
             self.report({'WARNING'}, f"HDRI file not found: {hdri_path}")
             return False
-        
+
         # Connect nodes
         links.new(tex_coord.outputs['Generated'], mapping.inputs['Vector'])
         links.new(mapping.outputs['Vector'], env_tex.inputs['Vector'])
         links.new(env_tex.outputs['Color'], background.inputs['Color'])
         links.new(background.outputs['Background'], output.inputs['Surface'])
-        
+
         return True
 
     def setup_sky(self, context):
@@ -4448,32 +4448,32 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
         if not world:
             world = bpy.data.worlds.new("World")
             context.scene.world = world
-        
+
         world.use_nodes = True
         nodes = world.node_tree.nodes
         links = world.node_tree.links
-        
+
         # Clear existing nodes
         nodes.clear()
-        
+
         # Create nodes
         output = nodes.new(type='ShaderNodeOutputWorld')
         output.location = (400, 0)
-        
+
         background = nodes.new(type='ShaderNodeBackground')
         background.location = (200, 0)
         background.inputs['Strength'].default_value = self.sky_strength
-        
+
         sky_tex = nodes.new(type='ShaderNodeTexSky')
         sky_tex.location = (-100, 0)
         sky_tex.sky_type = self.sky_type
         sky_tex.sun_elevation = self.sun_elevation
         sky_tex.sun_rotation = self.sun_rotation
-        
+
         # Connect nodes
         links.new(sky_tex.outputs['Color'], background.inputs['Color'])
         links.new(background.outputs['Background'], output.inputs['Surface'])
-        
+
         return True
 
     def invoke(self, context, event):
@@ -4482,11 +4482,11 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
 
     def draw(self, context):
         layout = self.layout
-        
+
         layout.prop(self, "lighting_type", expand=True)
-        
+
         layout.separator()
-        
+
         if self.lighting_type == 'HDRI':
             box = layout.box()
             box.label(text="HDRI Settings", icon='WORLD')
@@ -4514,7 +4514,7 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
                 self.report({'INFO'}, f"Setup {self.sky_type} sky texture")
             else:
                 return {'CANCELLED'}
-        
+
         return {'FINISHED'}
 
 
@@ -4530,7 +4530,7 @@ class home_builder_walls_OT_apply_wall_material(bpy.types.Operator):
         if not mat:
             self.report({'WARNING'}, "No wall material selected")
             return {'CANCELLED'}
-        
+
         material_inputs = [
             'Top Surface', 'Bottom Surface',
             'Inside Face', 'Outside Face',
@@ -4543,7 +4543,7 @@ class home_builder_walls_OT_apply_wall_material(bpy.types.Operator):
                 for input_name in material_inputs:
                     wall.set_input(input_name, mat)
                 wall_count += 1
-        
+
         self.report({'INFO'}, f"Applied material to {wall_count} wall(s)")
         return {'FINISHED'}
 
@@ -5592,7 +5592,7 @@ class home_builder_walls_OT_draw_wall_cutter(bpy.types.Operator, hb_placement.Pl
 
     def add_boolean_to_wall(self, wall_obj, cutter_obj):
         """Add a boolean DIFFERENCE modifier to the wall's mesh children."""
-        wall = hb_types.GeoNodeWall(wall_obj)
+        hb_types.GeoNodeWall(wall_obj)
         mod_name = f"Cut - {cutter_obj.name}"
         mod = wall_obj.modifiers.new(name=mod_name, type='BOOLEAN')
         mod.operation = 'DIFFERENCE'

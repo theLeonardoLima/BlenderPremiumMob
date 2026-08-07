@@ -25,38 +25,38 @@ class HOME_BUILDER_MT_main_menu(bpy.types.Menu):
 
     def draw(self, context):
         layout = self.layout
-        
+
         # Room operations
         layout.operator("blendertomob.create_room", text="New Room", icon='ADD')
         layout.menu("HOME_BUILDER_MT_room_list", text="Switch Room", icon='LOOP_BACK')
-        
+
         layout.separator()
-        
+
         # Layout views submenu
         layout.menu("HOME_BUILDER_MT_layout_views_create", text="Create View", icon='VIEW_ORTHO')
-        
+
         layout.separator()
-        
+
         # Camera
         layout.operator("blendertomob.create_camera", text="Create Camera", icon='CAMERA_DATA')
-        
+
         layout.separator()
-        
+
         # Units
         layout.menu("HOME_BUILDER_MT_change_units", text="Change Units", icon='DRIVER_DISTANCE')
-        
+
         layout.separator()
-        
+
         # Settings
         prefs = context.preferences.addons[__package__.rsplit('.', 1)[0]].preferences
         layout.prop(prefs, "use_viewport_hud")
-        layout.operator("blendertomob.set_recommended_settings", 
+        layout.operator("blendertomob.set_recommended_settings",
                        text="Recommended Settings", icon='PREFERENCES')
         layout.operator("blendertomob.rendering_settings",
                        text="Rendering Settings", icon='RENDER_STILL')
-        
+
         layout.separator()
-        
+
         # Export
         layout.operator("blendertomob.prepare_for_export", icon='EXPORT')
 

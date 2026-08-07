@@ -1,7 +1,7 @@
 import bpy
 import os
 import math
-from typing import Optional, Any
+from typing import Optional
 from . import units
 from . import hb_utils
 
@@ -82,15 +82,15 @@ class GeoNodeObject:
             file_path = os.path.join(geometry_nodes_path, geo_node_name + '.blend')
             with bpy.data.libraries.load(file_path) as (data_from, data_to):
                 data_to.node_groups = [geo_node_name]
-        
+
         geo_node_group = bpy.data.node_groups[geo_node_name]
         mesh = bpy.data.meshes.new(name)
         self.obj = bpy.data.objects.new(name, mesh)
-        
+
         # Add geometry nodes modifier
         mod = self.obj.modifiers.new(name=geo_node_name, type='NODES')
         mod.node_group = geo_node_group
-        
+
         # Add custom properties to the object
         self.obj.blendertomob.mod_name = mod.name
         # Link object to scene collection
@@ -98,23 +98,23 @@ class GeoNodeObject:
 
     def create_curve(self,geo_node_name, name):
         hb_props = bpy.context.window_manager.home_builder
-        add_on_prefs = hb_props.get_user_preferences(bpy.context)           
+        add_on_prefs = hb_props.get_user_preferences(bpy.context)
         """Load a geometry node group and create an object with it"""
         if geo_node_name not in bpy.data.node_groups:
             file_path = os.path.join(geometry_nodes_path, geo_node_name + '.blend')
             with bpy.data.libraries.load(file_path) as (data_from, data_to):
                 data_to.node_groups = [geo_node_name]
-        
+
         geo_node_group = bpy.data.node_groups[geo_node_name]
         curve = bpy.data.curves.new('Dimension','CURVE')
         spline = curve.splines.new('POLY')
         spline.points.add(1)
         self.obj = bpy.data.objects.new('Dimension',curve)
-        
+
         # Add geometry nodes modifier
         mod = self.obj.modifiers.new(name=geo_node_name, type='NODES')
         mod.node_group = geo_node_group
-        
+
         # Add custom properties to the object
         self.obj.blendertomob.mod_name = mod.name
         self.obj.color = add_on_prefs.annotation_color
@@ -133,7 +133,7 @@ class GeoNodeObject:
 
     def draw_prop(self, layout, prop_name, text=None):
         """Draw a custom property in the UI if it exists on the object.
-        
+
         Args:
             layout: The Blender UI layout to draw into
             prop_name: Name of the custom property
@@ -145,7 +145,7 @@ class GeoNodeObject:
 
     def set_property(self, prop_name, value):
         """Set a property value.
-        
+
         Args:
             prop_name: Name of the property
             value: Value to set
@@ -154,11 +154,11 @@ class GeoNodeObject:
 
     def get_property(self, prop_name, default=None):
         """Get a property value.
-        
+
         Args:
             prop_name: Name of the property
             default: Default value if property doesn't exist
-            
+
         Returns:
             The property value or default
         """
@@ -170,28 +170,28 @@ class GeoNodeObject:
 
     def var_input(self, input_name, name):
         """Safely set geometry node input value
-        
+
         Args:
             input_name: Name of the input parameter
             Name: Name of the variable
-            
+
         Raises:
             ValueError: If object doesn't have geometry node modifier or input not found
         """
         if not hasattr(self.obj, 'home_builder') or not self.obj.blendertomob.mod_name:
             raise ValueError("Object does not have geometry node modifier")
-        
+
         try:
             mod = self.obj.modifiers[self.obj.blendertomob.mod_name]
         except KeyError:
             raise ValueError(f"Modifier '{self.obj.blendertomob.mod_name}' not found on object")
-        
+
         if not mod.node_group:
             raise ValueError("Geometry node modifier has no node group")
-        
+
         if input_name not in mod.node_group.interface.items_tree:
             raise ValueError(f"Input '{input_name}' not found in geometry node")
-        
+
         node_input = mod.node_group.interface.items_tree[input_name]
         data_path = _gn_input_data_path(mod, node_input.identifier)
         return Variable(self.obj.id_data,data_path,name)
@@ -242,30 +242,30 @@ class GeoNodeObject:
 
     def driver_input(self, input_name, expression, variables=[]):
         """Safely add driver to input
-        
+
         Args:
             obj: Blender object with geometry node modifier
             input_name: Name of the input parameter
             value: Value to set
-            
+
         Raises:
             ValueError: If object doesn't have geometry node modifier or input not found
         """
         if not hasattr(self.obj, 'home_builder') or not self.obj.blendertomob.mod_name:
             raise ValueError("Object does not have geometry node modifier")
-        
+
         try:
             mod = self.obj.modifiers[self.obj.blendertomob.mod_name]
         except KeyError:
             raise ValueError(f"Modifier '{self.obj.blendertomob.mod_name}' not found on object")
-        
+
         if not mod.node_group:
             raise ValueError("Geometry node modifier has no node group")
-        
+
         if input_name not in mod.node_group.interface.items_tree:
             print("MOD",mod)
             raise ValueError(f"Input '{input_name}' not found in geometry node")
-        
+
         node_input = mod.node_group.interface.items_tree[input_name]
         driver = self.obj.driver_add(_gn_input_data_path(mod, node_input.identifier))
         hb_utils.add_driver_variables(driver,variables)
@@ -273,12 +273,12 @@ class GeoNodeObject:
 
     def driver_prop(self, prop_name, expression, variables=[]):
         """Add driver to Blender Property
-        
+
         Args:
             prop_name: Name of the property
             expression: Expression to set
             variables: Variables to use in the expression
-            
+
         """
 
         driver = self.obj.driver_add(f'["{prop_name}"]')
@@ -287,7 +287,7 @@ class GeoNodeObject:
 
     def draw_input(self, layout, input_name, text, icon=''):
         """Safely draw a geometry node input value
-        
+
         Args:
             layout: Layout to draw the input value
             name: Name of the input parameter
@@ -295,24 +295,24 @@ class GeoNodeObject:
             icon: Icon to display
             input_name: Name of the input parameter
             value: Value to set
-            
+
         Raises:
             ValueError: If object doesn't have geometry node modifier or input not found
         """
         if not hasattr(self.obj, 'home_builder') or not self.obj.blendertomob.mod_name:
             raise ValueError("Object does not have geometry node modifier")
-        
+
         try:
             mod = self.obj.modifiers[self.obj.blendertomob.mod_name]
         except KeyError:
             raise ValueError(f"Modifier '{self.obj.blendertomob.mod_name}' not found on object")
-        
+
         if not mod.node_group:
             raise ValueError("Geometry node modifier has no node group")
-        
+
         if input_name not in mod.node_group.interface.items_tree:
             raise ValueError(f"Input '{input_name}' not found in geometry node")
-        
+
         node_input = mod.node_group.interface.items_tree[input_name]
         ui_ref = hb_utils.gn_input_ui_ref(mod, node_input.identifier)
         if ui_ref is None:
@@ -324,23 +324,23 @@ class GeoNodeObject:
 
     def set_input(self, input_name, value):
         """Safely set geometry node input value
-        
+
         Args:
             obj: Blender object with geometry node modifier
             input_name: Name of the input parameter
             value: Value to set
-            
+
         Raises:
             ValueError: If object doesn't have geometry node modifier or input not found
         """
         if not hasattr(self.obj, 'home_builder') or not self.obj.blendertomob.mod_name:
             raise ValueError("Object does not have geometry node modifier")
-        
+
         try:
             mod = self.obj.modifiers[self.obj.blendertomob.mod_name]
         except KeyError:
             raise ValueError(f"Modifier '{self.obj.blendertomob.mod_name}' not found on object")
-        
+
         if not mod.node_group:
             raise ValueError("Geometry node modifier has no node group")
 
@@ -361,23 +361,23 @@ class GeoNodeObject:
 
     def get_input(self,input_name):
         """Safely get geometry node input value
-        
+
         Args:
             obj: Blender object with geometry node modifier
             input_name: Name of the input parameter
             value: Value to set
-            
+
         Raises:
             ValueError: If object doesn't have geometry node modifier or input not found
         """
         if not hasattr(self.obj, 'home_builder') or not self.obj.blendertomob.mod_name:
             raise ValueError("Object does not have geometry node modifier")
-        
+
         try:
             mod = self.obj.modifiers[self.obj.blendertomob.mod_name]
         except KeyError:
             raise ValueError(f"Modifier '{self.obj.blendertomob.mod_name}' not found on object")
-        
+
         if not mod.node_group:
             raise ValueError("Geometry node modifier has no node group")
 
@@ -391,20 +391,20 @@ class GeoNodeObject:
 
     def has_input(self, input_name):
         """Check if a geometry node input exists.
-        
+
         Args:
             input_name: Name of the input parameter to check
-            
+
         Returns:
             True if the input exists, False otherwise
         """
         if not hasattr(self.obj, 'home_builder') or not self.obj.blendertomob.mod_name:
             return False
-        
+
         mod = self.obj.modifiers.get(self.obj.blendertomob.mod_name)
         if not mod or not mod.node_group:
             return False
-        
+
         return input_name in mod.node_group.interface.items_tree
 
     def has_modifier(self):
@@ -444,7 +444,7 @@ class GeoNodeWall(GeoNodeObject):
     def create(self,name):
         super().create('GeoNodeWall',name)
         hb_props = bpy.context.window_manager.home_builder
-        add_on_prefs = hb_props.get_user_preferences(bpy.context)        
+        add_on_prefs = hb_props.get_user_preferences(bpy.context)
         self.obj['IS_WALL_BP'] = True
         self.obj['MENU_ID'] = 'HOME_BUILDER_MT_wall_commands'
         self.obj.color = add_on_prefs.wall_color
@@ -456,9 +456,9 @@ class GeoNodeWall(GeoNodeObject):
         self.obj_x.empty_display_size = .01
         self.obj_x.location = (0,0,0)
         self.obj_x.parent = self.obj
-        self.obj_x["obj_x"] = True        
-        self.obj_x.lock_location = (False,True,True)       
-        self.obj_x.lock_rotation = (True,True,True) 
+        self.obj_x["obj_x"] = True
+        self.obj_x.lock_location = (False,True,True)
+        self.obj_x.lock_rotation = (True,True,True)
         bpy.context.scene.collection.objects.link(self.obj_x)
 
         driver = self.obj_x.driver_add('location',0)
@@ -486,7 +486,7 @@ class GeoNodeWall(GeoNodeObject):
     def get_connected_wall(self, direction='left', include_loop_seam=False):
         """
         Get the wall connected to this wall on the left or right side.
-        
+
         Args:
             direction: 'left' for wall at start point, 'right' for wall at end point
             include_loop_seam: also find the neighbor across a closed
@@ -497,7 +497,7 @@ class GeoNodeWall(GeoNodeObject):
                 walls genuinely meet. Corner-aware placement wants the true
                 geometric neighbor; chain WALKERS should leave this off or
                 a closed loop never terminates.
-            
+
         Returns:
             GeoNodeWall or None
         """
@@ -563,7 +563,7 @@ class GeoNodeWall(GeoNodeObject):
 class GeoNodeCage(GeoNodeObject):
 
     def create(self,name):
-        super().create('GeoNodeCage',name) 
+        super().create('GeoNodeCage',name)
         self.obj['IS_GEONODE_CAGE'] = True
         self.obj.display.show_shadows = False
         self.obj.display_type = 'WIRE'
@@ -589,7 +589,7 @@ class GeoNodeRectangle(GeoNodeObject):
 class GeoNodeCutpart(GeoNodeObject):
 
     def create(self,name):
-        super().create('GeoNodeCutpart',name)  
+        super().create('GeoNodeCutpart',name)
 
     def add_part_modifier(self,token_type,token_name):
         cpm = CabinetPartModifier(self.obj)
@@ -598,32 +598,32 @@ class GeoNodeCutpart(GeoNodeObject):
         return cpm
 
 
-class GeoNode5PieceDoor(GeoNodeObject):  
+class GeoNode5PieceDoor(GeoNodeObject):
 
     def create(self,name):
-        super().create('GeoNode5PieceDoor',name)       
+        super().create('GeoNode5PieceDoor',name)
 
 
-class GeoNodeHardware(GeoNodeObject):  
-
-    def create(self,name):
-        super().create('GeoNodeHardware',name)  
-
-
-class GeoNodeDrawerBox(GeoNodeObject):  
+class GeoNodeHardware(GeoNodeObject):
 
     def create(self,name):
-        super().create('GeoNodeDrawerBox',name)  
+        super().create('GeoNodeHardware',name)
+
+
+class GeoNodeDrawerBox(GeoNodeObject):
+
+    def create(self,name):
+        super().create('GeoNodeDrawerBox',name)
         self.obj['IS_DRAWER_BOX'] = True
         self.set_input("Material Thickness",units.inch(0.5))
         self.set_input("Bottom Thickness",units.inch(0.25))
         self.set_input("Drawer Bottom Z Location",units.inch(0.5))
 
 
-class GeoNodeDoorSwing(GeoNodeObject):  
+class GeoNodeDoorSwing(GeoNodeObject):
 
     def create(self,name):
-        super().create('GeoNodeDoorSwing',name)  
+        super().create('GeoNodeDoorSwing',name)
         self.obj['IS_2D_ANNOTATION'] = True
         self.obj.color = (0,0,0,1)
         self.set_input("Door Thickness",units.inch(1.5))
@@ -692,7 +692,7 @@ class GeoNodeDimension(GeoNodeObject):
     @staticmethod
     def get_unit_type():
         """Get the Unit Type value based on Blender's unit settings.
-        
+
         Returns:
             int: 0=inches, 1=feet, 2=millimeters, 3=centimeters, 4=meters
         """
@@ -720,7 +720,7 @@ class GeoNodeDimension(GeoNodeObject):
         ensure_dimension_text_offset_basis(
             bpy.data.node_groups.get('GeoNodeDimension'))
         self.obj['IS_2D_ANNOTATION'] = True
-        self.obj['IS_DIMENSION'] = True  
+        self.obj['IS_DIMENSION'] = True
         self.obj['MENU_ID'] = 'HOME_BUILDER_MT_dimension_commands'  # right-click commands (ui/menus.py)
         self.set_input("Tick Length",props.annotation_dimension_tick_length)
         self.set_input("Tick Thickness",props.annotation_dimension_tick_thickness)
@@ -731,24 +731,24 @@ class GeoNodeDimension(GeoNodeObject):
 
     def set_decimal(self, fine=False):
         """Calculate and set appropriate decimal precision for the dimension.
-        
+
         Handles floating point precision issues by:
         1. Converting to display units based on unit type
         2. Snapping to the actual grid increment to clean floating point noise
         3. Stripping trailing zeros to show only meaningful decimals
-        
+
         Args:
             fine: If True, use higher precision for fine snap increments
                   (e.g. 1/16" = 4 decimal places for inches)
         """
         p1 = self.obj.data.splines[0].points[0].co
-        p2 = self.obj.data.splines[0].points[1].co 
+        p2 = self.obj.data.splines[0].points[1].co
 
-        dist = math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2 + (p1[2] - p2[2]) ** 2)   
+        dist = math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2 + (p1[2] - p2[2]) ** 2)
         dist = math.fabs(dist)
-        
+
         unit_type = self.get_unit_type()
-        
+
         if unit_type == 0:  # inches
             display_value = units.meter_to_inch(dist)
             # Snap to actual increment to remove floating point noise
@@ -780,17 +780,17 @@ class GeoNodeDimension(GeoNodeObject):
             snap_inc = 1/16 if fine else 1.0
             display_value = round(display_value / snap_inc) * snap_inc
             precision = 4 if fine else 2
-        
+
         rounded = round(display_value, precision)
-        
+
         # Check if it's effectively a whole number
         if abs(rounded - round(rounded)) < 0.001:
             self.set_input("Decimals", 0)
             return
-        
+
         # Convert to string and strip trailing zeros
         text = f"{rounded:.{precision}f}".rstrip('0').rstrip('.')
-        
+
         if '.' not in text:
             self.set_input("Decimals", 0)
         else:
@@ -857,26 +857,26 @@ class CabinetPartModifier(GeoNodeObject):
                 for ng in data_from.node_groups:
                     if ng == token_type:
                         data_to.node_groups = [ng]
-                        break    
-            
+                        break
+
             for ng in data_to.node_groups:
-                return ng    
+                return ng
 
     def add_node(self,token_type,token_name):
         node_group = self.get_node(token_type)
         self.mod = self.obj.modifiers.new(name=token_name,type='NODES')
         self.mod.node_group = node_group
         # self.node_group = node_group
-        self.mod.show_expanded = False   
+        self.mod.show_expanded = False
 
     def driver_input(self, input_name, expression, variables=[]):
         """Safely add driver to input
-        
+
         Args:
             input_name: Name of the input parameter
             expression: Expression to set
             variables: Variables to use in the expression
-            
+
         Raises:
             ValueError: If object doesn't have geometry node modifier or input not found
         """
@@ -885,10 +885,10 @@ class CabinetPartModifier(GeoNodeObject):
 
         if not self.mod.node_group:
             raise ValueError("Geometry node modifier has no node group")
-        
+
         if input_name not in self.mod.node_group.interface.items_tree:
             raise ValueError(f"Input '{input_name}' not found in geometry node")
-        
+
         node_input = self.mod.node_group.interface.items_tree[input_name]
         driver = self.obj.driver_add(_gn_input_data_path(self.mod, node_input.identifier))
         hb_utils.add_driver_variables(driver,variables)
@@ -896,7 +896,7 @@ class CabinetPartModifier(GeoNodeObject):
 
     def driver_hide(self, expression, variables=[]):
         """Drive modifier visibility (show_viewport/show_render).
-        
+
         Note: show_viewport=True means visible, so the expression should be
         inverted compared to object hide. Use show_viewport = NOT(hide_expression).
         """
@@ -913,17 +913,17 @@ class CabinetPartModifier(GeoNodeObject):
 
     def set_input(self, input_name, value):
         """Safely set geometry node input value
-        
+
         Args:
             input_name: Name of the input parameter
             value: Value to set
-            
+
         Raises:
             ValueError: If object doesn't have geometry node modifier or input not found
         """
         if not self.mod:
             raise ValueError("Cabinet Part Modifier not found")
-        
+
         if not self.mod.node_group:
             raise ValueError("Geometry node modifier has no node group")
 
@@ -940,16 +940,16 @@ class CabinetPartModifier(GeoNodeObject):
 
     def get_input(self,input_name):
         """Safely get geometry node input value
-        
+
         Args:
             input_name: Name of the input parameter
-            
+
         Raises:
             ValueError: If object doesn't have geometry node modifier or input not found
         """
         if not self.mod:
             raise ValueError("Cabinet Part Modifier not found")
-        
+
         if not self.mod.node_group:
             raise ValueError("Geometry node modifier has no node group")
 

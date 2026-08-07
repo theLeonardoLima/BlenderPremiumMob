@@ -1,6 +1,4 @@
 import bpy  # type: ignore
-import math
-from mathutils import Vector  # type: ignore
 from .mesh_gen import generate_door_mesh
 
 
@@ -32,23 +30,23 @@ def setup_limit_constraint(empty_obj):
     for con in empty_obj.constraints:
         if con.type == 'LIMIT_LOCATION':
             empty_obj.constraints.remove(con)
-            
+
     con = empty_obj.constraints.new(type='LIMIT_LOCATION')
     con.use_min_x = True
     con.min_x = 0.0
     con.use_max_x = True
     con.max_x = 0.0
-    
+
     con.use_min_y = True
     con.min_y = 0.0
     con.use_max_y = True
     con.max_y = 0.2
-    
+
     con.use_min_z = True
     con.min_z = 0.0
     con.use_max_z = True
     con.max_z = 0.0
-    
+
     con.owner_space = 'LOCAL'
 
 
@@ -56,21 +54,21 @@ def add_rotation_driver(door_obj, controller_obj, axis, factor):
     """Adiciona um Driver de rotação na folha da porta controlado pelo eixo Y local do Empty."""
     # Remove driver de rotação anterior se houver
     door_obj.driver_remove("rotation_euler", axis)
-    
+
     driver_target = door_obj.driver_add("rotation_euler", axis)
     driver = driver_target.driver
     driver.type = 'SCRIPTED'
-    
+
     var = driver.variables.new()
     var.name = "y"
     var.type = 'TRANSFORMS'
-    
+
     target = var.targets[0]
     target.id = controller_obj
     target.data_path = 'location.y'
     target.transform_type = 'LOC_Y'
     target.transform_space = 'LOCAL'
-    
+
     # y vai de 0.0 a 0.2. Queremos que a rotação vá de 0 a factor * (pi / 2)
     # Relação: rotação = y * (factor * 1.570796 / 0.2) = y * factor * 7.85398
     driver.expression = f"y * ({factor} * 7.85398)"
@@ -79,21 +77,21 @@ def add_rotation_driver(door_obj, controller_obj, axis, factor):
 def add_ui_sync_driver(cabinet_obj, controller_obj):
     """Adiciona driver na propriedade cabinet_obj.btm_cabinet.door_open baseada no movimento do Empty."""
     cabinet_obj.driver_remove("btm_cabinet.door_open")
-    
+
     driver_target = cabinet_obj.driver_add("btm_cabinet.door_open")
     driver = driver_target.driver
     driver.type = 'SCRIPTED'
-    
+
     var = driver.variables.new()
     var.name = "y"
     var.type = 'TRANSFORMS'
-    
+
     target = var.targets[0]
     target.id = controller_obj
     target.data_path = 'location.y'
     target.transform_type = 'LOC_Y'
     target.transform_space = 'LOCAL'
-    
+
     # 0.2m no Empty = 1.0 (100% aberto) no slider
     driver.expression = "y / 0.2"
 
@@ -102,13 +100,13 @@ def update_door_geometry_and_controller(cabinet_obj):
     """Cria/atualiza as portas e o Empty controlador conforme as propriedades do armário."""
     cabinet = cabinet_obj.btm_cabinet
     swing = cabinet.door_swing
-    
+
     # Nomes dos filhos esperados
     door_l_suffix = "_Door_L"
     door_r_suffix = "_Door_R"
     door_flip_suffix = "_Door_Flip"
     controller_suffix = "_Controller"
-    
+
     # Se 'NONE', exclui filhos geométricos de portas e controladores
     if swing == 'NONE':
         delete_object(get_child_by_name(cabinet_obj, door_l_suffix))
@@ -127,7 +125,7 @@ def update_door_geometry_and_controller(cabinet_obj):
         controller_obj.empty_display_type = 'CUBE'
         cabinet_obj.users_collection[0].objects.link(controller_obj)
         controller_obj.parent = cabinet_obj
-        
+
     setup_limit_constraint(controller_obj)
 
     # Reposiciona o Empty no local fechado (canto frontal direito/puxador padrão)
@@ -141,7 +139,7 @@ def update_door_geometry_and_controller(cabinet_obj):
     # Determina espessura e folga
     t = cabinet.thickness
     margin = 0.002
-    
+
     # Deleta portas antigas incompatíveis com o swing atual
     if swing != 'DOUBLE':
         delete_object(get_child_by_name(cabinet_obj, door_l_suffix))
@@ -160,21 +158,21 @@ def update_door_geometry_and_controller(cabinet_obj):
         door_obj = get_child_by_name(cabinet_obj, door_l_suffix)
         w_door = (cabinet.width / 2.0 - margin * 1.5) if swing == 'DOUBLE' else (cabinet.width - margin * 2.0)
         h_door = cabinet.height - margin * 2.0
-        
+
         if not door_obj:
             mesh = bpy.data.meshes.new(f"{cabinet_obj.name}{door_l_suffix}_Mesh")
             door_obj = bpy.data.objects.new(f"{cabinet_obj.name}{door_l_suffix}", mesh)
             cabinet_obj.users_collection[0].objects.link(door_obj)
             door_obj.parent = cabinet_obj
-            
+
         generate_door_mesh(door_obj, w_door, h_door, t)
-        
+
         # Pivô no lado esquerdo da abertura
         door_obj.location.x = -cabinet.width / 2.0 + margin
         door_obj.location.y = t  # alinha na face frontal
         door_obj.location.z = margin
         door_obj.rotation_euler.zero()
-        
+
         # Adiciona o driver de rotação no eixo Z (positivo para abrir para fora/esquerda)
         add_rotation_driver(door_obj, controller_obj, 2, 1.0)
 
@@ -183,22 +181,22 @@ def update_door_geometry_and_controller(cabinet_obj):
         door_obj = get_child_by_name(cabinet_obj, door_r_suffix)
         w_door = (cabinet.width / 2.0 - margin * 1.5) if swing == 'DOUBLE' else (cabinet.width - margin * 2.0)
         h_door = cabinet.height - margin * 2.0
-        
+
         if not door_obj:
             mesh = bpy.data.meshes.new(f"{cabinet_obj.name}{door_r_suffix}_Mesh")
             door_obj = bpy.data.objects.new(f"{cabinet_obj.name}{door_r_suffix}", mesh)
             cabinet_obj.users_collection[0].objects.link(door_obj)
             door_obj.parent = cabinet_obj
-            
+
         # Para rotacionar do lado direito, geramos a folha com largura negativa
         generate_door_mesh(door_obj, -w_door, h_door, t)
-        
+
         # Pivô no lado direito da abertura
         door_obj.location.x = cabinet.width / 2.0 - margin
         door_obj.location.y = t
         door_obj.location.z = margin
         door_obj.rotation_euler.zero()
-        
+
         # Adiciona o driver de rotação no eixo Z (negativo para abrir para fora/direita)
         add_rotation_driver(door_obj, controller_obj, 2, -1.0)
 
@@ -207,30 +205,30 @@ def update_door_geometry_and_controller(cabinet_obj):
         door_obj = get_child_by_name(cabinet_obj, door_flip_suffix)
         w_door = cabinet.width - margin * 2.0
         h_door = cabinet.height - margin * 2.0
-        
+
         if not door_obj:
             mesh = bpy.data.meshes.new(f"{cabinet_obj.name}{door_flip_suffix}_Mesh")
             door_obj = bpy.data.objects.new(f"{cabinet_obj.name}{door_flip_suffix}", mesh)
             cabinet_obj.users_collection[0].objects.link(door_obj)
             door_obj.parent = cabinet_obj
-            
+
         # Basculante rotaciona no eixo X.
         # Geramos a malha de modo que a dobradiça fique no topo (Z=0 local e abre subindo)
         # É mais fácil gerar w_door por h_door e reposicionar
         generate_door_mesh(door_obj, w_door, -h_door, t)
-        
+
         # Pivô na parte superior (topo)
         door_obj.location.x = -cabinet.width / 2.0 + margin
         door_obj.location.y = t
         door_obj.location.z = cabinet.height - margin
         door_obj.rotation_euler.zero()
-        
+
         # Rotação em X (negativa abre para cima/fora)
         add_rotation_driver(door_obj, controller_obj, 0, -1.0)
 
     # Adiciona driver de sincronização de UI no cabinet_obj.btm_cabinet.door_open
     add_ui_sync_driver(cabinet_obj, controller_obj)
-    
+
     # Atualiza a posição do controlador baseando-se no valor inicial da propriedade
     controller_obj.location.y = 0.03 + cabinet.door_open * 0.2
 

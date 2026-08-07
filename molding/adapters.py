@@ -6,7 +6,6 @@ the engine itself stays library-agnostic. Both HB5 libraries are
 covered: face frame and frameless.
 """
 
-import bpy
 import mathutils
 
 from . import engine

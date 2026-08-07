@@ -1,11 +1,6 @@
 import bpy
-import os
 from bpy.types import (
-        Operator,
-        Panel,
         PropertyGroup,
-        UIList,
-        AddonPreferences,
         )
 from bpy.props import (
         BoolProperty,
@@ -20,7 +15,6 @@ from bpy.props import (
 from . import hb_utils, hb_types
 from .units import inch
 from .hb_types import Variable
-from . import hb_project
 
 def update_main_tab(self,context):
     # TODO: Load the correct library based on the main_tab
@@ -87,9 +81,9 @@ def update_ceiling_height(self, context):
     # Check if frameless props exist on the current scene
     if not hasattr(context.scene, 'hb_frameless'):
         return
-    
+
     frameless_props = context.scene.hb_frameless
-    
+
     # Recalculate tall and upper cabinet heights based on new ceiling height
     frameless_props.tall_cabinet_height = self.ceiling_height - frameless_props.default_top_cabinet_clearance
     frameless_props.upper_cabinet_height = self.ceiling_height - frameless_props.default_top_cabinet_clearance - frameless_props.default_wall_cabinet_location
@@ -243,7 +237,7 @@ class Calculator_Prompt(PropertyGroup):
 
     def get_var(self,calculator_name,name):
         prompt_path = 'blendertomob.calculators["' + calculator_name + '"].prompts["' + self.name + '"]'
-        return Variable(self.id_data, prompt_path + '.distance_value',name)    
+        return Variable(self.id_data, prompt_path + '.distance_value',name)
 
     def get_value(self):
         return self.distance_value
@@ -273,7 +267,7 @@ class Calculator(PropertyGroup):
         props = row.operator('pc_prompts.edit_calculator',text="",icon='OUTLINER_DATA_GP_LAYER')
         props.calculator_name = self.name
         props.obj_name = self.id_data.name
-        
+
         box.prop(self.distance_obj.home_builder,'calculator_distance')
         box = col.box()
         for prompt in self.prompts:
@@ -283,7 +277,7 @@ class Calculator(PropertyGroup):
         row.scale_y = 1.3
         props = row.operator('pc_prompts.run_calculator')
         props.calculator_name = self.name
-        props.obj_name = self.id_data.name        
+        props.obj_name = self.id_data.name
 
     def add_calculator_prompt(self,name):
         prompt = self.prompts.add()
@@ -323,16 +317,16 @@ class Calculator(PropertyGroup):
                 else:
                     prompt.distance_value = 0
 
-            self.id_data.location = self.id_data.location 
+            self.id_data.location = self.id_data.location
 
 
 class Home_Builder_Object_Props(PropertyGroup):
-   
+
     mod_name: StringProperty(name="Mod Name", default="")
 
     connected_object: PointerProperty(name="Connected Object",
                                       type=bpy.types.Object,
-                                      description="This is the used to store objects that are connected together.")# type: ignore  
+                                      description="This is the used to store objects that are connected together.")# type: ignore
 
     calculators: CollectionProperty(type=Calculator, name="Calculators")# type: ignore
     calculator_distance: FloatProperty(name="Calculator Distance",subtype='DISTANCE')# type: ignore
@@ -377,7 +371,7 @@ class Home_Builder_Object_Props(PropertyGroup):
                 tup_item = (item,item,item)
                 cb_list.append(tup_item)
             pm = obj.id_properties_ui(name)
-            pm.update(description='HOME_BUILDER_PROP',items=cb_list)    
+            pm.update(description='HOME_BUILDER_PROP',items=cb_list)
 
     def add_calculator(self,calculator_name,calculator_object):
         calculator = self.calculators.add()
@@ -387,12 +381,12 @@ class Home_Builder_Object_Props(PropertyGroup):
 
     def driver_prop(self, prop_name, expression, variables=[]):
         """Add driver to Blender Property
-        
+
         Args:
             prop_name: Name of the property
             expression: Expression to set
             variables: Variables to use in the expression
-            
+
         """
 
         driver = self.id_data.driver_add(f'["{prop_name}"]')
@@ -418,7 +412,7 @@ class Home_Builder_Object_Props(PropertyGroup):
             description="PyCab Props",
             type=cls,
         )
-        
+
     @classmethod
     def unregister(cls):
         if hasattr(bpy.types.Object, 'home_builder'):
@@ -451,7 +445,7 @@ class Home_Builder_Scene_Props(PropertyGroup):
                           items=[('ROOM',"Room","Show the Room Library"),
                                  ('PRODUCTS',"Product","Show the Products Library")],
                           default='ROOM',
-                          update=update_main_tab)# type: ignore 
+                          update=update_main_tab)# type: ignore
 
     product_tab: EnumProperty(name="Product Tab",
                           items=[('FRAMELESS',"Frameless","Show the Frameless Library"),
@@ -469,7 +463,7 @@ class Home_Builder_Scene_Props(PropertyGroup):
                                  ('Interior',"Interior","Interior Wall"),
                                  ('Half',"Half","Half Wall"),
                                  ('Fake',"Fake","Fake Wall")],
-                          default='Exterior')# type: ignore  
+                          default='Exterior')# type: ignore
 
     ceiling_height: FloatProperty(name="Ceiling Height", default=inch(96),subtype='DISTANCE',precision=5,update=update_ceiling_height)  # type: ignore
     half_wall_height: FloatProperty(name="Half Wall Height", default=inch(42),subtype='DISTANCE',precision=5)  # type: ignore
@@ -594,7 +588,7 @@ class Home_Builder_Scene_Props(PropertyGroup):
         description="Select molding category",
         items=get_molding_categories
     )# type: ignore
-    
+
     molding_selection: EnumProperty(
         name="Molding",
         description="Select molding profile",
@@ -605,7 +599,7 @@ class Home_Builder_Scene_Props(PropertyGroup):
     # ==========================================================================
     # ANNOTATION PROPERTIES
     # ==========================================================================
-    
+
     # Line properties
     annotation_line_thickness: FloatProperty(
         name="Line Thickness",
@@ -617,7 +611,7 @@ class Home_Builder_Scene_Props(PropertyGroup):
         unit='LENGTH',
         update=update_line_thickness
     )# type: ignore
-    
+
     annotation_line_color: FloatVectorProperty(
         name="Line Color",
         description="Color for annotation lines",
@@ -627,7 +621,7 @@ class Home_Builder_Scene_Props(PropertyGroup):
         max=1.0,
         update=update_line_color
     )# type: ignore
-    
+
     # Text properties
     annotation_font: PointerProperty(
         name="Font",
@@ -635,7 +629,7 @@ class Home_Builder_Scene_Props(PropertyGroup):
         type=bpy.types.VectorFont,
         update=update_font
     )# type: ignore
-    
+
     annotation_text_size: FloatProperty(
         name="Text Size",
         description="Size of text annotations",
@@ -646,7 +640,7 @@ class Home_Builder_Scene_Props(PropertyGroup):
         unit='LENGTH',
         update=update_text_size
     )# type: ignore
-    
+
     annotation_text_color: FloatVectorProperty(
         name="Text Color",
         description="Color for text annotations",
@@ -656,7 +650,7 @@ class Home_Builder_Scene_Props(PropertyGroup):
         max=1.0,
         update=update_text_color
     )# type: ignore
-    
+
     # Dimension properties
     annotation_dimension_text_size: FloatProperty(
         name="Dimension Text Size",
@@ -668,7 +662,7 @@ class Home_Builder_Scene_Props(PropertyGroup):
         unit='LENGTH',
         update=update_dimension_text_size
     )# type: ignore
-    
+
     annotation_dimension_tick_length: FloatProperty(
         name="Tick Length",
         description="Size of dimension ticks",
@@ -679,7 +673,7 @@ class Home_Builder_Scene_Props(PropertyGroup):
         unit='LENGTH',
         update=update_dimension_tick_length
     )# type: ignore
-    
+
     annotation_dimension_line_thickness: FloatProperty(
         name="Dimension Line Thickness",
         description="Thickness of dimension lines",
@@ -799,7 +793,7 @@ class Home_Builder_Scene_Props(PropertyGroup):
             description="Home Builder Props",
             type=cls,
         )
-        
+
     @classmethod
     def unregister(cls):
         if hasattr(bpy.types.Scene, 'home_builder'):
@@ -807,7 +801,7 @@ class Home_Builder_Scene_Props(PropertyGroup):
 
 class Home_Builder_Window_Manager_Props(PropertyGroup):
 
-    progress: FloatProperty(name="Progress",default=1.0)# type: ignore  
+    progress: FloatProperty(name="Progress",default=1.0)# type: ignore
 
     def get_user_preferences(self,context):
         preferences = context.preferences
@@ -821,7 +815,7 @@ class Home_Builder_Window_Manager_Props(PropertyGroup):
             description="Home Builder Props",
             type=cls,
         )
-        
+
     @classmethod
     def unregister(cls):
         if hasattr(bpy.types.WindowManager, 'home_builder'):
@@ -942,7 +936,7 @@ class HB_Wall_Editor_Props(PropertyGroup):
             description="Propriedades do Editor de Parede",
             type=cls,
         )
-        
+
     @classmethod
     def unregister(cls):
         if hasattr(bpy.types.Scene, 'hb_wall_editor'):
@@ -980,4 +974,3 @@ def unregister():
                 bpy.utils.unregister_class(reg_cls)
             except Exception:
                 pass
-                     

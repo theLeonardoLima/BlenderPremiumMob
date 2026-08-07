@@ -192,28 +192,28 @@ class WallObjectPlacementMixin(hb_placement.PlacementMixin):
     Extended placement mixin for objects placed on walls (doors, windows, cabinets).
     Adds support for left/right offset and width input.
     """
-    
+
     # Track which direction offset is measured from
     offset_from_right: bool = False
-    
+
     # Track if user has explicitly set position (don't follow mouse)
     position_locked: bool = False
-    
+
     # Wall context
     selected_wall = None
     wall_length: float = 0
     placement_x: float = 0
-    
+
     # Gap boundaries for offset calculations
     gap_left_boundary: float = 0
     gap_right_boundary: float = 0
-    
+
     # Placement dimensions GPU draw state
     _dim_draw_handle = None
     _dims_visible = False
     _hide_total_width_dim = False
 
-    
+
     def get_view_distance(self, context):
         """Get the current view distance for scaling UI elements."""
         try:
@@ -225,7 +225,7 @@ class WallObjectPlacementMixin(hb_placement.PlacementMixin):
         except Exception:
             pass
         return 10.0
-    
+
     def create_placement_dimensions(self):
         """Register a GPU draw handler for placement preview dimensions.
         Replaces the legacy GeoNodeDimension scene-object approach."""
@@ -257,33 +257,33 @@ class WallObjectPlacementMixin(hb_placement.PlacementMixin):
             self._dim_draw_handle = None
         self._dims_visible = False
 
-    
+
     def get_placed_object(self):
         """Override this to return the object being placed."""
         raise NotImplementedError
-    
+
     def get_placed_object_width(self) -> float:
         """Override this to return the width of the object being placed."""
         raise NotImplementedError
-    
+
     def set_placed_object_width(self, width: float):
         """Override this to set the width of the object being placed."""
         raise NotImplementedError
-    
+
     def get_default_typing_target(self):
         """Default to width when user starts typing numbers."""
         return hb_placement.TypingTarget.WIDTH
-    
+
     def handle_typing_event(self, event) -> bool:
         """Extended to handle arrow keys and W for switching input mode.
-        
+
         Workflow: type 30 → left arrow → type 5 → Enter
         = set width to 30", then place 5" from left edge.
-        
+
         Switching modes (arrow keys, W, H) applies the current value
         first, then clears and starts the new input mode.
         """
-        
+
         if event.value == 'PRESS':
             # Left arrow - apply current value, switch to offset from left
             if event.type == 'LEFT_ARROW':
@@ -292,7 +292,7 @@ class WallObjectPlacementMixin(hb_placement.PlacementMixin):
                     self.apply_typed_value()
                 self.start_typing(hb_placement.TypingTarget.OFFSET_X)
                 return True
-            
+
             # Right arrow - apply current value, switch to offset from right
             if event.type == 'RIGHT_ARROW':
                 self.offset_from_right = True
@@ -300,43 +300,43 @@ class WallObjectPlacementMixin(hb_placement.PlacementMixin):
                     self.apply_typed_value()
                 self.start_typing(hb_placement.TypingTarget.OFFSET_RIGHT)
                 return True
-            
+
             # W - apply current value, switch to width
             if event.type == 'W':
                 if self.placement_state == hb_placement.PlacementState.TYPING and self.typed_value:
                     self.apply_typed_value()
                 self.start_typing(hb_placement.TypingTarget.WIDTH)
                 return True
-            
+
             # H - apply current value, switch to height
             if event.type == 'H':
                 if self.placement_state == hb_placement.PlacementState.TYPING and self.typed_value:
                     self.apply_typed_value()
                 self.start_typing(hb_placement.TypingTarget.HEIGHT)
                 return True
-        
+
         # Fall back to base typing handler
         return super().handle_typing_event(event)
-    
+
     def apply_typed_value(self):
         """Apply typed value based on current target."""
         parsed = self.parse_typed_distance()
         if parsed is None:
             self.stop_typing()
             return
-        
+
         obj = self.get_placed_object()
         if not obj:
             self.stop_typing()
             return
-            
+
         if self.typing_target == hb_placement.TypingTarget.OFFSET_X:
             # Offset from left
             self.placement_x = parsed
             obj.location.x = parsed
             self.offset_from_right = False
             self.position_locked = True  # Lock position after explicit input
-            
+
         elif self.typing_target == hb_placement.TypingTarget.OFFSET_RIGHT:
             # Offset from right - calculate X from right edge
             if self.selected_wall:
@@ -345,19 +345,19 @@ class WallObjectPlacementMixin(hb_placement.PlacementMixin):
                 obj.location.x = self.placement_x
             self.offset_from_right = True
             self.position_locked = True  # Lock position after explicit input
-            
+
         elif self.typing_target == hb_placement.TypingTarget.WIDTH:
             self.set_placed_object_width(parsed)
             # Recalculate position if offset from right
             if self.offset_from_right and self.selected_wall:
                 # Keep right edge in same place
                 self.update_position_for_width_change()
-                
+
         elif self.typing_target == hb_placement.TypingTarget.HEIGHT:
             self.set_placed_object_height(parsed)
-        
+
         self.stop_typing()
-    
+
     def set_placed_object_height(self, height: float):
         """Override this to set height. Default does nothing."""
         pass
@@ -378,72 +378,72 @@ class WallObjectPlacementMixin(hb_placement.PlacementMixin):
     def update_position_for_width_change(self):
         """Recalculate X position after width change when offset from right."""
         pass
-    
+
     def on_typed_value_changed(self):
         """Update preview as user types."""
         if not self.typed_value:
             return
-            
+
         parsed = self.parse_typed_distance()
         if parsed is None:
             return
-            
+
         obj = self.get_placed_object()
         if not obj:
             return
-        
+
         if self.typing_target == hb_placement.TypingTarget.OFFSET_X:
             self.placement_x = parsed
             obj.location.x = parsed
-            
+
         elif self.typing_target == hb_placement.TypingTarget.OFFSET_RIGHT:
             if self.selected_wall:
                 obj_width = self.get_placed_object_width()
                 self.placement_x = self.wall_length - parsed - obj_width
                 obj.location.x = self.placement_x
-                
+
         elif self.typing_target == hb_placement.TypingTarget.WIDTH:
             self.set_placed_object_width(parsed)
-            
+
         elif self.typing_target == hb_placement.TypingTarget.HEIGHT:
             self.set_placed_object_height(parsed)
-        
+
         # Refresh dimensions after value change
         self.refresh_placement_dimensions()
-    
+
     def refresh_placement_dimensions(self):
         """Override in subclass to refresh dimensions after typing changes."""
         pass
-    
+
     def get_offset_display(self, context) -> str:
         """Get formatted offset string showing distance from appropriate edge."""
         unit_settings = context.scene.unit_settings
         obj_width = self.get_placed_object_width()
-        
+
         if self.offset_from_right:
             offset_from_right = self.wall_length - self.placement_x - obj_width
             return f"Offset (→): {units.unit_to_string(unit_settings, offset_from_right)}"
         else:
             return f"Offset (←): {units.unit_to_string(unit_settings, self.placement_x)}"
-    
+
     def cut_wall(self, wall_obj, cutting_obj):
         """Add a boolean modifier to the wall to cut a hole for the door/window."""
         # Create a unique modifier name based on the cutting object
         mod_name = f"Boolean_{cutting_obj.name}"
-        
+
         # Check if modifier already exists
         if mod_name in wall_obj.modifiers:
             return wall_obj.modifiers[mod_name]
-        
+
         # Add boolean modifier
         mod = wall_obj.modifiers.new(name=mod_name, type='BOOLEAN')
         mod.operation = 'DIFFERENCE'
         mod.object = cutting_obj
         mod.solver = 'EXACT'
-        
+
         # Hide the cutting object from render
         cutting_obj.hide_render = True
-        
+
         return mod
 
     def find_nearest_wall_to_cursor(self, threshold=0.3):
@@ -459,7 +459,7 @@ class WallObjectPlacementMixin(hb_placement.PlacementMixin):
         cursor_xy = Vector((self.hit_location[0], self.hit_location[1]))
         best_wall = None
         best_dist = threshold
-        placed = self.get_placed_object()
+        self.get_placed_object()
         for obj in bpy.context.view_layer.objects:
             if 'IS_WALL_BP' not in obj:
                 continue
@@ -1118,15 +1118,15 @@ class home_builder_doors_windows_OT_door_prompts(bpy.types.Operator):
     def draw(self, context):
         layout = self.layout
         box = layout.box()
-        
+
         row = box.row()
         row.label(text="Width:")
         row.prop(self, 'door_width', text="")
-        
+
         row = box.row()
         row.label(text="Height:")
         row.prop(self, 'door_height', text="")
-        
+
         row = box.row()
         row.label(text="Location X:")
         row.prop(self.door.obj, 'location', index=0, text="")
@@ -1168,19 +1168,19 @@ class home_builder_doors_windows_OT_window_prompts(bpy.types.Operator):
     def draw(self, context):
         layout = self.layout
         box = layout.box()
-        
+
         row = box.row()
         row.label(text="Width:")
         row.prop(self, 'window_width', text="")
-        
+
         row = box.row()
         row.label(text="Height:")
         row.prop(self, 'window_height', text="")
-        
+
         row = box.row()
         row.label(text="Height From Floor:")
         row.prop(self, 'height_from_floor', text="")
-        
+
         row = box.row()
         row.label(text="Location X:")
         row.prop(self.window.obj, 'location', index=0, text="")
@@ -1282,7 +1282,7 @@ class home_builder_doors_windows_OT_delete_door_window(bpy.types.Operator):
     def execute(self, context):
         obj = context.object
         wall = obj.parent
-        
+
         # Remove the boolean modifier from the wall if present
         if wall and 'IS_WALL_BP' in wall:
             # Find and remove the boolean modifier for this door/window
@@ -1290,15 +1290,15 @@ class home_builder_doors_windows_OT_delete_door_window(bpy.types.Operator):
                 if mod.type == 'BOOLEAN' and mod.object == obj:
                     wall.modifiers.remove(mod)
                     break
-        
+
         # Delete all children first
         children_to_delete = list(obj.children)
         for child in children_to_delete:
             bpy.data.objects.remove(child, do_unlink=True)
-        
+
         # Delete the door/window object
         bpy.data.objects.remove(obj, do_unlink=True)
-        
+
         self.report({'INFO'}, f"{self.object_type.title()} deleted")
         return {'FINISHED'}
 

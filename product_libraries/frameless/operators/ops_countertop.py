@@ -1,7 +1,6 @@
 import bpy
-import bmesh
 import math
-from .... import hb_types, hb_project, units
+from .... import hb_types, hb_project
 
 
 def get_cabinet_depth(cab_obj):
@@ -18,7 +17,7 @@ def get_cabinet_x_range(cab_obj):
     """Get the (x_start, x_end) range for a cabinet, handling back-side rotation."""
     cage = hb_types.GeoNodeCage(cab_obj)
     dim_x = cage.get_input('Dim X')
-    is_back = (abs(cab_obj.rotation_euler.z - math.pi) < 0.1 or 
+    is_back = (abs(cab_obj.rotation_euler.z - math.pi) < 0.1 or
                abs(cab_obj.rotation_euler.z + math.pi) < 0.1)
     if is_back:
         return (cab_obj.location.x - dim_x, cab_obj.location.x)
@@ -110,7 +109,7 @@ def gather_base_cabinets(context, selected_only=False):
     # Find cage groups first
     for obj in context.scene.objects:
         if obj.get('IS_CAGE_GROUP'):
-            countertop_children = [c for c in obj.children 
+            countertop_children = [c for c in obj.children
                                    if (c.get('IS_FRAMELESS_CABINET_CAGE') and c.get('CABINET_TYPE') == 'BASE')
                                    or (c.get('IS_FRAMELESS_PRODUCT_CAGE') and c.get('PART_TYPE') == 'SUPPORT_FRAME')]
             if selected_only:
@@ -134,7 +133,7 @@ def gather_base_cabinets(context, selected_only=False):
         if obj.parent and obj.parent.get('IS_WALL_BP'):
             wall = obj.parent
             # Separate front-side and back-side cabinets on the same wall
-            is_back = (abs(obj.rotation_euler.z - math.pi) < 0.1 or 
+            is_back = (abs(obj.rotation_euler.z - math.pi) < 0.1 or
                        abs(obj.rotation_euler.z + math.pi) < 0.1)
             wall_key = (wall, is_back)
             if wall_key not in wall_cabinets:
@@ -702,7 +701,6 @@ class hb_frameless_OT_countertop_boolean_cut(bpy.types.Operator):
 
     def execute(self, context):
         selected = context.selected_objects
-        active = context.active_object
 
         # Determine which is the countertop and which is the cutter
         countertop = None

@@ -1,7 +1,6 @@
-import bpy
 import bmesh
 import math
-from mathutils import Vector, Matrix
+from mathutils import Vector
 
 
 def clear_mesh(obj):
@@ -302,7 +301,7 @@ def generate_door_mesh(obj, w, h, t):
     """
     clear_mesh(obj)
     bm = bmesh.new()
-    
+
     verts = [
         bm.verts.new((0.0, 0.0, 0.0)),
         bm.verts.new((w, 0.0, 0.0)),
@@ -313,16 +312,16 @@ def generate_door_mesh(obj, w, h, t):
         bm.verts.new((w, t, h)),
         bm.verts.new((0.0, t, h))
     ]
-    
+
     bm.faces.new([verts[0], verts[1], verts[2], verts[3]])
     bm.faces.new([verts[4], verts[7], verts[6], verts[5]])
     bm.faces.new([verts[0], verts[4], verts[5], verts[1]])
     bm.faces.new([verts[1], verts[5], verts[6], verts[2]])
     bm.faces.new([verts[2], verts[6], verts[7], verts[3]])
     bm.faces.new([verts[3], verts[7], verts[4], verts[0]])
-    
+
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
-    
+
     bm.to_mesh(obj.data)
     bm.free()
     obj.data.update()

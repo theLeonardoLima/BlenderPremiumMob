@@ -73,7 +73,7 @@ class hb_frameless_OT_cleanup_mesh(bpy.types.Operator):
         after_verts = len(mesh.vertices)
         after_faces = len(mesh.polygons)
 
-        self.report({'INFO'}, 
+        self.report({'INFO'},
             f"Cleaned: {before_faces} → {after_faces} faces, "
             f"{before_verts} → {after_verts} verts")
         return {'FINISHED'}
@@ -96,8 +96,8 @@ class hb_frameless_OT_dissolve_selected(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return (context.active_object 
-                and context.active_object.type == 'MESH' 
+        return (context.active_object
+                and context.active_object.type == 'MESH'
                 and context.active_object.mode == 'EDIT')
 
     def execute(self, context):
@@ -110,13 +110,13 @@ class hb_frameless_OT_dissolve_selected(bpy.types.Operator):
             return {'CANCELLED'}
 
         # Find interior edges (both adjacent faces are selected)
-        interior_edges = [e for e in bm.edges 
-                         if len(e.link_faces) == 2 
+        interior_edges = [e for e in bm.edges
+                         if len(e.link_faces) == 2
                          and set(e.link_faces).issubset(sel_faces)]
 
         # Find interior verts (all linked faces are selected)
-        interior_verts = [v for v in bm.verts 
-                         if v.select 
+        interior_verts = [v for v in bm.verts
+                         if v.select
                          and all(f in sel_faces for f in v.link_faces)]
 
         before = len(sel_faces)
@@ -146,8 +146,8 @@ class hb_frameless_OT_delete_floating_faces(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return (context.active_object 
-                and context.active_object.type == 'MESH' 
+        return (context.active_object
+                and context.active_object.type == 'MESH'
                 and context.active_object.mode == 'EDIT')
 
     def execute(self, context):
@@ -181,8 +181,8 @@ class hb_frameless_OT_rebuild_selected_faces(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return (context.active_object 
-                and context.active_object.type == 'MESH' 
+        return (context.active_object
+                and context.active_object.type == 'MESH'
                 and context.active_object.mode == 'EDIT')
 
     def execute(self, context):

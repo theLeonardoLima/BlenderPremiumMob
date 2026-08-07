@@ -15,11 +15,9 @@ or modified by either library's tooling.
 """
 
 import bpy
-import bmesh
 import math
-from .... import hb_types, hb_project, units
+from .... import hb_types, hb_project
 from .. import types_face_frame
-from . import ops_placement as ff_ops_placement
 
 
 def _is_corner_face_frame(obj):

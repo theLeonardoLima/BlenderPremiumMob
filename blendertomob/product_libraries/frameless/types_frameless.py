@@ -1,9 +1,8 @@
 import bpy
 import math
 import os
-from ...hb_types import GeoNodeObject, GeoNodeCage, GeoNodeCutpart, GeoNodeHardware, GeoNodeDrawerBox, CabinetPartModifier
+from ...hb_types import GeoNodeCage, GeoNodeCutpart, GeoNodeHardware, GeoNodeDrawerBox, CabinetPartModifier
 from ... import hb_project
-from ... import units
 from ...units import inch
 
 class Cabinet(GeoNodeCage):
@@ -38,7 +37,7 @@ class Cabinet(GeoNodeCage):
         self.add_property('Toe Kick Type', 'COMBOBOX', tkt_index,
                           combobox_items=["Notch Ends to Floor", "Ladder Style", "Floating", "Leg Levelers"])
         self.add_property('Leg Leveler Inset', 'DISTANCE', props.default_leg_leveler_inset)
-    
+
     def add_properties_base_top(self):
         """Add base top construction properties."""
         props = bpy.context.scene.hb_frameless
@@ -49,7 +48,7 @@ class Cabinet(GeoNodeCage):
         self.add_property('Base Top Construction', 'COMBOBOX', base_top_construction_index, combobox_items=["Full Top", "Stretchers", "Sink"])
         self.add_property('Stretcher Width', 'DISTANCE', inch(4))
         self.add_property('Sink Apron Width', 'DISTANCE', inch(7))
-    
+
     def add_cage_to_bay(self,cage):
         cage.create()
         for child in self.obj.children_recursive:
@@ -58,7 +57,7 @@ class Cabinet(GeoNodeCage):
                 cage.obj.parent = child
                 dim_x = bay.var_input('Dim X', 'dim_x')
                 dim_y = bay.var_input('Dim Y', 'dim_y')
-                dim_z = bay.var_input('Dim Z', 'dim_z') 
+                dim_z = bay.var_input('Dim Z', 'dim_z')
                 cage.driver_input('Dim X', 'dim_x',[dim_x])
                 cage.driver_input('Dim Y', 'dim_y',[dim_y])
                 cage.driver_input('Dim Z', 'dim_z',[dim_z])
@@ -117,7 +116,7 @@ class Cabinet(GeoNodeCage):
         self.obj['IS_FRAMELESS_CABINET_CAGE'] = True
         self.obj['MENU_ID'] = 'HOME_BUILDER_MT_cabinet_commands'
         self.obj.display_type = 'WIRE'
-        
+
         self.set_input('Dim X', self.width)
         self.set_input('Dim Y', self.depth)
         self.set_input('Dim Z', self.height)
@@ -459,7 +458,7 @@ class Cabinet(GeoNodeCage):
         self.create_cabinet(name)
 
         self.add_properties_common()
-        
+
         dim_x = self.var_input('Dim X', 'dim_x')
         dim_y = self.var_input('Dim Y', 'dim_y')
         dim_z = self.var_input('Dim Z', 'dim_z')
@@ -541,22 +540,21 @@ class Cabinet(GeoNodeCage):
 
 class BaseCabinet(Cabinet):
     """Standard base cabinet with toe kick. Sits on floor."""
-    
+
     def __init__(self):
         super().__init__()
         props = bpy.context.scene.hb_frameless
         self.width = props.default_cabinet_width
         self.height = props.base_cabinet_height
         self.depth = props.base_cabinet_depth
-    
+
     def create(self, name="Base Cabinet"):
         self.create_base_carcass(name)
         self.obj['CABINET_TYPE'] = 'BASE'
-        
+
         # Add exterior based on base_exterior property
-        props = bpy.context.scene.hb_frameless
         self.add_exterior()
-    
+
     def add_exterior(self):
         """Add doors/drawers based on exterior type."""
         if self.default_exterior == 'Doors':
@@ -570,13 +568,13 @@ class BaseCabinet(Cabinet):
         elif self.default_exterior == '4 Drawers':
             self.add_drawer_stack(4)
         # 'Open' = no exterior
-    
+
     def add_doors(self):
         """Add door fronts to the cabinet bay."""
         doors = Doors()
         doors.door_pull_location = "Base"
         self.add_cage_to_bay(doors)
-    
+
     def add_drawer_door(self):
         """Add a drawer on top and doors below."""
         props = bpy.context.scene.hb_frameless
@@ -591,11 +589,11 @@ class BaseCabinet(Cabinet):
         door_drawer.opening_sizes = [props.top_drawer_front_height,0]
         door_drawer.opening_inserts = [drawer,door]
         self.add_cage_to_bay(door_drawer)
-    
+
     def add_drawer_stack(self, count):
         """Add a stack of drawers."""
         #TODO: Implement DrawerStack Class to handle equal drawer heights
-        # SplitterVertical keeps opening height equal but does not account 
+        # SplitterVertical keeps opening height equal but does not account
         # for drawer front overlay
         props = bpy.context.scene.hb_frameless
         equal_drawer_stack_heights = props.equal_drawer_stack_heights
@@ -624,46 +622,46 @@ class BaseCabinet(Cabinet):
 
 class LapDrawerCabinet(Cabinet):
     """Lap drawer cabinet - a single drawer box raised off the floor.
-    
+
     The box height is determined by top_drawer_front_height.
     The top of the cabinet aligns with the top of a standard base cabinet.
     """
-    
+
     def __init__(self):
         super().__init__()
         props = bpy.context.scene.hb_frameless
         self.width = props.default_cabinet_width
         self.height = props.top_drawer_front_height
         self.depth = props.base_cabinet_depth
-    
+
     def create(self, name="Lap Drawer"):
         self.create_lap_drawer_carcass(name)
         self.obj['CABINET_TYPE'] = 'BASE'
-        
+
         # Add single drawer exterior
         drawer = Drawer()
         self.add_cage_to_bay(drawer)
-    
+
     def create_lap_drawer_carcass(self, name):
         self.create_cabinet(name)
-        
+
         props = bpy.context.scene.hb_frameless
-        
+
         self.add_properties_common()
         self.add_properties_base_top()
-        
+
         # Z location: top aligns with base cabinet height
         self.obj.location.z = props.base_cabinet_height - self.height
-        
+
         dim_x = self.var_input('Dim X', 'dim_x')
         dim_y = self.var_input('Dim Y', 'dim_y')
         dim_z = self.var_input('Dim Z', 'dim_z')
-        
+
         mt = self.var_prop('Material Thickness', 'mt')
         btc = self.var_prop('Base Top Construction', 'btc')
         sw = self.var_prop('Stretcher Width', 'sw')
         saw = self.var_prop('Sink Apron Width', 'saw')
-        
+
         # Left Side - plain (no toe kick notch)
         left_side = CabinetPart()
         left_side.create('Left Side')
@@ -674,7 +672,7 @@ class LapDrawerCabinet(Cabinet):
         left_side.driver_input("Thickness", 'mt', [mt])
         left_side.set_input("Mirror Y", True)
         left_side.set_input("Mirror Z", True)
-        
+
         # Right Side - plain (no toe kick notch)
         right_side = CabinetPart()
         right_side.create('Right Side')
@@ -686,7 +684,7 @@ class LapDrawerCabinet(Cabinet):
         right_side.driver_input("Thickness", 'mt', [mt])
         right_side.set_input("Mirror Y", True)
         right_side.set_input("Mirror Z", False)
-        
+
         # Bottom
         bottom = CabinetPart()
         bottom.create('Bottom')
@@ -697,7 +695,7 @@ class LapDrawerCabinet(Cabinet):
         bottom.driver_input("Thickness", 'mt', [mt])
         bottom.set_input("Mirror Y", True)
         bottom.set_input("Mirror Z", False)
-        
+
         # Back
         back = CabinetPart()
         back.create('Back')
@@ -710,7 +708,7 @@ class LapDrawerCabinet(Cabinet):
         back.driver_input("Width", 'dim_x-(mt*2)', [dim_x, mt])
         back.driver_input("Thickness", 'mt', [mt])
         back.set_input("Mirror Y", True)
-        
+
         # Full Top - shown when btc==0
         top = CabinetPart()
         top.create('Top')
@@ -723,7 +721,7 @@ class LapDrawerCabinet(Cabinet):
         top.set_input("Mirror Y", True)
         top.set_input("Mirror Z", True)
         top.driver_hide('IF(btc!=0,True,False)', [btc])
-        
+
         # Front Stretcher - shown when btc==1
         front_stretcher = CabinetPart()
         front_stretcher.create('Front Stretcher')
@@ -738,7 +736,7 @@ class LapDrawerCabinet(Cabinet):
         front_stretcher.driver_hide('IF(btc!=1,True,False)', [btc])
         front_stretcher.obj['Finish Top'] = False
         front_stretcher.obj['Finish Bottom'] = False
-        
+
         # Back Stretcher - shown when btc==1
         back_stretcher = CabinetPart()
         back_stretcher.create('Back Stretcher')
@@ -753,7 +751,7 @@ class LapDrawerCabinet(Cabinet):
         back_stretcher.driver_hide('IF(btc!=1,True,False)', [btc])
         back_stretcher.obj['Finish Top'] = False
         back_stretcher.obj['Finish Bottom'] = False
-        
+
         # Sink Apron Front - shown when btc==2
         sink_apron = CabinetPart()
         sink_apron.create('Sink Apron')
@@ -766,7 +764,7 @@ class LapDrawerCabinet(Cabinet):
         sink_apron.driver_input("Width", 'saw', [saw])
         sink_apron.driver_input("Thickness", 'mt', [mt])
         sink_apron.driver_hide('IF(btc!=2,True,False)', [btc])
-        
+
         # Bay/Opening
         opening = CabinetBay()
         opening.create("Bay")
@@ -781,7 +779,7 @@ class LapDrawerCabinet(Cabinet):
 
 class TallCabinet(Cabinet):
     """Tall cabinet (pantry, oven, utility). Has toe kick, full height."""
-    
+
     is_stacked = False
 
     def __init__(self):
@@ -791,12 +789,12 @@ class TallCabinet(Cabinet):
         self.width = props.default_cabinet_width
         self.height = props.tall_cabinet_height
         self.depth = props.tall_cabinet_depth
-    
+
     def create(self, name="Tall Cabinet"):
         self.create_tall_carcass(name)
         self.obj['CABINET_TYPE'] = 'TALL'
         self.add_doors()
-    
+
     def add_doors(self):
         """Add door fronts to the cabinet bay."""
         props = bpy.context.scene.hb_frameless
@@ -832,30 +830,30 @@ class RefrigeratorCabinet(Cabinet):
         self.width = props.refrigerator_cabinet_width
         self.height = props.tall_cabinet_height
         self.depth = props.tall_cabinet_depth
-    
+
     def create(self, name="Refrigerator Cabinet"):
         self.create_tall_carcass(name)
         self.obj['CABINET_TYPE'] = 'TALL'
         self.obj['IS_REFRIGERATOR_CABINET'] = True
-        
+
         # Remove the bottom panel for the refrigerator
         self.set_property('Remove Bottom', True)
         self.set_property('Toe Kick Height', 0)
-        
+
         self.add_openings()
-    
+
     def add_openings(self):
         """Add split openings - empty bottom for fridge, doors on top."""
         props = bpy.context.scene.hb_frameless
-        
+
         # Top section gets doors
         top_doors = Doors()
         top_doors.half_overlay_bottom = True
         top_doors.door_pull_location = "Upper"
-        
+
         # Bottom section is empty (None = no insert, just an opening)
         # The refrigerator appliance can be placed here separately
-        
+
         # Create vertical splitter with 2 openings
         # opening_sizes: [top_height, bottom_height]
         # Using 0 for top means it takes remaining space after bottom is set
@@ -868,7 +866,7 @@ class RefrigeratorCabinet(Cabinet):
 
 class UpperCabinet(Cabinet):
     """Wall-mounted upper cabinet. No toe kick."""
-    
+
     is_stacked = False
 
     def __init__(self):
@@ -878,13 +876,13 @@ class UpperCabinet(Cabinet):
         self.width = props.default_cabinet_width
         self.height = props.upper_cabinet_height
         self.depth = props.upper_cabinet_depth
-    
+
     def create(self, name="Upper Cabinet"):
         self.create_upper_carcass(name)
         self.obj['CABINET_TYPE'] = 'UPPER'
         self.obj.display_type = 'WIRE'
         self.add_doors()
-    
+
     def add_doors(self):
         """Add door fronts to the cabinet bay."""
         props = bpy.context.scene.hb_frameless
@@ -938,7 +936,7 @@ class SplitterVertical(GeoNodeCage):
         insert.driver_input("Dim X", 'dim_x', [dim_x])
         insert.driver_input("Dim Y", 'dim_y', [dim_y])
         insert.driver_input("Dim Z", 'dim_z', [dim_z])
-        
+
     def create(self):
         super().create('Splitter Vertical')
         props = bpy.context.scene.hb_frameless
@@ -963,7 +961,7 @@ class SplitterVertical(GeoNodeCage):
 
         # Total distance is height minus material thickness for all splitters
         opening_calculator.set_total_distance('dim_z-mt*' + str(self.splitter_qty),[dim_z,mt])
-        
+
         previous_splitter = None
 
         # Add Shelf Splitters Adding from Top to Bottom
@@ -975,12 +973,12 @@ class SplitterVertical(GeoNodeCage):
             if i < self.splitter_qty+1:
                 shelf = CabinetPart()
                 shelf.create('Vertical Splitter ' + str(i))
-                shelf.obj.parent = self.obj      
+                shelf.obj.parent = self.obj
                 if previous_splitter:
                     loc_z = previous_splitter.var_location('loc_z','z')
                     shelf.driver_location('z', 'loc_z-oh-mt',[loc_z,oh,mt])
                 else:
-                    shelf.driver_location('z', 'dim_z-oh-mt',[dim_z,oh,mt])   
+                    shelf.driver_location('z', 'dim_z-oh-mt',[dim_z,oh,mt])
                 shelf.driver_input("Length", 'dim_x', [dim_x])
                 shelf.driver_input("Width", 'dim_y', [dim_y])
                 shelf.driver_input("Thickness", 'mt', [mt])
@@ -997,7 +995,7 @@ class SplitterVertical(GeoNodeCage):
                 opening.driver_location('z', 'loc_z+mt',[loc_z,mt])
             else:
                 opening.obj.location.z = 0
-            
+
             opening.driver_input("Dim X", 'dim_x', [dim_x])
             opening.driver_input("Dim Y", 'dim_y', [dim_y])
             opening.driver_input("Dim Z", 'oh', [oh])
@@ -1008,7 +1006,7 @@ class SplitterVertical(GeoNodeCage):
                 if insert:
                     insert.create()
                     self.add_insert_into_opening(opening,insert)
-                    
+
                     # Set FORCE_HALF_OVERLAY flags for split openings
                     # Top opening (i=1) needs half overlay on bottom where it meets splitter
                     # Bottom opening (i=splitter_qty+1) needs half overlay on top
@@ -1025,7 +1023,7 @@ class SplitterVertical(GeoNodeCage):
                 oh.equal = False
                 oh.distance_value = self.opening_sizes[i-1]
 
-        opening_calculator.calculate() 
+        opening_calculator.calculate()
 
 
 
@@ -1051,7 +1049,7 @@ class SplitterHorizontal(GeoNodeCage):
         insert.driver_input("Dim X", 'dim_x', [dim_x])
         insert.driver_input("Dim Y", 'dim_y', [dim_y])
         insert.driver_input("Dim Z", 'dim_z', [dim_z])
-        
+
     def create(self):
         super().create('Splitter Horizontal')
         props = bpy.context.scene.hb_frameless
@@ -1076,7 +1074,7 @@ class SplitterHorizontal(GeoNodeCage):
 
         # Total distance is width minus material thickness for all splitters
         opening_calculator.set_total_distance('dim_x-mt*' + str(self.splitter_qty),[dim_x,mt])
-        
+
         previous_splitter = None
 
         # Add Openings and Dividers from Left to Right
@@ -1093,7 +1091,7 @@ class SplitterHorizontal(GeoNodeCage):
             else:
                 loc_x = previous_splitter.var_location('loc_x','x')
                 opening.driver_location('x', 'loc_x+mt',[loc_x,mt])
-            
+
             opening.driver_input("Dim X", 'ow', [ow])
             opening.driver_input("Dim Y", 'dim_y', [dim_y])
             opening.driver_input("Dim Z", 'dim_z', [dim_z])
@@ -1104,7 +1102,7 @@ class SplitterHorizontal(GeoNodeCage):
                 if insert:
                     insert.create()
                     self.add_insert_into_opening(opening,insert)
-                    
+
                     # Set FORCE_HALF_OVERLAY flags for split openings
                     # Left opening (i=1) needs half overlay on right where it meets divider
                     # Right opening (i=splitter_qty+1) needs half overlay on left
@@ -1139,7 +1137,7 @@ class SplitterHorizontal(GeoNodeCage):
                 ow.equal = False
                 ow.distance_value = self.opening_sizes[i-1]
 
-        opening_calculator.calculate() 
+        opening_calculator.calculate()
 
 
 class CabinetOpening(GeoNodeCage):
@@ -1157,7 +1155,7 @@ class CabinetOpening(GeoNodeCage):
 
     def add_properties_front_overlays(self):
         self.add_property("Inset Front",'CHECKBOX',False)
-        self.add_property("Door to Cabinet Gap",'DISTANCE',inch(.125))    
+        self.add_property("Door to Cabinet Gap",'DISTANCE',inch(.125))
         self.add_property("Half Overlay Top",'CHECKBOX',self.half_overlay_top)
         self.add_property("Half Overlay Bottom",'CHECKBOX',self.half_overlay_bottom)
         self.add_property("Half Overlay Left",'CHECKBOX',self.half_overlay_left)
@@ -1250,10 +1248,10 @@ class CabinetShelves(CabinetInterior):
         shelves.obj['Finish Bottom'] = False
         shelves.obj.parent = self.obj
         array_mod = shelves.obj.modifiers.new('Qty','ARRAY')
-        array_mod.count = 1   
+        array_mod.count = 1
         array_mod.use_relative_offset = False
         array_mod.use_constant_offset = True
-        array_mod.constant_offset_displace = (0,0,0)        
+        array_mod.constant_offset_displace = (0,0,0)
         shelves.driver_location('x', 'clip_gap',[clip_gap])
         shelves.driver_location('y', 'setback',[setback])
         shelves.driver_location('z', '(dim_z-(mt*qty))/(qty+1)',[dim_z,mt,qty])
@@ -1263,7 +1261,7 @@ class CabinetShelves(CabinetInterior):
         shelves.obj.blendertomob.add_driver('modifiers["' + array_mod.name + '"].count',-1,'qty',[qty])
         shelves.obj.blendertomob.add_driver('modifiers["' + array_mod.name + '"].constant_offset_displace',2,
                                      '((dim_z-(mt*qty))/(qty+1))+mt',
-                                     [dim_z,mt,qty])        
+                                     [dim_z,mt,qty])
 
 
 class Doors(CabinetOpening):
@@ -1286,7 +1284,7 @@ class Doors(CabinetOpening):
         ro = overlay_prompts.blendertomob.var_prop('Overlay Right', 'ro')
 
         dim_x = self.var_input('Dim X', 'dim_x')
-        dim_y = self.var_input('Dim Y', 'dim_y')
+        self.var_input('Dim Y', 'dim_y')
         dim_z = self.var_input('Dim Z', 'dim_z')
         ft = self.var_prop('Front Thickness', 'ft')
         vg = self.var_prop('Vertical Gap', 'vg')
@@ -1307,9 +1305,9 @@ class Doors(CabinetOpening):
         left_door.driver_location('z', '-bo',[bo])
         left_door.driver_input("Length", 'dim_z+to+bo', [dim_z,to,bo])
         left_door.driver_input("Width", 'IF(ds==2,(dim_x+lo+ro-vg)/2,dim_x+lo+ro)', [dim_x,lo,ro,vg,ds])
-        left_door.driver_input("Thickness", 'ft', [ft])   
+        left_door.driver_input("Thickness", 'ft', [ft])
         left_door.driver_hide('IF(ds==1,True,False)',[ds])
-        left_door.set_input("Mirror Y", True)  
+        left_door.set_input("Mirror Y", True)
 
         right_door = CabinetDoor()
         right_door.door_pull_location = self.door_pull_location
@@ -1323,9 +1321,9 @@ class Doors(CabinetOpening):
         right_door.driver_location('z', '-bo',[bo])
         right_door.driver_input("Length", 'dim_z+to+bo', [dim_z,to,bo])
         right_door.driver_input("Width", 'IF(ds==2,(dim_x+lo+ro-vg)/2,dim_x+lo+ro)', [dim_x,lo,ro,vg,ds])
-        right_door.driver_input("Thickness", 'ft', [ft]) 
-        right_door.driver_hide('IF(ds==0,True,False)',[ds])  
-        right_door.set_input("Mirror Y", False) 
+        right_door.driver_input("Thickness", 'ft', [ft])
+        right_door.driver_hide('IF(ds==0,True,False)',[ds])
+        right_door.set_input("Mirror Y", False)
 
         self.add_interior(CabinetShelves())
 
@@ -1341,7 +1339,7 @@ class Doors(CabinetOpening):
         interior.driver_location('y', 'IF(inset,ft,0)',[inset,ft])
         interior.driver_input('Dim X','x',[x])
         interior.driver_input('Dim Y','y-IF(inset,ft,0)',[y,inset,ft])
-        interior.driver_input('Dim Z','z',[z])         
+        interior.driver_input('Dim Z','z',[z])
 
 
 class FlipUpDoor(CabinetOpening):
@@ -1364,7 +1362,7 @@ class FlipUpDoor(CabinetOpening):
         ro = overlay_prompts.blendertomob.var_prop('Overlay Right', 'ro')
 
         dim_x = self.var_input('Dim X', 'dim_x')
-        dim_y = self.var_input('Dim Y', 'dim_y')
+        self.var_input('Dim Y', 'dim_y')
         dim_z = self.var_input('Dim Z', 'dim_z')
         ft = self.var_prop('Front Thickness', 'ft')
         door_to_cab_gap = self.var_prop('Door to Cabinet Gap', 'door_to_cab_gap')
@@ -1418,7 +1416,7 @@ class Drawer(CabinetOpening):
         ro = overlay_prompts.blendertomob.var_prop('Overlay Right', 'ro')
 
         dim_x = self.var_input('Dim X', 'dim_x')
-        dim_y = self.var_input('Dim Y', 'dim_y')
+        self.var_input('Dim Y', 'dim_y')
         dim_z = self.var_input('Dim Z', 'dim_z')
         ft = self.var_prop('Front Thickness', 'ft')
         door_to_cab_gap = self.var_prop('Door to Cabinet Gap', 'door_to_cab_gap')
@@ -1436,7 +1434,7 @@ class Drawer(CabinetOpening):
         drawer_front.driver_location('z', '-bo',[bo])
         drawer_front.driver_input("Length", 'dim_z+to+bo', [dim_z,to,bo])
         drawer_front.driver_input("Width", 'dim_x+lo+ro', [dim_x,lo,ro])
-        drawer_front.driver_input("Thickness", 'ft', [ft]) 
+        drawer_front.driver_input("Thickness", 'ft', [ft])
         drawer_front.driver_prop("Top Overlay", 'to', [to])
         drawer_front.driver_prop("Bottom Overlay", 'bo', [bo])
         drawer_front.driver_prop("Left Overlay", 'lo', [lo])
@@ -1466,7 +1464,7 @@ class Pullout(CabinetOpening):
         ro = overlay_prompts.blendertomob.var_prop('Overlay Right', 'ro')
 
         dim_x = self.var_input('Dim X', 'dim_x')
-        dim_y = self.var_input('Dim Y', 'dim_y')
+        self.var_input('Dim Y', 'dim_y')
         dim_z = self.var_input('Dim Z', 'dim_z')
         ft = self.var_prop('Front Thickness', 'ft')
         door_to_cab_gap = self.var_prop('Door to Cabinet Gap', 'door_to_cab_gap')
@@ -1485,13 +1483,13 @@ class Pullout(CabinetOpening):
         pullout_front.driver_location('z', '-bo',[bo])
         pullout_front.driver_input("Length", 'dim_z+to+bo', [dim_z,to,bo])
         pullout_front.driver_input("Width", 'dim_x+lo+ro', [dim_x,lo,ro])
-        pullout_front.driver_input("Thickness", 'ft', [ft]) 
+        pullout_front.driver_input("Thickness", 'ft', [ft])
         pullout_front.driver_prop("Top Overlay", 'to', [to])
         pullout_front.driver_prop("Bottom Overlay", 'bo', [bo])
         pullout_front.driver_prop("Left Overlay", 'lo', [lo])
         pullout_front.driver_prop("Right Overlay", 'ro', [ro])
         pullout_front.set_input("Mirror Y", True)
-        
+
         pullout_front.add_drawer_box()
 
 
@@ -1514,7 +1512,7 @@ class FalseFront(CabinetOpening):
         ro = overlay_prompts.blendertomob.var_prop('Overlay Right', 'ro')
 
         dim_x = self.var_input('Dim X', 'dim_x')
-        dim_y = self.var_input('Dim Y', 'dim_y')
+        self.var_input('Dim Y', 'dim_y')
         dim_z = self.var_input('Dim Z', 'dim_z')
         ft = self.var_prop('Front Thickness', 'ft')
         door_to_cab_gap = self.var_prop('Door to Cabinet Gap', 'door_to_cab_gap')
@@ -1537,7 +1535,7 @@ class FalseFront(CabinetOpening):
         drawer_front.driver_prop("Left Overlay", 'lo', [lo])
         drawer_front.driver_prop("Right Overlay", 'ro', [ro])
         drawer_front.set_input("Mirror Y", True)
-        
+
         # Set False Front to True - no drawer box or handle
         drawer_front.set_property("False Front", True)
         # No drawer box added for false front
@@ -1547,23 +1545,23 @@ class Appliance(CabinetOpening):
     """An appliance opening displays centered text with the appliance name.
     Used for built-in appliances like ovens, microwaves, refrigerators, etc.
     """
-    
+
     appliance_name = "Appliance"
-    
+
     def create(self):
         from ...hb_details import GeoNodeText
-        
+
         super().create("Appliance")
-        
+
         # Store appliance name on the object
         self.obj['APPLIANCE_NAME'] = self.appliance_name
-        
+
         dim_x = self.var_input('Dim X', 'dim_x')
-        dim_y = self.var_input('Dim Y', 'dim_y')
+        self.var_input('Dim Y', 'dim_y')
         dim_z = self.var_input('Dim Z', 'dim_z')
-        
+
         props = bpy.context.scene.home_builder
-        
+
         appliance_text = GeoNodeText()
         appliance_text.create('Appliance Text', self.appliance_name, props.annotation_text_size)
         appliance_text.obj.parent = self.obj
@@ -1578,11 +1576,11 @@ class OpenWithShelves(CabinetOpening):
     """An open opening with adjustable shelves.
     No door or drawer front, just exposed shelves.
     """
-    
+
     def create(self):
         super().create("Open With Shelves")
         self.add_interior(CabinetShelves())
-        
+
     def add_interior(self,interior):
         x = self.var_input('Dim X', 'x')
         y = self.var_input('Dim Y', 'y')
@@ -1592,7 +1590,7 @@ class OpenWithShelves(CabinetOpening):
         interior.obj.parent = self.obj
         interior.driver_input('Dim X','x',[x])
         interior.driver_input('Dim Y','y',[y])
-        interior.driver_input('Dim Z','z',[z])  
+        interior.driver_input('Dim Z','z',[z])
 
 
 class CabinetPart(GeoNodeCutpart):
@@ -1604,12 +1602,12 @@ class CabinetPart(GeoNodeCutpart):
         self.obj['Finish Bottom'] = True
         self.set_input('Length', inch(24))
         self.set_input('Width', inch(18))
-        self.set_input('Thickness', inch(.75))  
+        self.set_input('Thickness', inch(.75))
 
 
 class LadderBaseCage(GeoNodeCage):
     """Placeholder cage representing a ladder-style toe kick base assembly.
-    
+
     This is a wireframe cage showing the overall dimensions of the ladder base.
     The actual ladder parts (side pieces, stretchers) will be implemented later.
     """
@@ -1655,14 +1653,14 @@ class CabinetFront(CabinetPart):
 
     def assign_door_style(self):
         """Assign the active door style to this front.
-        
+
         If no door styles exist, creates a default Slab style first.
         Should be called after the front object is fully created and parented.
         """
-        
+
         main_scene = hb_project.get_main_scene()
         props = main_scene.hb_frameless
-        
+
         # Ensure at least one door style exists
         if len(props.door_styles) == 0:
             # Create default Slab door style
@@ -1670,7 +1668,7 @@ class CabinetFront(CabinetPart):
             new_style.name = "Slab"
             new_style.door_type = 'SLAB'
             props.active_door_style_index = 0
-        
+
         # Get active door style and assign it
         style_index = props.active_door_style_index
         if style_index < len(props.door_styles):
@@ -1679,22 +1677,22 @@ class CabinetFront(CabinetPart):
             result = style.assign_style_to_front(self.obj)
             # If assignment failed (e.g., front too small), still store the index
             # so it can be updated later when the style changes
-            if result != True:
+            if not result:
                 self.obj['DOOR_STYLE_NAME'] = style.name
 
     def get_pull_object(self, pull_type='door'):
         """Get the pull object for doors or drawers based on current selection.
-        
+
         Returns None if pulls are disabled (NONE) or no valid object is found.
         For CUSTOM selection, returns the pointer property object.
         For bundled pulls, loads from .blend file and caches.
         """
         from . import props_hb_frameless
         from ... import hb_project
-        
+
         main_scene = hb_project.get_main_scene()
         props = main_scene.hb_frameless
-        
+
         # Get the selected pull filename
         if pull_type == 'drawer':
             pull_filename = props.drawer_pull_selection
@@ -1702,37 +1700,37 @@ class CabinetFront(CabinetPart):
         else:
             pull_filename = props.door_pull_selection
             cached = props.current_door_pull_object
-        
+
         # No pulls selected
         if pull_filename == 'NONE':
             return None
-        
+
         # Custom pull from scene - use the pointer property directly
         if pull_filename == 'CUSTOM':
             return cached  # Returns None if not assigned yet
-        
+
         # Bundled pull - check if cached object matches current selection
         if cached:
             pull_name = os.path.splitext(pull_filename)[0] if pull_filename else ""
             if pull_name and pull_name in cached.name:
                 return cached
-        
+
         # Load the selected bundled pull
         pull_obj = props_hb_frameless.load_pull_object(pull_filename)
-        
+
         if pull_obj:
             if pull_type == 'drawer':
                 props.current_drawer_front_pull_object = pull_obj
             else:
                 props.current_door_pull_object = pull_obj
             return pull_obj
-        
+
         return None
 
 class CabinetDoor(CabinetFront):
 
     door_pull_location = "Base"
-    
+
     def create(self,name):
         super().create(name)
         self.obj['IS_DOOR_FRONT'] = True
@@ -1751,7 +1749,7 @@ class CabinetDoor(CabinetFront):
         self.add_property('Base Pull Vertical Location', 'DISTANCE', props.pull_vertical_location_base)
         self.add_property('Tall Pull Vertical Location', 'DISTANCE', props.pull_vertical_location_tall)
         self.add_property('Upper Pull Vertical Location', 'DISTANCE', props.pull_vertical_location_upper)
-        
+
         # Get pull object and its length for positioning calculations
         pull_obj = self.get_pull_object()
         pull_length = pull_obj.dimensions.x if pull_obj else 0.1016  # Default to 4 inches
@@ -1785,25 +1783,25 @@ class CabinetDoor(CabinetFront):
 
 
 class CabinetFlipUpDoor(CabinetFront):
-    """A flip-up door front with the pull rotated 90 degrees, centered horizontally, 
+    """A flip-up door front with the pull rotated 90 degrees, centered horizontally,
     and positioned at the bottom like an upper cabinet pull."""
-    
+
     def create(self, name):
         super().create(name)
         self.obj['IS_DOOR_FRONT'] = True
         self.obj['IS_FLIP_UP_DOOR'] = True
         props = bpy.context.scene.hb_frameless
-        
+
         # Get pull object and its length for positioning calculations
         pull_obj = self.get_pull_object()
         pull_length = pull_obj.dimensions.x if pull_obj else 0.1016  # Default to 4 inches
         self.add_property('Pull Length', 'DISTANCE', pull_length)
         self.add_property('Pull Vertical Location', 'DISTANCE', props.pull_vertical_location_upper)
 
-        length = self.var_input('Length', 'length')
+        self.var_input('Length', 'length')
         width = self.var_input('Width', 'width')
         thickness = self.var_input('Thickness', 'thickness')
-        pull_len = self.var_prop('Pull Length', 'pull_len')
+        self.var_prop('Pull Length', 'pull_len')
         pvl = self.var_prop('Pull Vertical Location', 'pvl')
         hide_door = self.var_hide('hide_door')
 
@@ -1826,7 +1824,7 @@ class CabinetFlipUpDoor(CabinetFront):
 class CabinetDrawerFront(CabinetFront):
 
     door_pull_location = "Base"
-    
+
     def create(self,name):
         super().create(name)
         self.obj['IS_DRAWER_FRONT'] = True
@@ -1835,7 +1833,7 @@ class CabinetDrawerFront(CabinetFront):
         self.add_property("False Front",'CHECKBOX', False)
         self.add_property("Center Pull",'CHECKBOX',props.center_pulls_on_drawer_front)
         self.add_property('Handle Horizontal Location', 'DISTANCE', props.pull_vertical_location_drawers)
-        
+
         # Get pull object and its length for positioning calculations
         pull_obj = self.get_pull_object(pull_type='drawer')
         pull_length = pull_obj.dimensions.x if pull_obj else 0.1016  # Default to 4 inches
@@ -1871,10 +1869,10 @@ class CabinetDrawerFront(CabinetFront):
         Does not add drawer box if False Front is enabled.
         """
         props = bpy.context.scene.hb_frameless
-        
+
         if not props.include_drawer_boxes:
             return
-        
+
         # Don't add drawer box if False Front
         if self.obj.get('False Front', False):
             return
@@ -1883,7 +1881,7 @@ class CabinetDrawerFront(CabinetFront):
         for child in self.obj.children:
             if child.get('IS_DRAWER_BOX'):
                 return  # Already has a drawer box
-        
+
         # Get drawer opening depth from parent
         drawer_opening = GeoNodeCage(self.obj.parent)
         opening_depth = drawer_opening.var_input('Dim Y', 'opening_depth')
@@ -1895,19 +1893,19 @@ class CabinetDrawerFront(CabinetFront):
         ro = self.var_prop('Right Overlay', 'ro')
         to = self.var_prop('Top Overlay', 'to')
         bo = self.var_prop('Bottom Overlay', 'bo')
-        
+
         # Add drawer box properties if not present
         if 'Drawer Box Side Clearance' not in self.obj:
             self.add_property('Drawer Box Side Clearance', 'DISTANCE', inch(0.5))
             self.add_property('Drawer Box Top Clearance', 'DISTANCE', inch(0.75))
             self.add_property('Drawer Box Rear Clearance', 'DISTANCE', inch(1.0))
             self.add_property('Drawer Box Bottom Clearance', 'DISTANCE', inch(.5))
-        
+
         side_clr = self.var_prop('Drawer Box Side Clearance', 'side_clr')
         top_clr = self.var_prop('Drawer Box Top Clearance', 'top_clr')
         rear_clr = self.var_prop('Drawer Box Rear Clearance', 'rear_clr')
         bottom_clr = self.var_prop('Drawer Box Bottom Clearance', 'bottom_clr')
-        
+
         drawer_box = GeoNodeDrawerBox()
         drawer_box.create('Drawer Box')
         drawer_box.obj['IS_FRAMELESS_INTERIOR_PART'] = True
@@ -1934,7 +1932,7 @@ class CabinetPulloutFront(CabinetFront):
     """
 
     door_pull_location = "Base"
-    
+
     def create(self, name):
         super().create(name)
         self.obj['IS_PULLOUT_FRONT'] = True
@@ -1986,10 +1984,10 @@ class CabinetPulloutFront(CabinetFront):
     def add_drawer_box(self):
         """Add a drawer box to this pullout front."""
         props = bpy.context.scene.hb_frameless
-        
+
         if not props.include_drawer_boxes:
             return
-        
+
         if self.obj.get('False Front', False):
             return
 
@@ -2006,18 +2004,18 @@ class CabinetPulloutFront(CabinetFront):
         ro = self.var_prop('Right Overlay', 'ro')
         to = self.var_prop('Top Overlay', 'to')
         bo = self.var_prop('Bottom Overlay', 'bo')
-        
+
         if 'Drawer Box Side Clearance' not in self.obj:
             self.add_property('Drawer Box Side Clearance', 'DISTANCE', inch(0.5))
             self.add_property('Drawer Box Top Clearance', 'DISTANCE', inch(0.75))
             self.add_property('Drawer Box Rear Clearance', 'DISTANCE', inch(1.0))
             self.add_property('Drawer Box Bottom Clearance', 'DISTANCE', inch(.5))
-        
+
         side_clr = self.var_prop('Drawer Box Side Clearance', 'side_clr')
         top_clr = self.var_prop('Drawer Box Top Clearance', 'top_clr')
         rear_clr = self.var_prop('Drawer Box Rear Clearance', 'rear_clr')
         bottom_clr = self.var_prop('Drawer Box Bottom Clearance', 'bottom_clr')
-        
+
         drawer_box = GeoNodeDrawerBox()
         drawer_box.create('Drawer Box')
         drawer_box.obj['IS_FRAMELESS_INTERIOR_PART'] = True
@@ -2281,46 +2279,45 @@ class InteriorSplitterHorizontal(CabinetInterior):
 
 class CornerCabinet(Cabinet):
     """Base class for corner cabinets.
-    
+
     Corner cabinets fit into a corner where two walls meet at 90 degrees.
-    They have an L-shaped footprint with the origin (0,0) at the back-left 
+    They have an L-shaped footprint with the origin (0,0) at the back-left
     corner (the inside corner where walls meet).
-    
+
     - Left side extends in the -Y direction
     - Right side extends in the +X direction from the right edge
-    
+
     Dimensions:
     - Dim X (width): total width from origin to right edge
-    - Dim Y (depth): total depth from origin to front 
+    - Dim Y (depth): total depth from origin to front
     - Dim Z (height): total height
     - Left Depth: depth of left wing
     - Right Depth: depth of right wing (from right side going back)
-    
+
     Subclasses override add_corner_modifier() to control the top/bottom shape:
     - Diagonal: CPM_CHAMFER (45° angled front)
     - Pie Cut: CPM_CORNERNOTCH (rectangular notch, two fronts at 90°)
     """
 
     door_pull_location = "Base"  # Override in subclass: "Base", "Tall", or "Upper"
-    
+
     corner_size = inch(36)  # Size of corner (both directions)
-    
+
     def add_properties_corner(self):
-        props = bpy.context.scene.hb_frameless
         self.add_property('Left Depth', 'DISTANCE', self.depth)
         self.add_property('Right Depth', 'DISTANCE', self.depth)
 
     def add_corner_modifier(self, part, dim_x, dim_y, ld, rd, mt):
         """Add the corner shape modifier to a top or bottom panel.
-        
-        Override in subclasses to use CPM_CHAMFER (diagonal) or 
+
+        Override in subclasses to use CPM_CHAMFER (diagonal) or
         CPM_CORNERNOTCH (pie cut).
         """
         raise NotImplementedError("Subclasses must implement add_corner_modifier")
 
     def create_corner_bays(self, dim_x, dim_y, dim_z, mt, tkh, ld, rd):
         """Create bay openings for corner cabinet doors.
-        
+
         Override in subclasses. Called at end of create_corner_base_carcass().
         Default is no bays (no doors).
         """
@@ -2328,11 +2325,11 @@ class CornerCabinet(Cabinet):
 
     def add_corner_doors(self):
         """Add a single door to each front face of the pie-cut notch.
-        
+
         Left door covers the notch X-face (at Y=-rd, running in +X).
         Right door covers the notch Y-face (at X=ld, running in -Y).
         Both doors hinge from the notch corner.
-        
+
         Overlay edges:
           Top/Bottom: full overlay over horizontal carcass panels
           Outer: full overlay over adjacent side panel
@@ -2474,25 +2471,25 @@ class CornerCabinet(Cabinet):
 
     def create_corner_base_carcass(self, name):
         """Create the corner base cabinet carcass.
-        
+
         Shared by all corner base cabinet types (diagonal, pie cut).
         The top/bottom panel shape is determined by add_corner_modifier().
         """
         super().create_cabinet(name)
-        
+
         self.add_properties_common()
         self.add_properties_toe_kick()
         self.add_properties_corner()
-        
+
         # Set dimensions - corner size determines X and Y
         self.set_input('Dim X', self.corner_size)
         self.set_input('Dim Y', self.corner_size)
         self.set_input('Dim Z', self.height)
-        
+
         dim_x = self.var_input('Dim X', 'dim_x')
         dim_y = self.var_input('Dim Y', 'dim_y')
         dim_z = self.var_input('Dim Z', 'dim_z')
-        
+
         mt = self.var_prop('Material Thickness', 'mt')
         tkh = self.var_prop('Toe Kick Height', 'tkh')
         tks = self.var_prop('Toe Kick Setback', 'tks')
@@ -2500,7 +2497,7 @@ class CornerCabinet(Cabinet):
         rd = self.var_prop('Right Depth', 'rd')
 
         toe_kick_type = self.obj.get('Toe Kick Type', 0)
-        
+
         # === SIDES ===
         if toe_kick_type == 0:  # Notch Ends to Floor
             left_side = CabinetSideNotched()
@@ -2512,7 +2509,7 @@ class CornerCabinet(Cabinet):
             left_side.driver_input("Length", 'dim_z', [dim_z])
             left_side.driver_input("Width", 'ld', [ld])
             left_side.driver_input("Thickness", 'mt', [mt])
-            
+
             right_side = CabinetSideNotched()
             right_side.create('Right Side', tkh, tks, mt)
             right_side.obj.parent = self.obj
@@ -2534,7 +2531,7 @@ class CornerCabinet(Cabinet):
             left_side.driver_input("Length", 'dim_z-tkh', [dim_z, tkh])
             left_side.driver_input("Width", 'ld', [ld])
             left_side.driver_input("Thickness", 'mt', [mt])
-            
+
             right_side = CabinetPart()
             right_side.create('Right Side')
             right_side.obj.parent = self.obj
@@ -2546,7 +2543,7 @@ class CornerCabinet(Cabinet):
             right_side.driver_input("Thickness", 'mt', [mt])
             right_side.set_input("Mirror Y", True)
             right_side.set_input("Mirror Z", False)
-        
+
         # === BACKS (same for all types) ===
         left_back = CabinetPart()
         left_back.create('Left Back')
@@ -2558,7 +2555,7 @@ class CornerCabinet(Cabinet):
         left_back.driver_input("Thickness", 'mt', [mt])
         left_back.set_input("Mirror Y", True)
         left_back.set_input("Mirror Z", True)
-        
+
         right_back = CabinetPart()
         right_back.create('Right Back')
         right_back.obj.parent = self.obj
@@ -2570,7 +2567,7 @@ class CornerCabinet(Cabinet):
         right_back.driver_input("Thickness", 'mt', [mt])
         right_back.set_input("Mirror Y", True)
         right_back.set_input("Mirror Z", True)
-        
+
         # === BOTTOM (same for all types) ===
         bottom = CabinetPart()
         bottom.create('Bottom')
@@ -2582,7 +2579,7 @@ class CornerCabinet(Cabinet):
         bottom.set_input("Mirror Y", True)
         bottom.set_input("Mirror Z", False)
         self.add_corner_modifier(bottom, dim_x, dim_y, ld, rd, mt)
-        
+
         # === TOP (same for all types) ===
         top = CabinetPart()
         top.create('Top')
@@ -2608,7 +2605,7 @@ class CornerCabinet(Cabinet):
             left_toe_kick.driver_input("Width", 'tkh', [tkh])
             left_toe_kick.driver_input("Thickness", 'mt', [mt])
             left_toe_kick.set_input("Mirror Y", True)
-            
+
             right_toe_kick = CabinetPart()
             right_toe_kick.create('Right Toe Kick')
             right_toe_kick.obj.parent = self.obj
@@ -2635,28 +2632,28 @@ class CornerCabinet(Cabinet):
 
     def create_corner_upper_carcass(self, name):
         """Create the corner upper cabinet carcass.
-        
+
         Similar to base but without toe kicks or notched sides.
         Bottom sits at Z=0, sides are plain CabinetPart.
         """
         super().create_cabinet(name)
-        
+
         self.add_properties_common()
         self.add_properties_corner()
-        
+
         # Set dimensions
         self.set_input('Dim X', self.corner_size)
         self.set_input('Dim Y', self.corner_size)
         self.set_input('Dim Z', self.height)
-        
+
         dim_x = self.var_input('Dim X', 'dim_x')
         dim_y = self.var_input('Dim Y', 'dim_y')
         dim_z = self.var_input('Dim Z', 'dim_z')
-        
+
         mt = self.var_prop('Material Thickness', 'mt')
         ld = self.var_prop('Left Depth', 'ld')
         rd = self.var_prop('Right Depth', 'rd')
-        
+
         # Left Side - runs along Y axis on the left edge
         left_side = CabinetPart()
         left_side.create('Left Side')
@@ -2667,7 +2664,7 @@ class CornerCabinet(Cabinet):
         left_side.driver_input("Length", 'dim_z', [dim_z])
         left_side.driver_input("Width", 'ld', [ld])
         left_side.driver_input("Thickness", 'mt', [mt])
-        
+
         # Right Side - runs along X axis from the right edge
         right_side = CabinetPart()
         right_side.create('Right Side')
@@ -2679,7 +2676,7 @@ class CornerCabinet(Cabinet):
         right_side.driver_input("Thickness", 'mt', [mt])
         right_side.set_input("Mirror Y", True)
         right_side.set_input("Mirror Z", False)
-        
+
         # Left Back - vertical panel against left wall
         left_back = CabinetPart()
         left_back.create('Left Back')
@@ -2691,7 +2688,7 @@ class CornerCabinet(Cabinet):
         left_back.driver_input("Thickness", 'mt', [mt])
         left_back.set_input("Mirror Y", True)
         left_back.set_input("Mirror Z", True)
-        
+
         # Right Back - vertical panel against right wall
         right_back = CabinetPart()
         right_back.create('Right Back')
@@ -2704,7 +2701,7 @@ class CornerCabinet(Cabinet):
         right_back.driver_input("Thickness", 'mt', [mt])
         right_back.set_input("Mirror Y", True)
         right_back.set_input("Mirror Z", True)
-        
+
         # Bottom panel
         bottom = CabinetPart()
         bottom.create('Bottom')
@@ -2715,7 +2712,7 @@ class CornerCabinet(Cabinet):
         bottom.set_input("Mirror Y", True)
         bottom.set_input("Mirror Z", False)
         self.add_corner_modifier(bottom, dim_x, dim_y, ld, rd, mt)
-        
+
         # Top panel
         top = CabinetPart()
         top.create('Top')
@@ -2731,14 +2728,14 @@ class CornerCabinet(Cabinet):
 
 class DiagonalCornerBaseCabinet(CornerCabinet):
     """Diagonal corner base cabinet - 45° angled front."""
-    
+
     def __init__(self):
         super().__init__()
         props = bpy.context.scene.hb_frameless
         self.corner_size = props.base_inside_corner_size
         self.height = props.base_cabinet_height
         self.depth = props.base_cabinet_depth
-    
+
     def create(self, name="Diagonal Corner Base"):
         self.create_corner_base_carcass(name)
         self.obj['CABINET_TYPE'] = 'BASE'
@@ -2756,14 +2753,14 @@ class DiagonalCornerBaseCabinet(CornerCabinet):
 
 class PieCutCornerBaseCabinet(CornerCabinet):
     """Pie cut corner base cabinet - rectangular notch, two fronts at 90°."""
-    
+
     def __init__(self):
         super().__init__()
         props = bpy.context.scene.hb_frameless
         self.corner_size = props.base_inside_corner_size
         self.height = props.base_cabinet_height
         self.depth = props.base_cabinet_depth
-    
+
     def create(self, name="Pie Cut Corner Base"):
         self.create_corner_base_carcass(name)
         self.obj['CABINET_TYPE'] = 'BASE'
@@ -2800,14 +2797,14 @@ class PieCutCornerBaseCabinet(CornerCabinet):
 
 class DiagonalCornerTallCabinet(CornerCabinet):
     """Diagonal corner tall cabinet."""
-    
+
     def __init__(self):
         super().__init__()
         props = bpy.context.scene.hb_frameless
         self.corner_size = props.tall_inside_corner_size
         self.height = props.tall_cabinet_height
         self.depth = props.tall_cabinet_depth
-    
+
     def create(self, name="Diagonal Corner Tall"):
         self.create_cabinet(name)
         self.obj['CABINET_TYPE'] = 'TALL'
@@ -2818,14 +2815,14 @@ class PieCutCornerTallCabinet(CornerCabinet):
     """Pie cut corner tall cabinet."""
 
     door_pull_location = "Tall"
-    
+
     def __init__(self):
         super().__init__()
         props = bpy.context.scene.hb_frameless
         self.corner_size = props.tall_inside_corner_size
         self.height = props.tall_cabinet_height
         self.depth = props.tall_cabinet_depth
-    
+
     def create(self, name="Pie Cut Corner Tall"):
         self.create_corner_base_carcass(name)
         self.obj['CABINET_TYPE'] = 'TALL'
@@ -2861,14 +2858,14 @@ class PieCutCornerTallCabinet(CornerCabinet):
 
 class DiagonalCornerUpperCabinet(CornerCabinet):
     """Diagonal corner upper cabinet."""
-    
+
     def __init__(self):
         super().__init__()
         props = bpy.context.scene.hb_frameless
         self.corner_size = props.upper_inside_corner_size
         self.height = props.upper_cabinet_height
         self.depth = props.upper_cabinet_depth
-    
+
     def create(self, name="Diagonal Corner Upper"):
         self.create_cabinet(name)
         self.obj['CABINET_TYPE'] = 'UPPER'
@@ -2879,14 +2876,14 @@ class PieCutCornerUpperCabinet(CornerCabinet):
     """Pie-cut corner upper cabinet."""
 
     door_pull_location = "Upper"
-    
+
     def __init__(self):
         super().__init__()
         props = bpy.context.scene.hb_frameless
         self.corner_size = props.upper_inside_corner_size
         self.height = props.upper_cabinet_height
         self.depth = props.upper_cabinet_depth
-    
+
     def create(self, name="Pie Cut Corner Upper"):
         self.create_corner_upper_carcass(name)
         self.obj['CABINET_TYPE'] = 'UPPER'

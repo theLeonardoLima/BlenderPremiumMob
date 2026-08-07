@@ -42,14 +42,14 @@ def format_value(value_in_meters, scene=None):
         scene = bpy.context.scene
     unit = get_scene_length_unit(scene)
     val = from_meters(value_in_meters, unit)
-    
+
     # Remove zeros redundantes na formatação
     rounded = round(val, 3)
     if rounded == int(rounded):
         val_str = str(int(rounded))
     else:
         val_str = f"{rounded:.3f}".rstrip('0').rstrip('.')
-        
+
     if unit == 'MM':
         return f"{val_str} mm"
     elif unit == 'CM':

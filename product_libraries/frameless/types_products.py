@@ -1,14 +1,13 @@
 import bpy
 import math
-from ...hb_types import GeoNodeCage, GeoNodeCutpart
-from ... import units
+from ...hb_types import GeoNodeCage
 from ...units import inch
 from .types_frameless import CabinetPart, CabinetSideNotched
 
 
 class Product(GeoNodeCage):
     """Base class for frameless products (non-cabinet products).
-    
+
     Products use IS_FRAMELESS_PRODUCT_CAGE marker so they appear in Cabinets
     selection mode but are distinguishable from actual cabinets.
     """
@@ -36,7 +35,7 @@ class Product(GeoNodeCage):
 
 class FloatingShelf(Product):
     """Floating shelf mounted on wall.
-    
+
     Dim X = shelf width, Dim Y = shelf depth, Dim Z = shelf thickness.
     """
 
@@ -105,7 +104,7 @@ class FloatingShelf(Product):
         led_route.driver_input('X','-.01',[])
         led_route.driver_input('Y','led_ib',[led_ib])
         led_route.driver_input('End X','dim_x',[dim_x])
-        led_route.driver_input('End Y','led_ib+led_wb',[led_ib,led_wb])        
+        led_route.driver_input('End Y','led_ib+led_wb',[led_ib,led_wb])
         led_route.driver_input('Route Depth','led_depth',[led_depth])
         led_route.set_input('Flip Z',True)
         led_route.driver_hide('IF(led_rt,False,True)', [led_rt])
@@ -123,7 +122,7 @@ class FloatingShelf(Product):
         led_route.driver_input('X','-.01',[])
         led_route.driver_input('Y','led_it',[led_it])
         led_route.driver_input('End X','dim_x',[dim_x])
-        led_route.driver_input('End Y','led_it+led_wt',[led_it,led_wt])        
+        led_route.driver_input('End Y','led_it+led_wt',[led_it,led_wt])
         led_route.driver_input('Route Depth','led_depth',[led_depth])
         led_route.set_input('Flip Z',False)
         led_route.driver_hide('IF(led_rb,False,True)', [led_rb])
@@ -157,7 +156,7 @@ class FloatingShelf(Product):
 
 class Valance(Product):
     """Decorative front-facing board.
-    
+
     A thin board oriented vertically on the front face.
     Dim X = width, Dim Y = depth, Dim Z = height.
     Placed like an upper cabinet.
@@ -253,14 +252,13 @@ class Valance(Product):
 
 class SupportFrame(Product):
     """Open rectangular frame (sides, top, bottom).
-    
+
     Used for supporting countertop overhangs, peninsulas, etc.
     Has configurable legs at each corner with inset or wrapped options.
     """
 
     def __init__(self):
         super().__init__()
-        props = bpy.context.scene.hb_frameless
         self.width = inch(60)
         self.height = inch(4)
         self.depth = inch(24)
@@ -450,7 +448,7 @@ class SupportFrame(Product):
 
 class HalfWall(Product):
     """Pony wall / knee wall.
-    
+
     Constructed with studs, skins, and optional finished end caps.
     """
 
@@ -486,16 +484,16 @@ class HalfWall(Product):
         dim_z = self.var_input('Dim Z', 'dim_z')
         mt = self.var_prop('Material Thickness', 'mt')
         st = self.var_prop('Stud Thickness', 'st')
-        skt = self.var_prop('Skin Thickness', 'skt')
+        self.var_prop('Skin Thickness', 'skt')
         ssp = self.var_prop('Stud Spacing', 'ssp')
         esfe = self.var_prop('End Stud From Edge', 'esfe')
-        lec = self.var_prop('Left End Cap', 'lec')
-        rec = self.var_prop('Right End Cap', 'rec')
-        fes = self.var_prop('Finished End Setback', 'fes')
-        lfr = self.var_prop('Left Finished Revel', 'lfr')
-        rfr = self.var_prop('Right Finished Revel', 'rfr')
-        ff = self.var_prop('Finish Front', 'ff')
-        fba = self.var_prop('Finish Back', 'fba')
+        self.var_prop('Left End Cap', 'lec')
+        self.var_prop('Right End Cap', 'rec')
+        self.var_prop('Finished End Setback', 'fes')
+        self.var_prop('Left Finished Revel', 'lfr')
+        self.var_prop('Right Finished Revel', 'rfr')
+        self.var_prop('Finish Front', 'ff')
+        self.var_prop('Finish Back', 'fba')
 
         left_end = CabinetPart()
         left_end.create('Left End')
@@ -609,7 +607,7 @@ class HalfWall(Product):
 class MiscPart(CabinetPart):
     """A single freely-resizable cabinet part with no cage wrapper.
 
-    Uses IS_FRAMELESS_MISC_PART marker so it does not appear in 
+    Uses IS_FRAMELESS_MISC_PART marker so it does not appear in
     Cabinets selection mode.
     """
 
@@ -634,7 +632,7 @@ class MiscPart(CabinetPart):
 
 class Leg(Product):
     """Vertical Leg.
-    
+
     A narrow square-profile vertical part with toe kick and panel options.
     Dim X = width, Dim Y = depth, Dim Z = height.
     """
@@ -724,7 +722,7 @@ class Leg(Product):
 
 class TallLeg(Product):
     """Vertical Leg for tall cabinets.
-    
+
     Same construction as base Leg but with tall cabinet default sizes.
     Dim X = width, Dim Y = depth, Dim Z = height.
     """
@@ -813,7 +811,7 @@ class TallLeg(Product):
 
 class UpperLeg(Product):
     """Vertical Leg for upper cabinets.
-    
+
     No toe kick. Includes top and bottom panels.
     Placed at upper cabinet height above the floor.
     Dim X = width, Dim Y = depth, Dim Z = height.
@@ -906,8 +904,8 @@ class UpperLeg(Product):
 
 class Panel(Product):
     """Single flat vertical panel (filler, end panel, etc).
-    
-    A thin vertical board. 
+
+    A thin vertical board.
     Dim X = width, Dim Y = thickness, Dim Z = height.
     """
 

@@ -6,11 +6,11 @@ Data is stored on the "main scene" which is tagged with IS_MAIN_SCENE.
 
 Usage:
     from . import hb_project
-    
+
     # Get project properties (finds/creates main scene tag if needed)
     project = hb_project.get_project_props(context)
     print(project.project_name)
-    
+
     # Get main scene
     main = hb_project.get_main_scene(context)
 """
@@ -32,96 +32,96 @@ class Home_Builder_Project_Props(PropertyGroup):
     Project-level properties stored on the main scene.
     These persist across all room scenes in the project.
     """
-    
+
     # Project identification
     project_name: StringProperty(
         name="Project Name",
         description="Name of the project",
         default="New Project"
     )  # type: ignore
-    
+
     project_number: StringProperty(
         name="Project Number",
         description="Project number or ID",
         default=""
     )  # type: ignore
-    
+
     # Designer info
     designer_name: StringProperty(
         name="Designer",
         description="Name of the designer",
         default=""
     )  # type: ignore
-    
+
     designer_phone: StringProperty(
         name="Designer Phone",
         description="Designer phone number",
         default=""
     )  # type: ignore
-    
+
     designer_email: StringProperty(
         name="Designer Email",
         description="Designer email address",
         default=""
     )  # type: ignore
-    
+
     # Client info
     client_name: StringProperty(
         name="Client Name",
         description="Client name",
         default=""
     )  # type: ignore
-    
+
     client_address: StringProperty(
         name="Address",
         description="Client street address",
         default=""
     )  # type: ignore
-    
+
     client_city: StringProperty(
         name="City",
         description="Client city",
         default=""
     )  # type: ignore
-    
+
     client_state: StringProperty(
         name="State",
         description="Client state/province",
         default=""
     )  # type: ignore
-    
+
     client_zip: StringProperty(
         name="Zip",
         description="Client zip/postal code",
         default=""
     )  # type: ignore
-    
+
     client_phone: StringProperty(
         name="Phone",
         description="Client phone number",
         default=""
     )  # type: ignore
-    
+
     client_email: StringProperty(
         name="Email",
         description="Client email address",
         default=""
     )  # type: ignore
-    
+
     # Project notes
     project_notes: StringProperty(
         name="Notes",
         description="Project notes",
         default=""
     )  # type: ignore
-    
+
     # Project dates
     project_date: StringProperty(
         name="Date",
         description="Project date",
         default=""
     )  # type: ignore
-    
+
     @classmethod
     def register(cls):
         bpy.types.Scene.hb_project = PointerProperty(
@@ -129,7 +129,7 @@ class Home_Builder_Project_Props(PropertyGroup):
             description="Project-level properties",
             type=cls,
         )
-    
+
     @classmethod
     def unregister(cls):
         if hasattr(bpy.types.Scene, 'hb_project'):
@@ -146,10 +146,10 @@ def get_main_scene(context=None):
     Always returns a scene if any exist. Will attempt to tag a new
     main scene if none is tagged, but handles restricted (draw) contexts
     gracefully by catching the write error.
-    
+
     Args:
         context: Blender context (optional, uses bpy.context if None)
-    
+
     Returns:
         The main scene, or None if no scenes exist
     """
@@ -157,7 +157,7 @@ def get_main_scene(context=None):
     for scene in bpy.data.scenes:
         if scene.get('IS_MAIN_SCENE'):
             return scene
-    
+
     # No main scene tagged - find best candidate
     room_scenes = get_room_scenes()
     if room_scenes:
@@ -166,23 +166,23 @@ def get_main_scene(context=None):
         main = bpy.data.scenes[0]
     else:
         return None
-    
+
     # Attempt to tag - this will fail silently in draw contexts
     try:
         main['IS_MAIN_SCENE'] = True
     except AttributeError:
         pass
-    
+
     return main
 
 
 def get_project_props(context=None):
     """
     Get project properties from the main scene.
-    
+
     Args:
         context: Blender context (optional)
-    
+
     Returns:
         Home_Builder_Project_Props instance
     """
@@ -195,17 +195,17 @@ def get_project_props(context=None):
 def ensure_main_scene(context=None):
     """
     Ensure a main scene is tagged. Call this on file load or after room deletion.
-    
+
     Args:
         context: Blender context (optional)
-    
+
     Returns:
         The main scene
     """
     main = get_main_scene(context)
     if main:
         return main
-    
+
     # No main scene tagged - tag the first room scene or first scene
     room_scenes = get_room_scenes()
     if room_scenes:
@@ -231,7 +231,7 @@ def set_main_scene(scene):
     for s in bpy.data.scenes:
         if 'IS_MAIN_SCENE' in s:
             del s['IS_MAIN_SCENE']
-    
+
     # Tag the new main scene
     scene['IS_MAIN_SCENE'] = True
 

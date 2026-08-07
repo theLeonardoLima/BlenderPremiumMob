@@ -66,7 +66,7 @@ def gn_input_data_path(mod, identifier):
 
 def get_cabinet_bp(obj):
     """Walk up the parent hierarchy to find the cabinet or part base point object.
-    
+
     Finds objects with IS_FRAMELESS_CABINET_CAGE or IS_FRAMELESS_PRODUCT_CAGE markers.
     """
     if obj is None:
@@ -80,7 +80,7 @@ def get_cabinet_bp(obj):
 
 def get_product_bp(obj):
     """Walk up the parent hierarchy to find the part base point object.
-    
+
     Only finds objects with IS_FRAMELESS_PRODUCT_CAGE marker (not cabinets).
     """
     if obj is None:
@@ -171,17 +171,17 @@ def delete_obj_and_children(obj):
 
     if obj is None:
         return
-    
+
     # Collect all objects to delete (children first)
     objects_to_delete = []
-    
+
     def collect_children(o):
         for child in o.children:
             collect_children(child)
         objects_to_delete.append(o)
-    
+
     collect_children(obj)
-    
+
     # Delete all collected objects
     for o in objects_to_delete:
         bpy.data.objects.remove(o, do_unlink=True)
@@ -190,10 +190,10 @@ def delete_obj_and_children(obj):
 def run_calc_fix(context, obj=None, passes=2):
     """
     Workaround for Blender bug #133392 - grandchild drivers not updating.
-    
+
     This function forces all drivers in an object hierarchy to recalculate
     by using frame change and touching driven properties.
-    
+
     Args:
         context: Blender context
         obj: Optional object to update (updates all descendants)
@@ -222,7 +222,7 @@ def run_calc_fix(context, obj=None, passes=2):
             for mod in o.modifiers:
                 if mod.type == 'NODES':
                     mod.show_viewport = mod.show_viewport
-        
+
         # Calculate all calculators
         for calculator in home_builder_calculators:
             calculator.calculate()
@@ -232,10 +232,10 @@ def run_calc_fix(context, obj=None, passes=2):
         current_frame = scene.frame_current
         scene.frame_set(current_frame + 1)
         scene.frame_set(current_frame)
-        
+
         # Update depsgraph
         context.view_layer.update()
-    
+
     # Force evaluated mesh read to ensure geometry nodes have processed
     depsgraph = context.evaluated_depsgraph_get()
     for o in objects_to_update:
@@ -249,13 +249,13 @@ def run_calc_fix(context, obj=None, passes=2):
 def run_calc_fix_until_stable(context, obj=None, max_passes=5, tolerance=0.0001):
     """
     Run calc fix until dimensions stabilize or max passes reached.
-    
+
     Args:
         context: Blender context
         obj: Optional object to update
         max_passes: Maximum number of passes before giving up
         tolerance: Tolerance for dimension comparison (in meters)
-    
+
     Returns:
         Number of passes needed, or -1 if didn't stabilize
     """
@@ -263,7 +263,7 @@ def run_calc_fix_until_stable(context, obj=None, max_passes=5, tolerance=0.0001)
         objects_to_update = [obj] + list(obj.children_recursive)
     else:
         objects_to_update = list(context.scene.objects)
-    
+
     def get_dimensions_hash():
         """Get a hash of all object dimensions for comparison."""
         dims = []
@@ -271,13 +271,13 @@ def run_calc_fix_until_stable(context, obj=None, max_passes=5, tolerance=0.0001)
             if o.type == 'MESH':
                 dims.append((o.name, tuple(o.dimensions)))
         return dims
-    
+
     previous_dims = None
-    
+
     for pass_num in range(max_passes):
         run_calc_fix(context, obj, passes=1)
         current_dims = get_dimensions_hash()
-        
+
         if previous_dims is not None:
             # Check if dimensions have stabilized
             stable = True
@@ -288,12 +288,12 @@ def run_calc_fix_until_stable(context, obj=None, max_passes=5, tolerance=0.0001)
                         break
                 if not stable:
                     break
-            
+
             if stable:
                 return pass_num + 1
-        
+
         previous_dims = current_dims
-    
+
     return -1  # Didn't stabilize
 
 def add_driver_variables(driver,variables):
@@ -315,21 +315,21 @@ def save_view_state(scene):
             for space in area.spaces:
                 if space.type == 'VIEW_3D':
                     r3d = space.region_3d
-                    
+
                     # Store view location
                     scene['VIEW_LOCATION_X'] = r3d.view_location.x
                     scene['VIEW_LOCATION_Y'] = r3d.view_location.y
                     scene['VIEW_LOCATION_Z'] = r3d.view_location.z
-                    
+
                     # Store view rotation (as quaternion)
                     scene['VIEW_ROTATION_W'] = r3d.view_rotation.w
                     scene['VIEW_ROTATION_X'] = r3d.view_rotation.x
                     scene['VIEW_ROTATION_Y'] = r3d.view_rotation.y
                     scene['VIEW_ROTATION_Z'] = r3d.view_rotation.z
-                    
+
                     # Store view distance
                     scene['VIEW_DISTANCE'] = r3d.view_distance
-                    
+
                     # Store view perspective mode
                     scene['VIEW_PERSPECTIVE'] = r3d.view_perspective
 
@@ -348,30 +348,30 @@ def restore_view_state(scene):
     # Check if view state was saved
     if 'VIEW_LOCATION_X' not in scene:
         return False
-    
+
     for area in bpy.context.screen.areas:
         if area.type == 'VIEW_3D':
             for space in area.spaces:
                 if space.type == 'VIEW_3D':
                     r3d = space.region_3d
-                    
+
                     # Restore view location
                     r3d.view_location.x = scene.get('VIEW_LOCATION_X', 0)
                     r3d.view_location.y = scene.get('VIEW_LOCATION_Y', 0)
                     r3d.view_location.z = scene.get('VIEW_LOCATION_Z', 0)
-                    
+
                     # Restore view rotation
-                    
+
                     r3d.view_rotation = Quaternion((
                         scene.get('VIEW_ROTATION_W', 1),
                         scene.get('VIEW_ROTATION_X', 0),
                         scene.get('VIEW_ROTATION_Y', 0),
                         scene.get('VIEW_ROTATION_Z', 0)
                     ))
-                    
+
                     # Restore view distance
                     r3d.view_distance = scene.get('VIEW_DISTANCE', 10)
-                    
+
                     # Restore view perspective
                     r3d.view_perspective = scene.get('VIEW_PERSPECTIVE', 'PERSP')
 
@@ -398,7 +398,7 @@ def set_camera_view():
 
 def set_top_down_view():
     """Set the 3D viewport to top-down orthographic view."""
-    
+
     for area in bpy.context.screen.areas:
         if area.type == 'VIEW_3D':
             for space in area.spaces:
@@ -429,15 +429,15 @@ def frame_all_objects():
     # Select all objects temporarily
     original_selection = [obj for obj in bpy.context.selected_objects]
     original_active = bpy.context.view_layer.objects.active
-    
+
     bpy.ops.object.select_all(action='DESELECT')
-    
+
     has_objects = False
     for obj in bpy.context.scene.objects:
         if obj.type in ('MESH', 'CURVE', 'FONT', 'EMPTY'):
             obj.select_set(True)
             has_objects = True
-    
+
     if has_objects:
         # Frame selected - need proper context with area AND region
         for area in bpy.context.screen.areas:
@@ -448,7 +448,7 @@ def frame_all_objects():
                             bpy.ops.view3d.view_selected()
                         break
                 break
-    
+
     # Restore selection
     bpy.ops.object.select_all(action='DESELECT')
     for obj in original_selection:

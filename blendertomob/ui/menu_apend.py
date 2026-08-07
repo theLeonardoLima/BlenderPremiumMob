@@ -14,7 +14,7 @@ def draw_object_mode_right_click_menu(self, context):
 
 
 def register():
-    bpy.types.VIEW3D_MT_object_context_menu.prepend(draw_object_mode_right_click_menu)  
+    bpy.types.VIEW3D_MT_object_context_menu.prepend(draw_object_mode_right_click_menu)
 
 def unregister():
-    bpy.types.VIEW3D_MT_object_context_menu.remove(draw_object_mode_right_click_menu)   
+    bpy.types.VIEW3D_MT_object_context_menu.remove(draw_object_mode_right_click_menu)

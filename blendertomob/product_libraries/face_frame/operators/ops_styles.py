@@ -367,7 +367,6 @@ class hb_face_frame_OT_update_cabinets_from_style(Operator):
         style = ff.cabinet_styles[idx]
         target_name = style.name
 
-        from ...common import wood_hoods
         # Walk the scene; match cabinets by cage marker and wood hoods by
         # APPLIANCE_TYPE, both gated on STYLE_NAME.
         cab_roots = []

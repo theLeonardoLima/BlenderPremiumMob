@@ -44,7 +44,7 @@ class BTM_OT_WallBuilder(bpy.types.Operator):
 
         # Estado de digitação numérica
         self.typed_value = ""        # Buffer de digitação
-        self.typing = False          
+        self.typing = False
         self.active_field = 'LENGTH' # LENGTH, ANGLE, THICKNESS, HEIGHT
 
         # Desenho

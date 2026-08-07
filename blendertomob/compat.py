@@ -28,7 +28,7 @@ def _get_input_identifier(node_group, input_name):
     # Garante que a interface do modificador está atualizada com o grupo de nós
     if hasattr(node_group, 'interface_update'):
         node_group.interface_update(bpy.context)
-        
+
     ident = node_group.interface.items_tree[input_name].identifier
     group_cache[input_name] = ident
     return ident

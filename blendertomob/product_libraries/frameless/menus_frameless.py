@@ -36,11 +36,11 @@ class HOME_BUILDER_MT_applied_end_commands(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
         obj = context.object
-        
+
         if obj and obj.get('IS_APPLIED_PANEL_5PIECE'):
             layout.operator("hb_frameless.applied_panel_prompts", text="Panel Prompts")
             layout.separator()
-        
+
         layout.operator("hb_frameless.update_finished_end", text="Change Finished End Type")
         layout.separator()
         layout.operator("hb_frameless.remove_applied_end", text="Remove Applied End")
@@ -58,18 +58,18 @@ class HOME_BUILDER_MT_cabinet_commands(bpy.types.Menu):
         layout.separator()
         layout.menu("HOME_BUILDER_MT_applied_ends", text="Applied Ends")
         layout.operator("hb_frameless.finish_interior", text="Finish Interior")
-        
+
         # Show "Create Cabinet Group" if multiple cabinets are selected
         selected_cabinets = set()
         for obj in context.selected_objects:
             cabinet_bp = hb_utils.get_cabinet_bp(obj)
             if cabinet_bp:
                 selected_cabinets.add(cabinet_bp)
-        
+
         if len(selected_cabinets) > 1:
             layout.separator()
             layout.operator("hb_frameless.create_cabinet_group", text="Create Cabinet Group")
-        
+
         layout.separator()
         layout.operator("hb_frameless.delete_cabinet", text="Delete Cabinet")
 
@@ -82,16 +82,16 @@ class HOME_BUILDER_MT_bay_commands(bpy.types.Menu):
         layout.operator("hb_frameless.edit_splitter_openings", text="Edit Opening Sizes")
         layout.separator()
         layout.menu("HOME_BUILDER_MT_bay_change_configuration", text="Change Configuration")
-        
+
 
 class HOME_BUILDER_MT_bay_change_configuration(bpy.types.Menu):
     bl_label = "Change Bay Configuration"
 
     def draw(self, context):
         from ... import hb_utils
-        
+
         layout = self.layout
-        
+
         # Detect cabinet type from selected object
         cabinet_type = 'BASE'  # Default
         obj = context.object
@@ -101,7 +101,7 @@ class HOME_BUILDER_MT_bay_change_configuration(bpy.types.Menu):
                 cabinet_bp = hb_utils.get_cabinet_bp(bay_bp)
                 if cabinet_bp:
                     cabinet_type = cabinet_bp.get('CABINET_TYPE', 'BASE')
-        
+
         if cabinet_type == 'BASE':
             self.draw_base_options(layout)
         elif cabinet_type == 'UPPER':
@@ -110,11 +110,11 @@ class HOME_BUILDER_MT_bay_change_configuration(bpy.types.Menu):
             self.draw_tall_options(layout)
         else:
             self.draw_base_options(layout)  # Fallback
-        
+
         layout.separator()
         layout.operator("hb_frameless.custom_vertical_splitter", text="Custom Vertical...",icon='COLLAPSEMENU')
         layout.operator("hb_frameless.custom_horizontal_splitter", text="Custom Horizontal...",icon='PAUSE')
-    
+
     def draw_base_options(self, layout):
         """Draw options for base cabinets."""
         layout.operator("hb_frameless.change_bay_opening", text="Left Swing Door").opening_type = 'LEFT_DOOR'
@@ -137,7 +137,7 @@ class HOME_BUILDER_MT_bay_change_configuration(bpy.types.Menu):
         layout.separator()
         layout.operator("hb_frameless.change_bay_opening", text="Open with Shelves").opening_type = 'OPEN_WITH_SHELVES'
         layout.operator("hb_frameless.change_bay_opening", text="Open").opening_type = 'OPEN'
-    
+
     def draw_upper_options(self, layout):
         """Draw options for upper cabinets."""
         layout.operator("hb_frameless.change_bay_opening", text="Left Swing Door").opening_type = 'LEFT_DOOR'
@@ -160,7 +160,7 @@ class HOME_BUILDER_MT_bay_change_configuration(bpy.types.Menu):
         layout.separator()
         layout.operator("hb_frameless.change_bay_opening", text="Open with Shelves").opening_type = 'OPEN_WITH_SHELVES'
         layout.operator("hb_frameless.change_bay_opening", text="Open").opening_type = 'OPEN'
-    
+
     def draw_tall_options(self, layout):
         """Draw options for tall cabinets."""
         layout.operator("hb_frameless.change_bay_opening", text="Left Swing Door").opening_type = 'LEFT_DOOR'

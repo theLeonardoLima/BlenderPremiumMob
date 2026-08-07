@@ -1,7 +1,5 @@
 import bpy
-from .. import types_frameless
-from .. import props_hb_frameless
-from .... import hb_utils, hb_project, hb_types, units
+from .... import hb_utils, hb_project, hb_types
 
 class hb_frameless_OT_update_toe_kick_prompts(bpy.types.Operator):
     bl_idname = "hb_frameless.update_toe_kick_prompts"
@@ -25,7 +23,7 @@ class hb_frameless_OT_update_toe_kick_prompts(bpy.types.Operator):
                 obj['Toe Kick Setback'] = frameless_props.default_toe_kick_setback
             if 'Toe Kick Type' in obj:
                 obj['Toe Kick Type'] = new_type_index
-            hb_utils.run_calc_fix(context,obj)              
+            hb_utils.run_calc_fix(context,obj)
         return {'FINISHED'}
 
 
@@ -98,7 +96,7 @@ class hb_frameless_OT_update_door_and_drawer_front_style(bpy.types.Operator):
         for obj in context.scene.objects:
             if 'IS_DOOR_FRONT' in obj or 'IS_DRAWER_FRONT' in obj:
                 result = selected_door_style.assign_style_to_front(obj)
-                if result == True:
+                if result:
                     success_count += 1
                 else:
                     skip_count += 1
@@ -117,21 +115,21 @@ class hb_frameless_OT_update_cabinet_sizes(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        
+
         # Get props from main scene
         main_scene = hb_project.get_main_scene()
         props = main_scene.hb_frameless
-        
+
         updated_count = 0
-        
+
         # Find all cabinets in the current scene
         for obj in context.scene.objects:
             if not obj.get('IS_FRAMELESS_CABINET_CAGE'):
                 continue
-            
+
             cabinet_type = obj.get('CABINET_TYPE', '')
             cabinet = hb_types.GeoNodeObject(obj)
-            
+
             # Get the appropriate depth and height based on cabinet type
             if cabinet_type == 'BASE':
                 new_depth = props.base_cabinet_depth
@@ -145,7 +143,7 @@ class hb_frameless_OT_update_cabinet_sizes(bpy.types.Operator):
             else:
                 # Unknown type, skip
                 continue
-            
+
             # Update depth (Dim Y) and height (Dim Z)
             try:
                 cabinet.set_input('Dim Y', new_depth)
@@ -153,12 +151,12 @@ class hb_frameless_OT_update_cabinet_sizes(bpy.types.Operator):
                 updated_count += 1
             except Exception as e:
                 self.report({'WARNING'}, f"Could not update cabinet {obj.name}: {str(e)}")
-        
+
         if updated_count > 0:
             self.report({'INFO'}, f"Updated {updated_count} cabinet(s)")
         else:
             self.report({'INFO'}, "No cabinets found to update")
-        
+
         return {'FINISHED'}
 
 

@@ -1,5 +1,4 @@
 import bpy  # type: ignore
-import math
 
 
 # ---------------------------------------------------------------------------
@@ -23,7 +22,7 @@ def update_wall_geom(self, context):
                 return
             except Exception:
                 pass
-        
+
         # Fallback for single-segment walls
         from ..geometry.mesh_gen import generate_wall_mesh
         generate_wall_mesh(obj, self.length, self.thickness, self.height_start)
@@ -34,7 +33,7 @@ def update_cabinet_geom(self, context):
     if obj and obj.type == 'MESH':
         from ..geometry.mesh_gen import generate_cabinet_mesh
         generate_cabinet_mesh(obj, self.width, self.height, self.depth, self.thickness)
-        
+
         # Atualiza a geometria da porta e o controlador vazio
         from ..geometry import door_controller
         door_controller.update_door_geometry_and_controller(obj)
@@ -295,7 +294,7 @@ class BTM_PG_CabinetProperties(bpy.types.PropertyGroup):
         ],
         default='BASE'
     )  # type: ignore
-    
+
     # Propriedades de abertura e swing da porta
     door_open = bpy.props.FloatProperty(
         name="Abertura Porta",

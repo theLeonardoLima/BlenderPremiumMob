@@ -25,12 +25,12 @@ class BTM_OT_CabinetBuilder(bpy.types.Operator):
         # Cria novo mesh container
         mesh = bpy.data.meshes.new(name="BTM_Cabinet_Mesh")
         obj = bpy.data.objects.new("BTM_Cabinet", mesh)
-        
+
         # Vincula na coleção ativa
         context.collection.objects.link(obj)
         context.view_layer.objects.active = obj
         obj.select_set(True)
-        
+
         # Define propriedades personalizadas
         obj.btm_plane.object_kind = 'MODULE'
         obj.btm_cabinet.width = self.width
@@ -39,15 +39,15 @@ class BTM_OT_CabinetBuilder(bpy.types.Operator):
         obj.btm_cabinet.thickness = self.thickness
         obj.btm_cabinet.door_open = 0.0
         obj.btm_cabinet.door_swing = 'LEFT' # Sentido padrão
-        
+
         # Posiciona no cursor 3D
         cursor_loc = context.scene.cursor.location.copy()
         obj.location = cursor_loc
-        
+
         # Gera a geometria da caixa e as portas iniciais
         generate_cabinet_mesh(obj, self.width, self.height, self.depth, self.thickness)
         door_controller.update_door_geometry_and_controller(obj)
-        
+
         w_str = units.format_value(self.width, context.scene)
         h_str = units.format_value(self.height, context.scene)
         d_str = units.format_value(self.depth, context.scene)

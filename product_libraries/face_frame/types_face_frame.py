@@ -1075,7 +1075,6 @@ class FaceFrameCabinet(GeoNodeCage):
         # bay 0, which is gap 0 in the new numbering. Either way, gap
         # ranges shift up by one for any old gap whose index >= new_gap_index.
 
-        cab_props = self.obj.face_frame_cabinet
         cabinet_id = id(self.obj)
         _RECALCULATING.add(cabinet_id)
         _DISTRIBUTING_WIDTHS.add(cabinet_id)
@@ -1871,7 +1870,7 @@ class FaceFrameCabinet(GeoNodeCage):
         self._distribute_split_sizes()
 
         layout = solver.FaceFrameLayout(self.obj)
-        carcass_depth = solver.carcass_inner_depth(layout)
+        solver.carcass_inner_depth(layout)
         # face_frame_angle is 0 for square cabinets, so the rotation
         # additions below are idempotent in the non-angled case.
         ff_theta = solver.face_frame_angle(layout)
@@ -2690,8 +2689,6 @@ class FaceFrameCabinet(GeoNodeCage):
         part-local -Y axis points from the new back toward the fixed
         front, and Width = the new (hypotenuse) depth.
         """
-        import math
-        from mathutils import Vector
         # `extend` may be NEGATIVE: positive splays the back corner outward
         # (back wider than front), negative pulls it inward (back narrower).
         # The analytic transform below handles either sign -- back_target moves
@@ -3353,7 +3350,6 @@ class FaceFrameCabinet(GeoNodeCage):
         offset toward the cabinet body by `side_thickness`; the box keeps
         the body side and removes the rest.
         """
-        import math
         from mathutils import Vector
         margin = inch(2.0)
         dim_x = self.obj.face_frame_cabinet.width
@@ -3775,7 +3771,6 @@ class FaceFrameCabinet(GeoNodeCage):
         """Rebuild the towel bar as a cylinder spanning the leg inner faces,
         axis along X, OVERSTOOL_TOWEL_BAR_Y_FROM_FRONT back from the leg front
         and OVERSTOOL_TOWEL_BAR_Z_ABOVE_LEG_BOTTOM up from the leg bottom."""
-        from mathutils import Matrix
         left_inner, right_inner, front_y, leg_bottom = self._overstool_interior(layout)
         length = right_inner - left_inner
         r = OVERSTOOL_TOWEL_BAR_DIAMETER * 0.5

@@ -374,7 +374,7 @@ class HOME_BUILDER_MT_face_frame_opening_commands(bpy.types.Menu):
         op.axis = 'H'
         op = layout.operator("hb_face_frame.split_opening",
                              text="Split Vertical", icon='PAUSE')
-        op.axis = 'V' 
+        op.axis = 'V'
 
 
 class HOME_BUILDER_MT_face_frame_change_opening(bpy.types.Menu):

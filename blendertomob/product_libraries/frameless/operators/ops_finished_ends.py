@@ -1,8 +1,7 @@
 import bpy
 import math
-import os
 from .. import types_frameless
-from .... import hb_utils, hb_types, hb_project, units
+from .... import hb_utils, hb_types, hb_project
 from ....units import inch
 
 
@@ -22,7 +21,7 @@ def get_door_style_from_front(front_obj):
     """Get door style dimensions from a front object."""
     if not front_obj:
         return None
-    
+
     for mod in front_obj.modifiers:
         if mod.type == 'NODES' and mod.node_group:
             ng = mod.node_group
@@ -32,7 +31,7 @@ def get_door_style_from_front(front_obj):
                         node_input = ng.interface.items_tree[name]
                         return hb_utils.try_get_gn_input(mod, node_input.identifier)
                     return None
-                
+
                 return {
                     'top_rail_width': get_input('Top Rail Width'),
                     'bottom_rail_width': get_input('Bottom Rail Width'),
@@ -49,7 +48,7 @@ def get_cabinet_style_materials(cabinet_obj):
     style_index = cabinet_obj.get('CABINET_STYLE_INDEX', 0)
     main_scene = hb_project.get_main_scene()
     main_props = main_scene.hb_frameless
-    
+
     if main_props.cabinet_styles and style_index < len(main_props.cabinet_styles):
         style = main_props.cabinet_styles[style_index]
         return style.get_finish_material()
@@ -144,14 +143,14 @@ class hb_frameless_OT_update_finished_end(bpy.types.Operator):
         """Create a simple slab applied end panel."""
         props = bpy.context.scene.hb_frameless
         cabinet = hb_types.GeoNodeCage(cabinet_obj)
-        
+
         dim_x = cabinet.var_input('Dim X', 'dim_x')
         dim_y = cabinet.var_input('Dim Y', 'dim_y')
         dim_z = cabinet.var_input('Dim Z', 'dim_z')
-        
+
         # Extension to be flush with door front
         front_extension = inch(0.875)  # gap + thickness
-        
+
         panel = types_frameless.CabinetPart()
         panel.create(f'Applied End {side.title()}')
         panel.obj['IS_APPLIED_END_' + side] = True
@@ -159,7 +158,7 @@ class hb_frameless_OT_update_finished_end(bpy.types.Operator):
         panel.obj['MENU_ID'] = 'HOME_BUILDER_MT_applied_end_commands'
         panel.obj.parent = cabinet_obj
         panel.obj.location.z = 0
-        
+
         if side == 'LEFT':
             panel.obj.rotation_euler.y = math.radians(-90)
             panel.obj.location.x = 0
@@ -167,7 +166,7 @@ class hb_frameless_OT_update_finished_end(bpy.types.Operator):
             panel.set_input("Mirror Z", False)
             panel.driver_input("Length", 'dim_z', [dim_z])
             panel.driver_input("Width", f'dim_y+{front_extension}', [dim_y])
-            
+
         elif side == 'RIGHT':
             panel.obj.rotation_euler.y = math.radians(-90)
             panel.driver_location('x', 'dim_x', [dim_x])
@@ -175,7 +174,7 @@ class hb_frameless_OT_update_finished_end(bpy.types.Operator):
             panel.set_input("Mirror Z", True)
             panel.driver_input("Length", 'dim_z', [dim_z])
             panel.driver_input("Width", f'dim_y+{front_extension}', [dim_y])
-            
+
         elif side == 'BACK':
             panel.obj.rotation_euler.x = math.radians(90)
             panel.obj.location.y = 0
@@ -183,9 +182,9 @@ class hb_frameless_OT_update_finished_end(bpy.types.Operator):
             panel.set_input("Mirror Z", True)
             panel.driver_input("Length", 'dim_x', [dim_x])
             panel.driver_input("Width", 'dim_z', [dim_z])
-        
+
         panel.set_input("Thickness", props.default_carcass_part_thickness)
-        
+
         # Assign materials
         material, material_rotated = get_cabinet_style_materials(cabinet_obj)
         if material:
@@ -195,25 +194,24 @@ class hb_frameless_OT_update_finished_end(bpy.types.Operator):
             panel.set_input("Edge W2", material_rotated)
             panel.set_input("Edge L1", material_rotated)
             panel.set_input("Edge L2", material_rotated)
-        
+
         return panel.obj
 
     def create_5piece_panel(self, context, cabinet_obj, side):
         """Create a 5-piece applied end panel matching door style."""
-        props = bpy.context.scene.hb_frameless
         cabinet = hb_types.GeoNodeCage(cabinet_obj)
-        
+
         dim_x = cabinet.var_input('Dim X', 'dim_x')
         dim_y = cabinet.var_input('Dim Y', 'dim_y')
         dim_z = cabinet.var_input('Dim Z', 'dim_z')
-        
+
         # Get toe kick height if it exists
         tkh_value = 0
         try:
             tkh_value = cabinet_obj.get('Toe Kick Height', 0)
         except Exception:
             pass
-        
+
         # Create the base panel
         panel = types_frameless.CabinetPart()
         panel.create(f'Applied Panel 5Piece {side.title()}')
@@ -221,42 +219,42 @@ class hb_frameless_OT_update_finished_end(bpy.types.Operator):
         panel.obj['IS_APPLIED_PANEL_5PIECE'] = True
         panel.obj['MENU_ID'] = 'HOME_BUILDER_MT_applied_end_commands'
         panel.obj.parent = cabinet_obj
-        
+
         # Finish both sides of panel
         panel.obj['Finish Top'] = True
         panel.obj['Finish Bottom'] = True
-        
+
         if side == 'LEFT':
             panel.obj.rotation_euler.y = math.radians(-90)
             panel.obj.location.x = 0
             panel.set_input("Mirror Y", True)
             panel.set_input("Mirror Z", False)
-            
+
             if self.panel_to_floor:
                 panel.obj.location.z = 0
                 panel.driver_input("Length", 'dim_z', [dim_z])
             else:
                 panel.obj.location.z = tkh_value
                 panel.driver_input("Length", f'dim_z-{tkh_value}', [dim_z])
-            
+
             # Width is cabinet depth minus carcass thickness
             panel.driver_input("Width", f'dim_y-{inch(0.75)}', [dim_y])
-            
+
         elif side == 'RIGHT':
             panel.obj.rotation_euler.y = math.radians(-90)
             panel.driver_location('x', 'dim_x', [dim_x])
             panel.set_input("Mirror Y", True)
             panel.set_input("Mirror Z", True)
-            
+
             if self.panel_to_floor:
                 panel.obj.location.z = 0
                 panel.driver_input("Length", 'dim_z', [dim_z])
             else:
                 panel.obj.location.z = tkh_value
                 panel.driver_input("Length", f'dim_z-{tkh_value}', [dim_z])
-            
+
             panel.driver_input("Width", f'dim_y-{inch(0.75)}', [dim_y])
-            
+
         elif side == 'BACK':
             panel.obj.rotation_euler.x = math.radians(90)
             panel.obj.location.y = 0
@@ -264,12 +262,12 @@ class hb_frameless_OT_update_finished_end(bpy.types.Operator):
             panel.set_input("Mirror Z", True)
             panel.driver_input("Length", 'dim_x', [dim_x])
             panel.driver_input("Width", 'dim_z', [dim_z])
-        
+
         panel.set_input("Thickness", inch(0.75))
-        
+
         # Add 5-piece door modifier
         door_style_mod = panel.add_part_modifier('CPM_5PIECEDOOR', 'Door Style')
-        
+
         # Set dimensions
         if self.match_door_style and self.door_style:
             door_style_mod.set_input("Left Stile Width", self.door_style.get('left_stile_width', self.stile_width))
@@ -285,7 +283,7 @@ class hb_frameless_OT_update_finished_end(bpy.types.Operator):
             door_style_mod.set_input("Bottom Rail Width", self.bottom_rail_width)
             door_style_mod.set_input("Panel Thickness", inch(0.75))
             door_style_mod.set_input("Panel Inset", inch(0.25))
-        
+
         # Assign materials
         material, material_rotated = get_cabinet_style_materials(cabinet_obj)
         if material:
@@ -296,7 +294,7 @@ class hb_frameless_OT_update_finished_end(bpy.types.Operator):
             panel.set_input("Edge W2", material_rotated)
             panel.set_input("Edge L1", material_rotated)
             panel.set_input("Edge L2", material_rotated)
-            
+
             # Assign to 5-piece door modifier
             try:
                 door_style_mod.set_input("Stile Material", material)
@@ -304,16 +302,16 @@ class hb_frameless_OT_update_finished_end(bpy.types.Operator):
                 door_style_mod.set_input("Panel Material", material)
             except Exception:
                 pass  # Some inputs may not exist
-        
+
         door_style_mod.mod.show_viewport = True
-        
+
         return panel.obj
 
     def invoke(self, context, event):
         self.cabinet_obj = hb_utils.get_cabinet_bp(context.object)
         if not self.cabinet_obj:
             return {'CANCELLED'}
-        
+
         # Try to detect which side based on object name
         obj_name = context.object.name.upper()
         if 'LEFT' in obj_name:
@@ -322,11 +320,11 @@ class hb_frameless_OT_update_finished_end(bpy.types.Operator):
             self.side = 'RIGHT'
         elif 'BACK' in obj_name:
             self.side = 'BACK'
-        
+
         # Try to get door dimensions
         self.door_obj = get_door_from_cabinet(self.cabinet_obj)
         self.door_style = get_door_style_from_front(self.door_obj)
-        
+
         # Pre-fill values from door style if available
         if self.door_style:
             if self.door_style.get('top_rail_width'):
@@ -335,7 +333,7 @@ class hb_frameless_OT_update_finished_end(bpy.types.Operator):
                 self.bottom_rail_width = self.door_style['bottom_rail_width']
             if self.door_style.get('left_stile_width'):
                 self.stile_width = self.door_style['left_stile_width']
-        
+
         wm = context.window_manager
         return wm.invoke_props_dialog(self, width=300)
 
@@ -344,10 +342,10 @@ class hb_frameless_OT_update_finished_end(bpy.types.Operator):
         if not cabinet_bp:
             self.report({'ERROR'}, "Could not find cabinet")
             return {'CANCELLED'}
-        
+
         # Remove existing applied end
         self.remove_applied_end(cabinet_bp, self.side)
-        
+
         # Create new panel based on type
         if self.finished_end_type == 'NONE':
             pass  # Just removed, nothing to add
@@ -355,26 +353,26 @@ class hb_frameless_OT_update_finished_end(bpy.types.Operator):
             self.create_slab_panel(context, cabinet_bp, self.side)
         elif self.finished_end_type == '5PIECE':
             self.create_5piece_panel(context, cabinet_bp, self.side)
-        
+
         hb_utils.run_calc_fix(context, cabinet_bp)
-        
+
         return {'FINISHED'}
 
     def draw(self, context):
         layout = self.layout
-        
+
         box = layout.box()
         box.label(text=f"Update {self.side.title()} Finished End", icon='MOD_SOLIDIFY')
-        
+
         col = box.column(align=True)
         col.prop(self, "finished_end_type", text="Type")
-        
+
         if self.finished_end_type == '5PIECE':
             col.separator()
             col.prop(self, "panel_to_floor")
             col.separator()
             col.prop(self, "match_door_style")
-            
+
             if not self.match_door_style:
                 box2 = layout.box()
                 box2.label(text="Custom Dimensions", icon='SETTINGS')
@@ -447,21 +445,21 @@ class hb_frameless_OT_applied_panel_prompts(bpy.types.Operator):
     def invoke(self, context, event):
         self.panel_obj = context.object
         self.door_style_mod = self.get_door_style_mod(self.panel_obj)
-        
+
         if self.door_style_mod and self.door_style_mod.node_group:
             ng = self.door_style_mod.node_group
-            
+
             def get_input(name):
                 if name in ng.interface.items_tree:
                     node_input = ng.interface.items_tree[name]
                     return hb_utils.try_get_gn_input(self.door_style_mod, node_input.identifier)
                 return None
-            
+
             trw = get_input('Top Rail Width')
             brw = get_input('Bottom Rail Width')
             lsw = get_input('Left Stile Width')
             rsw = get_input('Right Stile Width')
-            
+
             if trw is not None:
                 self.top_rail_width = trw
             if brw is not None:
@@ -470,35 +468,35 @@ class hb_frameless_OT_applied_panel_prompts(bpy.types.Operator):
                 self.left_stile_width = lsw
             if rsw is not None:
                 self.right_stile_width = rsw
-        
+
         wm = context.window_manager
         return wm.invoke_props_dialog(self, width=300)
 
     def execute(self, context):
         if not self.panel_obj or not self.door_style_mod:
             return {'CANCELLED'}
-        
+
         ng = self.door_style_mod.node_group
-        
+
         def set_input(name, value):
             if name in ng.interface.items_tree:
                 node_input = ng.interface.items_tree[name]
                 ng.interface_update(context)
                 hb_utils.set_gn_input(self.door_style_mod, node_input.identifier, value)
-        
+
         set_input('Top Rail Width', self.top_rail_width)
         set_input('Bottom Rail Width', self.bottom_rail_width)
         set_input('Left Stile Width', self.left_stile_width)
         set_input('Right Stile Width', self.right_stile_width)
-        
+
         return {'FINISHED'}
 
     def draw(self, context):
         layout = self.layout
-        
+
         box = layout.box()
         box.label(text="5-Piece Panel Dimensions", icon='MOD_SOLIDIFY')
-        
+
         col = box.column(align=True)
         col.prop(self, "top_rail_width")
         col.prop(self, "bottom_rail_width")

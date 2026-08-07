@@ -9,7 +9,7 @@ STEPS = 6
 
 def get_region(context, mouse_x=None, mouse_y=None):
     """Get the 3D viewport region.
-    
+
     If mouse coordinates are provided, returns the region the mouse is over.
     Otherwise falls back to the first 3D viewport region found.
     """
@@ -46,9 +46,9 @@ def ray_cast(context, depsgraph, position,region):
 
 #try to find the best hit point on the scene
 def best_hit(context, depsgraph, mouse_pos,region):
-    
-    context.view_layer.update() 
-    
+
+    context.view_layer.update()
+
     #at first we raycast from the mouse position as it is
     result, location, normal, index, object, matrix, view_point = \
         ray_cast(context, depsgraph, mouse_pos,region)
@@ -57,7 +57,7 @@ def best_hit(context, depsgraph, mouse_pos,region):
         if 'HB_CURRENT_DRAW_OBJ' not in object:
             return result, location, index, object, view_point
 
-    #but if we are near but outside the object surface, we need to inspect around the 
+    #but if we are near but outside the object surface, we need to inspect around the
     #mouse position and keep the closest location
     best_result = False
     best_location = best_index = best_object = None
@@ -66,7 +66,7 @@ def best_hit(context, depsgraph, mouse_pos,region):
     angle = 0
     delta_angle = 2 * math.pi / STEPS
     for i in range(STEPS):
-        
+
         pos = mouse_pos + RADIUS * Vector((math.cos(angle), math.sin(angle)))
         result, location, normal, index, object, matrix, view_point = \
             ray_cast(context, depsgraph, pos, region)
@@ -107,11 +107,11 @@ def snap_to_geometry(self, context, vertices):
             if distance < RADIUS and (snap_location is None or distance < best_distance):
                 snap_location = co
                 best_distance = distance
-                
+
     if snap_location is not None:
         self.hit_location = snap_location
         return
-    
+
     #then, if no vertex is found, try to snap to edges
     for co1, co2 in zip(vertices[1:]+vertices[:1], vertices):
         v = search_edge_pos(self.region, self.region.data, self.mouse_pos, co1, co2)
@@ -136,11 +136,11 @@ def snap_to_object(self, context, depsgraph):
 
         polygon = data.polygons[self.hit_face_index]
         matrix = evaluated.matrix_world
-        
+
         #get evaluated vertices of the wanted polygon, in world coordinates
         vertices = [matrix @ data.vertices[i].co for i in polygon.vertices]
-        
-        snap_to_geometry(self, context, vertices)    
+
+        snap_to_geometry(self, context, vertices)
 
 def floor_fit(v, scale):
     return math.floor(v / scale) * scale
@@ -166,7 +166,7 @@ def snap_to_grid(self, context, crtl_is_pressed):
     scale = 10 ** (round(math.log10(self.region.data.view_distance)) - 1)
     #... to be improved with grid scale, subdivisions, etc.
 
-    #here no ray cast, but intersection between the view line and the grid plane        
+    #here no ray cast, but intersection between the view line and the grid plane
     max_float =1.0e+38
     co = intersect_line_plane(view_point, view_point + max_float * view_vector, (0,0,0), norm)
 
@@ -184,19 +184,19 @@ def snap_to_grid(self, context, crtl_is_pressed):
             #and snap on this plane
             snap_to_geometry(self, context, vertices)
 
-        #if no snap or out of snapping, keep the co                
+        #if no snap or out of snapping, keep the co
         if self.hit_location is None:
             self.hit_location = Vector(co)
 
 def main(self, crtl_is_pressed, context):
     self.hit_location = None
     self.hit_grid = False
-    
+
     depsgraph = context.evaluated_depsgraph_get()
 
     result, location, index, object, view_point = \
         best_hit(context, depsgraph, self.mouse_pos,self.region)
-    
+
     self.hit_location = location
     self.hit_face_index = index
     self.hit_object = object
@@ -209,39 +209,39 @@ def main(self, crtl_is_pressed, context):
 
 def snap_value_to_grid(value, unit_settings=None, fine=False):
     """Snap a value (in meters) to the nearest grid increment.
-    
+
     Normal:  Imperial = 1",   Metric = 10mm
     Fine:    Imperial = 1/16", Metric = 1mm
-    
+
     Args:
         value: Value in meters to snap
         unit_settings: Blender unit settings (optional, will get from context if not provided)
         fine: If True, use finer snap increment (Shift held)
-    
+
     Returns:
         Snapped value in meters
     """
     from . import units
-    
+
     if unit_settings is None:
         unit_settings = bpy.context.scene.unit_settings
-    
+
     if unit_settings.system == 'IMPERIAL':
         grid = units.inch(1/16) if fine else units.inch(1)
     else:
         grid = units.millimeter(1) if fine else units.millimeter(10)
-    
+
     return round(value / grid) * grid
 
 
 def snap_vector_to_grid(vec, unit_settings=None, fine=False):
     """Snap a Vector's X and Y components to the grid.
-    
+
     Args:
         vec: mathutils.Vector to snap
         unit_settings: Blender unit settings (optional)
         fine: If True, use finer snap increment (Shift held)
-    
+
     Returns:
         New Vector with snapped X and Y, original Z
     """

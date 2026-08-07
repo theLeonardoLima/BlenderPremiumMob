@@ -50,12 +50,12 @@ def load_file_post(scene):
     import inspect
     from . import hb_driver_functions
     from . import hb_project
-    
+
     # Load driver functions
     for name, obj in inspect.getmembers(hb_driver_functions):
         if name not in bpy.app.driver_namespace:
             bpy.app.driver_namespace[name] = obj
-    
+
     # Ensure a main scene is tagged for project data
     main_scene = hb_project.ensure_main_scene()
 
@@ -107,40 +107,40 @@ class Home_Builder_AddonPreferences(bpy.types.AddonPreferences):
                                    min=0,
                                    max=1,
                                    default=(0.000000,0.500000,0.700000,0.300000),
-                                   subtype="COLOR")  # type: ignore    
-    
+                                   subtype="COLOR")  # type: ignore
+
     door_window_color = bpy.props.FloatVectorProperty(name="Door Window Color",
                                    description="The color of doors and windows",
                                    size=4,
                                    min=0,
                                    max=1,
                                    default=(0.000000,0.500000,0.700000,0.100000),
-                                   subtype="COLOR")  # type: ignore  
-                                   
+                                   subtype="COLOR")  # type: ignore
+
     annotation_color = bpy.props.FloatVectorProperty(name="Text Color",
                                 description="The color of text",
                                 size=4,
                                 min=0,
                                 max=1,
                                 default=(0.000000, 0.000000, 0.000000, 1.000000),
-                                subtype="COLOR")  # type: ignore    
-    
+                                subtype="COLOR")  # type: ignore
+
     annotation_highlight_color = bpy.props.FloatVectorProperty(name="Text Highlight Color",
                             description="The color of text when highlighted",
                             size=4,
                             min=0,
                             max=1,
                             default=(1.000000, 1.000000, 0.000000, 1.000000),
-                            subtype="COLOR")  # type: ignore  
-    
+                            subtype="COLOR")  # type: ignore
+
     obstacle_color = bpy.props.FloatVectorProperty(name="Obstacle Color",
                             description="The default color of obstacles",
                             size=4,
                             min=0,
                             max=1,
                             default=(0.900000, 0.700000, 0.400000, 0.800000),
-                            subtype="COLOR")  # type: ignore  
-    
+                            subtype="COLOR")  # type: ignore
+
     designer_name = bpy.props.StringProperty(
 		name="Designer name",
         description="Enter the designer name you want to have appear on reports"
@@ -219,7 +219,7 @@ class Home_Builder_AddonPreferences(bpy.types.AddonPreferences):
 
         layout.prop(self, "use_viewport_hud")
         layout.prop(self, "hide_2d_drawing_panels")
-        
+
         # Layout view defaults
         box = layout.box()
         box.label(text="Layout View Defaults", icon='RENDERLAYERS')
@@ -228,9 +228,9 @@ class Home_Builder_AddonPreferences(bpy.types.AddonPreferences):
         col.prop(self, "default_paper_size")
         col.prop(self, "default_layout_scale")
         col.prop(self, "default_paper_landscape")
-        
+
         layout.separator()
-        
+
         box = layout.box()
         box.label(text="Asset Libraries", icon='ASSET_MANAGER')
         row = box.row()
@@ -245,7 +245,7 @@ class Home_Builder_AddonPreferences(bpy.types.AddonPreferences):
         layout.prop(self, "door_window_color")
         layout.prop(self, "annotation_color")
         layout.prop(self, "annotation_highlight_color")
-        layout.prop(self, "obstacle_color")              
+        layout.prop(self, "obstacle_color")
 
 def register():
     hb_assets.register()
@@ -323,4 +323,4 @@ def unregister():
     bpy.app.handlers.load_post.remove(load_file_post)
 
 if __name__ == '__main__':
-    register()    
+    register()

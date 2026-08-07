@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.pyright]
+include = [".", "blendertomob"]
+extraPaths = ["/home/theleoinfo/.local/lib/python3.10/site-packages", "blendertomob"]
+pythonVersion = "3.10"
+reportMissingImports = "none"
+reportMissingModuleSource = "none"
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "W", "F"]
+ignore = ["E501"]
