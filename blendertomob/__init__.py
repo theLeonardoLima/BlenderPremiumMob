@@ -1,16 +1,22 @@
-# Custom metadata for Blender add-on registration (fallback for legacy Blender versions)
-bl_info = {
-    "name": "Blender to Mob",
-    "author": "TheLeoInfo",
-    "version": (1, 0, 0),
-    "blender": (5, 2, 0),
-    "location": "View3D > Sidebar > Blender to Mob",
-    "description": "Parametric cabinetry and interior design CAD tools, including walls, floor, snapping, and nesting optimization.",
-    "category": "Object",
-}
-
+import sys
+import importlib
 import bpy  # type: ignore
 from bpy.app.handlers import persistent  # type: ignore
+
+# Hot-reload submodules during active development
+_submodule_names = [
+    "compat", "data", "geometry", "cutting", "ui", "overlays",
+    "hb_props", "hb_project", "hb_props_obstacles", "ops",
+    "view3d_sidebar", "menu_apend", "menus",
+    "walls", "doors_windows", "layouts", "rooms", "details",
+    "ops_obstacles", "export", "ops_stairs", "scene_navigator",
+    "viewport_hud", "ops_general", "closets", "face_frame",
+    "frameless", "wood_hoods", "molding", "hb_layouts", "hb_assets"
+]
+for _mod_name in _submodule_names:
+    _full_name = f"{__name__}.{_mod_name}"
+    if _full_name in sys.modules:
+        importlib.reload(sys.modules[_full_name])
 
 # Import modern modules
 from . import compat
@@ -19,6 +25,7 @@ from . import geometry
 from . import cutting
 from . import ui
 from . import overlays
+from . import operators as btm_operators
 
 # Import legacy modules
 from . import hb_props
@@ -64,7 +71,8 @@ def load_file_post(scene):
     main_scene = hb_project.ensure_main_scene()
 
     # Ensure a default frameless style is created
-    main_scene.hb_frameless.ensure_default_style()
+    if main_scene and hasattr(main_scene, "hb_frameless"):
+        main_scene.hb_frameless.ensure_default_style()
 
     # Modal operators do not survive a .blend load -- re-arm the HUD listener.
     from .operators import viewport_hud
@@ -73,14 +81,16 @@ def load_file_post(scene):
 
 def _update_use_viewport_hud(self, context):
     """Flipping the HUD preference: redraw every 3D viewport so the change shows immediately."""
-    for window in bpy.context.window_manager.windows:
-        for area in window.screen.areas:
-            if area.type == 'VIEW_3D':
-                area.tag_redraw()
+    if bpy.context.window_manager:
+        for window in bpy.context.window_manager.windows:
+            if window.screen:
+                for area in window.screen.areas:
+                    if area.type == 'VIEW_3D':
+                        area.tag_redraw()
 
 
 class BTM_AddonPreferences(bpy.types.AddonPreferences):
-    bl_idname = __package__
+    bl_idname = __package__ or __name__
 
     use_viewport_hud = bpy.props.BoolProperty(
         name="Controles na Viewport",
@@ -215,7 +225,8 @@ def register():
     ops_general.register()
     ops.register()
 
-    # Register modern UI & draw handlers
+    # Register modern UI, operators & draw handlers
+    btm_operators.register()
     ui.register()
     overlays.register()
 
@@ -257,9 +268,10 @@ def unregister():
     menu_apend.unregister()
     view3d_sidebar.unregister()
 
-    # Unregister modern UI & draw handlers
+    # Unregister modern UI, operators & draw handlers
     overlays.unregister()
     ui.unregister()
+    btm_operators.unregister()
 
     # Unregister legacy operators
     ops.unregister()

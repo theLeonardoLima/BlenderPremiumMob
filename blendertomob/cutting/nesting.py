@@ -1,283 +1,377 @@
+"""
+BlenderToMob Cutting & Nesting Optimization Engine
+Algoritmo de otimização de corte 2D Guilhotina / Bin-Packing para chapas de MDF.
+Suporta refilo perimetral por borda, espessura da lâmina (kerf), veio da madeira e fitas de borda.
+"""
+
+
 class NestingPart:
-    def __init__(self, id, name, width, height, quantity, grain_direction='NONE', module_ref=""):
+    def __init__(
+        self,
+        id,
+        name,
+        width,
+        height,
+        quantity=1,
+        thickness=15.0,
+        material="MDF Padrão",
+        grain_direction='NONE',
+        module_ref="",
+        edge_top=0.0,
+        edge_bottom=0.0,
+        edge_left=0.0,
+        edge_right=0.0
+    ):
         self.id = id
         self.name = name
-        self.width = width
-        self.height = height
-        self.quantity = quantity
-        self.grain_direction = grain_direction # 'NONE', 'VERTICAL', 'HORIZONTAL'
+        self.width = float(width)
+        self.height = float(height)
+        self.quantity = int(quantity)
+        self.thickness = float(thickness)
+        self.material = material
+        self.grain_direction = grain_direction.upper()  # 'NONE', 'VERTICAL', 'HORIZONTAL'
         self.module_ref = module_ref
+        self.edge_top = float(edge_top)
+        self.edge_bottom = float(edge_bottom)
+        self.edge_left = float(edge_left)
+        self.edge_right = float(edge_right)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "width": self.width,
+            "height": self.height,
+            "quantity": self.quantity,
+            "thickness": self.thickness,
+            "material": self.material,
+            "grain_direction": self.grain_direction,
+            "module_ref": self.module_ref,
+            "edges": {
+                "top": self.edge_top,
+                "bottom": self.edge_bottom,
+                "left": self.edge_left,
+                "right": self.edge_right
+            }
+        }
+
 
 class NestingSheet:
-    def __init__(self, id, width, height, refilo_top=10, refilo_bottom=10, refilo_left=10, refilo_right=10):
+    def __init__(self, id, width, height, refilo_top=10.0, refilo_bottom=10.0, refilo_left=10.0, refilo_right=10.0):
         self.id = id
-        self.width = width
-        self.height = height
-        # Refilo (margins)
-        self.refilo_top = refilo_top
-        self.refilo_bottom = refilo_bottom
-        self.refilo_left = refilo_left
-        self.refilo_right = refilo_right
+        self.width = float(width)
+        self.height = float(height)
+        self.refilo_top = float(refilo_top)
+        self.refilo_bottom = float(refilo_bottom)
+        self.refilo_left = float(refilo_left)
+        self.refilo_right = float(refilo_right)
+        self.usable_width = self.width - (self.refilo_left + self.refilo_right)
+        self.usable_height = self.height - (self.refilo_top + self.refilo_bottom)
 
-        # Calculate usable area
-        self.usable_width = width - (refilo_left + refilo_right)
-        self.usable_height = height - (refilo_top + refilo_bottom)
 
-def optimize_nesting(parts, sheet_width=2750.0, sheet_height=1830.0, refilo=10.0, kerf=4.0):
+def optimize_nesting(
+    parts,
+    sheet_width=2750.0,
+    sheet_height=1830.0,
+    refilo_top=10.0,
+    refilo_bottom=10.0,
+    refilo_left=10.0,
+    refilo_right=10.0,
+    kerf=4.0,
+    allow_rotation=True,
+    respect_grain=True
+):
     """
-    Performs a 2D guillotine/shelf-based bin-packing (nesting) optimization.
+    Executa a otimização de corte 2D (Guillotine / Shelf Best-Fit Decreasing).
 
     Args:
-        parts: List of NestingPart objects.
-        sheet_width: Nominal sheet width (default 2750mm).
-        sheet_height: Nominal sheet height (default 1830mm).
-        refilo: Margin subtracted from all 4 borders of a new sheet (default 10mm).
-        kerf: Blade cut width (default 4mm).
+        parts: Lista de objetos NestingPart.
+        sheet_width: Largura nominal da chapa MDF em mm (padrão: 2750mm).
+        sheet_height: Altura nominal da chapa MDF em mm (padrão: 1830mm).
+        refilo_*: Margens de refilo em mm para as 4 bordas.
+        kerf: Espessura do corte da serra em mm (padrão: 4mm).
+        allow_rotation: Permite girar peças se não houver restrição de veio.
+        respect_grain: Habilita a checagem estrita de veio da madeira.
 
-    Returns:
-        A dictionary containing:
-            - sheets: List of sheets used, each with a list of placed parts with coordinates.
-            - unplaced: List of parts that could not be placed due to size.
-            - stats: Summary metrics (utilization percentage, count of sheets, etc.)
+    Retorna:
+        Dicionário estruturado com chapas usadas, peças alocadas, peças excedentes e estatísticas.
     """
-    # Usable sheet dimensions
-    u_w = sheet_width - (refilo * 2)
-    u_h = sheet_height - (refilo * 2)
+    usable_width = sheet_width - (refilo_left + refilo_right)
+    usable_height = sheet_height - (refilo_top + refilo_bottom)
 
-    # Flatten parts by quantity
-    flat_parts = []
-    unplaced = []
-
+    # Separação de peças por agrupamento de espessura e material
+    groups = {}
     for p in parts:
-        # Check if part fits on sheet even when rotated
-        w_fit = p.width <= u_w and p.height <= u_h
-        h_fit = p.height <= u_w and p.width <= u_h
+        key = (p.material, p.thickness)
+        if key not in groups:
+            groups[key] = []
+        groups[key].append(p)
 
-        if not (w_fit or h_fit):
-            unplaced.append({
-                "id": p.id,
-                "name": p.name,
-                "width": p.width,
-                "height": p.height,
-                "reason": "Exceeds usable sheet size"
-            })
-            continue
+    all_sheets_used = []
+    all_unplaced = []
+    total_placed_area = 0.0
+    total_nominal_sheet_area = 0.0
 
-        for i in range(p.quantity):
-            flat_parts.append({
-                "id": f"{p.id}_{i}",
-                "part_id": p.id,
-                "name": p.name,
-                "width": p.width,
-                "height": p.height,
-                "grain_direction": p.grain_direction,
-                "module_ref": p.module_ref
-            })
+    global_sheet_id = 1
 
-    # Sort flat parts by area descending to optimize packing
-    flat_parts.sort(key=lambda x: x["width"] * x["height"], reverse=True)
+    for (mat, th), group_parts in groups.items():
+        flat_parts = []
 
-    sheets_used = []
+        for p in group_parts:
+            # Validação se a peça cabe na chapa útil
+            w_norm = p.width <= usable_width and p.height <= usable_height
+            w_rot = (p.height <= usable_width and p.width <= usable_height) if allow_rotation else False
 
-    # Simple Shelf / Next-Fit-Decreasing heuristic modified for Guillotine Cuts
-    # Each sheet contains shelves (rows).
-    # Inside a row, parts are packed side-by-side horizontally.
-    for part in flat_parts:
-        placed = False
+            # Restrição de veio
+            if respect_grain and p.grain_direction == 'VERTICAL':
+                can_place = w_norm or (allow_rotation and False)
+            elif respect_grain and p.grain_direction == 'HORIZONTAL':
+                can_place = w_norm or w_rot
+            else:
+                can_place = w_norm or w_rot
 
-        # Try to place in existing sheets
-        for sheet in sheets_used:
-            # Try to place on an existing shelf in this sheet
-            for shelf in sheet["shelves"]:
-                # Check if part fits in shelf
-                # We need to consider rotation based on grain direction restrictions
-                fits, rot = can_fit_in_shelf(part, shelf, u_w, sheet["remaining_height"], kerf)
+            if not (w_norm or w_rot):
+                all_unplaced.append({
+                    "id": p.id,
+                    "name": p.name,
+                    "width": p.width,
+                    "height": p.height,
+                    "thickness": p.thickness,
+                    "material": p.material,
+                    "reason": f"Dimensões ({p.width}x{p.height}mm) excedem a área útil ({usable_width}x{usable_height}mm)"
+                })
+                continue
+
+            for i in range(p.quantity):
+                flat_parts.append({
+                    "id": f"{p.id}_{i+1}" if p.quantity > 1 else p.id,
+                    "part_id": p.id,
+                    "name": p.name,
+                    "width": p.width,
+                    "height": p.height,
+                    "thickness": p.thickness,
+                    "material": p.material,
+                    "grain_direction": p.grain_direction,
+                    "module_ref": p.module_ref,
+                    "edge_top": p.edge_top,
+                    "edge_bottom": p.edge_bottom,
+                    "edge_left": p.edge_left,
+                    "edge_right": p.edge_right
+                })
+
+        # Ordenar peças por área decrescente
+        flat_parts.sort(key=lambda x: x["width"] * x["height"], reverse=True)
+
+        group_sheets = []
+
+        for part in flat_parts:
+            placed = False
+
+            # 1. Tenta posicionar em prateleiras existentes
+            for sheet in group_sheets:
+                for shelf in sheet["shelves"]:
+                    fits, rot = _can_fit_in_shelf(
+                        part, shelf, usable_width, sheet["remaining_height"], kerf, allow_rotation, respect_grain
+                    )
+                    if fits:
+                        w = part["height"] if rot else part["width"]
+                        h = part["width"] if rot else part["height"]
+
+                        x = shelf["current_x"]
+                        y = shelf["y"]
+
+                        shelf["parts"].append({
+                            "id": part["id"],
+                            "part_id": part["part_id"],
+                            "name": part["name"],
+                            "x": x + refilo_left,
+                            "y": y + refilo_bottom,
+                            "width": w,
+                            "height": h,
+                            "thickness": part["thickness"],
+                            "material": part["material"],
+                            "rotated": rot,
+                            "module_ref": part["module_ref"],
+                            "edges": {
+                                "top": part["edge_top"],
+                                "bottom": part["edge_bottom"],
+                                "left": part["edge_left"],
+                                "right": part["edge_right"]
+                            }
+                        })
+
+                        shelf["current_x"] += w + kerf
+                        if h > shelf["height"]:
+                            sheet["remaining_height"] -= (h - shelf["height"])
+                            shelf["height"] = h
+
+                        placed = True
+                        break
+
+                if placed:
+                    break
+
+                # 2. Tenta criar nova linha (shelf) na chapa existente
+                fits, rot, req_h = _can_create_shelf(part, sheet["remaining_height"], usable_width, allow_rotation, respect_grain)
                 if fits:
                     w = part["height"] if rot else part["width"]
                     h = part["width"] if rot else part["height"]
 
-                    x = shelf["current_x"]
-                    y = shelf["y"]
-
-                    shelf["parts"].append({
-                        "id": part["id"],
-                        "part_id": part["part_id"],
-                        "name": part["name"],
-                        "x": x + refilo, # Offset by left refilo margin
-                        "y": y + refilo, # Offset by bottom refilo margin
-                        "width": w,
-                        "height": h,
-                        "rotated": rot,
-                        "module_ref": part["module_ref"]
-                    })
-
-                    shelf["current_x"] += w + kerf
-                    # Update shelf height if this part is taller than the current shelf height
-                    if h > shelf["height"]:
-                        # Adjust remaining height in the sheet
-                        sheet["remaining_height"] -= (h - shelf["height"])
-                        shelf["height"] = h
-
-                    placed = True
-                    break
-
-            if placed:
-                break
-
-            # If not placed on existing shelves, try to create a new shelf on this sheet
-            # Check if there is enough vertical space
-            # We check both orientations (rotated and normal)
-            fits, rot, req_h = can_create_shelf_in_sheet(part, sheet, u_w, u_h)
-            if fits:
-                w = part["height"] if rot else part["width"]
-                h = part["width"] if rot else part["height"]
-
-                new_shelf = {
-                    "y": u_h - sheet["remaining_height"],
-                    "height": h,
-                    "current_x": w + kerf,
-                    "parts": [{
-                        "id": part["id"],
-                        "part_id": part["part_id"],
-                        "name": part["name"],
-                        "x": refilo,
-                        "y": (u_h - sheet["remaining_height"]) + refilo,
-                        "width": w,
-                        "height": h,
-                        "rotated": rot,
-                        "module_ref": part["module_ref"]
-                    }]
-                }
-                sheet["shelves"].append(new_shelf)
-                sheet["remaining_height"] -= h + kerf
-                placed = True
-                break
-
-        if not placed:
-            # Create a new sheet
-            new_sheet_id = len(sheets_used) + 1
-
-            # Find best orientation for new sheet
-            # Default orientation
-            fits, rot, req_h = can_create_shelf_in_dimensions(part, u_w, u_h)
-            if fits:
-                w = part["height"] if rot else part["width"]
-                h = part["width"] if rot else part["height"]
-
-                new_sheet = {
-                    "id": new_sheet_id,
-                    "width": sheet_width,
-                    "height": sheet_height,
-                    "remaining_height": u_h - (h + kerf),
-                    "shelves": [{
-                        "y": 0.0,
+                    new_shelf = {
+                        "y": usable_height - sheet["remaining_height"],
                         "height": h,
                         "current_x": w + kerf,
                         "parts": [{
                             "id": part["id"],
                             "part_id": part["part_id"],
                             "name": part["name"],
-                            "x": refilo,
-                            "y": refilo,
+                            "x": refilo_left,
+                            "y": (usable_height - sheet["remaining_height"]) + refilo_bottom,
                             "width": w,
                             "height": h,
+                            "thickness": part["thickness"],
+                            "material": part["material"],
                             "rotated": rot,
-                            "module_ref": part["module_ref"]
+                            "module_ref": part["module_ref"],
+                            "edges": {
+                                "top": part["edge_top"],
+                                "bottom": part["edge_bottom"],
+                                "left": part["edge_left"],
+                                "right": part["edge_right"]
+                            }
                         }]
-                    }]
-                }
-                sheets_used.append(new_sheet)
-            else:
-                # Should not happen since we checked maximum size beforehand,
-                # but if it does, put in unplaced.
-                unplaced.append({
-                    "id": part["id"],
-                    "name": part["name"],
-                    "width": part["width"],
-                    "height": part["height"],
-                    "reason": "Could not initialize new sheet"
-                })
+                    }
+                    sheet["shelves"].append(new_shelf)
+                    sheet["remaining_height"] -= (h + kerf)
+                    placed = True
+                    break
 
-    # Calculate stats
-    total_sheet_area = len(sheets_used) * sheet_width * sheet_height
-    total_placed_area = 0.0
+            # 3. Se não couber em nenhuma chapa existente, aloca nova chapa MDF
+            if not placed:
+                fits, rot, req_h = _can_create_shelf(part, usable_height, usable_width, allow_rotation, respect_grain)
+                if fits:
+                    w = part["height"] if rot else part["width"]
+                    h = part["width"] if rot else part["height"]
 
-    for s in sheets_used:
-        for shelf in s["shelves"]:
-            for p in shelf["parts"]:
-                total_placed_area += p["width"] * p["height"]
+                    new_sheet = {
+                        "id": global_sheet_id,
+                        "material": mat,
+                        "thickness": th,
+                        "width": sheet_width,
+                        "height": sheet_height,
+                        "usable_width": usable_width,
+                        "usable_height": usable_height,
+                        "refilos": {
+                            "top": refilo_top,
+                            "bottom": refilo_bottom,
+                            "left": refilo_left,
+                            "right": refilo_right
+                        },
+                        "remaining_height": usable_height - (h + kerf),
+                        "shelves": [{
+                            "y": 0.0,
+                            "height": h,
+                            "current_x": w + kerf,
+                            "parts": [{
+                                "id": part["id"],
+                                "part_id": part["part_id"],
+                                "name": part["name"],
+                                "x": refilo_left,
+                                "y": refilo_bottom,
+                                "width": w,
+                                "height": h,
+                                "thickness": part["thickness"],
+                                "material": part["material"],
+                                "rotated": rot,
+                                "module_ref": part["module_ref"],
+                                "edges": {
+                                    "top": part["edge_top"],
+                                    "bottom": part["edge_bottom"],
+                                    "left": part["edge_left"],
+                                    "right": part["edge_right"]
+                                }
+                            }]
+                        }]
+                    }
+                    group_sheets.append(new_sheet)
+                    global_sheet_id += 1
+                else:
+                    all_unplaced.append({
+                        "id": part["id"],
+                        "name": part["name"],
+                        "width": part["width"],
+                        "height": part["height"],
+                        "thickness": part["thickness"],
+                        "material": part["material"],
+                        "reason": "Espaço insuficiente para inicializar chapa"
+                    })
 
-    utilization = (total_placed_area / total_sheet_area * 100.0) if total_sheet_area > 0 else 0.0
+        all_sheets_used.extend(group_sheets)
+
+    # Cálculo de métricas
+    total_nominal_sheet_area = len(all_sheets_used) * sheet_width * sheet_height
+    total_placed_count = 0
+
+    for s in all_sheets_used:
+        sheet_placed_area = 0.0
+        for sh in s["shelves"]:
+            for p in sh["parts"]:
+                sheet_placed_area += p["width"] * p["height"]
+                total_placed_count += 1
+        s["used_area_mm2"] = sheet_placed_area
+        s["utilization_percentage"] = round((sheet_placed_area / (sheet_width * sheet_height)) * 100.0, 2)
+        total_placed_area += sheet_placed_area
+
+    utilization_overall = (total_placed_area / total_nominal_sheet_area * 100.0) if total_nominal_sheet_area > 0 else 0.0
 
     return {
-        "sheets": sheets_used,
-        "unplaced": unplaced,
+        "sheets": all_sheets_used,
+        "unplaced": all_unplaced,
         "stats": {
-            "sheets_count": len(sheets_used),
-            "total_placed_parts": sum(len(sh["parts"]) for s in sheets_used for sh in s["shelves"]),
-            "unplaced_count": len(unplaced),
-            "utilization_percentage": round(utilization, 2),
-            "total_placed_area_m2": round(total_placed_area / 1000000.0, 3)
+            "sheets_count": len(all_sheets_used),
+            "total_placed_parts": total_placed_count,
+            "unplaced_count": len(all_unplaced),
+            "utilization_percentage": round(utilization_overall, 2),
+            "total_placed_area_m2": round(total_placed_area / 1_000_000.0, 3),
+            "total_sheet_area_m2": round(total_nominal_sheet_area / 1_000_000.0, 3),
+            "waste_area_m2": round(max(0.0, total_nominal_sheet_area - total_placed_area) / 1_000_000.0, 3)
         }
     }
 
-def can_fit_in_shelf(part, shelf, usable_width, remaining_height, kerf):
-    """Checks if a part can fit in an existing shelf (considering rotation rules and sheet height)."""
+
+def _can_fit_in_shelf(part, shelf, usable_width, remaining_height, kerf, allow_rotation, respect_grain):
     p_w = part["width"]
     p_h = part["height"]
     g_d = part["grain_direction"]
 
-    # Check regular orientation
-    if g_d != 'HORIZONTAL': # Vertical or None can go normal
-        if shelf["current_x"] + p_w <= usable_width:
-            # Check if shelf growth exceeds sheet remaining height
-            h_diff = max(0.0, p_h - shelf["height"])
-            if h_diff <= remaining_height:
-                return True, False
+    # Tentativa sem rotação
+    can_normal = not respect_grain or (g_d != 'HORIZONTAL')
+    if can_normal and (shelf["current_x"] + p_w <= usable_width):
+        h_diff = max(0.0, p_h - shelf["height"])
+        if h_diff <= remaining_height:
+            return True, False
 
-    # Check rotated orientation
-    if g_d != 'VERTICAL': # Horizontal or None can be rotated
-        if shelf["current_x"] + p_h <= usable_width:
-            # Check if shelf growth exceeds sheet remaining height
-            h_diff = max(0.0, p_w - shelf["height"])
-            if h_diff <= remaining_height:
-                return True, True
+    # Tentativa com rotação
+    can_rotated = allow_rotation and (not respect_grain or (g_d != 'VERTICAL'))
+    if can_rotated and (shelf["current_x"] + p_h <= usable_width):
+        h_diff = max(0.0, p_w - shelf["height"])
+        if h_diff <= remaining_height:
+            return True, True
 
     return False, False
 
-def can_create_shelf_in_sheet(part, sheet, usable_width, usable_height):
-    """Checks if a part can fit by creating a new shelf in a sheet."""
-    p_w = part["width"]
-    p_h = part["height"]
-    g_d = part["grain_direction"]
-    rem_h = sheet["remaining_height"]
 
-    # Normal orientation
-    if g_d != 'HORIZONTAL':
-        if p_w <= usable_width and p_h <= rem_h:
-            return True, False, p_h
-
-    # Rotated orientation
-    if g_d != 'VERTICAL':
-        if p_h <= usable_width and p_w <= rem_h:
-            return True, True, p_w
-
-    return False, False, 0.0
-
-def can_create_shelf_in_dimensions(part, usable_width, usable_height):
-    """Checks if a part fits in raw usable sheet dimensions."""
+def _can_create_shelf(part, available_height, usable_width, allow_rotation, respect_grain):
     p_w = part["width"]
     p_h = part["height"]
     g_d = part["grain_direction"]
 
-    # Normal orientation
-    if g_d != 'HORIZONTAL':
-        if p_w <= usable_width and p_h <= usable_height:
-            return True, False, p_h
+    can_normal = not respect_grain or (g_d != 'HORIZONTAL')
+    if can_normal and (p_w <= usable_width and p_h <= available_height):
+        return True, False, p_h
 
-    # Rotated orientation
-    if g_d != 'VERTICAL':
-        if p_h <= usable_width and p_w <= usable_height:
-            return True, True, p_w
+    can_rotated = allow_rotation and (not respect_grain or (g_d != 'VERTICAL'))
+    if can_rotated and (p_h <= usable_width and p_w <= available_height):
+        return True, True, p_w
 
     return False, False, 0.0

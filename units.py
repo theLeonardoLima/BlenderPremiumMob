@@ -1,116 +1,125 @@
-def inch(value):
-    """ Converts inch to meter
-    """
-    return value * 0.0254
+"""
+BlenderToMob Units System — Conversão e Formatação de Medidas Métricas e Imperiais
+Suporta Milímetros (mm), Centímetros (cm), Metros (m), Polegadas (in) e Pés (ft).
+"""
 
-def feet(value):
-    """ Converts feet to meter
-    """
-    return value * 0.3048
+import bpy  # type: ignore
 
-def millimeter(value):
-    """ Converts millimeter to meter
-    """
-    return value * .001
-
-def centimeter(value):
-    """ Converts centimeter to meter
-    """
-    return value * .01
-
-def meter_to_inch(value):
-    """ Converts meter to inch
-    """
-    return round(value * 39.3701,6)
-
-def meter_to_millimeter(meter):
-    """ Converts meter to millimeter
-    """
-    return meter * 1000
-
-def meter_to_feet(meter):
-    """ Converts meter to feet
-    """
-    return round(meter * 3.28084,6)
-
-def round_to_sixteenth(value):
-    """Round a value to the nearest 1/16 (0.0625)."""
-    return round(value * 16) / 16
-
-def format_number(value):
-    """Format a number, removing unnecessary trailing zeros."""
-    # Round to 4 decimal places to clean up floating point noise
-    rounded = round(value, 4)
-    # Format and strip trailing zeros
-    if rounded == int(rounded):
-        return str(int(rounded))
-    else:
-        return f"{rounded:.4f}".rstrip('0').rstrip('.')
-
-def unit_to_string(unit_settings, value):
-    if unit_settings.system == 'METRIC':
-        if unit_settings.length_unit == 'METERS':
-            return format_number(round(value, 3)) + "m"
-        else:
-            return format_number(round(meter_to_millimeter(value), 2)) + "mm"
-    elif unit_settings.system == 'IMPERIAL':
-        if unit_settings.length_unit == 'FEET':
-            return format_number(round(meter_to_feet(value), 2)) + "'"
-        else:
-            # Round to nearest 1/16" for clean cabinet dimensions
-            inches = meter_to_inch(value)
-            rounded_inches = round_to_sixteenth(inches)
-            return format_number(rounded_inches) + '"'
-    else:
-        return format_number(round(value, 4))
-
-
-# =============================================================================
-# DYNAMIC UNIT CONVERSION HELPERS (mm, cm, m, in, ft)
-# =============================================================================
-
+# Fatores de conversão para metros (unidade base do Blender)
 UNIT_CONVERSION_TO_METERS = {
     'MM': 0.001,
+    'MILLIMETERS': 0.001,
     'CM': 0.01,
+    'CENTIMETERS': 0.01,
     'M': 1.0,
+    'METERS': 1.0,
     'IN': 0.0254,
+    'INCHES': 0.0254,
     'FT': 0.3048,
+    'FEET': 0.3048,
 }
 
 UNIT_LABELS = {
     'MM': 'mm',
+    'MILLIMETERS': 'mm',
     'CM': 'cm',
+    'CENTIMETERS': 'cm',
     'M': 'm',
+    'METERS': 'm',
     'IN': 'in',
+    'INCHES': '"',
     'FT': 'ft',
+    'FEET': "'",
 }
 
 
-def convert_to_meters(value, unit_code='MM'):
-    """Convert a value in unit_code ('MM','CM','M','IN','FT') to meters."""
-    scale = UNIT_CONVERSION_TO_METERS.get(unit_code.upper(), 0.001)
+def to_meters(value, unit='MM'):
+    """Converte um valor da unidade fornecida para metros (unidade interna do Blender)."""
+    scale = UNIT_CONVERSION_TO_METERS.get(unit.upper(), 0.001)
     return value * scale
 
 
-def convert_from_meters(meters_val, unit_code='MM'):
-    """Convert a value in meters to unit_code ('MM','CM','M','IN','FT')."""
-    scale = UNIT_CONVERSION_TO_METERS.get(unit_code.upper(), 0.001)
+def from_meters(value_in_meters, unit='MM'):
+    """Converte um valor em metros (unidade interna do Blender) para a unidade fornecida."""
+    scale = UNIT_CONVERSION_TO_METERS.get(unit.upper(), 0.001)
     if scale == 0:
-        return meters_val
-    return meters_val / scale
+        return value_in_meters
+    return value_in_meters / scale
 
+
+def get_scene_length_unit(scene=None):
+    """Detecta a unidade de comprimento ativa nas configurações de cena do Blender."""
+    if scene is None:
+        scene = bpy.context.scene if hasattr(bpy, 'context') and hasattr(bpy.context, 'scene') else None
+    if not scene:
+        return 'MM'
+
+    # Verifica se a cena tem propriedade customizada do add-on
+    if hasattr(scene, 'btm_settings') and hasattr(scene.btm_settings, 'btm_unit'):
+        u = scene.btm_settings.btm_unit
+        if u == 'MILLIMETERS':
+            return 'MM'
+        elif u == 'CENTIMETERS':
+            return 'CM'
+        elif u == 'METERS':
+            return 'M'
+
+    unit_settings = scene.unit_settings
+    if unit_settings.system == 'METRIC':
+        length_unit = unit_settings.length_unit
+        if length_unit == 'MILLIMETERS':
+            return 'MM'
+        elif length_unit == 'CENTIMETERS':
+            return 'CM'
+        elif length_unit == 'METERS':
+            return 'M'
+    return 'MM'
+
+
+def format_number(value):
+    """Formata um número removendo zeros redundantes."""
+    rounded = round(value, 3)
+    if rounded == int(rounded):
+        return str(int(rounded))
+    return f"{rounded:.3f}".rstrip('0').rstrip('.')
+
+
+def format_value(value_in_meters, scene=None, unit=None):
+    """Formata um valor em metros para exibição na UI com o sufixo correto."""
+    if unit is None:
+        unit = get_scene_length_unit(scene)
+    val = from_meters(value_in_meters, unit)
+    label = UNIT_LABELS.get(unit.upper(), 'mm')
+    return f"{format_number(val)} {label}"
+
+
+# Aliases legados para compatibilidade reversa
+def inch(value):
+    return value * 0.0254
+
+def feet(value):
+    return value * 0.3048
+
+def millimeter(value):
+    return value * 0.001
+
+def centimeter(value):
+    return value * 0.01
+
+def meter_to_inch(value):
+    return round(value * 39.3701, 6)
+
+def meter_to_millimeter(meter):
+    return meter * 1000.0
+
+def meter_to_feet(meter):
+    return round(meter * 3.28084, 6)
+
+def convert_to_meters(value, unit_code='MM'):
+    return to_meters(value, unit_code)
+
+def convert_from_meters(meters_val, unit_code='MM'):
+    return from_meters(meters_val, unit_code)
 
 def format_length_unit(meters_val, unit_code='MM'):
-    """Format a value in meters into a string in unit_code representation."""
-    code = unit_code.upper()
-    val = convert_from_meters(meters_val, code)
-    label = UNIT_LABELS.get(code, 'mm')
-    if code in ('MM', 'CM'):
-        return f"{format_number(round(val, 2))} {label}"
-    elif code == 'M':
-        return f"{format_number(round(val, 3))} {label}"
-    elif code == 'IN':
-        return f"{format_number(round(val, 3))} {label}"
-    elif code == 'FT':
-        return f"{format_number(round(val, 3))} {label}"
-    return f"{format_number(round(val, 3))} {label}"
+    return format_value(meters_val, unit=unit_code)

@@ -3,11 +3,23 @@
     ".",
     "blendertomob"
   ],
-  "extraPaths": [
-    "/home/theleoinfo/.local/lib/python3.10/site-packages",
-    "blendertomob"
+  "exclude": [
+    "**/__pycache__",
+    "**/.git",
+    "**/.venv"
   ],
-  "pythonVersion": "3.10",
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "pythonVersion": "3.11",
+      "extraPaths": [
+        ".",
+        "blendertomob",
+        "/home/theleoinfo/.local/lib/python3.10/site-packages"
+      ]
+    }
+  ],
+  "typeCheckingMode": "basic",
   "reportMissingImports": "none",
   "reportMissingModuleSource": "none"
 }

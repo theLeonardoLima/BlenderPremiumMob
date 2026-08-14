@@ -1,10 +1,10 @@
 """
-Blender to Mob UI Panels — Interface organizada em abas de grade (Grid Dashboard)
-CONSTRUTOR, GALERIA DE MÓDULOS e CONFIGURAÇÕES (com Configurador de Dimensões e Projetos).
+BlenderToMob UI Panels — Interface de Marcenaria e CAD Paramétrico
+Organizada em abas (CONSTRUTOR, GALERIA, CONFIGURAÇÕES e PLANO DE CORTE)
+com suporte integral a Português do Brasil (pt_BR) e unidades dinâmicas (mm, cm, m).
 """
 
 import bpy  # type: ignore
-from ..cutting.nesting import NestingPart, optimize_nesting
 from ..data import units
 
 
@@ -17,52 +17,6 @@ def _scene_has_walls(context):
         if hasattr(obj, 'btm_plane') and obj.btm_plane.object_kind == 'WALL':
             return True
     return False
-
-
-# ==========================================================================
-# Operador de Nesting
-# ==========================================================================
-
-class BTM_OT_CalculateNesting(bpy.types.Operator):
-    """Calcula a otimização de corte (nesting) dos módulos na cena"""
-    bl_idname = "btm.calculate_nesting"
-    bl_label = "Calcular Plano de Corte"
-    bl_options = {'REGISTER'}
-
-    def execute(self, context):
-        modules = []
-        for obj in context.scene.objects:
-            if hasattr(obj, 'btm_plane') and obj.btm_plane.object_kind == 'MODULE':
-                cabinet = obj.btm_cabinet
-                part = NestingPart(
-                    id=obj.name,
-                    name=obj.name,
-                    width=cabinet.width * 1000.0,
-                    height=cabinet.depth * 1000.0,
-                    quantity=1,
-                    grain_direction='NONE',
-                    module_ref=obj.name
-                )
-                modules.append(part)
-
-        if not modules:
-            self.report({'WARNING'}, "Nenhum módulo encontrado na cena para otimização.")
-            return {'CANCELLED'}
-
-        result = optimize_nesting(
-            parts=modules,
-            sheet_width=2750.0,
-            sheet_height=1830.0,
-            refilo=10.0,
-            kerf=4.0
-        )
-
-        stats = result["stats"]
-        msg = (f"Nesting Concluído: {stats['sheets_count']} chapas usadas. "
-               f"Aproveitamento: {stats['utilization_percentage']}%")
-        self.report({'INFO'}, msg)
-        context.scene["btm_nesting_result"] = msg
-        return {'FINISHED'}
 
 
 # ==========================================================================
@@ -83,7 +37,7 @@ class BTM_PT_EnvironmentBuilder(bpy.types.Panel):
         settings = scene.btm_settings
         hb_scene = getattr(scene, 'home_builder', None)
 
-        # Tab selector (Segmented buttons row)
+        # Seletor de Abas (Segmented Buttons)
         row = layout.row(align=True)
         row.scale_y = 1.3
         row.prop(settings, "btm_active_tab", expand=True)
@@ -96,7 +50,7 @@ class BTM_PT_EnvironmentBuilder(bpy.types.Panel):
         # ABA: CONSTRUTOR
         # ------------------------------------------------------------------
         if tab == 'CONSTRUTOR':
-            # Seção: Desenho de Paredes e Contorno
+            # Seção: Paredes e Piso
             box = layout.box()
             box.label(text="Paredes & Piso", icon='GREASEPENCIL')
             grid = box.grid_flow(columns=2, even_columns=True, even_rows=True, align=True)
@@ -105,38 +59,35 @@ class BTM_PT_EnvironmentBuilder(bpy.types.Panel):
             grid.operator("btm.floor_builder", text="Piso Manual", icon='MESH_PLANE')
             grid.operator("home_builder_walls.add_ceiling", text="Criar Teto", icon='MESH_CUBE')
 
-            # Seção: Aberturas e Perfuração
+            # Seção: Aberturas
             box = layout.box()
-            box.label(text="Aberturas & Esqueleto", icon='MOD_BOOLEAN')
+            box.label(text="Aberturas & Vãos", icon='MOD_BOOLEAN')
             grid = box.grid_flow(columns=2, even_columns=True, even_rows=True, align=True)
             grid.operator("home_builder_doors_windows.place_door", text="Porta Simples", icon='IMPORT')
             grid.operator("home_builder_doors_windows.place_double_door", text="Porta Dupla", icon='EXPORT')
             grid.operator("home_builder_doors_windows.place_window", text="Janela", icon='MESH_GRID')
-            grid.operator("home_builder_doors_windows.place_open_door", text="Vão Aberto", icon='WORLD')
+            grid.operator("home_builder_doors_windows.place_open_door", text="Vão Livre", icon='WORLD')
 
-            # Seção: Agregados & Iluminação
+            # Seção: Módulos & Iluminação
             box = layout.box()
-            box.label(text="Mobiliário & Luz", icon='LIGHT')
+            box.label(text="Mobiliário & Iluminação", icon='LIGHT')
             grid = box.grid_flow(columns=2, even_columns=True, even_rows=True, align=True)
             grid.operator("btm.cabinet_builder", text="Módulo Rápido", icon='OUTLINER_OB_MESH')
-            grid.operator("home_builder_walls.add_room_lights", text="Iluminação", icon='LIGHT')
-            grid.operator("home_builder_walls.setup_world_lighting", text="Luz do Ambiente", icon='WORLD')
-            grid.operator("home_builder_obstacles.place_obstacle", text="Obstáculo", icon='ERROR')
+            grid.operator("btm.dimension_settings_dialog", text="Config. Dimensões", icon='PREFERENCES')
+            grid.operator("home_builder_walls.add_room_lights", text="Luzes do Quarto", icon='LIGHT')
+            grid.operator("home_builder_obstacles.place_obstacle", text="Inserir Obstáculo", icon='ERROR')
 
         # ------------------------------------------------------------------
         # ABA: GALERIA DE MÓDULOS
         # ------------------------------------------------------------------
         elif tab == 'GALERIA':
             if hb_scene is None:
-                layout.label(text="Biblioteca indisponível", icon='ERROR')
+                layout.label(text="Biblioteca de módulos indisponível", icon='ERROR')
                 return
 
-            # Selector de biblioteca
             layout.prop(hb_scene, "product_tab", text="Biblioteca")
-
             layout.separator(factor=0.5)
 
-            # Renderiza a UI da biblioteca original
             box = layout.box()
             if hb_scene.product_tab == 'FRAMELESS' and hasattr(scene, 'hb_frameless'):
                 scene.hb_frameless.draw_library_ui(box, context)
@@ -146,56 +97,62 @@ class BTM_PT_EnvironmentBuilder(bpy.types.Panel):
                 scene.hb_closets.draw_library_ui(box, context)
 
         # ------------------------------------------------------------------
-        # ABA: CONFIGURAÇÕES
+        # ABA: CONFIGURAÇÕES (Unidades, Dimensões e Limites MDF)
         # ------------------------------------------------------------------
         elif tab == 'CONFIGURACOES':
-            # 1. Unidades e Medidas
+            # 1. Unidades e Snap
             box_unit = layout.box()
-            box_unit.label(text="Configurações Gerais & Snap", icon='SCENE_DATA')
+            box_unit.label(text="Unidade & Precisão", icon='SCENE_DATA')
             col = box_unit.column(align=True)
-            col.prop(settings, "btm_unit", text="Unidade")
-            col.prop(settings, "snap_grid", text="Atrair ao Grid")
+            col.prop(settings, "btm_unit", text="Unidade do Projeto")
+            col.prop(settings, "snap_grid", text="Atrair ao Grid (Snap)")
             if settings.snap_grid:
-                col.prop(settings, "snap_increment", text="Passo do Snap")
-            col.prop(settings, "collision_global", text="Colisões Globais")
+                col.prop(settings, "snap_increment", text="Incremento do Snap")
+            col.prop(settings, "collision_global", text="Evitar Colisões Físicas")
 
             # 2. Configurador de Dimensões (Promob-Style)
-            box_config = layout.box()
-            box_config.label(text="Configurador de Móveis", icon='PROPERTIES')
-            box_config.prop(settings, "config_active_component", text="Peça")
+            box_dim = layout.box()
+            box_dim.label(text="Padrões de Marcenaria (Dimensões)", icon='CON_SIZELIMIT')
+            dim = settings.dimension_settings
 
-            comp_type = settings.config_active_component
-            comp = None
-            if comp_type == 'LATERAL':
-                comp = settings.config_lateral
-            elif comp_type == 'DIVISORIA':
-                comp = settings.config_divisoria
-            elif comp_type == 'BASE':
-                comp = settings.config_base
-            elif comp_type == 'FUNDO':
-                comp = settings.config_fundo
-            elif comp_type == 'PRATELEIRA':
-                comp = settings.config_prateleira
-            elif comp_type == 'PORTA':
-                comp = settings.config_porta
+            col_d = box_dim.column(align=True)
+            col_d.prop(dim, "preset", text="Preset")
 
-            if comp:
-                col = box_config.column(align=True)
-                col.prop(comp, "material", text="Material")
-                col.prop(comp, "max_width", text="Largura Máx.")
-                col.prop(comp, "max_length", text="Comprimento Máx.")
-                col.prop(comp, "thickness", text="Espessura")
+            row_btn = box_dim.row(align=True)
+            row_btn.operator("btm.dimension_settings_dialog", text="Abrir Editor de Dimensões", icon='WINDOW')
 
-                # Fitas de Borda
-                box_border = box_config.box()
-                box_border.label(text="Fitas de Borda (Espessura)", icon='ALIGN_JUSTIFY')
-                col_b = box_border.column(align=True)
-                col_b.prop(comp, "edge_1", text="1 - Superior")
-                col_b.prop(comp, "edge_2", text="2 - Inferior")
-                col_b.prop(comp, "edge_3", text="3 - Direita/Traseira")
-                col_b.prop(comp, "edge_4", text="4 - Esquerda/Frontal")
+            # Resumo rápido de espessuras
+            box_th_summary = box_dim.box()
+            box_th_summary.label(text="Espessuras de Chapa Ativas", icon='MOD_SOLIDIFY')
+            grid_th = box_th_summary.grid_flow(columns=2, align=True)
+            grid_th.prop(dim, "carcass_thickness", text="Estrutura/Caixa")
+            grid_th.prop(dim, "back_thickness", text="Fundo")
+            grid_th.prop(dim, "door_thickness", text="Portas")
+            grid_th.prop(dim, "shelf_thickness", text="Prateleiras")
 
-            # 3. Gerenciador de Quartos e Ambientes
+            # 3. Limites e Especificações de Chapas MDF
+            box_mdf = layout.box()
+            box_mdf.label(text="Limites & Configurações de Chapas MDF", icon='STICKY_UVS_DISABLE')
+            mdf = settings.mdf_config
+
+            col_mdf = box_mdf.column(align=True)
+            col_mdf.prop(mdf, "sheet_format", text="Formato")
+            col_mdf.prop(mdf, "sheet_width", text="Largura")
+            col_mdf.prop(mdf, "sheet_height", text="Comprimento/Altura")
+
+            box_refilo = box_mdf.box()
+            box_refilo.label(text="Refilos (Descarte de Bordas)", icon='ARROW_LEFTRIGHT')
+            grid_ref = box_refilo.grid_flow(columns=2, align=True)
+            grid_ref.prop(mdf, "refilo_top", text="Superior")
+            grid_ref.prop(mdf, "refilo_bottom", text="Inferior")
+            grid_ref.prop(mdf, "refilo_left", text="Esquerdo")
+            grid_ref.prop(mdf, "refilo_right", text="Direito")
+
+            col_mdf.prop(mdf, "kerf", text="Lâmina de Serra (Kerf)")
+            col_mdf.prop(mdf, "allow_rotation", text="Permitir Rotação de Peças")
+            col_mdf.prop(mdf, "respect_grain", text="Respeitar Veio da Madeira")
+
+            # 4. Gerenciador de Ambientes e Elevações
             if hb_scene is not None:
                 from .. import hb_project
                 room_scenes = hb_project.get_room_scenes()
@@ -218,33 +175,37 @@ class BTM_PT_EnvironmentBuilder(bpy.types.Panel):
                         del_op.scene_name = r_scene.name
 
                 row_actions = box_rooms.row(align=True)
-                row_actions.operator("home_builder.create_room", text="Novo Quarto", icon='ADD')
+                row_actions.operator("home_builder.create_room", text="Novo Ambiente", icon='ADD')
                 row_actions.operator("home_builder.rename_room", text="Renomear", icon='GREASEPENCIL')
 
-            # 4. Pranchas e Layouts 2D
-            from .. import hb_layouts
-            layout_views = hb_layouts.LayoutView.get_all_layout_views()
-            layout_views.sort(key=lambda s: s.home_builder.sort_order if hasattr(s, 'home_builder') else 0)
+        # ------------------------------------------------------------------
+        # ABA: PLANO DE CORTE (Nesting & Exportação JSON)
+        # ------------------------------------------------------------------
+        elif tab == 'PLANO_CORTE':
+            box_actions = layout.box()
+            box_actions.label(text="Otimizador de Corte (Nesting)", icon='ALIGN_JUSTIFY')
 
-            box_layouts = layout.box()
-            box_layouts.label(text="Layouts & Elevações 2D", icon='VIEW_ORTHO')
+            row_calc = box_actions.row(align=True)
+            row_calc.scale_y = 1.3
+            row_calc.operator("btm.calculate_nesting", text="Calcular Plano de Corte", icon='PLAY')
 
-            if layout_views:
-                col_layouts = box_layouts.column(align=True)
-                for view in layout_views:
-                    row = col_layouts.row(align=True)
-                    is_selected = view == context.scene
-                    icon = 'CHECKBOX_HLT' if is_selected else 'CHECKBOX_DEHLT'
+            row_exp = box_actions.row(align=True)
+            row_exp.scale_y = 1.2
+            row_exp.operator("btm.export_cut_plan_json", text="Exportar JSON (CorteCloud / CutList)", icon='EXPORT')
 
-                    op = row.operator("home_builder_layouts.go_to_layout_view", text=view.name, icon=icon)
-                    op.scene_name = view.name
+            # Resumo do Plano Calculado
+            nesting_res = scene.get("btm_nesting_result", "Nenhuma otimização calculada.")
+            box_info = layout.box()
+            box_info.label(text="Status da Otimização", icon='INFO')
+            box_info.label(text=nesting_res)
 
-                    del_op = row.operator("home_builder_layouts.delete_layout_view", text="", icon='X')
-                    del_op.scene_name = view.name
-
-            row_create = box_layouts.row(align=True)
-            row_create.operator("home_builder_layouts.create_all_elevations", text="Gerar Elevações", icon='DOCUMENTS')
-            row_create.operator("home_builder_layouts.create_plan_view", text="Planta Baixa", icon='MESH_GRID')
+            if "btm_nesting_sheets_count" in scene:
+                box_metrics = layout.box()
+                box_metrics.label(text="Métricas do Projeto", icon='LINENUMBERS_ON')
+                col_m = box_metrics.column(align=True)
+                col_m.label(text=f"Total de Peças: {scene.get('btm_nesting_parts_count', 0)}")
+                col_m.label(text=f"Chapas Necessárias: {scene.get('btm_nesting_sheets_count', 0)}")
+                col_m.label(text=f"Aproveitamento: {scene.get('btm_nesting_utilization', 0.0)}%")
 
 
 # ==========================================================================
@@ -288,19 +249,19 @@ class BTM_PT_ContextProperties(bpy.types.Panel):
 
         box = layout.box()
         col = box.column(align=True)
-        col.prop(wall, "length")
-        col.prop(wall, "thickness")
+        col.prop(wall, "length", text="Comprimento")
+        col.prop(wall, "thickness", text="Espessura")
 
         col.separator(factor=0.5)
-        col.prop(wall, "height_start")
-        col.prop(wall, "height_end")
-        col.prop(wall, "offset")
+        col.prop(wall, "height_start", text="Pé-Direito Inicial")
+        col.prop(wall, "height_end", text="Pé-Direito Final")
+        col.prop(wall, "offset", text="Afastamento Base")
 
         col.separator(factor=0.5)
-        col.prop(wall, "absolute_angle")
-        col.prop(wall, "relative_angle")
-        col.prop(wall, "sagitta")
-        col.prop(wall, "wall_type")
+        col.prop(wall, "absolute_angle", text="Ângulo Absoluto")
+        col.prop(wall, "relative_angle", text="Ângulo Relativo")
+        col.prop(wall, "sagitta", text="Flecha do Arco")
+        col.prop(wall, "wall_type", text="Tipo de Parede")
 
     def _draw_module_props(self, layout, obj):
         layout.label(text="Parâmetros do Módulo", icon='OUTLINER_OB_MESH')
@@ -308,20 +269,20 @@ class BTM_PT_ContextProperties(bpy.types.Panel):
 
         box = layout.box()
         col = box.column(align=True)
-        col.prop(cabinet, "cabinet_type")
+        col.prop(cabinet, "cabinet_type", text="Tipo")
         col.separator(factor=0.5)
-        col.prop(cabinet, "width")
-        col.prop(cabinet, "height")
-        col.prop(cabinet, "depth")
-        col.prop(cabinet, "thickness")
+        col.prop(cabinet, "width", text="Largura")
+        col.prop(cabinet, "height", text="Altura")
+        col.prop(cabinet, "depth", text="Profundidade")
+        col.prop(cabinet, "thickness", text="Espessura Chapas")
 
         # Portas e Controle de Abertura interativo
         box_door = layout.box()
-        box_door.label(text="Portas & Rotação", icon='OUTLINER_OB_LIGHTPATH')
+        box_door.label(text="Portas & Abertura", icon='OUTLINER_OB_LIGHTPATH')
         col_door = box_door.column(align=True)
-        col_door.prop(cabinet, "door_swing")
+        col_door.prop(cabinet, "door_swing", text="Sentido")
         if cabinet.door_swing != 'NONE':
-            col_door.prop(cabinet, "door_open", slider=True, text="Abertura")
+            col_door.prop(cabinet, "door_open", slider=True, text="Grau de Abertura")
 
     def _draw_opening_props(self, layout, obj):
         layout.label(text="Parâmetros da Abertura", icon='MOD_BOOLEAN')
@@ -329,11 +290,11 @@ class BTM_PT_ContextProperties(bpy.types.Panel):
 
         box = layout.box()
         col = box.column(align=True)
-        col.prop(opening, "opening_type")
+        col.prop(opening, "opening_type", text="Tipo")
         col.separator(factor=0.5)
-        col.prop(opening, "width")
-        col.prop(opening, "height")
-        col.prop(opening, "sill_height")
+        col.prop(opening, "width", text="Largura")
+        col.prop(opening, "height", text="Altura")
+        col.prop(opening, "sill_height", text="Peitoril")
 
         if opening.parent_wall:
             col.separator(factor=0.5)
@@ -347,7 +308,7 @@ class BTM_PT_ContextProperties(bpy.types.Panel):
     def _draw_floor_props(self, context, layout, obj):
         layout.label(text="Parâmetros do Piso", icon='MESH_GRID')
         box = layout.box()
-        box.label(text=f"Objeto: {obj.name}")
+        box.label(text=f"Elemento: {obj.name}")
         if obj.type == 'MESH':
             dims = obj.dimensions
             w_str = units.format_value(dims.x, context.scene)
@@ -372,11 +333,15 @@ class BTM_PT_NestingPanel(bpy.types.Panel):
         layout = self.layout
         scene = context.scene
 
-        layout.label(text="Otimizador de Chapas", icon='ALIGN_JUSTIFY')
-        layout.operator("btm.calculate_nesting", text="Otimizar Plano de Corte", icon='PLAY')
+        layout.label(text="Otimizador de Chapas MDF", icon='ALIGN_JUSTIFY')
+        row = layout.row(align=True)
+        row.scale_y = 1.2
+        row.operator("btm.calculate_nesting", text="Calcular Plano de Corte", icon='PLAY')
+
+        row_exp = layout.row(align=True)
+        row_exp.operator("btm.export_cut_plan_json", text="Exportar JSON Universal", icon='EXPORT')
 
         nesting_res = scene.get("btm_nesting_result", "Nenhuma otimização calculada")
-
         box = layout.box()
         box.label(text=nesting_res, icon='INFO')
 
@@ -386,7 +351,6 @@ class BTM_PT_NestingPanel(bpy.types.Panel):
 # ==========================================================================
 
 classes = (
-    BTM_OT_CalculateNesting,
     BTM_PT_EnvironmentBuilder,
     BTM_PT_ContextProperties,
     BTM_PT_NestingPanel,

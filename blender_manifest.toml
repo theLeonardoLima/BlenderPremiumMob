@@ -1,48 +1,30 @@
 schema_version = "1.0.0"
 
-id = "home_builder_5"
-version = "5.1.31"
-name = "Home Builder 5"
-tagline = "Design interior spaces with parametric cabinets"
-maintainer = "Andrew Peel"
+id = "blendertomob"
+version = "1.0.0"
+name = "Blender to Mob"
+tagline = "Parametric cabinetry and interior design CAD tools for Blender"
+maintainer = "TheLeoInfo"
 type = "add-on"
 
-website = "https://creativedesigner3d.com/"
+website = "https://github.com/theLeonardoLima/BlenderPremiumMob"
 
-tags = ["Add Mesh", "Scene"]
+tags = ["Design", "Parametric", "CAD", "Woodworking", "Furniture", "Add Mesh", "Scene"]
 
-blender_version_min = "3.6.0"
+blender_version_min = "4.2.0"
 
 license = [
     "SPDX:GPL-3.0-or-later",
 ]
 
 copyright = [
-    "2024-2026 Andrew Peel",
+    "2024-2026 TheLeoInfo",
 ]
 
 platforms = ["windows-x64", "windows-arm64", "macos-arm64", "macos-x64", "linux-x64"]
 
-# Bundled Python wheels (Pillow for PDF export)
-wheels = [
-    # Python 3.11 (Blender 5.0)
-    "./wheels/pillow-12.1.1-cp311-cp311-win_amd64.whl",
-    "./wheels/pillow-12.1.1-cp311-cp311-win_arm64.whl",
-    "./wheels/pillow-12.1.1-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
-    "./wheels/pillow-12.1.1-cp311-cp311-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl",
-    "./wheels/pillow-12.1.1-cp311-cp311-macosx_11_0_arm64.whl",
-    "./wheels/pillow-12.1.1-cp311-cp311-macosx_10_10_x86_64.whl",
-    # Python 3.13 (Blender 5.1)
-    "./wheels/pillow-12.1.1-cp313-cp313-win_amd64.whl",
-    "./wheels/pillow-12.1.1-cp313-cp313-win_arm64.whl",
-    "./wheels/pillow-12.1.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
-    "./wheels/pillow-12.1.1-cp313-cp313-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl",
-    "./wheels/pillow-12.1.1-cp313-cp313-macosx_11_0_arm64.whl",
-    "./wheels/pillow-12.1.1-cp313-cp313-macosx_10_13_x86_64.whl",
-]
-
 [permissions]
-files = "Save/load project files, export PDFs and layouts"
+files = "Save and load project files, export cut plan JSON, export PDFs and technical layouts"
 
 [build]
 paths_exclude_pattern = [

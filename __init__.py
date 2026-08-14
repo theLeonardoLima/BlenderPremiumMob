@@ -1,4 +1,21 @@
+import sys
+import importlib
 import bpy  # type: ignore
+
+# Hot-reload submodules if already imported in the active Python session
+_submodule_names = [
+    "hb_props", "hb_project", "hb_props_obstacles", "ops",
+    "view3d_sidebar", "menu_apend", "menus",
+    "walls", "doors_windows", "layouts", "rooms", "details",
+    "ops_obstacles", "export", "ops_stairs", "scene_navigator",
+    "viewport_hud", "ops_general", "closets", "face_frame",
+    "frameless", "wood_hoods", "molding", "hb_layouts", "hb_assets"
+]
+for _mod_name in _submodule_names:
+    _full_name = f"{__name__}.{_mod_name}"
+    if _full_name in sys.modules:
+        importlib.reload(sys.modules[_full_name])
+
 from . import hb_props
 from . import hb_project
 from . import hb_props_obstacles
@@ -31,18 +48,6 @@ from . import hb_assets
 
 from bpy.app.handlers import persistent  # type: ignore
 
-bl_info = {
-    "name": "Home Builder 5",
-    "author": "Andrew Peel",
-    "version": (5, 1, 31),
-    "blender": (3, 6, 0),
-    "location": "3D Viewport Sidebar",
-    "description": "Library for Designing Interior Spaces",
-    "warning": "",
-    "wiki_url": "",
-    "category": "Asset Library",
-}
-
 @persistent
 def load_file_post(scene):
     """ Load Default Drivers and ensure project data exists
@@ -60,7 +65,8 @@ def load_file_post(scene):
     main_scene = hb_project.ensure_main_scene()
 
     # Ensure a default frameless style is created
-    main_scene.hb_frameless.ensure_default_style()
+    if main_scene and hasattr(main_scene, "hb_frameless"):
+        main_scene.hb_frameless.ensure_default_style()
 
     # Modal operators do not survive a .blend load -- re-arm the HUD listener.
     from .operators import viewport_hud
@@ -70,14 +76,16 @@ def load_file_post(scene):
 def _update_use_viewport_hud(self, context):
     """Flipping the HUD preference: redraw every 3D viewport so the change
     shows immediately in both the viewport and the sidebar."""
-    for window in bpy.context.window_manager.windows:
-        for area in window.screen.areas:
-            if area.type == 'VIEW_3D':
-                area.tag_redraw()
+    if bpy.context.window_manager:
+        for window in bpy.context.window_manager.windows:
+            if window.screen:
+                for area in window.screen.areas:
+                    if area.type == 'VIEW_3D':
+                        area.tag_redraw()
 
 
 class Home_Builder_AddonPreferences(bpy.types.AddonPreferences):
-    bl_idname = __package__
+    bl_idname = __package__ or __name__
 
     use_viewport_hud = bpy.props.BoolProperty(
         name="Viewport Controls",
