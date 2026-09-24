@@ -362,7 +362,7 @@ class home_builder_stairs_OT_place_stairs(bpy.types.Operator):
     bl_description = "Click on the floor to place a staircase"
     bl_options = {'REGISTER', 'UNDO'}
 
-    stair_type = bpy.props.EnumProperty(
+    stair_type: bpy.props.EnumProperty(
         name="Type",
         items=[
             ('STRAIGHT', "Straight", "Straight staircase"),
@@ -372,7 +372,7 @@ class home_builder_stairs_OT_place_stairs(bpy.types.Operator):
         default='STRAIGHT',
     )  # type: ignore
 
-    turn_direction = bpy.props.EnumProperty(
+    turn_direction: bpy.props.EnumProperty(
         name="Turn",
         items=[
             ('LEFT',  "Left",  "Second flight turns left"),
@@ -549,7 +549,7 @@ class home_builder_stairs_OT_stair_prompts(bpy.types.Operator):
     bl_description = "Edit the staircase dimensions"
     bl_options = {'REGISTER', 'UNDO'}
 
-    stair_type = bpy.props.EnumProperty(
+    stair_type: bpy.props.EnumProperty(
         name="Type",
         items=[
             ('STRAIGHT', "Straight", "Straight staircase"),
@@ -559,7 +559,7 @@ class home_builder_stairs_OT_stair_prompts(bpy.types.Operator):
         default='STRAIGHT',
     )  # type: ignore
 
-    turn_direction = bpy.props.EnumProperty(
+    turn_direction: bpy.props.EnumProperty(
         name="Turn Direction",
         items=[
             ('LEFT',  "Left",  "Second flight turns left"),
@@ -568,43 +568,43 @@ class home_builder_stairs_OT_stair_prompts(bpy.types.Operator):
         default='LEFT',
     )  # type: ignore
 
-    stair_width = bpy.props.FloatProperty(
+    stair_width: bpy.props.FloatProperty(
         name="Width", subtype='DISTANCE', unit='LENGTH',
         default=0.9144, min=0.3048, precision=5,
     )  # type: ignore
 
-    total_rise = bpy.props.FloatProperty(
+    total_rise: bpy.props.FloatProperty(
         name="Total Rise", subtype='DISTANCE', unit='LENGTH',
         default=2.4384, min=0.3048, precision=5,
     )  # type: ignore
 
-    riser_height = bpy.props.FloatProperty(
+    riser_height: bpy.props.FloatProperty(
         name="Riser Height", subtype='DISTANCE', unit='LENGTH',
         default=0.1905, min=0.1016, max=0.3048, precision=5,
     )  # type: ignore
 
-    tread_depth = bpy.props.FloatProperty(
+    tread_depth: bpy.props.FloatProperty(
         name="Tread Depth", subtype='DISTANCE', unit='LENGTH',
         default=0.2667, min=0.1524, precision=5,
     )  # type: ignore
 
-    tread_thickness = bpy.props.FloatProperty(
+    tread_thickness: bpy.props.FloatProperty(
         name="Tread Thickness", subtype='DISTANCE', unit='LENGTH',
         default=0.0254, min=0.0127, precision=5,
     )  # type: ignore
 
-    landing_depth = bpy.props.FloatProperty(
+    landing_depth: bpy.props.FloatProperty(
         name="Landing Depth", subtype='DISTANCE', unit='LENGTH',
         default=0.9144, min=0.3048, precision=5,
     )  # type: ignore
 
-    landing_height = bpy.props.FloatProperty(
+    landing_height: bpy.props.FloatProperty(
         name="Landing Height", subtype='DISTANCE', unit='LENGTH',
         default=1.2192, min=0.1905, precision=5,
         description="Height of the landing platform (splits rise between flights)",
     )  # type: ignore
 
-    gap = bpy.props.FloatProperty(
+    gap: bpy.props.FloatProperty(
         name="Gap", subtype='DISTANCE', unit='LENGTH',
         default=0, min=0, precision=5,
         description="Space between the two parallel flights",
@@ -735,9 +735,23 @@ classes = (
 
 def register():
     for cls in classes:
-        bpy.utils.register_class(cls)
+        reg_cls = getattr(bpy.types, cls.__name__, None)
+        if reg_cls:
+            try:
+                bpy.utils.unregister_class(reg_cls)
+            except Exception:
+                pass
+        try:
+            bpy.utils.register_class(cls)
+        except Exception:
+            pass
 
 
 def unregister():
     for cls in reversed(classes):
-        bpy.utils.unregister_class(cls)
+        reg_cls = getattr(bpy.types, cls.__name__, None)
+        if reg_cls:
+            try:
+                bpy.utils.unregister_class(reg_cls)
+            except Exception:
+                pass

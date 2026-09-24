@@ -650,7 +650,7 @@ class hb_frameless_OT_assign_cabinet_style(bpy.types.Operator):
     bl_description = "Assign the active cabinet style to a cabinet"
     bl_options = {'REGISTER', 'UNDO'}
 
-    cabinet_name = bpy.props.StringProperty(name="Cabinet Name",default="")# type: ignore
+    cabinet_name: bpy.props.StringProperty(name="Cabinet Name",default="")# type: ignore
 
     def execute(self, context):
         ensure_default_styles()
@@ -894,7 +894,7 @@ class hb_frameless_OT_update_cabinet_pulls(bpy.types.Operator):
     bl_description = "Update pulls on all cabinets to match current selection"
     bl_options = {'UNDO'}
 
-    pull_type = bpy.props.EnumProperty(
+    pull_type: bpy.props.EnumProperty(
         name="Pull Type",
         items=[
             ('DOOR', "Door Pulls", "Update door pulls"),
@@ -1012,7 +1012,7 @@ class hb_frameless_OT_update_pull_locations(bpy.types.Operator):
     bl_description = "Update pull locations on all fronts to match current global settings"
     bl_options = {'UNDO'}
 
-    update_type = bpy.props.EnumProperty(
+    update_type: bpy.props.EnumProperty(
         name="Update Type",
         items=[
             ('DOOR', "Door Fronts", "Update door pull locations"),
@@ -1164,19 +1164,19 @@ class hb_frameless_OT_add_custom_finish_color(bpy.types.Operator):
     bl_description = "Create a new custom color and save it to your user library"
     bl_options = {'REGISTER', 'UNDO'}
 
-    color_name = bpy.props.StringProperty(name="Color Name", default="My Custom Color")  # type: ignore
-    color_1 = bpy.props.FloatVectorProperty(
+    color_name: bpy.props.StringProperty(name="Color Name", default="My Custom Color")  # type: ignore
+    color_1: bpy.props.FloatVectorProperty(
         name="Color 1", subtype='COLOR', size=4, min=0, max=1,
         default=(0.5, 0.4, 0.3, 1.0)
     )  # type: ignore
-    color_2 = bpy.props.FloatVectorProperty(
+    color_2: bpy.props.FloatVectorProperty(
         name="Color 2", subtype='COLOR', size=4, min=0, max=1,
         default=(0.4, 0.3, 0.2, 1.0)
     )  # type: ignore
-    roughness = bpy.props.FloatProperty(name="Roughness", min=0, max=1, default=1.0)  # type: ignore
-    noise_bump_strength = bpy.props.FloatProperty(name="Noise Bump Strength", min=0, max=1, default=0.1)  # type: ignore
-    knots_bump_strength = bpy.props.FloatProperty(name="Knots Bump Strength", min=0, max=1, default=0.15)  # type: ignore
-    wood_bump_strength = bpy.props.FloatProperty(name="Wood Bump Strength", min=0, max=1, default=0.2)  # type: ignore
+    roughness: bpy.props.FloatProperty(name="Roughness", min=0, max=1, default=1.0)  # type: ignore
+    noise_bump_strength: bpy.props.FloatProperty(name="Noise Bump Strength", min=0, max=1, default=0.1)  # type: ignore
+    knots_bump_strength: bpy.props.FloatProperty(name="Knots Bump Strength", min=0, max=1, default=0.15)  # type: ignore
+    wood_bump_strength: bpy.props.FloatProperty(name="Wood Bump Strength", min=0, max=1, default=0.2)  # type: ignore
 
     def invoke(self, context, event):
         from .. import finish_colors
@@ -1265,8 +1265,8 @@ class hb_frameless_OT_delete_custom_finish_color(bpy.types.Operator):
     bl_description = "Delete this custom color from your user library"
     bl_options = {'REGISTER', 'UNDO'}
 
-    color_name = bpy.props.StringProperty(name="Color Name")  # type: ignore
-    color_type = bpy.props.StringProperty(name="Color Type", default='stain')  # type: ignore
+    color_name: bpy.props.StringProperty(name="Color Name")  # type: ignore
+    color_type: bpy.props.StringProperty(name="Color Type", default='stain')  # type: ignore
 
     def invoke(self, context, event):
         return context.window_manager.invoke_confirm(self, event)
@@ -1289,21 +1289,21 @@ class hb_frameless_OT_edit_finish_color(bpy.types.Operator):
     bl_description = "Edit the color and shader parameters, then save as a new custom color"
     bl_options = {'REGISTER', 'UNDO'}
 
-    color_type = bpy.props.StringProperty(name="Color Type", default='stain')  # type: ignore
+    color_type: bpy.props.StringProperty(name="Color Type", default='stain')  # type: ignore
 
-    color_name = bpy.props.StringProperty(name="Color Name", default="")  # type: ignore
-    color_1 = bpy.props.FloatVectorProperty(
+    color_name: bpy.props.StringProperty(name="Color Name", default="")  # type: ignore
+    color_1: bpy.props.FloatVectorProperty(
         name="Primary Color", subtype='COLOR', size=4, min=0, max=1,
         default=(0.5, 0.4, 0.3, 1.0)
     )  # type: ignore
-    color_2 = bpy.props.FloatVectorProperty(
+    color_2: bpy.props.FloatVectorProperty(
         name="Secondary Color", subtype='COLOR', size=4, min=0, max=1,
         default=(0.4, 0.3, 0.2, 1.0)
     )  # type: ignore
-    roughness = bpy.props.FloatProperty(name="Roughness", min=0, max=1, default=1.0)  # type: ignore
-    noise_bump_strength = bpy.props.FloatProperty(name="Noise Bump Strength", min=0, max=1, default=0.1)  # type: ignore
-    knots_bump_strength = bpy.props.FloatProperty(name="Knots Bump Strength", min=0, max=1, default=0.15)  # type: ignore
-    wood_bump_strength = bpy.props.FloatProperty(name="Wood Bump Strength", min=0, max=1, default=0.2)  # type: ignore
+    roughness: bpy.props.FloatProperty(name="Roughness", min=0, max=1, default=1.0)  # type: ignore
+    noise_bump_strength: bpy.props.FloatProperty(name="Noise Bump Strength", min=0, max=1, default=0.1)  # type: ignore
+    knots_bump_strength: bpy.props.FloatProperty(name="Knots Bump Strength", min=0, max=1, default=0.15)  # type: ignore
+    wood_bump_strength: bpy.props.FloatProperty(name="Wood Bump Strength", min=0, max=1, default=0.2)  # type: ignore
 
     def invoke(self, context, event):
         from .. import finish_colors

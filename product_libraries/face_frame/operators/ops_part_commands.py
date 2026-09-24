@@ -1177,7 +1177,7 @@ class hb_face_frame_OT_set_door_frame(bpy.types.Operator):
 
     source_obj_name: StringProperty(default='', options={'HIDDEN', 'SKIP_SAVE'})  # type: ignore
 
-    lock_frame = bpy.props.BoolProperty(
+    lock_frame: bpy.props.BoolProperty(
         name="Lock Frame",
         description="Pin these stile / rail / mid rail values so cabinet edits don't overwrite them",
         default=False, update=_on_df_lock)  # type: ignore
@@ -1190,7 +1190,7 @@ class hb_face_frame_OT_set_door_frame(bpy.types.Operator):
                             update=_on_df_top_rail)  # type: ignore
     bottom_rail: FloatProperty(name="Bottom Rail", unit='LENGTH', precision=4, min=0.0,
                                update=_on_df_bottom_rail)  # type: ignore
-    mid_rail_mode = bpy.props.EnumProperty(
+    mid_rail_mode: bpy.props.EnumProperty(
         name="Mid Rail",
         items=[('NONE', "None", "No mid rail (overrides the style and the tall-door auto rail)"),
                ('CENTERED', "Centered", "Mid rail centered vertically"),
@@ -1716,7 +1716,7 @@ class hb_face_frame_OT_set_finished_end_condition(bpy.types.Operator):
     bl_description = "Set the finished-end condition for this side"
     bl_options = {'UNDO'}
 
-    side = bpy.props.EnumProperty(
+    side: bpy.props.EnumProperty(
         name="Side",
         items=[('LEFT', "Left", ""), ('RIGHT', "Right", "")],
         default='LEFT',

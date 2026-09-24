@@ -276,11 +276,31 @@ classes = (
 
 def register():
     for cls in classes:
-        bpy.utils.register_class(cls)
-    Obstacles_Scene_Props.register()
+        reg_cls = getattr(bpy.types, cls.__name__, None)
+        if reg_cls:
+            try:
+                bpy.utils.unregister_class(reg_cls)
+            except Exception:
+                pass
+        try:
+            bpy.utils.register_class(cls)
+        except Exception:
+            pass
+    try:
+        Obstacles_Scene_Props.register()
+    except Exception:
+        pass
 
 
 def unregister():
-    Obstacles_Scene_Props.unregister()
+    try:
+        Obstacles_Scene_Props.unregister()
+    except Exception:
+        pass
     for cls in reversed(classes):
-        bpy.utils.unregister_class(cls)
+        reg_cls = getattr(bpy.types, cls.__name__, None)
+        if reg_cls:
+            try:
+                bpy.utils.unregister_class(reg_cls)
+            except Exception:
+                pass

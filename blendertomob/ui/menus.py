@@ -10,8 +10,8 @@ class HOME_BUILDER_OT_change_units(bpy.types.Operator):
     bl_label = "Change Units"
     bl_description = "Change the scene unit system"
 
-    unit_system = bpy.props.StringProperty(name="Unit System")
-    length_unit = bpy.props.StringProperty(name="Length Unit")
+    unit_system: bpy.props.StringProperty(name="Unit System")
+    length_unit: bpy.props.StringProperty(name="Length Unit")
 
     def execute(self, context):
         context.scene.unit_settings.system = self.unit_system
@@ -464,30 +464,30 @@ class HOME_BUILDER_OT_show_dimension_properties(bpy.types.Operator):
     bl_options = {'UNDO'}
 
     # Batch actions (run in execute, after the live-preview check() edits).
-    update_all_dimensions = bpy.props.BoolProperty(name="Update All Dimensions")  # type: ignore
-    update_selected_dimensions = bpy.props.BoolProperty(name="Update Selected Dimensions")  # type: ignore
-    set_defaults = bpy.props.BoolProperty(name="Set As Default")  # type: ignore
+    update_all_dimensions: bpy.props.BoolProperty(name="Update All Dimensions")  # type: ignore
+    update_selected_dimensions: bpy.props.BoolProperty(name="Update Selected Dimensions")  # type: ignore
+    set_defaults: bpy.props.BoolProperty(name="Set As Default")  # type: ignore
 
     # Per-dimension inputs. HB5 dimensions are TICK-based (no arrow inputs)
     # and have no Replace Text input - both dropped vs the pyclone original.
-    text_size = bpy.props.FloatProperty(name="Text Size", default=units.inch(2), subtype='DISTANCE')  # type: ignore
-    tick_length = bpy.props.FloatProperty(name="Tick Length", default=units.inch(1), subtype='DISTANCE')  # type: ignore
-    tick_thickness = bpy.props.FloatProperty(name="Tick Thickness", default=units.inch(0.05), subtype='DISTANCE')  # type: ignore
-    leader_length = bpy.props.FloatProperty(name="Leader Length", default=units.inch(5), subtype='DISTANCE')  # type: ignore
-    line_thickness = bpy.props.FloatProperty(name="Line Thickness", default=units.inch(0.05), subtype='DISTANCE')  # type: ignore
-    extend_line_amount = bpy.props.FloatProperty(name="Extend Line Amount", default=units.inch(1), subtype='DISTANCE')  # type: ignore
-    offset_text = bpy.props.BoolProperty(name="Offset Text from Line")  # type: ignore
-    offset_text_amount = bpy.props.FloatProperty(name="Offset Text Amount", default=units.inch(1), subtype='DISTANCE')  # type: ignore
-    align_text_to_curve = bpy.props.BoolProperty(name="Align Text to Curve")  # type: ignore
-    decimals = bpy.props.IntProperty(name="Decimals")  # type: ignore
-    flip_arrows = bpy.props.BoolProperty(name="Flip Arrows")  # type: ignore
-    flip_text = bpy.props.BoolProperty(name="Flip Text")  # type: ignore
-    text_x_offset_amount = bpy.props.FloatProperty(name="Text X Offset Amount", default=0, subtype='DISTANCE')  # type: ignore
-    additional_text = bpy.props.StringProperty(name="Additional Text")  # type: ignore
-    additional_text_offset_y_amount = bpy.props.FloatProperty(name="Additional Text Offset Y Amount", default=0, subtype='DISTANCE')  # type: ignore
-    additional_text_offset_x_amount = bpy.props.FloatProperty(name="Additional Text Offset X Amount", default=0, subtype='DISTANCE')  # type: ignore
-    additional_text_size = bpy.props.FloatProperty(name="Additional Text Size", default=units.inch(2), subtype='DISTANCE')  # type: ignore
-    replace_text = bpy.props.StringProperty(name="Replace Text")  # type: ignore
+    text_size: bpy.props.FloatProperty(name="Text Size", default=units.inch(2), subtype='DISTANCE')  # type: ignore
+    tick_length: bpy.props.FloatProperty(name="Tick Length", default=units.inch(1), subtype='DISTANCE')  # type: ignore
+    tick_thickness: bpy.props.FloatProperty(name="Tick Thickness", default=units.inch(0.05), subtype='DISTANCE')  # type: ignore
+    leader_length: bpy.props.FloatProperty(name="Leader Length", default=units.inch(5), subtype='DISTANCE')  # type: ignore
+    line_thickness: bpy.props.FloatProperty(name="Line Thickness", default=units.inch(0.05), subtype='DISTANCE')  # type: ignore
+    extend_line_amount: bpy.props.FloatProperty(name="Extend Line Amount", default=units.inch(1), subtype='DISTANCE')  # type: ignore
+    offset_text: bpy.props.BoolProperty(name="Offset Text from Line")  # type: ignore
+    offset_text_amount: bpy.props.FloatProperty(name="Offset Text Amount", default=units.inch(1), subtype='DISTANCE')  # type: ignore
+    align_text_to_curve: bpy.props.BoolProperty(name="Align Text to Curve")  # type: ignore
+    decimals: bpy.props.IntProperty(name="Decimals")  # type: ignore
+    flip_arrows: bpy.props.BoolProperty(name="Flip Arrows")  # type: ignore
+    flip_text: bpy.props.BoolProperty(name="Flip Text")  # type: ignore
+    text_x_offset_amount: bpy.props.FloatProperty(name="Text X Offset Amount", default=0, subtype='DISTANCE')  # type: ignore
+    additional_text: bpy.props.StringProperty(name="Additional Text")  # type: ignore
+    additional_text_offset_y_amount: bpy.props.FloatProperty(name="Additional Text Offset Y Amount", default=0, subtype='DISTANCE')  # type: ignore
+    additional_text_offset_x_amount: bpy.props.FloatProperty(name="Additional Text Offset X Amount", default=0, subtype='DISTANCE')  # type: ignore
+    additional_text_size: bpy.props.FloatProperty(name="Additional Text Size", default=units.inch(2), subtype='DISTANCE')  # type: ignore
+    replace_text: bpy.props.StringProperty(name="Replace Text")  # type: ignore
 
     # The active dimension being live-previewed; set in invoke().
     dimension = None

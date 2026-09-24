@@ -12,7 +12,7 @@ class home_builder_OT_create_room(bpy.types.Operator):
     bl_description = "Create a new room scene"
     bl_options = {'UNDO'}
 
-    room_name = bpy.props.StringProperty(
+    room_name: bpy.props.StringProperty(
         name="Room Name",
         description="Name for the new room",
         default="Room"
@@ -89,7 +89,7 @@ class home_builder_OT_switch_room(bpy.types.Operator):
     bl_description = "Switch to a different room scene"
     bl_options = {'UNDO'}
 
-    scene_name = bpy.props.StringProperty(name="Scene Name")  # type: ignore
+    scene_name: bpy.props.StringProperty(name="Scene Name")  # type: ignore
 
     def execute(self, context):
         if self.scene_name in bpy.data.scenes:
@@ -118,7 +118,7 @@ class home_builder_OT_delete_room(bpy.types.Operator):
     bl_description = "Delete a room scene"
     bl_options = {'UNDO'}
 
-    scene_name = bpy.props.StringProperty(name="Scene Name")  # type: ignore
+    scene_name: bpy.props.StringProperty(name="Scene Name")  # type: ignore
 
     def invoke(self, context, event):
         return context.window_manager.invoke_confirm(self, event)
@@ -174,13 +174,13 @@ class home_builder_OT_rename_room(bpy.types.Operator):
     bl_description = "Rename a room"
     bl_options = {'UNDO'}
 
-    scene_name = bpy.props.StringProperty(
+    scene_name: bpy.props.StringProperty(
         name="Scene Name",
         description="Room scene to rename; empty means the current scene",
         default=""
     )  # type: ignore
 
-    new_name = bpy.props.StringProperty(
+    new_name: bpy.props.StringProperty(
         name="New Name",
         description="New name for the room"
     )  # type: ignore
@@ -220,7 +220,7 @@ class home_builder_OT_duplicate_room(bpy.types.Operator):
     bl_description = "Duplicate the current room scene"
     bl_options = {'UNDO'}
 
-    new_name = bpy.props.StringProperty(
+    new_name: bpy.props.StringProperty(
         name="New Name",
         description="Name for the duplicated room"
     )  # type: ignore
@@ -287,7 +287,7 @@ class home_builder_OT_move_room_scene(bpy.types.Operator):
     bl_description = "Move room scene up or down in the list"
     bl_options = {'UNDO'}
 
-    move_up = bpy.props.BoolProperty(name="Move Up") # type: ignore
+    move_up: bpy.props.BoolProperty(name="Move Up") # type: ignore
 
     def ensure_sort_orders_initialized(self, room_scenes):
         """Make sure all scenes have unique sort_order values."""
@@ -465,7 +465,7 @@ class home_builder_OT_toggle_link_room(bpy.types.Operator):
     bl_description = "Link or unlink a room in the current scene"
     bl_options = {'UNDO'}
 
-    scene_name = bpy.props.StringProperty(name="Scene Name")  # type: ignore
+    scene_name: bpy.props.StringProperty(name="Scene Name")  # type: ignore
 
     def execute(self, context):
         source_scene = bpy.data.scenes.get(self.scene_name)
@@ -542,8 +542,8 @@ class home_builder_OT_toggle_linked_room_category(bpy.types.Operator):
     bl_description = "Toggle whether a category is included in the linked room"
     bl_options = {'UNDO'}
 
-    object_name = bpy.props.StringProperty(name="Object Name")  # type: ignore
-    category = bpy.props.StringProperty(name="Category")  # type: ignore
+    object_name: bpy.props.StringProperty(name="Object Name")  # type: ignore
+    category: bpy.props.StringProperty(name="Category")  # type: ignore
 
     def execute(self, context):
         obj = context.scene.objects.get(self.object_name)
@@ -599,7 +599,7 @@ class home_builder_OT_unlink_room(bpy.types.Operator):
     bl_description = "Remove a linked room from the current scene"
     bl_options = {'UNDO'}
 
-    object_name = bpy.props.StringProperty(name="Object Name")  # type: ignore
+    object_name: bpy.props.StringProperty(name="Object Name")  # type: ignore
 
     def execute(self, context):
         obj = context.scene.objects.get(self.object_name)

@@ -10,7 +10,7 @@ class hb_frameless_OT_cleanup_mesh(bpy.types.Operator):
     bl_description = "Convert triangles to quads and dissolve coplanar faces to simplify mesh topology"
     bl_options = {'REGISTER', 'UNDO'}
 
-    face_angle = bpy.props.FloatProperty(
+    face_angle: bpy.props.FloatProperty(
         name="Face Angle",
         description="Maximum angle between faces to merge with Tris to Quads",
         default=math.radians(1.0),
@@ -19,7 +19,7 @@ class hb_frameless_OT_cleanup_mesh(bpy.types.Operator):
         subtype='ANGLE',
     )# type: ignore
 
-    shape_threshold = bpy.props.FloatProperty(
+    shape_threshold: bpy.props.FloatProperty(
         name="Shape Threshold",
         description="How square the resulting quads should be (higher = more square)",
         default=0.7,
@@ -27,7 +27,7 @@ class hb_frameless_OT_cleanup_mesh(bpy.types.Operator):
         max=1.0,
     )# type: ignore
 
-    dissolve_angle = bpy.props.FloatProperty(
+    dissolve_angle: bpy.props.FloatProperty(
         name="Dissolve Angle",
         description="Maximum angle between faces to merge with Limited Dissolve",
         default=math.radians(1.0),
@@ -85,7 +85,7 @@ class hb_frameless_OT_dissolve_selected(bpy.types.Operator):
     bl_description = "Dissolve interior edges of selected faces to merge coplanar triangles into clean quads/ngons"
     bl_options = {'REGISTER', 'UNDO'}
 
-    dissolve_angle = bpy.props.FloatProperty(
+    dissolve_angle: bpy.props.FloatProperty(
         name="Dissolve Angle",
         description="Maximum angle between faces to merge",
         default=math.radians(2.0),

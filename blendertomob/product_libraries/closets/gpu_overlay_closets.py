@@ -746,8 +746,8 @@ class hb_closets_OT_edit_dim_label(bpy.types.Operator):
     bl_label = "Edit Closet Dimension Label"
     bl_options = {'INTERNAL', 'UNDO'}
 
-    target_name = bpy.props.StringProperty(options={'HIDDEN'})  # type: ignore
-    kind = bpy.props.EnumProperty(items=KIND_ITEMS, options={'HIDDEN'})  # type: ignore
+    target_name: bpy.props.StringProperty(options={'HIDDEN'})  # type: ignore
+    kind: bpy.props.EnumProperty(items=KIND_ITEMS, options={'HIDDEN'})  # type: ignore
 
     def invoke(self, context, event):
         global _edit

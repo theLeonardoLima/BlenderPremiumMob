@@ -274,7 +274,7 @@ def is_room_scene(scene):
 def get_room_scenes():
     """Get all room scenes (excluding layout and detail scenes), sorted by sort_order."""
     rooms = [s for s in bpy.data.scenes if is_room_scene(s)]
-    rooms.sort(key=lambda s: s.blendertomob.sort_order)
+    rooms.sort(key=lambda s: s.home_builder.sort_order)
     return rooms
 
 
@@ -289,11 +289,31 @@ classes = (
 
 def register():
     for cls in classes:
-        bpy.utils.register_class(cls)
-    Home_Builder_Project_Props.register()
+        reg_cls = getattr(bpy.types, cls.__name__, None)
+        if reg_cls:
+            try:
+                bpy.utils.unregister_class(reg_cls)
+            except Exception:
+                pass
+        try:
+            bpy.utils.register_class(cls)
+        except Exception:
+            pass
+    try:
+        Home_Builder_Project_Props.register()
+    except Exception:
+        pass
 
 
 def unregister():
-    Home_Builder_Project_Props.unregister()
+    try:
+        Home_Builder_Project_Props.unregister()
+    except Exception:
+        pass
     for cls in reversed(classes):
-        bpy.utils.unregister_class(cls)
+        reg_cls = getattr(bpy.types, cls.__name__, None)
+        if reg_cls:
+            try:
+                bpy.utils.unregister_class(reg_cls)
+            except Exception:
+                pass

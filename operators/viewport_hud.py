@@ -752,9 +752,22 @@ def register():
     global _draw_handle, _hud_shutdown
     _hud_shutdown = False
     for cls in classes:
-        bpy.utils.register_class(cls)
-    _draw_handle = bpy.types.SpaceView3D.draw_handler_add(
-        _draw_hud, (), 'WINDOW', 'POST_PIXEL')
+        reg_cls = getattr(bpy.types, cls.__name__, None)
+        if reg_cls:
+            try:
+                bpy.utils.unregister_class(reg_cls)
+            except Exception:
+                pass
+        try:
+            bpy.utils.register_class(cls)
+        except Exception:
+            pass
+    if _draw_handle is None:
+        try:
+            _draw_handle = bpy.types.SpaceView3D.draw_handler_add(
+                _draw_hud, (), 'WINDOW', 'POST_PIXEL')
+        except Exception:
+            pass
     _register_keymaps()
 
 

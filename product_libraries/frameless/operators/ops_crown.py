@@ -59,7 +59,7 @@ class hb_frameless_OT_create_crown_detail(bpy.types.Operator):
     bl_description = "Create a new crown molding detail with a 2D profile scene"
     bl_options = {'REGISTER', 'UNDO'}
 
-    name = bpy.props.StringProperty(
+    name: bpy.props.StringProperty(
         name="Name",
         description="Name for the crown detail",
         default="Crown Detail"
@@ -1327,12 +1327,12 @@ class hb_frameless_OT_add_molding_profile(bpy.types.Operator):
     bl_description = "Add a molding profile from the library to the current crown detail"
     bl_options = {'REGISTER', 'UNDO'}
 
-    filepath = bpy.props.StringProperty(
+    filepath: bpy.props.StringProperty(
         name="Filepath",
         description="Path to the molding blend file"
     )  # type: ignore
 
-    molding_name = bpy.props.StringProperty(
+    molding_name: bpy.props.StringProperty(
         name="Name",
         description="Name of the molding"
     )  # type: ignore
@@ -1394,7 +1394,7 @@ class hb_frameless_OT_add_solid_lumber(bpy.types.Operator):
     bl_description = "Add a custom solid lumber rectangle profile to the current detail"
     bl_options = {'REGISTER', 'UNDO'}
 
-    thickness = bpy.props.FloatProperty(
+    thickness: bpy.props.FloatProperty(
         name="Thickness",
         description="Thickness of the lumber",
         default=0.01905,  # 0.75 inches
@@ -1403,7 +1403,7 @@ class hb_frameless_OT_add_solid_lumber(bpy.types.Operator):
         precision=4
     )  # type: ignore
 
-    width = bpy.props.FloatProperty(
+    width: bpy.props.FloatProperty(
         name="Width",
         description="Width of the lumber",
         default=0.0381,  # 1.5 inches
@@ -1412,7 +1412,7 @@ class hb_frameless_OT_add_solid_lumber(bpy.types.Operator):
         precision=4
     )  # type: ignore
 
-    orientation = bpy.props.EnumProperty(
+    orientation: bpy.props.EnumProperty(
         name="Orientation",
         description="Orientation of the lumber profile",
         items=[
@@ -1487,7 +1487,7 @@ class hb_frameless_OT_browse_molding_library(bpy.types.Operator):
     bl_description = "Browse molding profiles and add them to the current detail"
     bl_options = {'REGISTER'}
 
-    category = bpy.props.EnumProperty(
+    category: bpy.props.EnumProperty(
         name="Category",
         description="Molding category",
         items=lambda self, context: get_molding_categories()

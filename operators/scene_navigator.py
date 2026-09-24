@@ -509,8 +509,8 @@ class home_builder_OT_scene_navigator(bpy.types.Operator):
     # Optional anchor (WINDOW-local px). When set, the panel is placed with
     # its top-left here instead of centered at the top -- used by the
     # viewport HUD to drop the panel directly under its trigger button.
-    anchor_x = bpy.props.FloatProperty(default=-1.0)  # type: ignore
-    anchor_top = bpy.props.FloatProperty(default=-1.0)  # type: ignore
+    anchor_x: bpy.props.FloatProperty(default=-1.0)  # type: ignore
+    anchor_top: bpy.props.FloatProperty(default=-1.0)  # type: ignore
 
     @classmethod
     def poll(cls, context):
@@ -683,9 +683,23 @@ classes = (
 
 def register():
     for cls in classes:
-        bpy.utils.register_class(cls)
+        reg_cls = getattr(bpy.types, cls.__name__, None)
+        if reg_cls:
+            try:
+                bpy.utils.unregister_class(reg_cls)
+            except Exception:
+                pass
+        try:
+            bpy.utils.register_class(cls)
+        except Exception:
+            pass
 
 
 def unregister():
     for cls in reversed(classes):
-        bpy.utils.unregister_class(cls)
+        reg_cls = getattr(bpy.types, cls.__name__, None)
+        if reg_cls:
+            try:
+                bpy.utils.unregister_class(reg_cls)
+            except Exception:
+                pass

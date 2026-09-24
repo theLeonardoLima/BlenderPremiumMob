@@ -247,17 +247,17 @@ def refresh_user_libraries():
 
 class BTM_AssetLibraryEntry(bpy.types.PropertyGroup):
     """A single user asset library entry."""
-    name = bpy.props.StringProperty(
+    name: bpy.props.StringProperty(
         name="Name",
         description="Display name for this library",
         default="New Library"
     )  # type: ignore
-    library_path = bpy.props.StringProperty(
+    library_path: bpy.props.StringProperty(
         name="Path",
         description="Path to the asset library folder",
         subtype='DIR_PATH',
     )  # type: ignore
-    internal_id = bpy.props.StringProperty(
+    internal_id: bpy.props.StringProperty(
         name="Internal ID",
         description="Stable identifier used to track the Blender asset library registration across renames",
         default="",
@@ -346,7 +346,7 @@ class HB_OT_assign_asset_catalog(bpy.types.Operator):
     bl_description = "Assign a catalog category to all marked assets in the current file"
     bl_options = {'REGISTER', 'UNDO'}
 
-    catalog_path = bpy.props.EnumProperty(
+    catalog_path: bpy.props.EnumProperty(
         name="Catalog",
         description="Select the catalog to assign",
         items=lambda self, context: HB_OT_assign_asset_catalog._get_catalog_items(context),

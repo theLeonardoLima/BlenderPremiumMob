@@ -32,9 +32,8 @@ def extract_parts_from_scene(context):
 
         # Verifica se o objeto é um módulo BlenderToMob ou possui propriedades de marcenaria
         is_btm_module = hasattr(obj, 'btm_plane') and obj.btm_plane.object_kind == 'MODULE'
-        has_cabinet = hasattr(obj, 'btm_cabinet')
 
-        if is_btm_module or has_cabinet:
+        if is_btm_module:
             cab = getattr(obj, 'btm_cabinet', None)
             
             # Dimensões gerais em milímetros

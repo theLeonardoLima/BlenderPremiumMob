@@ -7,9 +7,9 @@ class hb_frameless_OT_appliance_prompts(bpy.types.Operator):
     bl_description = "Edit appliance properties"
     bl_options = {'UNDO'}
 
-    appliance_width = bpy.props.FloatProperty(name="Width", unit='LENGTH', precision=5) # type: ignore
-    appliance_height = bpy.props.FloatProperty(name="Height", unit='LENGTH', precision=5) # type: ignore
-    appliance_depth = bpy.props.FloatProperty(name="Depth", unit='LENGTH', precision=5) # type: ignore
+    appliance_width: bpy.props.FloatProperty(name="Width", unit='LENGTH', precision=5) # type: ignore
+    appliance_height: bpy.props.FloatProperty(name="Height", unit='LENGTH', precision=5) # type: ignore
+    appliance_depth: bpy.props.FloatProperty(name="Depth", unit='LENGTH', precision=5) # type: ignore
 
     appliance = None
 

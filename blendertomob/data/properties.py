@@ -62,7 +62,7 @@ def update_scene_unit(self, context):
 # ---------------------------------------------------------------------------
 
 class BTM_PG_WallSegment(bpy.types.PropertyGroup):
-    length = bpy.props.FloatProperty(
+    length: bpy.props.FloatProperty(
         name="Comprimento",
         description="Comprimento do segmento de parede",
         default=2.0,
@@ -71,7 +71,7 @@ class BTM_PG_WallSegment(bpy.types.PropertyGroup):
         subtype='DISTANCE',
         update=update_wall_geom
     )  # type: ignore
-    absolute_angle = bpy.props.FloatProperty(
+    absolute_angle: bpy.props.FloatProperty(
         name="Ângulo Absoluto (°)",
         description="Ângulo do segmento em relação ao sistema global",
         default=0.0,
@@ -79,7 +79,7 @@ class BTM_PG_WallSegment(bpy.types.PropertyGroup):
         max=360.0,
         subtype='ANGLE'
     )  # type: ignore
-    relative_angle = bpy.props.FloatProperty(
+    relative_angle: bpy.props.FloatProperty(
         name="Ângulo Relativo (°)",
         description="Ângulo em relação ao segmento anterior",
         default=0.0,
@@ -87,7 +87,7 @@ class BTM_PG_WallSegment(bpy.types.PropertyGroup):
         max=360.0,
         subtype='ANGLE'
     )  # type: ignore
-    thickness = bpy.props.FloatProperty(
+    thickness: bpy.props.FloatProperty(
         name="Espessura",
         description="Espessura da parede",
         default=0.15,
@@ -96,7 +96,7 @@ class BTM_PG_WallSegment(bpy.types.PropertyGroup):
         subtype='DISTANCE',
         update=update_wall_geom
     )  # type: ignore
-    height_start = bpy.props.FloatProperty(
+    height_start: bpy.props.FloatProperty(
         name="Pé-Direito Inicial",
         description="Altura da parede no ponto inicial",
         default=2.7,
@@ -105,7 +105,7 @@ class BTM_PG_WallSegment(bpy.types.PropertyGroup):
         subtype='DISTANCE',
         update=update_wall_geom
     )  # type: ignore
-    height_end = bpy.props.FloatProperty(
+    height_end: bpy.props.FloatProperty(
         name="Pé-Direito Final",
         description="Altura da parede no ponto final",
         default=2.7,
@@ -114,19 +114,19 @@ class BTM_PG_WallSegment(bpy.types.PropertyGroup):
         subtype='DISTANCE',
         update=update_wall_geom
     )  # type: ignore
-    offset = bpy.props.FloatProperty(
+    offset: bpy.props.FloatProperty(
         name="Afastamento",
         description="Afastamento da base da parede em relação ao piso",
         default=0.0,
         subtype='DISTANCE'
     )  # type: ignore
-    sagitta = bpy.props.FloatProperty(
+    sagitta: bpy.props.FloatProperty(
         name="Flecha",
         description="Flecha do arco para paredes curvas (0 para retas)",
         default=0.0,
         subtype='DISTANCE'
     )  # type: ignore
-    linear_increment = bpy.props.FloatProperty(
+    linear_increment: bpy.props.FloatProperty(
         name="Incr. Linear",
         description="Passo do salto do cursor referente ao comprimento",
         default=0.05,
@@ -134,7 +134,7 @@ class BTM_PG_WallSegment(bpy.types.PropertyGroup):
         max=1.0,
         subtype='DISTANCE'
     )  # type: ignore
-    angular_increment = bpy.props.FloatProperty(
+    angular_increment: bpy.props.FloatProperty(
         name="Incr. Angular (°)",
         description="Passo do ângulo quando ajustado pelo mouse",
         default=5.0,
@@ -142,7 +142,7 @@ class BTM_PG_WallSegment(bpy.types.PropertyGroup):
         max=90.0,
         subtype='ANGLE'
     )  # type: ignore
-    orientation = bpy.props.EnumProperty(
+    orientation: bpy.props.EnumProperty(
         name="Construção",
         description="Lado da parede que recebe o valor de comprimento",
         items=[
@@ -151,7 +151,7 @@ class BTM_PG_WallSegment(bpy.types.PropertyGroup):
         ],
         default='RIGHT'
     )  # type: ignore
-    wall_type = bpy.props.EnumProperty(
+    wall_type: bpy.props.EnumProperty(
         name="Tipo de Parede",
         description="Preset de material/espessura/acabamento",
         items=[
@@ -161,7 +161,7 @@ class BTM_PG_WallSegment(bpy.types.PropertyGroup):
         ],
         default='NORMAL'
     )  # type: ignore
-    use_as_default = bpy.props.BoolProperty(
+    use_as_default: bpy.props.BoolProperty(
         name="Utilizar valores como padrão",
         description="Salvar estes valores como padrão para novas paredes",
         default=False
@@ -173,7 +173,7 @@ class BTM_PG_WallSegment(bpy.types.PropertyGroup):
 # ---------------------------------------------------------------------------
 
 class BTM_PG_InsertionPlane(bpy.types.PropertyGroup):
-    object_kind = bpy.props.EnumProperty(
+    object_kind: bpy.props.EnumProperty(
         name="Tipo de Objeto",
         items=[
             ('WALL', "Parede", "Parede de alvenaria"),
@@ -184,15 +184,15 @@ class BTM_PG_InsertionPlane(bpy.types.PropertyGroup):
         ],
         default='WALL'
     )  # type: ignore
-    parent_plane = bpy.props.PointerProperty(
+    parent_plane: bpy.props.PointerProperty(
         name="Plano Pai",
         type=bpy.types.Object
     )  # type: ignore
-    layer_id = bpy.props.StringProperty(
+    layer_id: bpy.props.StringProperty(
         name="ID da Camada",
         default="Default"
     )  # type: ignore
-    collision_override = bpy.props.EnumProperty(
+    collision_override: bpy.props.EnumProperty(
         name="Colisão",
         items=[
             ('INHERIT', "Herdar", "Herdar configuração global"),
@@ -208,7 +208,7 @@ class BTM_PG_InsertionPlane(bpy.types.PropertyGroup):
 # ---------------------------------------------------------------------------
 
 class BTM_PG_OpeningProperties(bpy.types.PropertyGroup):
-    opening_type = bpy.props.EnumProperty(
+    opening_type: bpy.props.EnumProperty(
         name="Tipo de Abertura",
         description="Tipo de abertura de parede",
         items=[
@@ -217,7 +217,7 @@ class BTM_PG_OpeningProperties(bpy.types.PropertyGroup):
         ],
         default='DOOR'
     )  # type: ignore
-    width = bpy.props.FloatProperty(
+    width: bpy.props.FloatProperty(
         name="Largura",
         description="Largura do vão da abertura",
         default=0.8,
@@ -225,7 +225,7 @@ class BTM_PG_OpeningProperties(bpy.types.PropertyGroup):
         max=5.0,
         subtype='DISTANCE'
     )  # type: ignore
-    height = bpy.props.FloatProperty(
+    height: bpy.props.FloatProperty(
         name="Altura",
         description="Altura do vão da abertura",
         default=2.1,
@@ -233,7 +233,7 @@ class BTM_PG_OpeningProperties(bpy.types.PropertyGroup):
         max=5.0,
         subtype='DISTANCE'
     )  # type: ignore
-    sill_height = bpy.props.FloatProperty(
+    sill_height: bpy.props.FloatProperty(
         name="Peitoril",
         description="Afastamento do piso até a base da abertura (0 para portas)",
         default=0.0,
@@ -241,7 +241,7 @@ class BTM_PG_OpeningProperties(bpy.types.PropertyGroup):
         max=5.0,
         subtype='DISTANCE'
     )  # type: ignore
-    parent_wall = bpy.props.PointerProperty(
+    parent_wall: bpy.props.PointerProperty(
         name="Parede",
         description="Parede que contém esta abertura",
         type=bpy.types.Object
@@ -253,7 +253,7 @@ class BTM_PG_OpeningProperties(bpy.types.PropertyGroup):
 # ---------------------------------------------------------------------------
 
 class BTM_PG_CabinetProperties(bpy.types.PropertyGroup):
-    width = bpy.props.FloatProperty(
+    width: bpy.props.FloatProperty(
         name="Largura",
         default=0.8,
         min=0.1,
@@ -261,7 +261,7 @@ class BTM_PG_CabinetProperties(bpy.types.PropertyGroup):
         subtype='DISTANCE',
         update=update_cabinet_geom
     )  # type: ignore
-    height = bpy.props.FloatProperty(
+    height: bpy.props.FloatProperty(
         name="Altura",
         default=0.7,
         min=0.1,
@@ -269,7 +269,7 @@ class BTM_PG_CabinetProperties(bpy.types.PropertyGroup):
         subtype='DISTANCE',
         update=update_cabinet_geom
     )  # type: ignore
-    depth = bpy.props.FloatProperty(
+    depth: bpy.props.FloatProperty(
         name="Profundidade",
         default=0.55,
         min=0.1,
@@ -277,7 +277,7 @@ class BTM_PG_CabinetProperties(bpy.types.PropertyGroup):
         subtype='DISTANCE',
         update=update_cabinet_geom
     )  # type: ignore
-    thickness = bpy.props.FloatProperty(
+    thickness: bpy.props.FloatProperty(
         name="Espessura Chapas",
         default=0.018,
         min=0.006,
@@ -285,7 +285,7 @@ class BTM_PG_CabinetProperties(bpy.types.PropertyGroup):
         subtype='DISTANCE',
         update=update_cabinet_geom
     )  # type: ignore
-    cabinet_type = bpy.props.EnumProperty(
+    cabinet_type: bpy.props.EnumProperty(
         name="Tipo de Armário",
         items=[
             ('BASE', "Balcão Inferior", ""),
@@ -296,7 +296,7 @@ class BTM_PG_CabinetProperties(bpy.types.PropertyGroup):
     )  # type: ignore
 
     # Propriedades de abertura e swing da porta
-    door_open = bpy.props.FloatProperty(
+    door_open: bpy.props.FloatProperty(
         name="Abertura Porta",
         description="Porcentagem de abertura da porta (0.0 = Fechada, 1.0 = Totalmente Aberta)",
         default=0.0,
@@ -305,7 +305,7 @@ class BTM_PG_CabinetProperties(bpy.types.PropertyGroup):
         subtype='FACTOR',
         update=update_door_properties
     )  # type: ignore
-    door_swing = bpy.props.EnumProperty(
+    door_swing: bpy.props.EnumProperty(
         name="Sentido Abertura",
         description="Tipo e sentido de abertura das portas",
         items=[
@@ -325,7 +325,7 @@ class BTM_PG_CabinetProperties(bpy.types.PropertyGroup):
 # ---------------------------------------------------------------------------
 
 class BTM_PG_ComponentConfig(bpy.types.PropertyGroup):
-    material = bpy.props.EnumProperty(
+    material: bpy.props.EnumProperty(
         name="Material",
         items=[
             ('MDF', "MDF", ""),
@@ -334,21 +334,21 @@ class BTM_PG_ComponentConfig(bpy.types.PropertyGroup):
         ],
         default='MDF'
     )  # type: ignore
-    max_width = bpy.props.FloatProperty(
+    max_width: bpy.props.FloatProperty(
         name="Largura Máxima da Chapa",
         default=2.73,
         min=0.1,
         max=10.0,
         subtype='DISTANCE'
     )  # type: ignore
-    max_length = bpy.props.FloatProperty(
+    max_length: bpy.props.FloatProperty(
         name="Comprimento Máximo da Chapa",
         default=1.81,
         min=0.1,
         max=10.0,
         subtype='DISTANCE'
     )  # type: ignore
-    thickness = bpy.props.FloatProperty(
+    thickness: bpy.props.FloatProperty(
         name="Espessura da Chapa",
         default=0.015,
         min=0.003,
@@ -356,28 +356,28 @@ class BTM_PG_ComponentConfig(bpy.types.PropertyGroup):
         subtype='DISTANCE'
     )  # type: ignore
     # Edge bands (fitas de borda)
-    edge_1 = bpy.props.FloatProperty(
+    edge_1: bpy.props.FloatProperty(
         name="Fita Borda 1 (Superior)",
         default=0.0,
         min=0.0,
         max=0.05,
         subtype='DISTANCE'
     )  # type: ignore
-    edge_2 = bpy.props.FloatProperty(
+    edge_2: bpy.props.FloatProperty(
         name="Fita Borda 2 (Inferior)",
         default=0.0,
         min=0.0,
         max=0.05,
         subtype='DISTANCE'
     )  # type: ignore
-    edge_3 = bpy.props.FloatProperty(
+    edge_3: bpy.props.FloatProperty(
         name="Fita Borda 3 (Direita/Traseira)",
         default=0.0,
         min=0.0,
         max=0.05,
         subtype='DISTANCE'
     )  # type: ignore
-    edge_4 = bpy.props.FloatProperty(
+    edge_4: bpy.props.FloatProperty(
         name="Fita Borda 4 (Esquerda/Frontal)",
         default=0.0004,
         min=0.0,
@@ -406,7 +406,7 @@ def update_mdf_format(self, context):
 
 
 class BTM_PG_MDFSheetConfig(bpy.types.PropertyGroup):
-    sheet_format = bpy.props.EnumProperty(
+    sheet_format: bpy.props.EnumProperty(
         name="Formato Padrão",
         description="Formatos comerciais padrão de chapas MDF no mercado brasileiro",
         items=[
@@ -420,7 +420,7 @@ class BTM_PG_MDFSheetConfig(bpy.types.PropertyGroup):
         update=update_mdf_format
     )  # type: ignore
 
-    sheet_width = bpy.props.FloatProperty(
+    sheet_width: bpy.props.FloatProperty(
         name="Largura da Chapa",
         description="Largura nominal da chapa de MDF",
         default=2.750,
@@ -429,7 +429,7 @@ class BTM_PG_MDFSheetConfig(bpy.types.PropertyGroup):
         subtype='DISTANCE'
     )  # type: ignore
 
-    sheet_height = bpy.props.FloatProperty(
+    sheet_height: bpy.props.FloatProperty(
         name="Altura da Chapa",
         description="Altura/comprimento nominal da chapa de MDF",
         default=1.830,
@@ -438,7 +438,7 @@ class BTM_PG_MDFSheetConfig(bpy.types.PropertyGroup):
         subtype='DISTANCE'
     )  # type: ignore
 
-    refilo_top = bpy.props.FloatProperty(
+    refilo_top: bpy.props.FloatProperty(
         name="Refilo Superior",
         description="Margem de descarte na borda superior da chapa",
         default=0.010,
@@ -447,7 +447,7 @@ class BTM_PG_MDFSheetConfig(bpy.types.PropertyGroup):
         subtype='DISTANCE'
     )  # type: ignore
 
-    refilo_bottom = bpy.props.FloatProperty(
+    refilo_bottom: bpy.props.FloatProperty(
         name="Refilo Inferior",
         description="Margem de descarte na borda inferior da chapa",
         default=0.010,
@@ -456,7 +456,7 @@ class BTM_PG_MDFSheetConfig(bpy.types.PropertyGroup):
         subtype='DISTANCE'
     )  # type: ignore
 
-    refilo_left = bpy.props.FloatProperty(
+    refilo_left: bpy.props.FloatProperty(
         name="Refilo Esquerdo",
         description="Margem de descarte na borda esquerda da chapa",
         default=0.010,
@@ -465,7 +465,7 @@ class BTM_PG_MDFSheetConfig(bpy.types.PropertyGroup):
         subtype='DISTANCE'
     )  # type: ignore
 
-    refilo_right = bpy.props.FloatProperty(
+    refilo_right: bpy.props.FloatProperty(
         name="Refilo Direito",
         description="Margem de descarte na borda direita da chapa",
         default=0.010,
@@ -474,7 +474,7 @@ class BTM_PG_MDFSheetConfig(bpy.types.PropertyGroup):
         subtype='DISTANCE'
     )  # type: ignore
 
-    kerf = bpy.props.FloatProperty(
+    kerf: bpy.props.FloatProperty(
         name="Espessura da Serra (Kerf)",
         description="Espessura do corte da lâmina de serra",
         default=0.004,
@@ -483,13 +483,13 @@ class BTM_PG_MDFSheetConfig(bpy.types.PropertyGroup):
         subtype='DISTANCE'
     )  # type: ignore
 
-    allow_rotation = bpy.props.BoolProperty(
+    allow_rotation: bpy.props.BoolProperty(
         name="Permitir Rotação",
         description="Permite girar peças quando não houver restrição de veio da madeira",
         default=True
     )  # type: ignore
 
-    respect_grain = bpy.props.BoolProperty(
+    respect_grain: bpy.props.BoolProperty(
         name="Respeitar Veio da Madeira",
         description="Garante que peças com textura amadeirada mantenham a orientação correta",
         default=True
@@ -530,7 +530,7 @@ def update_dimension_preset(self, context):
 
 
 class BTM_PG_DimensionSettings(bpy.types.PropertyGroup):
-    preset = bpy.props.EnumProperty(
+    preset: bpy.props.EnumProperty(
         name="Preset de Marcenaria",
         description="Padrões dimensionais pré-configurados",
         items=[
@@ -546,38 +546,38 @@ class BTM_PG_DimensionSettings(bpy.types.PropertyGroup):
     )  # type: ignore
 
     # Dimensões Gerais
-    width_default = bpy.props.FloatProperty(name="Largura Padrão", default=0.80, min=0.1, max=5.0, subtype='DISTANCE')  # type: ignore
-    width_min = bpy.props.FloatProperty(name="Largura Mínima", default=0.30, min=0.05, max=5.0, subtype='DISTANCE')  # type: ignore
-    width_max = bpy.props.FloatProperty(name="Largura Máxima", default=1.20, min=0.1, max=5.0, subtype='DISTANCE')  # type: ignore
+    width_default: bpy.props.FloatProperty(name="Largura Padrão", default=0.80, min=0.1, max=5.0, subtype='DISTANCE')  # type: ignore
+    width_min: bpy.props.FloatProperty(name="Largura Mínima", default=0.30, min=0.05, max=5.0, subtype='DISTANCE')  # type: ignore
+    width_max: bpy.props.FloatProperty(name="Largura Máxima", default=1.20, min=0.1, max=5.0, subtype='DISTANCE')  # type: ignore
 
-    height_default = bpy.props.FloatProperty(name="Altura Padrão", default=0.72, min=0.1, max=5.0, subtype='DISTANCE')  # type: ignore
-    height_min = bpy.props.FloatProperty(name="Altura Mínima", default=0.30, min=0.05, max=5.0, subtype='DISTANCE')  # type: ignore
-    height_max = bpy.props.FloatProperty(name="Altura Máxima", default=2.60, min=0.1, max=5.0, subtype='DISTANCE')  # type: ignore
+    height_default: bpy.props.FloatProperty(name="Altura Padrão", default=0.72, min=0.1, max=5.0, subtype='DISTANCE')  # type: ignore
+    height_min: bpy.props.FloatProperty(name="Altura Mínima", default=0.30, min=0.05, max=5.0, subtype='DISTANCE')  # type: ignore
+    height_max: bpy.props.FloatProperty(name="Altura Máxima", default=2.60, min=0.1, max=5.0, subtype='DISTANCE')  # type: ignore
 
-    depth_default = bpy.props.FloatProperty(name="Profundidade Padrão", default=0.55, min=0.1, max=3.0, subtype='DISTANCE')  # type: ignore
-    depth_min = bpy.props.FloatProperty(name="Profundidade Mínima", default=0.20, min=0.05, max=3.0, subtype='DISTANCE')  # type: ignore
-    depth_max = bpy.props.FloatProperty(name="Profundidade Máxima", default=0.80, min=0.1, max=3.0, subtype='DISTANCE')  # type: ignore
+    depth_default: bpy.props.FloatProperty(name="Profundidade Padrão", default=0.55, min=0.1, max=3.0, subtype='DISTANCE')  # type: ignore
+    depth_min: bpy.props.FloatProperty(name="Profundidade Mínima", default=0.20, min=0.05, max=3.0, subtype='DISTANCE')  # type: ignore
+    depth_max: bpy.props.FloatProperty(name="Profundidade Máxima", default=0.80, min=0.1, max=3.0, subtype='DISTANCE')  # type: ignore
 
-    step_increment = bpy.props.FloatProperty(name="Passo / Incremento", default=0.05, min=0.001, max=0.5, subtype='DISTANCE')  # type: ignore
-    base_height = bpy.props.FloatProperty(name="Altura do Rodapé / Base", default=0.15, min=0.0, max=0.5, subtype='DISTANCE')  # type: ignore
-    wall_clearance = bpy.props.FloatProperty(name="Afastamento Traseiro", default=0.015, min=0.0, max=0.1, subtype='DISTANCE')  # type: ignore
+    step_increment: bpy.props.FloatProperty(name="Passo / Incremento", default=0.05, min=0.001, max=0.5, subtype='DISTANCE')  # type: ignore
+    base_height: bpy.props.FloatProperty(name="Altura do Rodapé / Base", default=0.15, min=0.0, max=0.5, subtype='DISTANCE')  # type: ignore
+    wall_clearance: bpy.props.FloatProperty(name="Afastamento Traseiro", default=0.015, min=0.0, max=0.1, subtype='DISTANCE')  # type: ignore
 
     # Espessuras de Chapas
-    carcass_thickness = bpy.props.FloatProperty(name="Espessura Caixa/Laterais", default=0.015, min=0.006, max=0.05, subtype='DISTANCE')  # type: ignore
-    back_thickness = bpy.props.FloatProperty(name="Espessura do Fundo", default=0.006, min=0.003, max=0.025, subtype='DISTANCE')  # type: ignore
-    door_thickness = bpy.props.FloatProperty(name="Espessura das Portas", default=0.018, min=0.006, max=0.05, subtype='DISTANCE')  # type: ignore
-    shelf_thickness = bpy.props.FloatProperty(name="Espessura Prateleiras", default=0.015, min=0.006, max=0.05, subtype='DISTANCE')  # type: ignore
+    carcass_thickness: bpy.props.FloatProperty(name="Espessura Caixa/Laterais", default=0.015, min=0.006, max=0.05, subtype='DISTANCE')  # type: ignore
+    back_thickness: bpy.props.FloatProperty(name="Espessura do Fundo", default=0.006, min=0.003, max=0.025, subtype='DISTANCE')  # type: ignore
+    door_thickness: bpy.props.FloatProperty(name="Espessura das Portas", default=0.018, min=0.006, max=0.05, subtype='DISTANCE')  # type: ignore
+    shelf_thickness: bpy.props.FloatProperty(name="Espessura Prateleiras", default=0.015, min=0.006, max=0.05, subtype='DISTANCE')  # type: ignore
 
     # Folgas e Recuos
-    door_gap = bpy.props.FloatProperty(name="Folga entre Portas", default=0.0025, min=0.0005, max=0.02, subtype='DISTANCE')  # type: ignore
-    back_inset = bpy.props.FloatProperty(name="Recuo do Fundo", default=0.015, min=0.0, max=0.05, subtype='DISTANCE')  # type: ignore
-    groove_depth = bpy.props.FloatProperty(name="Profundidade do Canal", default=0.008, min=0.0, max=0.02, subtype='DISTANCE')  # type: ignore
+    door_gap: bpy.props.FloatProperty(name="Folga entre Portas", default=0.0025, min=0.0005, max=0.02, subtype='DISTANCE')  # type: ignore
+    back_inset: bpy.props.FloatProperty(name="Recuo do Fundo", default=0.015, min=0.0, max=0.05, subtype='DISTANCE')  # type: ignore
+    groove_depth: bpy.props.FloatProperty(name="Profundidade do Canal", default=0.008, min=0.0, max=0.02, subtype='DISTANCE')  # type: ignore
 
     # Fitas de Borda
-    edge_front = bpy.props.FloatProperty(name="Fita Frontal", default=0.001, min=0.0, max=0.01, subtype='DISTANCE')  # type: ignore
-    edge_back = bpy.props.FloatProperty(name="Fita Traseira", default=0.0004, min=0.0, max=0.01, subtype='DISTANCE')  # type: ignore
-    edge_top = bpy.props.FloatProperty(name="Fita Superior", default=0.0004, min=0.0, max=0.01, subtype='DISTANCE')  # type: ignore
-    edge_bottom = bpy.props.FloatProperty(name="Fita Inferior", default=0.0004, min=0.0, max=0.01, subtype='DISTANCE')  # type: ignore
+    edge_front: bpy.props.FloatProperty(name="Fita Frontal", default=0.001, min=0.0, max=0.01, subtype='DISTANCE')  # type: ignore
+    edge_back: bpy.props.FloatProperty(name="Fita Traseira", default=0.0004, min=0.0, max=0.01, subtype='DISTANCE')  # type: ignore
+    edge_top: bpy.props.FloatProperty(name="Fita Superior", default=0.0004, min=0.0, max=0.01, subtype='DISTANCE')  # type: ignore
+    edge_bottom: bpy.props.FloatProperty(name="Fita Inferior", default=0.0004, min=0.0, max=0.01, subtype='DISTANCE')  # type: ignore
 
 
 # ---------------------------------------------------------------------------
@@ -585,7 +585,7 @@ class BTM_PG_DimensionSettings(bpy.types.PropertyGroup):
 # ---------------------------------------------------------------------------
 
 class BTM_PG_SceneSettings(bpy.types.PropertyGroup):
-    btm_active_tab = bpy.props.EnumProperty(
+    btm_active_tab: bpy.props.EnumProperty(
         name="Aba Ativa",
         items=[
             ('CONSTRUTOR', "CONSTRUTOR", "Ferramentas de desenho e construção", 'GREASEPENCIL', 0),
@@ -597,7 +597,7 @@ class BTM_PG_SceneSettings(bpy.types.PropertyGroup):
     )  # type: ignore
 
     # Dropdown de Unidade do add-on
-    btm_unit = bpy.props.EnumProperty(
+    btm_unit: bpy.props.EnumProperty(
         name="Unidade",
         description="Escolha a unidade de medida do projeto",
         items=[
@@ -610,12 +610,12 @@ class BTM_PG_SceneSettings(bpy.types.PropertyGroup):
     )  # type: ignore
 
     # Snap settings
-    snap_grid = bpy.props.BoolProperty(
+    snap_grid: bpy.props.BoolProperty(
         name="Snap ao Grid",
         description="Ativa o snap posicional em incrementos fixos",
         default=True
     )  # type: ignore
-    snap_increment = bpy.props.FloatProperty(
+    snap_increment: bpy.props.FloatProperty(
         name="Incremento de Snap",
         description="Passo do snap para posicionamento",
         default=0.05,
@@ -623,19 +623,19 @@ class BTM_PG_SceneSettings(bpy.types.PropertyGroup):
         max=1.0,
         subtype='DISTANCE'
     )  # type: ignore
-    collision_global = bpy.props.BoolProperty(
+    collision_global: bpy.props.BoolProperty(
         name="Colisões Globais",
         description="Evitar interseção física entre módulos",
         default=True
     )  # type: ignore
 
     # Grid overlay settings
-    show_grid = bpy.props.BoolProperty(
+    show_grid: bpy.props.BoolProperty(
         name="Exibir Grid no Piso",
         description="Mostra grid pontilhado sobre o piso para guia de posicionamento",
         default=True
     )  # type: ignore
-    grid_spacing_x = bpy.props.FloatProperty(
+    grid_spacing_x: bpy.props.FloatProperty(
         name="Intervalo Horizontal",
         description="Espaçamento horizontal das linhas da grade",
         default=0.5,
@@ -643,7 +643,7 @@ class BTM_PG_SceneSettings(bpy.types.PropertyGroup):
         max=5.0,
         subtype='DISTANCE'
     )  # type: ignore
-    grid_spacing_y = bpy.props.FloatProperty(
+    grid_spacing_y: bpy.props.FloatProperty(
         name="Intervalo Vertical",
         description="Espaçamento vertical das linhas da grade",
         default=0.5,
@@ -651,12 +651,12 @@ class BTM_PG_SceneSettings(bpy.types.PropertyGroup):
         max=5.0,
         subtype='DISTANCE'
     )  # type: ignore
-    grid_snap_enabled = bpy.props.BoolProperty(
+    grid_snap_enabled: bpy.props.BoolProperty(
         name="Atrair ao Grid",
         description="Módulos são atraídos para a grade mais próxima",
         default=True
     )  # type: ignore
-    grid_snap_gap = bpy.props.FloatProperty(
+    grid_snap_gap: bpy.props.FloatProperty(
         name="Gap de Atração",
         description="Distância máxima na qual a atração da grade passa a agir",
         default=0.05,
@@ -666,25 +666,25 @@ class BTM_PG_SceneSettings(bpy.types.PropertyGroup):
     )  # type: ignore
 
     # Insertion plane overlay
-    show_insertion_plane = bpy.props.BoolProperty(
+    show_insertion_plane: bpy.props.BoolProperty(
         name="Mostrar Planos de Inserção",
         description="Exibe sombreamento amarelo no plano de inserção sob o cursor",
         default=True
     )  # type: ignore
 
     # Dimension labels
-    show_dimensions = bpy.props.BoolProperty(
+    show_dimensions: bpy.props.BoolProperty(
         name="Exibir Cotas",
         description="Mostra dimensões dinâmicas sobre os objetos",
         default=True
     )  # type: ignore
 
     # Dimension Settings & MDF Config Sub-groups
-    dimension_settings = bpy.props.PointerProperty(type=BTM_PG_DimensionSettings)  # type: ignore
-    mdf_config = bpy.props.PointerProperty(type=BTM_PG_MDFSheetConfig)  # type: ignore
+    dimension_settings: bpy.props.PointerProperty(type=BTM_PG_DimensionSettings)  # type: ignore
+    mdf_config: bpy.props.PointerProperty(type=BTM_PG_MDFSheetConfig)  # type: ignore
 
     # Configurador de componentes individuais
-    config_active_component = bpy.props.EnumProperty(
+    config_active_component: bpy.props.EnumProperty(
         name="Componente",
         description="Escolha o componente a configurar",
         items=[
@@ -698,12 +698,12 @@ class BTM_PG_SceneSettings(bpy.types.PropertyGroup):
         default='LATERAL'
     )  # type: ignore
 
-    config_lateral = bpy.props.PointerProperty(type=BTM_PG_ComponentConfig)  # type: ignore
-    config_divisoria = bpy.props.PointerProperty(type=BTM_PG_ComponentConfig)  # type: ignore
-    config_base = bpy.props.PointerProperty(type=BTM_PG_ComponentConfig)  # type: ignore
-    config_fundo = bpy.props.PointerProperty(type=BTM_PG_ComponentConfig)  # type: ignore
-    config_prateleira = bpy.props.PointerProperty(type=BTM_PG_ComponentConfig)  # type: ignore
-    config_porta = bpy.props.PointerProperty(type=BTM_PG_ComponentConfig)  # type: ignore
+    config_lateral: bpy.props.PointerProperty(type=BTM_PG_ComponentConfig)  # type: ignore
+    config_divisoria: bpy.props.PointerProperty(type=BTM_PG_ComponentConfig)  # type: ignore
+    config_base: bpy.props.PointerProperty(type=BTM_PG_ComponentConfig)  # type: ignore
+    config_fundo: bpy.props.PointerProperty(type=BTM_PG_ComponentConfig)  # type: ignore
+    config_prateleira: bpy.props.PointerProperty(type=BTM_PG_ComponentConfig)  # type: ignore
+    config_porta: bpy.props.PointerProperty(type=BTM_PG_ComponentConfig)  # type: ignore
 
 
 # ---------------------------------------------------------------------------

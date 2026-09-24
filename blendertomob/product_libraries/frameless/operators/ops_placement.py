@@ -272,10 +272,10 @@ class hb_frameless_OT_place_cabinet(bpy.types.Operator, WallObjectPlacementMixin
     bl_description = "Place a cabinet on a wall. Arrow keys for offset, W for width, F to fill gap, Escape to cancel"
     bl_options = {'UNDO'}
 
-    cabinet_name = bpy.props.StringProperty(name="Cabinet Name",default="")# type: ignore
+    cabinet_name: bpy.props.StringProperty(name="Cabinet Name",default="")# type: ignore
 
     # Cabinet type to place
-    cabinet_type = bpy.props.EnumProperty(
+    cabinet_type: bpy.props.EnumProperty(
         name="Cabinet Type",
         items=[
             ('BASE', "Base", "Base cabinet"),
@@ -286,8 +286,8 @@ class hb_frameless_OT_place_cabinet(bpy.types.Operator, WallObjectPlacementMixin
     )  # type: ignore
 
     # Appliance placement
-    is_appliance = bpy.props.BoolProperty(name="Is Appliance", default=False)  # type: ignore
-    appliance_type = bpy.props.StringProperty(name="Appliance Type", default="")  # type: ignore
+    is_appliance: bpy.props.BoolProperty(name="Is Appliance", default=False)  # type: ignore
+    appliance_type: bpy.props.StringProperty(name="Appliance Type", default="")  # type: ignore
 
     # Preview cage (lightweight, with array modifier)
     preview_cage = None
@@ -1868,9 +1868,9 @@ class hb_frameless_OT_toggle_mode(bpy.types.Operator):
     bl_label = 'Toggle Mode'
     bl_description = "This will toggle the cabinet mode"
 
-    search_obj_name = bpy.props.StringProperty(name="Search Object Name",default="")# type: ignore
-    toggle_type = bpy.props.StringProperty(name="Toggle Type",default="")# type: ignore
-    toggle_on = bpy.props.BoolProperty(name="Toggle On",default=False)# type: ignore
+    search_obj_name: bpy.props.StringProperty(name="Search Object Name",default="")# type: ignore
+    toggle_type: bpy.props.StringProperty(name="Toggle Type",default="")# type: ignore
+    toggle_on: bpy.props.BoolProperty(name="Toggle On",default=False)# type: ignore
 
     # Markers that should be treated like cabinets for selection purposes
     CABINET_LIKE_MARKERS = ['IS_FRAMELESS_CABINET_CAGE', 'IS_FRAMELESS_PRODUCT_CAGE', 'IS_APPLIANCE']
@@ -1928,7 +1928,7 @@ class hb_frameless_OT_draw_cabinet(bpy.types.Operator):
     bl_idname = "hb_frameless.draw_cabinet"
     bl_label = "Draw Cabinet"
 
-    cabinet_name = bpy.props.StringProperty(name="Cabinet Name")  # type: ignore
+    cabinet_name: bpy.props.StringProperty(name="Cabinet Name")  # type: ignore
 
     def execute(self, context):
         # Map appliance names to types

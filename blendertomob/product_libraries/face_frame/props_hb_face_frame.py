@@ -1478,10 +1478,10 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
     custom_interior_material: PointerProperty(name="Custom Interior Material", type=bpy.types.Material, update=_propagate_cabinet_style)  # type: ignore
 
     # ---- Custom procedural shader (active when wood_species == 'CUSTOM_PROCEDURAL') ----
-    custom_wood_color_1 = bpy.props.FloatVectorProperty(
+    custom_wood_color_1: bpy.props.FloatVectorProperty(
         name="Wood Color 1", subtype='COLOR', size=3, min=0.0, max=1.0,
         default=(0.8, 0.65, 0.45), update=update_custom_procedural_material)  # type: ignore
-    custom_wood_color_2 = bpy.props.FloatVectorProperty(
+    custom_wood_color_2: bpy.props.FloatVectorProperty(
         name="Wood Color 2", subtype='COLOR', size=3, min=0.0, max=1.0,
         default=(0.6, 0.45, 0.3), update=update_custom_procedural_material)  # type: ignore
     custom_noise_scale_1: FloatProperty(name="Noise Scale 1", default=3.5, min=0.0, max=50.0, update=update_custom_procedural_material)  # type: ignore

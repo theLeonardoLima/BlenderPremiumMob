@@ -185,7 +185,7 @@ class home_builder_details_OT_create_detail(bpy.types.Operator):
     bl_description = "Create a new 2D detail drawing scene"
     bl_options = {'UNDO'}
 
-    detail_name = bpy.props.StringProperty(
+    detail_name: bpy.props.StringProperty(
         name="Detail Name",
         default="Detail",
         description="Name for the new detail"
@@ -215,7 +215,7 @@ class home_builder_details_OT_delete_detail(bpy.types.Operator):
     bl_description = "Delete the selected detail scene"
     bl_options = {'UNDO'}
 
-    scene_name = bpy.props.StringProperty(name="Scene Name")  # type: ignore
+    scene_name: bpy.props.StringProperty(name="Scene Name")  # type: ignore
 
     def execute(self, context):
         if self.scene_name in bpy.data.scenes:
@@ -2197,7 +2197,7 @@ class home_builder_details_OT_add_fillet(bpy.types.Operator):
     bl_description = "Add a radius/fillet to the selected corner point"
     bl_options = {'REGISTER', 'UNDO'}
 
-    radius = bpy.props.FloatProperty(
+    radius: bpy.props.FloatProperty(
         name="Radius",
         description="Fillet radius",
         default=0.0254,  # 1 inch
@@ -2205,7 +2205,7 @@ class home_builder_details_OT_add_fillet(bpy.types.Operator):
         unit='LENGTH',
     )
 
-    segments = bpy.props.IntProperty(
+    segments: bpy.props.IntProperty(
         name="Segments",
         description="Number of segments in the fillet arc",
         default=8,
@@ -2424,7 +2424,7 @@ class home_builder_details_OT_offset_curve(bpy.types.Operator):
     bl_description = "Create an offset copy of the selected curve (like AutoCAD offset)"
     bl_options = {'REGISTER', 'UNDO'}
 
-    offset_distance = bpy.props.FloatProperty(
+    offset_distance: bpy.props.FloatProperty(
         name="Offset Distance",
         description="Distance to offset the curve",
         default=0.0254,  # 1 inch
@@ -2432,7 +2432,7 @@ class home_builder_details_OT_offset_curve(bpy.types.Operator):
         unit='LENGTH',
     )
 
-    offset_side = bpy.props.EnumProperty(
+    offset_side: bpy.props.EnumProperty(
         name="Side",
         description="Which side to offset",
         items=[
@@ -2953,13 +2953,13 @@ class home_builder_details_OT_save_detail_to_library(bpy.types.Operator):
     bl_description = "Save the current detail to your user library"
     bl_options = {'REGISTER', 'UNDO'}
 
-    name = bpy.props.StringProperty(
+    name: bpy.props.StringProperty(
         name="Name",
         description="Name for this detail in the library",
         default="My Detail"
     )
 
-    description = bpy.props.StringProperty(
+    detail_description: bpy.props.StringProperty(
         name="Description",
         description="Optional description",
         default=""
@@ -2979,7 +2979,7 @@ class home_builder_details_OT_save_detail_to_library(bpy.types.Operator):
 
     def execute(self, context):
         success, message, filepath = hb_detail_library.save_detail_to_library(
-            context, self.name, self.description
+            context, self.name, self.detail_description
         )
 
         if success:
@@ -2993,7 +2993,7 @@ class home_builder_details_OT_save_detail_to_library(bpy.types.Operator):
     def draw(self, context):
         layout = self.layout
         layout.prop(self, "name")
-        layout.prop(self, "description")
+        layout.prop(self, "detail_description")
 
 
 class home_builder_details_OT_load_detail_from_library(bpy.types.Operator):
@@ -3002,7 +3002,7 @@ class home_builder_details_OT_load_detail_from_library(bpy.types.Operator):
     bl_description = "Load a detail from your user library"
     bl_options = {'REGISTER', 'UNDO'}
 
-    filepath = bpy.props.StringProperty(
+    filepath: bpy.props.StringProperty(
         name="Filepath",
         description="Path to the detail file",
         default=""
@@ -3037,7 +3037,7 @@ class home_builder_details_OT_delete_library_detail(bpy.types.Operator):
     bl_description = "Delete a detail from your user library"
     bl_options = {'REGISTER', 'UNDO'}
 
-    filename = bpy.props.StringProperty(
+    filename: bpy.props.StringProperty(
         name="Filename",
         description="Filename of the detail to delete",
         default=""
@@ -3089,13 +3089,13 @@ class home_builder_details_OT_create_detail_from_library(bpy.types.Operator):
     bl_description = "Create a new detail scene and load objects from a library file"
     bl_options = {'REGISTER', 'UNDO'}
 
-    filepath = bpy.props.StringProperty(
+    filepath: bpy.props.StringProperty(
         name="Filepath",
         description="Path to the library file",
         default=""
     )  # type: ignore
 
-    name = bpy.props.StringProperty(
+    name: bpy.props.StringProperty(
         name="Name",
         description="Name for the new detail",
         default=""
@@ -3173,7 +3173,7 @@ class home_builder_details_OT_move_detail_view(bpy.types.Operator):
     bl_description = "Move detail view up or down in the list"
     bl_options = {'UNDO'}
 
-    move_up = bpy.props.BoolProperty(name="Move Up") # type: ignore
+    move_up: bpy.props.BoolProperty(name="Move Up") # type: ignore
 
     def ensure_sort_orders_initialized(self, detail_views):
         """Make sure all scenes have unique sort_order values."""
@@ -3241,9 +3241,23 @@ classes = (
 
 def register():
     for cls in classes:
-        bpy.utils.register_class(cls)
+        reg_cls = getattr(bpy.types, cls.__name__, None)
+        if reg_cls:
+            try:
+                bpy.utils.unregister_class(reg_cls)
+            except Exception:
+                pass
+        try:
+            bpy.utils.register_class(cls)
+        except Exception:
+            pass
 
 
 def unregister():
     for cls in reversed(classes):
-        bpy.utils.unregister_class(cls)
+        reg_cls = getattr(bpy.types, cls.__name__, None)
+        if reg_cls:
+            try:
+                bpy.utils.unregister_class(reg_cls)
+            except Exception:
+                pass

@@ -1,7 +1,7 @@
 schema_version = "1.0.0"
 
 id = "blendertomob"
-version = "1.0.0"
+version = "1.0.1"
 name = "Blender to Mob"
 tagline = "Parametric cabinetry and interior design CAD tools for Blender"
 maintainer = "TheLeoInfo"
@@ -9,7 +9,7 @@ type = "add-on"
 
 website = "https://github.com/theLeonardoLima/BlenderPremiumMob"
 
-tags = ["Design", "Parametric", "CAD", "Woodworking", "Furniture", "Add Mesh", "Scene"]
+tags = ["3D View", "Add Mesh", "Modeling", "Scene"]
 
 blender_version_min = "4.2.0"
 

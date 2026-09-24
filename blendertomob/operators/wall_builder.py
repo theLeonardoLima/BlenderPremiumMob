@@ -14,17 +14,17 @@ class BTM_OT_WallBuilder(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     # Propriedades padrão em metros
-    thickness = bpy.props.FloatProperty(name="Espessura", default=0.15, min=0.01, subtype='DISTANCE')
-    height = bpy.props.FloatProperty(name="Pé-Direito", default=2.7, min=0.1, subtype='DISTANCE')
-    offset = bpy.props.FloatProperty(name="Afastamento", default=0.0, min=0.0, subtype='DISTANCE')
-    linear_increment = bpy.props.FloatProperty(name="Incr. Linear", default=0.05, min=0.001, subtype='DISTANCE')
-    angular_increment = bpy.props.FloatProperty(name="Incr. Angular (°)", default=5.0, min=0.5)
-    orientation = bpy.props.EnumProperty(
+    thickness: bpy.props.FloatProperty(name="Espessura", default=0.15, min=0.01, subtype='DISTANCE')
+    height: bpy.props.FloatProperty(name="Pé-Direito", default=2.7, min=0.1, subtype='DISTANCE')
+    offset: bpy.props.FloatProperty(name="Afastamento", default=0.0, min=0.0, subtype='DISTANCE')
+    linear_increment: bpy.props.FloatProperty(name="Incr. Linear", default=0.05, min=0.001, subtype='DISTANCE')
+    angular_increment: bpy.props.FloatProperty(name="Incr. Angular (°)", default=5.0, min=0.5)
+    orientation: bpy.props.EnumProperty(
         name="Construção",
         items=[('RIGHT', "Direita", ""), ('LEFT', "Esquerda", "")],
         default='RIGHT'
     )
-    wall_type = bpy.props.EnumProperty(
+    wall_type: bpy.props.EnumProperty(
         name="Tipo de Parede",
         items=[
             ('NORMAL', "Normal", ""),

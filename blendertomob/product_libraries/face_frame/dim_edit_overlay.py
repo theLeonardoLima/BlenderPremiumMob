@@ -665,8 +665,8 @@ class hb_face_frame_OT_edit_dim_label(bpy.types.Operator):
     bl_label = "Edit Dimension Label"
     bl_options = {'INTERNAL', 'UNDO'}
 
-    target_name = bpy.props.StringProperty(options={'HIDDEN'})  # type: ignore
-    kind = bpy.props.EnumProperty(
+    target_name: bpy.props.StringProperty(options={'HIDDEN'})  # type: ignore
+    kind: bpy.props.EnumProperty(
         items=[('BAY', "Bay Width", ""), ('OPENING', "Opening Height", ""),
                ('PART', "Part Width", ""),
                ('CAB_W', "Cabinet Width", ""),

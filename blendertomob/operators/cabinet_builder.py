@@ -11,10 +11,10 @@ class BTM_OT_CabinetBuilder(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     # Anotações limpas compatíveis com o linter Pyrefly
-    width: float = bpy.props.FloatProperty(name="Largura", default=0.8, min=0.1, subtype='DISTANCE')
-    height: float = bpy.props.FloatProperty(name="Altura", default=0.7, min=0.1, subtype='DISTANCE')
-    depth: float = bpy.props.FloatProperty(name="Profundidade", default=0.55, min=0.1, subtype='DISTANCE')
-    thickness: float = bpy.props.FloatProperty(name="Espessura MDF", default=0.018, min=0.006, subtype='DISTANCE')
+    width: bpy.props.FloatProperty(name="Largura", default=0.8, min=0.1, subtype='DISTANCE')
+    height: bpy.props.FloatProperty(name="Altura", default=0.7, min=0.1, subtype='DISTANCE')
+    depth: bpy.props.FloatProperty(name="Profundidade", default=0.55, min=0.1, subtype='DISTANCE')
+    thickness: bpy.props.FloatProperty(name="Espessura MDF", default=0.018, min=0.006, subtype='DISTANCE')
 
     def invoke(self, context, event):
         if hasattr(context.scene, "btm_settings"):

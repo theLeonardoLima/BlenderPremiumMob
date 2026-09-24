@@ -520,7 +520,7 @@ class home_builder_obstacles_OT_delete_obstacle(bpy.types.Operator):
     bl_description = "Delete the selected obstacle"
     bl_options = {'UNDO'}
 
-    object_name = bpy.props.StringProperty(name="Object Name", default="")  # type: ignore
+    object_name: bpy.props.StringProperty(name="Object Name", default="")  # type: ignore
 
     def execute(self, context):
         if self.object_name and self.object_name in bpy.data.objects:
@@ -573,7 +573,7 @@ class home_builder_obstacles_OT_select_obstacle(bpy.types.Operator):
     bl_description = "Select or deselect this obstacle"
     bl_options = {'UNDO'}
 
-    object_name = bpy.props.StringProperty(name="Object Name", default="")  # type: ignore
+    object_name: bpy.props.StringProperty(name="Object Name", default="")  # type: ignore
 
     def execute(self, context):
         if not self.object_name or self.object_name not in bpy.data.objects:
@@ -601,9 +601,9 @@ class home_builder_obstacles_OT_edit_obstacle(bpy.types.Operator):
     bl_description = "Edit obstacle dimensions"
     bl_options = {'REGISTER', 'UNDO'}
 
-    width = bpy.props.FloatProperty(name="Width", default=0.07, min=0.01, unit='LENGTH')  # type: ignore
-    height = bpy.props.FloatProperty(name="Height", default=0.1143, min=0.01, unit='LENGTH')  # type: ignore
-    depth = bpy.props.FloatProperty(name="Depth", default=0.05, min=0.01, unit='LENGTH')  # type: ignore
+    width: bpy.props.FloatProperty(name="Width", default=0.07, min=0.01, unit='LENGTH')  # type: ignore
+    height: bpy.props.FloatProperty(name="Height", default=0.1143, min=0.01, unit='LENGTH')  # type: ignore
+    depth: bpy.props.FloatProperty(name="Depth", default=0.05, min=0.01, unit='LENGTH')  # type: ignore
 
     @classmethod
     def poll(cls, context):
@@ -668,8 +668,20 @@ classes = (
 
 def register():
     for cls in classes:
-        bpy.utils.register_class(cls)
+        try:
+            bpy.utils.register_class(cls)
+        except ValueError:
+            try:
+                bpy.utils.unregister_class(cls)
+                bpy.utils.register_class(cls)
+            except Exception:
+                pass
+        except Exception:
+            pass
 
 def unregister():
     for cls in reversed(classes):
-        bpy.utils.unregister_class(cls)
+        try:
+            bpy.utils.unregister_class(cls)
+        except Exception:
+            pass

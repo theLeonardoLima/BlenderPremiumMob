@@ -31,27 +31,27 @@ class home_builder_OT_set_recommended_settings(bpy.types.Operator):
     bl_label = "Set Recommended Settings"
     bl_description = "This will set the recommended blender settings"
 
-    turn_off_relationship_lines = bpy.props.BoolProperty(name="Turn Off Relationship Lines",
+    turn_off_relationship_lines: bpy.props.BoolProperty(name="Turn Off Relationship Lines",
                                                         description="This setting clutters the interface with unneeded relationship lines",
                                                         default=True)# type: ignore
 
-    turn_on_object_color_type = bpy.props.BoolProperty(name="Turn On Object Color Type",
+    turn_on_object_color_type: bpy.props.BoolProperty(name="Turn On Object Color Type",
                                                         description="This setting turns on the object color type",
                                                         default=True)# type: ignore
 
-    use_vertex_snapping = bpy.props.BoolProperty(name="Use Vertex Snapping",
+    use_vertex_snapping: bpy.props.BoolProperty(name="Use Vertex Snapping",
                                                         description="This setting turns on vertex snapping",
                                                         default=True)# type: ignore
 
-    turn_off_3d_cursor = bpy.props.BoolProperty(name="Turn Off 3D Cursor",
+    turn_off_3d_cursor: bpy.props.BoolProperty(name="Turn Off 3D Cursor",
                                                         description="This setting turns off the 3D cursor",
                                                         default=True)# type: ignore
 
-    show_wireframes = bpy.props.BoolProperty(name="Show Wireframes",
+    show_wireframes: bpy.props.BoolProperty(name="Show Wireframes",
                                                         description="This setting shows the wireframes",
                                                         default=True)# type: ignore
 
-    change_studio_lighting = bpy.props.BoolProperty(name="Change Studio Lighting",
+    change_studio_lighting: bpy.props.BoolProperty(name="Change Studio Lighting",
                                                         description="This setting changes the studio lighting to the recommended lighting",
                                                         default=True)# type: ignore
 
@@ -273,19 +273,19 @@ class home_builder_OT_create_camera(bpy.types.Operator):
     bl_description = "Create a camera from the current viewport view"
     bl_options = {'REGISTER', 'UNDO'}
 
-    add_track_to = bpy.props.BoolProperty(
+    add_track_to: bpy.props.BoolProperty(
         name="Add Track To Target",
         description="Create an empty at scene center and track the camera to it",
         default=False
     )  # type: ignore
 
-    add_backplate = bpy.props.BoolProperty(
+    add_backplate: bpy.props.BoolProperty(
         name="Add Lit Backplate",
         description="Create an emissive plane behind the scene that fills the camera view",
         default=False
     )  # type: ignore
 
-    backplate_color = bpy.props.FloatVectorProperty(
+    backplate_color: bpy.props.FloatVectorProperty(
         name="Backplate Color",
         subtype='COLOR',
         size=4,
@@ -294,7 +294,7 @@ class home_builder_OT_create_camera(bpy.types.Operator):
         default=(1.0, 1.0, 1.0, 1.0)
     )  # type: ignore
 
-    backplate_distance = bpy.props.FloatProperty(
+    backplate_distance: bpy.props.FloatProperty(
         name="Backplate Distance",
         description="Distance from camera to backplate",
         default=50.0,
@@ -545,7 +545,7 @@ class home_builder_OT_set_scale_with_two_points(bpy.types.Operator):
     bl_description = "Scale a reference image by clicking two points of a known distance"
     bl_options = {'UNDO'}
 
-    known_distance = bpy.props.FloatProperty(
+    known_distance: bpy.props.FloatProperty(
         name="Known Distance",
         description="The real-world distance between the two points you will select",
         subtype='DISTANCE',

@@ -11,13 +11,13 @@ class hb_frameless_OT_cabinet_prompts(bpy.types.Operator):
     bl_description = "Edit cabinet properties"
     bl_options = {'UNDO'}
 
-    cabinet_width = bpy.props.FloatProperty(name="Width", unit='LENGTH', precision=5) # type: ignore
-    cabinet_height = bpy.props.FloatProperty(name="Height", unit='LENGTH', precision=5) # type: ignore
-    cabinet_depth = bpy.props.FloatProperty(name="Depth", unit='LENGTH', precision=5) # type: ignore
-    toe_kick_height = bpy.props.FloatProperty(name="Toe Kick Height", unit='LENGTH', precision=5) # type: ignore
-    toe_kick_setback = bpy.props.FloatProperty(name="Toe Kick Setback", unit='LENGTH', precision=5) # type: ignore
-    remove_bottom = bpy.props.BoolProperty(name="Remove Bottom", default=False) # type: ignore
-    finished_interior = bpy.props.BoolProperty(name="Finished Interior", default=False) # type: ignore
+    cabinet_width: bpy.props.FloatProperty(name="Width", unit='LENGTH', precision=5) # type: ignore
+    cabinet_height: bpy.props.FloatProperty(name="Height", unit='LENGTH', precision=5) # type: ignore
+    cabinet_depth: bpy.props.FloatProperty(name="Depth", unit='LENGTH', precision=5) # type: ignore
+    toe_kick_height: bpy.props.FloatProperty(name="Toe Kick Height", unit='LENGTH', precision=5) # type: ignore
+    toe_kick_setback: bpy.props.FloatProperty(name="Toe Kick Setback", unit='LENGTH', precision=5) # type: ignore
+    remove_bottom: bpy.props.BoolProperty(name="Remove Bottom", default=False) # type: ignore
+    finished_interior: bpy.props.BoolProperty(name="Finished Interior", default=False) # type: ignore
 
     cabinet = None
 
@@ -178,7 +178,7 @@ class hb_frameless_OT_add_applied_end(bpy.types.Operator):
     bl_description = "Add an applied finished end panel to the cabinet"
     bl_options = {'UNDO'}
 
-    side = bpy.props.EnumProperty(
+    side: bpy.props.EnumProperty(
         name="Side",
         items=[
             ('LEFT', "Left", "Add to left side"),
@@ -338,7 +338,7 @@ class hb_frameless_OT_remove_applied_end(bpy.types.Operator):
     bl_description = "Remove an applied finished end panel from the cabinet"
     bl_options = {'UNDO'}
 
-    side = bpy.props.EnumProperty(
+    side: bpy.props.EnumProperty(
         name="Side",
         items=[
             ('LEFT', "Left", "Remove from left side"),
@@ -546,9 +546,9 @@ class hb_frameless_OT_select_cabinet_group(bpy.types.Operator):
     bl_label = 'Select Cabinet Group'
     bl_description = "This will select the cabinet group"
 
-    toggle_on = bpy.props.BoolProperty(name="Toggle On",default=False)# type: ignore
+    toggle_on: bpy.props.BoolProperty(name="Toggle On",default=False)# type: ignore
 
-    cabinet_group_name = bpy.props.StringProperty(name="Cabinet Group Name",default="")# type: ignore
+    cabinet_group_name: bpy.props.StringProperty(name="Cabinet Group Name",default="")# type: ignore
 
     def execute(self, context):
         bpy.ops.object.select_all(action='DESELECT')
@@ -594,7 +594,7 @@ class hb_frameless_OT_adjust_multiple_cabinet_widths(bpy.types.Operator):
     _prev_quantity = 0
     _added_cabinets = []
 
-    left_offset = bpy.props.FloatProperty(
+    left_offset: bpy.props.FloatProperty(
         name="Left Offset",
         description="X Location or offset from left gap boundary",
         subtype='DISTANCE',
@@ -603,7 +603,7 @@ class hb_frameless_OT_adjust_multiple_cabinet_widths(bpy.types.Operator):
         precision=5,
     )  # type: ignore
 
-    right_offset = bpy.props.FloatProperty(
+    right_offset: bpy.props.FloatProperty(
         name="Right Offset",
         description="Offset from right gap boundary",
         subtype='DISTANCE',
@@ -612,13 +612,13 @@ class hb_frameless_OT_adjust_multiple_cabinet_widths(bpy.types.Operator):
         precision=5,
     )  # type: ignore
 
-    fill_gap = bpy.props.BoolProperty(
+    fill_gap: bpy.props.BoolProperty(
         name="Fill Gap",
         description="Redistribute cabinet widths to fill available space after offsets",
         default=False,
     )  # type: ignore
 
-    quantity = bpy.props.IntProperty(
+    quantity: bpy.props.IntProperty(
         name="Quantity",
         description="Number of cabinets",
         default=2,

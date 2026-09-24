@@ -92,33 +92,33 @@ def _update_use_viewport_hud(self, context):
 class BTM_AddonPreferences(bpy.types.AddonPreferences):
     bl_idname = __package__ or __name__
 
-    use_viewport_hud = bpy.props.BoolProperty(
+    use_viewport_hud: bpy.props.BoolProperty(
         name="Controles na Viewport",
         description="Desenhar os atalhos de navegação e modos de seleção diretamente na Viewport 3D",
         default=False,
         update=_update_use_viewport_hud,
     )  # type: ignore
 
-    hide_2d_drawing_panels = bpy.props.BoolProperty(
+    hide_2d_drawing_panels: bpy.props.BoolProperty(
         name="Ocultar Painéis 2D",
         description="Ocultar as abas de Views 2D, Detalhes e Anotações na barra lateral",
         default=False,
     )  # type: ignore
 
-    wall_color = bpy.props.FloatVectorProperty(name="Cor das Paredes", size=4, min=0, max=1, default=(0.252832, 0.500434, 0.735662, 1.0), subtype="COLOR")  # type: ignore
-    cabinet_color = bpy.props.FloatVectorProperty(name="Cor dos Armários", size=4, min=0, max=1, default=(0.0, 0.5, 0.7, 0.3), subtype="COLOR")  # type: ignore
-    door_window_color = bpy.props.FloatVectorProperty(name="Cor de Portas/Janelas", size=4, min=0, max=1, default=(0.0, 0.5, 0.7, 0.1), subtype="COLOR")  # type: ignore
-    annotation_color = bpy.props.FloatVectorProperty(name="Cor dos Textos", size=4, min=0, max=1, default=(0.0, 0.0, 0.0, 1.0), subtype="COLOR")  # type: ignore
-    annotation_highlight_color = bpy.props.FloatVectorProperty(name="Cor de Destaque", size=4, min=0, max=1, default=(1.0, 1.0, 0.0, 1.0), subtype="COLOR")  # type: ignore
-    obstacle_color = bpy.props.FloatVectorProperty(name="Cor dos Obstáculos", size=4, min=0, max=1, default=(0.9, 0.7, 0.4, 0.8), subtype="COLOR")  # type: ignore
+    wall_color: bpy.props.FloatVectorProperty(name="Cor das Paredes", size=4, min=0, max=1, default=(0.252832, 0.500434, 0.735662, 1.0), subtype="COLOR")  # type: ignore
+    cabinet_color: bpy.props.FloatVectorProperty(name="Cor dos Armários", size=4, min=0, max=1, default=(0.0, 0.5, 0.7, 0.3), subtype="COLOR")  # type: ignore
+    door_window_color: bpy.props.FloatVectorProperty(name="Cor de Portas/Janelas", size=4, min=0, max=1, default=(0.0, 0.5, 0.7, 0.1), subtype="COLOR")  # type: ignore
+    annotation_color: bpy.props.FloatVectorProperty(name="Cor dos Textos", size=4, min=0, max=1, default=(0.0, 0.0, 0.0, 1.0), subtype="COLOR")  # type: ignore
+    annotation_highlight_color: bpy.props.FloatVectorProperty(name="Cor de Destaque", size=4, min=0, max=1, default=(1.0, 1.0, 0.0, 1.0), subtype="COLOR")  # type: ignore
+    obstacle_color: bpy.props.FloatVectorProperty(name="Cor dos Obstáculos", size=4, min=0, max=1, default=(0.9, 0.7, 0.4, 0.8), subtype="COLOR")  # type: ignore
 
-    designer_name = bpy.props.StringProperty(
+    designer_name: bpy.props.StringProperty(
         name="Nome do Designer",
         description="Nome impresso nas pranchas e relatórios técnicos"
     )  # type: ignore
 
     # Layout view defaults
-    line_engine = bpy.props.EnumProperty(
+    line_engine: bpy.props.EnumProperty(
         name="Engine 2D",
         items=[
             ('FREESTYLE', 'Freestyle', 'Freestyle clássico'),
@@ -127,7 +127,7 @@ class BTM_AddonPreferences(bpy.types.AddonPreferences):
         default='FREESTYLE'
     )  # type: ignore
 
-    default_paper_size = bpy.props.EnumProperty(
+    default_paper_size: bpy.props.EnumProperty(
         name="Tamanho de Papel Padrão",
         items=[
             ('LETTER', 'Letter (Carta)', ''),
@@ -139,7 +139,7 @@ class BTM_AddonPreferences(bpy.types.AddonPreferences):
         default='LEGAL'
     )  # type: ignore
 
-    default_layout_scale = bpy.props.EnumProperty(
+    default_layout_scale: bpy.props.EnumProperty(
         name="Escala Padrão",
         items=[
             ('1:1', '1:1', ''),
@@ -153,13 +153,13 @@ class BTM_AddonPreferences(bpy.types.AddonPreferences):
         default='1:50'
     )  # type: ignore
 
-    default_paper_landscape = bpy.props.BoolProperty(
+    default_paper_landscape: bpy.props.BoolProperty(
         name="Orientação Paisagem",
         default=True
     )  # type: ignore
 
-    asset_libraries = bpy.props.CollectionProperty(type=hb_assets.BTM_AssetLibraryEntry)  # type: ignore
-    asset_libraries_index = bpy.props.IntProperty(name="Biblioteca Ativa", default=0)  # type: ignore
+    asset_libraries: bpy.props.CollectionProperty(type=hb_assets.BTM_AssetLibraryEntry)  # type: ignore
+    asset_libraries_index: bpy.props.IntProperty(name="Biblioteca Ativa", default=0)  # type: ignore
 
     def draw(self, context):
         layout = self.layout
@@ -244,7 +244,8 @@ def register():
 
     # Re-arm asset library and handlers
     hb_assets.ensure_asset_libraries()
-    bpy.app.handlers.load_post.append(load_file_post)
+    if load_file_post not in bpy.app.handlers.load_post:
+        bpy.app.handlers.load_post.append(load_file_post)
 
     import inspect
     from . import hb_driver_functions
@@ -254,7 +255,11 @@ def register():
 
 
 def unregister():
-    bpy.app.handlers.load_post.remove(load_file_post)
+    if load_file_post in bpy.app.handlers.load_post:
+        try:
+            bpy.app.handlers.load_post.remove(load_file_post)
+        except Exception:
+            pass
 
     # Unregister libraries
     closets.unregister()
@@ -295,7 +300,10 @@ def unregister():
     # Unregister modern data
     data.unregister()
 
-    bpy.utils.unregister_class(BTM_AddonPreferences)
+    try:
+        bpy.utils.unregister_class(BTM_AddonPreferences)
+    except Exception:
+        pass
     hb_assets.unregister()
 
 

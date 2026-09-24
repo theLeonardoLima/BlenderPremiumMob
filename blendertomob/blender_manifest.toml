@@ -1,7 +1,7 @@
 schema_version = "1.0.0"
 
 id = "blendertomob"
-version = "1.0.0"
+version = "1.0.1"
 name = "Blender to Mob"
 tagline = "Parametric cabinetry and interior design CAD tools for Blender"
 maintainer = "TheLeoInfo"
@@ -13,6 +13,6 @@ license = [
     "SPDX:GPL-3.0-or-later",
 ]
 # Metadata for online extensions directory, categorizing the add-on
-tags = ["Design", "Parametric", "CAD", "Woodworking", "Furniture"]
+tags = ["3D View", "Add Mesh", "Modeling", "Scene"]
 location = "View3D > Sidebar > BlenderToMob"
 description = "Functional parametric interior design and cabinetry tools (inspired by Promob), including wall-building, floors, snap rules, and nested cut-list optimization."

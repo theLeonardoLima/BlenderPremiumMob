@@ -67,7 +67,7 @@ def add_rotation_driver(door_obj, controller_obj, axis, factor):
     target.id = controller_obj
     target.data_path = 'location.y'
     target.transform_type = 'LOC_Y'
-    target.transform_space = 'LOCAL'
+    target.transform_space = 'LOCAL_SPACE'
 
     # y vai de 0.0 a 0.2. Queremos que a rotação vá de 0 a factor * (pi / 2)
     # Relação: rotação = y * (factor * 1.570796 / 0.2) = y * factor * 7.85398
@@ -90,7 +90,7 @@ def add_ui_sync_driver(cabinet_obj, controller_obj):
     target.id = controller_obj
     target.data_path = 'location.y'
     target.transform_type = 'LOC_Y'
-    target.transform_space = 'LOCAL'
+    target.transform_space = 'LOCAL_SPACE'
 
     # 0.2m no Empty = 1.0 (100% aberto) no slider
     driver.expression = "y / 0.2"

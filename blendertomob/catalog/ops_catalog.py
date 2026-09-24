@@ -48,7 +48,7 @@ class hb_catalog_OT_activate_item(bpy.types.Operator):
     bl_label = "Activate Catalog Item"
     bl_options = {'REGISTER', 'UNDO'}
 
-    item_id = bpy.props.StringProperty()  # type: ignore
+    item_id: bpy.props.StringProperty()  # type: ignore
 
     def execute(self, context):
         entry = catalog_data.find_entry(self.item_id)
@@ -94,7 +94,7 @@ class hb_catalog_OT_not_yet_implemented(bpy.types.Operator):
     bl_label = "Not Yet Implemented"
     bl_options = {'REGISTER', 'UNDO'}
 
-    item_name = bpy.props.StringProperty(default="(unnamed)")  # type: ignore
+    item_name: bpy.props.StringProperty(default="(unnamed)")  # type: ignore
 
     def execute(self, context):
         # Map item to face-frame draw_cabinet

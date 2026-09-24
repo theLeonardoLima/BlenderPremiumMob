@@ -87,7 +87,7 @@ def _update_use_viewport_hud(self, context):
 class Home_Builder_AddonPreferences(bpy.types.AddonPreferences):
     bl_idname = __package__ or __name__
 
-    use_viewport_hud = bpy.props.BoolProperty(
+    use_viewport_hud: bpy.props.BoolProperty(
         name="Viewport Controls",
         description="Draw the scene navigator and selection mode controls "
                     "in the 3D viewport instead of the sidebar",
@@ -95,7 +95,7 @@ class Home_Builder_AddonPreferences(bpy.types.AddonPreferences):
         update=_update_use_viewport_hud,
     )  # type: ignore
 
-    hide_2d_drawing_panels = bpy.props.BoolProperty(
+    hide_2d_drawing_panels: bpy.props.BoolProperty(
         name="Hide 2D Drawing Panels",
         description="Hide the Layout Views, 2D Details, and Annotations ",
         default=False,
@@ -149,13 +149,13 @@ class Home_Builder_AddonPreferences(bpy.types.AddonPreferences):
                             default=(0.900000, 0.700000, 0.400000, 0.800000),
                             subtype="COLOR")  # type: ignore
 
-    designer_name = bpy.props.StringProperty(
+    designer_name: bpy.props.StringProperty(
 		name="Designer name",
         description="Enter the designer name you want to have appear on reports"
 	)  # type: ignore
 
     # Layout view defaults
-    line_engine = bpy.props.EnumProperty(
+    line_engine: bpy.props.EnumProperty(
         name="2D Line Engine",
         description="How newly generated 2D layout views draw their line work",
         items=[
@@ -168,7 +168,7 @@ class Home_Builder_AddonPreferences(bpy.types.AddonPreferences):
         default='FREESTYLE'
     )  # type: ignore
 
-    default_paper_size = bpy.props.EnumProperty(
+    default_paper_size: bpy.props.EnumProperty(
         name="Default Paper Size",
         description="Default paper size for new layout views",
         items=[
@@ -181,7 +181,7 @@ class Home_Builder_AddonPreferences(bpy.types.AddonPreferences):
         default='LEGAL'
     )  # type: ignore
 
-    default_layout_scale = bpy.props.EnumProperty(
+    default_layout_scale: bpy.props.EnumProperty(
         name="Default Scale",
         description="Default drawing scale for new layout views",
         items=[
@@ -207,7 +207,7 @@ class Home_Builder_AddonPreferences(bpy.types.AddonPreferences):
         default='1/4"=1\''
     )  # type: ignore
 
-    default_paper_landscape = bpy.props.BoolProperty(
+    default_paper_landscape: bpy.props.BoolProperty(
         name="Default Landscape",
         description="Default orientation for new layout views",
         default=True
@@ -290,7 +290,8 @@ def register():
 
     hb_assets.ensure_asset_libraries()
 
-    bpy.app.handlers.load_post.append(load_file_post)
+    if load_file_post not in bpy.app.handlers.load_post:
+        bpy.app.handlers.load_post.append(load_file_post)
 
     # Load driver functions on first enable
     import inspect
@@ -300,7 +301,10 @@ def register():
             bpy.app.driver_namespace[name] = obj
 
 def unregister():
-    bpy.utils.unregister_class(Home_Builder_AddonPreferences)
+    try:
+        bpy.utils.unregister_class(Home_Builder_AddonPreferences)
+    except Exception:
+        pass
 
     hb_props.unregister()
     hb_project.unregister()
@@ -326,9 +330,13 @@ def unregister():
     wood_hoods.unregister()
     face_frame.unregister()
     frameless.unregister()
-    hb_assets.unregister()
 
-    bpy.app.handlers.load_post.remove(load_file_post)
+    if load_file_post in bpy.app.handlers.load_post:
+        try:
+            bpy.app.handlers.load_post.remove(load_file_post)
+        except Exception:
+            pass
+    hb_assets.unregister()
 
 if __name__ == '__main__':
     register()

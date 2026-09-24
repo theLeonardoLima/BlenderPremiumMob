@@ -95,8 +95,8 @@ class BTM_OT_FloorBuilder(bpy.types.Operator):
     bl_label = "Criar Piso Manual"
     bl_options = {'REGISTER', 'UNDO'}
 
-    size_x: float = bpy.props.FloatProperty(name="Largura X", default=5.0, subtype='DISTANCE')
-    size_y: float = bpy.props.FloatProperty(name="Comprimento Y", default=5.0, subtype='DISTANCE')
+    size_x: bpy.props.FloatProperty(name="Largura X", default=5.0, subtype='DISTANCE')
+    size_y: bpy.props.FloatProperty(name="Comprimento Y", default=5.0, subtype='DISTANCE')
 
     def execute(self, context):
         mesh = bpy.data.meshes.new(name="BTM_Floor_Mesh")

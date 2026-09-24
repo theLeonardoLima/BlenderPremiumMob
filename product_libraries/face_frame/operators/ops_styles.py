@@ -158,7 +158,7 @@ class hb_face_frame_OT_move_cabinet_style(Operator):
                       "changes which one stays white")
     bl_options = {'REGISTER', 'UNDO'}
 
-    direction = bpy.props.EnumProperty(
+    direction: bpy.props.EnumProperty(
         name="Direction",
         items=[('UP', "Up", "Move the style up"),
                ('DOWN', "Down", "Move the style down")],
@@ -650,7 +650,7 @@ class hb_face_frame_OT_paint_assign_front_style(bpy.types.Operator):
     bl_description = "Click fronts in the viewport to assign the active style"
     bl_options = {'REGISTER', 'UNDO'}
 
-    kind = bpy.props.EnumProperty(
+    kind: bpy.props.EnumProperty(
         items=[('DOOR', "Door", "Paint door fronts with the active door style"),
                ('DRAWER', "Drawer", "Paint drawer fronts with the active drawer front style")],
         default='DOOR',
@@ -831,7 +831,7 @@ class hb_face_frame_OT_update_fronts_from_style(bpy.types.Operator):
     bl_description = "Re-apply the active style to every front already tagged with that style name"
     bl_options = {'REGISTER', 'UNDO'}
 
-    kind = bpy.props.EnumProperty(
+    kind: bpy.props.EnumProperty(
         items=[('DOOR', "Door", ""), ('DRAWER', "Drawer", "")],
         default='DOOR', options={'HIDDEN'},
     )  # type: ignore
@@ -869,7 +869,7 @@ class hb_face_frame_OT_update_fronts_from_style(bpy.types.Operator):
 
 class hb_face_frame_PG_temp_special_effect(bpy.types.PropertyGroup):
     """Scratch row for the Add Special Effects dialog checkboxes."""
-    is_selected = bpy.props.BoolProperty(name="Is Selected")  # type: ignore
+    is_selected: bpy.props.BoolProperty(name="Is Selected")  # type: ignore
 
 
 def _active_cabinet_style(context):
@@ -892,7 +892,7 @@ class hb_face_frame_OT_add_special_effects(Operator):
                       "wood and color")
     bl_options = {'REGISTER', 'UNDO'}
 
-    candidates = bpy.props.CollectionProperty(
+    candidates: bpy.props.CollectionProperty(
         type=hb_face_frame_PG_temp_special_effect)  # type: ignore
 
     def invoke(self, context, event):
@@ -937,7 +937,7 @@ class hb_face_frame_OT_remove_special_effect(Operator):
     bl_description = "Remove this special effect from the cabinet style"
     bl_options = {'REGISTER', 'UNDO'}
 
-    effect_name = bpy.props.StringProperty(name="Name")  # type: ignore
+    effect_name: bpy.props.StringProperty(name="Name")  # type: ignore
 
     def execute(self, context):
         style = _active_cabinet_style(context)
@@ -961,7 +961,7 @@ class hb_face_frame_OT_add_cabinet_extra_front_style(Operator):
                       "Style Section page")
     bl_options = {'REGISTER', 'UNDO'}
 
-    kind = bpy.props.EnumProperty(
+    kind: bpy.props.EnumProperty(
         items=[('DOOR', "Door", "Door style"),
                ('DRAWER', "Drawer", "Drawer front style")],
         default='DOOR')  # type: ignore
@@ -984,11 +984,11 @@ class hb_face_frame_OT_remove_cabinet_extra_front_style(Operator):
     bl_description = "Remove this front style from the Style Section page"
     bl_options = {'REGISTER', 'UNDO'}
 
-    kind = bpy.props.EnumProperty(
+    kind: bpy.props.EnumProperty(
         items=[('DOOR', "Door", "Door style"),
                ('DRAWER', "Drawer", "Drawer front style")],
         default='DOOR')  # type: ignore
-    index = bpy.props.IntProperty(name="Index", default=-1)  # type: ignore
+    index: bpy.props.IntProperty(name="Index", default=-1)  # type: ignore
 
     def execute(self, context):
         style = _active_cabinet_style(context)
@@ -1014,7 +1014,7 @@ class hb_face_frame_OT_paint_part_material(bpy.types.Operator):
                       "interior material onto them")
     bl_options = {'REGISTER', 'UNDO'}
 
-    brush = bpy.props.EnumProperty(
+    brush: bpy.props.EnumProperty(
         name="Brush",
         items=[
             ('FINISH',   "Finish",   "Paint the style's finish (exterior) material"),

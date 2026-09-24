@@ -103,24 +103,24 @@ class hb_frameless_OT_save_cabinet_group_to_user_library(bpy.types.Operator):
     bl_description = "This will save the cabinet group to the user library"
     bl_options = {'UNDO'}
 
-    cabinet_group_name = bpy.props.StringProperty(
+    cabinet_group_name: bpy.props.StringProperty(
         name="Cabinet Group Name",
         default=""
     )  # type: ignore
 
-    save_path = bpy.props.StringProperty(
+    save_path: bpy.props.StringProperty(
         name="Save Location",
         subtype='DIR_PATH',
         default=""
     )  # type: ignore
 
-    save_category = bpy.props.StringProperty(
+    save_category: bpy.props.StringProperty(
         name="Category",
         description="Category subfolder to save into (leave empty for root)",
         default=""
     )  # type: ignore
 
-    create_thumbnail = bpy.props.BoolProperty(
+    create_thumbnail: bpy.props.BoolProperty(
         name="Create Thumbnail",
         description="Generate a thumbnail image for the library",
         default=True
@@ -314,7 +314,7 @@ class hb_frameless_OT_load_cabinet_group_from_library(bpy.types.Operator, hb_pla
     bl_description = "Load a cabinet group from the user library. Click to place, Right-click or ESC to cancel"
     bl_options = {'UNDO'}
 
-    filepath = bpy.props.StringProperty(
+    filepath: bpy.props.StringProperty(
         name="File Path",
         subtype='FILE_PATH'
     )  # type: ignore
@@ -522,12 +522,12 @@ class hb_frameless_OT_delete_library_item(bpy.types.Operator):
     bl_label = 'Delete Library Item'
     bl_description = "Delete a cabinet group from the user library"
 
-    filepath = bpy.props.StringProperty(
+    filepath: bpy.props.StringProperty(
         name="File Path",
         subtype='FILE_PATH'
     )  # type: ignore
 
-    item_name = bpy.props.StringProperty(
+    item_name: bpy.props.StringProperty(
         name="Item Name"
     )  # type: ignore
 

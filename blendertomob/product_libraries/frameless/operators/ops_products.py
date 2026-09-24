@@ -19,9 +19,9 @@ class hb_frameless_OT_product_prompts(bpy.types.Operator):
     bl_description = "Edit product properties"
     bl_options = {'UNDO'}
 
-    width = bpy.props.FloatProperty(name="Width", unit='LENGTH', precision=5)  # type: ignore
-    height = bpy.props.FloatProperty(name="Height", unit='LENGTH', precision=5)  # type: ignore
-    depth = bpy.props.FloatProperty(name="Depth", unit='LENGTH', precision=5)  # type: ignore
+    width: bpy.props.FloatProperty(name="Width", unit='LENGTH', precision=5)  # type: ignore
+    height: bpy.props.FloatProperty(name="Height", unit='LENGTH', precision=5)  # type: ignore
+    depth: bpy.props.FloatProperty(name="Depth", unit='LENGTH', precision=5)  # type: ignore
 
     product = None
     part_type = ""
@@ -422,9 +422,9 @@ def get_selected_floating_shelves(context):
 
 class FloatingShelfRow(bpy.types.PropertyGroup):
     """One row in the multi-shelf adjust dialog: a shelf's elevation + thickness."""
-    obj_name = bpy.props.StringProperty()  # type: ignore
-    elevation = bpy.props.FloatProperty(name="Elevation", unit='LENGTH', precision=5)  # type: ignore
-    thickness = bpy.props.FloatProperty(name="Thickness", unit='LENGTH', precision=5)  # type: ignore
+    obj_name: bpy.props.StringProperty()  # type: ignore
+    elevation: bpy.props.FloatProperty(name="Elevation", unit='LENGTH', precision=5)  # type: ignore
+    thickness: bpy.props.FloatProperty(name="Thickness", unit='LENGTH', precision=5)  # type: ignore
 
 
 class hb_frameless_OT_adjust_floating_shelves(bpy.types.Operator):
@@ -433,9 +433,9 @@ class hb_frameless_OT_adjust_floating_shelves(bpy.types.Operator):
     bl_description = "Set the floor height, spacing, and size of the selected floating shelves"
     bl_options = {'UNDO'}
 
-    bottom_height = bpy.props.FloatProperty(name="Bottom Height", unit='LENGTH', precision=5)  # type: ignore
-    spacing = bpy.props.FloatProperty(name="Spacing", unit='LENGTH', precision=5)  # type: ignore
-    shelves = bpy.props.CollectionProperty(type=FloatingShelfRow)  # type: ignore
+    bottom_height: bpy.props.FloatProperty(name="Bottom Height", unit='LENGTH', precision=5)  # type: ignore
+    spacing: bpy.props.FloatProperty(name="Spacing", unit='LENGTH', precision=5)  # type: ignore
+    shelves: bpy.props.CollectionProperty(type=FloatingShelfRow)  # type: ignore
 
     # Previous summary values, used to detect which field the user edited.
     _prev_bottom = 0.0
