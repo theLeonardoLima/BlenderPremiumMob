@@ -10,6 +10,7 @@ o valor de abertura sem recalcular o módulo:
 - `hinge_frame()`: (origem, eixo, direção de referência) em coordenadas do mundo, para o controle no 3D.
 """
 
+from ..data.i18n import N_
 from . import pivot_math
 
 DOOR = 'DOOR'
@@ -19,8 +20,8 @@ DRAWER = 'DRAWER'
 PULLOUT = 'PULLOUT'
 
 HINGED = frozenset({DOOR, FLIP_UP, FLIP_DOWN})
-KIND_LABELS = {DOOR: "Porta", FLIP_UP: "Basculante", FLIP_DOWN: "Basculante p/ baixo", DRAWER: "Gaveta",
-               PULLOUT: "Pullout"}
+KIND_LABELS = {DOOR: N_("Porta"), FLIP_UP: N_("Basculante"), FLIP_DOWN: N_("Basculante p/ baixo"), DRAWER: N_("Gaveta"),
+               PULLOUT: N_("Pullout")}
 
 
 class Front:

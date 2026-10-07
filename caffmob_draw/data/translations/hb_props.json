@@ -1,0 +1,594 @@
+{
+ "Adjust the furniture cap from its default position sitting on top of the tallest molding (negative lowers it)": {
+  "pt_BR": "Ajusta o coroamento a partir da posição padrão, sobre a moldura mais alta (negativo abaixa)",
+  "en_US": "Adjust the furniture cap from its default position sitting on top of the tallest molding (negative lowers it)"
+ },
+ "Afastamento do chão (nível) em metros": {
+  "pt_BR": "Afastamento do chão (nível) em metros",
+  "en_US": "Offset from the floor (level) in meters"
+ },
+ "Altura da parede em metros": {
+  "pt_BR": "Altura da parede em metros",
+  "en_US": "Wall height in meters"
+ },
+ "Annotation line thickness on paper in inches": {
+  "pt_BR": "Espessura da linha de anotação no papel, em polegadas",
+  "en_US": "Annotation line thickness on paper in inches"
+ },
+ "Apply a base shoe along the toe kicks - against the front of the base molding when one is selected, directly at the kick face otherwise": {
+  "pt_BR": "Aplica um cordão ao longo dos rodapés - na frente do rodapé quando houver um, senão direto na face do rodapé do módulo",
+  "en_US": "Apply a base shoe along the toe kicks - against the front of the base molding when one is selected, directly at the kick face otherwise"
+ },
+ "Auto Scale": {
+  "pt_BR": "Escala Automática",
+  "en_US": "Auto Scale"
+ },
+ "Automatically scale annotation sizes to maintain consistent paper appearance when drawing scale changes": {
+  "pt_BR": "Ajusta o tamanho das anotações para manter a aparência no papel quando a escala do desenho muda",
+  "en_US": "Automatically scale annotation sizes to maintain consistent paper appearance when drawing scale changes"
+ },
+ "Base Molding": {
+  "pt_BR": "Rodapé",
+  "en_US": "Base Molding"
+ },
+ "Base Molding Profile": {
+  "pt_BR": "Perfil do Rodapé",
+  "en_US": "Base Molding Profile"
+ },
+ "Base Shoe": {
+  "pt_BR": "Cordão de Rodapé",
+  "en_US": "Base Shoe"
+ },
+ "Base molding package applied across this room's base and tall cabinets": {
+  "pt_BR": "Pacote de rodapé aplicado aos balcões e paneleiros deste ambiente",
+  "en_US": "Base molding package applied across this room's base and tall cabinets"
+ },
+ "Base molding profile from the installed molding pack (Default uses the package's standard profile)": {
+  "pt_BR": "Perfil de rodapé do pacote instalado (Padrão usa o perfil padrão do pacote)",
+  "en_US": "Base molding profile from the installed molding pack (Default uses the package's standard profile)"
+ },
+ "CAFFMob Draw Props": {
+  "pt_BR": "Propriedades CAFFMob Draw",
+  "en_US": "CAFFMob Draw Props"
+ },
+ "Calculator Distance": {
+  "pt_BR": "Distância da Calculadora",
+  "en_US": "Calculator Distance"
+ },
+ "Calculator Index": {
+  "pt_BR": "Índice da Calculadora",
+  "en_US": "Calculator Index"
+ },
+ "Calculators": {
+  "pt_BR": "Calculadoras",
+  "en_US": "Calculators"
+ },
+ "Cap Offset": {
+  "pt_BR": "Deslocamento do Coroamento",
+  "en_US": "Cap Offset"
+ },
+ "Cap the cabinet tops with a furniture cap - independent of the crown package below it": {
+  "pt_BR": "Cobre o topo dos módulos com um coroamento - independente do pacote de moldura abaixo",
+  "en_US": "Cap the cabinet tops with a furniture cap - independent of the crown package below it"
+ },
+ "Centímetros": {
+  "pt_BR": "Centímetros",
+  "en_US": "Centimeters"
+ },
+ "Color for annotation lines": {
+  "pt_BR": "Cor das linhas de anotação",
+  "en_US": "Color for annotation lines"
+ },
+ "Color for text annotations": {
+  "pt_BR": "Cor das anotações de texto",
+  "en_US": "Color for text annotations"
+ },
+ "Comprimento da parede em metros": {
+  "pt_BR": "Comprimento da parede em metros",
+  "en_US": "Wall length in meters"
+ },
+ "Connected Object": {
+  "pt_BR": "Objeto Conectado",
+  "en_US": "Connected Object"
+ },
+ "Crown Molding": {
+  "pt_BR": "Moldura Superior",
+  "en_US": "Crown Molding"
+ },
+ "Crown Profile": {
+  "pt_BR": "Perfil da Moldura Superior",
+  "en_US": "Crown Profile"
+ },
+ "Crown Reveal": {
+  "pt_BR": "Recuo da Moldura Superior",
+  "en_US": "Crown Reveal"
+ },
+ "Crown molding package applied across this room's upper and tall cabinets": {
+  "pt_BR": "Pacote de moldura superior aplicado aos aéreos e paneleiros deste ambiente",
+  "en_US": "Crown molding package applied across this room's upper and tall cabinets"
+ },
+ "Crown profile from the installed molding pack (Default uses the package's standard profile)": {
+  "pt_BR": "Perfil de moldura superior do pacote instalado (Padrão usa o perfil padrão do pacote)",
+  "en_US": "Crown profile from the installed molding pack (Default uses the package's standard profile)"
+ },
+ "Custom Wood Products - Face Frame": {
+  "pt_BR": "Custom Wood Products - Quadro Frontal",
+  "en_US": "Custom Wood Products - Face Frame"
+ },
+ "Dim Line Thickness (Paper)": {
+  "pt_BR": "Espessura da Linha da Cota (Papel)",
+  "en_US": "Dim Line Thickness (Paper)"
+ },
+ "Dim Text Height (Paper)": {
+  "pt_BR": "Altura do Texto da Cota (Papel)",
+  "en_US": "Dim Text Height (Paper)"
+ },
+ "Dim Tick Length (Paper)": {
+  "pt_BR": "Comprimento da Marca da Cota (Papel)",
+  "en_US": "Dim Tick Length (Paper)"
+ },
+ "Dim Tick Thickness (Paper)": {
+  "pt_BR": "Espessura da Marca da Cota (Papel)",
+  "en_US": "Dim Tick Thickness (Paper)"
+ },
+ "Dimension Line Thickness": {
+  "pt_BR": "Espessura da Linha da Cota",
+  "en_US": "Dimension Line Thickness"
+ },
+ "Dimension Text Size": {
+  "pt_BR": "Tamanho do Texto da Cota",
+  "en_US": "Dimension Text Size"
+ },
+ "Dimension Tick Thickness": {
+  "pt_BR": "Espessura da Marca da Cota",
+  "en_US": "Dimension Tick Thickness"
+ },
+ "Dimension line thickness on paper in inches": {
+  "pt_BR": "Espessura da linha da cota no papel, em polegadas",
+  "en_US": "Dimension line thickness on paper in inches"
+ },
+ "Dimension text height on paper in inches": {
+  "pt_BR": "Altura do texto da cota no papel, em polegadas",
+  "en_US": "Dimension text height on paper in inches"
+ },
+ "Dimension tick mark length on paper in inches": {
+  "pt_BR": "Comprimento da marca da cota no papel, em polegadas",
+  "en_US": "Dimension tick mark length on paper in inches"
+ },
+ "Dimension tick thickness on paper in inches": {
+  "pt_BR": "Espessura da marca da cota no papel, em polegadas",
+  "en_US": "Dimension tick thickness on paper in inches"
+ },
+ "Distance Obj": {
+  "pt_BR": "Objeto de Distância",
+  "en_US": "Distance Obj"
+ },
+ "Distance Value": {
+  "pt_BR": "Valor da Distância",
+  "en_US": "Distance Value"
+ },
+ "Door Double Width": {
+  "pt_BR": "Largura da Porta Dupla",
+  "en_US": "Door Double Width"
+ },
+ "Door Height": {
+  "pt_BR": "Altura da Porta",
+  "en_US": "Door Height"
+ },
+ "Door Single Width": {
+  "pt_BR": "Largura da Porta Simples",
+  "en_US": "Door Single Width"
+ },
+ "Equal": {
+  "pt_BR": "Igual",
+  "en_US": "Equal"
+ },
+ "Espessura alinhada à direita do vetor": {
+  "pt_BR": "Espessura alinhada à direita do vetor",
+  "en_US": "Thickness aligned to the right of the vector"
+ },
+ "Espessura alinhada à esquerda do vetor": {
+  "pt_BR": "Espessura alinhada à esquerda do vetor",
+  "en_US": "Thickness aligned to the left of the vector"
+ },
+ "Espessura da parede em metros": {
+  "pt_BR": "Espessura da parede em metros",
+  "en_US": "Wall thickness in meters"
+ },
+ "Exposed face-frame band between the top of the doors and the crown molding - the crown mounts this distance above the door top": {
+  "pt_BR": "Faixa aparente do quadro frontal entre o topo das portas e a moldura superior - a moldura fica a esta distância acima do topo da porta",
+  "en_US": "Exposed face-frame band between the top of the doors and the crown molding - the crown mounts this distance above the door top"
+ },
+ "Extend Line": {
+  "pt_BR": "Prolongamento",
+  "en_US": "Extend Line"
+ },
+ "Exterior": {
+  "pt_BR": "Exterior",
+  "en_US": "Exterior"
+ },
+ "Exterior Wall": {
+  "pt_BR": "Parede Externa",
+  "en_US": "Exterior Wall"
+ },
+ "Exterior Wall Thickness": {
+  "pt_BR": "Espessura da Parede Externa",
+  "en_US": "Exterior Wall Thickness"
+ },
+ "Fake": {
+  "pt_BR": "Falsa",
+  "en_US": "Fake"
+ },
+ "Fake Wall": {
+  "pt_BR": "Parede Falsa",
+  "en_US": "Fake Wall"
+ },
+ "Fake Wall Height": {
+  "pt_BR": "Altura da Parede Falsa",
+  "en_US": "Fake Wall Height"
+ },
+ "Font for text annotations": {
+  "pt_BR": "Fonte das anotações de texto",
+  "en_US": "Font for text annotations"
+ },
+ "For stacked crown packages: how far up the spacer the crown molding sits, measured from the spacer's bottom": {
+  "pt_BR": "Nos pacotes sobrepostos: a que altura do espaçador fica a moldura, medida da base do espaçador",
+  "en_US": "For stacked crown packages: how far up the spacer the crown molding sits, measured from the spacer's bottom"
+ },
+ "Frameless": {
+  "pt_BR": "Frameless",
+  "en_US": "Frameless"
+ },
+ "Furniture Cap": {
+  "pt_BR": "Coroamento",
+  "en_US": "Furniture Cap"
+ },
+ "Furniture Cap Profile": {
+  "pt_BR": "Perfil do Coroamento",
+  "en_US": "Furniture Cap Profile"
+ },
+ "Furniture cap profile from the installed molding pack (Default uses the package's standard profile)": {
+  "pt_BR": "Perfil do coroamento do pacote instalado (Padrão usa o perfil padrão do pacote)",
+  "en_US": "Furniture cap profile from the installed molding pack (Default uses the package's standard profile)"
+ },
+ "Half": {
+  "pt_BR": "Meia",
+  "en_US": "Half"
+ },
+ "Include In Calculation": {
+  "pt_BR": "Incluir no Cálculo",
+  "en_US": "Include In Calculation"
+ },
+ "Include Recessed Toe Kicks": {
+  "pt_BR": "Incluir Rodapés Recuados",
+  "en_US": "Include Recessed Toe Kicks"
+ },
+ "Incr. Angular": {
+  "pt_BR": "Incr. Angular",
+  "en_US": "Angle Step"
+ },
+ "Interior": {
+  "pt_BR": "Interior",
+  "en_US": "Interior"
+ },
+ "Interior Wall": {
+  "pt_BR": "Parede Interna",
+  "en_US": "Interior Wall"
+ },
+ "Interior Wall Thickness": {
+  "pt_BR": "Espessura da Parede Interna",
+  "en_US": "Interior Wall Thickness"
+ },
+ "Lado da espessura em relação ao eixo de desenho": {
+  "pt_BR": "Lado da espessura em relação ao eixo de desenho",
+  "en_US": "Thickness side relative to the drawing axis"
+ },
+ "Library Tabs": {
+  "pt_BR": "Abas da Biblioteca",
+  "en_US": "Library Tabs"
+ },
+ "Light Rail": {
+  "pt_BR": "Sanefa",
+  "en_US": "Light Rail"
+ },
+ "Light Rail Profile": {
+  "pt_BR": "Perfil da Sanefa",
+  "en_US": "Light Rail Profile"
+ },
+ "Light-rail package applied under this room's upper cabinets": {
+  "pt_BR": "Pacote de sanefa aplicado sob os aéreos deste ambiente",
+  "en_US": "Light-rail package applied under this room's upper cabinets"
+ },
+ "Light-rail profile from the installed molding pack (Default uses the package's standard profile)": {
+  "pt_BR": "Perfil de sanefa do pacote instalado (Padrão usa o perfil padrão do pacote)",
+  "en_US": "Light-rail profile from the installed molding pack (Default uses the package's standard profile)"
+ },
+ "Line Color": {
+  "pt_BR": "Cor da Linha",
+  "en_US": "Line Color"
+ },
+ "Line Thickness (Paper)": {
+  "pt_BR": "Espessura da Linha (Papel)",
+  "en_US": "Line Thickness (Paper)"
+ },
+ "Metros": {
+  "pt_BR": "Metros",
+  "en_US": "Meters"
+ },
+ "Milímetros": {
+  "pt_BR": "Milímetros",
+  "en_US": "Millimeters"
+ },
+ "Mod Name": {
+  "pt_BR": "Nome do Modificador",
+  "en_US": "Mod Name"
+ },
+ "Molding": {
+  "pt_BR": "Moldura",
+  "en_US": "Molding"
+ },
+ "Molding Category": {
+  "pt_BR": "Categoria de Moldura",
+  "en_US": "Molding Category"
+ },
+ "No Moldings": {
+  "pt_BR": "Nenhuma Moldura",
+  "en_US": "No Moldings"
+ },
+ "Order for sorting scenes": {
+  "pt_BR": "Ordem para classificar as cenas",
+  "en_US": "Order for sorting scenes"
+ },
+ "Parede alvenaria / padrão": {
+  "pt_BR": "Parede alvenaria / padrão",
+  "en_US": "Masonry / standard wall"
+ },
+ "Parede gesso drywall": {
+  "pt_BR": "Parede gesso drywall",
+  "en_US": "Drywall wall"
+ },
+ "Passo de ajuste linear": {
+  "pt_BR": "Passo de ajuste linear",
+  "en_US": "Linear adjustment step"
+ },
+ "Polegadas": {
+  "pt_BR": "Polegadas",
+  "en_US": "Inches"
+ },
+ "Product": {
+  "pt_BR": "Produto",
+  "en_US": "Product"
+ },
+ "Product Tab": {
+  "pt_BR": "Aba de Produto",
+  "en_US": "Product Tab"
+ },
+ "Progress": {
+  "pt_BR": "Progresso",
+  "en_US": "Progress"
+ },
+ "Prompts": {
+  "pt_BR": "Opções",
+  "en_US": "Prompts"
+ },
+ "Propriedades do Editor de Parede": {
+  "pt_BR": "Propriedades do Editor de Parede",
+  "en_US": "Wall Editor properties"
+ },
+ "Pulito - Closet": {
+  "pt_BR": "Pulito - Closet",
+  "en_US": "Pulito - Closet"
+ },
+ "PyCab Props": {
+  "pt_BR": "Propriedades PyCab",
+  "en_US": "PyCab Props"
+ },
+ "Pés": {
+  "pt_BR": "Pés",
+  "en_US": "Feet"
+ },
+ "Room": {
+  "pt_BR": "Ambiente",
+  "en_US": "Room"
+ },
+ "Room Name": {
+  "pt_BR": "Nome do Ambiente",
+  "en_US": "Room Name"
+ },
+ "Room Type": {
+  "pt_BR": "Tipo de Ambiente",
+  "en_US": "Room Type"
+ },
+ "Run base molding across recessed (notched) toe kicks at each cabinet's setback face; otherwise the molding returns into the finished kick": {
+  "pt_BR": "Passa o rodapé pelos rodapés recuados (entalhados) na face recuada de cada módulo; senão a moldura retorna para o rodapé acabado",
+  "en_US": "Run base molding across recessed (notched) toe kicks at each cabinet's setback face; otherwise the molding returns into the finished kick"
+ },
+ "Salvar estes valores como padrão para as próximas paredes": {
+  "pt_BR": "Salvar estes valores como padrão para as próximas paredes",
+  "en_US": "Save these values as default for the next walls"
+ },
+ "Select Category First": {
+  "pt_BR": "Escolha a Categoria Primeiro",
+  "en_US": "Select Category First"
+ },
+ "Select molding category": {
+  "pt_BR": "Escolha a categoria de moldura",
+  "en_US": "Select molding category"
+ },
+ "Select molding profile": {
+  "pt_BR": "Escolha o perfil de moldura",
+  "en_US": "Select molding profile"
+ },
+ "Show Decorations": {
+  "pt_BR": "Mostrar Decorações",
+  "en_US": "Show Decorations"
+ },
+ "Show Entry Doors and Windows": {
+  "pt_BR": "Mostrar Portas e Janelas",
+  "en_US": "Show Entry Doors and Windows"
+ },
+ "Show Link Objects From Rooms": {
+  "pt_BR": "Mostrar Objetos Vinculados dos Ambientes",
+  "en_US": "Show Link Objects From Rooms"
+ },
+ "Show Materials": {
+  "pt_BR": "Mostrar Materiais",
+  "en_US": "Show Materials"
+ },
+ "Show Obstacles": {
+  "pt_BR": "Mostrar Obstáculos",
+  "en_US": "Show Obstacles"
+ },
+ "Show Room Settings": {
+  "pt_BR": "Mostrar Configurações do Ambiente",
+  "en_US": "Show Room Settings"
+ },
+ "Show the Custom Wood Products - Face Frame Library": {
+  "pt_BR": "Mostra a biblioteca Custom Wood Products - Quadro Frontal",
+  "en_US": "Show the Custom Wood Products - Face Frame Library"
+ },
+ "Show the Frameless Library": {
+  "pt_BR": "Mostra a biblioteca Frameless",
+  "en_US": "Show the Frameless Library"
+ },
+ "Show the Products Library": {
+  "pt_BR": "Mostra a biblioteca de produtos",
+  "en_US": "Show the Products Library"
+ },
+ "Show the Pulito - Closet Library": {
+  "pt_BR": "Mostra a biblioteca Pulito - Closet",
+  "en_US": "Show the Pulito - Closet Library"
+ },
+ "Show the Room Library": {
+  "pt_BR": "Mostra a biblioteca do ambiente",
+  "en_US": "Show the Room Library"
+ },
+ "Size of dimension extend line": {
+  "pt_BR": "Tamanho do prolongamento da cota",
+  "en_US": "Size of dimension extend line"
+ },
+ "Size of dimension text": {
+  "pt_BR": "Tamanho do texto da cota",
+  "en_US": "Size of dimension text"
+ },
+ "Size of dimension ticks": {
+  "pt_BR": "Tamanho das marcas da cota",
+  "en_US": "Size of dimension ticks"
+ },
+ "Size of text annotations": {
+  "pt_BR": "Tamanho das anotações de texto",
+  "en_US": "Size of text annotations"
+ },
+ "Sort Order": {
+  "pt_BR": "Ordem",
+  "en_US": "Sort Order"
+ },
+ "Spacer Profile": {
+  "pt_BR": "Perfil do Espaçador",
+  "en_US": "Spacer Profile"
+ },
+ "Spacer profile from the installed molding pack (Default uses the package's standard profile)": {
+  "pt_BR": "Perfil do espaçador do pacote instalado (Padrão usa o perfil padrão do pacote)",
+  "en_US": "Spacer profile from the installed molding pack (Default uses the package's standard profile)"
+ },
+ "Stack Offset": {
+  "pt_BR": "Deslocamento da Sobreposição",
+  "en_US": "Stack Offset"
+ },
+ "Text Color": {
+  "pt_BR": "Cor do Texto",
+  "en_US": "Text Color"
+ },
+ "Text Height (Paper)": {
+  "pt_BR": "Altura do Texto (Papel)",
+  "en_US": "Text Height (Paper)"
+ },
+ "Text height on paper in inches": {
+  "pt_BR": "Altura do texto no papel, em polegadas",
+  "en_US": "Text height on paper in inches"
+ },
+ "Thickness of annotation lines": {
+  "pt_BR": "Espessura das linhas de anotação",
+  "en_US": "Thickness of annotation lines"
+ },
+ "Thickness of dimension lines": {
+  "pt_BR": "Espessura das linhas de cota",
+  "en_US": "Thickness of dimension lines"
+ },
+ "Thickness of dimension ticks": {
+  "pt_BR": "Espessura das marcas da cota",
+  "en_US": "Thickness of dimension ticks"
+ },
+ "This is the used to store objects that are connected together.": {
+  "pt_BR": "Guarda os objetos que estão conectados entre si.",
+  "en_US": "This is the used to store objects that are connected together."
+ },
+ "Tipo da Parede": {
+  "pt_BR": "Tipo da Parede",
+  "en_US": "Wall Type"
+ },
+ "Tipo de estrutura da parede": {
+  "pt_BR": "Tipo de estrutura da parede",
+  "en_US": "Wall structure type"
+ },
+ "Trava magnética de rotação (padrão 45°)": {
+  "pt_BR": "Trava magnética de rotação (padrão 45°)",
+  "en_US": "Magnetic rotation lock (default 45°)"
+ },
+ "Unidade de Medida": {
+  "pt_BR": "Unidade de Medida",
+  "en_US": "Unit of Measure"
+ },
+ "Unidade selecionada para entrada e exibição dinâmica": {
+  "pt_BR": "Unidade selecionada para entrada e exibição dinâmica",
+  "en_US": "Unit used for input and dynamic display"
+ },
+ "Wall Editor Props": {
+  "pt_BR": "Propriedades do Editor de Paredes",
+  "en_US": "Wall Editor Props"
+ },
+ "Wall Type": {
+  "pt_BR": "Tipo de Parede",
+  "en_US": "Wall Type"
+ },
+ "Window Height": {
+  "pt_BR": "Altura da Janela",
+  "en_US": "Window Height"
+ },
+ "Window Height From Floor": {
+  "pt_BR": "Altura da Janela ao Piso",
+  "en_US": "Window Height From Floor"
+ },
+ "Window Width": {
+  "pt_BR": "Largura da Janela",
+  "en_US": "Window Width"
+ },
+ "cm (Centímetros)": {
+  "pt_BR": "cm (Centímetros)",
+  "en_US": "cm (Centimeters)"
+ },
+ "ft (Pés)": {
+  "pt_BR": "ft (Pés)",
+  "en_US": "ft (Feet)"
+ },
+ "in (Polegadas)": {
+  "pt_BR": "in (Polegadas)",
+  "en_US": "in (Inches)"
+ },
+ "m (Metros)": {
+  "pt_BR": "m (Metros)",
+  "en_US": "m (Meters)"
+ },
+ "mm (Milímetros)": {
+  "pt_BR": "mm (Milímetros)",
+  "en_US": "mm (Millimeters)"
+ },
+ "Ângulo absoluto no plano (padrão 270° - aponta para baixo)": {
+  "pt_BR": "Ângulo absoluto no plano (padrão 270° - aponta para baixo)",
+  "en_US": "Absolute angle on the plane (default 270° - points down)"
+ },
+ "Ângulo em relação à parede anterior": {
+  "pt_BR": "Ângulo em relação à parede anterior",
+  "en_US": "Angle relative to the previous wall"
+ }
+}

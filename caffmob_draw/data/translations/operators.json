@@ -1,0 +1,2618 @@
+{
+ "  dos quais de família conhecida sem componente equivalente: {}": {
+  "pt_BR": "  dos quais de família conhecida sem componente equivalente: {}",
+  "en_US": "  of which from a known family without an equivalent component: {}"
+ },
+ "  … e mais {}": {
+  "pt_BR": "  … e mais {}",
+  "en_US": "  … and {} more"
+ },
+ " ({} wall(s) already had one)": {
+  "pt_BR": " ({} parede(s) já tinha(m) uma)",
+  "en_US": " ({} wall(s) already had one)"
+ },
+ " [CLOSE SNAP]": {
+  "pt_BR": " [FECHAR]",
+  "en_US": " [CLOSE SNAP]"
+ },
+ " [CLOSE]": {
+  "pt_BR": " [FECHAR]",
+  "en_US": " [CLOSE]"
+ },
+ " [Fine: 1/16\"]": {
+  "pt_BR": " [Fino: 1/16\"]",
+  "en_US": " [Fine: 1/16\"]"
+ },
+ " [Snap: {} face]": {
+  "pt_BR": " [Encaixe: face {}]",
+  "en_US": " [Snap: {} face]"
+ },
+ " [TRACKING]": {
+  "pt_BR": " [RASTREANDO]",
+  "en_US": " [TRACKING]"
+ },
+ " [Track: {}]": {
+  "pt_BR": " [Rastreio: {}]",
+  "en_US": " [Track: {}]"
+ },
+ " {} peça(s) maior(es) que o limite de chapa do componente.": {
+  "pt_BR": " {} peça(s) maior(es) que o limite de chapa do componente.",
+  "en_US": " {} part(s) larger than the component sheet limit."
+ },
+ " {} peça(s) não couberam na chapa.": {
+  "pt_BR": " {} peça(s) não couberam na chapa.",
+  "en_US": " {} part(s) did not fit on the sheet."
+ },
+ " | C: close room (or click start)": {
+  "pt_BR": " | C: fecha o ambiente (ou clique no início)",
+  "en_US": " | C: close room (or click start)"
+ },
+ " | Swing: {}": {
+  "pt_BR": " | Abertura: {}",
+  "en_US": " | Swing: {}"
+ },
+ "\"{}\": {} de {} atributos reconhecidos.": {
+  "pt_BR": "\"{}\": {} de {} atributos reconhecidos.",
+  "en_US": "\"{}\": {} of {} attributes recognized."
+ },
+ "\"{}\": {} peça(s), {} chapa(s) no plano.": {
+  "pt_BR": "\"{}\": {} peça(s), {} chapa(s) no plano.",
+  "en_US": "\"{}\": {} part(s), {} sheet(s) in the plan."
+ },
+ "(+{} children)": {
+  "pt_BR": "(+{} filhos)",
+  "en_US": "(+{} children)"
+ },
+ "150 DPI (Draft)": {
+  "pt_BR": "150 DPI (Rascunho)",
+  "en_US": "150 DPI (Draft)"
+ },
+ "180° turn with landing": {
+  "pt_BR": "Virada de 180° com patamar",
+  "en_US": "180° turn with landing"
+ },
+ "1:48 - Common for elevations": {
+  "pt_BR": "1:48 - Comum para elevações",
+  "en_US": "1:48 - Common for elevations"
+ },
+ "1:96 - Common for floor plans": {
+  "pt_BR": "1:96 - Comum para plantas",
+  "en_US": "1:96 - Common for floor plans"
+ },
+ "200 DPI (Good)": {
+  "pt_BR": "200 DPI (Boa)",
+  "en_US": "200 DPI (Good)"
+ },
+ "300 DPI (Print)": {
+  "pt_BR": "300 DPI (Impressão)",
+  "en_US": "300 DPI (Print)"
+ },
+ "600 DPI (High)": {
+  "pt_BR": "600 DPI (Alta)",
+  "en_US": "600 DPI (High)"
+ },
+ "90° turn with landing": {
+  "pt_BR": "Virada de 90° com patamar",
+  "en_US": "90° turn with landing"
+ },
+ "A definição em edição não existe mais.": {
+  "pt_BR": "A definição em edição não existe mais.",
+  "en_US": "The definition being edited no longer exists."
+ },
+ "A3 (297 x 420mm)": {
+  "pt_BR": "A3 (297 x 420 mm)",
+  "en_US": "A3 (297 x 420mm)"
+ },
+ "A4 (210 x 297mm)": {
+  "pt_BR": "A4 (210 x 297 mm)",
+  "en_US": "A4 (210 x 297mm)"
+ },
+ "Abertura removida e parede restaurada.": {
+  "pt_BR": "Abertura removida e parede restaurada.",
+  "en_US": "Opening removed and wall restored."
+ },
+ "Abre o Configurador de Dimensões (os presets antigos foram substituídos pelas definições do padrão)": {
+  "pt_BR": "Abre o Configurador de Dimensões (os presets antigos foram substituídos pelas definições do padrão)",
+  "en_US": "Opens the Dimension Configurator (the old presets were replaced by the standard definitions)"
+ },
+ "Abre o Configurador de Dimensões (padrão de medidas, chapas, fitas e limites)": {
+  "pt_BR": "Abre o Configurador de Dimensões (padrão de medidas, chapas, fitas e limites)",
+  "en_US": "Opens the Dimension Configurator (measures, sheets, edge bands and limits)"
+ },
+ "Abre o Configurador de Dimensões: padrão de medidas, chapas, fitas e limites de todas as linhas": {
+  "pt_BR": "Abre o Configurador de Dimensões: padrão de medidas, chapas, fitas e limites de todas as linhas",
+  "en_US": "Opens the Dimension Configurator: measures, sheets, edge bands and limits of all lines"
+ },
+ "Add Ceiling": {
+  "pt_BR": "Adicionar Teto",
+  "en_US": "Add Ceiling"
+ },
+ "Add Detail to Layout": {
+  "pt_BR": "Adicionar Detalhe ao Layout",
+  "en_US": "Add Detail to Layout"
+ },
+ "Add Dimension (3D View)": {
+  "pt_BR": "Adicionar Cota (Vista 3D)",
+  "en_US": "Add Dimension (3D View)"
+ },
+ "Add Fillet": {
+  "pt_BR": "Adicionar Arredondamento",
+  "en_US": "Add Fillet"
+ },
+ "Add Floor": {
+  "pt_BR": "Adicionar Piso",
+  "en_US": "Add Floor"
+ },
+ "Add a 2D detail to the current layout view": {
+  "pt_BR": "Adiciona um detalhe 2D à vista de layout atual",
+  "en_US": "Add a 2D detail to the current layout view"
+ },
+ "Add a dimension annotation. Click two points, then set offset. Press O for ortho lock.": {
+  "pt_BR": "Adiciona uma cota. Clique dois pontos e defina o afastamento. O trava ortogonal.",
+  "en_US": "Add a dimension annotation. Click two points, then set offset. Press O for ortho lock."
+ },
+ "Add a radius/fillet to the selected corner point": {
+  "pt_BR": "Adiciona um raio/arredondamento no canto selecionado",
+  "en_US": "Add a radius/fillet to the selected corner point"
+ },
+ "Add a soffit to the selected wall(s)": {
+  "pt_BR": "Adiciona uma sanca na(s) parede(s) selecionada(s)",
+  "en_US": "Add a soffit to the selected wall(s)"
+ },
+ "Add ceiling lights to the room based on room size": {
+  "pt_BR": "Adiciona luzes de teto ao ambiente conforme o tamanho dele",
+  "en_US": "Add ceiling lights to the room based on room size"
+ },
+ "Add text annotation. Click to place, then Tab to edit.": {
+  "pt_BR": "Adiciona uma anotação de texto. Clique para inserir e Tab para editar.",
+  "en_US": "Add text annotation. Click to place, then Tab to edit."
+ },
+ "Add to {}": {
+  "pt_BR": "Adicionar a {}",
+  "en_US": "Add to {}"
+ },
+ "Added detail '{}' to layout. Move to reposition.": {
+  "pt_BR": "Detalhe '{}' adicionado ao layout. Mova para reposicionar.",
+  "en_US": "Added detail '{}' to layout. Move to reposition."
+ },
+ "Added {} soffit(s)": {
+  "pt_BR": "{} sanca(s) adicionada(s)",
+  "en_US": "Added {} soffit(s)"
+ },
+ "Adicionar Abertura ({})  |  Parede: {} (Seg: {})  |  [{}]: {}  |  TAB: alternar campo  |  ENTER: confirmar  |  ESC/RMB: cancelar": {
+  "pt_BR": "Adicionar Abertura ({})  |  Parede: {} (Seg: {})  |  [{}]: {}  |  TAB: alternar campo  |  ENTER: confirmar  |  ESC/RMB: cancelar",
+  "en_US": "Add Opening ({})  |  Wall: {} (Seg: {})  |  [{}]: {}  |  TAB: switch field  |  ENTER: confirm  |  ESC/RMB: cancel"
+ },
+ "Adjust scale to fit all content on the page": {
+  "pt_BR": "Ajusta a escala para caber todo o conteúdo na página",
+  "en_US": "Adjust scale to fit all content on the page"
+ },
+ "Afastamento Inicial": {
+  "pt_BR": "Afastamento Inicial",
+  "en_US": "Start Offset"
+ },
+ "Afastamento do piso até a base (0 para portas)": {
+  "pt_BR": "Afastamento do piso até a base (0 para portas)",
+  "en_US": "Distance from the floor to the base (0 for doors)"
+ },
+ "Ajusta o piso à face interna das paredes do ambiente": {
+  "pt_BR": "Ajusta o piso à face interna das paredes do ambiente",
+  "en_US": "Fits the floor to the inner face of the room walls"
+ },
+ "Ajustar Limites do Piso": {
+  "pt_BR": "Ajustar Limites do Piso",
+  "en_US": "Fit Floor to Walls"
+ },
+ "Also link all child objects recursively": {
+  "pt_BR": "Vincula também todos os objetos filhos",
+  "en_US": "Also link all child objects recursively"
+ },
+ "Alterações pendentes: {}": {
+  "pt_BR": "Alterações pendentes: {}",
+  "en_US": "Pending changes: {}"
+ },
+ "Angle of the sun above the horizon": {
+  "pt_BR": "Ângulo do sol acima do horizonte",
+  "en_US": "Angle of the sun above the horizon"
+ },
+ "Ao aplicar, {} módulo(s) do projeto serão atualizados.": {
+  "pt_BR": "Ao aplicar, {} módulo(s) do projeto serão atualizados.",
+  "en_US": "On apply, {} project module(s) will be updated."
+ },
+ "Aplica o rascunho do Configurador à definição e atualiza os módulos do projeto": {
+  "pt_BR": "Aplica o rascunho do Configurador à definição e atualiza os módulos do projeto",
+  "en_US": "Applies the Configurator draft to the definition and updates the project modules"
+ },
+ "Aplicar Preset de Dimensão": {
+  "pt_BR": "Aplicar Preset de Dimensão",
+  "en_US": "Apply Dimension Preset"
+ },
+ "Applied material to {} wall(s)": {
+  "pt_BR": "Material aplicado em {} parede(s)",
+  "en_US": "Applied material to {} wall(s)"
+ },
+ "Apply Wall Material": {
+  "pt_BR": "Aplicar Material das Paredes",
+  "en_US": "Apply Wall Material"
+ },
+ "Apply the wall material to all walls in the scene": {
+  "pt_BR": "Aplica o material de parede a todas as paredes da cena",
+  "en_US": "Apply the wall material to all walls in the scene"
+ },
+ "Atributos no arquivo: {}; reconhecidos: {}": {
+  "pt_BR": "Atributos no arquivo: {}; reconhecidos: {}",
+  "en_US": "Attributes in the file: {}; recognized: {}"
+ },
+ "Automatic line tracing restored.": {
+  "pt_BR": "Traçado automático das linhas restaurado.",
+  "en_US": "Automatic line tracing restored."
+ },
+ "Back Elevation": {
+  "pt_BR": "Elevação Posterior",
+  "en_US": "Back Elevation"
+ },
+ "Backspace: undo point | Esc: cancel": {
+  "pt_BR": "Backspace: desfaz o ponto | Esc: cancela",
+  "en_US": "Backspace: undo point | Esc: cancel"
+ },
+ "Brightness of the environment": {
+  "pt_BR": "Brilho do ambiente",
+  "en_US": "Brightness of the environment"
+ },
+ "Brightness of the sky": {
+  "pt_BR": "Brilho do céu",
+  "en_US": "Brightness of the sky"
+ },
+ "CAFFMob Draw HUD Click": {
+  "pt_BR": "Clique no HUD do CAFFMob Draw",
+  "en_US": "CAFFMob Draw HUD Click"
+ },
+ "CAFFMob Draw HUD Hover": {
+  "pt_BR": "Passar sobre o HUD do CAFFMob Draw",
+  "en_US": "CAFFMob Draw HUD Hover"
+ },
+ "CSV exportado: {} peça(s) em {}": {
+  "pt_BR": "CSV exportado: {} peça(s) em {}",
+  "en_US": "CSV exported: {} part(s) to {}"
+ },
+ "Cannot delete the last room": {
+  "pt_BR": "Não dá para apagar o último ambiente",
+  "en_US": "Cannot delete the last room"
+ },
+ "Cannot fillet: edges are nearly parallel": {
+  "pt_BR": "Não dá para arredondar: as arestas são quase paralelas",
+  "en_US": "Cannot fillet: edges are nearly parallel"
+ },
+ "Cannot project cursor onto Z=0 plane": {
+  "pt_BR": "Não foi possível projetar o cursor no plano Z=0",
+  "en_US": "Cannot project cursor onto Z=0 plane"
+ },
+ "Cannot rename a layout or detail view": {
+  "pt_BR": "Não dá para renomear uma vista de layout ou de detalhe",
+  "en_US": "Cannot rename a layout or detail view"
+ },
+ "Ceiling Offset": {
+  "pt_BR": "Afastamento do Teto",
+  "en_US": "Ceiling Offset"
+ },
+ "Change Room Size — Typing {}: {}_   |   Enter: commit   |   Backspace: erase   |   Esc: stop typing": {
+  "pt_BR": "Mudar Tamanho do Ambiente — Digitando {}: {}_   |   Enter: gravar   |   Backspace: apagar   |   Esc: parar de digitar",
+  "en_US": "Change Room Size — Typing {}: {}_   |   Enter: commit   |   Backspace: erase   |   Esc: stop typing"
+ },
+ "Change Room Size — click+drag a wall body or a free wall end   |   Click a length pill to type   |   Enter: confirm   |   Esc: cancel all": {
+  "pt_BR": "Mudar Tamanho do Ambiente — clique e arraste o corpo de uma parede ou uma ponta livre   |   Clique numa medida para digitar   |   Enter: confirmar   |   Esc: cancelar tudo",
+  "en_US": "Change Room Size — click+drag a wall body or a free wall end   |   Click a length pill to type   |   Enter: confirm   |   Esc: cancel all"
+ },
+ "Change Room Size — {}   |   Release: commit drag   |   Type digits for exact length   |   Esc: cancel drag": {
+  "pt_BR": "Mudar Tamanho do Ambiente — {}   |   Soltar: grava o arraste   |   Digite números para o comprimento exato   |   Esc: cancela o arraste",
+  "en_US": "Change Room Size — {}   |   Release: commit drag   |   Type digits for exact length   |   Esc: cancel drag"
+ },
+ "Change Room Size — {}   |   Release: commit drag   |   Type digits for exact value   |   Esc: cancel drag": {
+  "pt_BR": "Mudar Tamanho do Ambiente — {}   |   Soltar: grava o arraste   |   Digite números para o valor exato   |   Esc: cancela o arraste",
+  "en_US": "Change Room Size — {}   |   Release: commit drag   |   Type digits for exact value   |   Esc: cancel drag"
+ },
+ "Chave do Preset": {
+  "pt_BR": "Chave do Preset",
+  "en_US": "Preset Key"
+ },
+ "Choose which layout view to add the objects to": {
+  "pt_BR": "Escolha a vista de layout que recebe os objetos",
+  "en_US": "Choose which layout view to add the objects to"
+ },
+ "Clean studio lighting": {
+  "pt_BR": "Iluminação limpa de estúdio",
+  "en_US": "Clean studio lighting"
+ },
+ "Click and drag walls to resize the room. Left-click a wall, drag perpendicular, release to commit. Drag a free wall end to change its length (snaps to other walls). Enter to confirm, Esc to cancel": {
+  "pt_BR": "Clique e arraste as paredes para redimensionar o ambiente. Clique numa parede, arraste na perpendicular e solte para gravar. Arraste a ponta livre de uma parede para mudar o comprimento (encaixa nas outras). Enter confirma, Esc cancela",
+  "en_US": "Click and drag walls to resize the room. Left-click a wall, drag perpendicular, release to commit. Drag a free wall end to change its length (snaps to other walls). Enter to confirm, Esc to cancel"
+ },
+ "Click first corner of room | Esc to cancel": {
+  "pt_BR": "Clique o primeiro canto do ambiente | Esc cancela",
+  "en_US": "Click first corner of room | Esc to cancel"
+ },
+ "Click first corner{} | Right-click/Esc to cancel": {
+  "pt_BR": "Clique o primeiro canto{} | Botão direito/Esc cancela",
+  "en_US": "Click first corner{} | Right-click/Esc to cancel"
+ },
+ "Click on a wall to place first corner": {
+  "pt_BR": "Clique numa parede para inserir o primeiro canto",
+  "en_US": "Click on a wall to place first corner"
+ },
+ "Click on the floor to place a staircase": {
+  "pt_BR": "Clique no piso para inserir uma escada",
+  "en_US": "Click on the floor to place a staircase"
+ },
+ "Click to connect to wall endpoint{} | T: track | Esc to cancel": {
+  "pt_BR": "Clique para ligar na ponta da parede{} | T: rastrear | Esc cancela",
+  "en_US": "Click to connect to wall endpoint{} | T: track | Esc to cancel"
+ },
+ "Click to place center{} | Right-click/Esc to cancel": {
+  "pt_BR": "Clique para inserir o centro{} | Botão direito/Esc cancela",
+  "en_US": "Click to place center{} | Right-click/Esc to cancel"
+ },
+ "Click to place first point": {
+  "pt_BR": "Clique para inserir o primeiro ponto",
+  "en_US": "Click to place first point"
+ },
+ "Click to place first point{} | Right-click/Esc to cancel": {
+  "pt_BR": "Clique para inserir o primeiro ponto{} | Botão direito/Esc cancela",
+  "en_US": "Click to place first point{} | Right-click/Esc to cancel"
+ },
+ "Click to place first point{} | T: track point (hover 0.5s or press T) | Esc to cancel": {
+  "pt_BR": "Clique para inserir o primeiro ponto{} | T: rastrear ponto (pare 0,5 s em cima ou aperte T) | Esc cancela",
+  "en_US": "Click to place first point{} | T: track point (hover 0.5s or press T) | Esc to cancel"
+ },
+ "Click to place second corner on {}": {
+  "pt_BR": "Clique para inserir o segundo canto em {}",
+  "en_US": "Click to place second corner on {}"
+ },
+ "Click to place text{} | Tab to edit after placing | Right-click/Esc to cancel": {
+  "pt_BR": "Clique para inserir o texto{} | Tab edita depois de inserir | Botão direito/Esc cancela",
+  "en_US": "Click to place text{} | Tab to edit after placing | Right-click/Esc to cancel"
+ },
+ "Click to place | R rotate | T type | D direction | ESC cancel": {
+  "pt_BR": "Clique para inserir | R gira | T tipo | D sentido | Esc cancela",
+  "en_US": "Click to place | R rotate | T type | D direction | ESC cancel"
+ },
+ "Click to start on wall ({} face){} | T: track | Esc to cancel": {
+  "pt_BR": "Clique para começar na parede (face {}){} | T: rastrear | Esc cancela",
+  "en_US": "Click to start on wall ({} face){} | T: track | Esc to cancel"
+ },
+ "Click two corners to define a room rectangle. Auto-calculates dimensions": {
+  "pt_BR": "Clique dois cantos para definir um ambiente retangular. As medidas são calculadas",
+  "en_US": "Click two corners to define a room rectangle. Auto-calculates dimensions"
+ },
+ "Click two points on a wall to cut a rectangular hole through it": {
+  "pt_BR": "Clique dois pontos numa parede para abrir um furo retangular nela",
+  "en_US": "Click two points on a wall to cut a rectangular hole through it"
+ },
+ "Click two points to add a dimension in 3D view. Press O for ortho lock.": {
+  "pt_BR": "Clique dois pontos para adicionar uma cota na vista 3D. O trava ortogonal.",
+  "en_US": "Click two points to add a dimension in 3D view. Press O for ortho lock."
+ },
+ "Click two points to measure, then click to place. Press O for ortho lock.": {
+  "pt_BR": "Clique dois pontos para medir e clique para inserir. O trava ortogonal.",
+  "en_US": "Click two points to measure, then click to place. Press O for ortho lock."
+ },
+ "Collection '{}' not found": {
+  "pt_BR": "Coleção '{}' não encontrada",
+  "en_US": "Collection '{}' not found"
+ },
+ "Color Temperature": {
+  "pt_BR": "Temperatura de Cor",
+  "en_US": "Color Temperature"
+ },
+ "Common for floor plans": {
+  "pt_BR": "Comum para plantas",
+  "en_US": "Common for floor plans"
+ },
+ "Comprimento Y": {
+  "pt_BR": "Comprimento Y",
+  "en_US": "Length Y"
+ },
+ "Construtor Interativo de Paredes (Modal com suporte a metros/cm/mm e Scene Units)": {
+  "pt_BR": "Construtor Interativo de Paredes (Modal com suporte a metros/cm/mm e Scene Units)",
+  "en_US": "Interactive Wall Builder (modal with meters/cm/mm and Scene Units)"
+ },
+ "Construtor de Parede | Clique no piso para definir o ponto inicial  |  ESC: cancelar": {
+  "pt_BR": "Construtor de Parede | Clique no piso para definir o ponto inicial  |  ESC: cancelar",
+  "en_US": "Wall Builder | Click the floor to set the start point  |  ESC: cancel"
+ },
+ "Construção de paredes cancelada.": {
+  "pt_BR": "Construção de paredes cancelada.",
+  "en_US": "Wall building cancelled."
+ },
+ "Convert the generated line art into editable Grease Pencil strokes (select the line art object and enter Edit Mode to move or delete lines). Edited lines no longer update automatically; use Restore Auto Lines or regenerate the view to go back": {
+  "pt_BR": "Converte as linhas geradas em traços editáveis do Grease Pencil (selecione o objeto de linhas e entre no Modo de Edição para mover ou apagar). Linhas editadas deixam de se atualizar sozinhas; use Restaurar Linhas Automáticas ou gere a vista de novo para voltar",
+  "en_US": "Convert the generated line art into editable Grease Pencil strokes (select the line art object and enter Edit Mode to move or delete lines). Edited lines no longer update automatically; use Restore Auto Lines or regenerate the view to go back"
+ },
+ "Could not create ceiling - insufficient wall data": {
+  "pt_BR": "Não foi possível criar o teto - dados de parede insuficientes",
+  "en_US": "Could not create ceiling - insufficient wall data"
+ },
+ "Could not create floor - insufficient wall data": {
+  "pt_BR": "Não foi possível criar o piso - dados de parede insuficientes",
+  "en_US": "Could not create floor - insufficient wall data"
+ },
+ "Could not create room: {}": {
+  "pt_BR": "Não foi possível criar o ambiente: {}",
+  "en_US": "Could not create room: {}"
+ },
+ "Could not delete {}: {}": {
+  "pt_BR": "Não foi possível apagar {}: {}",
+  "en_US": "Could not delete {}: {}"
+ },
+ "Could not determine content bounds": {
+  "pt_BR": "Não foi possível determinar os limites do conteúdo",
+  "en_US": "Could not determine content bounds"
+ },
+ "Could not find Is Double input": {
+  "pt_BR": "Entrada Is Double não encontrada",
+  "en_US": "Could not find Is Double input"
+ },
+ "Could not find Is Left input": {
+  "pt_BR": "Entrada Is Left não encontrada",
+  "en_US": "Could not find Is Left input"
+ },
+ "Could not find Swing Inside input": {
+  "pt_BR": "Entrada Swing Inside não encontrada",
+  "en_US": "Could not find Swing Inside input"
+ },
+ "Could not find content collection for '{}'": {
+  "pt_BR": "Coleção de conteúdo de '{}' não encontrada",
+  "en_US": "Could not find content collection for '{}'"
+ },
+ "Could not find spline": {
+  "pt_BR": "Spline não encontrada",
+  "en_US": "Could not find spline"
+ },
+ "Could not open PDF: {}": {
+  "pt_BR": "Não foi possível abrir o PDF: {}",
+  "en_US": "Could not open PDF: {}"
+ },
+ "Could not rename {}: {}": {
+  "pt_BR": "Não foi possível renomear {}: {}",
+  "en_US": "Could not rename {}: {}"
+ },
+ "Could not switch to {}: {}": {
+  "pt_BR": "Não foi possível trocar para {}: {}",
+  "en_US": "Could not switch to {}: {}"
+ },
+ "Courtyard": {
+  "pt_BR": "Pátio",
+  "en_US": "Courtyard"
+ },
+ "Create 3D View": {
+  "pt_BR": "Criar Vista 3D",
+  "en_US": "Create 3D View"
+ },
+ "Create All Elevations": {
+  "pt_BR": "Criar Todas as Elevações",
+  "en_US": "Create All Elevations"
+ },
+ "Create Detail": {
+  "pt_BR": "Criar Detalhe",
+  "en_US": "Create Detail"
+ },
+ "Create Detail from Library": {
+  "pt_BR": "Criar Detalhe da Biblioteca",
+  "en_US": "Create Detail from Library"
+ },
+ "Create Elevation View": {
+  "pt_BR": "Criar Vista de Elevação",
+  "en_US": "Create Elevation View"
+ },
+ "Create Multi-View Layout": {
+  "pt_BR": "Criar Layout com Várias Vistas",
+  "en_US": "Create Multi-View Layout"
+ },
+ "Create Plan View": {
+  "pt_BR": "Criar Vista em Planta",
+  "en_US": "Create Plan View"
+ },
+ "Create a 3D perspective view": {
+  "pt_BR": "Cria uma vista 3D em perspectiva",
+  "en_US": "Create a 3D perspective view"
+ },
+ "Create a floor plan view of all walls": {
+  "pt_BR": "Cria uma vista em planta de todas as paredes",
+  "en_US": "Create a floor plan view of all walls"
+ },
+ "Create a layout view first": {
+  "pt_BR": "Crie uma vista de layout primeiro",
+  "en_US": "Create a layout view first"
+ },
+ "Create a multi-view layout showing plan, elevation, and side views": {
+  "pt_BR": "Cria um layout com planta, elevação e vistas laterais",
+  "en_US": "Create a multi-view layout showing plan, elevation, and side views"
+ },
+ "Create a new 2D detail drawing scene": {
+  "pt_BR": "Cria uma nova cena de desenho de detalhe 2D",
+  "en_US": "Create a new 2D detail drawing scene"
+ },
+ "Create a new detail scene and load objects from a library file": {
+  "pt_BR": "Cria uma nova cena de detalhe e carrega objetos de um arquivo da biblioteca",
+  "en_US": "Create a new detail scene and load objects from a library file"
+ },
+ "Create a new room scene": {
+  "pt_BR": "Cria uma nova cena de ambiente",
+  "en_US": "Create a new room scene"
+ },
+ "Create an elevation view for the selected wall": {
+  "pt_BR": "Cria uma vista de elevação da parede selecionada",
+  "en_US": "Create an elevation view for the selected wall"
+ },
+ "Create an offset copy of the selected curve (like AutoCAD offset)": {
+  "pt_BR": "Cria uma cópia deslocada da curva selecionada (como o offset do AutoCAD)",
+  "en_US": "Create an offset copy of the selected curve (like AutoCAD offset)"
+ },
+ "Create elevation views for all walls in the scene": {
+  "pt_BR": "Cria vistas de elevação de todas as paredes da cena",
+  "en_US": "Create elevation views for all walls in the scene"
+ },
+ "Created 3D {} view: {}": {
+  "pt_BR": "Vista 3D {} criada: {}",
+  "en_US": "Created 3D {} view: {}"
+ },
+ "Created crown detail '{}' from library": {
+  "pt_BR": "Detalhe de moldura '{}' criado da biblioteca",
+  "en_US": "Created crown detail '{}' from library"
+ },
+ "Created detail '{}' from library": {
+  "pt_BR": "Detalhe '{}' criado da biblioteca",
+  "en_US": "Created detail '{}' from library"
+ },
+ "Created detail but failed to load objects: {}": {
+  "pt_BR": "Detalhe criado, mas os objetos não carregaram: {}",
+  "en_US": "Created detail but failed to load objects: {}"
+ },
+ "Created detail: {}": {
+  "pt_BR": "Detalhe criado: {}",
+  "en_US": "Created detail: {}"
+ },
+ "Created elevation view: {}": {
+  "pt_BR": "Vista de elevação criada: {}",
+  "en_US": "Created elevation view: {}"
+ },
+ "Created floor cutter with {} points": {
+  "pt_BR": "Recorte no piso criado com {} pontos",
+  "en_US": "Created floor cutter with {} points"
+ },
+ "Created multi-view layout: {}": {
+  "pt_BR": "Layout com várias vistas criado: {}",
+  "en_US": "Created multi-view layout: {}"
+ },
+ "Created plan view: {}": {
+  "pt_BR": "Vista em planta criada: {}",
+  "en_US": "Created plan view: {}"
+ },
+ "Created room: {}": {
+  "pt_BR": "Ambiente criado: {}",
+  "en_US": "Created room: {}"
+ },
+ "Created wall cutter on {}": {
+  "pt_BR": "Recorte criado na parede {}",
+  "en_US": "Created wall cutter on {}"
+ },
+ "Created {} ceiling(s)": {
+  "pt_BR": "{} teto(s) criado(s)",
+  "en_US": "Created {} ceiling(s)"
+ },
+ "Created {} elevation views": {
+  "pt_BR": "{} vistas de elevação criadas",
+  "en_US": "Created {} elevation views"
+ },
+ "Created {} floor(s)": {
+  "pt_BR": "{} piso(s) criado(s)",
+  "en_US": "Created {} floor(s)"
+ },
+ "Created {} light(s)": {
+  "pt_BR": "{} luz(es) criada(s)",
+  "en_US": "Created {} light(s)"
+ },
+ "Cria o piso base para o ambiente 3D (modo manual)": {
+  "pt_BR": "Cria o piso base para o ambiente 3D (modo manual)",
+  "en_US": "Creates the base floor for the 3D room (manual mode)"
+ },
+ "Cria um módulo de armário paramétrico": {
+  "pt_BR": "Cria um módulo de armário paramétrico",
+  "en_US": "Creates a parametric cabinet module"
+ },
+ "Criar Piso Manual": {
+  "pt_BR": "Criar Piso Manual",
+  "en_US": "Create Manual Floor"
+ },
+ "DPI": {
+  "pt_BR": "DPI",
+  "en_US": "DPI"
+ },
+ "Dash Spacing": {
+  "pt_BR": "Espaçamento do Tracejado",
+  "en_US": "Dash Spacing"
+ },
+ "Define a definição ativa do projeto e atualiza os módulos existentes": {
+  "pt_BR": "Define a definição ativa do projeto e atualiza os módulos existentes",
+  "en_US": "Sets the active project definition and updates the existing modules"
+ },
+ "Definição \"{}\" criada e ativa.": {
+  "pt_BR": "Definição \"{}\" criada e ativa.",
+  "en_US": "Definition \"{}\" created and active."
+ },
+ "Definição \"{}\" importada ({} aviso(s)).": {
+  "pt_BR": "Definição \"{}\" importada ({} aviso(s)).",
+  "en_US": "Definition \"{}\" imported ({} warning(s))."
+ },
+ "Definição ativa alterada": {
+  "pt_BR": "Definição ativa alterada",
+  "en_US": "Active definition changed"
+ },
+ "Definição exportada: {}": {
+  "pt_BR": "Definição exportada: {}",
+  "en_US": "Definition exported: {}"
+ },
+ "Definição: {}": {
+  "pt_BR": "Definição: {}",
+  "en_US": "Definition: {}"
+ },
+ "Delete All Room Lights": {
+  "pt_BR": "Apagar Todas as Luzes do Ambiente",
+  "en_US": "Delete All Room Lights"
+ },
+ "Delete Detail": {
+  "pt_BR": "Apagar Detalhe",
+  "en_US": "Delete Detail"
+ },
+ "Delete Door/Window": {
+  "pt_BR": "Apagar Porta/Janela",
+  "en_US": "Delete Door/Window"
+ },
+ "Delete Layout View": {
+  "pt_BR": "Apagar Vista de Layout",
+  "en_US": "Delete Layout View"
+ },
+ "Delete Library Detail": {
+  "pt_BR": "Apagar Detalhe da Biblioteca",
+  "en_US": "Delete Library Detail"
+ },
+ "Delete Obstacle": {
+  "pt_BR": "Apagar Obstáculo",
+  "en_US": "Delete Obstacle"
+ },
+ "Delete Stairs": {
+  "pt_BR": "Apagar Escada",
+  "en_US": "Delete Stairs"
+ },
+ "Delete a detail from your user library": {
+  "pt_BR": "Apaga um detalhe da sua biblioteca",
+  "en_US": "Delete a detail from your user library"
+ },
+ "Delete a room scene": {
+  "pt_BR": "Apaga uma cena de ambiente",
+  "en_US": "Delete a room scene"
+ },
+ "Delete the layout view": {
+  "pt_BR": "Apaga a vista de layout",
+  "en_US": "Delete the layout view"
+ },
+ "Delete the selected HB5 asset and all of its parts": {
+  "pt_BR": "Apaga o item HB5 selecionado e todas as peças dele",
+  "en_US": "Delete the selected HB5 asset and all of its parts"
+ },
+ "Delete the selected detail scene": {
+  "pt_BR": "Apaga a cena de detalhe selecionada",
+  "en_US": "Delete the selected detail scene"
+ },
+ "Delete the selected door or window": {
+  "pt_BR": "Apaga a porta ou janela selecionada",
+  "en_US": "Delete the selected door or window"
+ },
+ "Delete the selected obstacle": {
+  "pt_BR": "Apaga o obstáculo selecionado",
+  "en_US": "Delete the selected obstacle"
+ },
+ "Delete the selected soffit": {
+  "pt_BR": "Apaga a sanca selecionada",
+  "en_US": "Delete the selected soffit"
+ },
+ "Delete the selected staircase": {
+  "pt_BR": "Apaga a escada selecionada",
+  "en_US": "Delete the selected staircase"
+ },
+ "Delete the selected wall(s), removing all children and disconnecting from adjacent walls": {
+  "pt_BR": "Apaga a(s) parede(s) selecionada(s), com os filhos, e desliga das paredes vizinhas",
+  "en_US": "Delete the selected wall(s), removing all children and disconnecting from adjacent walls"
+ },
+ "Deleted detail: {}": {
+  "pt_BR": "Detalhe apagado: {}",
+  "en_US": "Deleted detail: {}"
+ },
+ "Deleted layout view: {}": {
+  "pt_BR": "Vista de layout apagada: {}",
+  "en_US": "Deleted layout view: {}"
+ },
+ "Deleted room: {}": {
+  "pt_BR": "Ambiente apagado: {}",
+  "en_US": "Deleted room: {}"
+ },
+ "Deleted {} room light(s)": {
+  "pt_BR": "{} luz(es) de ambiente apagada(s)",
+  "en_US": "Deleted {} room light(s)"
+ },
+ "Deleted: {}": {
+  "pt_BR": "Apagado: {}",
+  "en_US": "Deleted: {}"
+ },
+ "Description": {
+  "pt_BR": "Descrição",
+  "en_US": "Description"
+ },
+ "Deseja fechar a parede?  Enter ou clique: Sim  |  Esc: Não": {
+  "pt_BR": "Deseja fechar a parede?  Enter ou clique: Sim  |  Esc: Não",
+  "en_US": "Close the wall?  Enter or click: Yes  |  Esc: No"
+ },
+ "Deseja fechar a parede?  Enter/clique: Sim · Esc: Não": {
+  "pt_BR": "Deseja fechar a parede?  Enter/clique: Sim · Esc: Não",
+  "en_US": "Close the wall?  Enter/click: Yes · Esc: No"
+ },
+ "Detail Scene": {
+  "pt_BR": "Cena de Detalhe",
+  "en_US": "Detail Scene"
+ },
+ "Detail drawings": {
+  "pt_BR": "Desenhos de detalhe",
+  "en_US": "Detail drawings"
+ },
+ "Detail scene '{}' not found": {
+  "pt_BR": "Cena de detalhe '{}' não encontrada",
+  "en_US": "Detail scene '{}' not found"
+ },
+ "Direction": {
+  "pt_BR": "Sentido",
+  "en_US": "Direction"
+ },
+ "Disable Grab Bays": {
+  "pt_BR": "Desativar Pegar Compartimentos",
+  "en_US": "Disable Grab Bays"
+ },
+ "Disable Grab Cabinet": {
+  "pt_BR": "Desativar Pegar Módulo",
+  "en_US": "Disable Grab Cabinet"
+ },
+ "Disable Grab Face Frame": {
+  "pt_BR": "Desativar Pegar Quadro Frontal",
+  "en_US": "Disable Grab Face Frame"
+ },
+ "Disable Grab Openings": {
+  "pt_BR": "Desativar Pegar Vãos",
+  "en_US": "Disable Grab Openings"
+ },
+ "Discard the editable (and any edited) line art strokes and return to automatically traced lines": {
+  "pt_BR": "Descarta os traços editáveis (e editados) e volta às linhas traçadas automaticamente",
+  "en_US": "Discard the editable (and any edited) line art strokes and return to automatically traced lines"
+ },
+ "Distance below ceiling to place lights": {
+  "pt_BR": "Distância abaixo do teto para as luzes",
+  "en_US": "Distance below ceiling to place lights"
+ },
+ "Distance from tracked point ({}): {}_ | Enter to place first point | Esc to cancel typing": {
+  "pt_BR": "Distância do ponto rastreado ({}): {}_ | Enter insere o primeiro ponto | Esc cancela a digitação",
+  "en_US": "Distance from tracked point ({}): {}_ | Enter to place first point | Esc to cancel typing"
+ },
+ "Distance from walls to lights": {
+  "pt_BR": "Distância das paredes às luzes",
+  "en_US": "Distance from walls to lights"
+ },
+ "Distance to offset the curve": {
+  "pt_BR": "Distância para deslocar a curva",
+  "en_US": "Distance to offset the curve"
+ },
+ "Door hand flipped": {
+  "pt_BR": "Mão da porta invertida",
+  "en_US": "Door hand flipped"
+ },
+ "Door set to {}": {
+  "pt_BR": "Porta definida como {}",
+  "en_US": "Door set to {}"
+ },
+ "Door swing flipped": {
+  "pt_BR": "Abertura da porta invertida",
+  "en_US": "Door swing flipped"
+ },
+ "Draw Floor Cutter": {
+  "pt_BR": "Desenhar Recorte no Piso",
+  "en_US": "Draw Floor Cutter"
+ },
+ "Draw a 2D polyline on the layout. Click to place points, type for exact length. Press L to lock angle.": {
+  "pt_BR": "Desenha uma polilinha 2D no layout. Clique para inserir pontos, digite para o comprimento exato. L trava o ângulo.",
+  "en_US": "Draw a 2D polyline on the layout. Click to place points, type for exact length. Press L to lock angle."
+ },
+ "Draw a 2D polyline. Click to place points, type for exact length. Snaps to vertices and perpendicular points.": {
+  "pt_BR": "Desenha uma polilinha 2D. Clique para inserir pontos, digite para o comprimento exato. Encaixa em vértices e perpendiculares.",
+  "en_US": "Draw a 2D polyline. Click to place points, type for exact length. Snaps to vertices and perpendicular points."
+ },
+ "Draw a circle by clicking center then setting radius. Type for exact size.": {
+  "pt_BR": "Desenha um círculo clicando o centro e definindo o raio. Digite para a medida exata.",
+  "en_US": "Draw a circle by clicking center then setting radius. Type for exact size."
+ },
+ "Draw a polygon shape to cut a hole in the floor (stairwells, pass-throughs, etc.)": {
+  "pt_BR": "Desenha um polígono para recortar o piso (vão de escada, passagens etc.)",
+  "en_US": "Draw a polygon shape to cut a hole in the floor (stairwells, pass-throughs, etc.)"
+ },
+ "Draw a rectangle by clicking two corners or typing dimensions. Snaps to existing vertices.": {
+  "pt_BR": "Desenha um retângulo clicando dois cantos ou digitando as medidas. Encaixa nos vértices existentes.",
+  "en_US": "Draw a rectangle by clicking two corners or typing dimensions. Snaps to existing vertices."
+ },
+ "Draw the generated line art in the viewport, in every layout view. Turn off to speed up annotating; exports still include the lines": {
+  "pt_BR": "Desenha as linhas geradas na viewport, em todas as vistas de layout. Desligue para anotar mais rápido; as exportações continuam com as linhas",
+  "en_US": "Draw the generated line art in the viewport, in every layout view. Turn off to speed up annotating; exports still include the lines"
+ },
+ "Drawing scale": {
+  "pt_BR": "Escala do desenho",
+  "en_US": "Drawing scale"
+ },
+ "Duplica a definição ativa como cópia editável (a cópia passa a ser a ativa)": {
+  "pt_BR": "Duplica a definição ativa como cópia editável (a cópia passa a ser a ativa)",
+  "en_US": "Duplicates the active definition as an editable copy (the copy becomes active)"
+ },
+ "Duplicate Room": {
+  "pt_BR": "Duplicar Ambiente",
+  "en_US": "Duplicate Room"
+ },
+ "Duplicate the current room scene": {
+  "pt_BR": "Duplica a cena de ambiente atual",
+  "en_US": "Duplicate the current room scene"
+ },
+ "Duplicate the selected door and place the copy on a wall": {
+  "pt_BR": "Duplica a porta selecionada e insere a cópia numa parede",
+  "en_US": "Duplicate the selected door and place the copy on a wall"
+ },
+ "Duplicate the selected window and place the copy on a wall": {
+  "pt_BR": "Duplica a janela selecionada e insere a cópia numa parede",
+  "en_US": "Duplicate the selected window and place the copy on a wall"
+ },
+ "Duplicated room as: {}": {
+  "pt_BR": "Ambiente duplicado como: {}",
+  "en_US": "Duplicated room as: {}"
+ },
+ "Edge Offset": {
+  "pt_BR": "Afastamento das Bordas",
+  "en_US": "Edge Offset"
+ },
+ "Edit Obstacle": {
+  "pt_BR": "Editar Obstáculo",
+  "en_US": "Edit Obstacle"
+ },
+ "Edit door properties": {
+  "pt_BR": "Edita as propriedades da porta",
+  "en_US": "Edit door properties"
+ },
+ "Edit obstacle dimensions": {
+  "pt_BR": "Edita as medidas do obstáculo",
+  "en_US": "Edit obstacle dimensions"
+ },
+ "Edit the soffit's height and depth": {
+  "pt_BR": "Edita a altura e a profundidade da sanca",
+  "en_US": "Edit the soffit's height and depth"
+ },
+ "Edit the staircase dimensions": {
+  "pt_BR": "Edita as medidas da escada",
+  "en_US": "Edit the staircase dimensions"
+ },
+ "Edit window properties": {
+  "pt_BR": "Edita as propriedades da janela",
+  "en_US": "Edit window properties"
+ },
+ "Elevations:": {
+  "pt_BR": "Elevações:",
+  "en_US": "Elevations:"
+ },
+ "Enable Grab Bays": {
+  "pt_BR": "Ativar Pegar Compartimentos",
+  "en_US": "Enable Grab Bays"
+ },
+ "Enable Grab Cabinet": {
+  "pt_BR": "Ativar Pegar Módulo",
+  "en_US": "Enable Grab Cabinet"
+ },
+ "Enable Grab Face Frame": {
+  "pt_BR": "Ativar Pegar Quadro Frontal",
+  "en_US": "Enable Grab Face Frame"
+ },
+ "Enable Grab Openings": {
+  "pt_BR": "Ativar Pegar Vãos",
+  "en_US": "Enable Grab Openings"
+ },
+ "End Height": {
+  "pt_BR": "Pé-direito Final",
+  "en_US": "End Height"
+ },
+ "End Height:": {
+  "pt_BR": "Pé-direito Final:",
+  "en_US": "End Height:"
+ },
+ "Enter Draw Walls Mode. Click to place points, type for exact length, Escape to cancel": {
+  "pt_BR": "Entra no modo Desenhar Paredes. Clique para inserir pontos, digite para o comprimento exato, Esc cancela",
+  "en_US": "Enter Draw Walls Mode. Click to place points, type for exact length, Escape to cancel"
+ },
+ "Environment": {
+  "pt_BR": "Ambiente",
+  "en_US": "Environment"
+ },
+ "Esc: cancel": {
+  "pt_BR": "Esc: cancela",
+  "en_US": "Esc: cancel"
+ },
+ "Exclui a definição ativa (as embutidas não podem ser excluídas)": {
+  "pt_BR": "Exclui a definição ativa (as embutidas não podem ser excluídas)",
+  "en_US": "Deletes the active definition (built-in ones cannot be deleted)"
+ },
+ "Excluir \"{}\"?": {
+  "pt_BR": "Excluir \"{}\"?",
+  "en_US": "Delete \"{}\"?"
+ },
+ "Export All Layouts to PDF": {
+  "pt_BR": "Exportar Todos os Layouts em PDF",
+  "en_US": "Export All Layouts to PDF"
+ },
+ "Export prep complete: {} objects converted, {} helper objects removed, {} drivers removed. You can now export using File > Export > FBX or glTF.": {
+  "pt_BR": "Preparação concluída: {} objetos convertidos, {} objetos auxiliares removidos, {} drivers removidos. Agora exporte por Arquivo > Exportar > FBX ou glTF.",
+  "en_US": "Export prep complete: {} objects converted, {} helper objects removed, {} drivers removed. You can now export using File > Export > FBX or glTF."
+ },
+ "Exporta a definição ativa no formato DIMENSIONEXPORT do Promob": {
+  "pt_BR": "Exporta a definição ativa no formato DIMENSIONEXPORT do Promob",
+  "en_US": "Exports the active definition in Promob's DIMENSIONEXPORT format"
+ },
+ "Exporta a definição ativa para um arquivo .btmdim.json": {
+  "pt_BR": "Exporta a definição ativa para um arquivo .btmdim.json",
+  "en_US": "Exports the active definition to a .btmdim.json file"
+ },
+ "Exporta a lista de peças em CSV (separador ;, vírgula decimal) para planilhas e otimizadores": {
+  "pt_BR": "Exporta a lista de peças em CSV (separador ;, vírgula decimal) para planilhas e otimizadores",
+  "en_US": "Exports the part list as CSV (separator ;, decimal comma) for spreadsheets and optimizers"
+ },
+ "Exporta projeto, peças e plano de corte no JSON global v2 do CAFFMob Draw": {
+  "pt_BR": "Exporta projeto, peças e plano de corte no JSON global v2 do CAFFMob Draw",
+  "en_US": "Exports project, parts and cut plan as the CAFFMob Draw global JSON v2"
+ },
+ "Exportado para o Promob: {}": {
+  "pt_BR": "Exportado para o Promob: {}",
+  "en_US": "Exported for Promob: {}"
+ },
+ "Exported {} layouts to: {}": {
+  "pt_BR": "{} layouts exportados para: {}",
+  "en_US": "Exported {} layouts to: {}"
+ },
+ "Failed to create obstacle": {
+  "pt_BR": "Falha ao criar o obstáculo",
+  "en_US": "Failed to create obstacle"
+ },
+ "Faixa: {} a {}": {
+  "pt_BR": "Faixa: {} a {}",
+  "en_US": "Range: {} to {}"
+ },
+ "File Path": {
+  "pt_BR": "Caminho do Arquivo",
+  "en_US": "File Path"
+ },
+ "Filename": {
+  "pt_BR": "Nome do Arquivo",
+  "en_US": "Filename"
+ },
+ "Filename of the detail to delete": {
+  "pt_BR": "Nome do arquivo do detalhe a apagar",
+  "en_US": "Filename of the detail to delete"
+ },
+ "Filepath": {
+  "pt_BR": "Caminho do Arquivo",
+  "en_US": "Filepath"
+ },
+ "Fillet radius": {
+  "pt_BR": "Raio do arredondamento",
+  "en_US": "Fillet radius"
+ },
+ "Fit to Content": {
+  "pt_BR": "Ajustar ao Conteúdo",
+  "en_US": "Fit to Content"
+ },
+ "Fit to content (approximate scale: {})": {
+  "pt_BR": "Ajustado ao conteúdo (escala aproximada: {})",
+  "en_US": "Fit to content (approximate scale: {})"
+ },
+ "Flatten the scene for export to Unreal, Unity, or other 3D platforms. This will modify the current file": {
+  "pt_BR": "Achata a cena para exportar para Unreal, Unity ou outras plataformas 3D. Isto modifica o arquivo atual",
+  "en_US": "Flatten the scene for export to Unreal, Unity, or other 3D platforms. This will modify the current file"
+ },
+ "Flight 1: {} steps": {
+  "pt_BR": "Lance 1: {} degraus",
+  "en_US": "Flight 1: {} steps"
+ },
+ "Flight 2: {} steps": {
+  "pt_BR": "Lance 2: {} degraus",
+  "en_US": "Flight 2: {} steps"
+ },
+ "Flip the door hand (left/right hinge)": {
+  "pt_BR": "Inverte a mão da porta (dobradiça à esquerda/direita)",
+  "en_US": "Flip the door hand (left/right hinge)"
+ },
+ "Flip the door swing direction (swings inside/outside)": {
+  "pt_BR": "Inverte o sentido de abertura da porta (para dentro/para fora)",
+  "en_US": "Flip the door swing direction (swings inside/outside)"
+ },
+ "Floor plans": {
+  "pt_BR": "Plantas",
+  "en_US": "Floor plans"
+ },
+ "Floor plans and site plans": {
+  "pt_BR": "Plantas e implantações",
+  "en_US": "Floor plans and site plans"
+ },
+ "Forest": {
+  "pt_BR": "Floresta",
+  "en_US": "Forest"
+ },
+ "Forest environment": {
+  "pt_BR": "Ambiente de floresta",
+  "en_US": "Forest environment"
+ },
+ "Free (15°)": {
+  "pt_BR": "Livre (15°)",
+  "en_US": "Free (15°)"
+ },
+ "Front Elevation": {
+  "pt_BR": "Elevação Frontal",
+  "en_US": "Front Elevation"
+ },
+ "Full size": {
+  "pt_BR": "Tamanho real",
+  "en_US": "Full size"
+ },
+ "Gap": {
+  "pt_BR": "Espaço",
+  "en_US": "Gap"
+ },
+ "Generate 2D Plan": {
+  "pt_BR": "Gerar Planta 2D",
+  "en_US": "Generate 2D Plan"
+ },
+ "Generate a 2D floor plan mesh with solid walls and door/window breaks": {
+  "pt_BR": "Gera uma malha de planta 2D com paredes cheias e vãos de portas e janelas",
+  "en_US": "Generate a 2D floor plan mesh with solid walls and door/window breaks"
+ },
+ "Generated 2D plan mesh ({} faces)": {
+  "pt_BR": "Malha da planta 2D gerada ({} faces)",
+  "en_US": "Generated 2D plan mesh ({} faces)"
+ },
+ "Gera a lista de peças dos módulos do projeto e calcula o plano de corte por chapa e acabamento": {
+  "pt_BR": "Gera a lista de peças dos módulos do projeto e calcula o plano de corte por chapa e acabamento",
+  "en_US": "Builds the part list of the project modules and calculates the cut plan by sheet and finish"
+ },
+ "Go To Layout View": {
+  "pt_BR": "Ir para a Vista de Layout",
+  "en_US": "Go To Layout View"
+ },
+ "Golden sunset lighting": {
+  "pt_BR": "Luz dourada do pôr do sol",
+  "en_US": "Golden sunset lighting"
+ },
+ "Good quality for screen viewing": {
+  "pt_BR": "Boa qualidade para ver na tela",
+  "en_US": "Good quality for screen viewing"
+ },
+ "Grava nome e contato do cliente no arquivo (RN-21)": {
+  "pt_BR": "Grava nome e contato do cliente no arquivo (RN-21)",
+  "en_US": "Writes the client name and contact to the file (RN-21)"
+ },
+ "HB Delete": {
+  "pt_BR": "Apagar HB",
+  "en_US": "HB Delete"
+ },
+ "HB Menu": {
+  "pt_BR": "Menu HB",
+  "en_US": "HB Menu"
+ },
+ "HDRI": {
+  "pt_BR": "HDRI",
+  "en_US": "HDRI"
+ },
+ "HDRI Environment": {
+  "pt_BR": "Ambiente HDRI",
+  "en_US": "HDRI Environment"
+ },
+ "HDRI Settings": {
+  "pt_BR": "Configurações do HDRI",
+  "en_US": "HDRI Settings"
+ },
+ "HDRI file not found: {}": {
+  "pt_BR": "Arquivo HDRI não encontrado: {}",
+  "en_US": "HDRI file not found: {}"
+ },
+ "Half size": {
+  "pt_BR": "Metade do tamanho",
+  "en_US": "Half size"
+ },
+ "Height From Floor": {
+  "pt_BR": "Altura do Piso",
+  "en_US": "Height From Floor"
+ },
+ "Height of the landing platform (splits rise between flights)": {
+  "pt_BR": "Altura do patamar (divide a altura entre os lances)",
+  "en_US": "Height of the landing platform (splits rise between flights)"
+ },
+ "Hidden Line Thickness": {
+  "pt_BR": "Espessura da Linha Oculta",
+  "en_US": "Hidden Line Thickness"
+ },
+ "Hide all walls except the selected ones": {
+  "pt_BR": "Oculta todas as paredes, menos as selecionadas",
+  "en_US": "Hide all walls except the selected ones"
+ },
+ "Hide the selected wall and all of its children": {
+  "pt_BR": "Oculta a parede selecionada e todos os filhos dela",
+  "en_US": "Hide the selected wall and all of its children"
+ },
+ "High quality print": {
+  "pt_BR": "Impressão de alta qualidade",
+  "en_US": "High quality print"
+ },
+ "Horizontal rotation of the sun": {
+  "pt_BR": "Rotação horizontal do sol",
+  "en_US": "Horizontal rotation of the sun"
+ },
+ "Hosek/Wilkie": {
+  "pt_BR": "Hosek/Wilkie",
+  "en_US": "Hosek/Wilkie"
+ },
+ "IDs duplicados (vale o último): {}": {
+  "pt_BR": "IDs duplicados (vale o último): {}",
+  "en_US": "Duplicate IDs (the last one wins): {}"
+ },
+ "Importa uma configuração de dimensões exportada pelo Promob (DIMENSIONEXPORT)": {
+  "pt_BR": "Importa uma configuração de dimensões exportada pelo Promob (DIMENSIONEXPORT)",
+  "en_US": "Imports a dimension configuration exported by Promob (DIMENSIONEXPORT)"
+ },
+ "Importa uma definição de um arquivo .btmdim.json": {
+  "pt_BR": "Importa uma definição de um arquivo .btmdim.json",
+  "en_US": "Imports a definition from a .btmdim.json file"
+ },
+ "Importação do Promob": {
+  "pt_BR": "Importação do Promob",
+  "en_US": "Promob import"
+ },
+ "Include Children": {
+  "pt_BR": "Incluir Filhos",
+  "en_US": "Include Children"
+ },
+ "Include a back elevation view": {
+  "pt_BR": "Inclui uma elevação posterior",
+  "en_US": "Include a back elevation view"
+ },
+ "Include a front elevation view": {
+  "pt_BR": "Inclui uma elevação frontal",
+  "en_US": "Include a front elevation view"
+ },
+ "Include a left side elevation view": {
+  "pt_BR": "Inclui uma elevação lateral esquerda",
+  "en_US": "Include a left side elevation view"
+ },
+ "Include a right side elevation view": {
+  "pt_BR": "Inclui uma elevação lateral direita",
+  "en_US": "Include a right side elevation view"
+ },
+ "Include a top-down plan view": {
+  "pt_BR": "Inclui uma vista em planta de cima",
+  "en_US": "Include a top-down plan view"
+ },
+ "Informe um nome.": {
+  "pt_BR": "Informe um nome.",
+  "en_US": "Enter a name."
+ },
+ "Insere uma abertura (porta/janela) interativa na parede com perfuração automática e snapping (escala em metros)": {
+  "pt_BR": "Insere uma abertura (porta/janela) interativa na parede com perfuração automática e snapping (escala em metros)",
+  "en_US": "Inserts an interactive opening (door/window) in the wall with automatic cut and snapping (scale in meters)"
+ },
+ "Inserção de abertura cancelada.": {
+  "pt_BR": "Inserção de abertura cancelada.",
+  "en_US": "Opening insertion cancelled."
+ },
+ "Inside": {
+  "pt_BR": "Para dentro",
+  "en_US": "Inside"
+ },
+ "Inside Left": {
+  "pt_BR": "Para dentro, à esquerda",
+  "en_US": "Inside Left"
+ },
+ "Inside Right": {
+  "pt_BR": "Para dentro, à direita",
+  "en_US": "Inside Right"
+ },
+ "Interior room lighting": {
+  "pt_BR": "Iluminação de ambiente interno",
+  "en_US": "Interior room lighting"
+ },
+ "Isolated {} wall(s), hid {} object(s)": {
+  "pt_BR": "{} parede(s) isolada(s), {} objeto(s) oculto(s)",
+  "en_US": "Isolated {} wall(s), hid {} object(s)"
+ },
+ "JSON global exportado: {} peça(s) em {}": {
+  "pt_BR": "JSON global exportado: {} peça(s) em {}",
+  "en_US": "Global JSON exported: {} part(s) to {}"
+ },
+ "L-Shaped": {
+  "pt_BR": "Em L",
+  "en_US": "L-Shaped"
+ },
+ "Landing Depth": {
+  "pt_BR": "Profundidade do Patamar",
+  "en_US": "Landing Depth"
+ },
+ "Landing Height": {
+  "pt_BR": "Altura do Patamar",
+  "en_US": "Landing Height"
+ },
+ "Landscape": {
+  "pt_BR": "Paisagem",
+  "en_US": "Landscape"
+ },
+ "Largura X": {
+  "pt_BR": "Largura X",
+  "en_US": "Width X"
+ },
+ "Layout View": {
+  "pt_BR": "Vista de Layout",
+  "en_US": "Layout View"
+ },
+ "Layout view has no camera": {
+  "pt_BR": "A vista de layout não tem câmera",
+  "en_US": "Layout view has no camera"
+ },
+ "Left": {
+  "pt_BR": "Esquerda",
+  "en_US": "Left"
+ },
+ "Left Side": {
+  "pt_BR": "Lateral Esquerda",
+  "en_US": "Left Side"
+ },
+ "Left/Inside": {
+  "pt_BR": "Esquerda/Dentro",
+  "en_US": "Left/Inside"
+ },
+ "Legal (8.5\" x 14\")": {
+  "pt_BR": "Ofício (8,5\" x 14\")",
+  "en_US": "Legal (8.5\" x 14\")"
+ },
+ "Length must be positive": {
+  "pt_BR": "O comprimento precisa ser positivo",
+  "en_US": "Length must be positive"
+ },
+ "Length not reachable by moving the next wall": {
+  "pt_BR": "Comprimento impossível movendo a parede seguinte",
+  "en_US": "Length not reachable by moving the next wall"
+ },
+ "Length:": {
+  "pt_BR": "Comprimento:",
+  "en_US": "Length:"
+ },
+ "Length: {:.3f} m": {
+  "pt_BR": "Comprimento: {:.3f} m",
+  "en_US": "Length: {:.3f} m"
+ },
+ "Length: {} | Angle: {}°{}{}{} | {} | Shift: fine | Alt: rotation | T: track | Click to place{}": {
+  "pt_BR": "Comprimento: {} | Ângulo: {}°{}{}{} | {} | Shift: fino | Alt: rotação | T: rastrear | Clique para inserir{}",
+  "en_US": "Length: {} | Angle: {}°{}{}{} | {} | Shift: fine | Alt: rotation | T: track | Click to place{}"
+ },
+ "Length: {} | {}° | {}{} | {}{} | Right-click: finish": {
+  "pt_BR": "Comprimento: {} | {}° | {}{} | {}{} | Botão direito: concluir",
+  "en_US": "Length: {} | {}° | {}{} | {}{} | Right-click: finish"
+ },
+ "Letter (8.5\" x 11\")": {
+  "pt_BR": "Carta (8,5\" x 11\")",
+  "en_US": "Letter (8.5\" x 11\")"
+ },
+ "Light Placement": {
+  "pt_BR": "Posição das Luzes",
+  "en_US": "Light Placement"
+ },
+ "Light Power": {
+  "pt_BR": "Potência da Luz",
+  "en_US": "Light Power"
+ },
+ "Light Properties": {
+  "pt_BR": "Propriedades das Luzes",
+  "en_US": "Light Properties"
+ },
+ "Light Spacing": {
+  "pt_BR": "Espaçamento das Luzes",
+  "en_US": "Light Spacing"
+ },
+ "Light color temperature in Kelvin": {
+  "pt_BR": "Temperatura de cor da luz, em Kelvin",
+  "en_US": "Light color temperature in Kelvin"
+ },
+ "Light source radius for shadow softness": {
+  "pt_BR": "Raio da fonte de luz para suavizar a sombra",
+  "en_US": "Light source radius for shadow softness"
+ },
+ "Lighting Type": {
+  "pt_BR": "Tipo de Iluminação",
+  "en_US": "Lighting Type"
+ },
+ "Line art converted. Select the line art object and enter Edit Mode to modify lines.": {
+  "pt_BR": "Linhas convertidas. Selecione o objeto de linhas e entre no Modo de Edição para modificar.",
+  "en_US": "Line art converted. Select the line art object and enter Edit Mode to modify lines."
+ },
+ "Line art is already editable.": {
+  "pt_BR": "As linhas já estão editáveis.",
+  "en_US": "Line art is already editable."
+ },
+ "Link Objects to Layout View": {
+  "pt_BR": "Vincular Objetos à Vista de Layout",
+  "en_US": "Link Objects to Layout View"
+ },
+ "Link collection not found": {
+  "pt_BR": "Coleção de vínculo não encontrada",
+  "en_US": "Link collection not found"
+ },
+ "Link or unlink a room in the current scene": {
+  "pt_BR": "Vincula ou desvincula um ambiente na cena atual",
+  "en_US": "Link or unlink a room in the current scene"
+ },
+ "Link the selected objects to a layout view so they appear in that view": {
+  "pt_BR": "Vincula os objetos selecionados a uma vista de layout para aparecerem nela",
+  "en_US": "Link the selected objects to a layout view so they appear in that view"
+ },
+ "Linked '{}' into '{}'": {
+  "pt_BR": "'{}' vinculado em '{}'",
+  "en_US": "Linked '{}' into '{}'"
+ },
+ "Linked room not found": {
+  "pt_BR": "Ambiente vinculado não encontrado",
+  "en_US": "Linked room not found"
+ },
+ "Linked {} object(s)": {
+  "pt_BR": "{} objeto(s) vinculado(s)",
+  "en_US": "Linked {} object(s)"
+ },
+ "Load Detail from Library": {
+  "pt_BR": "Carregar Detalhe da Biblioteca",
+  "en_US": "Load Detail from Library"
+ },
+ "Load a detail from your user library": {
+  "pt_BR": "Carrega um detalhe da sua biblioteca",
+  "en_US": "Load a detail from your user library"
+ },
+ "Location X:": {
+  "pt_BR": "Posição X:",
+  "en_US": "Location X:"
+ },
+ "Location Y:": {
+  "pt_BR": "Posição Y:",
+  "en_US": "Location Y:"
+ },
+ "Location Z:": {
+  "pt_BR": "Posição Z:",
+  "en_US": "Location Z:"
+ },
+ "Lê um JSON global (v2 ou v1) e mostra o resumo das peças e do plano de corte": {
+  "pt_BR": "Lê um JSON global (v2 ou v1) e mostra o resumo das peças e do plano de corte",
+  "en_US": "Reads a global JSON (v2 or v1) and shows a summary of the parts and the cut plan"
+ },
+ "Make Lines Editable": {
+  "pt_BR": "Tornar Linhas Editáveis",
+  "en_US": "Make Lines Editable"
+ },
+ "Medidas manuais preservadas: {}": {
+  "pt_BR": "Medidas manuais preservadas: {}",
+  "en_US": "Manual measures kept: {}"
+ },
+ "Minimum spacing between lights": {
+  "pt_BR": "Espaçamento mínimo entre as luzes",
+  "en_US": "Minimum spacing between lights"
+ },
+ "More accurate sky model": {
+  "pt_BR": "Modelo de céu mais preciso",
+  "en_US": "More accurate sky model"
+ },
+ "Most realistic atmospheric scattering": {
+  "pt_BR": "Dispersão atmosférica mais realista",
+  "en_US": "Most realistic atmospheric scattering"
+ },
+ "Mostra o relatório da última aplicação ou importação do Padrão de Dimensões": {
+  "pt_BR": "Mostra o relatório da última aplicação ou importação do Padrão de Dimensões",
+  "en_US": "Shows the report of the last Dimension Standard apply or import"
+ },
+ "Mostrar": {
+  "pt_BR": "Mostrar",
+  "en_US": "Show"
+ },
+ "Move Detail View": {
+  "pt_BR": "Mover Vista de Detalhe",
+  "en_US": "Move Detail View"
+ },
+ "Move Layout View": {
+  "pt_BR": "Mover Vista de Layout",
+  "en_US": "Move Layout View"
+ },
+ "Move Room Scene": {
+  "pt_BR": "Mover Cena de Ambiente",
+  "en_US": "Move Room Scene"
+ },
+ "Move Up": {
+  "pt_BR": "Mover para Cima",
+  "en_US": "Move Up"
+ },
+ "Move detail view up or down in the list": {
+  "pt_BR": "Move a vista de detalhe para cima ou para baixo na lista",
+  "en_US": "Move detail view up or down in the list"
+ },
+ "Move layout view up or down in the list": {
+  "pt_BR": "Move a vista de layout para cima ou para baixo na lista",
+  "en_US": "Move layout view up or down in the list"
+ },
+ "Move over a wall to place {}{} | D: 2-point width | Esc to cancel": {
+  "pt_BR": "Passe sobre uma parede para inserir {}{} | D: largura por 2 pontos | Esc cancela",
+  "en_US": "Move over a wall to place {}{} | D: 2-point width | Esc to cancel"
+ },
+ "Move room scene up or down in the list": {
+  "pt_BR": "Move a cena de ambiente para cima ou para baixo na lista",
+  "en_US": "Move room scene up or down in the list"
+ },
+ "Multiple Scattering": {
+  "pt_BR": "Dispersão Múltipla",
+  "en_US": "Multiple Scattering"
+ },
+ "Must be run from a 3D Viewport": {
+  "pt_BR": "Use a partir de uma viewport 3D",
+  "en_US": "Must be run from a 3D Viewport"
+ },
+ "Must be used in 3D viewport": {
+  "pt_BR": "Use na viewport 3D",
+  "en_US": "Must be used in 3D viewport"
+ },
+ "Módulo de Armário inserido: {} x {} x {}": {
+  "pt_BR": "Módulo de Armário inserido: {} x {} x {}",
+  "en_US": "Cabinet module inserted: {} x {} x {}"
+ },
+ "Módulos atualizados: {} (cozinha {}, dormitório {})": {
+  "pt_BR": "Módulos atualizados: {} (cozinha {}, dormitório {})",
+  "en_US": "Modules updated: {} (kitchen {}, bedroom {})"
+ },
+ "Name for the duplicated room": {
+  "pt_BR": "Nome do ambiente duplicado",
+  "en_US": "Name for the duplicated room"
+ },
+ "Name for the new detail": {
+  "pt_BR": "Nome do novo detalhe",
+  "en_US": "Name for the new detail"
+ },
+ "Name for the new room": {
+  "pt_BR": "Nome do novo ambiente",
+  "en_US": "Name for the new room"
+ },
+ "Name for this detail in the library": {
+  "pt_BR": "Nome deste detalhe na biblioteca",
+  "en_US": "Name for this detail in the library"
+ },
+ "Need at least 3 points (have {})": {
+  "pt_BR": "São necessários ao menos 3 pontos (há {})",
+  "en_US": "Need at least 3 points (have {})"
+ },
+ "Need at least 3 points to create a cutter": {
+  "pt_BR": "São necessários ao menos 3 pontos para criar o recorte",
+  "en_US": "Need at least 3 points to create a cutter"
+ },
+ "Need two points to create a wall cutter": {
+  "pt_BR": "São necessários dois pontos para criar o recorte na parede",
+  "en_US": "Need two points to create a wall cutter"
+ },
+ "Nem o contorno aparece (Mostrar Todas as Paredes não traz de volta; use Visível no menu da parede ou Alt+H)": {
+  "pt_BR": "Nem o contorno aparece (Mostrar Todas as Paredes não traz de volta; use Visível no menu da parede ou Alt+H)",
+  "en_US": "Not even the outline shows (Show All Walls does not bring it back; use Visible in the wall menu or Alt+H)"
+ },
+ "Nenhum módulo com peças de marcenaria encontrado no projeto.": {
+  "pt_BR": "Nenhum módulo com peças de marcenaria encontrado no projeto.",
+  "en_US": "No module with joinery parts found in the project."
+ },
+ "Nenhuma": {
+  "pt_BR": "Nenhuma",
+  "en_US": "None"
+ },
+ "Nenhuma definição ativa.": {
+  "pt_BR": "Nenhuma definição ativa.",
+  "en_US": "No active definition."
+ },
+ "Nenhuma parede encontrada na cena para inserir a abertura.": {
+  "pt_BR": "Nenhuma parede encontrada na cena para inserir a abertura.",
+  "en_US": "No wall found in the scene to insert the opening."
+ },
+ "Nenhuma parede encontrada na cena.": {
+  "pt_BR": "Nenhuma parede encontrada na cena.",
+  "en_US": "No wall found in the scene."
+ },
+ "Nenhuma peça para exportar.": {
+  "pt_BR": "Nenhuma peça para exportar.",
+  "en_US": "No part to export."
+ },
+ "Nenhuma sala fechada: piso pelo retângulo das paredes.": {
+  "pt_BR": "Nenhuma sala fechada: piso pelo retângulo das paredes.",
+  "en_US": "No closed room: floor from the walls' rectangle."
+ },
+ "New Name": {
+  "pt_BR": "Novo Nome",
+  "en_US": "New Name"
+ },
+ "New name for the room": {
+  "pt_BR": "Novo nome do ambiente",
+  "en_US": "New name for the room"
+ },
+ "Next wall is not part of a detected chain": {
+  "pt_BR": "A parede seguinte não faz parte de uma cadeia detectada",
+  "en_US": "Next wall is not part of a detected chain"
+ },
+ "Night": {
+  "pt_BR": "Noite",
+  "en_US": "Night"
+ },
+ "Night time lighting": {
+  "pt_BR": "Iluminação noturna",
+  "en_US": "Night time lighting"
+ },
+ "No Layout Views": {
+  "pt_BR": "Nenhuma Vista de Layout",
+  "en_US": "No Layout Views"
+ },
+ "No camera found in scene": {
+  "pt_BR": "Nenhuma câmera na cena",
+  "en_US": "No camera found in scene"
+ },
+ "No closed wall loops found for light placement": {
+  "pt_BR": "Nenhum contorno fechado de paredes para posicionar as luzes",
+  "en_US": "No closed wall loops found for light placement"
+ },
+ "No connected walls found": {
+  "pt_BR": "Nenhuma parede conectada encontrada",
+  "en_US": "No connected walls found"
+ },
+ "No curve selected": {
+  "pt_BR": "Nenhuma curva selecionada",
+  "en_US": "No curve selected"
+ },
+ "No file specified": {
+  "pt_BR": "Nenhum arquivo informado",
+  "en_US": "No file specified"
+ },
+ "No floor found in scene": {
+  "pt_BR": "Nenhum piso na cena",
+  "en_US": "No floor found in scene"
+ },
+ "No hidden objects found": {
+  "pt_BR": "Nenhum objeto oculto encontrado",
+  "en_US": "No hidden objects found"
+ },
+ "No layout view to delete": {
+  "pt_BR": "Nenhuma vista de layout para apagar",
+  "en_US": "No layout view to delete"
+ },
+ "No layout views available. Create one first.": {
+  "pt_BR": "Nenhuma vista de layout. Crie uma primeiro.",
+  "en_US": "No layout views available. Create one first."
+ },
+ "No layout views found": {
+  "pt_BR": "Nenhuma vista de layout encontrada",
+  "en_US": "No layout views found"
+ },
+ "No layouts were rendered": {
+  "pt_BR": "Nenhum layout foi renderizado",
+  "en_US": "No layouts were rendered"
+ },
+ "No line art strokes to convert.": {
+  "pt_BR": "Nenhum traço de linha para converter.",
+  "en_US": "No line art strokes to convert."
+ },
+ "No obstacle selected": {
+  "pt_BR": "Nenhum obstáculo selecionado",
+  "en_US": "No obstacle selected"
+ },
+ "No obstacles in scene": {
+  "pt_BR": "Nenhum obstáculo na cena",
+  "en_US": "No obstacles in scene"
+ },
+ "No room lights found": {
+  "pt_BR": "Nenhuma luz de ambiente encontrada",
+  "en_US": "No room lights found"
+ },
+ "No valid splines to offset": {
+  "pt_BR": "Nenhuma spline válida para deslocar",
+  "en_US": "No valid splines to offset"
+ },
+ "No views selected": {
+  "pt_BR": "Nenhuma vista selecionada",
+  "en_US": "No views selected"
+ },
+ "No wall material selected": {
+  "pt_BR": "Nenhum material de parede escolhido",
+  "en_US": "No wall material selected"
+ },
+ "No wall selected": {
+  "pt_BR": "Nenhuma parede selecionada",
+  "en_US": "No wall selected"
+ },
+ "No walls selected": {
+  "pt_BR": "Nenhuma parede selecionada",
+  "en_US": "No walls selected"
+ },
+ "Number of segments in the fillet arc": {
+  "pt_BR": "Número de segmentos do arco",
+  "en_US": "Number of segments in the fillet arc"
+ },
+ "Não foi possível gravar: {}": {
+  "pt_BR": "Não foi possível gravar: {}",
+  "en_US": "Could not save: {}"
+ },
+ "Não reconhecidos (mantidos para reexportação): {}": {
+  "pt_BR": "Não reconhecidos (mantidos para reexportação): {}",
+  "en_US": "Not recognized (kept for re-export): {}"
+ },
+ "Object Name": {
+  "pt_BR": "Nome do Objeto",
+  "en_US": "Object Name"
+ },
+ "Object Type": {
+  "pt_BR": "Tipo de Objeto",
+  "en_US": "Object Type"
+ },
+ "Object not found": {
+  "pt_BR": "Objeto não encontrado",
+  "en_US": "Object not found"
+ },
+ "Objects to link:": {
+  "pt_BR": "Objetos a vincular:",
+  "en_US": "Objects to link:"
+ },
+ "Offset (←): {}": {
+  "pt_BR": "Afastamento (←): {}",
+  "en_US": "Offset (←): {}"
+ },
+ "Offset (→): {}": {
+  "pt_BR": "Afastamento (→): {}",
+  "en_US": "Offset (→): {}"
+ },
+ "Offset Distance": {
+  "pt_BR": "Distância de Deslocamento",
+  "en_US": "Offset Distance"
+ },
+ "Offset to the left side (inside for closed curves)": {
+  "pt_BR": "Desloca para a esquerda (para dentro em curvas fechadas)",
+  "en_US": "Offset to the left side (inside for closed curves)"
+ },
+ "Offset to the right side (outside for closed curves)": {
+  "pt_BR": "Desloca para a direita (para fora em curvas fechadas)",
+  "en_US": "Offset to the right side (outside for closed curves)"
+ },
+ "Offset wall by {:.3f} m": {
+  "pt_BR": "Parede deslocada em {:.3f} m",
+  "en_US": "Offset wall by {:.3f} m"
+ },
+ "Offset would collapse {} wall (new length would be {:.3f} m)": {
+  "pt_BR": "O deslocamento anularia a parede {} (o novo comprimento seria {:.3f} m)",
+  "en_US": "Offset would collapse {} wall (new length would be {:.3f} m)"
+ },
+ "Offset would reverse {} wall direction (try a smaller offset)": {
+  "pt_BR": "O deslocamento inverteria o sentido da parede {} (tente um deslocamento menor)",
+  "en_US": "Offset would reverse {} wall direction (try a smaller offset)"
+ },
+ "Offset: {:+.3f} m": {
+  "pt_BR": "Deslocamento: {:+.3f} m",
+  "en_US": "Offset: {:+.3f} m"
+ },
+ "Open the context menu for the selected HB5 asset": {
+  "pt_BR": "Abre o menu de contexto do item HB5 selecionado",
+  "en_US": "Open the context menu for the selected HB5 asset"
+ },
+ "Open the detail library folder in file explorer": {
+  "pt_BR": "Abre a pasta da biblioteca de detalhes no gerenciador de arquivos",
+  "en_US": "Open the detail library folder in file explorer"
+ },
+ "Optional description": {
+  "pt_BR": "Descrição opcional",
+  "en_US": "Optional description"
+ },
+ "Ortho (90°)": {
+  "pt_BR": "Ortogonal (90°)",
+  "en_US": "Ortho (90°)"
+ },
+ "Outdoor courtyard": {
+  "pt_BR": "Pátio externo",
+  "en_US": "Outdoor courtyard"
+ },
+ "Outside": {
+  "pt_BR": "Para fora",
+  "en_US": "Outside"
+ },
+ "Outside Left": {
+  "pt_BR": "Para fora, à esquerda",
+  "en_US": "Outside Left"
+ },
+ "Outside Right": {
+  "pt_BR": "Para fora, à direita",
+  "en_US": "Outside Right"
+ },
+ "Padrão aplicado: {} módulo(s) atualizado(s); {} medida(s) manual(is) preservada(s).": {
+  "pt_BR": "Padrão aplicado: {} módulo(s) atualizado(s); {} medida(s) manual(is) preservada(s).",
+  "en_US": "Standard applied: {} module(s) updated; {} manual measure(s) kept."
+ },
+ "Padrão de Dimensões aplicado": {
+  "pt_BR": "Padrão de Dimensões aplicado",
+  "en_US": "Dimension Standard applied"
+ },
+ "Paper Size": {
+  "pt_BR": "Tamanho do Papel",
+  "en_US": "Paper Size"
+ },
+ "Paper size for rendering": {
+  "pt_BR": "Tamanho do papel da renderização",
+  "en_US": "Paper size for rendering"
+ },
+ "Parede normal": {
+  "pt_BR": "Parede normal",
+  "en_US": "Normal wall"
+ },
+ "Parede ou teto visível, invisível (só contorno) ou com o contorno escondido": {
+  "pt_BR": "Parede ou teto visível, invisível (só contorno) ou com o contorno escondido",
+  "en_US": "Wall or ceiling visible, invisible (outline only) or with the outline hidden"
+ },
+ "Parede | Segmento: {}  |  [{}]: {}  |  TAB: próximo campo  |  ENTER: confirmar  |  Botão Direito: concluir polilinha  |  ESC: cancelar": {
+  "pt_BR": "Parede | Segmento: {}  |  [{}]: {}  |  TAB: próximo campo  |  ENTER: confirmar  |  Botão Direito: concluir polilinha  |  ESC: cancelar",
+  "en_US": "Wall | Segment: {}  |  [{}]: {}  |  TAB: next field  |  ENTER: confirm  |  Right Button: finish polyline  |  ESC: cancel"
+ },
+ "Paredes geradas: {} segmentos, total: {}.": {
+  "pt_BR": "Paredes geradas: {} segmentos, total: {}.",
+  "en_US": "Walls built: {} segments, total: {}."
+ },
+ "Parâmetros alterados: {}": {
+  "pt_BR": "Parâmetros alterados: {}",
+  "en_US": "Changed parameters: {}"
+ },
+ "Path to save the PDF file": {
+  "pt_BR": "Caminho para salvar o PDF",
+  "en_US": "Path to save the PDF file"
+ },
+ "Path to the detail file": {
+  "pt_BR": "Caminho do arquivo do detalhe",
+  "en_US": "Path to the detail file"
+ },
+ "Path to the library file": {
+  "pt_BR": "Caminho do arquivo da biblioteca",
+  "en_US": "Path to the library file"
+ },
+ "Peitoril: {}": {
+  "pt_BR": "Peitoril: {}",
+  "en_US": "Sill: {}"
+ },
+ "Perspective": {
+  "pt_BR": "Perspectiva",
+  "en_US": "Perspective"
+ },
+ "Pillow is required for PDF export. Please reinstall the CAFFMob Draw extension.": {
+  "pt_BR": "A exportação em PDF precisa do Pillow. Reinstale a extensão CAFFMob Draw.",
+  "en_US": "Pillow is required for PDF export. Please reinstall the CAFFMob Draw extension."
+ },
+ "Piso ajustado à face interna das paredes ({} sala(s)).": {
+  "pt_BR": "Piso ajustado à face interna das paredes ({} sala(s)).",
+  "en_US": "Floor fitted to the inner face of the walls ({} room(s))."
+ },
+ "Piso base criado: {} x {}": {
+  "pt_BR": "Piso base criado: {} x {}",
+  "en_US": "Base floor created: {} x {}"
+ },
+ "Place Door": {
+  "pt_BR": "Inserir Porta",
+  "en_US": "Place Door"
+ },
+ "Place Double Door": {
+  "pt_BR": "Inserir Porta Dupla",
+  "en_US": "Place Double Door"
+ },
+ "Place Open Door": {
+  "pt_BR": "Inserir Vão Livre",
+  "en_US": "Place Open Door"
+ },
+ "Place Window": {
+  "pt_BR": "Inserir Janela",
+  "en_US": "Place Window"
+ },
+ "Place a door on a wall. Arrow keys for offset direction, W for width, Up/Down for swing type, Escape to cancel": {
+  "pt_BR": "Insere uma porta na parede. Setas mudam o lado do afastamento, W a largura, Cima/Baixo o tipo de abertura, Esc cancela",
+  "en_US": "Place a door on a wall. Arrow keys for offset direction, W for width, Up/Down for swing type, Escape to cancel"
+ },
+ "Place a double door on a wall. Arrow keys for offset direction, W for width, Up/Down for swing type, Escape to cancel": {
+  "pt_BR": "Insere uma porta dupla na parede. Setas mudam o lado do afastamento, W a largura, Cima/Baixo o tipo de abertura, Esc cancela",
+  "en_US": "Place a double door on a wall. Arrow keys for offset direction, W for width, Up/Down for swing type, Escape to cancel"
+ },
+ "Place a window on a wall. Arrow keys for offset direction, W for width, Escape to cancel": {
+  "pt_BR": "Insere uma janela na parede. Setas mudam o lado do afastamento, W a largura, Esc cancela",
+  "en_US": "Place a window on a wall. Arrow keys for offset direction, W for width, Escape to cancel"
+ },
+ "Place an obstacle on a wall, floor, or ceiling": {
+  "pt_BR": "Insere um obstáculo na parede, no piso ou no teto",
+  "en_US": "Place an obstacle on a wall, floor, or ceiling"
+ },
+ "Place an open doorway on a wall. Arrow keys for offset direction, W for width, Escape to cancel": {
+  "pt_BR": "Insere um vão livre na parede. Setas mudam o lado do afastamento, W a largura, Esc cancela",
+  "en_US": "Place an open doorway on a wall. Arrow keys for offset direction, W for width, Escape to cancel"
+ },
+ "Placed staircase: {} steps": {
+  "pt_BR": "Escada inserida: {} degraus",
+  "en_US": "Placed staircase: {} steps"
+ },
+ "Placed {}": {
+  "pt_BR": "{} inserido",
+  "en_US": "Placed {}"
+ },
+ "Plan View (Top)": {
+  "pt_BR": "Planta (Superior)",
+  "en_US": "Plan View (Top)"
+ },
+ "Plano de corte: {} chapa(s), {} peça(s), aproveitamento {}%.": {
+  "pt_BR": "Plano de corte: {} chapa(s), {} peça(s), aproveitamento {}%.",
+  "en_US": "Cut plan: {} sheet(s), {} part(s), yield {}%."
+ },
+ "Please select an obstacle type first": {
+  "pt_BR": "Escolha um tipo de obstáculo primeiro",
+  "en_US": "Please select an obstacle type first"
+ },
+ "Ponto inicial definido. Mova o mouse ou digite a dimensão.": {
+  "pt_BR": "Ponto inicial definido. Mova o mouse ou digite a dimensão.",
+  "en_US": "Start point set. Move the mouse or type the dimension."
+ },
+ "Power of each light in watts": {
+  "pt_BR": "Potência de cada luz, em watts",
+  "en_US": "Power of each light in watts"
+ },
+ "Preetham": {
+  "pt_BR": "Preetham",
+  "en_US": "Preetham"
+ },
+ "Prepare for Export": {
+  "pt_BR": "Preparar para Exportar",
+  "en_US": "Prepare for Export"
+ },
+ "Pé-Direito": {
+  "pt_BR": "Pé-Direito",
+  "en_US": "Ceiling Height"
+ },
+ "Quick preview quality": {
+  "pt_BR": "Qualidade de prévia rápida",
+  "en_US": "Quick preview quality"
+ },
+ "Quick switch between rooms, layout views, and details": {
+  "pt_BR": "Troca rápida entre ambientes, vistas de layout e detalhes",
+  "en_US": "Quick switch between rooms, layout views, and details"
+ },
+ "Radius": {
+  "pt_BR": "Raio",
+  "en_US": "Radius"
+ },
+ "Radius too large for this corner": {
+  "pt_BR": "Raio grande demais para este canto",
+  "en_US": "Radius too large for this corner"
+ },
+ "Radius: {} | Diameter: {}{} | Type for exact | Click to place": {
+  "pt_BR": "Raio: {} | Diâmetro: {}{} | Digite para o exato | Clique para inserir",
+  "en_US": "Radius: {} | Diameter: {}{} | Type for exact | Click to place"
+ },
+ "Radius: {}_ | Enter to confirm | Esc to cancel typing": {
+  "pt_BR": "Raio: {}_ | Enter confirma | Esc cancela a digitação",
+  "en_US": "Radius: {}_ | Enter to confirm | Esc to cancel typing"
+ },
+ "Realistic atmospheric scattering": {
+  "pt_BR": "Dispersão atmosférica realista",
+  "en_US": "Realistic atmospheric scattering"
+ },
+ "Rebaixa a parede a 150 mm na viewport (sem mudar o pé-direito), ou desfaz o rebaixamento": {
+  "pt_BR": "Rebaixa a parede a 150 mm na viewport (sem mudar o pé-direito), ou desfaz o rebaixamento",
+  "en_US": "Lowers the wall to 150 mm in the viewport (without changing the ceiling height), or undoes it"
+ },
+ "Remove a abertura selecionada e seu modificador boolean da parede": {
+  "pt_BR": "Remove a abertura selecionada e seu modificador boolean da parede",
+  "en_US": "Removes the selected opening and its boolean modifier from the wall"
+ },
+ "Remove a linked room from the current scene": {
+  "pt_BR": "Remove um ambiente vinculado da cena atual",
+  "en_US": "Remove a linked room from the current scene"
+ },
+ "Remove a parede: só o trecho, o contorno inteiro ou os outros trechos do contorno": {
+  "pt_BR": "Remove a parede: só o trecho, o contorno inteiro ou os outros trechos do contorno",
+  "en_US": "Removes the wall: only the segment, the whole outline or the other segments of the outline"
+ },
+ "Remove all room lights from the scene": {
+  "pt_BR": "Remove todas as luzes de ambiente da cena",
+  "en_US": "Remove all room lights from the scene"
+ },
+ "Remove os outros trechos do contorno": {
+  "pt_BR": "Remove os outros trechos do contorno",
+  "en_US": "Removes the other segments of the outline"
+ },
+ "Remover": {
+  "pt_BR": "Remover",
+  "en_US": "Remove"
+ },
+ "Rename a room": {
+  "pt_BR": "Renomeia um ambiente",
+  "en_US": "Rename a room"
+ },
+ "Renamed '{}' to '{}'": {
+  "pt_BR": "'{}' renomeado para '{}'",
+  "en_US": "Renamed '{}' to '{}'"
+ },
+ "Render Layout": {
+  "pt_BR": "Renderizar Layout",
+  "en_US": "Render Layout"
+ },
+ "Render all layout views and export to a single PDF file": {
+  "pt_BR": "Renderiza todas as vistas de layout e exporta num único PDF",
+  "en_US": "Render all layout views and export to a single PDF file"
+ },
+ "Render the current layout view to an image": {
+  "pt_BR": "Renderiza a vista de layout atual numa imagem",
+  "en_US": "Render the current layout view to an image"
+ },
+ "Rendered: {}": {
+  "pt_BR": "Renderizado: {}",
+  "en_US": "Rendered: {}"
+ },
+ "Renomeia a definição ativa": {
+  "pt_BR": "Renomeia a definição ativa",
+  "en_US": "Renames the active definition"
+ },
+ "Resolution for rendering (higher = better quality, larger file)": {
+  "pt_BR": "Resolução da renderização (maior = mais qualidade, arquivo maior)",
+  "en_US": "Resolution for rendering (higher = better quality, larger file)"
+ },
+ "Restore Auto Lines": {
+  "pt_BR": "Restaurar Linhas Automáticas",
+  "en_US": "Restore Auto Lines"
+ },
+ "Restored {} hidden object(s)": {
+  "pt_BR": "{} objeto(s) oculto(s) restaurado(s)",
+  "en_US": "Restored {} hidden object(s)"
+ },
+ "Right": {
+  "pt_BR": "Direita",
+  "en_US": "Right"
+ },
+ "Right Side": {
+  "pt_BR": "Lateral Direita",
+  "en_US": "Right Side"
+ },
+ "Right/Outside": {
+  "pt_BR": "Direita/Fora",
+  "en_US": "Right/Outside"
+ },
+ "Riser Height": {
+  "pt_BR": "Altura do Espelho",
+  "en_US": "Riser Height"
+ },
+ "Room scene not found": {
+  "pt_BR": "Cena de ambiente não encontrada",
+  "en_US": "Room scene not found"
+ },
+ "Room scene to rename; empty means the current scene": {
+  "pt_BR": "Cena de ambiente a renomear; vazio = cena atual",
+  "en_US": "Room scene to rename; empty means the current scene"
+ },
+ "Rotate the environment horizontally": {
+  "pt_BR": "Gira o ambiente na horizontal",
+  "en_US": "Rotate the environment horizontally"
+ },
+ "Rotation": {
+  "pt_BR": "Rotação",
+  "en_US": "Rotation"
+ },
+ "Rotation Z:": {
+  "pt_BR": "Rotação Z:",
+  "en_US": "Rotation Z:"
+ },
+ "Save Detail to Library": {
+  "pt_BR": "Salvar Detalhe na Biblioteca",
+  "en_US": "Save Detail to Library"
+ },
+ "Save the current detail to your user library": {
+  "pt_BR": "Salva o detalhe atual na sua biblioteca",
+  "en_US": "Save the current detail to your user library"
+ },
+ "Scale of the hidden-line dash pattern (larger = longer dashes and gaps)": {
+  "pt_BR": "Escala do tracejado da linha oculta (maior = traços e espaços mais longos)",
+  "en_US": "Scale of the hidden-line dash pattern (larger = longer dashes and gaps)"
+ },
+ "Scene '{}' not found": {
+  "pt_BR": "Cena '{}' não encontrada",
+  "en_US": "Scene '{}' not found"
+ },
+ "Scene Name": {
+  "pt_BR": "Nome da Cena",
+  "en_US": "Scene Name"
+ },
+ "Scene Navigator": {
+  "pt_BR": "Navegador de Cenas",
+  "en_US": "Scene Navigator"
+ },
+ "Scene not found: {}": {
+  "pt_BR": "Cena não encontrada: {}",
+  "en_US": "Scene not found: {}"
+ },
+ "Second flight turns left": {
+  "pt_BR": "O segundo lance vira à esquerda",
+  "en_US": "Second flight turns left"
+ },
+ "Second flight turns right": {
+  "pt_BR": "O segundo lance vira à direita",
+  "en_US": "Second flight turns right"
+ },
+ "Sections and elevations": {
+  "pt_BR": "Cortes e elevações",
+  "en_US": "Sections and elevations"
+ },
+ "Segment Length: {}_ | Enter to confirm | Esc to cancel typing": {
+  "pt_BR": "Comprimento do trecho: {}_ | Enter confirma | Esc cancela a digitação",
+  "en_US": "Segment Length: {}_ | Enter to confirm | Esc to cancel typing"
+ },
+ "Segmento {}: {} confirmado.": {
+  "pt_BR": "Segmento {}: {} confirmado.",
+  "en_US": "Segment {}: {} confirmed."
+ },
+ "Segments": {
+  "pt_BR": "Segmentos",
+  "en_US": "Segments"
+ },
+ "Select All Obstacles": {
+  "pt_BR": "Selecionar Todos os Obstáculos",
+  "en_US": "Select All Obstacles"
+ },
+ "Select Obstacle": {
+  "pt_BR": "Selecionar Obstáculo",
+  "en_US": "Select Obstacle"
+ },
+ "Select Views to Include:": {
+  "pt_BR": "Escolha as vistas a incluir:",
+  "en_US": "Select Views to Include:"
+ },
+ "Select a single corner point (not an endpoint)": {
+  "pt_BR": "Escolha um único ponto de canto (não uma ponta)",
+  "en_US": "Select a single corner point (not an endpoint)"
+ },
+ "Select a staircase first": {
+  "pt_BR": "Selecione uma escada primeiro",
+  "en_US": "Select a staircase first"
+ },
+ "Select all obstacles in the scene": {
+  "pt_BR": "Seleciona todos os obstáculos da cena",
+  "en_US": "Select all obstacles in the scene"
+ },
+ "Select or deselect this obstacle": {
+  "pt_BR": "Seleciona ou tira a seleção deste obstáculo",
+  "en_US": "Select or deselect this obstacle"
+ },
+ "Selected object is not an obstacle": {
+  "pt_BR": "O objeto selecionado não é um obstáculo",
+  "en_US": "Selected object is not an obstacle"
+ },
+ "Selected wall is not part of a detected chain": {
+  "pt_BR": "A parede selecionada não faz parte de uma cadeia detectada",
+  "en_US": "Selected wall is not part of a detected chain"
+ },
+ "Selected {} obstacles": {
+  "pt_BR": "{} obstáculos selecionados",
+  "en_US": "Selected {} obstacles"
+ },
+ "Sem destino nas bibliotecas atuais (valem para a lista de peças): {}": {
+  "pt_BR": "Sem destino nas bibliotecas atuais (valem para a lista de peças): {}",
+  "en_US": "No target in the current libraries (apply to the part list): {}"
+ },
+ "Sem relatório.": {
+  "pt_BR": "Sem relatório.",
+  "en_US": "No report."
+ },
+ "Setup HDRI environment: {}": {
+  "pt_BR": "Ambiente HDRI configurado: {}",
+  "en_US": "Setup HDRI environment: {}"
+ },
+ "Setup world environment lighting using HDRI or Sky texture": {
+  "pt_BR": "Configura a iluminação do mundo com HDRI ou textura de céu",
+  "en_US": "Setup world environment lighting using HDRI or Sky texture"
+ },
+ "Setup {} sky texture": {
+  "pt_BR": "Textura de céu {} configurada",
+  "en_US": "Setup {} sky texture"
+ },
+ "Shadow Softness": {
+  "pt_BR": "Suavidade da Sombra",
+  "en_US": "Shadow Softness"
+ },
+ "Show Lines": {
+  "pt_BR": "Mostrar Linhas",
+  "en_US": "Show Lines"
+ },
+ "Side": {
+  "pt_BR": "Lado",
+  "en_US": "Side"
+ },
+ "Simple sky model": {
+  "pt_BR": "Modelo de céu simples",
+  "en_US": "Simple sky model"
+ },
+ "Single Scattering": {
+  "pt_BR": "Dispersão Simples",
+  "en_US": "Single Scattering"
+ },
+ "Site plans": {
+  "pt_BR": "Implantações",
+  "en_US": "Site plans"
+ },
+ "Sky Settings": {
+  "pt_BR": "Configurações do Céu",
+  "en_US": "Sky Settings"
+ },
+ "Sky Texture": {
+  "pt_BR": "Textura de Céu",
+  "en_US": "Sky Texture"
+ },
+ "Sky Type": {
+  "pt_BR": "Tipo de Céu",
+  "en_US": "Sky Type"
+ },
+ "Soffit depth from the wall face": {
+  "pt_BR": "Profundidade da sanca a partir da face da parede",
+  "en_US": "Soffit depth from the wall face"
+ },
+ "Soffit height (drop below the ceiling)": {
+  "pt_BR": "Altura da sanca (rebaixo abaixo do teto)",
+  "en_US": "Soffit height (drop below the ceiling)"
+ },
+ "Space between the two parallel flights": {
+  "pt_BR": "Espaço entre os dois lances paralelos",
+  "en_US": "Space between the two parallel flights"
+ },
+ "Stair Commands": {
+  "pt_BR": "Comandos da Escada",
+  "en_US": "Stair Commands"
+ },
+ "Stair Prompts": {
+  "pt_BR": "Opções da Escada",
+  "en_US": "Stair Prompts"
+ },
+ "Staircase deleted": {
+  "pt_BR": "Escada apagada",
+  "en_US": "Staircase deleted"
+ },
+ "Standard print quality": {
+  "pt_BR": "Qualidade de impressão padrão",
+  "en_US": "Standard print quality"
+ },
+ "Steps: {}": {
+  "pt_BR": "Degraus: {}",
+  "en_US": "Steps: {}"
+ },
+ "Straight": {
+  "pt_BR": "Reta",
+  "en_US": "Straight"
+ },
+ "Straight staircase": {
+  "pt_BR": "Escada reta",
+  "en_US": "Straight staircase"
+ },
+ "Strength": {
+  "pt_BR": "Intensidade",
+  "en_US": "Strength"
+ },
+ "Studio": {
+  "pt_BR": "Estúdio",
+  "en_US": "Studio"
+ },
+ "Sun Elevation": {
+  "pt_BR": "Elevação do Sol",
+  "en_US": "Sun Elevation"
+ },
+ "Sun Rotation": {
+  "pt_BR": "Rotação do Sol",
+  "en_US": "Sun Rotation"
+ },
+ "Sunrise": {
+  "pt_BR": "Nascer do Sol",
+  "en_US": "Sunrise"
+ },
+ "Sunset": {
+  "pt_BR": "Pôr do Sol",
+  "en_US": "Sunset"
+ },
+ "Switch to a different room scene": {
+  "pt_BR": "Troca para outra cena de ambiente",
+  "en_US": "Switch to a different room scene"
+ },
+ "Switch to a layout view scene": {
+  "pt_BR": "Troca para uma cena de vista de layout",
+  "en_US": "Switch to a layout view scene"
+ },
+ "Switched to: {}": {
+  "pt_BR": "Trocado para: {}",
+  "en_US": "Switched to: {}"
+ },
+ "Só o contorno": {
+  "pt_BR": "Só o contorno",
+  "en_US": "Outline only"
+ },
+ "Só o trecho selecionado": {
+  "pt_BR": "Só o trecho selecionado",
+  "en_US": "Only the selected segment"
+ },
+ "Tabloid (11\" x 17\")": {
+  "pt_BR": "Tabloide (11\" x 17\")",
+  "en_US": "Tabloid (11\" x 17\")"
+ },
+ "Thickness multiplier for dashed hidden line art strokes": {
+  "pt_BR": "Multiplicador de espessura das linhas ocultas tracejadas",
+  "en_US": "Thickness multiplier for dashed hidden line art strokes"
+ },
+ "Thickness multiplier for visible line art strokes": {
+  "pt_BR": "Multiplicador de espessura das linhas visíveis",
+  "en_US": "Thickness multiplier for visible line art strokes"
+ },
+ "Thickness:": {
+  "pt_BR": "Espessura:",
+  "en_US": "Thickness:"
+ },
+ "This shows the prompts for the selected wall": {
+  "pt_BR": "Mostra as opções da parede selecionada",
+  "en_US": "This shows the prompts for the selected wall"
+ },
+ "This will add a ceiling to the room based on the wall layout": {
+  "pt_BR": "Adiciona um teto ao ambiente a partir das paredes",
+  "en_US": "This will add a ceiling to the room based on the wall layout"
+ },
+ "This will add a floor to the room based on the wall layout": {
+  "pt_BR": "Adiciona um piso ao ambiente a partir das paredes",
+  "en_US": "This will add a floor to the room based on the wall layout"
+ },
+ "This will permanently modify the current scene. Make sure you have saved a backup before continuing.": {
+  "pt_BR": "Isto modifica a cena atual de forma permanente. Salve uma cópia de segurança antes de continuar.",
+  "en_US": "This will permanently modify the current scene. Make sure you have saved a backup before continuing."
+ },
+ "Todo o contorno ligado ao trecho": {
+  "pt_BR": "Todo o contorno ligado ao trecho",
+  "en_US": "The whole outline joined to the segment"
+ },
+ "Toggle Link Room": {
+  "pt_BR": "Alternar Vínculo do Ambiente",
+  "en_US": "Toggle Link Room"
+ },
+ "Toggle Linked Category": {
+  "pt_BR": "Alternar Categoria Vinculada",
+  "en_US": "Toggle Linked Category"
+ },
+ "Toggle between single and double door": {
+  "pt_BR": "Alterna entre porta simples e dupla",
+  "en_US": "Toggle between single and double door"
+ },
+ "Toggle whether a category is included in the linked room": {
+  "pt_BR": "Inclui ou tira uma categoria do ambiente vinculado",
+  "en_US": "Toggle whether a category is included in the linked room"
+ },
+ "Total Rise": {
+  "pt_BR": "Altura Total",
+  "en_US": "Total Rise"
+ },
+ "Total Run:": {
+  "pt_BR": "Comprimento Total:",
+  "en_US": "Total Run:"
+ },
+ "Total Steps:": {
+  "pt_BR": "Total de Degraus:",
+  "en_US": "Total Steps:"
+ },
+ "Tread Depth": {
+  "pt_BR": "Profundidade do Piso",
+  "en_US": "Tread Depth"
+ },
+ "Tread Thickness": {
+  "pt_BR": "Espessura do Piso",
+  "en_US": "Tread Thickness"
+ },
+ "Turn": {
+  "pt_BR": "Virada",
+  "en_US": "Turn"
+ },
+ "Turn Direction": {
+  "pt_BR": "Sentido da Virada",
+  "en_US": "Turn Direction"
+ },
+ "Type": {
+  "pt_BR": "Tipo",
+  "en_US": "Type"
+ },
+ "U-Shaped": {
+  "pt_BR": "Em U",
+  "en_US": "U-Shaped"
+ },
+ "Unhide everything hidden by Hide Wall or Isolate Selected Walls": {
+  "pt_BR": "Mostra tudo o que foi ocultado por Ocultar Parede ou Isolar Paredes Selecionadas",
+  "en_US": "Unhide everything hidden by Hide Wall or Isolate Selected Walls"
+ },
+ "Unlink Room": {
+  "pt_BR": "Desvincular Ambiente",
+  "en_US": "Unlink Room"
+ },
+ "Unlinked '{}'": {
+  "pt_BR": "'{}' desvinculado",
+  "en_US": "Unlinked '{}'"
+ },
+ "Update Elevation View": {
+  "pt_BR": "Atualizar Vista de Elevação",
+  "en_US": "Update Elevation View"
+ },
+ "Update Wall Height": {
+  "pt_BR": "Atualizar Altura das Paredes",
+  "en_US": "Update Wall Height"
+ },
+ "Update Wall Miters": {
+  "pt_BR": "Atualizar Esquadrias das Paredes",
+  "en_US": "Update Wall Miters"
+ },
+ "Update Wall Thickness": {
+  "pt_BR": "Atualizar Espessura das Paredes",
+  "en_US": "Update Wall Thickness"
+ },
+ "Update miter angles for all walls based on their connections": {
+  "pt_BR": "Atualiza os ângulos de esquadria de todas as paredes pelas ligações",
+  "en_US": "Update miter angles for all walls based on their connections"
+ },
+ "Update properties of all room lights": {
+  "pt_BR": "Atualiza as propriedades de todas as luzes de ambiente",
+  "en_US": "Update properties of all room lights"
+ },
+ "Update the elevation view to reflect changes in the 3D model": {
+  "pt_BR": "Atualiza a vista de elevação com as mudanças do modelo 3D",
+  "en_US": "Update the elevation view to reflect changes in the 3D model"
+ },
+ "Update wall heights for walls matching the current wall type": {
+  "pt_BR": "Atualiza a altura das paredes do tipo atual",
+  "en_US": "Update wall heights for walls matching the current wall type"
+ },
+ "Update wall thickness for walls matching the current wall type": {
+  "pt_BR": "Atualiza a espessura das paredes do tipo atual",
+  "en_US": "Update wall thickness for walls matching the current wall type"
+ },
+ "Updated elevation view": {
+  "pt_BR": "Vista de elevação atualizada",
+  "en_US": "Updated elevation view"
+ },
+ "Updated height on {} {} wall(s)": {
+  "pt_BR": "Altura atualizada em {} parede(s) {}",
+  "en_US": "Updated height on {} {} wall(s)"
+ },
+ "Updated thickness on {} {} wall(s)": {
+  "pt_BR": "Espessura atualizada em {} parede(s) {}",
+  "en_US": "Updated thickness on {} {} wall(s)"
+ },
+ "Updated wall miter angles": {
+  "pt_BR": "Ângulos de esquadria atualizados",
+  "en_US": "Updated wall miter angles"
+ },
+ "Updated {} room light(s)": {
+  "pt_BR": "{} luz(es) de ambiente atualizada(s)",
+  "en_US": "Updated {} room light(s)"
+ },
+ "Urban environment": {
+  "pt_BR": "Ambiente urbano",
+  "en_US": "Urban environment"
+ },
+ "Use \"Definir ativa\" para aplicar esta definição ao projeto.": {
+  "pt_BR": "Use \"Definir ativa\" para aplicar esta definição ao projeto.",
+  "en_US": "Use \"Set active\" to apply this definition to the project."
+ },
+ "Use a procedural sky texture": {
+  "pt_BR": "Usa uma textura de céu procedural",
+  "en_US": "Use a procedural sky texture"
+ },
+ "Use an HDRI image for environment lighting": {
+  "pt_BR": "Usa uma imagem HDRI para a iluminação",
+  "en_US": "Use an HDRI image for environment lighting"
+ },
+ "Use landscape orientation": {
+  "pt_BR": "Usa a orientação paisagem",
+  "en_US": "Use landscape orientation"
+ },
+ "Use o Configurador de Dimensões (caffmob.standards_configurator).": {
+  "pt_BR": "Use o Configurador de Dimensões (caffmob.standards_configurator).",
+  "en_US": "Use the Dimension Configurator (caffmob.standards_configurator)."
+ },
+ "Use perspective projection (unchecked = isometric)": {
+  "pt_BR": "Usa projeção em perspectiva (desmarcado = isométrica)",
+  "en_US": "Use perspective projection (unchecked = isometric)"
+ },
+ "Valores inválidos ignorados: {}": {
+  "pt_BR": "Valores inválidos ignorados: {}",
+  "en_US": "Invalid values ignored: {}"
+ },
+ "Very detailed - 1:4": {
+  "pt_BR": "Muito detalhado - 1:4",
+  "en_US": "Very detailed - 1:4"
+ },
+ "Wall Length: {}_ | Enter to confirm | Esc to cancel typing": {
+  "pt_BR": "Comprimento da parede: {}_ | Enter confirma | Esc cancela a digitação",
+  "en_US": "Wall Length: {}_ | Enter to confirm | Esc to cancel typing"
+ },
+ "Wall deleted": {
+  "pt_BR": "Parede apagada",
+  "en_US": "Wall deleted"
+ },
+ "Wall has zero length": {
+  "pt_BR": "A parede tem comprimento zero",
+  "en_US": "Wall has zero length"
+ },
+ "Wall is not part of a detected chain": {
+  "pt_BR": "A parede não faz parte de uma cadeia detectada",
+  "en_US": "Wall is not part of a detected chain"
+ },
+ "Wall is too short to place": {
+  "pt_BR": "A parede é curta demais para inserir",
+  "en_US": "Wall is too short to place"
+ },
+ "Wall overlaps an existing wall": {
+  "pt_BR": "A parede se sobrepõe a uma parede existente",
+  "en_US": "Wall overlaps an existing wall"
+ },
+ "Warm sunrise lighting": {
+  "pt_BR": "Luz quente do nascer do sol",
+  "en_US": "Warm sunrise lighting"
+ },
+ "Which side to offset": {
+  "pt_BR": "Para qual lado deslocar",
+  "en_US": "Which side to offset"
+ },
+ "Width: {} x Depth: {} | Click second corner | Esc to cancel": {
+  "pt_BR": "Largura: {} x Profundidade: {} | Clique o segundo canto | Esc cancela",
+  "en_US": "Width: {} x Depth: {} | Click second corner | Esc to cancel"
+ },
+ "Width: {} | Height: {}_ | Enter to confirm | Esc to cancel": {
+  "pt_BR": "Largura: {} | Altura: {}_ | Enter confirma | Esc cancela",
+  "en_US": "Width: {} | Height: {}_ | Enter to confirm | Esc to cancel"
+ },
+ "Width: {} | Height: {}{} | Type for exact size | Click to place": {
+  "pt_BR": "Largura: {} | Altura: {}{} | Digite para a medida exata | Clique para inserir",
+  "en_US": "Width: {} | Height: {}{} | Type for exact size | Click to place"
+ },
+ "Width: {}_ | Tab for height | Enter to confirm | Esc to cancel": {
+  "pt_BR": "Largura: {}_ | Tab para altura | Enter confirma | Esc cancela",
+  "en_US": "Width: {}_ | Tab for height | Enter to confirm | Esc to cancel"
+ },
+ "door": {
+  "pt_BR": "porta",
+  "en_US": "door"
+ },
+ "double door": {
+  "pt_BR": "porta dupla",
+  "en_US": "double door"
+ },
+ "length": {
+  "pt_BR": "comprimento",
+  "en_US": "length"
+ },
+ "object": {
+  "pt_BR": "objeto",
+  "en_US": "object"
+ },
+ "offset": {
+  "pt_BR": "deslocamento",
+  "en_US": "offset"
+ },
+ "open door": {
+  "pt_BR": "vão livre",
+  "en_US": "open door"
+ },
+ "predecessor": {
+  "pt_BR": "anterior",
+  "en_US": "predecessor"
+ },
+ "successor": {
+  "pt_BR": "seguinte",
+  "en_US": "successor"
+ },
+ "window": {
+  "pt_BR": "janela",
+  "en_US": "window"
+ },
+ "{} (somente leitura)": {
+  "pt_BR": "{} (somente leitura)",
+  "en_US": "{} (read-only)"
+ },
+ "{} ({}) | Click to place | Esc to cancel": {
+  "pt_BR": "{} ({}) | Clique para inserir | Esc cancela",
+  "en_US": "{} ({}) | Click to place | Esc to cancel"
+ },
+ "{} Click end point | Width: {}{}{} | W: type width | Right-click: re-pick start | D: exit 2-point | Esc cancel": {
+  "pt_BR": "{} Clique o ponto final | Largura: {}{}{} | W: digitar largura | Botão direito: refazer início | D: sair dos 2 pontos | Esc cancela",
+  "en_US": "{} Click end point | Width: {}{}{} | W: type width | Right-click: re-pick start | D: exit 2-point | Esc cancel"
+ },
+ "{} Click start point on wall{} | W: type width | D: exit 2-point | Esc cancel": {
+  "pt_BR": "{} Clique o ponto inicial na parede{} | W: digitar largura | D: sair dos 2 pontos | Esc cancela",
+  "en_US": "{} Click start point on wall{} | W: type width | D: exit 2-point | Esc cancel"
+ },
+ "{} Stairs: {} steps | Click to place | R rotate | T toggle type | D toggle direction | ESC cancel": {
+  "pt_BR": "Escada {}: {} degraus | Clique para inserir | R gira | T troca o tipo | D troca o sentido | Esc cancela",
+  "en_US": "{} Stairs: {} steps | Click to place | R rotate | T toggle type | D toggle direction | ESC cancel"
+ },
+ "{} already linked": {
+  "pt_BR": "{} já vinculado(s)",
+  "en_US": "{} already linked"
+ },
+ "{} chapa(s), {} peça(s) posicionada(s), aproveitamento {}%": {
+  "pt_BR": "{} chapa(s), {} peça(s) posicionada(s), aproveitamento {}%",
+  "en_US": "{} sheet(s), {} part(s) placed, yield {}%"
+ },
+ "{} deleted": {
+  "pt_BR": "{} apagado",
+  "en_US": "{} deleted"
+ },
+ "{} inserida na parede {}.": {
+  "pt_BR": "{} inserida na parede {}.",
+  "en_US": "{} inserted in wall {}."
+ },
+ "{} must be placed on a wall": {
+  "pt_BR": "{} precisa ficar numa parede",
+  "en_US": "{} must be placed on a wall"
+ },
+ "{} módulo(s) serão atualizados.": {
+  "pt_BR": "{} módulo(s) serão atualizados.",
+  "en_US": "{} module(s) will be updated."
+ },
+ "{} parede(s) rebaixada(s), {} restaurada(s).": {
+  "pt_BR": "{} parede(s) rebaixada(s), {} restaurada(s).",
+  "en_US": "{} wall(s) lowered, {} restored."
+ },
+ "{} parede(s) removida(s).": {
+  "pt_BR": "{} parede(s) removida(s).",
+  "en_US": "{} wall(s) removed."
+ },
+ "{} point(s) — click to add more (need {} more minimum)": {
+  "pt_BR": "{} ponto(s) — clique para adicionar (faltam no mínimo {})",
+  "en_US": "{} point(s) — click to add more (need {} more minimum)"
+ },
+ "{} points — click to add, Enter to finish{}": {
+  "pt_BR": "{} pontos — clique para adicionar, Enter para concluir{}",
+  "en_US": "{} points — click to add, Enter to finish{}"
+ },
+ "{} wall(s) hidden": {
+  "pt_BR": "{} parede(s) oculta(s)",
+  "en_US": "{} wall(s) hidden"
+ },
+ "{} walls deleted": {
+  "pt_BR": "{} paredes apagadas",
+  "en_US": "{} walls deleted"
+ },
+ "{} | Plane: {}": {
+  "pt_BR": "{} | Plano: {}",
+  "en_US": "{} | Plane: {}"
+ },
+ "{} | Width: {}{}{} | ←/→ offset | W width | D: 2-point width | Click to place | Esc cancel": {
+  "pt_BR": "{} | Largura: {}{}{} | ←/→ afastamento | W largura | D: largura por 2 pontos | Clique para inserir | Esc cancela",
+  "en_US": "{} | Width: {}{}{} | ←/→ offset | W width | D: 2-point width | Click to place | Esc cancel"
+ },
+ "{} | {} ({}) | Pos: {}/{} | H: {} | ← → H Tab | Click to place": {
+  "pt_BR": "{} | {} ({}) | Pos: {}/{} | A: {} | ← → H Tab | Clique para inserir",
+  "en_US": "{} | {} ({}) | Pos: {}/{} | H: {} | ← → H Tab | Click to place"
+ },
+ "{}: {}_{} | Enter to confirm | W width | H height | Esc cancel{}": {
+  "pt_BR": "{}: {}_{} | Enter confirma | W largura | H altura | Esc cancela{}",
+  "en_US": "{}: {}_{} | Enter to confirm | W width | H height | Esc cancel{}"
+ },
+ "{}_ | Enter to confirm | Esc to cancel": {
+  "pt_BR": "{}_ | Enter confirma | Esc cancela",
+  "en_US": "{}_ | Enter to confirm | Esc to cancel"
+ },
+ "Ângulo": {
+  "pt_BR": "Ângulo",
+  "en_US": "Angle"
+ }
+}

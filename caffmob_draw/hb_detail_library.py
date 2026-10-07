@@ -9,6 +9,7 @@ import bpy
 import os
 import json
 from datetime import datetime
+from .data.i18n import tr
 
 
 def get_user_library_path() -> str:
@@ -69,7 +70,7 @@ def save_detail_to_library(context, name: str, description: str = "") -> tuple:
     is_crown_detail = scene.get('IS_CROWN_DETAIL', False)
 
     if not is_detail and not is_crown_detail:
-        return (False, "Not in a detail view", "")
+        return (False, tr("Not in a detail view"), "")
 
     # Get all detail objects in the scene
     detail_objects = []
@@ -79,7 +80,7 @@ def save_detail_to_library(context, name: str, description: str = "") -> tuple:
             detail_objects.append(obj)
 
     if not detail_objects:
-        return (False, "No objects in detail view", "")
+        return (False, tr("No objects in detail view"), "")
 
     # Generate filename
     filename = generate_detail_filename(name)
@@ -172,7 +173,7 @@ def load_detail_from_library(context, filepath: str) -> tuple:
     is_crown_detail = scene.get('IS_CROWN_DETAIL', False)
 
     if not is_detail and not is_crown_detail:
-        return (False, "Not in a detail view", [])
+        return (False, tr("Not in a detail view"), [])
 
     if not os.path.exists(filepath):
         return (False, f"File not found: {filepath}", [])
@@ -192,7 +193,7 @@ def load_detail_from_library(context, filepath: str) -> tuple:
             new_objects.append(obj)
 
     if not new_objects:
-        return (False, "No objects found in library file", [])
+        return (False, tr("No objects found in library file"), [])
 
     # Select the new objects
     bpy.ops.object.select_all(action='DESELECT')

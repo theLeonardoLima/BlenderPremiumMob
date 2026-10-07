@@ -7,6 +7,7 @@ movimento, eixo, sentido, máximo ou curso, a barra de abertura e o aviso de bat
 
 import bpy  # type: ignore
 
+from ..data.i18n import tr
 from ..data import units
 from . import apply, leaf, limits, perforate
 
@@ -35,7 +36,7 @@ def draw_aggregate(layout, context):
         return
     agg = obj.btm_aggregate
     box = layout.box()
-    box.label(text=f"{obj.name} — pai: {agg.parent_ref.name if agg.parent_ref else '—'}", icon='OBJECT_DATA')
+    box.label(text=tr("{} — pai: {}").format(obj.name, agg.parent_ref.name if agg.parent_ref else '—'), icon='OBJECT_DATA')
     if agg.kind == 'AGGREGATE':
         box.prop(agg, "face")
         box_p = apply.parent_box(obj)
@@ -48,7 +49,7 @@ def draw_aggregate(layout, context):
         row = box.row(align=True)
         row.prop(agg, "offset")
         if lim:
-            row.label(text=f"mín. {_fmt(context, lim['offset'][0])}")
+            row.label(text=tr("mín. {}").format(_fmt(context, lim['offset'][0])))
         box.operator("caffmob.aggregate_move", icon='VIEW_PAN')
         box.prop(agg, "perforate")
         row = box.row()
@@ -76,7 +77,7 @@ def draw_aggregate(layout, context):
         if agg.contact_name:
             row = box.row()
             row.alert = True
-            row.label(text=f"Folha bateu em {agg.contact_name}", icon='ERROR')
+            row.label(text=tr("Folha bateu em {}").format(agg.contact_name), icon='ERROR')
         if leaf.pivot_of(obj) is None:
             box.label(text="Pivô ausente; desconverta e converta de novo", icon='ERROR')
     layout.operator("caffmob.aggregate_unconvert", icon='UNLINKED')

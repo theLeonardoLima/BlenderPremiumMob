@@ -15,6 +15,7 @@ import bpy
 import gpu
 import blf
 
+from ..data.i18n import tr
 from ..hb_gpu_draw import (
     get_visible_window_bounds as _get_visible_window_bounds,
     draw_rect as _draw_rect,
@@ -571,13 +572,13 @@ class home_builder_OT_scene_navigator(bpy.types.Operator):
         try:
             bpy.ops.caffmob_layouts.go_to_layout_view(scene_name=scene_name)
         except Exception as e:
-            self.report({'WARNING'}, f"Could not switch to {scene_name}: {e}")
+            self.report({'WARNING'}, tr("Could not switch to {}: {}").format(scene_name, e))
 
     def _create_room(self, context):
         try:
             bpy.ops.caffmob.create_room('INVOKE_DEFAULT')
         except Exception as e:
-            self.report({'WARNING'}, f"Could not create room: {e}")
+            self.report({'WARNING'}, tr("Could not create room: {}").format(e))
 
     def _rename_room(self, context, scene):
         # temp_override(scene=...) so rename_room's poll and invoke see the
@@ -587,14 +588,14 @@ class home_builder_OT_scene_navigator(bpy.types.Operator):
                 bpy.ops.caffmob.rename_room(
                     'INVOKE_DEFAULT', scene_name=scene.name)
         except Exception as e:
-            self.report({'WARNING'}, f"Could not rename {scene.name}: {e}")
+            self.report({'WARNING'}, tr("Could not rename {}: {}").format(scene.name, e))
 
     def _delete_room(self, context, scene):
         try:
             bpy.ops.caffmob.delete_room(
                 'INVOKE_DEFAULT', scene_name=scene.name)
         except Exception as e:
-            self.report({'WARNING'}, f"Could not delete {scene.name}: {e}")
+            self.report({'WARNING'}, tr("Could not delete {}: {}").format(scene.name, e))
 
     def modal(self, context, event):
         global _pinned

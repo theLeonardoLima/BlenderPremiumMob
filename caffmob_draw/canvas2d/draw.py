@@ -11,6 +11,7 @@ import gpu  # type: ignore
 
 from .. import compat, hb_gpu_draw
 from ..data import units
+from ..data.i18n import tr
 
 FONT = 0
 FONT_SIZE = 12
@@ -77,12 +78,13 @@ def dashed(p0, p1, dash=6.0, gap=4.0):
 
 
 def text(x, y, value, color=None, size=FONT_SIZE):
-    hb_gpu_draw.draw_text(FONT, x, y, size, color or COLORS['text'], value)
+    """Texto na tela, traduzido para o idioma da interface (o catálogo tem o texto do código como chave)."""
+    hb_gpu_draw.draw_text(FONT, x, y, size, color or COLORS['text'], tr(value))
 
 
 def text_width(value, size=FONT_SIZE):
     blf.size(FONT, size)
-    return blf.dimensions(FONT, value)[0]
+    return blf.dimensions(FONT, tr(value))[0]
 
 
 def button(sh, r, label, hot=False, primary=False):

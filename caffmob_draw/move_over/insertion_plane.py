@@ -7,6 +7,7 @@ Menu de contexto do objeto › "Usar como plano de inserção" e um clique na fa
 import bpy  # type: ignore
 from bpy_extras import view3d_utils  # type: ignore
 from mathutils import Matrix, Vector  # type: ignore
+from ..data.i18n import tr
 
 
 def _plane_matrix(location, normal):
@@ -28,7 +29,7 @@ class BTM_OT_SetInsertionPlane(bpy.types.Operator):
     def invoke(self, context, event):
         # O clique no menu não está sobre a face: pede um clique na face (Esc/botão direito cancela).
         context.window_manager.modal_handler_add(self)
-        context.workspace.status_text_set("Plano de inserção  |  Clique na face  |  Esc/botão direito: cancelar")
+        context.workspace.status_text_set(tr("Plano de inserção  |  Clique na face  |  Esc/botão direito: cancelar"))
         context.window.cursor_set('EYEDROPPER')
         return {'RUNNING_MODAL'}
 
@@ -60,7 +61,7 @@ class BTM_OT_SetInsertionPlane(bpy.types.Operator):
         plane.matrix = [v for row in _plane_matrix(Vector(location), Vector(normal)) for v in row]
         plane.source_name = source
         plane.active = True
-        self.report({'INFO'}, f"Plano de inserção: face de {source}")
+        self.report({'INFO'}, tr("Plano de inserção: face de {}").format(source))
         return {'FINISHED'}
 
     def execute(self, context):

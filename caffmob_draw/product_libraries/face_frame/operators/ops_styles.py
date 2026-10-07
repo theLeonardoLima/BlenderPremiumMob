@@ -5,6 +5,7 @@ material wiring.
 import bpy
 from bpy.types import Operator
 
+from ....data.i18n import tr
 from ..props_hb_face_frame import (get_style_props,
                                    _reapply_materials_for_door_style)
 from .. import style_options
@@ -114,7 +115,7 @@ class hb_face_frame_OT_add_cabinet_style(Operator):
         if src is not None:
             _copy_cabinet_style(src, new_style)
         ff.active_cabinet_style_index = len(ff.cabinet_styles) - 1
-        self.report({'INFO'}, f"Added cabinet style: {new_style.name}")
+        self.report({'INFO'}, tr("Added cabinet style: {}").format(new_style.name))
         return {'FINISHED'}
 
 
@@ -144,7 +145,7 @@ class hb_face_frame_OT_remove_cabinet_style(Operator):
         ff.cabinet_styles.remove(idx)
         if ff.active_cabinet_style_index >= len(ff.cabinet_styles):
             ff.active_cabinet_style_index = max(0, len(ff.cabinet_styles) - 1)
-        self.report({'INFO'}, f"Removed cabinet style: {name}")
+        self.report({'INFO'}, tr("Removed cabinet style: {}").format(name))
         return {'FINISHED'}
 
 
@@ -211,7 +212,7 @@ class hb_face_frame_OT_add_door_style(Operator):
             # rail callouts are a drawer-rail concern.
             new_style.show_rail_annotation = False
         ff.active_door_style_index = len(ff.door_styles) - 1
-        self.report({'INFO'}, f"Added door style: {new_style.name}")
+        self.report({'INFO'}, tr("Added door style: {}").format(new_style.name))
         return {'FINISHED'}
 
 
@@ -239,7 +240,7 @@ class hb_face_frame_OT_remove_door_style(Operator):
         ff.door_styles.remove(idx)
         if ff.active_door_style_index >= len(ff.door_styles):
             ff.active_door_style_index = max(0, len(ff.door_styles) - 1)
-        self.report({'INFO'}, f"Removed door style: {name}")
+        self.report({'INFO'}, tr("Removed door style: {}").format(name))
         return {'FINISHED'}
 
 
@@ -262,7 +263,7 @@ class hb_face_frame_OT_add_drawer_front_style(Operator):
         if src is not None:
             _copy_door_style(src, new_style)
         ff.active_drawer_front_style_index = len(ff.drawer_front_styles) - 1
-        self.report({'INFO'}, f"Added drawer front style: {new_style.name}")
+        self.report({'INFO'}, tr("Added drawer front style: {}").format(new_style.name))
         return {'FINISHED'}
 
 
@@ -290,7 +291,7 @@ class hb_face_frame_OT_remove_drawer_front_style(Operator):
         ff.drawer_front_styles.remove(idx)
         if ff.active_drawer_front_style_index >= len(ff.drawer_front_styles):
             ff.active_drawer_front_style_index = max(0, len(ff.drawer_front_styles) - 1)
-        self.report({'INFO'}, f"Removed drawer front style: {name}")
+        self.report({'INFO'}, tr("Removed drawer front style: {}").format(name))
         return {'FINISHED'}
 
 
@@ -342,7 +343,7 @@ class hb_face_frame_OT_assign_style_to_selected_cabinets(Operator):
         for hood in hood_roots:
             style.assign_style_to_hood(hood)
         n = len(cab_roots) + len(hood_roots)
-        self.report({'INFO'}, f"Applied '{style.name}' to {n} item(s)")
+        self.report({'INFO'}, tr("Applied '{}' to {} item(s)").format(style.name, n))
         return {'FINISHED'}
 
 
@@ -379,7 +380,7 @@ class hb_face_frame_OT_update_cabinets_from_style(Operator):
             elif obj.get('APPLIANCE_TYPE') == 'HOOD':
                 hood_roots.append(obj)
         if not cab_roots and not hood_roots:
-            self.report({'INFO'}, f"No cabinets or hoods tagged with '{target_name}'")
+            self.report({'INFO'}, tr("No cabinets or hoods tagged with '{}'").format(target_name))
             return {'FINISHED'}
 
         for root in cab_roots:
@@ -387,7 +388,7 @@ class hb_face_frame_OT_update_cabinets_from_style(Operator):
         for hood in hood_roots:
             style.assign_style_to_hood(hood)
         n = len(cab_roots) + len(hood_roots)
-        self.report({'INFO'}, f"Updated {n} item(s) tagged '{target_name}'")
+        self.report({'INFO'}, tr("Updated {} item(s) tagged '{}'").format(n, target_name))
         return {'FINISHED'}
 
 
@@ -465,7 +466,7 @@ class hb_face_frame_OT_paint_assign_cabinet_style(bpy.types.Operator):
             self._painted.add(root.name)
             self._count += 1
         context.workspace.status_text_set(
-            f"Applied '{style.name}' to {self._count} item(s)  |  Esc / RMB to finish")
+            tr("Applied '{}' to {} item(s)  |  Esc / RMB to finish").format(style.name, self._count))
 
     def _set_hover(self, context, root):
         """Highlight the cabinet under the cursor by selecting its root, so it's
@@ -530,7 +531,7 @@ class hb_face_frame_OT_paint_assign_cabinet_style(bpy.types.Operator):
         context.workspace.status_text_set(None)
         if context.area is not None:
             context.area.tag_redraw()
-        self.report({'INFO'}, f"Assigned cabinet style to {self._count} cabinet(s)")
+        self.report({'INFO'}, tr("Assigned cabinet style to {} cabinet(s)").format(self._count))
         return {'FINISHED'}
 
     def invoke(self, context, event):
@@ -549,7 +550,7 @@ class hb_face_frame_OT_paint_assign_cabinet_style(bpy.types.Operator):
         self._orig_active = active.name if active else None
         context.window.cursor_modal_set('PAINT_BRUSH')
         context.workspace.status_text_set(
-            "Paint-assign: hover highlights a cabinet, click to assign  |  Esc / RMB to finish")
+            tr("Paint-assign: hover highlights a cabinet, click to assign  |  Esc / RMB to finish"))
         context.window_manager.modal_handler_add(self)
         return {'RUNNING_MODAL'}
 
@@ -595,7 +596,7 @@ class hb_face_frame_OT_assign_door_style_to_selected_fronts(Operator):
             _reapply_materials_for_door_style(ds, context)
         for err in errors:
             self.report({'WARNING'}, err)
-        self.report({'INFO'}, f"Applied '{ds.name}' to {applied} front(s)")
+        self.report({'INFO'}, tr("Applied '{}' to {} front(s)").format(ds.name, applied))
         return {'FINISHED'}
 
 
@@ -636,7 +637,7 @@ class hb_face_frame_OT_update_fronts_from_door_style(Operator):
             _reapply_materials_for_door_style(ds, context)
         for err in errors:
             self.report({'WARNING'}, err)
-        self.report({'INFO'}, f"Updated {applied} front(s) tagged '{target}'")
+        self.report({'INFO'}, tr("Updated {} front(s) tagged '{}'").format(applied, target))
         return {'FINISHED'}
 
 
@@ -718,7 +719,7 @@ class hb_face_frame_OT_paint_assign_front_style(bpy.types.Operator):
             return
         if front.get('hb_part_role') not in self._allowed_roles():
             context.workspace.status_text_set(
-                f"Skipped: not a {self.kind.lower()} front  |  Esc / RMB to finish")
+                tr("Skipped: not a {} front  |  Esc / RMB to finish").format(self.kind.lower()))
             return
         result = style.assign_style_to_front(front, record_override=True)
         if result is True:
@@ -727,9 +728,9 @@ class hb_face_frame_OT_paint_assign_front_style(bpy.types.Operator):
             # op) -- run it per click so a glass panel shows immediately.
             _reapply_materials_for_door_style(style, context)
             context.workspace.status_text_set(
-                f"Applied '{style.name}' to {self._count} front(s)  |  Esc / RMB to finish")
+                tr("Applied '{}' to {} front(s)  |  Esc / RMB to finish").format(style.name, self._count))
         elif isinstance(result, str):
-            context.workspace.status_text_set(result + "  |  Esc / RMB to finish")
+            context.workspace.status_text_set(tr("{}  |  Esc / RMB to finish").format(result))
 
     def _set_hover(self, context, front):
         """Highlight the assignable front under the cursor by selecting it (and
@@ -798,7 +799,7 @@ class hb_face_frame_OT_paint_assign_front_style(bpy.types.Operator):
         context.workspace.status_text_set(None)
         if context.area is not None:
             context.area.tag_redraw()
-        self.report({'INFO'}, f"Assigned {self.kind.lower()} style to {self._count} front(s)")
+        self.report({'INFO'}, tr("Assigned {} style to {} front(s)").format(self.kind.lower(), self._count))
         return {'FINISHED'}
 
     def invoke(self, context, event):
@@ -816,7 +817,7 @@ class hb_face_frame_OT_paint_assign_front_style(bpy.types.Operator):
         self._orig_active = active.name if active else None
         context.window.cursor_modal_set('PAINT_BRUSH')
         context.workspace.status_text_set(
-            "Paint-assign: hover highlights a front, click to assign  |  Esc / RMB to finish")
+            tr("Paint-assign: hover highlights a front, click to assign  |  Esc / RMB to finish"))
         context.window_manager.modal_handler_add(self)
         return {'RUNNING_MODAL'}
 
@@ -863,7 +864,7 @@ class hb_face_frame_OT_update_fronts_from_style(bpy.types.Operator):
         # Surfaces come from the cabinet material walk (see assign op).
         if applied:
             _reapply_materials_for_door_style(ds, context)
-        self.report({'INFO'}, f"Updated {applied} front(s) tagged '{target}'")
+        self.report({'INFO'}, tr("Updated {} front(s) tagged '{}'").format(applied, target))
         return {'FINISHED'}
 
 
@@ -926,7 +927,7 @@ class hb_face_frame_OT_add_special_effects(Operator):
             if c.is_selected:
                 style.special_effects.add().name = c.name
                 added += 1
-        self.report({'INFO'}, f"Added {added} special effect(s).")
+        self.report({'INFO'}, tr("Added {} special effect(s).").format(added))
         return {'FINISHED'}
 
 
@@ -1195,8 +1196,7 @@ class hb_face_frame_OT_paint_part_material(bpy.types.Operator):
     def _status(self, context, count=False):
         tail = (f" - {len(self._painted)} painted" if count else "")
         context.workspace.status_text_set(
-            f"Paint Part [{self.brush.title()}]{tail}  |  "
-            f"1 Finish  2 Interior  3 Reset  |  click parts  |  Esc / RMB to finish")
+            tr("Paint Part [{}]{}  |  1 Finish  2 Interior  3 Reset  |  click parts  |  Esc / RMB to finish").format(self.brush.title(), tail))
 
     def modal(self, context, event):
         if event.type in {'ESC', 'RIGHTMOUSE'} and event.value == 'PRESS':
@@ -1225,7 +1225,7 @@ class hb_face_frame_OT_paint_part_material(bpy.types.Operator):
         context.workspace.status_text_set(None)
         if context.area is not None:
             context.area.tag_redraw()
-        self.report({'INFO'}, f"Painted {len(self._painted)} part(s)")
+        self.report({'INFO'}, tr("Painted {} part(s)").format(len(self._painted)))
         return {'FINISHED'}
 
     def invoke(self, context, event):

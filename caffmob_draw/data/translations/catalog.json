@@ -1,0 +1,865 @@
+{
+ "3-drawer night stand.": {
+  "pt_BR": "Criado-mudo com 3 gavetas.",
+  "en_US": "3-drawer night stand.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Activate Catalog Item": {
+  "pt_BR": "Ativar Item do Catálogo",
+  "en_US": "Activate Catalog Item"
+ },
+ "Angled Ends with Doors": {
+  "pt_BR": "Pontas Chanfradas com Portas",
+  "en_US": "Angled Ends with Doors",
+  "contexto": "caffmob_catalogo"
+ },
+ "Angled Finished Ends": {
+  "pt_BR": "Pontas Chanfradas Acabadas",
+  "en_US": "Angled Finished Ends",
+  "contexto": "caffmob_catalogo"
+ },
+ "Angled end cabinet with doors.": {
+  "pt_BR": "Módulo de ponta chanfrada com portas.",
+  "en_US": "Angled end cabinet with doors.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Angled finished end cabinet.": {
+  "pt_BR": "Módulo de ponta chanfrada acabada.",
+  "en_US": "Angled finished end cabinet.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Bad action_operator format: {}": {
+  "pt_BR": "Formato de action_operator inválido: {}",
+  "en_US": "Bad action_operator format: {}"
+ },
+ "Bookcase - Standard": {
+  "pt_BR": "Estante - Padrão",
+  "en_US": "Bookcase - Standard",
+  "contexto": "caffmob_catalogo"
+ },
+ "Bookcase - Storage Unit": {
+  "pt_BR": "Estante - Armário",
+  "en_US": "Bookcase - Storage Unit",
+  "contexto": "caffmob_catalogo"
+ },
+ "Bookcase Corner - Hutch": {
+  "pt_BR": "Estante de Canto - Cristaleira",
+  "en_US": "Bookcase Corner - Hutch",
+  "contexto": "caffmob_catalogo"
+ },
+ "Bookcase Corner - Storage": {
+  "pt_BR": "Estante de Canto - Armário",
+  "en_US": "Bookcase Corner - Storage",
+  "contexto": "caffmob_catalogo"
+ },
+ "Bookcase Corner Upper - Hutch": {
+  "pt_BR": "Estante de Canto Superior - Cristaleira",
+  "en_US": "Bookcase Corner Upper - Hutch",
+  "contexto": "caffmob_catalogo"
+ },
+ "Bookcase Corner Upper - Standard": {
+  "pt_BR": "Estante de Canto Superior - Padrão",
+  "en_US": "Bookcase Corner Upper - Standard",
+  "contexto": "caffmob_catalogo"
+ },
+ "Bookcase Upper - Hutch": {
+  "pt_BR": "Estante Superior - Cristaleira",
+  "en_US": "Bookcase Upper - Hutch",
+  "contexto": "caffmob_catalogo"
+ },
+ "Bookcase Upper - Standard": {
+  "pt_BR": "Estante Superior - Padrão",
+  "en_US": "Bookcase Upper - Standard",
+  "contexto": "caffmob_catalogo"
+ },
+ "Bookcase as a storage unit.": {
+  "pt_BR": "Estante como armário.",
+  "en_US": "Bookcase as a storage unit.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Catalog": {
+  "pt_BR": "Catálogo",
+  "en_US": "Catalog"
+ },
+ "Category": {
+  "pt_BR": "Categoria",
+  "en_US": "Category"
+ },
+ "Clover-style mirror frame.": {
+  "pt_BR": "Moldura de espelho estilo trevo.",
+  "en_US": "Clover-style mirror frame.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Code: {}": {
+  "pt_BR": "Código: {}",
+  "en_US": "Code: {}"
+ },
+ "Colonial-style mirror frame.": {
+  "pt_BR": "Moldura de espelho estilo colonial.",
+  "en_US": "Colonial-style mirror frame.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Combination vanity cabinet.": {
+  "pt_BR": "Gabinete de banheiro combinado.",
+  "en_US": "Combination vanity cabinet.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Combined microwave and oven cabinet.": {
+  "pt_BR": "Torre de micro-ondas e forno.",
+  "en_US": "Combined microwave and oven cabinet.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Compact grid view": {
+  "pt_BR": "Grade compacta",
+  "en_US": "Compact grid view"
+ },
+ "Curved vanity support leg.": {
+  "pt_BR": "Pé de apoio curvo de gabinete.",
+  "en_US": "Curved vanity support leg.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Deluxe vanity cabinet.": {
+  "pt_BR": "Gabinete de banheiro luxo.",
+  "en_US": "Deluxe vanity cabinet.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Detailed list view": {
+  "pt_BR": "Lista detalhada",
+  "en_US": "Detailed list view"
+ },
+ "Diagonal": {
+  "pt_BR": "Diagonal",
+  "en_US": "Diagonal",
+  "contexto": "caffmob_catalogo"
+ },
+ "Diagonal Sink - Full Height Doors": {
+  "pt_BR": "Pia Diagonal - Portas Inteiras",
+  "en_US": "Diagonal Sink - Full Height Doors",
+  "contexto": "caffmob_catalogo"
+ },
+ "Diagonal Sink - Standard with False Front": {
+  "pt_BR": "Pia Diagonal - Padrão com Frente Falsa",
+  "en_US": "Diagonal Sink - Standard with False Front",
+  "contexto": "caffmob_catalogo"
+ },
+ "Diagonal corner cabinet.": {
+  "pt_BR": "Módulo de canto diagonal.",
+  "en_US": "Diagonal corner cabinet.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Diagonal sink corner with full-height doors.": {
+  "pt_BR": "Canto de pia diagonal com portas na altura toda.",
+  "en_US": "Diagonal sink corner with full-height doors.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Diagonal sink corner, standard configuration with false drawer front.": {
+  "pt_BR": "Canto de pia diagonal, padrão, com frente falsa de gaveta.",
+  "en_US": "Diagonal sink corner, standard configuration with false drawer front.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Dishwasher": {
+  "pt_BR": "Lava-louças",
+  "en_US": "Dishwasher",
+  "contexto": "caffmob_catalogo"
+ },
+ "Dishwasher cabinet.": {
+  "pt_BR": "Módulo de lava-louças.",
+  "en_US": "Dishwasher cabinet.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Dispatch a catalog entry's action operator with its configured args.": {
+  "pt_BR": "Executa a ação do item do catálogo com os argumentos configurados.",
+  "en_US": "Dispatch a catalog entry's action operator with its configured args."
+ },
+ "Double Angled Ends": {
+  "pt_BR": "Pontas Chanfradas Duplas",
+  "en_US": "Double Angled Ends",
+  "contexto": "caffmob_catalogo"
+ },
+ "Double Oven": {
+  "pt_BR": "Forno Duplo",
+  "en_US": "Double Oven",
+  "contexto": "caffmob_catalogo"
+ },
+ "Double angled end cabinet.": {
+  "pt_BR": "Módulo de ponta com chanfro duplo.",
+  "en_US": "Double angled end cabinet.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Double oven cabinet.": {
+  "pt_BR": "Torre de forno duplo.",
+  "en_US": "Double oven cabinet.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Dresser - 5 Drawers": {
+  "pt_BR": "Cômoda - 5 Gavetas",
+  "en_US": "Dresser - 5 Drawers",
+  "contexto": "caffmob_catalogo"
+ },
+ "Dresser - 6 Drawers": {
+  "pt_BR": "Cômoda - 6 Gavetas",
+  "en_US": "Dresser - 6 Drawers",
+  "contexto": "caffmob_catalogo"
+ },
+ "Dresser with 5 drawers.": {
+  "pt_BR": "Cômoda com 5 gavetas.",
+  "en_US": "Dresser with 5 drawers.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Dresser with 6 drawers.": {
+  "pt_BR": "Cômoda com 6 gavetas.",
+  "en_US": "Dresser with 6 drawers.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Elevated Dishwasher - Standard": {
+  "pt_BR": "Lava-louças Elevada - Padrão",
+  "en_US": "Elevated Dishwasher - Standard",
+  "contexto": "caffmob_catalogo"
+ },
+ "Elevated Dishwasher - With Drawer": {
+  "pt_BR": "Lava-louças Elevada - Com Gaveta",
+  "en_US": "Elevated Dishwasher - With Drawer",
+  "contexto": "caffmob_catalogo"
+ },
+ "Elevated dishwasher cabinet with drawer.": {
+  "pt_BR": "Módulo de lava-louças elevada com gaveta.",
+  "en_US": "Elevated dishwasher cabinet with drawer.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Elevated dishwasher cabinet, standard.": {
+  "pt_BR": "Módulo de lava-louças elevada, padrão.",
+  "en_US": "Elevated dishwasher cabinet, standard.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Everything": {
+  "pt_BR": "Tudo",
+  "en_US": "Everything"
+ },
+ "Face Frame and Doors": {
+  "pt_BR": "Quadro Frontal e Portas",
+  "en_US": "Face Frame and Doors",
+  "contexto": "caffmob_catalogo"
+ },
+ "Face frame and doors only (no carcass).": {
+  "pt_BR": "Só quadro frontal e portas (sem caixa).",
+  "en_US": "Face frame and doors only (no carcass).",
+  "contexto": "caffmob_catalogo"
+ },
+ "Face-frame leg / post / filler. Loose-stile, end-leg, and intermediate-leg behaviour are all options on its prompts (Finish Type / Only Stile).": {
+  "pt_BR": "Pé, coluna ou enchimento de quadro frontal. Montante solto, pé de ponta e pé intermediário são opções do próprio item (Tipo de Acabamento / Só Montante).",
+  "en_US": "Face-frame leg / post / filler. Loose-stile, end-leg, and intermediate-leg behaviour are all options on its prompts (Finish Type / Only Stile).",
+  "contexto": "caffmob_catalogo"
+ },
+ "Failed to activate {}: {}": {
+  "pt_BR": "Falha ao ativar {}: {}",
+  "en_US": "Failed to activate {}: {}"
+ },
+ "Filter by category": {
+  "pt_BR": "Filtra por categoria",
+  "en_US": "Filter by category"
+ },
+ "Filter by code, name, or description": {
+  "pt_BR": "Filtra por código, nome ou descrição",
+  "en_US": "Filter by code, name, or description"
+ },
+ "Finished tub skirt.": {
+  "pt_BR": "Saia de banheira acabada.",
+  "en_US": "Finished tub skirt.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Finished vanity fixed shelf.": {
+  "pt_BR": "Prateleira fixa de gabinete, acabada.",
+  "en_US": "Finished vanity fixed shelf.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Floating Base Cabinet": {
+  "pt_BR": "Balcão Suspenso",
+  "en_US": "Floating Base Cabinet",
+  "contexto": "caffmob_catalogo"
+ },
+ "Floating Shelves": {
+  "pt_BR": "Prateleiras Flutuantes",
+  "en_US": "Floating Shelves",
+  "contexto": "caffmob_catalogo"
+ },
+ "Floating base cabinet (no toe kick).": {
+  "pt_BR": "Balcão suspenso (sem rodapé).",
+  "en_US": "Floating base cabinet (no toe kick).",
+  "contexto": "caffmob_catalogo"
+ },
+ "Gothic-style mirror frame.": {
+  "pt_BR": "Moldura de espelho estilo gótico.",
+  "en_US": "Gothic-style mirror frame.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Half Wall": {
+  "pt_BR": "Meia-parede",
+  "en_US": "Half Wall",
+  "contexto": "caffmob_catalogo"
+ },
+ "Half wall.": {
+  "pt_BR": "Meia-parede.",
+  "en_US": "Half wall.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Heavy duty shelf.": {
+  "pt_BR": "Prateleira reforçada.",
+  "en_US": "Heavy duty shelf.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Hutch corner bookcase.": {
+  "pt_BR": "Estante de canto tipo cristaleira.",
+  "en_US": "Hutch corner bookcase.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Hutch upper bookcase.": {
+  "pt_BR": "Estante superior tipo cristaleira.",
+  "en_US": "Hutch upper bookcase.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Hutch upper corner bookcase.": {
+  "pt_BR": "Estante de canto superior tipo cristaleira.",
+  "en_US": "Hutch upper corner bookcase.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Lap Drawer": {
+  "pt_BR": "Gaveta de Colo",
+  "en_US": "Lap Drawer",
+  "contexto": "caffmob_catalogo"
+ },
+ "Lap drawer cabinet.": {
+  "pt_BR": "Módulo com gaveta de colo.",
+  "en_US": "Lap drawer cabinet.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Leg Product": {
+  "pt_BR": "Pé / Coluna",
+  "en_US": "Leg Product",
+  "contexto": "caffmob_catalogo"
+ },
+ "List": {
+  "pt_BR": "Lista",
+  "en_US": "List"
+ },
+ "Microwave": {
+  "pt_BR": "Micro-ondas",
+  "en_US": "Microwave",
+  "contexto": "caffmob_catalogo"
+ },
+ "Microwave and Oven": {
+  "pt_BR": "Micro-ondas e Forno",
+  "en_US": "Microwave and Oven",
+  "contexto": "caffmob_catalogo"
+ },
+ "Microwave cabinet.": {
+  "pt_BR": "Módulo de micro-ondas.",
+  "en_US": "Microwave cabinet.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Mirror Frame - Clover": {
+  "pt_BR": "Moldura de Espelho - Trevo",
+  "en_US": "Mirror Frame - Clover",
+  "contexto": "caffmob_catalogo"
+ },
+ "Mirror Frame - Colonial": {
+  "pt_BR": "Moldura de Espelho - Colonial",
+  "en_US": "Mirror Frame - Colonial",
+  "contexto": "caffmob_catalogo"
+ },
+ "Mirror Frame - Gothic": {
+  "pt_BR": "Moldura de Espelho - Gótica",
+  "en_US": "Mirror Frame - Gothic",
+  "contexto": "caffmob_catalogo"
+ },
+ "Mirror Frame - Shaker": {
+  "pt_BR": "Moldura de Espelho - Shaker",
+  "en_US": "Mirror Frame - Shaker",
+  "contexto": "caffmob_catalogo"
+ },
+ "Night Stand - 3 Drawer": {
+  "pt_BR": "Criado-mudo - 3 Gavetas",
+  "en_US": "Night Stand - 3 Drawer",
+  "contexto": "caffmob_catalogo"
+ },
+ "Night Stand - Standard": {
+  "pt_BR": "Criado-mudo - Padrão",
+  "en_US": "Night Stand - Standard",
+  "contexto": "caffmob_catalogo"
+ },
+ "No matches": {
+  "pt_BR": "Nenhum resultado",
+  "en_US": "No matches"
+ },
+ "Non-floating shelf.": {
+  "pt_BR": "Prateleira com suporte aparente.",
+  "en_US": "Non-floating shelf.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Not Yet Implemented": {
+  "pt_BR": "Ainda Não Implementado",
+  "en_US": "Not Yet Implemented"
+ },
+ "Overstool - With Shelf": {
+  "pt_BR": "Nicho sobre Vaso - Com Prateleira",
+  "en_US": "Overstool - With Shelf",
+  "contexto": "caffmob_catalogo"
+ },
+ "Overstool - With Shelf and Towel Bar": {
+  "pt_BR": "Nicho sobre Vaso - Com Prateleira e Toalheiro",
+  "en_US": "Overstool - With Shelf and Towel Bar",
+  "contexto": "caffmob_catalogo"
+ },
+ "Overstool - With Towel Bar": {
+  "pt_BR": "Nicho sobre Vaso - Com Toalheiro",
+  "en_US": "Overstool - With Towel Bar",
+  "contexto": "caffmob_catalogo"
+ },
+ "Overstool with shelf and towel bar.": {
+  "pt_BR": "Nicho sobre o vaso com prateleira e toalheiro.",
+  "en_US": "Overstool with shelf and towel bar.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Overstool with shelf.": {
+  "pt_BR": "Nicho sobre o vaso com prateleira.",
+  "en_US": "Overstool with shelf.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Overstool with towel bar.": {
+  "pt_BR": "Nicho sobre o vaso com toalheiro.",
+  "en_US": "Overstool with towel bar.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Paneled tub skirt.": {
+  "pt_BR": "Saia de banheira almofadada.",
+  "en_US": "Paneled tub skirt.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Pie Cut Door - Bi-fold": {
+  "pt_BR": "Canto em L - Porta Articulada",
+  "en_US": "Pie Cut Door - Bi-fold",
+  "contexto": "caffmob_catalogo"
+ },
+ "Pie Cut Door - Left Opens First": {
+  "pt_BR": "Canto em L - Esquerda Abre Primeiro",
+  "en_US": "Pie Cut Door - Left Opens First",
+  "contexto": "caffmob_catalogo"
+ },
+ "Pie Cut Door - Tray Compartment": {
+  "pt_BR": "Canto em L - Compartimento de Bandejas",
+  "en_US": "Pie Cut Door - Tray Compartment",
+  "contexto": "caffmob_catalogo"
+ },
+ "Pie Cut Drawer - 2": {
+  "pt_BR": "Canto em L com Gavetas - 2",
+  "en_US": "Pie Cut Drawer - 2",
+  "contexto": "caffmob_catalogo"
+ },
+ "Pie Cut Drawer - 3": {
+  "pt_BR": "Canto em L com Gavetas - 3",
+  "en_US": "Pie Cut Drawer - 3",
+  "contexto": "caffmob_catalogo"
+ },
+ "Pie Cut Drawer - 4": {
+  "pt_BR": "Canto em L com Gavetas - 4",
+  "en_US": "Pie Cut Drawer - 4",
+  "contexto": "caffmob_catalogo"
+ },
+ "Pie cut corner with 2 drawers.": {
+  "pt_BR": "Canto em L com 2 gavetas.",
+  "en_US": "Pie cut corner with 2 drawers.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Pie cut corner with 3 drawers.": {
+  "pt_BR": "Canto em L com 3 gavetas.",
+  "en_US": "Pie cut corner with 3 drawers.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Pie cut corner with 4 drawers.": {
+  "pt_BR": "Canto em L com 4 gavetas.",
+  "en_US": "Pie cut corner with 4 drawers.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Pie cut corner with bi-fold doors.": {
+  "pt_BR": "Canto em L com portas articuladas.",
+  "en_US": "Pie cut corner with bi-fold doors.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Pie cut corner with tray compartment.": {
+  "pt_BR": "Canto em L com compartimento de bandejas.",
+  "en_US": "Pie cut corner with tray compartment.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Pie cut corner; left door opens first.": {
+  "pt_BR": "Canto em L; a porta esquerda abre primeiro.",
+  "en_US": "Pie cut corner; left door opens first.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Place at cursor": {
+  "pt_BR": "Inserir no cursor",
+  "en_US": "Place at cursor"
+ },
+ "Range": {
+  "pt_BR": "Fogão",
+  "en_US": "Range",
+  "contexto": "caffmob_catalogo"
+ },
+ "Range cabinet.": {
+  "pt_BR": "Módulo de fogão.",
+  "en_US": "Range cabinet.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Recessed Medicine Cabinet": {
+  "pt_BR": "Armário de Banheiro Embutido",
+  "en_US": "Recessed Medicine Cabinet",
+  "contexto": "caffmob_catalogo"
+ },
+ "Recessed medicine cabinet.": {
+  "pt_BR": "Armário de banheiro embutido.",
+  "en_US": "Recessed medicine cabinet.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Refrigerator - Integrated Legs": {
+  "pt_BR": "Geladeira - Pés Integrados",
+  "en_US": "Refrigerator - Integrated Legs",
+  "contexto": "caffmob_catalogo"
+ },
+ "Refrigerator - Stile (in lieu of leg)": {
+  "pt_BR": "Geladeira - Montante (no lugar do pé)",
+  "en_US": "Refrigerator - Stile (in lieu of leg)",
+  "contexto": "caffmob_catalogo"
+ },
+ "Refrigerator Columns": {
+  "pt_BR": "Colunas de Geladeira",
+  "en_US": "Refrigerator Columns",
+  "contexto": "caffmob_catalogo"
+ },
+ "Refrigerator Pilasters?": {
+  "pt_BR": "Pilastras de Geladeira?",
+  "en_US": "Refrigerator Pilasters?",
+  "contexto": "caffmob_catalogo"
+ },
+ "Refrigerator columns.": {
+  "pt_BR": "Colunas de geladeira.",
+  "en_US": "Refrigerator columns.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Refrigerator pilasters - confirm before placing.": {
+  "pt_BR": "Pilastras de geladeira - confirme antes de inserir.",
+  "en_US": "Refrigerator pilasters - confirm before placing.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Refrigerator surround with integrated legs.": {
+  "pt_BR": "Contorno de geladeira com pés integrados.",
+  "en_US": "Refrigerator surround with integrated legs.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Refrigerator surround with stile in lieu of leg.": {
+  "pt_BR": "Contorno de geladeira com montante no lugar do pé.",
+  "en_US": "Refrigerator surround with stile in lieu of leg.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Render Thumbnail": {
+  "pt_BR": "Renderizar Miniatura",
+  "en_US": "Render Thumbnail"
+ },
+ "Search": {
+  "pt_BR": "Pesquisar",
+  "en_US": "Search"
+ },
+ "Shaker-style mirror frame.": {
+  "pt_BR": "Moldura de espelho estilo shaker.",
+  "en_US": "Shaker-style mirror frame.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Shelf - Heavy Duty": {
+  "pt_BR": "Prateleira - Reforçada",
+  "en_US": "Shelf - Heavy Duty",
+  "contexto": "caffmob_catalogo"
+ },
+ "Shelf - Non-Floating": {
+  "pt_BR": "Prateleira - Com Suporte",
+  "en_US": "Shelf - Non-Floating",
+  "contexto": "caffmob_catalogo"
+ },
+ "Show all items": {
+  "pt_BR": "Mostra todos os itens",
+  "en_US": "Show all items"
+ },
+ "Single Oven": {
+  "pt_BR": "Forno Simples",
+  "en_US": "Single Oven",
+  "contexto": "caffmob_catalogo"
+ },
+ "Single oven cabinet.": {
+  "pt_BR": "Torre de forno simples.",
+  "en_US": "Single oven cabinet.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Slotted vanity fixed shelf.": {
+  "pt_BR": "Prateleira fixa de gabinete, vazada.",
+  "en_US": "Slotted vanity fixed shelf.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Special vanity cabinet.": {
+  "pt_BR": "Gabinete de banheiro especial.",
+  "en_US": "Special vanity cabinet.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Square vanity support leg.": {
+  "pt_BR": "Pé de apoio quadrado de gabinete.",
+  "en_US": "Square vanity support leg.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Standalone Refrigerator?": {
+  "pt_BR": "Geladeira Avulsa?",
+  "en_US": "Standalone Refrigerator?",
+  "contexto": "caffmob_catalogo"
+ },
+ "Standalone refrigerator placeholder - confirm before placing.": {
+  "pt_BR": "Marcador de geladeira avulsa - confirme antes de inserir.",
+  "en_US": "Standalone refrigerator placeholder - confirm before placing.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Standard 1-door 1-drawer base cabinet.": {
+  "pt_BR": "Balcão padrão com 1 porta e 1 gaveta.",
+  "en_US": "Standard 1-door 1-drawer base cabinet.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Standard bookcase.": {
+  "pt_BR": "Estante padrão.",
+  "en_US": "Standard bookcase.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Standard night stand.": {
+  "pt_BR": "Criado-mudo padrão.",
+  "en_US": "Standard night stand.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Standard upper bookcase.": {
+  "pt_BR": "Estante superior padrão.",
+  "en_US": "Standard upper bookcase.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Standard upper corner bookcase.": {
+  "pt_BR": "Estante de canto superior padrão.",
+  "en_US": "Standard upper corner bookcase.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Standard wall cabinet.": {
+  "pt_BR": "Aéreo padrão.",
+  "en_US": "Standard wall cabinet.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Step-back Surround Set": {
+  "pt_BR": "Contorno Recuado",
+  "en_US": "Step-back Surround Set",
+  "contexto": "caffmob_catalogo"
+ },
+ "Step-back refrigerator surround set.": {
+  "pt_BR": "Conjunto de contorno recuado de geladeira.",
+  "en_US": "Step-back refrigerator surround set.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Storage corner bookcase.": {
+  "pt_BR": "Estante de canto tipo armário.",
+  "en_US": "Storage corner bookcase.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Support Frame": {
+  "pt_BR": "Estrutura de Apoio",
+  "en_US": "Support Frame",
+  "contexto": "caffmob_catalogo"
+ },
+ "Support frame.": {
+  "pt_BR": "Estrutura de apoio.",
+  "en_US": "Support frame.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Tall": {
+  "pt_BR": "Paneleiro",
+  "en_US": "Tall",
+  "contexto": "caffmob_catalogo"
+ },
+ "Tall pantry, oven, broom, or refrigerator surround.": {
+  "pt_BR": "Paneleiro, torre de forno, armário de vassoura ou contorno de geladeira.",
+  "en_US": "Tall pantry, oven, broom, or refrigerator surround.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Tri-View Medicine Cabinet": {
+  "pt_BR": "Armário de Banheiro Triplo",
+  "en_US": "Tri-View Medicine Cabinet",
+  "contexto": "caffmob_catalogo"
+ },
+ "Tri-view medicine cabinet.": {
+  "pt_BR": "Armário de banheiro com três espelhos.",
+  "en_US": "Tri-view medicine cabinet.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Tub Skirt - Finished": {
+  "pt_BR": "Saia de Banheira - Acabada",
+  "en_US": "Tub Skirt - Finished",
+  "contexto": "caffmob_catalogo"
+ },
+ "Tub Skirt - Paneled": {
+  "pt_BR": "Saia de Banheira - Almofadada",
+  "en_US": "Tub Skirt - Paneled",
+  "contexto": "caffmob_catalogo"
+ },
+ "Tub Skirt - Removable Panels": {
+  "pt_BR": "Saia de Banheira - Painéis Removíveis",
+  "en_US": "Tub Skirt - Removable Panels",
+  "contexto": "caffmob_catalogo"
+ },
+ "Tub Skirt - Working or Removable Door": {
+  "pt_BR": "Saia de Banheira - Porta Funcional ou Removível",
+  "en_US": "Tub Skirt - Working or Removable Door",
+  "contexto": "caffmob_catalogo"
+ },
+ "Tub skirt with removable panels.": {
+  "pt_BR": "Saia de banheira com painéis removíveis.",
+  "en_US": "Tub skirt with removable panels.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Tub skirt with working or removable door.": {
+  "pt_BR": "Saia de banheira com porta funcional ou removível.",
+  "en_US": "Tub skirt with working or removable door.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Unknown catalog item: {}": {
+  "pt_BR": "Item do catálogo desconhecido: {}",
+  "en_US": "Unknown catalog item: {}"
+ },
+ "Upper": {
+  "pt_BR": "Aéreo",
+  "en_US": "Upper",
+  "contexto": "caffmob_catalogo"
+ },
+ "Upper Stacked": {
+  "pt_BR": "Aéreo Sobreposto",
+  "en_US": "Upper Stacked",
+  "contexto": "caffmob_catalogo"
+ },
+ "Vanity Combination": {
+  "pt_BR": "Gabinete Combinado",
+  "en_US": "Vanity Combination",
+  "contexto": "caffmob_catalogo"
+ },
+ "Vanity Deluxe": {
+  "pt_BR": "Gabinete Luxo",
+  "en_US": "Vanity Deluxe",
+  "contexto": "caffmob_catalogo"
+ },
+ "Vanity End Leg Assembly": {
+  "pt_BR": "Pé de Ponta de Gabinete",
+  "en_US": "Vanity End Leg Assembly",
+  "contexto": "caffmob_catalogo"
+ },
+ "Vanity Fixed Shelf - Finished": {
+  "pt_BR": "Prateleira Fixa de Gabinete - Acabada",
+  "en_US": "Vanity Fixed Shelf - Finished",
+  "contexto": "caffmob_catalogo"
+ },
+ "Vanity Fixed Shelf - Slotted": {
+  "pt_BR": "Prateleira Fixa de Gabinete - Vazada",
+  "en_US": "Vanity Fixed Shelf - Slotted",
+  "contexto": "caffmob_catalogo"
+ },
+ "Vanity Special": {
+  "pt_BR": "Gabinete Especial",
+  "en_US": "Vanity Special",
+  "contexto": "caffmob_catalogo"
+ },
+ "Vanity Support Leg - Curved": {
+  "pt_BR": "Pé de Apoio de Gabinete - Curvo",
+  "en_US": "Vanity Support Leg - Curved",
+  "contexto": "caffmob_catalogo"
+ },
+ "Vanity Support Leg - Square": {
+  "pt_BR": "Pé de Apoio de Gabinete - Quadrado",
+  "en_US": "Vanity Support Leg - Square",
+  "contexto": "caffmob_catalogo"
+ },
+ "Vanity end leg assembly.": {
+  "pt_BR": "Conjunto de pé de ponta de gabinete.",
+  "en_US": "Vanity end leg assembly.",
+  "contexto": "caffmob_catalogo"
+ },
+ "View": {
+  "pt_BR": "Visualizar",
+  "en_US": "View"
+ },
+ "Wall cabinet with stacked door configuration.": {
+  "pt_BR": "Aéreo com portas sobrepostas.",
+  "en_US": "Wall cabinet with stacked door configuration.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Wall-mounted floating shelf.": {
+  "pt_BR": "Prateleira flutuante fixada na parede.",
+  "en_US": "Wall-mounted floating shelf.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Window Seat - Hinged Lid?": {
+  "pt_BR": "Banco de Janela - Tampa Articulada?",
+  "en_US": "Window Seat - Hinged Lid?",
+  "contexto": "caffmob_catalogo"
+ },
+ "Window Seat - Paneled Front": {
+  "pt_BR": "Banco de Janela - Frente Almofadada",
+  "en_US": "Window Seat - Paneled Front",
+  "contexto": "caffmob_catalogo"
+ },
+ "Window Seat - Veneer Front": {
+  "pt_BR": "Banco de Janela - Frente Lâminada",
+  "en_US": "Window Seat - Veneer Front",
+  "contexto": "caffmob_catalogo"
+ },
+ "Window Seat - With Doors": {
+  "pt_BR": "Banco de Janela - Com Portas",
+  "en_US": "Window Seat - With Doors",
+  "contexto": "caffmob_catalogo"
+ },
+ "Window Seat - With Drawers": {
+  "pt_BR": "Banco de Janela - Com Gavetas",
+  "en_US": "Window Seat - With Drawers",
+  "contexto": "caffmob_catalogo"
+ },
+ "Window seat with doors.": {
+  "pt_BR": "Banco de janela com portas.",
+  "en_US": "Window seat with doors.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Window seat with drawers.": {
+  "pt_BR": "Banco de janela com gavetas.",
+  "en_US": "Window seat with drawers.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Window seat with hinged lid - confirm before placing.": {
+  "pt_BR": "Banco de janela com tampa articulada - confirme antes de inserir.",
+  "en_US": "Window seat with hinged lid - confirm before placing.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Window seat with paneled front.": {
+  "pt_BR": "Banco de janela com frente almofadada.",
+  "en_US": "Window seat with paneled front.",
+  "contexto": "caffmob_catalogo"
+ },
+ "Window seat with veneer front.": {
+  "pt_BR": "Banco de janela com frente laminada.",
+  "en_US": "Window seat with veneer front.",
+  "contexto": "caffmob_catalogo"
+ },
+ "X-Frame Ends": {
+  "pt_BR": "Pontas em X",
+  "en_US": "X-Frame Ends",
+  "contexto": "caffmob_catalogo"
+ },
+ "X-frame ends.": {
+  "pt_BR": "Pontas com estrutura em X.",
+  "en_US": "X-frame ends.",
+  "contexto": "caffmob_catalogo"
+ },
+ "{}: no action wired": {
+  "pt_BR": "{}: sem ação ligada",
+  "en_US": "{}: no action wired"
+ }
+}

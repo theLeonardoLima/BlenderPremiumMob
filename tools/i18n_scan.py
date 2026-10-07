@@ -1,0 +1,246 @@
+"""Levantamento dos textos de interface do CAFFMob Draw pela AST (BUG-20261007-FLZO).
+
+Acha os textos que o usuário vê e diz o que falta no catálogo `caffmob_draw/data/translations/*.json`:
+
+- `bl_label`/`bl_description`/`bl_category`, docstring de operador sem `bl_description` (vira a dica), `name`/`description`
+  de `*Property`, nomes e descrições dos itens de enum;
+- `text=`, `title=`, `message=`, `confirm_text=` de chamadas de layout e diálogos; `self.report(..., texto)`;
+- textos marcados com `tr("...")` (traduz na hora) ou `N_("...")` (só marca; quem desenha traduz);
+- textos passados direto a `draw.text`, `draw.button`, `status_text_set`, `header_text_set`, `draw_header_text` e
+  `blf.draw`.
+
+Constante passada direto a `header_text_set`, `status_text_set` ou `blf.draw` (que não traduzem) vira pendência `cru`
+até ganhar `tr()`. Texto montado (f-string ou `"texto" + valor`) nesses lugares não tem como ser traduzido: vira pendência `dinamico` até ser reescrito como
+`tr("Comprimento: {}").format(valor)`.
+
+Uso:
+    python3 tools/i18n_scan.py walls2d ui data            # resumo das áreas
+    python3 tools/i18n_scan.py walls2d --faltando         # textos sem tradução (para preencher o JSON)
+"""
+
+import ast
+import json
+import re
+import sys
+from dataclasses import dataclass
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+PACKAGE = ROOT / "caffmob_draw"
+CATALOG = PACKAGE / "data" / "translations"
+LOCALES = ("pt_BR", "en_US")
+
+KEYWORDS = {'text', 'title', 'message', 'confirm_text'}
+PROP_KEYWORDS = {'name', 'description'}
+MARKERS = {'tr', 'N_', 'pgettext', 'pgettext_iface', 'pgettext_tip', 'pgettext_rpt'}
+DRAWN = {'status_text_set', 'header_text_set', 'draw_header_text', 'text'}
+RAW = {'status_text_set', 'header_text_set'}       # funções do Blender que não traduzem: constante crua precisa de tr()
+LETTERS = re.compile(r"[A-Za-zÀ-ÿ]{2,}")
+CODE_LIKE = re.compile(r"[a-z0-9_\-()+*/.]*")          # sem espaço nem maiúscula: identificador ou expressão
+
+
+@dataclass
+class Text:
+    msgid: str
+    path: str
+    line: int
+    kind: str           # 'auto' (o Blender traduz), 'marcado' (tr/N_/desenho) ou 'dinamico' (f-string)
+
+
+def _name(func):
+    return func.attr if isinstance(func, ast.Attribute) else getattr(func, 'id', '')
+
+
+def _owner(func):
+    return _name(func.value) if isinstance(func, ast.Attribute) else ''
+
+
+def _template(node):
+    """Texto de um nó constante; f-string vira modelo com `{}` (só para relatório)."""
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return node.value, False
+    if isinstance(node, ast.JoinedStr):
+        return ''.join(v.value if isinstance(v, ast.Constant) else '{}' for v in node.values), True
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Mod) and _template(node.left)[0] is not None:
+        return _template(node.left)[0], True
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
+        left, _ = _template(node.left)
+        right, _ = _template(node.right)
+        if left is not None or right is not None:
+            return (left or '{}') + (right or '{}'), True
+    return None, False
+
+
+def _enum_items(node):
+    """Itens literais de enum: tuplas (id, nome, descrição, ...), também em `[...] + [...]` e `tuple([...])`."""
+    if isinstance(node, ast.BinOp):
+        yield from _enum_items(node.left)
+        yield from _enum_items(node.right)
+        return
+    if isinstance(node, ast.IfExp):                     # return items if items else [('NONE', ...)]
+        yield from _enum_items(node.body)
+        yield from _enum_items(node.orelse)
+        return
+    if isinstance(node, ast.BoolOp):                    # items or [('NONE', "Nenhum", "")]
+        for value in node.values:
+            yield from _enum_items(value)
+        return
+    if isinstance(node, ast.Call):
+        for arg in node.args:
+            yield from _enum_items(arg)
+        return
+    for elt in getattr(node, 'elts', []):
+        if isinstance(elt, ast.Tuple) and len(elt.elts) >= 3 and all(
+                isinstance(e, ast.Constant) and isinstance(e.value, str) for e in elt.elts[:3]):
+            for item in elt.elts[1:3]:
+                if not CODE_LIKE.fullmatch(item.value):     # expressões de driver e ids: ("lli", "-(dim_y-lli)", ...)
+                    yield item
+
+
+class _Visitor(ast.NodeVisitor):
+    def __init__(self, path):
+        self.path = path
+        self.found = []
+
+    def add(self, node, kind='auto'):
+        if kind == 'cru' and isinstance(node, ast.Call) and _name(node.func) in MARKERS:
+            return                                          # já passa por tr()
+        if isinstance(node, ast.IfExp):
+            self.add(node.body, kind)
+            self.add(node.orelse, kind)
+            return
+        text, dynamic = _template(node)
+        if text is None or not LETTERS.search(text):
+            return
+        self.found.append(Text(text, self.path, node.lineno, 'dinamico' if dynamic else kind))
+
+    def visit_ClassDef(self, node):
+        attrs = {}
+        for stmt in node.body:
+            if isinstance(stmt, ast.Assign) and len(stmt.targets) == 1 and isinstance(stmt.targets[0], ast.Name):
+                attrs[stmt.targets[0].id] = stmt.value
+        for name in ('bl_label', 'bl_description', 'bl_category'):
+            if name in attrs:
+                self.add(attrs[name])
+        doc = ast.get_docstring(node, clean=False)
+        idname = attrs.get('bl_idname')
+        is_operator = isinstance(idname, ast.Constant) and '.' in str(idname.value)
+        if doc and is_operator and 'bl_description' not in attrs and '\n' not in doc.strip():
+            self.add(node.body[0].value)
+        self.generic_visit(node)
+
+    def visit_Call(self, node):
+        name, owner = _name(node.func), _owner(node.func)
+        if name in MARKERS and node.args:
+            self.add(node.args[0], 'marcado')
+        elif name.endswith('Property'):
+            for kw in node.keywords:
+                if kw.arg in PROP_KEYWORDS:
+                    self.add(kw.value)
+                elif kw.arg == 'items':
+                    for item in _enum_items(kw.value):
+                        self.add(item)
+        elif name == 'append' and len(node.args) == 1 and isinstance(node.args[0], ast.Tuple):
+            for item in _enum_items(ast.List(elts=[node.args[0]])):      # items.append(('ID', "Nome", "Dica"))
+                self.add(item)
+        elif name == 'report' and len(node.args) >= 2:
+            self.add(node.args[1])
+        elif name == 'button' and owner == 'draw' and len(node.args) >= 3:
+            self.add(node.args[2], 'marcado')
+        elif name in DRAWN and (name != 'text' or owner == 'draw'):
+            args = node.args[2:3] if name == 'text' else node.args[-1:]
+            for arg in args:
+                self.add(arg, 'cru' if name in RAW else 'marcado')
+        elif name == 'draw' and owner == 'blf' and len(node.args) >= 2:
+            self.add(node.args[1], 'cru')
+        if isinstance(node.func, ast.Attribute) and name not in MARKERS and not name.endswith('Property'):
+            for kw in node.keywords:
+                if kw.arg in KEYWORDS:
+                    self.add(kw.value)
+        self.generic_visit(node)
+
+    def visit_Return(self, node):
+        # Funções de itens de enum dinâmico: return [('NONE', "Nenhum", "")]
+        if isinstance(node.value, (ast.List, ast.BinOp, ast.BoolOp, ast.IfExp)):
+            for item in _enum_items(node.value):
+                self.add(item)
+        self.generic_visit(node)
+
+    def visit_Assign(self, node):
+        # Listas de itens de enum guardadas em constantes (ex.: SIDES_ITEMS = [(...), ...]).
+        if isinstance(node.value, (ast.List, ast.BinOp, ast.Call, ast.BoolOp)):
+            for item in _enum_items(node.value):
+                self.add(item)
+        self.generic_visit(node)
+
+
+def scan_file(path):
+    tree = ast.parse(path.read_text(encoding='utf-8'), filename=str(path))
+    visitor = _Visitor(str(path.relative_to(PACKAGE)))
+    visitor.visit(tree)
+    return visitor.found
+
+
+def area_files(area):
+    base = PACKAGE / area
+    if base.is_file() or area.endswith('.py'):
+        return [PACKAGE / area]
+    return sorted(p for p in base.rglob('*.py') if '__pycache__' not in p.parts and p.name != 'i18n.py')
+
+
+def scan(areas):
+    texts = []
+    for area in areas:
+        for path in area_files(area):
+            texts.extend(scan_file(path))
+    return texts
+
+
+def schema_entries():
+    """Rótulos do Padrão de Dimensões: a tradução vem do próprio esquema (`label_pt` → `label_en`)."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('_dimension_schema', PACKAGE / 'data' / 'dimension_schema.py')
+    schema = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = schema
+    spec.loader.exec_module(schema)
+    pairs = [(p.label_pt, p.label_en) for p in schema.PARAMS.values()]
+    pairs += [(c.label_pt, c.label_en) for c in schema.COMPONENTS]
+    pairs += [(pt, en) for _code, pt, en in schema.LINES]
+    return {pt: {'pt_BR': pt, 'en_US': en} for pt, en in pairs}
+
+
+def load_catalog():
+    catalog = schema_entries()
+    for path in sorted(CATALOG.glob('*.json')):
+        catalog.update(json.loads(path.read_text(encoding='utf-8')))
+    return catalog
+
+
+def missing(texts, catalog):
+    """Textos estáticos sem as duas traduções no catálogo, e textos dinâmicos (f-string)."""
+    absent, dynamic = {}, []
+    for t in texts:
+        if t.kind in ('dinamico', 'cru'):
+            dynamic.append(t)
+            continue
+        entry = catalog.get(t.msgid, {})
+        if not all(entry.get(loc) for loc in LOCALES):
+            absent.setdefault(t.msgid, t)
+    return list(absent.values()), dynamic
+
+
+def main(argv):
+    areas = [a for a in argv if not a.startswith('--')]
+    texts = scan(areas)
+    absent, dynamic = missing(texts, load_catalog())
+    print(f"{len(texts)} textos, {len({t.msgid for t in texts})} únicos; sem tradução: {len(absent)}; "
+          f"dinâmicos: {len(dynamic)}")
+    if '--faltando' in argv:
+        for t in absent:
+            print(f"{t.path}:{t.line}\t{json.dumps(t.msgid, ensure_ascii=False)}")
+        for t in dynamic:
+            print(f"{t.path}:{t.line}\tDINÂMICO\t{json.dumps(t.msgid, ensure_ascii=False)}")
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])

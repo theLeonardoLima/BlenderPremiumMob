@@ -1,0 +1,190 @@
+{
+ "A definição do rascunho não existe mais.": {
+  "pt_BR": "A definição do rascunho não existe mais.",
+  "en_US": "The draft definition no longer exists."
+ },
+ "Arquivo XML inválido (linha {}, coluna {}).": {
+  "pt_BR": "Arquivo XML inválido (linha {}, coluna {}).",
+  "en_US": "Invalid XML file (line {}, column {})."
+ },
+ "Arquivo criado por uma versão mais nova da extensão: atualize o CAFFMob Draw.": {
+  "pt_BR": "Arquivo criado por uma versão mais nova da extensão: atualize o CAFFMob Draw.",
+  "en_US": "File created by a newer version of the extension: update CAFFMob Draw."
+ },
+ "Atualizada em": {
+  "pt_BR": "Atualizada em",
+  "en_US": "Updated on"
+ },
+ "Brasil": {
+  "pt_BR": "Brasil",
+  "en_US": "Brazil"
+ },
+ "Caminho do nó, ex.: COZ/CHAPAS/LAT": {
+  "pt_BR": "Caminho do nó, ex.: COZ/CHAPAS/LAT",
+  "en_US": "Node path, e.g. COZ/CHAPAS/LAT"
+ },
+ "Caminhos dos grupos abertos, separados por |": {
+  "pt_BR": "Caminhos dos grupos abertos, separados por |",
+  "en_US": "Paths of the open groups, separated by |"
+ },
+ "Chave do parâmetro (só para PARAM)": {
+  "pt_BR": "Chave do parâmetro (só para PARAM)",
+  "en_US": "Parameter key (PARAM only)"
+ },
+ "Chave mapeada": {
+  "pt_BR": "Chave mapeada",
+  "en_US": "Mapped key"
+ },
+ "Definição ativa": {
+  "pt_BR": "Definição ativa",
+  "en_US": "Active definition"
+ },
+ "Definição de fábrica, somente leitura (duplique para editar)": {
+  "pt_BR": "Definição de fábrica, somente leitura (duplique para editar)",
+  "en_US": "Factory definition, read-only (duplicate to edit)"
+ },
+ "Definição não encontrada.": {
+  "pt_BR": "Definição não encontrada.",
+  "en_US": "Definition not found."
+ },
+ "Definições embutidas não podem ser excluídas.": {
+  "pt_BR": "Definições embutidas não podem ser excluídas.",
+  "en_US": "Built-in definitions cannot be deleted."
+ },
+ "Definições embutidas são somente leitura: duplique para editar.": {
+  "pt_BR": "Definições embutidas são somente leitura: duplique para editar.",
+  "en_US": "Built-in definitions are read-only: duplicate to edit."
+ },
+ "Digite a medida (aceita vírgula e mm/cm/m)": {
+  "pt_BR": "Digite a medida (aceita vírgula e mm/cm/m)",
+  "en_US": "Type the measure (accepts comma and mm/cm/m)"
+ },
+ "EUA": {
+  "pt_BR": "EUA",
+  "en_US": "USA"
+ },
+ "Embutida": {
+  "pt_BR": "Embutida",
+  "en_US": "Built-in"
+ },
+ "Filtra parâmetros e componentes pelo nome": {
+  "pt_BR": "Filtra parâmetros e componentes pelo nome",
+  "en_US": "Filters parameters and components by name"
+ },
+ "ID": {
+  "pt_BR": "ID",
+  "en_US": "ID"
+ },
+ "Identificador": {
+  "pt_BR": "Identificador",
+  "en_US": "Identifier"
+ },
+ "Importada do Promob": {
+  "pt_BR": "Importada do Promob",
+  "en_US": "Imported from Promob"
+ },
+ "JSON inválido (linha {}, coluna {}).": {
+  "pt_BR": "JSON inválido (linha {}, coluna {}).",
+  "en_US": "Invalid JSON (line {}, column {})."
+ },
+ "Linha desconhecida ignorada: {}": {
+  "pt_BR": "Linha desconhecida ignorada: {}",
+  "en_US": "Unknown line ignored: {}"
+ },
+ "Mercado": {
+  "pt_BR": "Mercado",
+  "en_US": "Market"
+ },
+ "Migrada": {
+  "pt_BR": "Migrada",
+  "en_US": "Migrated"
+ },
+ "Não foi possível ler o arquivo: {}": {
+  "pt_BR": "Não foi possível ler o arquivo: {}",
+  "en_US": "Could not read the file: {}"
+ },
+ "Não é uma configuração de dimensões do Promob (raiz <{}>).": {
+  "pt_BR": "Não é uma configuração de dimensões do Promob (raiz <{}>).",
+  "en_US": "Not a Promob dimension configuration (root <{}>)."
+ },
+ "O arquivo não contém atributos de dimensão.": {
+  "pt_BR": "O arquivo não contém atributos de dimensão.",
+  "en_US": "The file has no dimension attributes."
+ },
+ "O arquivo não é uma definição de dimensões do CAFFMob Draw.": {
+  "pt_BR": "O arquivo não é uma definição de dimensões do CAFFMob Draw.",
+  "en_US": "The file is not a CAFFMob Draw dimension definition."
+ },
+ "Padrão de Dimensões indisponível nesta cena.": {
+  "pt_BR": "Padrão de Dimensões indisponível nesta cena.",
+  "en_US": "Dimension Standard unavailable in this scene."
+ },
+ "Padrões americanos herdados do CAFFMob Draw 5": {
+  "pt_BR": "Padrões americanos herdados do CAFFMob Draw 5",
+  "en_US": "American standards inherited from CAFFMob Draw 5"
+ },
+ "Padrões brasileiros (mm, MDF 15/18)": {
+  "pt_BR": "Padrões brasileiros (mm, MDF 15/18)",
+  "en_US": "Brazilian standards (mm, MDF 15/18)"
+ },
+ "Parâmetro": {
+  "pt_BR": "Parâmetro",
+  "en_US": "Parameter"
+ },
+ "Parâmetro desconhecido ignorado: {}": {
+  "pt_BR": "Parâmetro desconhecido ignorado: {}",
+  "en_US": "Unknown parameter ignored: {}"
+ },
+ "Parâmetro desconhecido: {}": {
+  "pt_BR": "Parâmetro desconhecido: {}",
+  "en_US": "Unknown parameter: {}"
+ },
+ "Também substitui medidas editadas à mão nos módulos (RN-23)": {
+  "pt_BR": "Também substitui medidas editadas à mão nos módulos (RN-23)",
+  "en_US": "Also replaces measures edited by hand on the modules (RN-23)"
+ },
+ "Unidade do arquivo deve ser mm.": {
+  "pt_BR": "Unidade do arquivo deve ser mm.",
+  "en_US": "The file unit must be mm."
+ },
+ "Usuário": {
+  "pt_BR": "Usuário",
+  "en_US": "User"
+ },
+ "Valor (mm)": {
+  "pt_BR": "Valor (mm)",
+  "en_US": "Value (mm)"
+ },
+ "Valor (texto)": {
+  "pt_BR": "Valor (texto)",
+  "en_US": "Value (text)"
+ },
+ "Valor original": {
+  "pt_BR": "Valor original",
+  "en_US": "Original value"
+ },
+ "Valores fora do domínio:\n{}": {
+  "pt_BR": "Valores fora do domínio:\n{}",
+  "en_US": "Values out of range:\n{}"
+ },
+ "Vazio = não reconhecido": {
+  "pt_BR": "Vazio = não reconhecido",
+  "en_US": "Empty = not recognized"
+ },
+ "Versão": {
+  "pt_BR": "Versão",
+  "en_US": "Version"
+ },
+ "Versão do formato": {
+  "pt_BR": "Versão do formato",
+  "en_US": "Format version"
+ },
+ "Versão do formato ausente.": {
+  "pt_BR": "Versão do formato ausente.",
+  "en_US": "Format version missing."
+ },
+ "É texto": {
+  "pt_BR": "É texto",
+  "en_US": "Is text"
+ }
+}

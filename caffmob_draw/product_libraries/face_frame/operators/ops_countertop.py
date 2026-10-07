@@ -16,6 +16,7 @@ or modified by either library's tooling.
 
 import bpy
 import math
+from ....data.i18n import tr
 from .... import hb_types, hb_project
 from .. import types_face_frame
 
@@ -544,7 +545,7 @@ class hb_face_frame_OT_add_countertops(bpy.types.Operator):
             if ct:
                 ct_count += 1
 
-        self.report({'INFO'}, f"Created {ct_count} countertop(s)")
+        self.report({'INFO'}, tr("Created {} countertop(s)").format(ct_count))
         return {'FINISHED'}
 
 
@@ -560,7 +561,7 @@ class hb_face_frame_OT_remove_countertops(bpy.types.Operator):
             if obj.get('IS_COUNTERTOP'):
                 bpy.data.objects.remove(obj, do_unlink=True)
                 removed += 1
-        self.report({'INFO'}, f"Removed {removed} countertop(s)")
+        self.report({'INFO'}, tr("Removed {} countertop(s)").format(removed))
         return {'FINISHED'}
 
 
@@ -604,7 +605,7 @@ class hb_face_frame_OT_countertop_boolean_cut(bpy.types.Operator):
         try:
             bpy.ops.object.modifier_apply(modifier=mod.name)
         except RuntimeError as e:
-            self.report({'WARNING'}, f"Boolean apply failed: {e}")
+            self.report({'WARNING'}, tr("Boolean apply failed: {}").format(e))
             countertop.modifiers.remove(mod)
             return {'CANCELLED'}
         finally:

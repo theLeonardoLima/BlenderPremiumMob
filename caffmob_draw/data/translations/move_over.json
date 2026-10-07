@@ -1,0 +1,194 @@
+{
+ "Alinha o objeto arrastado ao objeto de referência pelas vistas superior e frontal": {
+  "pt_BR": "Alinha o objeto arrastado ao objeto de referência pelas vistas superior e frontal",
+  "en_US": "Aligns the dragged object to the reference object using the top and front views"
+ },
+ "Anterior {} | Posterior {} | Inferior {} | Shift: altura | Clique confirma | Esc cancela": {
+  "pt_BR": "Anterior {} | Posterior {} | Inferior {} | Shift: altura | Clique confirma | Esc cancela",
+  "en_US": "Left {} | Right {} | Bottom {} | Shift: height | Click confirms | Esc cancels"
+ },
+ "Arrasta o módulo ao longo da parede em que ele está, sem afastá-lo dela (Shift: altura)": {
+  "pt_BR": "Arrasta o módulo ao longo da parede em que ele está, sem afastá-lo dela (Shift: altura)",
+  "en_US": "Drags the module along its wall without moving it away from it (Shift: height)"
+ },
+ "Arraste com o botão direito de um objeto até outro para abrir a janela \"Mover Sobre\"": {
+  "pt_BR": "Arraste com o botão direito de um objeto até outro para abrir a janela \"Mover Sobre\"",
+  "en_US": "Drag with the right button from one object to another to open the \"Move Over\" window"
+ },
+ "Com o modo ligado, arraste um objeto sobre outro com o botão direito para alinhá-los. O botão direito deixa de abrir o menu de contexto enquanto o modo estiver ligado": {
+  "pt_BR": "Com o modo ligado, arraste um objeto sobre outro com o botão direito para alinhá-los. O botão direito deixa de abrir o menu de contexto enquanto o modo estiver ligado",
+  "en_US": "With the mode on, drag one object over another with the right button to align them. The right button does not open the context menu while the mode is on"
+ },
+ "Distância em pixels para considerar um clique perto de um alvo": {
+  "pt_BR": "Distância em pixels para considerar um clique perto de um alvo",
+  "en_US": "Distance in pixels to consider a click near a target"
+ },
+ "Empilhar": {
+  "pt_BR": "Empilhar",
+  "en_US": "Stack"
+ },
+ "Escolha um módulo da biblioteca do usuário": {
+  "pt_BR": "Escolha um módulo da biblioteca do usuário",
+  "en_US": "Choose a module from the user library"
+ },
+ "Esses objetos não podem ser usados no Mover Sobre.": {
+  "pt_BR": "Esses objetos não podem ser usados no Mover Sobre.",
+  "en_US": "These objects cannot be used in Move Over."
+ },
+ "Liga ou desliga o \"Mover Sobre\": arraste um objeto sobre outro com o botão direito para alinhá-los": {
+  "pt_BR": "Liga ou desliga o \"Mover Sobre\": arraste um objeto sobre outro com o botão direito para alinhá-los",
+  "en_US": "Turns \"Move Over\" on or off: drag one object over another with the right button to align them"
+ },
+ "Ligado: os campos mostram a distância à referência. Desligado: a posição no projeto": {
+  "pt_BR": "Ligado: os campos mostram a distância à referência. Desligado: a posição no projeto",
+  "en_US": "On: the fields show the distance to the reference. Off: the position in the project"
+ },
+ "Limpar plano de inserção": {
+  "pt_BR": "Limpar plano de inserção",
+  "en_US": "Clear insertion plane"
+ },
+ "Mover Sobre  |  Clique perto de um lado ou de uma linha  |  Tab: digitar  |  Setas/PgUp/PgDn: passo  |  Enter: confirmar  |  Esc: cancelar": {
+  "pt_BR": "Mover Sobre  |  Clique perto de um lado ou de uma linha  |  Tab: digitar  |  Setas/PgUp/PgDn: passo  |  Enter: confirmar  |  Esc: cancelar",
+  "en_US": "Move Over  |  Click near a side or a line  |  Tab: type  |  Arrows/PgUp/PgDn: step  |  Enter: confirm  |  Esc: cancel"
+ },
+ "Mover Sobre (arrastar)": {
+  "pt_BR": "Mover Sobre (arrastar)",
+  "en_US": "Move Over (drag)"
+ },
+ "Mover Sobre desligado: o botão direito volta ao normal.": {
+  "pt_BR": "Mover Sobre desligado: o botão direito volta ao normal.",
+  "en_US": "Move Over off: the right button is back to normal."
+ },
+ "Mover Sobre ligado: arraste com o botão direito.": {
+  "pt_BR": "Mover Sobre ligado: arraste com o botão direito.",
+  "en_US": "Move Over on: drag with the right button."
+ },
+ "Mover Sobre — {} sobre {} (referência)": {
+  "pt_BR": "Mover Sobre — {} sobre {} (referência)",
+  "en_US": "Move Over — {} over {} (reference)"
+ },
+ "Mover Sobre: solte o botão direito sobre o objeto de referência  |  Esc: cancelar  ({})": {
+  "pt_BR": "Mover Sobre: solte o botão direito sobre o objeto de referência  |  Esc: cancelar  ({})",
+  "en_US": "Move Over: release the right button over the reference object  |  Esc: cancel  ({})"
+ },
+ "Nenhum módulo salvo": {
+  "pt_BR": "Nenhum módulo salvo",
+  "en_US": "No saved module"
+ },
+ "Nenhuma face sob o cursor": {
+  "pt_BR": "Nenhuma face sob o cursor",
+  "en_US": "No face under the cursor"
+ },
+ "Não foi possível projetar o mouse na parede.": {
+  "pt_BR": "Não foi possível projetar o mouse na parede.",
+  "en_US": "Could not project the mouse onto the wall."
+ },
+ "Origem": {
+  "pt_BR": "Origem",
+  "en_US": "Origin"
+ },
+ "Passo": {
+  "pt_BR": "Passo",
+  "en_US": "Step"
+ },
+ "Plano de inserção  |  Clique na face  |  Esc/botão direito: cancelar": {
+  "pt_BR": "Plano de inserção  |  Clique na face  |  Esc/botão direito: cancelar",
+  "en_US": "Insertion plane  |  Click the face  |  Esc/right button: cancel"
+ },
+ "Plano de inserção ativo": {
+  "pt_BR": "Plano de inserção ativo",
+  "en_US": "Active insertion plane"
+ },
+ "Plano de inserção: face de {}": {
+  "pt_BR": "Plano de inserção: face de {}",
+  "en_US": "Insertion plane: face of {}"
+ },
+ "Posição absoluta": {
+  "pt_BR": "Posição absoluta",
+  "en_US": "Absolute position"
+ },
+ "Posição relativa": {
+  "pt_BR": "Posição relativa",
+  "en_US": "Relative position"
+ },
+ "Posição {}": {
+  "pt_BR": "Posição {}",
+  "en_US": "Position {}"
+ },
+ "Quanto as setas e Page Up/Down movem o objeto na janela Mover Sobre": {
+  "pt_BR": "Quanto as setas e Page Up/Down movem o objeto na janela Mover Sobre",
+  "en_US": "How far the arrows and Page Up/Down move the object in the Move Over window"
+ },
+ "Rotação": {
+  "pt_BR": "Rotação",
+  "en_US": "Rotation"
+ },
+ "Salvar posição": {
+  "pt_BR": "Salvar posição",
+  "en_US": "Save position"
+ },
+ "Sobrepõe: {}. Confirme de novo para gravar mesmo assim.": {
+  "pt_BR": "Sobrepõe: {}. Confirme de novo para gravar mesmo assim.",
+  "en_US": "Overlaps: {}. Confirm again to save anyway."
+ },
+ "Substituir": {
+  "pt_BR": "Substituir",
+  "en_US": "Replace"
+ },
+ "Substituir por": {
+  "pt_BR": "Substituir por",
+  "en_US": "Replace with"
+ },
+ "Superior (frente embaixo)": {
+  "pt_BR": "Superior (frente embaixo)",
+  "en_US": "Top (front at the bottom)"
+ },
+ "Tolerância": {
+  "pt_BR": "Tolerância",
+  "en_US": "Tolerance"
+ },
+ "Troca o objeto por um módulo da biblioteca, no mesmo lugar e com a mesma rotação": {
+  "pt_BR": "Troca o objeto por um módulo da biblioteca, no mesmo lugar e com a mesma rotação",
+  "en_US": "Replaces the object with a library module, in the same place and with the same rotation"
+ },
+ "Usa a face sob o cursor como plano das próximas inserções": {
+  "pt_BR": "Usa a face sob o cursor como plano das próximas inserções",
+  "en_US": "Uses the face under the cursor as the plane for the next insertions"
+ },
+ "Usar como plano de inserção": {
+  "pt_BR": "Usar como plano de inserção",
+  "en_US": "Use as insertion plane"
+ },
+ "Use com o botão direito sobre uma face": {
+  "pt_BR": "Use com o botão direito sobre uma face",
+  "en_US": "Use with the right button over a face"
+ },
+ "Valor inválido": {
+  "pt_BR": "Valor inválido",
+  "en_US": "Invalid value"
+ },
+ "Visualizar posição relativa": {
+  "pt_BR": "Visualizar posição relativa",
+  "en_US": "Show relative position"
+ },
+ "Volta as inserções para o piso": {
+  "pt_BR": "Volta as inserções para o piso",
+  "en_US": "Sends insertions back to the floor"
+ },
+ "{} alinhado a {}.": {
+  "pt_BR": "{} alinhado a {}.",
+  "en_US": "{} aligned to {}."
+ },
+ "{} aplicada.": {
+  "pt_BR": "{} aplicada.",
+  "en_US": "{} applied."
+ },
+ "{} salva ({} em relação a {}).": {
+  "pt_BR": "{} salva ({} em relação a {}).",
+  "en_US": "{} saved ({} relative to {})."
+ },
+ "{} substituído por {}": {
+  "pt_BR": "{} substituído por {}",
+  "en_US": "{} replaced with {}"
+ }
+}

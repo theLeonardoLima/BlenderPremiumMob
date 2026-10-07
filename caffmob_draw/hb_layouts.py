@@ -1,6 +1,7 @@
 import bpy
 import math
 from mathutils import Vector, Matrix, Euler
+from .data.i18n import tr
 from . import hb_types
 from . import units
 
@@ -1104,7 +1105,7 @@ class TitleBlock:
                 obj.data.body = scene.name
             elif 'scale' in obj.name:
                 scale_text = scene.hb_layout_scale if hasattr(scene, 'hb_layout_scale') else '1/4"=1\''
-                obj.data.body = f"Scale: {scale_text}"
+                obj.data.body = tr("Scale: {}").format(scale_text)
 
 
 class LayoutView:

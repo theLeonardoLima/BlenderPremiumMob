@@ -2,6 +2,7 @@ import bpy
 import math
 import os
 from mathutils import Vector
+from ....data.i18n import tr
 from .. import props_hb_frameless
 from .... import hb_project, hb_details, hb_types, units
 
@@ -103,7 +104,7 @@ class hb_frameless_OT_create_crown_detail(bpy.types.Operator):
         # Switch to the detail scene
         bpy.ops.caffmob_layouts.go_to_layout_view(scene_name=scene.name)
 
-        self.report({'INFO'}, f"Created crown detail: {self.name}")
+        self.report({'INFO'}, tr("Created crown detail: {}").format(self.name))
         return {'FINISHED'}
 
     def _draw_cabinet_side_detail(self, context, scene, props):
@@ -282,7 +283,7 @@ class hb_frameless_OT_delete_crown_detail(bpy.types.Operator):
         if props.active_crown_detail_index >= len(props.crown_details):
             props.active_crown_detail_index = max(0, len(props.crown_details) - 1)
 
-        self.report({'INFO'}, f"Deleted crown detail: {crown_name}")
+        self.report({'INFO'}, tr("Deleted crown detail: {}").format(crown_name))
         return {'FINISHED'}
 
 
@@ -316,7 +317,7 @@ class hb_frameless_OT_edit_crown_detail(bpy.types.Operator):
         # Switch to the detail scene
         bpy.ops.caffmob_layouts.go_to_layout_view(scene_name=detail_scene.name)
 
-        self.report({'INFO'}, f"Editing crown detail: {crown.name}")
+        self.report({'INFO'}, tr("Editing crown detail: {}").format(crown.name))
         return {'FINISHED'}
 
 
@@ -430,7 +431,7 @@ class hb_frameless_OT_assign_crown_to_cabinets(bpy.types.Operator):
         total_cabs = (sum(len(g['cabinets']) for g in cabinet_groups)
                       + sum(len(c) for c in corner_chains))
         group_count = len(cabinet_groups) + len(corner_chains)
-        self.report({'INFO'}, f"Created crown molding on {total_cabs} cabinet(s) in {group_count} group(s)")
+        self.report({'INFO'}, tr("Created crown molding on {} cabinet(s) in {} group(s)").format(total_cabs, group_count))
         return {'FINISHED'}
 
     def _remove_existing_crown(self, cabinet):
@@ -1345,7 +1346,7 @@ class hb_frameless_OT_add_molding_profile(bpy.types.Operator):
     def execute(self, context):
 
         if not self.filepath or not os.path.exists(self.filepath):
-            self.report({'ERROR'}, f"Molding file not found: {self.filepath}")
+            self.report({'ERROR'}, tr("Molding file not found: {}").format(self.filepath))
             return {'CANCELLED'}
 
         # Load the molding profile from the blend file
@@ -1383,7 +1384,7 @@ class hb_frameless_OT_add_molding_profile(bpy.types.Operator):
             for obj in imported_objects:
                 obj.location = (0, 0, 0)
 
-        self.report({'INFO'}, f"Added molding profile: {self.molding_name}")
+        self.report({'INFO'}, tr("Added molding profile: {}").format(self.molding_name))
         return {'FINISHED'}
 
 
@@ -1475,7 +1476,7 @@ class hb_frameless_OT_add_solid_lumber(bpy.types.Operator):
         # Report dimensions in inches for user feedback
         thickness_in = self.thickness * 39.3701
         width_in = self.width * 39.3701
-        self.report({'INFO'}, f"Added {thickness_in:.2f}\" x {width_in:.2f}\" solid lumber ({self.orientation.lower()})")
+        self.report({'INFO'}, tr("Added {:.2f}\" x {:.2f}\" solid lumber ({})").format(thickness_in, width_in, self.orientation.lower()))
 
         return {'FINISHED'}
 

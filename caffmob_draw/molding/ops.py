@@ -9,6 +9,7 @@ route through it, so the dropdowns are the whole UI.
 import bpy
 import mathutils
 
+from ..data.i18n import tr
 from . import adapters, engine, packages
 
 MOLDING_TAG = 'IS_HB_MOLDING_SWEEP'
@@ -315,7 +316,7 @@ class home_builder_OT_refresh_room_molding(bpy.types.Operator):
 
     def execute(self, context):
         made = apply_scene_packages(context.scene)
-        self.report({'INFO'}, f"Rebuilt {made} molding run(s)")
+        self.report({'INFO'}, tr("Rebuilt {} molding run(s)").format(made))
         return {'FINISHED'}
 
 

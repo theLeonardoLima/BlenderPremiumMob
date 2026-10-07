@@ -10,6 +10,7 @@ import json
 import bpy  # type: ignore
 from bpy_extras.io_utils import ExportHelper, ImportHelper  # type: ignore
 
+from ..data.i18n import tr
 from ..cutting import csv_exporter, json_exporter
 from ..cutting.nesting import optimize_nesting
 from ..cutting.part_extractor import extract_production_parts, module_entries
@@ -81,8 +82,7 @@ def calculate(context):
           "length": p.height, "width": p.width} for p in incompatible], ensure_ascii=False)
     stats = result["stats"]
     scene["btm_nesting_result"] = (
-        f"{stats['sheets_count']} chapa(s), {stats['total_placed_parts']} peça(s) posicionada(s), "
-        f"aproveitamento {stats['utilization_percentage']}%")
+        tr("{} chapa(s), {} peça(s) posicionada(s), aproveitamento {}%").format(stats['sheets_count'], stats['total_placed_parts'], stats['utilization_percentage']))
     scene["btm_nesting_parts_count"] = len(parts)
     scene["btm_nesting_sheets_count"] = stats["sheets_count"]
     scene["btm_nesting_utilization"] = stats["utilization_percentage"]
@@ -114,12 +114,11 @@ class BTM_OT_CalculateNesting(bpy.types.Operator):
             self.report({'WARNING'}, "Nenhum módulo com peças de marcenaria encontrado no projeto.")
             return {'CANCELLED'}
         stats = result["stats"]
-        message = (f"Plano de corte: {stats['sheets_count']} chapa(s), {stats['total_placed_parts']} peça(s), "
-                   f"aproveitamento {stats['utilization_percentage']}%.")
+        message = (tr("Plano de corte: {} chapa(s), {} peça(s), aproveitamento {}%.").format(stats['sheets_count'], stats['total_placed_parts'], stats['utilization_percentage']))
         if incompatible:
-            message += f" {len(incompatible)} peça(s) maior(es) que o limite de chapa do componente."
+            message += tr(" {} peça(s) maior(es) que o limite de chapa do componente.").format(len(incompatible))
         if result["unplaced"]:
-            message += f" {len(result['unplaced'])} peça(s) não couberam na chapa."
+            message += tr(" {} peça(s) não couberam na chapa.").format(len(result['unplaced']))
         self.report({'WARNING'} if incompatible or result["unplaced"] else {'INFO'}, message)
         return {'FINISHED'}
 
@@ -167,9 +166,9 @@ class BTM_OT_ExportCutPlanJSON(bpy.types.Operator, ExportHelper):
             self.report({'ERROR'}, f"{exc} {'; '.join(exc.errors[:3])}")
             return {'CANCELLED'}
         except OSError as exc:
-            self.report({'ERROR'}, f"Não foi possível gravar: {exc}")
+            self.report({'ERROR'}, tr("Não foi possível gravar: {}").format(exc))
             return {'CANCELLED'}
-        self.report({'INFO'}, f"JSON global exportado: {len(payload['parts'])} peça(s) em {self.filepath}")
+        self.report({'INFO'}, tr("JSON global exportado: {} peça(s) em {}").format(len(payload['parts']), self.filepath))
         return {'FINISHED'}
 
 
@@ -195,7 +194,7 @@ class BTM_OT_ImportCutPlanJSON(bpy.types.Operator, ImportHelper):
         if plan is not None:
             scene["btm_imported_cut_plan"] = json.dumps(plan, ensure_ascii=False)
         sheets = len(plan["sheets"]) if plan else 0
-        self.report({'INFO'}, f"\"{payload['project']['name']}\": {len(parts)} peça(s), {sheets} chapa(s) no plano.")
+        self.report({'INFO'}, tr("\"{}\": {} peça(s), {} chapa(s) no plano.").format(payload['project']['name'], len(parts), sheets))
         return {'FINISHED'}
 
 
@@ -216,9 +215,9 @@ class BTM_OT_ExportPartsCSV(bpy.types.Operator, ExportHelper):
         try:
             count = csv_exporter.write_parts_csv(self.filepath, parts)
         except OSError as exc:
-            self.report({'ERROR'}, f"Não foi possível gravar: {exc}")
+            self.report({'ERROR'}, tr("Não foi possível gravar: {}").format(exc))
             return {'CANCELLED'}
-        self.report({'INFO'}, f"CSV exportado: {count} peça(s) em {self.filepath}")
+        self.report({'INFO'}, tr("CSV exportado: {} peça(s) em {}").format(count, self.filepath))
         return {'FINISHED'}
 
 

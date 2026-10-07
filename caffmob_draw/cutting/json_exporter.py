@@ -12,6 +12,7 @@ import json
 import os
 import tempfile
 
+from ..data.i18n import tr
 from .nesting import NestingPart
 
 FORMAT = "caffmob_draw.project"
@@ -178,13 +179,13 @@ def _warnings(parts, nesting_result):
     for part in sorted(parts, key=lambda p: p.uid):
         if part.limit_status != "OK":
             warnings.append({"code": part.limit_status, "part_uid": part.uid,
-                             "message": f"{part.name}: maior que o limite de chapa do componente {part.component}."})
+                             "message": tr("{}: maior que o limite de chapa do componente {}.").format(part.name, part.component)})
         if part.component == "UNCLASSIFIED":
             warnings.append({"code": "UNCLASSIFIED", "part_uid": part.uid,
-                             "message": f"{part.name}: peça sem componente do padrão de dimensões."})
+                             "message": tr("{}: peça sem componente do padrão de dimensões.").format(part.name)})
     for item in (nesting_result or {}).get("unplaced", []):
         warnings.append({"code": "UNPLACED", "part_uid": item.get("uid") or item["id"],
-                         "message": f"{item.get('name', '')}: {item.get('reason', 'não coube na chapa')}."})
+                         "message": f"{item.get('name', '')}: {item.get('reason', tr('não coube na chapa'))}."})
     return warnings
 
 
@@ -234,26 +235,26 @@ def validate_global_json(payload):
 
     def need(obj, path, key, kind, check=None):
         if not isinstance(obj, dict) or key not in obj:
-            errors.append(f"{path}{key}: campo obrigatório ausente")
+            errors.append(tr("{}{}: campo obrigatório ausente").format(path, key))
             return None
         value = obj[key]
         ok = _is_number(value) if kind == 'number' else isinstance(value, kind)
         if not ok:
-            errors.append(f"{path}{key}: tipo inválido")
+            errors.append(tr("{}{}: tipo inválido").format(path, key))
             return None
         if check is not None and not check(value):
-            errors.append(f"{path}{key}: valor inválido ({value!r})")
+            errors.append(tr("{}{}: valor inválido ({!r})").format(path, key, value))
         return value
 
     if not isinstance(payload, dict):
-        return ["$: o documento deve ser um objeto JSON"]
+        return [tr("$: o documento deve ser um objeto JSON")]
     if payload.get("schema") not in ACCEPTED_FORMATS:
-        errors.append(f"schema: esperado {FORMAT!r}")
+        errors.append(tr("schema: esperado {!r}").format(FORMAT))
     version = need(payload, "", "schema_version", str)
     if version is not None:
         major = _major(version)
         if major is None or major > SUPPORTED_MAJOR:
-            errors.append(f"schema_version: versão {version} não suportada (máximo {SUPPORTED_MAJOR}.x)")
+            errors.append(tr("schema_version: versão {} não suportada (máximo {}.x)").format(version, SUPPORTED_MAJOR))
     need(payload, "", "generator", dict)
     need(payload, "", "exported_at", str)
     need(payload, "", "unit", str, lambda u: u == "mm")
@@ -282,7 +283,7 @@ def validate_global_json(payload):
         uid = need(part, p, "uid", str)
         if uid is not None:
             if uid in part_uids:
-                errors.append(f"{p}uid: duplicado ({uid})")
+                errors.append(tr("{}uid: duplicado ({})").format(p, uid))
             part_uids.add(uid)
         need(part, p, "name", str)
         need(part, p, "component", str)
@@ -308,7 +309,7 @@ def validate_global_json(payload):
     plan = payload.get("cut_plan")
     if plan is not None:
         if not isinstance(plan, dict):
-            errors.append("cut_plan: tipo inválido")
+            errors.append(tr("cut_plan: tipo inválido"))
         else:
             for i, sheet in enumerate(need(plan, "cut_plan.", "sheets", list) or []):
                 s = f"cut_plan.sheets[{i}]."
@@ -328,7 +329,7 @@ def write_global_json(path, payload):
     """Escrita atômica, UTF-8 sem BOM. Levanta GlobalJsonError se o conteúdo não passar na validação."""
     errors = validate_global_json(payload)
     if errors:
-        raise GlobalJsonError("JSON global inválido.", errors)
+        raise GlobalJsonError(tr("JSON global inválido."), errors)
     directory = os.path.dirname(os.path.abspath(str(path))) or "."
     fd, tmp = tempfile.mkstemp(dir=directory, suffix=".tmp")
     try:
@@ -349,14 +350,14 @@ def read_global_json(path):
         with open(str(path), encoding='utf-8-sig') as handle:
             payload = json.load(handle)
     except json.JSONDecodeError as exc:
-        raise GlobalJsonError(f"JSON inválido (linha {exc.lineno}, coluna {exc.colno}).") from None
+        raise GlobalJsonError(tr("JSON inválido (linha {}, coluna {}).").format(exc.lineno, exc.colno)) from None
     except OSError as exc:
-        raise GlobalJsonError(f"Não foi possível ler o arquivo: {exc}") from None
+        raise GlobalJsonError(tr("Não foi possível ler o arquivo: {}").format(exc)) from None
     if isinstance(payload, dict) and _major(payload.get("schema_version", "")) == 1:
         payload = convert_v1(payload)
     errors = validate_global_json(payload)
     if errors:
-        raise GlobalJsonError("O arquivo não é um JSON global válido do CAFFMob Draw.", errors)
+        raise GlobalJsonError(tr("O arquivo não é um JSON global válido do CAFFMob Draw."), errors)
     return payload
 
 
@@ -397,7 +398,7 @@ def convert_v1(document):
     warnings = []
     if document.get("sheets"):
         warnings.append({"code": "V1_CUT_PLAN_DROPPED", "part_uid": None,
-                         "message": "Plano de corte do arquivo v1 não convertido: gere o plano novamente."})
+                         "message": tr("Plano de corte do arquivo v1 não convertido: gere o plano novamente.")})
     return build_global_payload(
         project={"name": project.get("name", "Projeto"), "uid": "", "rooms": []},
         standard={"uid": "", "name": "", "version": 0, "market": "BR"},

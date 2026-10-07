@@ -10,6 +10,7 @@ O desenho da planta é um handler `SpaceImageEditor.draw_handler_add(... 'POST_P
 
 import bpy  # type: ignore
 
+from ..data.i18n import tr
 from . import props
 
 _draw_handle = []
@@ -103,7 +104,7 @@ def open_editor(context):
             area = max(window.screen.areas, key=lambda a: a.width * a.height)
     if area is None:
         if context.area is None or context.window is None:
-            raise RuntimeError("O Editor de Paredes precisa de uma janela do Blender aberta.")
+            raise RuntimeError(tr("O Editor de Paredes precisa de uma janela do Blender aberta."))
         window, area = context.window, context.area
         s.restore_area_type = area.type
     region = _prepare(area)

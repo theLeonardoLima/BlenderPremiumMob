@@ -20,6 +20,7 @@ import re
 import bpy
 from bpy.props import BoolProperty, EnumProperty, FloatProperty, IntProperty
 
+from ...data.i18n import tr
 from ... import hb_utils
 from ...hb_types import GeoNodeObject, GeoNodeCutpart
 from ...units import inch
@@ -1797,7 +1798,7 @@ class HOME_BUILDER_OT_build_wood_hood(bpy.types.Operator):
 
     def execute(self, context):
         build_wood_hood(context.active_object, self.style)
-        self.report({'INFO'}, "Built %s wood hood" % self.style)
+        self.report({'INFO'}, tr("Built {} wood hood").format(self.style))
         return {'FINISHED'}
 
 
@@ -1919,8 +1920,8 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
     # panel_count are shown / used).
     for _j in range(1, 11):
         __annotations__['bay_front_%d' % _j] = EnumProperty(
-            name="Bay %d" % _j, items=BAY_FRONT_ITEMS, default='PANEL',
-            description="Front for bay %d of the face frame" % _j)
+            name="Bay", items=BAY_FRONT_ITEMS, default='PANEL',
+            description="Front for this bay of the face frame")   # o número vai no rótulo do painel (FLZO)
     del _j
     include_left_end_panel: BoolProperty(
         name="Left Paneled End",
@@ -2062,7 +2063,7 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
 
     def execute(self, context):
         self._apply()
-        self.report({'INFO'}, "Built %s wood hood" % self.style)
+        self.report({'INFO'}, tr("Built {} wood hood").format(self.style))
         return {'FINISHED'}
 
     def draw(self, context):
@@ -2148,7 +2149,7 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
         bays.prop(self, 'panel_count')
         for j in range(self.panel_count):
             row = bays.row(align=True)
-            row.label(text="Bay %d:" % (j + 1))
+            row.label(text=tr("Bay {}:").format(j + 1))
             row.prop(self, 'bay_front_%d' % (j + 1), text="")
 
         col.separator()
@@ -2222,7 +2223,7 @@ class HOME_BUILDER_OT_revert_hood_part(bpy.types.Operator):
         if done == 0:
             self.report({'WARNING'}, "No revertable hood parts (no snapshot)")
             return {'CANCELLED'}
-        self.report({'INFO'}, "%d hood part(s) restored to parametric" % done)
+        self.report({'INFO'}, tr("{} hood part(s) restored to parametric").format(done))
         return {'FINISHED'}
 
 

@@ -23,6 +23,7 @@ from bpy.props import (
 
 import os
 
+from ...data.i18n import N_
 from . import const_closets as const
 from . import starter_presets
 from . import materials_closets
@@ -477,55 +478,55 @@ class Closets_Scene_Props(PropertyGroup):
             # option rows read as separate items rather than a block.
             opts = box.column(align=False)
 
-            option_row(opts, "Materials").prop(
+            option_row(opts, N_("Materials")).prop(
                 self, 'closet_material', text="")
             if sub_toggle(opts, 'show_material_options',
-                          "More Material Options"):
+                          N_("More Material Options")):
                 sub = opts.box().column(align=True)
-                option_row(sub, "Fronts").prop(
+                option_row(sub, N_("Fronts")).prop(
                     self, 'closet_front_material', text="")
-                option_row(sub, "Closet Edge").prop(
+                option_row(sub, N_("Closet Edge")).prop(
                     self, 'closet_edge_material', text="")
-                option_row(sub, "Front Edge").prop(
+                option_row(sub, N_("Front Edge")).prop(
                     self, 'closet_front_edge_material', text="")
-                option_row(sub, "Door Grain").prop(
+                option_row(sub, N_("Door Grain")).prop(
                     self, 'closet_door_grain', text="")
-                option_row(sub, "Drawer Grain").prop(
+                option_row(sub, N_("Drawer Grain")).prop(
                     self, 'closet_drawer_grain', text="")
 
-            option_row(opts, "Pulls").prop(self, 'closet_pull', text="")
-            if sub_toggle(opts, 'show_pull_options', "More Pull Options"):
+            option_row(opts, N_("Pulls")).prop(self, 'closet_pull', text="")
+            if sub_toggle(opts, 'show_pull_options', N_("More Pull Options")):
                 sub = opts.box().column(align=True)
-                option_row(sub, "Finish").prop(
+                option_row(sub, N_("Finish")).prop(
                     self, 'closet_pull_finish', text="")
                 sub.label(text="Vertical Location:")
                 vrow = sub.row(align=True)
                 vrow.prop(self, 'pull_vertical_location_base')
                 vrow.prop(self, 'pull_vertical_location_upper')
                 vrow.prop(self, 'pull_vertical_location_tall')
-                option_row(sub, "From Edge").prop(
+                option_row(sub, N_("From Edge")).prop(
                     self, 'pull_horizontal_offset', text="")
                 sub.prop(self, 'center_pulls_on_drawer_front')
 
-            rrow = option_row(opts, "Rods")
+            rrow = option_row(opts, N_("Rods"))
             rrow.prop(self, 'closet_rod_type', text="")
             rrow.prop(self, 'closet_rod_finish', text="")
 
-            hrow = option_row(opts, "Hangers")
+            hrow = option_row(opts, N_("Hangers"))
             hrow.prop(self, 'closet_hanger_model', text="")
             hrow.operator('caffmob_closets.randomize_hangers', text="",
                           icon='FILE_REFRESH')
             hrow.operator('caffmob_closets.install_model_pack', text="",
                           icon='IMPORT')
 
-            option_row(opts, "Front Style").prop(
+            option_row(opts, N_("Front Style")).prop(
                 self, 'closet_front_style', text="")
-            option_row(opts, "Door Panel").prop(
+            option_row(opts, N_("Door Panel")).prop(
                 self, 'closet_panel_type', text="")
-            option_row(opts, "Drawer Box").prop(
+            option_row(opts, N_("Drawer Box")).prop(
                 self, 'closet_drawer_box', text="")
 
-            mrow = option_row(opts, "Molding")
+            mrow = option_row(opts, N_("Molding"))
             mrow.prop(self, 'closet_crown_profile', text="")
             mrow.operator('caffmob_closets.add_molding', text="", icon='ADD')
             mrow.operator('caffmob_closets.delete_molding', text="", icon='X')

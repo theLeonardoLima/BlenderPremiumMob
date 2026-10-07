@@ -17,6 +17,7 @@ sidebar sub-panels and the popups call the same draw_* helper.
 """
 import bpy
 
+from ...data.i18n import tr
 from . import types_face_frame
 from ... import units
 
@@ -648,7 +649,7 @@ def draw_bay_properties(layout, bay_obj):
     sidebar Selection sub-panel and the bay_prompts popup. Includes a
     structural-edits row up top (insert before / after, delete)."""
     bp = bay_obj.face_frame_bay
-    layout.label(text=f"Bay {bp.bay_index + 1}", icon='MESH_CUBE')
+    layout.label(text=tr("Bay {}").format(bp.bay_index + 1), icon='MESH_CUBE')
 
     # Structural edit strip: insert next to / delete this bay. Operators
     # take the bay index explicitly so they don't depend on selection.
@@ -766,7 +767,7 @@ def draw_opening_properties(layout, opening_obj):
     own value) and an overlay field that's only enabled when unlocked.
     """
     op = opening_obj.face_frame_opening
-    layout.label(text=f"Opening {op.opening_index + 1}", icon='MESH_PLANE')
+    layout.label(text=tr("Opening {}").format(op.opening_index + 1), icon='MESH_PLANE')
 
     # Size + unlock - meaningful only when the opening is a child of a
     # split node (the redistributor uses it). A bay's ROOT opening fills
@@ -777,8 +778,8 @@ def draw_opening_properties(layout, opening_obj):
         size_row = layout.row(align=True)
         size_row.enabled = False
         size_row.label(
-            text="Size:  " + units.unit_to_string(
-                bpy.context.scene.unit_settings, root_size))
+            text=tr("Size:  {}").format(units.unit_to_string(
+                bpy.context.scene.unit_settings, root_size)))
     else:
         size_row = layout.row(align=True)
         field = size_row.row(align=True)
@@ -817,7 +818,7 @@ def draw_opening_properties(layout, opening_obj):
                     hrow = heights_box.row(align=True)
                     field = hrow.row(align=True)
                     field.enabled = item.unlock_size
-                    field.prop(item, 'size', text="Opening " + str(idx + 1))
+                    field.prop(item, 'size', text=tr("Opening {}").format(idx + 1))
                     hrow.prop(item, 'unlock_size', text="",
                               icon='UNLOCKED' if item.unlock_size else 'LOCKED')
 
@@ -979,7 +980,7 @@ def _draw_interior_items_section(layout, target_props, target_name=""):
             # Custom to type one). The box count is the number of rows.
             for j, box in enumerate(item.rollout_boxes):
                 brow = sub.row(align=True)
-                brow.label(text=f"Box {j + 1}")
+                brow.label(text=tr("Box {}").format(j + 1))
                 brow.prop(box, 'height_preset', text="")
                 if box.height_preset == 'CUSTOM':
                     brow.prop(box, 'height', text="")
@@ -1124,8 +1125,8 @@ def _draw_interior_tree_inline(layout, opening_obj):
         # it reads naturally for the user (either child of the same
         # split removes the same divider, so the wording matches the
         # divider type rather than the side).
-        remove_label = ("Remove Fixed Shelf" if sp.axis == 'H'
-                        else "Remove Division")
+        remove_label = (tr("Remove Fixed Shelf") if sp.axis == 'H'
+                        else tr("Remove Division"))
         remove_op = col.operator(
             "caffmob_face_frame.remove_interior_split",
             text=remove_label, icon='X',
@@ -1168,7 +1169,7 @@ def draw_interior_region_properties(layout, leaf_obj, opening_obj):
     # is currently advisory until sibling redistribution is wired).
     col = layout.column(align=True)
     axis_label = "Fixed Shelf" if sp.axis == 'H' else "Division"
-    col.label(text=f"Parent Split: {axis_label}")
+    col.label(text=tr("Parent Split: {}").format(axis_label))
     col.prop(sp, 'divider_thickness', text="Divider Thickness")
     _draw_split_face_frame_props(col, sp)
 
@@ -1179,8 +1180,8 @@ def draw_interior_region_properties(layout, leaf_obj, opening_obj):
     lock_icon = 'UNLOCKED' if rp.unlock_size else 'LOCKED'
     size_row.prop(rp, 'unlock_size', text="", icon=lock_icon)
 
-    remove_label = ("Remove Fixed Shelf" if sp.axis == 'H'
-                    else "Remove Division")
+    remove_label = (tr("Remove Fixed Shelf") if sp.axis == 'H'
+                    else tr("Remove Division"))
     remove_op = col.operator(
         "caffmob_face_frame.remove_interior_split",
         text=remove_label, icon='X',
@@ -1203,7 +1204,7 @@ def draw_mid_stile_properties(layout, root, msi):
         layout.label(text="Mid stile not found", icon='ERROR')
         return
     ms = cab_props.mid_stile_widths[msi]
-    layout.label(text=f"Mid Stile {msi + 1}", icon='SNAP_EDGE')
+    layout.label(text=tr("Mid Stile {}").format(msi + 1), icon='SNAP_EDGE')
     col = layout.column(align=True)
     col.prop(ms, 'width', text="Width")
     col.prop(ms, 'extend_up_amount', text="Extend Up")
@@ -1219,7 +1220,7 @@ def draw_end_stile_properties(layout, root, role):
     is_left = role == types_face_frame.PART_ROLE_LEFT_STILE
     side = "Left" if is_left else "Right"
     attr = 'left_stile_width' if is_left else 'right_stile_width'
-    layout.label(text=f"{side} End Stile", icon='SNAP_EDGE')
+    layout.label(text=tr("{} End Stile").format(side), icon='SNAP_EDGE')
     layout.prop(cab_props, attr, text="Width")
 
 
@@ -1238,7 +1239,7 @@ def draw_rail_properties(layout, root, rail_obj, role):
     is_top = role == types_face_frame.PART_ROLE_TOP_RAIL
     label = "Top Rail" if is_top else "Bottom Rail"
     attr = 'top_rail_width' if is_top else 'bottom_rail_width'
-    layout.label(text=f"{label} (Bay {seg_start + 1})", icon='SNAP_EDGE')
+    layout.label(text=tr("{} (Bay {})").format(label, seg_start + 1), icon='SNAP_EDGE')
     unlock_attr = 'unlock_top_rail' if is_top else 'unlock_bottom_rail'
     _draw_locked_rail_row(layout, bp, attr, unlock_attr, "Width")
     # Bottom rail can be removed outright (drops Remove Bottom across the
@@ -1341,8 +1342,8 @@ def draw_all_bays_summary(layout, root):
         w = bp.width * M_TO_IN
         h = bp.height * M_TO_IN
         d = bp.depth * M_TO_IN
-        row.label(text=f"Bay {bp.bay_index + 1}")
-        row.label(text=f"{w:.0f} x {h:.0f} x {d:.0f} in")
+        row.label(text=tr("Bay {}").format(bp.bay_index + 1))
+        row.label(text=tr("{:.0f} x {:.0f} x {:.0f} in").format(w, h, d))
 
 
 def _bay_size_summary(bp):
@@ -1372,7 +1373,7 @@ def draw_bay_in_prompts(layout, bay_obj):
         bp, 'prompts_expanded',
         text="", icon=expand_icon, emboss=False,
     )
-    header.label(text=f"Bay {bp.bay_index + 1}", icon='MESH_PLANE')
+    header.label(text=tr("Bay {}").format(bp.bay_index + 1), icon='MESH_PLANE')
     header.label(text=_bay_size_summary(bp))
     rm = header.operator(
         'caffmob_face_frame.delete_bay', text="", icon='X', emboss=False,
@@ -1451,7 +1452,7 @@ def draw_bays_in_prompts(layout, root):
     if len(bays) == 1:
         bp = bays[0].face_frame_bay
         row = box.row()
-        row.label(text=f"Bay {bp.bay_index + 1}")
+        row.label(text=tr("Bay {}").format(bp.bay_index + 1))
         row.label(text=_bay_size_summary(bp))
     else:
         for bay_obj in bays:

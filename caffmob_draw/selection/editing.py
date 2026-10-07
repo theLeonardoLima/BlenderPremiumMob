@@ -11,15 +11,16 @@ Cada biblioteca guarda as medidas num lugar diferente:
 Valores fora do domínio levantam `ValueError("Valor Inválido: …")` sem alterar nada.
 """
 
+from ..data.i18n import N_, tr
 from .. import hb_types
 from ..data import units
 from . import classify
 
 DIM_FIELDS = ('width', 'height', 'depth')
-DIM_LABELS = {'width': "Largura", 'height': "Altura", 'depth': "Profundidade"}
+DIM_LABELS = {'width': N_("Largura"), 'height': N_("Altura"), 'depth': N_("Profundidade")}
 GN_DIM = {'width': 'Dim X', 'depth': 'Dim Y', 'height': 'Dim Z'}
-WALL_FIELDS = {'length': ('Length', "Comprimento"), 'height': ('Height', "Pé-direito inicial"),
-               'end_height': ('End Height', "Pé-direito final"), 'thickness': ('Thickness', "Espessura")}
+WALL_FIELDS = {'length': ('Length', N_("Comprimento")), 'height': ('Height', N_("Pé-direito inicial")),
+               'end_height': ('End Height', N_("Pé-direito final")), 'thickness': ('Thickness', N_("Espessura"))}
 LIMITS = {'width': (0.01, 10.0), 'height': (0.01, 10.0), 'depth': (0.005, 10.0),
           'length': (0.05, 100.0), 'end_height': (0.5, 10.0), 'thickness': (0.01, 2.0), 'sill': (0.0, 5.0)}
 WALL_LIMITS = {'height': (0.5, 10.0)}
@@ -29,8 +30,7 @@ def _check(field, value, label, limits=None):
     lo, hi = (limits or LIMITS)[field]
     if not lo <= value <= hi:
         unit = units.get_scene_length_unit()
-        raise ValueError(f"Valor Inválido: {label} deve estar entre {units.format_length(lo, unit)} e "
-                         f"{units.format_length(hi, unit)} (recebido: {units.format_length(value, unit)}).")
+        raise ValueError(tr("Valor Inválido: {} deve estar entre {} e {} (recebido: {}).").format(tr(label), units.format_length(lo, unit), units.format_length(hi, unit), units.format_length(value, unit)))
 
 
 def _geo(obj):
@@ -74,7 +74,7 @@ def get_dimension(info, field):
 
 def set_dimension(context, info, field, value):
     if field not in editable_dimensions(info):
-        raise ValueError(f"Valor Inválido: {DIM_LABELS[field]} não é editável para este objeto.")
+        raise ValueError(tr("Valor Inválido: {} não é editável para este objeto.").format(tr(DIM_LABELS[field])))
     _check(field, value, DIM_LABELS[field])
     obj = info.root if info.kind == classify.MODULE else info.obj
     if info.kind == classify.MODULE and info.library == 'FACE_FRAME':
@@ -100,7 +100,7 @@ def get_sill(info):
 
 def set_sill(info, value):
     if info.kind == classify.ROOM_DOOR:
-        raise ValueError("Valor Inválido: o peitoril de uma porta é sempre 0.")
+        raise ValueError(tr("Valor Inválido: o peitoril de uma porta é sempre 0."))
     _check('sill', value, "Peitoril")
     info.obj.location.z = value
 
@@ -113,7 +113,7 @@ def get_wall(info, field):
 
 def set_wall(info, field, value):
     if info.library != 'HB':
-        raise ValueError("Valor Inválido: esta parede não é editável por aqui.")
+        raise ValueError(tr("Valor Inválido: esta parede não é editável por aqui."))
     gn_name, label = WALL_FIELDS[field]
     _check(field, value, label, {**LIMITS, **WALL_LIMITS})
     wall = hb_types.GeoNodeWall(info.obj)

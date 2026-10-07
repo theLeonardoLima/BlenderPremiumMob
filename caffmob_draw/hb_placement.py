@@ -8,6 +8,7 @@ from enum import Enum, auto
 from bpy_extras import view3d_utils
 from gpu_extras.batch import batch_for_shader
 from . import hb_snap, units
+from .data.i18n import tr
 
 
 # Placement-dimension spec consumed by draw_placement_dimensions.
@@ -1272,7 +1273,8 @@ def draw_header_text(context, text: str):
     Call this in a draw handler.
     """
     # This is a simple approach - for more complex UI, use gpu/blf directly
-    context.area.header_text_set(text)
+    # Traduz o texto (constante do catálogo); texto já montado com tr() passa sem mudar (BUG-20261007-FLZO).
+    context.area.header_text_set(tr(text))
 
 
 def clear_header_text(context):
@@ -1351,11 +1353,11 @@ class DimensionOperatorMixin:
         ortho_text = self.get_ortho_display()
 
         if self.dim_state == self.DIM_STATE_FIRST:
-            return f"Click first point{snap_text} | O: ortho | Right-click/Esc: cancel"
+            return tr("Click first point{} | O: ortho | Right-click/Esc: cancel").format(snap_text)
         elif self.dim_state == self.DIM_STATE_SECOND:
-            return f"Click second point{snap_text}{ortho_text} | O: toggle ortho | Right-click/Esc: cancel"
+            return tr("Click second point{}{} | O: toggle ortho | Right-click/Esc: cancel").format(snap_text, ortho_text)
         else:  # OFFSET
-            return "Move to set offset, click to place | Right-click/Esc: cancel"
+            return tr("Move to set offset, click to place | Right-click/Esc: cancel")
 
     def update_dimension_header(self, context):
         """Update the header with current state."""

@@ -73,7 +73,7 @@ assert close(state.length, 3.9), state.length
 assert state.direction == 'RIGHT'                         # espessura para fora
 state.line = 'INNER'
 state.thickness = 50.0
-assert s.error.startswith("Valor Inválido"), s.error
+assert s.error.startswith(("Valor Inválido", "Invalid Value")), s.error    # segue o idioma do Blender (FLZO)
 state.wall_type = 'DIVISORIA'
 assert close(s.plan.chains[0].segments[0].thickness, 0.1)
 props.end()

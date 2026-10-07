@@ -1,0 +1,702 @@
+{
+ "1830 x 1830 mm (Quadrada)": {
+  "pt_BR": "1830 x 1830 mm (Quadrada)",
+  "en_US": "1830 x 1830 mm (Square)"
+ },
+ "2440 x 1220 mm (Padrão 8x4)": {
+  "pt_BR": "2440 x 1220 mm (Padrão 8x4)",
+  "en_US": "2440 x 1220 mm (8x4 Standard)"
+ },
+ "2500 x 1600 mm": {
+  "pt_BR": "2500 x 1600 mm",
+  "en_US": "2500 x 1600 mm"
+ },
+ "2750 x 1830 mm (Padrão Brasil)": {
+  "pt_BR": "2750 x 1830 mm (Padrão Brasil)",
+  "en_US": "2750 x 1830 mm (Brazil Standard)"
+ },
+ "Aba Ativa": {
+  "pt_BR": "Aba Ativa",
+  "en_US": "Active Tab"
+ },
+ "Abertura": {
+  "pt_BR": "Abertura",
+  "en_US": "Opening"
+ },
+ "Afastamento Traseiro": {
+  "pt_BR": "Afastamento Traseiro",
+  "en_US": "Back Clearance"
+ },
+ "Afastamento da base da parede em relação ao piso": {
+  "pt_BR": "Afastamento da base da parede em relação ao piso",
+  "en_US": "Offset of the wall base from the floor"
+ },
+ "Afastamento do piso até a base da abertura (0 para portas)": {
+  "pt_BR": "Afastamento do piso até a base da abertura (0 para portas)",
+  "en_US": "Distance from the floor to the opening base (0 for doors)"
+ },
+ "Ajustes manuais": {
+  "pt_BR": "Ajustes manuais",
+  "en_US": "Manual settings"
+ },
+ "Altura Máxima": {
+  "pt_BR": "Altura Máxima",
+  "en_US": "Maximum Height"
+ },
+ "Altura Mínima": {
+  "pt_BR": "Altura Mínima",
+  "en_US": "Minimum Height"
+ },
+ "Altura Padrão": {
+  "pt_BR": "Altura Padrão",
+  "en_US": "Default Height"
+ },
+ "Altura da Chapa": {
+  "pt_BR": "Altura da Chapa",
+  "en_US": "Sheet Height"
+ },
+ "Altura da parede no ponto final": {
+  "pt_BR": "Altura da parede no ponto final",
+  "en_US": "Wall height at the end point"
+ },
+ "Altura da parede no ponto inicial": {
+  "pt_BR": "Altura da parede no ponto inicial",
+  "en_US": "Wall height at the start point"
+ },
+ "Altura do vão da abertura": {
+  "pt_BR": "Altura do vão da abertura",
+  "en_US": "Opening height"
+ },
+ "Altura/comprimento nominal da chapa de MDF": {
+  "pt_BR": "Altura/comprimento nominal da chapa de MDF",
+  "en_US": "Nominal MDF sheet height/length"
+ },
+ "Armários suspensos de cozinha": {
+  "pt_BR": "Armários suspensos de cozinha",
+  "en_US": "Kitchen wall cabinets"
+ },
+ "Ativa": {
+  "pt_BR": "Ativa",
+  "en_US": "On"
+ },
+ "Ativa o snap posicional em incrementos fixos": {
+  "pt_BR": "Ativa o snap posicional em incrementos fixos",
+  "en_US": "Enables position snapping in fixed steps"
+ },
+ "Atrair ao Grid": {
+  "pt_BR": "Atrair ao Grid",
+  "en_US": "Attract to Grid"
+ },
+ "Aéreo": {
+  "pt_BR": "Aéreo",
+  "en_US": "Upper Cabinet"
+ },
+ "Balcão Inferior": {
+  "pt_BR": "Balcão Inferior",
+  "en_US": "Base Cabinet"
+ },
+ "Balcões baixos de cozinha": {
+  "pt_BR": "Balcões baixos de cozinha",
+  "en_US": "Kitchen base cabinets"
+ },
+ "Banheiro - Gabinete": {
+  "pt_BR": "Banheiro - Gabinete",
+  "en_US": "Bathroom - Vanity"
+ },
+ "Base ou tampo estrutural": {
+  "pt_BR": "Base ou tampo estrutural",
+  "en_US": "Structural bottom or top"
+ },
+ "CONFIGURAÇÕES": {
+  "pt_BR": "CONFIGURAÇÕES",
+  "en_US": "SETTINGS"
+ },
+ "CONSTRUTOR": {
+  "pt_BR": "CONSTRUTOR",
+  "en_US": "BUILDER"
+ },
+ "Centímetros (cm)": {
+  "pt_BR": "Centímetros (cm)",
+  "en_US": "Centimeters (cm)"
+ },
+ "Chapa 8x4 pés internacional": {
+  "pt_BR": "Chapa 8x4 pés internacional",
+  "en_US": "International 8x4 ft sheet"
+ },
+ "Chapa MDF padrão brasileira": {
+  "pt_BR": "Chapa MDF padrão brasileira",
+  "en_US": "Standard Brazilian MDF sheet"
+ },
+ "Chapa quadrada": {
+  "pt_BR": "Chapa quadrada",
+  "en_US": "Square sheet"
+ },
+ "Colisão": {
+  "pt_BR": "Colisão",
+  "en_US": "Collision"
+ },
+ "Colisão ativa": {
+  "pt_BR": "Colisão ativa",
+  "en_US": "Collision on"
+ },
+ "Comprimento do segmento de parede": {
+  "pt_BR": "Comprimento do segmento de parede",
+  "en_US": "Wall segment length"
+ },
+ "Configurações do projeto e dimensões": {
+  "pt_BR": "Configurações do projeto e dimensões",
+  "en_US": "Project and dimension settings"
+ },
+ "Construção": {
+  "pt_BR": "Construção",
+  "en_US": "Construction"
+ },
+ "Construção no sentido anti-horário": {
+  "pt_BR": "Construção no sentido anti-horário",
+  "en_US": "Counterclockwise construction"
+ },
+ "Construção no sentido horário": {
+  "pt_BR": "Construção no sentido horário",
+  "en_US": "Clockwise construction"
+ },
+ "Cozinha - Armário Aéreo": {
+  "pt_BR": "Cozinha - Armário Aéreo",
+  "en_US": "Kitchen - Upper Cabinet"
+ },
+ "Cozinha - Balcão Inferior": {
+  "pt_BR": "Cozinha - Balcão Inferior",
+  "en_US": "Kitchen - Base Cabinet"
+ },
+ "Definir dimensões manuais": {
+  "pt_BR": "Definir dimensões manuais",
+  "en_US": "Set dimensions manually"
+ },
+ "Desativada": {
+  "pt_BR": "Desativada",
+  "en_US": "Off"
+ },
+ "Desligado (padrão), portas e gavetas abertas para inspeção são salvas fechadas e continuam abertas na tela (RN-14)": {
+  "pt_BR": "Desligado (padrão), portas e gavetas abertas para inspeção são salvas fechadas e continuam abertas na tela (RN-14)",
+  "en_US": "Off (default), doors and drawers opened for inspection are saved closed and stay open on screen (RN-14)"
+ },
+ "Distância máxima na qual a atração da grade passa a agir": {
+  "pt_BR": "Distância máxima na qual a atração da grade passa a agir",
+  "en_US": "Maximum distance at which the grid attraction acts"
+ },
+ "Divisória interna": {
+  "pt_BR": "Divisória interna",
+  "en_US": "Inner partition"
+ },
+ "Dormitório - Roupeiro": {
+  "pt_BR": "Dormitório - Roupeiro",
+  "en_US": "Bedroom - Wardrobe"
+ },
+ "Drywall": {
+  "pt_BR": "Drywall",
+  "en_US": "Drywall"
+ },
+ "Dupla": {
+  "pt_BR": "Dupla",
+  "en_US": "Double"
+ },
+ "Entrada e exibição em centímetros": {
+  "pt_BR": "Entrada e exibição em centímetros",
+  "en_US": "Input and display in centimeters"
+ },
+ "Entrada e exibição em metros": {
+  "pt_BR": "Entrada e exibição em metros",
+  "en_US": "Input and display in meters"
+ },
+ "Entrada e exibição em milímetros": {
+  "pt_BR": "Entrada e exibição em milímetros",
+  "en_US": "Input and display in millimeters"
+ },
+ "Escolha a unidade de medida do projeto": {
+  "pt_BR": "Escolha a unidade de medida do projeto",
+  "en_US": "Choose the project unit of measure"
+ },
+ "Escolha o componente a configurar": {
+  "pt_BR": "Escolha o componente a configurar",
+  "en_US": "Choose the component to configure"
+ },
+ "Espaçamento horizontal das linhas da grade": {
+  "pt_BR": "Espaçamento horizontal das linhas da grade",
+  "en_US": "Horizontal spacing of the grid lines"
+ },
+ "Espaçamento vertical das linhas da grade": {
+  "pt_BR": "Espaçamento vertical das linhas da grade",
+  "en_US": "Vertical spacing of the grid lines"
+ },
+ "Espessura Caixa/Laterais": {
+  "pt_BR": "Espessura Caixa/Laterais",
+  "en_US": "Carcass/Side Thickness"
+ },
+ "Espessura Prateleiras": {
+  "pt_BR": "Espessura Prateleiras",
+  "en_US": "Shelf Thickness"
+ },
+ "Espessura da parede": {
+  "pt_BR": "Espessura da parede",
+  "en_US": "Wall thickness"
+ },
+ "Espessura das Portas": {
+  "pt_BR": "Espessura das Portas",
+  "en_US": "Door Thickness"
+ },
+ "Espessura do Fundo": {
+  "pt_BR": "Espessura do Fundo",
+  "en_US": "Back Thickness"
+ },
+ "Espessura do corte da lâmina de serra": {
+  "pt_BR": "Espessura do corte da lâmina de serra",
+  "en_US": "Saw blade cut width"
+ },
+ "Exibe sombreamento amarelo no plano de inserção sob o cursor": {
+  "pt_BR": "Exibe sombreamento amarelo no plano de inserção sob o cursor",
+  "en_US": "Shows yellow shading on the insertion plane under the cursor"
+ },
+ "Exibir Cotas": {
+  "pt_BR": "Exibir Cotas",
+  "en_US": "Show Dimensions"
+ },
+ "Exibir Grid no Piso": {
+  "pt_BR": "Exibir Grid no Piso",
+  "en_US": "Show Floor Grid"
+ },
+ "Ferramentas de desenho e construção": {
+  "pt_BR": "Ferramentas de desenho e construção",
+  "en_US": "Drawing and building tools"
+ },
+ "Fita Frontal": {
+  "pt_BR": "Fita Frontal",
+  "en_US": "Front Edge Band"
+ },
+ "Fita Inferior": {
+  "pt_BR": "Fita Inferior",
+  "en_US": "Bottom Edge Band"
+ },
+ "Fita Superior": {
+  "pt_BR": "Fita Superior",
+  "en_US": "Top Edge Band"
+ },
+ "Fita Traseira": {
+  "pt_BR": "Fita Traseira",
+  "en_US": "Back Edge Band"
+ },
+ "Flecha do arco para paredes curvas (0 para retas)": {
+  "pt_BR": "Flecha do arco para paredes curvas (0 para retas)",
+  "en_US": "Arc rise for curved walls (0 for straight)"
+ },
+ "Formato Padrão": {
+  "pt_BR": "Formato Padrão",
+  "en_US": "Standard Size"
+ },
+ "Formato intermediário": {
+  "pt_BR": "Formato intermediário",
+  "en_US": "Intermediate size"
+ },
+ "Formatos comerciais padrão de chapas MDF no mercado brasileiro": {
+  "pt_BR": "Formatos comerciais padrão de chapas MDF no mercado brasileiro",
+  "en_US": "Standard commercial MDF sheet sizes in Brazil"
+ },
+ "Fundo": {
+  "pt_BR": "Fundo",
+  "en_US": "Back"
+ },
+ "Fundo do armário": {
+  "pt_BR": "Fundo do armário",
+  "en_US": "Cabinet back"
+ },
+ "GALERIA": {
+  "pt_BR": "GALERIA",
+  "en_US": "GALLERY"
+ },
+ "Gabinetes e toucadores": {
+  "pt_BR": "Gabinetes e toucadores",
+  "en_US": "Vanities and dressers"
+ },
+ "Galeria de móveis e componentes": {
+  "pt_BR": "Galeria de móveis e componentes",
+  "en_US": "Furniture and component gallery"
+ },
+ "Gap de Atração": {
+  "pt_BR": "Gap de Atração",
+  "en_US": "Attraction Gap"
+ },
+ "Garante que peças com textura amadeirada mantenham a orientação correta": {
+  "pt_BR": "Garante que peças com textura amadeirada mantenham a orientação correta",
+  "en_US": "Keeps wood-grain parts in the correct orientation"
+ },
+ "Geometria livre paramétrica": {
+  "pt_BR": "Geometria livre paramétrica",
+  "en_US": "Parametric free geometry"
+ },
+ "Grava nome e contato do cliente no JSON exportado (RN-21)": {
+  "pt_BR": "Grava nome e contato do cliente no JSON exportado (RN-21)",
+  "en_US": "Writes the client name and contact to the exported JSON (RN-21)"
+ },
+ "Guarda-roupas e roupeiros": {
+  "pt_BR": "Guarda-roupas e roupeiros",
+  "en_US": "Wardrobes"
+ },
+ "Herdar": {
+  "pt_BR": "Herdar",
+  "en_US": "Inherit"
+ },
+ "Herdar configuração global": {
+  "pt_BR": "Herdar configuração global",
+  "en_US": "Inherit the global setting"
+ },
+ "ID da Camada": {
+  "pt_BR": "ID da Camada",
+  "en_US": "Layer ID"
+ },
+ "Ignorar colisão": {
+  "pt_BR": "Ignorar colisão",
+  "en_US": "Ignore collision"
+ },
+ "Incr. Angular (°)": {
+  "pt_BR": "Incr. Angular (°)",
+  "en_US": "Angle Step (°)"
+ },
+ "Incr. Linear": {
+  "pt_BR": "Incr. Linear",
+  "en_US": "Linear Step"
+ },
+ "Incremento de Snap": {
+  "pt_BR": "Incremento de Snap",
+  "en_US": "Snap Step"
+ },
+ "Intervalo Horizontal": {
+  "pt_BR": "Intervalo Horizontal",
+  "en_US": "Horizontal Spacing"
+ },
+ "Intervalo Vertical": {
+  "pt_BR": "Intervalo Vertical",
+  "en_US": "Vertical Spacing"
+ },
+ "Janela de ambiente": {
+  "pt_BR": "Janela de ambiente",
+  "en_US": "Room window"
+ },
+ "Lado da parede que recebe o valor de comprimento": {
+  "pt_BR": "Lado da parede que recebe o valor de comprimento",
+  "en_US": "Wall side that receives the length value"
+ },
+ "Largura Máxima": {
+  "pt_BR": "Largura Máxima",
+  "en_US": "Maximum Width"
+ },
+ "Largura Mínima": {
+  "pt_BR": "Largura Mínima",
+  "en_US": "Minimum Width"
+ },
+ "Largura Padrão": {
+  "pt_BR": "Largura Padrão",
+  "en_US": "Default Width"
+ },
+ "Largura da Chapa": {
+  "pt_BR": "Largura da Chapa",
+  "en_US": "Sheet Width"
+ },
+ "Largura do vão da abertura": {
+  "pt_BR": "Largura do vão da abertura",
+  "en_US": "Opening width"
+ },
+ "Largura nominal da chapa de MDF": {
+  "pt_BR": "Largura nominal da chapa de MDF",
+  "en_US": "Nominal MDF sheet width"
+ },
+ "Lateral do móvel": {
+  "pt_BR": "Lateral do móvel",
+  "en_US": "Cabinet side"
+ },
+ "Ligado, nenhum módulo ocupa o espaço de outro nem atravessa paredes ao ser posicionado; desligado, sobrepor é permitido (RN-13)": {
+  "pt_BR": "Ligado, nenhum módulo ocupa o espaço de outro nem atravessa paredes ao ser posicionado; desligado, sobrepor é permitido (RN-13)",
+  "en_US": "On, no module takes the space of another or goes through walls when placed; off, overlapping is allowed (RN-13)"
+ },
+ "MDF": {
+  "pt_BR": "MDF",
+  "en_US": "MDF"
+ },
+ "MDP": {
+  "pt_BR": "MDP",
+  "en_US": "Particleboard"
+ },
+ "Madeira Maciça": {
+  "pt_BR": "Madeira Maciça",
+  "en_US": "Solid Wood"
+ },
+ "Margem de descarte na borda direita da chapa": {
+  "pt_BR": "Margem de descarte na borda direita da chapa",
+  "en_US": "Waste margin on the right edge of the sheet"
+ },
+ "Margem de descarte na borda esquerda da chapa": {
+  "pt_BR": "Margem de descarte na borda esquerda da chapa",
+  "en_US": "Waste margin on the left edge of the sheet"
+ },
+ "Margem de descarte na borda inferior da chapa": {
+  "pt_BR": "Margem de descarte na borda inferior da chapa",
+  "en_US": "Waste margin on the bottom edge of the sheet"
+ },
+ "Margem de descarte na borda superior da chapa": {
+  "pt_BR": "Margem de descarte na borda superior da chapa",
+  "en_US": "Waste margin on the top edge of the sheet"
+ },
+ "Metros (m)": {
+  "pt_BR": "Metros (m)",
+  "en_US": "Meters (m)"
+ },
+ "Milímetros (mm)": {
+  "pt_BR": "Milímetros (mm)",
+  "en_US": "Millimeters (mm)"
+ },
+ "Mostra dimensões dinâmicas sobre os objetos": {
+  "pt_BR": "Mostra dimensões dinâmicas sobre os objetos",
+  "en_US": "Shows dynamic dimensions on the objects"
+ },
+ "Mostra grid pontilhado sobre o piso para guia de posicionamento": {
+  "pt_BR": "Mostra grid pontilhado sobre o piso para guia de posicionamento",
+  "en_US": "Shows a dotted grid on the floor as a placement guide"
+ },
+ "Mostrar Planos de Inserção": {
+  "pt_BR": "Mostrar Planos de Inserção",
+  "en_US": "Show Insertion Planes"
+ },
+ "Módulo de marcenaria/armário": {
+  "pt_BR": "Módulo de marcenaria/armário",
+  "en_US": "Cabinet module"
+ },
+ "Módulos são atraídos para a grade mais próxima": {
+  "pt_BR": "Módulos são atraídos para a grade mais próxima",
+  "en_US": "Modules are pulled to the nearest grid line"
+ },
+ "O projeto mudou depois do último cálculo do plano de corte": {
+  "pt_BR": "O projeto mudou depois do último cálculo do plano de corte",
+  "en_US": "The project changed after the last cut plan calculation"
+ },
+ "PLANO DE CORTE": {
+  "pt_BR": "PLANO DE CORTE",
+  "en_US": "CUT PLAN"
+ },
+ "Padrão de fábrica Promob": {
+  "pt_BR": "Padrão de fábrica Promob",
+  "en_US": "Promob factory standard"
+ },
+ "Padrões dimensionais pré-configurados": {
+  "pt_BR": "Padrões dimensionais pré-configurados",
+  "en_US": "Preconfigured dimension standards"
+ },
+ "Paneleiro/Despensa": {
+  "pt_BR": "Paneleiro/Despensa",
+  "en_US": "Tall Cabinet/Pantry"
+ },
+ "Parede de alvenaria": {
+  "pt_BR": "Parede de alvenaria",
+  "en_US": "Masonry wall"
+ },
+ "Parede de alvenaria padrão": {
+  "pt_BR": "Parede de alvenaria padrão",
+  "en_US": "Standard masonry wall"
+ },
+ "Parede de gesso acartonado": {
+  "pt_BR": "Parede de gesso acartonado",
+  "en_US": "Plasterboard wall"
+ },
+ "Parede de vidro tempoerado": {
+  "pt_BR": "Parede de vidro tempoerado",
+  "en_US": "Tempered glass wall"
+ },
+ "Parede que contém esta abertura": {
+  "pt_BR": "Parede que contém esta abertura",
+  "en_US": "Wall that holds this opening"
+ },
+ "Passo / Incremento": {
+  "pt_BR": "Passo / Incremento",
+  "en_US": "Step"
+ },
+ "Passo do salto do cursor referente ao comprimento": {
+  "pt_BR": "Passo do salto do cursor referente ao comprimento",
+  "en_US": "Cursor step for the length"
+ },
+ "Passo do snap para posicionamento": {
+  "pt_BR": "Passo do snap para posicionamento",
+  "en_US": "Snap step for positioning"
+ },
+ "Passo do ângulo quando ajustado pelo mouse": {
+  "pt_BR": "Passo do ângulo quando ajustado pelo mouse",
+  "en_US": "Angle step when adjusted with the mouse"
+ },
+ "Permite girar peças quando não houver restrição de veio da madeira": {
+  "pt_BR": "Permite girar peças quando não houver restrição de veio da madeira",
+  "en_US": "Allows rotating parts when there is no grain restriction"
+ },
+ "Personalizado": {
+  "pt_BR": "Personalizado",
+  "en_US": "Custom"
+ },
+ "Piso de referência": {
+  "pt_BR": "Piso de referência",
+  "en_US": "Reference floor"
+ },
+ "Plano Pai": {
+  "pt_BR": "Plano Pai",
+  "en_US": "Parent Plane"
+ },
+ "Plano de corte e nesting": {
+  "pt_BR": "Plano de corte e nesting",
+  "en_US": "Cut plan and nesting"
+ },
+ "Porcentagem de abertura da porta (0.0 = Fechada, 1.0 = Totalmente Aberta)": {
+  "pt_BR": "Porcentagem de abertura da porta (0.0 = Fechada, 1.0 = Totalmente Aberta)",
+  "en_US": "Door opening ratio (0.0 = Closed, 1.0 = Fully Open)"
+ },
+ "Porta / Frente": {
+  "pt_BR": "Porta / Frente",
+  "en_US": "Door / Front"
+ },
+ "Porta abrindo para cima": {
+  "pt_BR": "Porta abrindo para cima",
+  "en_US": "Door opening upward"
+ },
+ "Porta ou janela de ambiente": {
+  "pt_BR": "Porta ou janela de ambiente",
+  "en_US": "Room door or window"
+ },
+ "Porta simples abrindo para a direita": {
+  "pt_BR": "Porta simples abrindo para a direita",
+  "en_US": "Single door opening to the right"
+ },
+ "Porta simples abrindo para a esquerda": {
+  "pt_BR": "Porta simples abrindo para a esquerda",
+  "en_US": "Single door opening to the left"
+ },
+ "Portas duplas abrindo para os lados": {
+  "pt_BR": "Portas duplas abrindo para os lados",
+  "en_US": "Double doors opening to the sides"
+ },
+ "Portas e frentes de gaveta": {
+  "pt_BR": "Portas e frentes de gaveta",
+  "en_US": "Doors and drawer fronts"
+ },
+ "Prateleira interna": {
+  "pt_BR": "Prateleira interna",
+  "en_US": "Inner shelf"
+ },
+ "Prateleiras": {
+  "pt_BR": "Prateleiras",
+  "en_US": "Shelves"
+ },
+ "Preset de Marcenaria": {
+  "pt_BR": "Preset de Marcenaria",
+  "en_US": "Joinery Preset"
+ },
+ "Preset de material/espessura/acabamento": {
+  "pt_BR": "Preset de material/espessura/acabamento",
+  "en_US": "Material/thickness/finish preset"
+ },
+ "Profundidade Máxima": {
+  "pt_BR": "Profundidade Máxima",
+  "en_US": "Maximum Depth"
+ },
+ "Profundidade Mínima": {
+  "pt_BR": "Profundidade Mínima",
+  "en_US": "Minimum Depth"
+ },
+ "Profundidade Padrão": {
+  "pt_BR": "Profundidade Padrão",
+  "en_US": "Default Depth"
+ },
+ "Promob Standard Brasil": {
+  "pt_BR": "Promob Standard Brasil",
+  "en_US": "Promob Standard Brazil"
+ },
+ "Pé-Direito Final": {
+  "pt_BR": "Pé-Direito Final",
+  "en_US": "End Ceiling Height"
+ },
+ "Pé-Direito Inicial": {
+  "pt_BR": "Pé-Direito Inicial",
+  "en_US": "Start Ceiling Height"
+ },
+ "Salvar estes valores como padrão para novas paredes": {
+  "pt_BR": "Salvar estes valores como padrão para novas paredes",
+  "en_US": "Save these values as default for new walls"
+ },
+ "Sem Porta": {
+  "pt_BR": "Sem Porta",
+  "en_US": "No Door"
+ },
+ "Snap ao Grid": {
+  "pt_BR": "Snap ao Grid",
+  "en_US": "Snap to Grid"
+ },
+ "Tipo de Abertura": {
+  "pt_BR": "Tipo de Abertura",
+  "en_US": "Opening Type"
+ },
+ "Tipo de Armário": {
+  "pt_BR": "Tipo de Armário",
+  "en_US": "Cabinet Type"
+ },
+ "Tipo de Objeto": {
+  "pt_BR": "Tipo de Objeto",
+  "en_US": "Object Type"
+ },
+ "Tipo de abertura de parede": {
+  "pt_BR": "Tipo de abertura de parede",
+  "en_US": "Wall opening type"
+ },
+ "Tipo e sentido de abertura das portas": {
+  "pt_BR": "Tipo e sentido de abertura das portas",
+  "en_US": "Door opening type and direction"
+ },
+ "Unidade": {
+  "pt_BR": "Unidade",
+  "en_US": "Unit"
+ },
+ "Utilizar valores como padrão": {
+  "pt_BR": "Utilizar valores como padrão",
+  "en_US": "Use values as default"
+ },
+ "Valor Inválido: \"{}\" não é um número válido.": {
+  "pt_BR": "Valor Inválido: \"{}\" não é um número válido.",
+  "en_US": "Invalid Value: \"{}\" is not a valid number."
+ },
+ "Valor Inválido: \"{}\" não é uma medida (use números com mm, cm ou m).": {
+  "pt_BR": "Valor Inválido: \"{}\" não é uma medida (use números com mm, cm ou m).",
+  "en_US": "Invalid Value: \"{}\" is not a measure (use numbers with mm, cm or m)."
+ },
+ "Valor Inválido: a medida não pode ser negativa.": {
+  "pt_BR": "Valor Inválido: a medida não pode ser negativa.",
+  "en_US": "Invalid Value: the measure cannot be negative."
+ },
+ "Valor Inválido: a medida não pode ser zero.": {
+  "pt_BR": "Valor Inválido: a medida não pode ser zero.",
+  "en_US": "Invalid Value: the measure cannot be zero."
+ },
+ "Valor Inválido: medida vazia.": {
+  "pt_BR": "Valor Inválido: medida vazia.",
+  "en_US": "Invalid Value: empty measure."
+ },
+ "Vidro": {
+  "pt_BR": "Vidro",
+  "en_US": "Glass"
+ },
+ "Ângulo Absoluto (°)": {
+  "pt_BR": "Ângulo Absoluto (°)",
+  "en_US": "Absolute Angle (°)"
+ },
+ "Ângulo Relativo (°)": {
+  "pt_BR": "Ângulo Relativo (°)",
+  "en_US": "Relative Angle (°)"
+ },
+ "Ângulo do segmento em relação ao sistema global": {
+  "pt_BR": "Ângulo do segmento em relação ao sistema global",
+  "en_US": "Segment angle relative to the global system"
+ },
+ "Ângulo em relação ao segmento anterior": {
+  "pt_BR": "Ângulo em relação ao segmento anterior",
+  "en_US": "Angle relative to the previous segment"
+ }
+}

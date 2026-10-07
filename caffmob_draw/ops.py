@@ -5,6 +5,7 @@ from mathutils import Vector
 from gpu_extras.batch import batch_for_shader
 from bpy_extras.view3d_utils import location_3d_to_region_2d
 import bmesh
+from .data.i18n import tr
 from . import hb_utils
 
 class home_builder_OT_to_do(bpy.types.Operator):
@@ -188,7 +189,7 @@ class home_builder_annotations_OT_apply_settings_to_all(bpy.types.Operator):
                 dimensions_updated += 1
 
         total = lines_updated + texts_updated + dimensions_updated
-        self.report({'INFO'}, f"Updated {total} annotations ({lines_updated} lines, {texts_updated} texts, {dimensions_updated} dimensions)")
+        self.report({'INFO'}, tr("Updated {} annotations ({} lines, {} texts, {} dimensions)").format(total, lines_updated, texts_updated, dimensions_updated))
         return {'FINISHED'}
 
 
@@ -475,7 +476,7 @@ class home_builder_OT_create_camera(bpy.types.Operator):
         space.lock_camera = True
         space.region_3d.view_perspective = 'CAMERA'
 
-        self.report({'INFO'}, f"Created camera: {cam_obj.name}")
+        self.report({'INFO'}, tr("Created camera: {}").format(cam_obj.name))
         return {'FINISHED'}
 
     def draw(self, context):
@@ -580,7 +581,7 @@ class home_builder_OT_set_scale_with_two_points(bpy.types.Operator):
         self._draw_handle = bpy.types.SpaceView3D.draw_handler_add(
             _draw_scale_line, (self, context), 'WINDOW', 'POST_PIXEL')
 
-        context.area.header_text_set("Click the FIRST point on the image")
+        context.area.header_text_set(tr("Click the FIRST point on the image"))
         context.window.cursor_set('CROSSHAIR')
         context.window_manager.modal_handler_add(self)
         return {'RUNNING_MODAL'}
@@ -627,14 +628,14 @@ class home_builder_OT_set_scale_with_two_points(bpy.types.Operator):
 
             if self.first_point is None:
                 self.first_point = point
-                context.area.header_text_set("Click the SECOND point on the image")
+                context.area.header_text_set(tr("Click the SECOND point on the image"))
             else:
                 # Calculate and apply scale
                 distance = (self.first_point - point).length
                 if distance > 0:
                     scale_factor = self.known_distance / distance
                     self.empty_image.empty_display_size *= scale_factor
-                    self.report({'INFO'}, f"Image scaled by {scale_factor:.4f}")
+                    self.report({'INFO'}, tr("Image scaled by {:.4f}").format(scale_factor))
                 else:
                     self.report({'WARNING'}, "Points are too close together")
 

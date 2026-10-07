@@ -1,4 +1,5 @@
 import bpy
+from ....data.i18n import tr
 from .... import hb_utils, hb_project, hb_types
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -145,7 +146,7 @@ class hb_frameless_OT_update_toe_kick_prompts(bpy.types.Operator):
 
     def execute(self, context):
         count = update_toe_kick_prompts(context)
-        self.report({'INFO'}, f"Rodapé atualizado em {count} objeto(s)")
+        self.report({'INFO'}, tr("Rodapé atualizado em {} objeto(s)").format(count))
         return {'FINISHED'}
 
 
@@ -157,7 +158,7 @@ class hb_frameless_OT_update_material_thickness_prompts(bpy.types.Operator):
 
     def execute(self, context):
         count = update_material_thickness_prompts(context)
-        self.report({'INFO'}, f"Espessura atualizada em {count} objeto(s)")
+        self.report({'INFO'}, tr("Espessura atualizada em {} objeto(s)").format(count))
         return {'FINISHED'}
 
 
@@ -168,7 +169,7 @@ class hb_frameless_OT_update_base_top_construction_prompts(bpy.types.Operator):
 
     def execute(self, context):
         count = update_base_top_construction_prompts(context)
-        self.report({'INFO'}, f"Topo atualizado em {count} gabinete(s)")
+        self.report({'INFO'}, tr("Topo atualizado em {} gabinete(s)").format(count))
         return {'FINISHED'}
 
 
@@ -183,7 +184,7 @@ class hb_frameless_OT_update_drawer_front_height_prompts(bpy.types.Operator):
         old_height = scene.get('btm_last_top_drawer_front_height')
         count = update_drawer_front_height_prompts(context, props.top_drawer_front_height, old_height)
         scene['btm_last_top_drawer_front_height'] = props.top_drawer_front_height
-        self.report({'INFO'}, f"Altura da gaveta superior atualizada em {count} vão(s)")
+        self.report({'INFO'}, tr("Altura da gaveta superior atualizada em {} vão(s)").format(count))
         return {'FINISHED'}
 
 
@@ -216,9 +217,9 @@ class hb_frameless_OT_update_door_and_drawer_front_style(bpy.types.Operator):
                     skip_count += 1
 
         if skip_count > 0:
-            self.report({'WARNING'}, f"Updated {success_count} front(s), skipped {skip_count} (too small for style)")
+            self.report({'WARNING'}, tr("Updated {} front(s), skipped {} (too small for style)").format(success_count, skip_count))
         else:
-            self.report({'INFO'}, f"Updated {success_count} front(s) with style '{selected_door_style.name}'")
+            self.report({'INFO'}, tr("Updated {} front(s) with style '{}'").format(success_count, selected_door_style.name))
         return {'FINISHED'}
 
 
@@ -232,10 +233,10 @@ class hb_frameless_OT_update_cabinet_sizes(bpy.types.Operator):
         try:
             count = update_cabinet_sizes(context)
         except Exception as exc:
-            self.report({'WARNING'}, f"Não foi possível atualizar os gabinetes: {exc}")
+            self.report({'WARNING'}, tr("Não foi possível atualizar os gabinetes: {}").format(exc))
             return {'CANCELLED'}
         if count:
-            self.report({'INFO'}, f"{count} gabinete(s) atualizado(s)")
+            self.report({'INFO'}, tr("{} gabinete(s) atualizado(s)").format(count))
         else:
             self.report({'INFO'}, "Nenhum gabinete a atualizar")
         return {'FINISHED'}

@@ -14,6 +14,8 @@ par de nós consecutivos; fechada, o último nó liga de volta ao primeiro.
 import copy
 import math
 
+from ..data.i18n import N_, tr
+
 INNER, OUTER = 'INNER', 'OUTER'
 SIDES = ('LEFT', 'RIGHT')                       # lado da espessura em relação ao sentido dos nós (Direção)
 WALL_TYPES = ('NORMAL', 'DIVISORIA', 'MURETA')
@@ -23,16 +25,16 @@ LIMITS = {   # RN-18 (metros)
     'length': (0.01, 100.0), 'thickness': (0.01, 2.0), 'height': (0.5, 10.0), 'end_height': (0.5, 10.0),
     'angle_abs': (0.0, 360.0), 'angle_rel': (-180.0, 180.0),
 }
-LABELS = {'length': "Comprimento", 'thickness': "Espessura", 'height': "Pé-direito inicial",
-          'end_height': "Pé-direito final", 'angle_abs': "Ângulo absoluto", 'angle_rel': "Ângulo relativo"}
+LABELS = {'length': N_("Comprimento"), 'thickness': N_("Espessura"), 'height': N_("Pé-direito inicial"),
+          'end_height': N_("Pé-direito final"), 'angle_abs': N_("Ângulo absoluto"), 'angle_rel': N_("Ângulo relativo")}
 
 
 def validate(field, value):
     lo, hi = LIMITS[field]
     if not lo <= value <= hi:
         unit = "°" if field.startswith('angle') else " m"
-        raise ValueError(f"Valor Inválido: {LABELS[field]} deve estar entre {lo:g} e {hi:g}{unit} (recebido: "
-                         f"{value:g}{unit}).")
+        raise ValueError(tr("Valor Inválido: {} deve estar entre {} e {} (recebido: {}).").format(
+            tr(LABELS[field]), f"{lo:g}{unit}", f"{hi:g}{unit}", f"{value:g}{unit}"))
 
 
 def _norm_angle(rad):
@@ -233,7 +235,7 @@ class Chain:
                 seg.end_height = value          # o final acompanha o inicial (RN-18)
         elif field == 'wall_type':
             if value not in WALL_TYPES:
-                raise ValueError(f"Valor Inválido: tipo de parede {value}.")
+                raise ValueError(tr("Valor Inválido: tipo de parede {}.").format(value))
             seg.wall_type = value
             for key, default in TYPE_DEFAULTS[value].items():
                 setattr(seg, key, default)
@@ -260,7 +262,7 @@ class Chain:
         trecho da ponta."""
         n = len(self.nodes)
         if len(self.segments) <= 1:
-            raise ValueError("Uma cadeia precisa de pelo menos um trecho.")
+            raise ValueError(tr("Uma cadeia precisa de pelo menos um trecho."))
         if not self.closed and k in (0, n - 1):
             del self.nodes[k]
             del self.segments[0 if k == 0 else -1]

@@ -8,6 +8,7 @@ desfazer. Nesta versão a busca cobre a biblioteca de módulos do usuário (`cus
 import bpy  # type: ignore
 from mathutils import Vector  # type: ignore
 
+from ..data.i18n import N_, tr
 from ..customize import library_io
 from . import reposition
 from .scene import _frame, _local_box
@@ -18,7 +19,7 @@ _ITEMS = []
 def _module_items(self, context):
     global _ITEMS
     _ITEMS = [(e["blend"], f"{e['category']} / {e['name']}", "") for e in library_io.list_modules()]
-    return _ITEMS or [("", "Nenhum módulo salvo", "")]
+    return _ITEMS or [("", N_("Nenhum módulo salvo"), "")]
 
 
 def _box_in(frame_inv, obj):
@@ -91,7 +92,7 @@ class BTM_OT_MoveOverSubstitute(bpy.types.Operator):
         new.select_set(True)
         context.view_layer.objects.active = new
         self.report({'WARNING'} if warnings else {'INFO'},
-                    " | ".join(warnings) if warnings else f"{name} substituído por {new.name}")
+                    " | ".join(warnings) if warnings else tr("{} substituído por {}").format(name, new.name))
         return {'FINISHED'}
 
 

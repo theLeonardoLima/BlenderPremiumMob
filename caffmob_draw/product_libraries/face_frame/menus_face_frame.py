@@ -11,6 +11,7 @@ later pass once those operators are implemented.
 """
 import bpy
 
+from ...data.i18n import N_, tr
 from . import bay_presets
 from . import types_face_frame
 from . import types_face_frame_corner
@@ -227,9 +228,9 @@ class HOME_BUILDER_MT_face_frame_part_commands(bpy.types.Menu):
         if panel_root is not None and (
                 panel_root.get(types_face_frame.TAG_APPLIED_PANEL_SIDE)
                 or types_face_frame._is_standalone_panel(panel_root)):
-            ptext = ("Panel Back Properties..."
+            ptext = (tr("Panel Back Properties...")
                      if panel_root.get(types_face_frame.TAG_APPLIED_PANEL_SIDE)
-                     else "Panel Properties...")
+                     else tr("Panel Properties..."))
             layout.operator("caffmob_face_frame.cabinet_prompts",
                             text=ptext, icon='WINDOW')
             layout.separator()
@@ -247,7 +248,7 @@ class HOME_BUILDER_MT_face_frame_part_commands(bpy.types.Menu):
             if current_w is None:
                 width_text = "Set Width"
             else:
-                width_text = f"Set Width: {units.unit_to_string(context.scene.unit_settings, current_w)}"
+                width_text = tr("Set Width: {}").format(units.unit_to_string(context.scene.unit_settings, current_w))
             layout.operator("caffmob_face_frame.set_part_width",
                             text=width_text, icon='ARROW_LEFTRIGHT')
 
@@ -387,23 +388,23 @@ class HOME_BUILDER_MT_face_frame_change_opening(bpy.types.Menu):
 
     # (config_value, display_text); ('SEP',) inserts a separator.
     ENTRIES = [
-        ('OPEN',              "Open"),
-        ('OPEN_WITH_SHELVES', "Open with Shelves"),
+        ('OPEN',              N_("Open")),
+        ('OPEN_WITH_SHELVES', N_("Open with Shelves")),
         ('SEP',),
-        ('LEFT_DOOR',         "Left Door"),
-        ('RIGHT_DOOR',        "Right Door"),
-        ('DOUBLE_DOOR',       "Double Door"),
+        ('LEFT_DOOR',         N_("Left Door")),
+        ('RIGHT_DOOR',        N_("Right Door")),
+        ('DOUBLE_DOOR',       N_("Double Door")),
         ('SEP',),
-        ('FLIP_UP_DOOR',      "Flip Up Door"),
-        ('FLIP_DOWN_DOOR',    "Flip Down Door"),
+        ('FLIP_UP_DOOR',      N_("Flip Up Door")),
+        ('FLIP_DOWN_DOOR',    N_("Flip Down Door")),
         ('SEP',),
-        ('DRAWER',            "Drawer"),
-        ('FALSE_FRONT',       "False Front"),
-        ('TILT_OUT',          "Tilt-Out"),
-        ('PULLOUT',           "Pullout"),
+        ('DRAWER',            N_("Drawer")),
+        ('FALSE_FRONT',       N_("False Front")),
+        ('TILT_OUT',          N_("Tilt-Out")),
+        ('PULLOUT',           N_("Pullout")),
         ('SEP',),
-        ('INSET_PANEL',       "Inset Panel"),
-        ('APPLIANCE',         "Appliance"),
+        ('INSET_PANEL',       N_("Inset Panel")),
+        ('APPLIANCE',         N_("Appliance")),
     ]
 
     def draw(self, context):
@@ -436,7 +437,7 @@ class HOME_BUILDER_MT_face_frame_change_bay(bpy.types.Menu):
         cabinet_type = cab_root.face_frame_cabinet.cabinet_type
         entries = bay_presets.MENU_ENTRIES.get(cabinet_type)
         if not entries:
-            layout.label(text=f"No presets for {cabinet_type}")
+            layout.label(text=tr("No presets for {}").format(cabinet_type))
             return
         for entry in entries:
             if entry[0] == 'SEP':
@@ -460,9 +461,9 @@ class HOME_BUILDER_MT_face_frame_add_appliance(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
         for kind, label, icon in (
-            ('KITCHEN_SINK', "Add Kitchen Sink", 'MOD_FLUIDSIM'),
-            ('VANITY_SINK',  "Add Vanity Sink",  'MOD_FLUIDSIM'),
-            ('COOKTOP',      "Add Cooktop",      'VOLUME_DATA'),
+            ('KITCHEN_SINK', N_("Add Kitchen Sink"), 'MOD_FLUIDSIM'),
+            ('VANITY_SINK',  N_("Add Vanity Sink"),  'MOD_FLUIDSIM'),
+            ('COOKTOP',      N_("Add Cooktop"),      'VOLUME_DATA'),
         ):
             op = layout.operator("caffmob_face_frame.add_appliance_to_bay",
                                  text=label, icon=icon)
@@ -483,7 +484,7 @@ class HOME_BUILDER_MT_face_frame_add_appliance(bpy.types.Menu):
         if kind in ('SINK', 'COOKTOP'):
             layout.separator()
             layout.operator("caffmob_face_frame.remove_appliance_from_bay",
-                            text=f"Remove {kind.title()}", icon='X')
+                            text=tr("Remove {}").format(kind.title()), icon='X')
 
 
 class HOME_BUILDER_MT_face_frame_leg_product_commands(bpy.types.Menu):

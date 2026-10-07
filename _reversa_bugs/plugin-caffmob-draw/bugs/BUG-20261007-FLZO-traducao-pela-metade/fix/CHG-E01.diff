@@ -1,0 +1,1262 @@
+diff --git a/caffmob_draw/product_libraries/frameless/operators/ops_cabinet.py b/caffmob_draw/product_libraries/frameless/operators/ops_cabinet.py
+index eacc867..6066e52 100644
+--- a/caffmob_draw/product_libraries/frameless/operators/ops_cabinet.py
++++ b/caffmob_draw/product_libraries/frameless/operators/ops_cabinet.py
+@@ -1,5 +1,6 @@
+ import bpy
+ import math
++from ....data.i18n import tr
+ from .. import types_frameless
+ from . import ops_placement
+ from mathutils import Vector
+@@ -992,10 +993,10 @@ class hb_frameless_OT_adjust_multiple_cabinet_widths(bpy.types.Operator):
+         box = layout.box()
+         for index, cabinet in enumerate(props.calculator_cabinets):
+             row = box.row()
+-            row.label(text='Cabinet ' + str(index + 1))
++            row.label(text=tr("Cabinet {}").format(index + 1))
+             row.prop(cabinet, 'is_equal', text="")
+             if cabinet.is_equal:
+-                row.label(text="Width: " + units.unit_to_string(unit_settings, cabinet.cabinet_width))
++                row.label(text=tr("Width: {}").format(units.unit_to_string(unit_settings, cabinet.cabinet_width)))
+             else:
+                 row.prop(cabinet, 'cabinet_width', text="Width:")
+ 
+diff --git a/caffmob_draw/product_libraries/frameless/operators/ops_cleanup.py b/caffmob_draw/product_libraries/frameless/operators/ops_cleanup.py
+index c901fef..0e3fdeb 100644
+--- a/caffmob_draw/product_libraries/frameless/operators/ops_cleanup.py
++++ b/caffmob_draw/product_libraries/frameless/operators/ops_cleanup.py
+@@ -2,6 +2,7 @@ import bpy
+ import bmesh
+ import math
+ import mathutils
++from ....data.i18n import tr
+ 
+ 
+ class hb_frameless_OT_cleanup_mesh(bpy.types.Operator):
+@@ -74,8 +75,7 @@ class hb_frameless_OT_cleanup_mesh(bpy.types.Operator):
+         after_faces = len(mesh.polygons)
+ 
+         self.report({'INFO'},
+-            f"Cleaned: {before_faces} → {after_faces} faces, "
+-            f"{before_verts} → {after_verts} verts")
++            tr("Cleaned: {} → {} faces, {} → {} verts").format(before_faces, after_faces, before_verts, after_verts))
+         return {'FINISHED'}
+ 
+ 
+@@ -131,7 +131,7 @@ class hb_frameless_OT_dissolve_selected(bpy.types.Operator):
+             bmesh.update_edit_mesh(obj.data)
+ 
+             after = sum(1 for f in bm.faces if f.select)
+-            self.report({'INFO'}, f"Dissolved: {before} → {after} faces")
++            self.report({'INFO'}, tr("Dissolved: {} → {} faces").format(before, after))
+         else:
+             self.report({'INFO'}, "No interior edges found — faces may be floating duplicates. Try Delete Selected.")
+ 
+@@ -169,7 +169,7 @@ class hb_frameless_OT_delete_floating_faces(bpy.types.Operator):
+             bmesh.ops.delete(bm, geom=loose, context='VERTS')
+             bmesh.update_edit_mesh(obj.data)
+ 
+-        self.report({'INFO'}, f"Deleted {count} faces")
++        self.report({'INFO'}, tr("Deleted {} faces").format(count))
+         return {'FINISHED'}
+ 
+ 
+@@ -268,11 +268,11 @@ class hb_frameless_OT_rebuild_selected_faces(bpy.types.Operator):
+                 new_face.normal_flip()
+             new_face.select = True
+         except ValueError as e:
+-            self.report({'WARNING'}, f"Could not create face: {e}")
++            self.report({'WARNING'}, tr("Could not create face: {}").format(e))
+             return {'CANCELLED'}
+ 
+         bmesh.update_edit_mesh(obj.data)
+-        self.report({'INFO'}, f"Rebuilt {len(sel_faces)} faces → 1 clean face ({len(hull_coords)} verts)")
++        self.report({'INFO'}, tr("Rebuilt {} faces → 1 clean face ({} verts)").format(len(sel_faces), len(hull_coords)))
+         return {'FINISHED'}
+ 
+     def convex_hull_2d(self, points):
+diff --git a/caffmob_draw/product_libraries/frameless/operators/ops_countertop.py b/caffmob_draw/product_libraries/frameless/operators/ops_countertop.py
+index d060f53..36d4d4a 100644
+--- a/caffmob_draw/product_libraries/frameless/operators/ops_countertop.py
++++ b/caffmob_draw/product_libraries/frameless/operators/ops_countertop.py
+@@ -1,5 +1,6 @@
+ import bpy
+ import math
++from ....data.i18n import tr
+ from .... import hb_types, hb_project
+ 
+ 
+@@ -668,7 +669,7 @@ class hb_frameless_OT_add_countertops(bpy.types.Operator):
+             if ct:
+                 ct_count += 1
+ 
+-        self.report({'INFO'}, f"Created {ct_count} countertop(s)")
++        self.report({'INFO'}, tr("Created {} countertop(s)").format(ct_count))
+         return {'FINISHED'}
+ 
+ 
+@@ -685,7 +686,7 @@ class hb_frameless_OT_remove_countertops(bpy.types.Operator):
+                 bpy.data.objects.remove(obj, do_unlink=True)
+                 removed += 1
+ 
+-        self.report({'INFO'}, f"Removed {removed} countertop(s)")
++        self.report({'INFO'}, tr("Removed {} countertop(s)").format(removed))
+         return {'FINISHED'}
+ 
+ 
+@@ -731,7 +732,7 @@ class hb_frameless_OT_countertop_boolean_cut(bpy.types.Operator):
+         cutter.hide_render = True
+         cutter['IS_CUTTING_OBJ'] = True
+ 
+-        self.report({'INFO'}, f"Added boolean cut using {cutter.name}")
++        self.report({'INFO'}, tr("Added boolean cut using {}").format(cutter.name))
+         return {'FINISHED'}
+ 
+ 
+diff --git a/caffmob_draw/product_libraries/frameless/operators/ops_crown.py b/caffmob_draw/product_libraries/frameless/operators/ops_crown.py
+index d28a8cc..dadf155 100644
+--- a/caffmob_draw/product_libraries/frameless/operators/ops_crown.py
++++ b/caffmob_draw/product_libraries/frameless/operators/ops_crown.py
+@@ -2,6 +2,7 @@ import bpy
+ import math
+ import os
+ from mathutils import Vector
++from ....data.i18n import tr
+ from .. import props_hb_frameless
+ from .... import hb_project, hb_details, hb_types, units
+ 
+@@ -103,7 +104,7 @@ class hb_frameless_OT_create_crown_detail(bpy.types.Operator):
+         # Switch to the detail scene
+         bpy.ops.caffmob_layouts.go_to_layout_view(scene_name=scene.name)
+ 
+-        self.report({'INFO'}, f"Created crown detail: {self.name}")
++        self.report({'INFO'}, tr("Created crown detail: {}").format(self.name))
+         return {'FINISHED'}
+ 
+     def _draw_cabinet_side_detail(self, context, scene, props):
+@@ -282,7 +283,7 @@ class hb_frameless_OT_delete_crown_detail(bpy.types.Operator):
+         if props.active_crown_detail_index >= len(props.crown_details):
+             props.active_crown_detail_index = max(0, len(props.crown_details) - 1)
+ 
+-        self.report({'INFO'}, f"Deleted crown detail: {crown_name}")
++        self.report({'INFO'}, tr("Deleted crown detail: {}").format(crown_name))
+         return {'FINISHED'}
+ 
+ 
+@@ -316,7 +317,7 @@ class hb_frameless_OT_edit_crown_detail(bpy.types.Operator):
+         # Switch to the detail scene
+         bpy.ops.caffmob_layouts.go_to_layout_view(scene_name=detail_scene.name)
+ 
+-        self.report({'INFO'}, f"Editing crown detail: {crown.name}")
++        self.report({'INFO'}, tr("Editing crown detail: {}").format(crown.name))
+         return {'FINISHED'}
+ 
+ 
+@@ -430,7 +431,7 @@ class hb_frameless_OT_assign_crown_to_cabinets(bpy.types.Operator):
+         total_cabs = (sum(len(g['cabinets']) for g in cabinet_groups)
+                       + sum(len(c) for c in corner_chains))
+         group_count = len(cabinet_groups) + len(corner_chains)
+-        self.report({'INFO'}, f"Created crown molding on {total_cabs} cabinet(s) in {group_count} group(s)")
++        self.report({'INFO'}, tr("Created crown molding on {} cabinet(s) in {} group(s)").format(total_cabs, group_count))
+         return {'FINISHED'}
+ 
+     def _remove_existing_crown(self, cabinet):
+@@ -1345,7 +1346,7 @@ class hb_frameless_OT_add_molding_profile(bpy.types.Operator):
+     def execute(self, context):
+ 
+         if not self.filepath or not os.path.exists(self.filepath):
+-            self.report({'ERROR'}, f"Molding file not found: {self.filepath}")
++            self.report({'ERROR'}, tr("Molding file not found: {}").format(self.filepath))
+             return {'CANCELLED'}
+ 
+         # Load the molding profile from the blend file
+@@ -1383,7 +1384,7 @@ class hb_frameless_OT_add_molding_profile(bpy.types.Operator):
+             for obj in imported_objects:
+                 obj.location = (0, 0, 0)
+ 
+-        self.report({'INFO'}, f"Added molding profile: {self.molding_name}")
++        self.report({'INFO'}, tr("Added molding profile: {}").format(self.molding_name))
+         return {'FINISHED'}
+ 
+ 
+@@ -1475,7 +1476,7 @@ class hb_frameless_OT_add_solid_lumber(bpy.types.Operator):
+         # Report dimensions in inches for user feedback
+         thickness_in = self.thickness * 39.3701
+         width_in = self.width * 39.3701
+-        self.report({'INFO'}, f"Added {thickness_in:.2f}\" x {width_in:.2f}\" solid lumber ({self.orientation.lower()})")
++        self.report({'INFO'}, tr("Added {:.2f}\" x {:.2f}\" solid lumber ({})").format(thickness_in, width_in, self.orientation.lower()))
+ 
+         return {'FINISHED'}
+ 
+diff --git a/caffmob_draw/product_libraries/frameless/operators/ops_defaults.py b/caffmob_draw/product_libraries/frameless/operators/ops_defaults.py
+index 1880a46..1c7ab90 100644
+--- a/caffmob_draw/product_libraries/frameless/operators/ops_defaults.py
++++ b/caffmob_draw/product_libraries/frameless/operators/ops_defaults.py
+@@ -1,4 +1,5 @@
+ import bpy
++from ....data.i18n import tr
+ from .... import hb_utils, hb_project, hb_types
+ 
+ # ---------------------------------------------------------------------------------------------------------------
+@@ -145,7 +146,7 @@ class hb_frameless_OT_update_toe_kick_prompts(bpy.types.Operator):
+ 
+     def execute(self, context):
+         count = update_toe_kick_prompts(context)
+-        self.report({'INFO'}, f"Rodapé atualizado em {count} objeto(s)")
++        self.report({'INFO'}, tr("Rodapé atualizado em {} objeto(s)").format(count))
+         return {'FINISHED'}
+ 
+ 
+@@ -157,7 +158,7 @@ class hb_frameless_OT_update_material_thickness_prompts(bpy.types.Operator):
+ 
+     def execute(self, context):
+         count = update_material_thickness_prompts(context)
+-        self.report({'INFO'}, f"Espessura atualizada em {count} objeto(s)")
++        self.report({'INFO'}, tr("Espessura atualizada em {} objeto(s)").format(count))
+         return {'FINISHED'}
+ 
+ 
+@@ -168,7 +169,7 @@ class hb_frameless_OT_update_base_top_construction_prompts(bpy.types.Operator):
+ 
+     def execute(self, context):
+         count = update_base_top_construction_prompts(context)
+-        self.report({'INFO'}, f"Topo atualizado em {count} gabinete(s)")
++        self.report({'INFO'}, tr("Topo atualizado em {} gabinete(s)").format(count))
+         return {'FINISHED'}
+ 
+ 
+@@ -183,7 +184,7 @@ class hb_frameless_OT_update_drawer_front_height_prompts(bpy.types.Operator):
+         old_height = scene.get('btm_last_top_drawer_front_height')
+         count = update_drawer_front_height_prompts(context, props.top_drawer_front_height, old_height)
+         scene['btm_last_top_drawer_front_height'] = props.top_drawer_front_height
+-        self.report({'INFO'}, f"Altura da gaveta superior atualizada em {count} vão(s)")
++        self.report({'INFO'}, tr("Altura da gaveta superior atualizada em {} vão(s)").format(count))
+         return {'FINISHED'}
+ 
+ 
+@@ -216,9 +217,9 @@ class hb_frameless_OT_update_door_and_drawer_front_style(bpy.types.Operator):
+                     skip_count += 1
+ 
+         if skip_count > 0:
+-            self.report({'WARNING'}, f"Updated {success_count} front(s), skipped {skip_count} (too small for style)")
++            self.report({'WARNING'}, tr("Updated {} front(s), skipped {} (too small for style)").format(success_count, skip_count))
+         else:
+-            self.report({'INFO'}, f"Updated {success_count} front(s) with style '{selected_door_style.name}'")
++            self.report({'INFO'}, tr("Updated {} front(s) with style '{}'").format(success_count, selected_door_style.name))
+         return {'FINISHED'}
+ 
+ 
+@@ -232,10 +233,10 @@ class hb_frameless_OT_update_cabinet_sizes(bpy.types.Operator):
+         try:
+             count = update_cabinet_sizes(context)
+         except Exception as exc:
+-            self.report({'WARNING'}, f"Não foi possível atualizar os gabinetes: {exc}")
++            self.report({'WARNING'}, tr("Não foi possível atualizar os gabinetes: {}").format(exc))
+             return {'CANCELLED'}
+         if count:
+-            self.report({'INFO'}, f"{count} gabinete(s) atualizado(s)")
++            self.report({'INFO'}, tr("{} gabinete(s) atualizado(s)").format(count))
+         else:
+             self.report({'INFO'}, "Nenhum gabinete a atualizar")
+         return {'FINISHED'}
+diff --git a/caffmob_draw/product_libraries/frameless/operators/ops_finished_ends.py b/caffmob_draw/product_libraries/frameless/operators/ops_finished_ends.py
+index 66b7c02..a000a03 100644
+--- a/caffmob_draw/product_libraries/frameless/operators/ops_finished_ends.py
++++ b/caffmob_draw/product_libraries/frameless/operators/ops_finished_ends.py
+@@ -1,5 +1,6 @@
+ import bpy
+ import math
++from ....data.i18n import tr
+ from .. import types_frameless
+ from .... import hb_utils, hb_types, hb_project
+ from ....units import inch
+@@ -362,7 +363,7 @@ class hb_frameless_OT_update_finished_end(bpy.types.Operator):
+         layout = self.layout
+ 
+         box = layout.box()
+-        box.label(text=f"Update {self.side.title()} Finished End", icon='MOD_SOLIDIFY')
++        box.label(text=tr("Update {} Finished End").format(tr(self.side.title())), icon='MOD_SOLIDIFY')
+ 
+         col = box.column(align=True)
+         col.prop(self, "finished_end_type", text="Type")
+diff --git a/caffmob_draw/product_libraries/frameless/operators/ops_front.py b/caffmob_draw/product_libraries/frameless/operators/ops_front.py
+index 78f0cb7..ac1be1b 100644
+--- a/caffmob_draw/product_libraries/frameless/operators/ops_front.py
++++ b/caffmob_draw/product_libraries/frameless/operators/ops_front.py
+@@ -1,4 +1,5 @@
+ import bpy
++from ....data.i18n import N_
+ from .... import hb_utils
+ 
+ class hb_frameless_OT_door_front_prompts(bpy.types.Operator):
+@@ -69,18 +70,18 @@ class hb_frameless_OT_door_front_prompts(bpy.types.Operator):
+             box = layout.box()
+             box.label(text="Frame Sizes")
+             col = box.column(align=True)
+-            self.draw_modifier_input(col, mod, "Left Stile Width", "Left Stile")
+-            self.draw_modifier_input(col, mod, "Right Stile Width", "Right Stile")
+-            self.draw_modifier_input(col, mod, "Top Rail Width", "Top Rail")
+-            self.draw_modifier_input(col, mod, "Bottom Rail Width", "Bottom Rail")
++            self.draw_modifier_input(col, mod, "Left Stile Width", N_("Left Stile"))
++            self.draw_modifier_input(col, mod, "Right Stile Width", N_("Right Stile"))
++            self.draw_modifier_input(col, mod, "Top Rail Width", N_("Top Rail"))
++            self.draw_modifier_input(col, mod, "Bottom Rail Width", N_("Bottom Rail"))
+ 
+             box = layout.box()
+             box.label(text="Mid Rail")
+             col = box.column(align=True)
+-            self.draw_modifier_input(col, mod, "Add Mid Rail", "Add Mid Rail")
+-            self.draw_modifier_input(col, mod, "Mid Rail Width", "Width")
+-            self.draw_modifier_input(col, mod, "Center Mid Rail", "Center Mid Rail")
+-            self.draw_modifier_input(col, mod, "Mid Rail Location", "Location")
++            self.draw_modifier_input(col, mod, "Add Mid Rail", N_("Add Mid Rail"))
++            self.draw_modifier_input(col, mod, "Mid Rail Width", N_("Width"))
++            self.draw_modifier_input(col, mod, "Center Mid Rail", N_("Center Mid Rail"))
++            self.draw_modifier_input(col, mod, "Mid Rail Location", N_("Location"))
+ 
+ 
+ class hb_frameless_OT_delete_front(bpy.types.Operator):
+diff --git a/caffmob_draw/product_libraries/frameless/operators/ops_interior.py b/caffmob_draw/product_libraries/frameless/operators/ops_interior.py
+index c7e3835..212e087 100644
+--- a/caffmob_draw/product_libraries/frameless/operators/ops_interior.py
++++ b/caffmob_draw/product_libraries/frameless/operators/ops_interior.py
+@@ -1,4 +1,5 @@
+ import bpy
++from ....data.i18n import tr
+ from .. import types_frameless
+ from .... import hb_utils, hb_types
+ from ....units import inch
+@@ -238,7 +239,7 @@ class hb_frameless_OT_interior_part_prompts(bpy.types.Operator):
+         obj = context.object
+ 
+         box = layout.box()
+-        box.label(text=f"Part: {obj.name}")
++        box.label(text=tr("Part: {}").format(obj.name))
+ 
+         # Show relevant properties from the object
+         if obj.modifiers:
+@@ -543,7 +544,7 @@ class hb_frameless_OT_custom_interior_vertical(bpy.types.Operator):
+         col = box.column(align=True)
+         for i in range(self.section_count):
+             row = col.row(align=True)
+-            row.label(text=f"Section {i+1}:")
++            row.label(text=tr("Section {}:").format(i+1))
+             row.prop(self, type_props[i], text="")
+ 
+ 
+@@ -820,7 +821,7 @@ class hb_frameless_OT_custom_interior_horizontal(bpy.types.Operator):
+         col = box.column(align=True)
+         for i in range(self.section_count):
+             row = col.row(align=True)
+-            row.label(text=f"Section {i+1}:")
++            row.label(text=tr("Section {}:").format(i+1))
+             row.prop(self, type_props[i], text="")
+ 
+ 
+diff --git a/caffmob_draw/product_libraries/frameless/operators/ops_library.py b/caffmob_draw/product_libraries/frameless/operators/ops_library.py
+index fbf9f3d..4fcb91e 100644
+--- a/caffmob_draw/product_libraries/frameless/operators/ops_library.py
++++ b/caffmob_draw/product_libraries/frameless/operators/ops_library.py
+@@ -4,6 +4,7 @@ import os
+ import platform
+ import subprocess
+ from mathutils import Vector
++from ....data.i18n import tr
+ from .. import types_frameless
+ from .. import props_hb_frameless
+ from .... import hb_utils, hb_placement, hb_snap
+@@ -177,7 +178,7 @@ class hb_frameless_OT_save_cabinet_group_to_user_library(bpy.types.Operator):
+ 
+         # Check if file already exists
+         if os.path.exists(blend_filepath):
+-            self.report({'WARNING'}, f"File already exists: {blend_filename}. Overwriting.")
++            self.report({'WARNING'}, tr("File already exists: {}. Overwriting.").format(blend_filename))
+ 
+         # Collect all objects to save (cabinet group and all descendants)
+         objects_to_save = self._collect_objects_recursive(cabinet_group)
+@@ -197,7 +198,7 @@ class hb_frameless_OT_save_cabinet_group_to_user_library(bpy.types.Operator):
+         if self.create_thumbnail:
+             self._create_thumbnail(context, cabinet_group, actual_save_path, safe_name)
+ 
+-        self.report({'INFO'}, f"Saved cabinet group to: {blend_filepath}")
++        self.report({'INFO'}, tr("Saved cabinet group to: {}").format(blend_filepath))
+         return {'FINISHED'}
+ 
+     def _collect_objects_recursive(self, obj):
+@@ -402,12 +403,12 @@ class hb_frameless_OT_load_cabinet_group_from_library(bpy.types.Operator, hb_pla
+ 
+     def update_header(self, context):
+         """Update header text with instructions."""
+-        text = "Click to place cabinet group | R: rotate 90° | Right-click/Esc: cancel"
++        text = tr("Click to place cabinet group | R: rotate 90° | Right-click/Esc: cancel")
+         hb_placement.draw_header_text(context, text)
+ 
+     def execute(self, context):
+         if not self.filepath or not os.path.exists(self.filepath):
+-            self.report({'ERROR'}, f"File not found: {self.filepath}")
++            self.report({'ERROR'}, tr("File not found: {}").format(self.filepath))
+             return {'CANCELLED'}
+ 
+         self.init_placement(context)
+@@ -452,7 +453,7 @@ class hb_frameless_OT_load_cabinet_group_from_library(bpy.types.Operator, hb_pla
+         if event.type == 'LEFTMOUSE' and event.value == 'PRESS':
+             hb_placement.clear_header_text(context)
+             context.window.cursor_set('DEFAULT')
+-            self.report({'INFO'}, f"Placed cabinet group from: {os.path.basename(self.filepath)}")
++            self.report({'INFO'}, tr("Placed cabinet group from: {}").format(os.path.basename(self.filepath)))
+             return {'FINISHED'}
+ 
+         # R key - rotate 90 degrees
+@@ -537,7 +538,7 @@ class hb_frameless_OT_delete_library_item(bpy.types.Operator):
+     def execute(self, context):
+ 
+         if not self.filepath or not os.path.exists(self.filepath):
+-            self.report({'ERROR'}, f"File not found: {self.filepath}")
++            self.report({'ERROR'}, tr("File not found: {}").format(self.filepath))
+             return {'CANCELLED'}
+ 
+         # Delete the blend file
+@@ -551,7 +552,7 @@ class hb_frameless_OT_delete_library_item(bpy.types.Operator):
+         # Clear preview cache so it doesn't show deleted item
+         props_hb_frameless.clear_library_previews()
+ 
+-        self.report({'INFO'}, f"Deleted: {self.item_name}")
++        self.report({'INFO'}, tr("Deleted: {}").format(self.item_name))
+ 
+         # Force UI redraw
+         for area in context.screen.areas:
+diff --git a/caffmob_draw/product_libraries/frameless/operators/ops_opening.py b/caffmob_draw/product_libraries/frameless/operators/ops_opening.py
+index 3cb3229..d0ff89f 100644
+--- a/caffmob_draw/product_libraries/frameless/operators/ops_opening.py
++++ b/caffmob_draw/product_libraries/frameless/operators/ops_opening.py
+@@ -1,4 +1,5 @@
+ import bpy
++from ....data.i18n import tr
+ from .. import types_frameless
+ from .... import hb_utils, hb_types, units
+ from . import ops_interior
+@@ -1431,7 +1432,7 @@ class hb_frameless_OT_custom_vertical_splitter(bpy.types.Operator):
+         col = box.column(align=True)
+         for i in range(self.opening_count):
+             row = col.row(align=True)
+-            row.label(text=f"Opening {i+1}:")
++            row.label(text=tr("Opening {}:").format(i+1))
+             row.prop(self, insert_props[i], text="")
+ 
+ 
+@@ -1712,7 +1713,7 @@ class hb_frameless_OT_custom_horizontal_splitter(bpy.types.Operator):
+         col = box.column(align=True)
+         for i in range(self.opening_count):
+             row = col.row(align=True)
+-            row.label(text=f"Opening {i+1}:")
++            row.label(text=tr("Opening {}:").format(i+1))
+             row.prop(self, insert_props[i], text="")
+ 
+ 
+diff --git a/caffmob_draw/product_libraries/frameless/operators/ops_placement.py b/caffmob_draw/product_libraries/frameless/operators/ops_placement.py
+index c031dc2..2ffee4c 100644
+--- a/caffmob_draw/product_libraries/frameless/operators/ops_placement.py
++++ b/caffmob_draw/product_libraries/frameless/operators/ops_placement.py
+@@ -2,6 +2,7 @@ import bpy
+ import math
+ from mathutils import Vector, Matrix
+ from bpy_extras import view3d_utils
++from ....data.i18n import tr
+ from .. import types_frameless
+ from .. import types_products
+ from mathutils.geometry import intersect_line_plane, intersect_point_line
+@@ -263,9 +264,9 @@ class WallObjectPlacementMixin(hb_placement.PlacementMixin):
+ 
+         if self.offset_from_right:
+             offset_from_right = self.wall_length - self.placement_x - obj_width
+-            return f"Offset (→): {units.unit_to_string(unit_settings, offset_from_right)}"
++            return tr("Offset (→): {}").format(units.unit_to_string(unit_settings, offset_from_right))
+         else:
+-            return f"Offset (←): {units.unit_to_string(unit_settings, self.placement_x)}"
++            return tr("Offset (←): {}").format(units.unit_to_string(unit_settings, self.placement_x))
+ 
+ class hb_frameless_OT_place_cabinet(bpy.types.Operator, WallObjectPlacementMixin):
+     bl_idname = "caffmob_frameless.place_cabinet"
+@@ -1617,15 +1618,15 @@ class hb_frameless_OT_place_cabinet(bpy.types.Operator, WallObjectPlacementMixin
+ 
+         if self.placement_state == hb_placement.PlacementState.TYPING:
+             target_name = {
+-                hb_placement.TypingTarget.OFFSET_X: "Gap Offset (←)",
+-                hb_placement.TypingTarget.OFFSET_RIGHT: "Gap Offset (→)",
+-                hb_placement.TypingTarget.WIDTH: "Width",
+-                hb_placement.TypingTarget.HEIGHT: "Height",
+-            }.get(self.typing_target, "Value")
+-            text = f"{target_name}: {self.typed_value}_ | ↑/↓ qty | ←/→ offset | Enter place | Esc cancel"
++                hb_placement.TypingTarget.OFFSET_X: tr("Gap Offset (←)"),
++                hb_placement.TypingTarget.OFFSET_RIGHT: tr("Gap Offset (→)"),
++                hb_placement.TypingTarget.WIDTH: tr("Width"),
++                hb_placement.TypingTarget.HEIGHT: tr("Height"),
++            }.get(self.typing_target, tr("Value"))
++            text = tr("{}: {}_ | ↑/↓ qty | ←/→ offset | Enter place | Esc cancel").format(target_name, self.typed_value)
+         elif self.selected_wall:
+             # Show which side of wall
+-            side_str = "Front" if self.place_on_front else "Back"
++            side_str = tr("Front") if self.place_on_front else tr("Back")
+ 
+             # Show both offsets if set
+             offset_parts = []
+@@ -1644,7 +1645,7 @@ class hb_frameless_OT_place_cabinet(bpy.types.Operator, WallObjectPlacementMixin
+             total_str = units.unit_to_string(unit_settings, total_width)
+             individual_str = units.unit_to_string(unit_settings, self.individual_cabinet_width)
+             qty_str = f"{self.cabinet_quantity}"
+-            gap_str = f"Gap: {units.unit_to_string(unit_settings, self.gap_right_boundary - self.gap_left_boundary)}"
++            gap_str = tr("Gap: {}").format(units.unit_to_string(unit_settings, self.gap_right_boundary - self.gap_left_boundary))
+ 
+             # Add center snap indicator
+             center_str = ""
+@@ -1653,7 +1654,7 @@ class hb_frameless_OT_place_cabinet(bpy.types.Operator, WallObjectPlacementMixin
+             elif self.center_snap_state == 'cage':
+                 center_str = " | ↔ CENTERED"
+ 
+-            text = f"{side_str} | {gap_str} | {offset_str} | {qty_str} × {individual_str} = {total_str}{center_str} | ↑/↓ qty | ←/→ offset | Enter place | Esc cancel"
++            text = tr("{} | {} | {} | {} × {} = {}{} | ↑/↓ qty | ←/→ offset | Enter place | Esc cancel").format(side_str, gap_str, offset_str, qty_str, individual_str, total_str, center_str)
+         else:
+             # Floor placement
+             unit_settings = context.scene.unit_settings
+@@ -1662,10 +1663,10 @@ class hb_frameless_OT_place_cabinet(bpy.types.Operator, WallObjectPlacementMixin
+             individual_str = units.unit_to_string(unit_settings, self.individual_cabinet_width)
+             qty_str = f"{self.cabinet_quantity}"
+             if self.snap_cabinet:
+-                snap_str = f"Snap {self.snap_side}"
+-                text = f"Floor | {snap_str} | {qty_str} × {individual_str} = {total_str} | ↑/↓ qty | Click place | Esc cancel"
++                snap_str = tr("Snap {}").format(self.snap_side)
++                text = tr("Floor | {} | {} × {} = {} | ↑/↓ qty | Click place | Esc cancel").format(snap_str, qty_str, individual_str, total_str)
+             else:
+-                text = f"Floor | {qty_str} × {individual_str} = {total_str} | ↑/↓ qty | Click place | Esc cancel"
++                text = tr("Floor | {} × {} = {} | ↑/↓ qty | Click place | Esc cancel").format(qty_str, individual_str, total_str)
+ 
+         hb_placement.draw_header_text(context, text)
+ 
+diff --git a/caffmob_draw/product_libraries/frameless/operators/ops_products.py b/caffmob_draw/product_libraries/frameless/operators/ops_products.py
+index 470abff..a684592 100644
+--- a/caffmob_draw/product_libraries/frameless/operators/ops_products.py
++++ b/caffmob_draw/product_libraries/frameless/operators/ops_products.py
+@@ -1,4 +1,5 @@
+ import bpy
++from ....data.i18n import N_, tr
+ from .... import hb_utils, hb_types, units, hb_project
+ 
+ 
+@@ -180,9 +181,9 @@ class hb_frameless_OT_product_prompts(bpy.types.Operator):
+ 
+         col.separator()
+ 
+-        for corner in ('Front Left', 'Front Right', 'Back Left', 'Back Right'):
++        for corner in (N_('Front Left'), N_('Front Right'), N_('Back Left'), N_('Back Right')):
+             row = col.row(align=True)
+-            row.label(text=f"{corner} Leg:")
++            row.label(text=tr("{} Leg:").format(tr(corner)))
+             row.prop(obj, f'["{corner} Leg"]', text="")
+             row.prop(obj, f'["{corner} Leg Type"]', text="")
+ 
+diff --git a/caffmob_draw/product_libraries/frameless/operators/ops_snap_line.py b/caffmob_draw/product_libraries/frameless/operators/ops_snap_line.py
+index 23aa623..12dc7b9 100644
+--- a/caffmob_draw/product_libraries/frameless/operators/ops_snap_line.py
++++ b/caffmob_draw/product_libraries/frameless/operators/ops_snap_line.py
+@@ -1,6 +1,7 @@
+ import bpy
+ import math
+ from mathutils import Vector
++from ....data.i18n import N_, tr
+ from .... import hb_types, hb_snap, units
+ 
+ 
+@@ -112,7 +113,7 @@ class hb_frameless_OT_place_snap_line(bpy.types.Operator):
+     typing_target = None  # 'LEFT' or 'RIGHT'
+     typed_value = ""
+ 
+-    _header_text = "Click on a wall to place snap line | ESC to cancel"
++    _header_text = N_("Click on a wall to place snap line | ESC to cancel")
+ 
+     def find_wall_from_hit(self, hit_obj):
+         """Walk up parent chain to find wall."""
+@@ -281,13 +282,13 @@ class hb_frameless_OT_place_snap_line(bpy.types.Operator):
+ 
+         if self.typing_active:
+             side = "Left" if self.typing_target == 'LEFT' else "Right"
+-            text = f"{side} Distance: {self.typed_value}_ | Enter to confirm | ESC to cancel typing"
++            text = tr("{} Distance: {}_ | Enter to confirm | ESC to cancel typing").format(side, self.typed_value)
+         elif self.selected_wall:
+             left_str = units.unit_to_string(unit_settings, self.snap_x)
+             right_str = units.unit_to_string(unit_settings, self.wall_length - self.snap_x)
+-            text = f"← {left_str} | {right_str} → | ← set left | → set right | Click place | ESC cancel"
++            text = tr("← {} | {} → | ← set left | → set right | Click place | ESC cancel").format(left_str, right_str)
+         else:
+-            text = "Move cursor over a wall | ← set left | → set right | ESC to cancel"
++            text = tr("Move cursor over a wall | ← set left | → set right | ESC to cancel")
+ 
+         context.area.header_text_set(text)
+ 
+@@ -359,7 +360,7 @@ class hb_frameless_OT_place_snap_line(bpy.types.Operator):
+         context.scene.collection.objects.link(snap_line)
+ 
+         unit_settings = context.scene.unit_settings
+-        self.report({'INFO'}, f"Snap line placed at {units.unit_to_string(unit_settings, x_pos)}")
++        self.report({'INFO'}, tr("Snap line placed at {}").format(units.unit_to_string(unit_settings, x_pos)))
+         return True
+ 
+     def cleanup(self, context):
+@@ -454,7 +455,7 @@ class hb_frameless_OT_place_snap_line(bpy.types.Operator):
+         self.typing_target = None
+         self.typed_value = ""
+ 
+-        context.area.header_text_set(self._header_text)
++        context.area.header_text_set(tr(self._header_text))
+         context.window_manager.modal_handler_add(self)
+         return {'RUNNING_MODAL'}
+ 
+@@ -494,7 +495,7 @@ class hb_frameless_OT_delete_all_snap_lines(bpy.types.Operator):
+             if obj.get('IS_SNAP_LINE'):
+                 bpy.data.objects.remove(obj, do_unlink=True)
+                 removed += 1
+-        self.report({'INFO'}, f"Removed {removed} snap line(s)")
++        self.report({'INFO'}, tr("Removed {} snap line(s)").format(removed))
+         return {'FINISHED'}
+ 
+ 
+diff --git a/caffmob_draw/product_libraries/frameless/operators/ops_styles.py b/caffmob_draw/product_libraries/frameless/operators/ops_styles.py
+index 086d3df..214c84b 100644
+--- a/caffmob_draw/product_libraries/frameless/operators/ops_styles.py
++++ b/caffmob_draw/product_libraries/frameless/operators/ops_styles.py
+@@ -1,5 +1,6 @@
+ import bpy
+ from bpy_extras import view3d_utils
++from ....data.i18n import tr
+ from .. import props_hb_frameless
+ from ..props_hb_frameless import get_or_create_pull_finish_material
+ from .... import hb_utils, hb_project, hb_types
+@@ -46,7 +47,7 @@ class hb_frameless_OT_add_door_style(bpy.types.Operator):
+         # Set as active
+         props.active_door_style_index = len(props.door_styles) - 1
+ 
+-        self.report({'INFO'}, f"Added door style: {style.name}")
++        self.report({'INFO'}, tr("Added door style: {}").format(style.name))
+         return {'FINISHED'}
+ 
+ 
+@@ -91,7 +92,7 @@ class hb_frameless_OT_remove_door_style(bpy.types.Operator):
+                     elif front_style_index > index:
+                         obj['DOOR_STYLE_INDEX'] = front_style_index - 1
+ 
+-        self.report({'INFO'}, f"Removed door style: {style_name}")
++        self.report({'INFO'}, tr("Removed door style: {}").format(style_name))
+         return {'FINISHED'}
+ 
+ 
+@@ -139,7 +140,7 @@ class hb_frameless_OT_duplicate_door_style(bpy.types.Operator):
+         # Set as active
+         props.active_door_style_index = len(props.door_styles) - 1
+ 
+-        self.report({'INFO'}, f"Duplicated door style: {new_style.name}")
++        self.report({'INFO'}, tr("Duplicated door style: {}").format(new_style.name))
+         return {'FINISHED'}
+ 
+ 
+@@ -206,7 +207,7 @@ class hb_frameless_OT_assign_door_style_to_selected_fronts(bpy.types.Operator):
+ 
+     def update_header(self, context):
+         """Update header text with current status."""
+-        text = f"Door Style: '{self.style_name}' | LMB: Assign style | RMB/ESC: Finish | Assigned: {self.assigned_count}"
++        text = tr("Door Style: '{}' | LMB: Assign style | RMB/ESC: Finish | Assigned: {}").format(self.style_name, self.assigned_count)
+         context.area.header_text_set(text)
+ 
+     def assign_style_to_front(self, context, front_obj):
+@@ -267,7 +268,7 @@ class hb_frameless_OT_assign_door_style_to_selected_fronts(bpy.types.Operator):
+             if event.value == 'PRESS':
+                 self.cleanup(context)
+                 if self.assigned_count > 0:
+-                    self.report({'INFO'}, f"Assigned '{self.style_name}' to {self.assigned_count} front(s)")
++                    self.report({'INFO'}, tr("Assigned '{}' to {} front(s)").format(self.style_name, self.assigned_count))
+                 else:
+                     self.report({'INFO'}, "Style painting cancelled")
+                 return {'FINISHED'}
+@@ -338,9 +339,9 @@ class hb_frameless_OT_update_fronts_from_style(bpy.types.Operator):
+                             skip_count += 1
+ 
+         if skip_count > 0:
+-            self.report({'WARNING'}, f"Updated {success_count} front(s), skipped {skip_count} (too small for style)")
++            self.report({'WARNING'}, tr("Updated {} front(s), skipped {} (too small for style)").format(success_count, skip_count))
+         else:
+-            self.report({'INFO'}, f"Updated {success_count} front(s) with style '{style.name}'")
++            self.report({'INFO'}, tr("Updated {} front(s) with style '{}'").format(success_count, style.name))
+         return {'FINISHED'}
+ 
+ 
+@@ -369,7 +370,7 @@ class hb_frameless_OT_add_cabinet_style(bpy.types.Operator):
+         # Set as active
+         props.active_cabinet_style_index = len(props.cabinet_styles) - 1
+ 
+-        self.report({'INFO'}, f"Added cabinet style: {style.name}")
++        self.report({'INFO'}, tr("Added cabinet style: {}").format(style.name))
+         return {'FINISHED'}
+ 
+ 
+@@ -418,7 +419,7 @@ class hb_frameless_OT_remove_cabinet_style(bpy.types.Operator):
+                         # Shift index down
+                         obj['CABINET_STYLE_INDEX'] = cab_style_index - 1
+ 
+-        self.report({'INFO'}, f"Removed cabinet style: {style_name}")
++        self.report({'INFO'}, tr("Removed cabinet style: {}").format(style_name))
+         return {'FINISHED'}
+ 
+ 
+@@ -458,7 +459,7 @@ class hb_frameless_OT_duplicate_cabinet_style(bpy.types.Operator):
+         # Set as active
+         props.active_cabinet_style_index = len(props.cabinet_styles) - 1
+ 
+-        self.report({'INFO'}, f"Duplicated cabinet style: {new_style.name}")
++        self.report({'INFO'}, tr("Duplicated cabinet style: {}").format(new_style.name))
+         return {'FINISHED'}
+ 
+ 
+@@ -537,7 +538,7 @@ class hb_frameless_OT_assign_cabinet_style_to_selected_cabinets(bpy.types.Operat
+ 
+     def update_header(self, context):
+         """Update header text with current status."""
+-        text = f"Cabinet Style: '{self.style_name}' | LMB: Assign style | RMB/ESC: Finish | Assigned: {self.assigned_count}"
++        text = tr("Cabinet Style: '{}' | LMB: Assign style | RMB/ESC: Finish | Assigned: {}").format(self.style_name, self.assigned_count)
+         context.area.header_text_set(text)
+ 
+     def assign_style_to_cabinet(self, context, cabinet_obj):
+@@ -604,7 +605,7 @@ class hb_frameless_OT_assign_cabinet_style_to_selected_cabinets(bpy.types.Operat
+             if event.value == 'PRESS':
+                 self.cleanup(context)
+                 if self.assigned_count > 0:
+-                    self.report({'INFO'}, f"Assigned '{self.style_name}' to {self.assigned_count} cabinet(s)")
++                    self.report({'INFO'}, tr("Assigned '{}' to {} cabinet(s)").format(self.style_name, self.assigned_count))
+                 else:
+                     self.report({'INFO'}, "Style painting cancelled")
+                 return {'FINISHED'}
+@@ -695,7 +696,7 @@ class hb_frameless_OT_update_cabinets_from_style(bpy.types.Operator):
+ 
+         if event.type == 'ESC':
+             self.finish(context)
+-            self.report({'WARNING'}, f"Cancelled. Updated {self._current_index} of {self._total_count} cabinets.")
++            self.report({'WARNING'}, tr("Cancelled. Updated {} of {} cabinets.").format(self._current_index, self._total_count))
+             return {'CANCELLED'}
+ 
+         if event.type == 'TIMER':
+@@ -718,7 +719,7 @@ class hb_frameless_OT_update_cabinets_from_style(bpy.types.Operator):
+             else:
+                 # Finished
+                 self.finish(context)
+-                self.report({'INFO'}, f"Updated {self._total_count} cabinet(s) with style '{self._style_name}'")
++                self.report({'INFO'}, tr("Updated {} cabinet(s) with style '{}'").format(self._total_count, self._style_name))
+                 return {'FINISHED'}
+ 
+         return {'PASS_THROUGH'}
+@@ -771,7 +772,7 @@ class hb_frameless_OT_update_cabinets_from_style(bpy.types.Operator):
+         self._current_index = 0
+ 
+         if self._total_count == 0:
+-            self.report({'INFO'}, f"No cabinets found using style '{self._style_name}'")
++            self.report({'INFO'}, tr("No cabinets found using style '{}'").format(self._style_name))
+             return {'CANCELLED'}
+ 
+         # Set initial progress to 0
+@@ -835,7 +836,7 @@ class hb_frameless_OT_update_cabinet_materials(bpy.types.Operator):
+                         cabinets.append(obj)
+ 
+         if not cabinets:
+-            self.report({'INFO'}, f"No cabinets found using style '{style.name}'")
++            self.report({'INFO'}, tr("No cabinets found using style '{}'").format(style.name))
+             return {'CANCELLED'}
+ 
+         # Update materials only on all matching cabinets
+@@ -882,7 +883,7 @@ class hb_frameless_OT_update_cabinet_materials(bpy.types.Operator):
+         from ....customize import reapply as _customize
+         for cabinet_obj in cabinets:     # feature 003, D-04: personalização por instância vence o estilo
+             _customize.after_rebuild(context, cabinet_obj)
+-        self.report({'INFO'}, f"Updated materials on {len(cabinets)} cabinet(s) with style '{style.name}'")
++        self.report({'INFO'}, tr("Updated materials on {} cabinet(s) with style '{}'").format(len(cabinets), style.name))
+         return {'FINISHED'}
+ 
+ 
+@@ -1002,9 +1003,9 @@ class hb_frameless_OT_update_cabinet_pulls(bpy.types.Operator):
+         hb_utils.run_calc_fix(context)
+ 
+         if cleared_count:
+-            self.report({'INFO'}, f"Cleared {cleared_count} pull(s)")
++            self.report({'INFO'}, tr("Cleared {} pull(s)").format(cleared_count))
+         else:
+-            self.report({'INFO'}, f"Updated {updated_count} pull(s)")
++            self.report({'INFO'}, tr("Updated {} pull(s)").format(updated_count))
+         return {'FINISHED'}
+ 
+ 
+@@ -1076,11 +1077,11 @@ class hb_frameless_OT_update_pull_locations(bpy.types.Operator):
+ 
+         # Report results
+         if self.update_type == 'DOOR':
+-            self.report({'INFO'}, f"Updated {door_count} door front(s)")
++            self.report({'INFO'}, tr("Updated {} door front(s)").format(door_count))
+         elif self.update_type == 'DRAWER':
+-            self.report({'INFO'}, f"Updated {drawer_count} drawer front(s)")
++            self.report({'INFO'}, tr("Updated {} drawer front(s)").format(drawer_count))
+         else:
+-            self.report({'INFO'}, f"Updated {door_count} door(s) and {drawer_count} drawer(s)")
++            self.report({'INFO'}, tr("Updated {} door(s) and {} drawer(s)").format(door_count, drawer_count))
+ 
+         return {'FINISHED'}
+ 
+@@ -1136,7 +1137,7 @@ class hb_frameless_OT_update_pull_finish(bpy.types.Operator):
+         # Force viewport update
+         context.view_layer.update()
+ 
+-        self.report({'INFO'}, f"Applied finish to {len(updated_sources)} pull type(s) ({pull_count} total pulls)")
++        self.report({'INFO'}, tr("Applied finish to {} pull type(s) ({} total pulls)").format(len(updated_sources), pull_count))
+         return {'FINISHED'}
+ 
+ 
+@@ -1254,7 +1255,7 @@ class hb_frameless_OT_add_custom_finish_color(bpy.types.Operator):
+                 else:
+                     style.stain_color = self.color_name
+ 
+-            self.report({'INFO'}, f"Saved custom {color_type} color: {self.color_name}")
++            self.report({'INFO'}, tr("Saved custom {} color: {}").format(color_type, self.color_name))
+             return {'FINISHED'}
+         else:
+             self.report({'ERROR'}, "Failed to save custom color")
+@@ -1278,10 +1279,10 @@ class hb_frameless_OT_delete_custom_finish_color(bpy.types.Operator):
+         from .. import finish_colors
+ 
+         if finish_colors.delete_custom_color(self.color_name, self.color_type):
+-            self.report({'INFO'}, f"Deleted custom color: {self.color_name}")
++            self.report({'INFO'}, tr("Deleted custom color: {}").format(self.color_name))
+             return {'FINISHED'}
+         else:
+-            self.report({'WARNING'}, f"Cannot delete built-in color: {self.color_name}")
++            self.report({'WARNING'}, tr("Cannot delete built-in color: {}").format(self.color_name))
+             return {'CANCELLED'}
+ 
+ 
+@@ -1386,7 +1387,7 @@ class hb_frameless_OT_edit_finish_color(bpy.types.Operator):
+                 else:
+                     style.stain_color = self.color_name
+ 
+-            self.report({'INFO'}, f"Saved color: {self.color_name}")
++            self.report({'INFO'}, tr("Saved color: {}").format(self.color_name))
+             return {'FINISHED'}
+         else:
+             self.report({'ERROR'}, "Failed to save color")
+diff --git a/caffmob_draw/product_libraries/frameless/operators/ops_toe_kick.py b/caffmob_draw/product_libraries/frameless/operators/ops_toe_kick.py
+index fb4e5a3..5bae4a8 100644
+--- a/caffmob_draw/product_libraries/frameless/operators/ops_toe_kick.py
++++ b/caffmob_draw/product_libraries/frameless/operators/ops_toe_kick.py
+@@ -2,6 +2,7 @@ import bpy
+ import math
+ import os
+ from mathutils import Vector
++from ....data.i18n import tr
+ from .... import hb_project, hb_details, hb_types, units
+ 
+ 
+@@ -54,7 +55,7 @@ class hb_frameless_OT_create_toe_kick_detail(bpy.types.Operator):
+         # Switch to the detail scene
+         bpy.ops.caffmob_layouts.go_to_layout_view(scene_name=scene.name)
+ 
+-        self.report({'INFO'}, f"Created toe kick detail: {self.name}")
++        self.report({'INFO'}, tr("Created toe kick detail: {}").format(self.name))
+         return {'FINISHED'}
+ 
+     def _draw_cabinet_side_detail(self, context, scene, props):
+@@ -217,7 +218,7 @@ class hb_frameless_OT_delete_toe_kick_detail(bpy.types.Operator):
+         if props.active_toe_kick_detail_index >= len(props.toe_kick_details):
+             props.active_toe_kick_detail_index = max(0, len(props.toe_kick_details) - 1)
+ 
+-        self.report({'INFO'}, f"Deleted toe kick detail: {toe_kick_name}")
++        self.report({'INFO'}, tr("Deleted toe kick detail: {}").format(toe_kick_name))
+         return {'FINISHED'}
+ 
+ 
+@@ -250,7 +251,7 @@ class hb_frameless_OT_edit_toe_kick_detail(bpy.types.Operator):
+ 
+         bpy.ops.caffmob_layouts.go_to_layout_view(scene_name=detail_scene.name)
+ 
+-        self.report({'INFO'}, f"Editing toe kick detail: {toe_kick.name}")
++        self.report({'INFO'}, tr("Editing toe kick detail: {}").format(toe_kick.name))
+         return {'FINISHED'}
+ 
+ 
+@@ -334,7 +335,7 @@ class hb_frameless_OT_assign_toe_kick_to_cabinets(bpy.types.Operator):
+                 self._create_toe_kick_for_group(context, group, profile, all_walls, all_cabinets, current_scene)
+ 
+         total_cabs = sum(len(g['cabinets']) for g in cabinet_groups)
+-        self.report({'INFO'}, f"Created toe kick molding on {total_cabs} cabinet(s) in {len(cabinet_groups)} group(s)")
++        self.report({'INFO'}, tr("Created toe kick molding on {} cabinet(s) in {} group(s)").format(total_cabs, len(cabinet_groups)))
+         return {'FINISHED'}
+ 
+     def _remove_existing_toe_kick(self, cabinet):
+diff --git a/caffmob_draw/product_libraries/frameless/operators/ops_upper_bottom.py b/caffmob_draw/product_libraries/frameless/operators/ops_upper_bottom.py
+index 6188ada..6af52d4 100644
+--- a/caffmob_draw/product_libraries/frameless/operators/ops_upper_bottom.py
++++ b/caffmob_draw/product_libraries/frameless/operators/ops_upper_bottom.py
+@@ -2,6 +2,7 @@ import bpy
+ import math
+ import os
+ from mathutils import Vector
++from ....data.i18n import tr
+ from .... import hb_project, hb_details, units
+ 
+ 
+@@ -54,7 +55,7 @@ class hb_frameless_OT_create_upper_bottom_detail(bpy.types.Operator):
+         # Switch to the detail scene
+         bpy.ops.caffmob_layouts.go_to_layout_view(scene_name=scene.name)
+ 
+-        self.report({'INFO'}, f"Created upper bottom detail: {self.name}")
++        self.report({'INFO'}, tr("Created upper bottom detail: {}").format(self.name))
+         return {'FINISHED'}
+ 
+     def _draw_cabinet_side_detail(self, context, scene, props):
+@@ -189,7 +190,7 @@ class hb_frameless_OT_delete_upper_bottom_detail(bpy.types.Operator):
+         if props.active_upper_bottom_detail_index >= len(props.upper_bottom_details):
+             props.active_upper_bottom_detail_index = max(0, len(props.upper_bottom_details) - 1)
+ 
+-        self.report({'INFO'}, f"Deleted upper bottom detail: {upper_bottom_name}")
++        self.report({'INFO'}, tr("Deleted upper bottom detail: {}").format(upper_bottom_name))
+         return {'FINISHED'}
+ 
+ 
+@@ -222,7 +223,7 @@ class hb_frameless_OT_edit_upper_bottom_detail(bpy.types.Operator):
+ 
+         bpy.ops.caffmob_layouts.go_to_layout_view(scene_name=detail_scene.name)
+ 
+-        self.report({'INFO'}, f"Editing upper bottom detail: {upper_bottom.name}")
++        self.report({'INFO'}, tr("Editing upper bottom detail: {}").format(upper_bottom.name))
+         return {'FINISHED'}
+ 
+ 
+@@ -306,7 +307,7 @@ class hb_frameless_OT_assign_upper_bottom_to_cabinets(bpy.types.Operator):
+                 self._create_upper_bottom_for_group(context, group, profile, all_walls, all_cabinets, current_scene)
+ 
+         total_cabs = sum(len(g['cabinets']) for g in cabinet_groups)
+-        self.report({'INFO'}, f"Created upper bottom molding on {total_cabs} cabinet(s) in {len(cabinet_groups)} group(s)")
++        self.report({'INFO'}, tr("Created upper bottom molding on {} cabinet(s) in {} group(s)").format(total_cabs, len(cabinet_groups)))
+         return {'FINISHED'}
+ 
+     def _remove_existing_upper_bottom(self, cabinet):
+diff --git a/caffmob_draw/product_libraries/frameless/props_elevation_templates.py b/caffmob_draw/product_libraries/frameless/props_elevation_templates.py
+index 9520f63..6e0fe13 100644
+--- a/caffmob_draw/product_libraries/frameless/props_elevation_templates.py
++++ b/caffmob_draw/product_libraries/frameless/props_elevation_templates.py
+@@ -10,6 +10,7 @@ from bpy.props import (
+     EnumProperty,
+ )
+ from mathutils import Vector
++from ...data.i18n import N_, tr
+ from . import types_frameless
+ from ..common import types_appliances
+ from ... import hb_utils, hb_types, hb_project
+@@ -1419,7 +1420,7 @@ class hb_frameless_OT_select_elevation_template(Operator):
+ 
+         template = get_template(context, self.template_name)
+         if not template:
+-            self.report({'ERROR'}, f"Template '{self.template_name}' not found")
++            self.report({'ERROR'}, tr("Template '{}' not found").format(self.template_name))
+             return {'CANCELLED'}
+ 
+         # Clear any existing preview
+@@ -1456,7 +1457,7 @@ class hb_frameless_OT_draw_elevation_template(Operator):
+         # Clear template selection
+         context.scene.hb_frameless.selected_template = ""
+ 
+-        self.report({'INFO'}, f"Created {len(cabinets)} cabinet(s)")
++        self.report({'INFO'}, tr("Created {} cabinet(s)").format(len(cabinets)))
+         return {'FINISHED'}
+ 
+ 
+@@ -1514,7 +1515,7 @@ def draw_elevation_template_ui(context, layout):
+ 
+     # Template selector
+     if selected == "" or selected not in TEMPLATE_REGISTRY:
+-        menu_text = "Select Elevation Template..."
++        menu_text = N_("Select Elevation Template...")
+     else:
+         menu_text = selected
+ 
+diff --git a/caffmob_draw/product_libraries/frameless/props_hb_frameless.py b/caffmob_draw/product_libraries/frameless/props_hb_frameless.py
+index 96840c7..56ea8b9 100644
+--- a/caffmob_draw/product_libraries/frameless/props_hb_frameless.py
++++ b/caffmob_draw/product_libraries/frameless/props_hb_frameless.py
+@@ -13,6 +13,7 @@ from bpy.props import (
+         CollectionProperty,
+         EnumProperty,
+         )
++from ...data.i18n import N_, tr
+ from ... import units
+ from ... import hb_types
+ from ... import hb_utils
+@@ -123,11 +124,11 @@ def get_pull_enum_items(self, context):
+                 if pull['filename'] not in seen:
+                     seen.add(pull['filename'])
+                     items.append((pull['filename'], pull['name'],
+-                                 f"Use {pull['name']}", 'OBJECT_DATA', len(items)))
++                                 tr("Use {}").format(pull['name']), 'OBJECT_DATA', len(items)))
+     elif category:
+         for pull in get_pulls_in_category(category):
+             items.append((pull['filename'], pull['name'],
+-                         f"Use {pull['name']}", 'OBJECT_DATA', len(items)))
++                         tr("Use {}").format(pull['name']), 'OBJECT_DATA', len(items)))
+ 
+     items.append(('NONE', "No Pulls", "Don't add pulls to cabinets", 'X', len(items)))
+     items.append(('CUSTOM', "Custom", "Use a custom pull object from the scene", 'EYEDROPPER', len(items)))
+@@ -169,73 +170,73 @@ def get_cabinet_group_category_items(self, context):
+ 
+ PULL_FINISHES = {
+     'CHROME': {
+-        'name': 'Chrome',
++        'name': N_('Chrome'),
+         'color': (0.8, 0.8, 0.8, 1.0),
+         'metallic': 1.0,
+         'roughness': 0.1,
+     },
+     'BRUSHED_NICKEL': {
+-        'name': 'Brushed Nickel',
++        'name': N_('Brushed Nickel'),
+         'color': (0.6, 0.58, 0.55, 1.0),
+         'metallic': 1.0,
+         'roughness': 0.35,
+     },
+     'MATTE_BLACK': {
+-        'name': 'Matte Black',
++        'name': N_('Matte Black'),
+         'color': (0.02, 0.02, 0.02, 1.0),
+         'metallic': 0.9,
+         'roughness': 0.5,
+     },
+     'OIL_RUBBED_BRONZE': {
+-        'name': 'Oil Rubbed Bronze',
++        'name': N_('Oil Rubbed Bronze'),
+         'color': (0.15, 0.08, 0.05, 1.0),
+         'metallic': 0.8,
+         'roughness': 0.4,
+     },
+     'POLISHED_BRASS': {
+-        'name': 'Polished Brass',
++        'name': N_('Polished Brass'),
+         'color': (0.85, 0.65, 0.2, 1.0),
+         'metallic': 1.0,
+         'roughness': 0.15,
+     },
+     'SATIN_BRASS': {
+-        'name': 'Satin Brass',
++        'name': N_('Satin Brass'),
+         'color': (0.75, 0.6, 0.25, 1.0),
+         'metallic': 1.0,
+         'roughness': 0.35,
+     },
+     'ANTIQUE_BRASS': {
+-        'name': 'Antique Brass',
++        'name': N_('Antique Brass'),
+         'color': (0.5, 0.38, 0.15, 1.0),
+         'metallic': 0.85,
+         'roughness': 0.45,
+     },
+     'STAINLESS_STEEL': {
+-        'name': 'Stainless Steel',
++        'name': N_('Stainless Steel'),
+         'color': (0.55, 0.55, 0.55, 1.0),
+         'metallic': 1.0,
+         'roughness': 0.25,
+     },
+     'PEWTER': {
+-        'name': 'Pewter',
++        'name': N_('Pewter'),
+         'color': (0.4, 0.4, 0.42, 1.0),
+         'metallic': 0.9,
+         'roughness': 0.4,
+     },
+     'COPPER': {
+-        'name': 'Copper',
++        'name': N_('Copper'),
+         'color': (0.72, 0.45, 0.2, 1.0),
+         'metallic': 1.0,
+         'roughness': 0.2,
+     },
+     'MATTE_GOLD': {
+-        'name': 'Matte Gold',
++        'name': N_('Matte Gold'),
+         'color': (0.83, 0.69, 0.22, 1.0),
+         'metallic': 1.0,
+         'roughness': 0.4,
+     },
+     'POLISHED_GOLD': {
+-        'name': 'Polished Gold',
++        'name': N_('Polished Gold'),
+         'color': (1.0, 0.84, 0.0, 1.0),
+         'metallic': 1.0,
+         'roughness': 0.1,
+@@ -247,7 +248,7 @@ def get_pull_finish_enum_items(self, context):
+     """Generate enum items for pull finish dropdown"""
+     items = []
+     for key, data in PULL_FINISHES.items():
+-        items.append((key, data['name'], f"Apply {data['name']} finish to pulls"))
++        items.append((key, data['name'], tr("Apply {} finish to pulls").format(tr(data['name']))))
+     return items
+ 
+ 
+@@ -479,7 +480,7 @@ def get_stain_color_enum_items(self, context):
+     colors = finish_colors.get_all_stain_colors()
+     for i, name in enumerate(colors.keys()):
+         is_custom = finish_colors.is_custom_color(name, 'stain')
+-        desc = f"Custom: {name}" if is_custom else name
++        desc = tr("Custom: {}").format(name) if is_custom else name
+         items.append((name, name, desc, i))
+     if not items:
+         items.append(('Natural', "Natural", "Natural", 0))
+@@ -492,7 +493,7 @@ def get_paint_color_enum_items(self, context):
+     colors = finish_colors.get_all_paint_colors()
+     for i, name in enumerate(colors.keys()):
+         is_custom = finish_colors.is_custom_color(name, 'paint')
+-        desc = f"Custom: {name}" if is_custom else name
++        desc = tr("Custom: {}").format(name) if is_custom else name
+         items.append((name, name, desc, i))
+     if not items:
+         items.append(('Arctic White', "Arctic White", "Arctic White", 0))
+@@ -1077,7 +1078,7 @@ class Frameless_Door_Style(PropertyGroup):
+                 front_height = front.get_input("Length")
+                 front_width = front.get_input("Width")
+             except Exception:
+-                return "Could not read front dimensions"
++                return tr("Could not read front dimensions")
+ 
+             print(f"Front height: {units.meter_to_inch(front_height)}, Front width: {units.meter_to_inch(front_width)}")
+             # Calculate minimum dimensions needed
+@@ -1091,10 +1092,10 @@ class Frameless_Door_Style(PropertyGroup):
+ 
+             # Check if front is large enough
+             if front_width < min_width:
+-                return f"Front too narrow ({front_width:.3f}m) for stile widths ({min_width:.3f}m minimum)"
++                return tr("Front too narrow ({:.3f}m) for stile widths ({:.3f}m minimum)").format(front_width, min_width)
+ 
+             if front_height < min_height:
+-                return f"Front too short ({front_height:.3f}m) for rail widths ({min_height:.3f}m minimum)"
++                return tr("Front too short ({:.3f}m) for rail widths ({:.3f}m minimum)").format(front_height, min_height)
+ 
+             # Check if door style modifier already exists
+             existing_mod = None
+@@ -1864,7 +1865,7 @@ class Frameless_Scene_Props(PropertyGroup):
+         else:
+             # Display library items
+             box = layout.box()
+-            box.label(text=f"Saved Groups ({len(library_items)})", icon='ASSET_MANAGER')
++            box.label(text=tr("Saved Groups ({})").format(len(library_items)), icon='ASSET_MANAGER')
+ 
+             # Grid layout for items with thumbnails
+             flow = box.column_flow(columns=2, align=True)
+@@ -1893,17 +1894,17 @@ class Frameless_Scene_Props(PropertyGroup):
+     def draw_cabinet_library_ui(self,layout,context):
+         # Cabinet definitions: (display_name, cabinet_name, thumbnail_name)
+         base_cabinets = [
+-            ("Door", "Base Door", "Base Door"),
+-            ("Door Drw", "Base Door Drw", "Base Door Drw"),
+-            ("Drawer", "Base Drawer", "Base Drw"),
+-            ("Lap Drawer", "Lap Drawer", "Lap Drw"),
++            (N_("Door"), "Base Door", "Base Door"),
++            (N_("Door Drw"), "Base Door Drw", "Base Door Drw"),
++            (N_("Drawer"), "Base Drawer", "Base Drw"),
++            (N_("Lap Drawer"), "Lap Drawer", "Lap Drw"),
+         ]
+ 
+         upper_and_tall_cabinets = [
+-            ("Upper", "Upper", "Upper"),
+-            ("Upper Stacked", "Upper Stacked", "Upper Stacked"),
+-            ("Tall", "Tall", "Tall"),
+-            ("Tall Stacked", "Tall Stacked", "Tall Stacked"),
++            (N_("Upper"), "Upper", "Upper"),
++            (N_("Upper Stacked"), "Upper Stacked", "Upper Stacked"),
++            (N_("Tall"), "Tall", "Tall"),
++            (N_("Tall Stacked"), "Tall Stacked", "Tall Stacked"),
+         ]
+ 
+         # Base cabinets
+@@ -1971,9 +1972,9 @@ class Frameless_Scene_Props(PropertyGroup):
+         # Pie cut corner cabinet definitions
+         layout.label(text="Pie Cut Corner")
+         piecut_cabinets = [
+-            ("Base", "Pie Cut Corner Base", "Frameless Base Corner"),
+-            ("Tall", "Pie Cut Corner Tall", "Frameless Tall Corner"),
+-            ("Upper", "Pie Cut Corner Upper", "Frameless Upper Corner"),
++            (N_("Base"), "Pie Cut Corner Base", "Frameless Base Corner"),
++            (N_("Tall"), "Pie Cut Corner Tall", "Frameless Tall Corner"),
++            (N_("Upper"), "Pie Cut Corner Upper", "Frameless Upper Corner"),
+         ]
+ 
+         flow = layout.grid_flow(row_major=True, columns=3, even_columns=True, even_rows=True, align=True)
+@@ -2004,13 +2005,13 @@ class Frameless_Scene_Props(PropertyGroup):
+ 
+         # Appliance cabinets: (display_name, cabinet_name, thumbnail_name)
+         appliance_cabinets = [
+-            ("Fridge Cabinet", "Refrigerator Cabinet", "Refrigerator Frameless Cabinet"),
++            (N_("Fridge Cabinet"), "Refrigerator Cabinet", "Refrigerator Frameless Cabinet"),
+             # ("Base Built-In", "Base Built-In", "Base Built-In"),
+             # ("Tall Built-In", "Tall Built-In", "Tall Built-In"),
+-            ("Dishwasher", "Dishwasher", "Dishwasher"),
+-            ("Refrigerator", "Refrigerator", "Refrigerator"),
+-            ("Range", "Range", "Range"),
+-            ("Range Hood", "Range Hood", "Range Hood"),
++            (N_("Dishwasher"), "Dishwasher", "Dishwasher"),
++            (N_("Refrigerator"), "Refrigerator", "Refrigerator"),
++            (N_("Range"), "Range", "Range"),
++            (N_("Range Hood"), "Range Hood", "Range Hood"),
+         ]
+ 
+         flow = layout.grid_flow(row_major=True, columns=4, even_columns=True, even_rows=True, align=True)
+@@ -2030,15 +2031,15 @@ class Frameless_Scene_Props(PropertyGroup):
+     def draw_part_library_ui(self,layout,context):
+         # Parts definitions: (display_name, cabinet_name, thumbnail_name)
+         parts = [
+-            ("Floating Shelves", "Floating Shelves", "Floating Shelves"),
+-            ("Valance", "Valance", "Valance"),
+-            ("Support Frame", "Support Frame", "Support Frame"),
+-            ("Half Wall", "Half Wall", "Half Wall"),
+-            ("Misc Part", "Misc Part", "Misc Part"),
+-            ("Leg", "Leg", "Leg"),
+-            ("Tall Leg", "Tall Leg", "Leg"),
+-            ("Upper Leg", "Upper Leg", "Leg"),
+-            ("Panel", "Panel", "Panel"),
++            (N_("Floating Shelves"), "Floating Shelves", "Floating Shelves"),
++            (N_("Valance"), "Valance", "Valance"),
++            (N_("Support Frame"), "Support Frame", "Support Frame"),
++            (N_("Half Wall"), "Half Wall", "Half Wall"),
++            (N_("Misc Part"), "Misc Part", "Misc Part"),
++            (N_("Leg"), "Leg", "Leg"),
++            (N_("Tall Leg"), "Tall Leg", "Leg"),
++            (N_("Upper Leg"), "Upper Leg", "Leg"),
++            (N_("Panel"), "Panel", "Panel"),
+         ]
+ 
+         flow = layout.grid_flow(row_major=True, columns=4, even_columns=True, even_rows=True, align=True)
+@@ -2205,7 +2206,7 @@ class Frameless_Scene_Props(PropertyGroup):
+                 detail_scene = crown.get_detail_scene()
+                 if detail_scene:
+                     row = box.row()
+-                    row.label(text=f"Profile Scene: {crown.detail_scene_name}", icon='CHECKMARK')
++                    row.label(text=tr("Profile Scene: {}").format(crown.detail_scene_name), icon='CHECKMARK')
+                 else:
+                     row = box.row()
+                     row.label(text="No profile scene", icon='ERROR')
+@@ -2271,7 +2272,7 @@ class Frameless_Scene_Props(PropertyGroup):
+                 detail_scene = toe_kick.get_detail_scene()
+                 if detail_scene:
+                     row = box.row()
+-                    row.label(text=f"Profile Scene: {toe_kick.detail_scene_name}", icon='CHECKMARK')
++                    row.label(text=tr("Profile Scene: {}").format(toe_kick.detail_scene_name), icon='CHECKMARK')
+                 else:
+                     row = box.row()
+                     row.label(text="No profile scene", icon='ERROR')
+@@ -2329,7 +2330,7 @@ class Frameless_Scene_Props(PropertyGroup):
+                 detail_scene = upper_bottom.get_detail_scene()
+                 if detail_scene:
+                     row = box.row()
+-                    row.label(text=f"Profile Scene: {upper_bottom.detail_scene_name}", icon='CHECKMARK')
++                    row.label(text=tr("Profile Scene: {}").format(upper_bottom.detail_scene_name), icon='CHECKMARK')
+                 else:
+                     row = box.row()
+                     row.label(text="No profile scene", icon='ERROR')

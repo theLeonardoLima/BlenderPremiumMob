@@ -1,0 +1,886 @@
+{
+ "Abertura Porta": {
+  "pt_BR": "Abertura Porta",
+  "en_US": "Door Opening"
+ },
+ "Abertura de portas e gavetas": {
+  "pt_BR": "Abertura de portas e gavetas",
+  "en_US": "Door and drawer opening"
+ },
+ "Abrir 45°": {
+  "pt_BR": "Abrir 45°",
+  "en_US": "Open 45°"
+ },
+ "Abrir 90°": {
+  "pt_BR": "Abrir 90°",
+  "en_US": "Open 90°"
+ },
+ "Abrir Configurador de Dimensões": {
+  "pt_BR": "Abrir Configurador de Dimensões",
+  "en_US": "Open Dimension Configurator"
+ },
+ "Abrir Portas e Gavetas": {
+  "pt_BR": "Abrir Portas e Gavetas",
+  "en_US": "Open Doors and Drawers"
+ },
+ "Abrir editor de paredes": {
+  "pt_BR": "Abrir editor de paredes",
+  "en_US": "Open wall editor"
+ },
+ "Abrir tudo 90°": {
+  "pt_BR": "Abrir tudo 90°",
+  "en_US": "Open all 90°"
+ },
+ "Abrir/Fechar Frentes": {
+  "pt_BR": "Abrir/Fechar Frentes",
+  "en_US": "Open/Close Fronts"
+ },
+ "Acabamento": {
+  "pt_BR": "Acabamento",
+  "en_US": "Finish"
+ },
+ "Adicionar Vértice": {
+  "pt_BR": "Adicionar Vértice",
+  "en_US": "Add Vertex"
+ },
+ "Afastamento": {
+  "pt_BR": "Afastamento",
+  "en_US": "Offset"
+ },
+ "Afastamento da parede": {
+  "pt_BR": "Afastamento da parede",
+  "en_US": "Wall offset"
+ },
+ "Ainda não verificado.": {
+  "pt_BR": "Ainda não verificado.",
+  "en_US": "Not checked yet."
+ },
+ "Altura": {
+  "pt_BR": "Altura",
+  "en_US": "Height"
+ },
+ "Altura do Rodapé / Base": {
+  "pt_BR": "Altura do Rodapé / Base",
+  "en_US": "Base / Plinth Height"
+ },
+ "Aplicar": {
+  "pt_BR": "Aplicar",
+  "en_US": "Apply"
+ },
+ "Aplicar Padrão de Dimensões": {
+  "pt_BR": "Aplicar Padrão de Dimensões",
+  "en_US": "Apply Dimension Standard"
+ },
+ "Ação": {
+  "pt_BR": "Ação",
+  "en_US": "Action"
+ },
+ "Ações": {
+  "pt_BR": "Ações",
+  "en_US": "Actions"
+ },
+ "Basculante": {
+  "pt_BR": "Basculante",
+  "en_US": "Flip Up"
+ },
+ "Basculante p/ baixo": {
+  "pt_BR": "Basculante p/ baixo",
+  "en_US": "Flip-down door"
+ },
+ "Bloquear Ângulo": {
+  "pt_BR": "Bloquear Ângulo",
+  "en_US": "Lock Angle"
+ },
+ "Buscar": {
+  "pt_BR": "Buscar",
+  "en_US": "Search"
+ },
+ "Caixa": {
+  "pt_BR": "Caixa",
+  "en_US": "Box"
+ },
+ "Calcular Plano de Corte": {
+  "pt_BR": "Calcular Plano de Corte",
+  "en_US": "Calculate Cut Plan"
+ },
+ "Cancelar": {
+  "pt_BR": "Cancelar",
+  "en_US": "Cancel"
+ },
+ "Centro": {
+  "pt_BR": "Centro",
+  "en_US": "Center"
+ },
+ "Chapas": {
+  "pt_BR": "Chapas",
+  "en_US": "Sheets"
+ },
+ "Componente": {
+  "pt_BR": "Componente",
+  "en_US": "Component"
+ },
+ "Componentes": {
+  "pt_BR": "Componentes",
+  "en_US": "Components"
+ },
+ "Comprimento": {
+  "pt_BR": "Comprimento",
+  "en_US": "Length"
+ },
+ "Comprimento Máximo da Chapa": {
+  "pt_BR": "Comprimento Máximo da Chapa",
+  "en_US": "Max Sheet Length"
+ },
+ "Config. Dimensões": {
+  "pt_BR": "Config. Dimensões",
+  "en_US": "Dimension Settings"
+ },
+ "Configurador de Dimensões": {
+  "pt_BR": "Configurador de Dimensões",
+  "en_US": "Dimension Configurator"
+ },
+ "Configurações": {
+  "pt_BR": "Configurações",
+  "en_US": "Settings"
+ },
+ "Configurações de Dimensões": {
+  "pt_BR": "Configurações de Dimensões",
+  "en_US": "Dimension Settings"
+ },
+ "Confirmar": {
+  "pt_BR": "Confirmar",
+  "en_US": "Confirm"
+ },
+ "Construir Parede": {
+  "pt_BR": "Construir Parede",
+  "en_US": "Build Wall"
+ },
+ "Converter para paredes editáveis": {
+  "pt_BR": "Converter para paredes editáveis",
+  "en_US": "Convert to editable walls"
+ },
+ "Cota anterior": {
+  "pt_BR": "Cota anterior",
+  "en_US": "Left clearance"
+ },
+ "Cota inferior": {
+  "pt_BR": "Cota inferior",
+  "en_US": "Bottom clearance"
+ },
+ "Cota posterior": {
+  "pt_BR": "Cota posterior",
+  "en_US": "Right clearance"
+ },
+ "Cota superior": {
+  "pt_BR": "Cota superior",
+  "en_US": "Top clearance"
+ },
+ "Cotas": {
+  "pt_BR": "Cotas",
+  "en_US": "Clearances"
+ },
+ "Criar Geometria": {
+  "pt_BR": "Criar Geometria",
+  "en_US": "Create Geometry"
+ },
+ "Definir Definição Ativa": {
+  "pt_BR": "Definir Definição Ativa",
+  "en_US": "Set Active Definition"
+ },
+ "Definir e aplicar": {
+  "pt_BR": "Definir e aplicar",
+  "en_US": "Set and Apply"
+ },
+ "Definição": {
+  "pt_BR": "Definição",
+  "en_US": "Definition"
+ },
+ "Deitada": {
+  "pt_BR": "Deitada",
+  "en_US": "Lying"
+ },
+ "Descartar": {
+  "pt_BR": "Descartar",
+  "en_US": "Discard"
+ },
+ "Descartar alterações": {
+  "pt_BR": "Descartar alterações",
+  "en_US": "Discard changes"
+ },
+ "Descartar as alterações e fechar o editor?": {
+  "pt_BR": "Descartar as alterações e fechar o editor?",
+  "en_US": "Discard the changes and close the editor?"
+ },
+ "Deseja fechar a parede? O último ponto chegou ao início.": {
+  "pt_BR": "Deseja fechar a parede? O último ponto chegou ao início.",
+  "en_US": "Close the wall? The last point reached the start."
+ },
+ "Desmarcado, os módulos ficam soltos no lugar.": {
+  "pt_BR": "Desmarcado, os módulos ficam soltos no lugar.",
+  "en_US": "Unchecked, the modules stay loose in place."
+ },
+ "Dimensões": {
+  "pt_BR": "Dimensões",
+  "en_US": "Dimensions"
+ },
+ "Dimensões Externas": {
+  "pt_BR": "Dimensões Externas",
+  "en_US": "External Dimensions"
+ },
+ "Direita": {
+  "pt_BR": "Direita",
+  "en_US": "Right"
+ },
+ "Direção": {
+  "pt_BR": "Direção",
+  "en_US": "Direction"
+ },
+ "Divisória": {
+  "pt_BR": "Divisória",
+  "en_US": "Partition"
+ },
+ "Duplicar": {
+  "pt_BR": "Duplicar",
+  "en_US": "Duplicate"
+ },
+ "Duplicar Definição": {
+  "pt_BR": "Duplicar Definição",
+  "en_US": "Duplicate Definition"
+ },
+ "Duplicar Geometria": {
+  "pt_BR": "Duplicar Geometria",
+  "en_US": "Duplicate Geometry"
+ },
+ "Duplicar para editar": {
+  "pt_BR": "Duplicar para editar",
+  "en_US": "Duplicate to Edit"
+ },
+ "Editar Paredes…": {
+  "pt_BR": "Editar Paredes…",
+  "en_US": "Edit Walls…"
+ },
+ "Editor de Paredes": {
+  "pt_BR": "Editor de Paredes",
+  "en_US": "Wall Editor"
+ },
+ "Em pé, de frente": {
+  "pt_BR": "Em pé, de frente",
+  "en_US": "Upright, front"
+ },
+ "Em pé, de lado": {
+  "pt_BR": "Em pé, de lado",
+  "en_US": "Upright, side"
+ },
+ "Encaixar em 0°, 45° e 90°": {
+  "pt_BR": "Encaixar em 0°, 45° e 90°",
+  "en_US": "Snap to 0°, 45° and 90°"
+ },
+ "Enquadrar Tudo": {
+  "pt_BR": "Enquadrar Tudo",
+  "en_US": "Frame All"
+ },
+ "Esconder contorno": {
+  "pt_BR": "Esconder contorno",
+  "en_US": "Hide Outline"
+ },
+ "Escopo": {
+  "pt_BR": "Escopo",
+  "en_US": "Scope"
+ },
+ "Espelhar": {
+  "pt_BR": "Espelhar",
+  "en_US": "Mirror"
+ },
+ "Espelhar Geometria": {
+  "pt_BR": "Espelhar Geometria",
+  "en_US": "Mirror Geometry"
+ },
+ "Espessura": {
+  "pt_BR": "Espessura",
+  "en_US": "Thickness"
+ },
+ "Espessura Chapas": {
+  "pt_BR": "Espessura Chapas",
+  "en_US": "Panel Thickness"
+ },
+ "Espessura MDF": {
+  "pt_BR": "Espessura MDF",
+  "en_US": "MDF Thickness"
+ },
+ "Espessura da Chapa": {
+  "pt_BR": "Espessura da Chapa",
+  "en_US": "Sheet Thickness"
+ },
+ "Espessura da Serra (Kerf)": {
+  "pt_BR": "Espessura da Serra (Kerf)",
+  "en_US": "Saw Blade Kerf"
+ },
+ "Esquerda": {
+  "pt_BR": "Esquerda",
+  "en_US": "Left"
+ },
+ "Evitar Sobreposição": {
+  "pt_BR": "Evitar Sobreposição",
+  "en_US": "Avoid Overlap"
+ },
+ "Excluir": {
+  "pt_BR": "Excluir",
+  "en_US": "Delete"
+ },
+ "Excluir Definição": {
+  "pt_BR": "Excluir Definição",
+  "en_US": "Delete Definition"
+ },
+ "Excluir Geometria": {
+  "pt_BR": "Excluir Geometria",
+  "en_US": "Delete Geometry"
+ },
+ "Exportar": {
+  "pt_BR": "Exportar",
+  "en_US": "Export"
+ },
+ "Exportar Definição (JSON)": {
+  "pt_BR": "Exportar Definição (JSON)",
+  "en_US": "Export Definition (JSON)"
+ },
+ "Exportar JSON Global": {
+  "pt_BR": "Exportar JSON Global",
+  "en_US": "Export Global JSON"
+ },
+ "Exportar Peças (CSV)": {
+  "pt_BR": "Exportar Peças (CSV)",
+  "en_US": "Export Parts (CSV)"
+ },
+ "Exportar Plano de Corte (JSON)": {
+  "pt_BR": "Exportar Plano de Corte (JSON)",
+  "en_US": "Export Cut Plan (JSON)"
+ },
+ "Exportar p/ Promob": {
+  "pt_BR": "Exportar p/ Promob",
+  "en_US": "Export to Promob"
+ },
+ "Exportar para o Promob": {
+  "pt_BR": "Exportar para o Promob",
+  "en_US": "Export to Promob"
+ },
+ "Externa": {
+  "pt_BR": "Externa",
+  "en_US": "Outer"
+ },
+ "Face externa (interna + espessuras)": {
+  "pt_BR": "Face externa (interna + espessuras)",
+  "en_US": "Outer face (inner + thicknesses)"
+ },
+ "Face interna (medida real, tracejada)": {
+  "pt_BR": "Face interna (medida real, tracejada)",
+  "en_US": "Inner face (real measure, dashed)"
+ },
+ "Fechar": {
+  "pt_BR": "Fechar",
+  "en_US": "Close"
+ },
+ "Fechar tudo": {
+  "pt_BR": "Fechar tudo",
+  "en_US": "Close all"
+ },
+ "Ferramentas": {
+  "pt_BR": "Ferramentas",
+  "en_US": "Tools"
+ },
+ "Fita Borda 1 (Superior)": {
+  "pt_BR": "Fita Borda 1 (Superior)",
+  "en_US": "Edge Band 1 (Top)"
+ },
+ "Fita Borda 2 (Inferior)": {
+  "pt_BR": "Fita Borda 2 (Inferior)",
+  "en_US": "Edge Band 2 (Bottom)"
+ },
+ "Fita Borda 3 (Direita/Traseira)": {
+  "pt_BR": "Fita Borda 3 (Direita/Traseira)",
+  "en_US": "Edge Band 3 (Right/Back)"
+ },
+ "Fita Borda 4 (Esquerda/Frontal)": {
+  "pt_BR": "Fita Borda 4 (Esquerda/Frontal)",
+  "en_US": "Edge Band 4 (Left/Front)"
+ },
+ "Flecha": {
+  "pt_BR": "Flecha",
+  "en_US": "Sagitta"
+ },
+ "Folga entre Portas": {
+  "pt_BR": "Folga entre Portas",
+  "en_US": "Door Clearance Gap"
+ },
+ "Forma": {
+  "pt_BR": "Forma",
+  "en_US": "Shape"
+ },
+ "Frente": {
+  "pt_BR": "Frente",
+  "en_US": "Front"
+ },
+ "Gaveta": {
+  "pt_BR": "Gaveta",
+  "en_US": "Drawer"
+ },
+ "Geometria": {
+  "pt_BR": "Geometria",
+  "en_US": "Geometry"
+ },
+ "Grid": {
+  "pt_BR": "Grid",
+  "en_US": "Grid"
+ },
+ "Igualar ao pé-direito do projeto": {
+  "pt_BR": "Igualar ao pé-direito do projeto",
+  "en_US": "Match the project ceiling height"
+ },
+ "Imagem de referência indisponível.": {
+  "pt_BR": "Imagem de referência indisponível.",
+  "en_US": "Reference image unavailable."
+ },
+ "Importar": {
+  "pt_BR": "Importar",
+  "en_US": "Import"
+ },
+ "Importar Definição (JSON)": {
+  "pt_BR": "Importar Definição (JSON)",
+  "en_US": "Import Definition (JSON)"
+ },
+ "Importar JSON Global": {
+  "pt_BR": "Importar JSON Global",
+  "en_US": "Import Global JSON"
+ },
+ "Importar do Promob": {
+  "pt_BR": "Importar do Promob",
+  "en_US": "Import from Promob"
+ },
+ "Incluir Dados do Cliente": {
+  "pt_BR": "Incluir Dados do Cliente",
+  "en_US": "Include Client Data"
+ },
+ "Incluir dados do cliente": {
+  "pt_BR": "Incluir dados do cliente",
+  "en_US": "Include Client Data"
+ },
+ "Incluir medidas manuais": {
+  "pt_BR": "Incluir medidas manuais",
+  "en_US": "Include Manual Measurements"
+ },
+ "Incluir plano de corte": {
+  "pt_BR": "Incluir plano de corte",
+  "en_US": "Include Cut Plan"
+ },
+ "Inserir Abertura": {
+  "pt_BR": "Inserir Abertura",
+  "en_US": "Insert Opening"
+ },
+ "Inserir Armário": {
+  "pt_BR": "Inserir Armário",
+  "en_US": "Insert Cabinet"
+ },
+ "Inspeção de Portas e Gavetas": {
+  "pt_BR": "Inspeção de Portas e Gavetas",
+  "en_US": "Door and Drawer Inspection"
+ },
+ "Interna": {
+  "pt_BR": "Interna",
+  "en_US": "Inner"
+ },
+ "Inverter Sentido": {
+  "pt_BR": "Inverter Sentido",
+  "en_US": "Flip Direction"
+ },
+ "Invisível": {
+  "pt_BR": "Invisível",
+  "en_US": "Invisible"
+ },
+ "Ir para a Interferência": {
+  "pt_BR": "Ir para a Interferência",
+  "en_US": "Go to Interference"
+ },
+ "Itens que não cabem:": {
+  "pt_BR": "Itens que não cabem:",
+  "en_US": "Items that do not fit:"
+ },
+ "Janela": {
+  "pt_BR": "Janela",
+  "en_US": "Window"
+ },
+ "Lado para onde a espessura cresce; a medida interna não muda": {
+  "pt_BR": "Lado para onde a espessura cresce; a medida interna não muda",
+  "en_US": "Side where the thickness grows; the inner measure does not change"
+ },
+ "Largura": {
+  "pt_BR": "Largura",
+  "en_US": "Width"
+ },
+ "Largura Máxima da Chapa": {
+  "pt_BR": "Largura Máxima da Chapa",
+  "en_US": "Max Sheet Width"
+ },
+ "Linha": {
+  "pt_BR": "Linha",
+  "en_US": "Line"
+ },
+ "Linhas Magnéticas": {
+  "pt_BR": "Linhas Magnéticas",
+  "en_US": "Magnetic Lines"
+ },
+ "Lista de Peças e Plano de Corte": {
+  "pt_BR": "Lista de Peças e Plano de Corte",
+  "en_US": "Parts List and Cut Plan"
+ },
+ "Manter o selecionado": {
+  "pt_BR": "Manter o selecionado",
+  "en_US": "Keep Selected"
+ },
+ "Material": {
+  "pt_BR": "Material",
+  "en_US": "Material"
+ },
+ "Matéria-prima": {
+  "pt_BR": "Matéria-prima",
+  "en_US": "Raw Material"
+ },
+ "Medidas Máximas": {
+  "pt_BR": "Medidas Máximas",
+  "en_US": "Maximum Measurements"
+ },
+ "Mover Sobre": {
+  "pt_BR": "Mover Sobre",
+  "en_US": "Move Over"
+ },
+ "Mover na Parede": {
+  "pt_BR": "Mover na Parede",
+  "en_US": "Move Along Wall"
+ },
+ "Mureta": {
+  "pt_BR": "Mureta",
+  "en_US": "Low Wall"
+ },
+ "Módulo": {
+  "pt_BR": "Módulo",
+  "en_US": "Module"
+ },
+ "Módulo Rápido": {
+  "pt_BR": "Módulo Rápido",
+  "en_US": "Quick Cabinet"
+ },
+ "Módulo ativo": {
+  "pt_BR": "Módulo ativo",
+  "en_US": "Active module"
+ },
+ "Módulos": {
+  "pt_BR": "Módulos",
+  "en_US": "Modules"
+ },
+ "Módulos em trechos apagados:": {
+  "pt_BR": "Módulos em trechos apagados:",
+  "en_US": "Modules on deleted segments:"
+ },
+ "Nenhuma alteração pendente.": {
+  "pt_BR": "Nenhuma alteração pendente.",
+  "en_US": "No pending changes."
+ },
+ "Nenhuma frente verificada.": {
+  "pt_BR": "Nenhuma frente verificada.",
+  "en_US": "No fronts checked."
+ },
+ "Nenhuma otimização calculada.": {
+  "pt_BR": "Nenhuma otimização calculada.",
+  "en_US": "No optimization calculated."
+ },
+ "Nome": {
+  "pt_BR": "Nome",
+  "en_US": "Name"
+ },
+ "Normal": {
+  "pt_BR": "Normal",
+  "en_US": "Normal"
+ },
+ "Novas paredes": {
+  "pt_BR": "Novas paredes",
+  "en_US": "New walls"
+ },
+ "O projeto mudou: recalcule o plano de corte.": {
+  "pt_BR": "O projeto mudou: recalcule o plano de corte.",
+  "en_US": "The project changed: recalculate the cut plan."
+ },
+ "Objeto atingido": {
+  "pt_BR": "Objeto atingido",
+  "en_US": "Hit object"
+ },
+ "Orientação": {
+  "pt_BR": "Orientação",
+  "en_US": "Orientation"
+ },
+ "Otimizador de Chapas MDF": {
+  "pt_BR": "Otimizador de Chapas MDF",
+  "en_US": "MDF Sheet Optimizer"
+ },
+ "Outras": {
+  "pt_BR": "Outras",
+  "en_US": "Other"
+ },
+ "Padrão de Dimensões": {
+  "pt_BR": "Padrão de Dimensões",
+  "en_US": "Dimension Standard"
+ },
+ "Painel": {
+  "pt_BR": "Painel",
+  "en_US": "Panel"
+ },
+ "Parede": {
+  "pt_BR": "Parede",
+  "en_US": "Wall"
+ },
+ "Paredes com outra altura:": {
+  "pt_BR": "Paredes com outra altura:",
+  "en_US": "Walls with a different height:"
+ },
+ "Paredes de outra camada": {
+  "pt_BR": "Paredes de outra camada",
+  "en_US": "Walls from another layer"
+ },
+ "Paredes selecionadas de outra camada": {
+  "pt_BR": "Paredes selecionadas de outra camada",
+  "en_US": "Selected walls from another layer"
+ },
+ "Peitoril": {
+  "pt_BR": "Peitoril",
+  "en_US": "Sill Height"
+ },
+ "Permitir Rotação": {
+  "pt_BR": "Permitir Rotação",
+  "en_US": "Allow Part Rotation"
+ },
+ "Peça de Fabricação": {
+  "pt_BR": "Peça de Fabricação",
+  "en_US": "Manufactured Part"
+ },
+ "Piso": {
+  "pt_BR": "Piso",
+  "en_US": "Floor"
+ },
+ "Placa": {
+  "pt_BR": "Placa",
+  "en_US": "Panel Sheet"
+ },
+ "Plano de Corte (Nesting)": {
+  "pt_BR": "Plano de Corte (Nesting)",
+  "en_US": "Cut Plan (Nesting)"
+ },
+ "Plano de Corte Desatualizado": {
+  "pt_BR": "Plano de Corte Desatualizado",
+  "en_US": "Cut Plan Out of Date"
+ },
+ "Ponto": {
+  "pt_BR": "Ponto",
+  "en_US": "Point"
+ },
+ "Porta": {
+  "pt_BR": "Porta",
+  "en_US": "Door"
+ },
+ "Porta de ambiente": {
+  "pt_BR": "Porta de ambiente",
+  "en_US": "Room door"
+ },
+ "Posição": {
+  "pt_BR": "Posição",
+  "en_US": "Position"
+ },
+ "Posição da Placa": {
+  "pt_BR": "Posição da Placa",
+  "en_US": "Sheet Orientation"
+ },
+ "Profundidade": {
+  "pt_BR": "Profundidade",
+  "en_US": "Depth"
+ },
+ "Profundidade do Canal": {
+  "pt_BR": "Profundidade do Canal",
+  "en_US": "Groove Depth"
+ },
+ "Projeto": {
+  "pt_BR": "Projeto",
+  "en_US": "Project"
+ },
+ "Propriedades": {
+  "pt_BR": "Propriedades",
+  "en_US": "Properties"
+ },
+ "Pé-direito": {
+  "pt_BR": "Pé-direito",
+  "en_US": "Ceiling Height"
+ },
+ "Pé-direito Final": {
+  "pt_BR": "Pé-direito Final",
+  "en_US": "End Height"
+ },
+ "Pé-direito Inicial": {
+  "pt_BR": "Pé-direito Inicial",
+  "en_US": "Start Height"
+ },
+ "Rebaixar": {
+  "pt_BR": "Rebaixar",
+  "en_US": "Lower"
+ },
+ "Rebaixar Parede": {
+  "pt_BR": "Rebaixar Parede",
+  "en_US": "Lower Wall"
+ },
+ "Recuo do Fundo": {
+  "pt_BR": "Recuo do Fundo",
+  "en_US": "Back Panel Inset"
+ },
+ "Referência": {
+  "pt_BR": "Referência",
+  "en_US": "Reference"
+ },
+ "Refilo Direito": {
+  "pt_BR": "Refilo Direito",
+  "en_US": "Right Margin (Trim)"
+ },
+ "Refilo Esquerdo": {
+  "pt_BR": "Refilo Esquerdo",
+  "en_US": "Left Margin (Trim)"
+ },
+ "Refilo Inferior": {
+  "pt_BR": "Refilo Inferior",
+  "en_US": "Bottom Margin (Trim)"
+ },
+ "Refilo Superior": {
+  "pt_BR": "Refilo Superior",
+  "en_US": "Top Margin (Trim)"
+ },
+ "Relatório do Padrão de Dimensões": {
+  "pt_BR": "Relatório do Padrão de Dimensões",
+  "en_US": "Dimension Standard Report"
+ },
+ "Remover Abertura": {
+  "pt_BR": "Remover Abertura",
+  "en_US": "Remove Opening"
+ },
+ "Remover Parede": {
+  "pt_BR": "Remover Parede",
+  "en_US": "Remove Wall"
+ },
+ "Remover Parede…": {
+  "pt_BR": "Remover Parede…",
+  "en_US": "Remove Wall…"
+ },
+ "Remover Vértice": {
+  "pt_BR": "Remover Vértice",
+  "en_US": "Remove Vertex"
+ },
+ "Remover módulos que estão na parede": {
+  "pt_BR": "Remover módulos que estão na parede",
+  "en_US": "Remove modules on the wall"
+ },
+ "Remover os módulos junto?": {
+  "pt_BR": "Remover os módulos junto?",
+  "en_US": "Remove the modules too?"
+ },
+ "Renomear Definição": {
+  "pt_BR": "Renomear Definição",
+  "en_US": "Rename Definition"
+ },
+ "Respeitar Veio da Madeira": {
+  "pt_BR": "Respeitar Veio da Madeira",
+  "en_US": "Respect Wood Grain"
+ },
+ "Restaurar Altura": {
+  "pt_BR": "Restaurar Altura",
+  "en_US": "Restore Height"
+ },
+ "Sair do Modo de Abrir": {
+  "pt_BR": "Sair do Modo de Abrir",
+  "en_US": "Exit Open Mode"
+ },
+ "Salvar com Frentes Abertas": {
+  "pt_BR": "Salvar com Frentes Abertas",
+  "en_US": "Save with Fronts Open"
+ },
+ "Segmento": {
+  "pt_BR": "Segmento",
+  "en_US": "Segment"
+ },
+ "Selecionados": {
+  "pt_BR": "Selecionados",
+  "en_US": "Selected"
+ },
+ "Selecionar/Mover": {
+  "pt_BR": "Selecionar/Mover",
+  "en_US": "Select/Move"
+ },
+ "Selecione um parâmetro na árvore.": {
+  "pt_BR": "Selecione um parâmetro na árvore.",
+  "en_US": "Select a parameter in the tree."
+ },
+ "Selecione um trecho na planta.": {
+  "pt_BR": "Selecione um trecho na planta.",
+  "en_US": "Select a segment on the plan."
+ },
+ "Sentido Abertura": {
+  "pt_BR": "Sentido Abertura",
+  "en_US": "Swing Direction"
+ },
+ "Só referência": {
+  "pt_BR": "Só referência",
+  "en_US": "Reference only"
+ },
+ "Tamanho": {
+  "pt_BR": "Tamanho",
+  "en_US": "Size"
+ },
+ "Tipo de Parede": {
+  "pt_BR": "Tipo de Parede",
+  "en_US": "Wall Type"
+ },
+ "Tudo": {
+  "pt_BR": "Tudo",
+  "en_US": "All"
+ },
+ "Valor": {
+  "pt_BR": "Valor",
+  "en_US": "Value"
+ },
+ "Verificar Interferência": {
+  "pt_BR": "Verificar Interferência",
+  "en_US": "Check Interference"
+ },
+ "Visibilidade": {
+  "pt_BR": "Visibilidade",
+  "en_US": "Visibility"
+ },
+ "Visibilidade da Parede": {
+  "pt_BR": "Visibilidade da Parede",
+  "en_US": "Wall Visibility"
+ },
+ "Visível": {
+  "pt_BR": "Visível",
+  "en_US": "Visible"
+ },
+ "Ângulo Absoluto": {
+  "pt_BR": "Ângulo Absoluto",
+  "en_US": "Absolute Angle"
+ },
+ "Ângulo Relativo": {
+  "pt_BR": "Ângulo Relativo",
+  "en_US": "Relative Angle"
+ },
+ "Ângulo de abertura": {
+  "pt_BR": "Ângulo de abertura",
+  "en_US": "Opening angle"
+ },
+ "Ângulo do Arco: paredes curvas não são suportadas": {
+  "pt_BR": "Ângulo do Arco: paredes curvas não são suportadas",
+  "en_US": "Arc Angle: curved walls are not supported"
+ },
+ "Ângulo do clique": {
+  "pt_BR": "Ângulo do clique",
+  "en_US": "Click angle"
+ }
+}

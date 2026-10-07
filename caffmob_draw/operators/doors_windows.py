@@ -3,6 +3,7 @@ import gpu
 import blf
 from gpu_extras.batch import batch_for_shader
 from bpy_extras import view3d_utils
+from ..data.i18n import N_, tr
 from .. import hb_types, hb_snap, hb_placement, units
 import math
 from mathutils import Vector
@@ -10,16 +11,16 @@ from ..hb_details import GeoNodeText
 
 # Single door swing options: (label, {geo node inputs})
 SINGLE_DOOR_SWINGS = [
-    ('Inside Left',   {'Swing Inside': True,  'Is Left': True,  'Is Double': False}),
-    ('Inside Right',  {'Swing Inside': True,  'Is Left': False, 'Is Double': False}),
-    ('Outside Left',  {'Swing Inside': False, 'Is Left': True,  'Is Double': False}),
-    ('Outside Right', {'Swing Inside': False, 'Is Left': False, 'Is Double': False}),
+    (N_('Inside Left'),   {'Swing Inside': True,  'Is Left': True,  'Is Double': False}),
+    (N_('Inside Right'),  {'Swing Inside': True,  'Is Left': False, 'Is Double': False}),
+    (N_('Outside Left'),  {'Swing Inside': False, 'Is Left': True,  'Is Double': False}),
+    (N_('Outside Right'), {'Swing Inside': False, 'Is Left': False, 'Is Double': False}),
 ]
 
 # Double door swing options: (label, {geo node inputs})
 DOUBLE_DOOR_SWINGS = [
-    ('Inside',  {'Swing Inside': True,  'Is Double': True}),
-    ('Outside', {'Swing Inside': False, 'Is Double': True}),
+    (N_('Inside'),  {'Swing Inside': True,  'Is Double': True}),
+    (N_('Outside'), {'Swing Inside': False, 'Is Double': True}),
 ]
 
 
@@ -422,9 +423,9 @@ class WallObjectPlacementMixin(hb_placement.PlacementMixin):
 
         if self.offset_from_right:
             offset_from_right = self.wall_length - self.placement_x - obj_width
-            return f"Offset (→): {units.unit_to_string(unit_settings, offset_from_right)}"
+            return tr("Offset (→): {}").format(units.unit_to_string(unit_settings, offset_from_right))
         else:
-            return f"Offset (←): {units.unit_to_string(unit_settings, self.placement_x)}"
+            return tr("Offset (←): {}").format(units.unit_to_string(unit_settings, self.placement_x))
 
     def cut_wall(self, wall_obj, cutting_obj):
         """Add a boolean modifier to the wall to cut a hole for the door/window."""
@@ -667,7 +668,7 @@ class _PlaceWallObjectBase(bpy.types.Operator, WallObjectPlacementMixin):
 
     # ===== Per-type configuration (override in subclasses) =====
     OBJECT_NAME = "Object"           # passed to GeoNodeCage.create()
-    OBJECT_LABEL = "object"          # human label for headers/messages
+    OBJECT_LABEL = N_("object")          # human label for headers/messages
     BP_FLAG = ""                     # 'IS_ENTRY_DOOR_BP' / 'IS_WINDOW_BP'
     MENU_ID = ""                     # menu shown when clicking the placed object
     WIDTH_PROP_NAME = ""             # 'door_single_width' / 'window_width' / etc.
@@ -854,9 +855,9 @@ class _PlaceWallObjectBase(bpy.types.Operator, WallObjectPlacementMixin):
         swing_label = ""
         if self.HAS_SWING and self.SWING_LIST:
             swing_label = self.SWING_LIST[self.door_swing_index][0]
-        swing_text = f" | Swing: {swing_label}" if swing_label else ""
+        swing_text = tr(" | Swing: {}").format(tr(swing_label)) if swing_label else ""
         swing_keys = " | \u2191/\u2193 swing" if self.HAS_SWING else ""
-        label = self.OBJECT_LABEL
+        label = tr(self.OBJECT_LABEL)
 
         if self.placement_state == hb_placement.PlacementState.TYPING:
             target_name = {
@@ -865,19 +866,19 @@ class _PlaceWallObjectBase(bpy.types.Operator, WallObjectPlacementMixin):
                 hb_placement.TypingTarget.WIDTH: "Width",
                 hb_placement.TypingTarget.HEIGHT: "Height",
             }.get(self.typing_target, "Value")
-            text = f"{target_name}: {self.typed_value}_{swing_text} | Enter to confirm | W width | H height | Esc cancel{mode_tag}"
+            text = tr("{}: {}_{} | Enter to confirm | W width | H height | Esc cancel{}").format(target_name, self.typed_value, swing_text, mode_tag)
         elif self.two_point_in_phase2():
             width_str = units.unit_to_string(context.scene.unit_settings, self.get_placed_object_width())
             lock_hint = " [W locked]" if self.width_locked_in_phase2 else ""
-            text = f"{mode_tag} Click end point | Width: {width_str}{lock_hint}{swing_text} | W: type width | Right-click: re-pick start | D: exit 2-point | Esc cancel"
+            text = tr("{} Click end point | Width: {}{}{} | W: type width | Right-click: re-pick start | D: exit 2-point | Esc cancel").format(mode_tag, width_str, lock_hint, swing_text)
         elif self.two_point_in_phase1():
-            text = f"{mode_tag} Click start point on wall{swing_text} | W: type width | D: exit 2-point | Esc cancel"
+            text = tr("{} Click start point on wall{} | W: type width | D: exit 2-point | Esc cancel").format(mode_tag, swing_text)
         elif self.selected_wall:
             offset_str = self.get_offset_display(context)
             width_str = units.unit_to_string(context.scene.unit_settings, self.get_placed_object_width())
-            text = f"{offset_str} | Width: {width_str}{swing_text}{swing_keys} | \u2190/\u2192 offset | W width | D: 2-point width | Click to place | Esc cancel"
+            text = tr("{} | Width: {}{}{} | ←/→ offset | W width | D: 2-point width | Click to place | Esc cancel").format(offset_str, width_str, swing_text, swing_keys)
         else:
-            text = f"Move over a wall to place {label}{swing_keys} | D: 2-point width | Esc to cancel"
+            text = tr("Move over a wall to place {}{} | D: 2-point width | Esc to cancel").format(label, swing_keys)
 
         hb_placement.draw_header_text(context, text)
 
@@ -993,7 +994,7 @@ class _PlaceWallObjectBase(bpy.types.Operator, WallObjectPlacementMixin):
                 context.window.cursor_set('DEFAULT')
                 return {'FINISHED'}
             else:
-                self.report({'WARNING'}, f"{self.OBJECT_LABEL.capitalize()} must be placed on a wall")
+                self.report({'WARNING'}, tr("{} must be placed on a wall").format(tr(self.OBJECT_LABEL).capitalize()))
                 return {'RUNNING_MODAL'}
 
         # Right click in two-point phase 2 = soft undo
@@ -1024,7 +1025,7 @@ class home_builder_doors_windows_OT_place_door(_PlaceWallObjectBase):
     bl_description = "Place a door on a wall. Arrow keys for offset direction, W for width, Up/Down for swing type, Escape to cancel"
 
     OBJECT_NAME = "Door"
-    OBJECT_LABEL = "door"
+    OBJECT_LABEL = N_("door")
     BP_FLAG = "IS_ENTRY_DOOR_BP"
     MENU_ID = "HOME_BUILDER_MT_door_commands"
     WIDTH_PROP_NAME = "door_single_width"
@@ -1041,7 +1042,7 @@ class home_builder_doors_windows_OT_place_double_door(_PlaceWallObjectBase):
     bl_description = "Place a double door on a wall. Arrow keys for offset direction, W for width, Up/Down for swing type, Escape to cancel"
 
     OBJECT_NAME = "Double Door"
-    OBJECT_LABEL = "double door"
+    OBJECT_LABEL = N_("double door")
     BP_FLAG = "IS_ENTRY_DOOR_BP"
     MENU_ID = "HOME_BUILDER_MT_door_commands"
     WIDTH_PROP_NAME = "door_double_width"
@@ -1059,7 +1060,7 @@ class home_builder_doors_windows_OT_place_open_door(_PlaceWallObjectBase):
     bl_description = "Place an open doorway on a wall. Arrow keys for offset direction, W for width, Escape to cancel"
 
     OBJECT_NAME = "Open Door"
-    OBJECT_LABEL = "open door"
+    OBJECT_LABEL = N_("open door")
     BP_FLAG = "IS_ENTRY_DOOR_BP"
     MENU_ID = "HOME_BUILDER_MT_door_commands"
     WIDTH_PROP_NAME = "door_single_width"
@@ -1074,7 +1075,7 @@ class home_builder_doors_windows_OT_place_window(_PlaceWallObjectBase):
     bl_description = "Place a window on a wall. Arrow keys for offset direction, W for width, Escape to cancel"
 
     OBJECT_NAME = "Window"
-    OBJECT_LABEL = "window"
+    OBJECT_LABEL = N_("window")
     BP_FLAG = "IS_WINDOW_BP"
     MENU_ID = "HOME_BUILDER_MT_window_commands"
     WIDTH_PROP_NAME = "window_width"
@@ -1258,7 +1259,7 @@ class home_builder_doors_windows_OT_toggle_double_door(bpy.types.Operator):
                     current = door_swing.get_input('Is Double')
                     door_swing.set_input('Is Double', not current)
                     status = "double" if not current else "single"
-                    self.report({'INFO'}, f"Door set to {status}")
+                    self.report({'INFO'}, tr("Door set to {}").format(status))
                 except Exception:
                     self.report({'WARNING'}, "Could not find Is Double input")
                 break
@@ -1299,7 +1300,7 @@ class home_builder_doors_windows_OT_delete_door_window(bpy.types.Operator):
         # Delete the door/window object
         bpy.data.objects.remove(obj, do_unlink=True)
 
-        self.report({'INFO'}, f"{self.object_type.title()} deleted")
+        self.report({'INFO'}, tr("{} deleted").format(self.object_type.title()))
         return {'FINISHED'}
 
 
@@ -1399,7 +1400,7 @@ class home_builder_doors_windows_OT_duplicate_window(_DuplicateWallObjectBase):
     bl_description = "Duplicate the selected window and place the copy on a wall"
 
     OBJECT_NAME = "Window"
-    OBJECT_LABEL = "window"
+    OBJECT_LABEL = N_("window")
     BP_FLAG = "IS_WINDOW_BP"
     MENU_ID = "HOME_BUILDER_MT_window_commands"
     WIDTH_PROP_NAME = "window_width"
@@ -1417,7 +1418,7 @@ class home_builder_doors_windows_OT_duplicate_door(_DuplicateWallObjectBase):
     bl_description = "Duplicate the selected door and place the copy on a wall"
 
     OBJECT_NAME = "Door"
-    OBJECT_LABEL = "door"
+    OBJECT_LABEL = N_("door")
     BP_FLAG = "IS_ENTRY_DOOR_BP"
     MENU_ID = "HOME_BUILDER_MT_door_commands"
     WIDTH_PROP_NAME = "door_single_width"

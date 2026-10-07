@@ -2,6 +2,7 @@ import bpy
 import math
 import os
 from mathutils import Vector
+from ....data.i18n import tr
 from .... import hb_project, hb_details, hb_types, units
 
 
@@ -54,7 +55,7 @@ class hb_frameless_OT_create_toe_kick_detail(bpy.types.Operator):
         # Switch to the detail scene
         bpy.ops.caffmob_layouts.go_to_layout_view(scene_name=scene.name)
 
-        self.report({'INFO'}, f"Created toe kick detail: {self.name}")
+        self.report({'INFO'}, tr("Created toe kick detail: {}").format(self.name))
         return {'FINISHED'}
 
     def _draw_cabinet_side_detail(self, context, scene, props):
@@ -217,7 +218,7 @@ class hb_frameless_OT_delete_toe_kick_detail(bpy.types.Operator):
         if props.active_toe_kick_detail_index >= len(props.toe_kick_details):
             props.active_toe_kick_detail_index = max(0, len(props.toe_kick_details) - 1)
 
-        self.report({'INFO'}, f"Deleted toe kick detail: {toe_kick_name}")
+        self.report({'INFO'}, tr("Deleted toe kick detail: {}").format(toe_kick_name))
         return {'FINISHED'}
 
 
@@ -250,7 +251,7 @@ class hb_frameless_OT_edit_toe_kick_detail(bpy.types.Operator):
 
         bpy.ops.caffmob_layouts.go_to_layout_view(scene_name=detail_scene.name)
 
-        self.report({'INFO'}, f"Editing toe kick detail: {toe_kick.name}")
+        self.report({'INFO'}, tr("Editing toe kick detail: {}").format(toe_kick.name))
         return {'FINISHED'}
 
 
@@ -334,7 +335,7 @@ class hb_frameless_OT_assign_toe_kick_to_cabinets(bpy.types.Operator):
                 self._create_toe_kick_for_group(context, group, profile, all_walls, all_cabinets, current_scene)
 
         total_cabs = sum(len(g['cabinets']) for g in cabinet_groups)
-        self.report({'INFO'}, f"Created toe kick molding on {total_cabs} cabinet(s) in {len(cabinet_groups)} group(s)")
+        self.report({'INFO'}, tr("Created toe kick molding on {} cabinet(s) in {} group(s)").format(total_cabs, len(cabinet_groups)))
         return {'FINISHED'}
 
     def _remove_existing_toe_kick(self, cabinet):

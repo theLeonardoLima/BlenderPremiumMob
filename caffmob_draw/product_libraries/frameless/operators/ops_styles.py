@@ -1,5 +1,6 @@
 import bpy
 from bpy_extras import view3d_utils
+from ....data.i18n import tr
 from .. import props_hb_frameless
 from ..props_hb_frameless import get_or_create_pull_finish_material
 from .... import hb_utils, hb_project, hb_types
@@ -46,7 +47,7 @@ class hb_frameless_OT_add_door_style(bpy.types.Operator):
         # Set as active
         props.active_door_style_index = len(props.door_styles) - 1
 
-        self.report({'INFO'}, f"Added door style: {style.name}")
+        self.report({'INFO'}, tr("Added door style: {}").format(style.name))
         return {'FINISHED'}
 
 
@@ -91,7 +92,7 @@ class hb_frameless_OT_remove_door_style(bpy.types.Operator):
                     elif front_style_index > index:
                         obj['DOOR_STYLE_INDEX'] = front_style_index - 1
 
-        self.report({'INFO'}, f"Removed door style: {style_name}")
+        self.report({'INFO'}, tr("Removed door style: {}").format(style_name))
         return {'FINISHED'}
 
 
@@ -139,7 +140,7 @@ class hb_frameless_OT_duplicate_door_style(bpy.types.Operator):
         # Set as active
         props.active_door_style_index = len(props.door_styles) - 1
 
-        self.report({'INFO'}, f"Duplicated door style: {new_style.name}")
+        self.report({'INFO'}, tr("Duplicated door style: {}").format(new_style.name))
         return {'FINISHED'}
 
 
@@ -206,7 +207,7 @@ class hb_frameless_OT_assign_door_style_to_selected_fronts(bpy.types.Operator):
 
     def update_header(self, context):
         """Update header text with current status."""
-        text = f"Door Style: '{self.style_name}' | LMB: Assign style | RMB/ESC: Finish | Assigned: {self.assigned_count}"
+        text = tr("Door Style: '{}' | LMB: Assign style | RMB/ESC: Finish | Assigned: {}").format(self.style_name, self.assigned_count)
         context.area.header_text_set(text)
 
     def assign_style_to_front(self, context, front_obj):
@@ -267,7 +268,7 @@ class hb_frameless_OT_assign_door_style_to_selected_fronts(bpy.types.Operator):
             if event.value == 'PRESS':
                 self.cleanup(context)
                 if self.assigned_count > 0:
-                    self.report({'INFO'}, f"Assigned '{self.style_name}' to {self.assigned_count} front(s)")
+                    self.report({'INFO'}, tr("Assigned '{}' to {} front(s)").format(self.style_name, self.assigned_count))
                 else:
                     self.report({'INFO'}, "Style painting cancelled")
                 return {'FINISHED'}
@@ -338,9 +339,9 @@ class hb_frameless_OT_update_fronts_from_style(bpy.types.Operator):
                             skip_count += 1
 
         if skip_count > 0:
-            self.report({'WARNING'}, f"Updated {success_count} front(s), skipped {skip_count} (too small for style)")
+            self.report({'WARNING'}, tr("Updated {} front(s), skipped {} (too small for style)").format(success_count, skip_count))
         else:
-            self.report({'INFO'}, f"Updated {success_count} front(s) with style '{style.name}'")
+            self.report({'INFO'}, tr("Updated {} front(s) with style '{}'").format(success_count, style.name))
         return {'FINISHED'}
 
 
@@ -369,7 +370,7 @@ class hb_frameless_OT_add_cabinet_style(bpy.types.Operator):
         # Set as active
         props.active_cabinet_style_index = len(props.cabinet_styles) - 1
 
-        self.report({'INFO'}, f"Added cabinet style: {style.name}")
+        self.report({'INFO'}, tr("Added cabinet style: {}").format(style.name))
         return {'FINISHED'}
 
 
@@ -418,7 +419,7 @@ class hb_frameless_OT_remove_cabinet_style(bpy.types.Operator):
                         # Shift index down
                         obj['CABINET_STYLE_INDEX'] = cab_style_index - 1
 
-        self.report({'INFO'}, f"Removed cabinet style: {style_name}")
+        self.report({'INFO'}, tr("Removed cabinet style: {}").format(style_name))
         return {'FINISHED'}
 
 
@@ -458,7 +459,7 @@ class hb_frameless_OT_duplicate_cabinet_style(bpy.types.Operator):
         # Set as active
         props.active_cabinet_style_index = len(props.cabinet_styles) - 1
 
-        self.report({'INFO'}, f"Duplicated cabinet style: {new_style.name}")
+        self.report({'INFO'}, tr("Duplicated cabinet style: {}").format(new_style.name))
         return {'FINISHED'}
 
 
@@ -537,7 +538,7 @@ class hb_frameless_OT_assign_cabinet_style_to_selected_cabinets(bpy.types.Operat
 
     def update_header(self, context):
         """Update header text with current status."""
-        text = f"Cabinet Style: '{self.style_name}' | LMB: Assign style | RMB/ESC: Finish | Assigned: {self.assigned_count}"
+        text = tr("Cabinet Style: '{}' | LMB: Assign style | RMB/ESC: Finish | Assigned: {}").format(self.style_name, self.assigned_count)
         context.area.header_text_set(text)
 
     def assign_style_to_cabinet(self, context, cabinet_obj):
@@ -604,7 +605,7 @@ class hb_frameless_OT_assign_cabinet_style_to_selected_cabinets(bpy.types.Operat
             if event.value == 'PRESS':
                 self.cleanup(context)
                 if self.assigned_count > 0:
-                    self.report({'INFO'}, f"Assigned '{self.style_name}' to {self.assigned_count} cabinet(s)")
+                    self.report({'INFO'}, tr("Assigned '{}' to {} cabinet(s)").format(self.style_name, self.assigned_count))
                 else:
                     self.report({'INFO'}, "Style painting cancelled")
                 return {'FINISHED'}
@@ -695,7 +696,7 @@ class hb_frameless_OT_update_cabinets_from_style(bpy.types.Operator):
 
         if event.type == 'ESC':
             self.finish(context)
-            self.report({'WARNING'}, f"Cancelled. Updated {self._current_index} of {self._total_count} cabinets.")
+            self.report({'WARNING'}, tr("Cancelled. Updated {} of {} cabinets.").format(self._current_index, self._total_count))
             return {'CANCELLED'}
 
         if event.type == 'TIMER':
@@ -718,7 +719,7 @@ class hb_frameless_OT_update_cabinets_from_style(bpy.types.Operator):
             else:
                 # Finished
                 self.finish(context)
-                self.report({'INFO'}, f"Updated {self._total_count} cabinet(s) with style '{self._style_name}'")
+                self.report({'INFO'}, tr("Updated {} cabinet(s) with style '{}'").format(self._total_count, self._style_name))
                 return {'FINISHED'}
 
         return {'PASS_THROUGH'}
@@ -771,7 +772,7 @@ class hb_frameless_OT_update_cabinets_from_style(bpy.types.Operator):
         self._current_index = 0
 
         if self._total_count == 0:
-            self.report({'INFO'}, f"No cabinets found using style '{self._style_name}'")
+            self.report({'INFO'}, tr("No cabinets found using style '{}'").format(self._style_name))
             return {'CANCELLED'}
 
         # Set initial progress to 0
@@ -835,7 +836,7 @@ class hb_frameless_OT_update_cabinet_materials(bpy.types.Operator):
                         cabinets.append(obj)
 
         if not cabinets:
-            self.report({'INFO'}, f"No cabinets found using style '{style.name}'")
+            self.report({'INFO'}, tr("No cabinets found using style '{}'").format(style.name))
             return {'CANCELLED'}
 
         # Update materials only on all matching cabinets
@@ -882,7 +883,7 @@ class hb_frameless_OT_update_cabinet_materials(bpy.types.Operator):
         from ....customize import reapply as _customize
         for cabinet_obj in cabinets:     # feature 003, D-04: personalização por instância vence o estilo
             _customize.after_rebuild(context, cabinet_obj)
-        self.report({'INFO'}, f"Updated materials on {len(cabinets)} cabinet(s) with style '{style.name}'")
+        self.report({'INFO'}, tr("Updated materials on {} cabinet(s) with style '{}'").format(len(cabinets), style.name))
         return {'FINISHED'}
 
 
@@ -1002,9 +1003,9 @@ class hb_frameless_OT_update_cabinet_pulls(bpy.types.Operator):
         hb_utils.run_calc_fix(context)
 
         if cleared_count:
-            self.report({'INFO'}, f"Cleared {cleared_count} pull(s)")
+            self.report({'INFO'}, tr("Cleared {} pull(s)").format(cleared_count))
         else:
-            self.report({'INFO'}, f"Updated {updated_count} pull(s)")
+            self.report({'INFO'}, tr("Updated {} pull(s)").format(updated_count))
         return {'FINISHED'}
 
 
@@ -1076,11 +1077,11 @@ class hb_frameless_OT_update_pull_locations(bpy.types.Operator):
 
         # Report results
         if self.update_type == 'DOOR':
-            self.report({'INFO'}, f"Updated {door_count} door front(s)")
+            self.report({'INFO'}, tr("Updated {} door front(s)").format(door_count))
         elif self.update_type == 'DRAWER':
-            self.report({'INFO'}, f"Updated {drawer_count} drawer front(s)")
+            self.report({'INFO'}, tr("Updated {} drawer front(s)").format(drawer_count))
         else:
-            self.report({'INFO'}, f"Updated {door_count} door(s) and {drawer_count} drawer(s)")
+            self.report({'INFO'}, tr("Updated {} door(s) and {} drawer(s)").format(door_count, drawer_count))
 
         return {'FINISHED'}
 
@@ -1136,7 +1137,7 @@ class hb_frameless_OT_update_pull_finish(bpy.types.Operator):
         # Force viewport update
         context.view_layer.update()
 
-        self.report({'INFO'}, f"Applied finish to {len(updated_sources)} pull type(s) ({pull_count} total pulls)")
+        self.report({'INFO'}, tr("Applied finish to {} pull type(s) ({} total pulls)").format(len(updated_sources), pull_count))
         return {'FINISHED'}
 
 
@@ -1254,7 +1255,7 @@ class hb_frameless_OT_add_custom_finish_color(bpy.types.Operator):
                 else:
                     style.stain_color = self.color_name
 
-            self.report({'INFO'}, f"Saved custom {color_type} color: {self.color_name}")
+            self.report({'INFO'}, tr("Saved custom {} color: {}").format(color_type, self.color_name))
             return {'FINISHED'}
         else:
             self.report({'ERROR'}, "Failed to save custom color")
@@ -1278,10 +1279,10 @@ class hb_frameless_OT_delete_custom_finish_color(bpy.types.Operator):
         from .. import finish_colors
 
         if finish_colors.delete_custom_color(self.color_name, self.color_type):
-            self.report({'INFO'}, f"Deleted custom color: {self.color_name}")
+            self.report({'INFO'}, tr("Deleted custom color: {}").format(self.color_name))
             return {'FINISHED'}
         else:
-            self.report({'WARNING'}, f"Cannot delete built-in color: {self.color_name}")
+            self.report({'WARNING'}, tr("Cannot delete built-in color: {}").format(self.color_name))
             return {'CANCELLED'}
 
 
@@ -1386,7 +1387,7 @@ class hb_frameless_OT_edit_finish_color(bpy.types.Operator):
                 else:
                     style.stain_color = self.color_name
 
-            self.report({'INFO'}, f"Saved color: {self.color_name}")
+            self.report({'INFO'}, tr("Saved color: {}").format(self.color_name))
             return {'FINISHED'}
         else:
             self.report({'ERROR'}, "Failed to save color")

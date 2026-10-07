@@ -5,6 +5,7 @@ Subpainéis de "Propriedades" (`BTM_PT_object_properties`, feature 002).
 
 import bpy  # type: ignore
 
+from ..data.i18n import tr
 from . import adapters, library_io, spec
 
 
@@ -24,7 +25,7 @@ def _section(layout, caps, section):
 def _opening_label(item):
     front = spec.FRONT_LABELS.get(item.front, "—")
     if item.front == 'DRAWERS' and item.drawer_count > 1:
-        front = f"{item.drawer_count} gavetas"
+        front = tr("{} gavetas").format(item.drawer_count)
     return front
 
 
@@ -38,11 +39,11 @@ def draw_customize(layout, context):
         return
     caps = adapter.capabilities(root)
     current = adapter.read(root)
-    layout.label(text=f"Módulo: {root.name}", icon='OBJECT_DATA')
+    layout.label(text=tr("Módulo: {}").format(root.name), icon='OBJECT_DATA')
     for index, item in enumerate(current.openings):
         box = layout.box()
         header = box.row()
-        header.label(text=f"Vão {index + 1}: {_opening_label(item)}", icon='MESH_PLANE')
+        header.label(text=tr("Vão {}: {}").format(index + 1, _opening_label(item)), icon='MESH_PLANE')
         header.operator("caffmob.customize_clear", text="", icon='X').path = item.path
         col = box.column(align=True)
         row = col.row(align=True)
@@ -53,18 +54,18 @@ def draw_customize(layout, context):
                                    text=item.door_style or "Estilo").path = item.path
         row = col.row(align=True)
         row.enabled = caps.get('PULLS') is None
-        op = row.operator("caffmob.customize_set_pull", text=f"Puxador: {item.pull_model or 'do projeto'}",
+        op = row.operator("caffmob.customize_set_pull", text=tr("Puxador: {}").format(item.pull_model or tr("do projeto")),
                           icon='EMPTY_ARROWS')
         op.path = item.path
         row = col.row(align=True)
         row.enabled = caps.get('MATERIALS') is None
         op = row.operator("caffmob.customize_set_material",
-                          text=f"Material das frentes: {item.front_material or 'do módulo'}", icon='MATERIAL')
+                          text=tr("Material das frentes: {}").format(item.front_material or tr("do módulo")), icon='MATERIAL')
         op.target, op.path = 'FRONTS', item.path
         row = col.row(align=True)
         row.enabled = caps.get('INTERIOR') is None
         inner = item.interior or spec.Interior()
-        text = f"Interior: {inner.shelves} prat., {inner.dividers} div., {inner.drawers} gav."
+        text = tr("Interior: {} prat., {} div., {} gav.").format(inner.shelves, inner.dividers, inner.drawers)
         row.operator("caffmob.customize_set_interior", text=text, icon='ALIGN_JUSTIFY').path = item.path
     for section in ('FRONTS', 'PULLS', 'INTERIOR'):
         if caps.get(section):
@@ -74,12 +75,12 @@ def draw_customize(layout, context):
         col = box.column(align=True)
         for group in spec.GROUPS:
             op = col.operator("caffmob.customize_set_material",
-                              text=f"{spec.GROUP_LABELS[group]}: {current.group_materials.get(group, 'do módulo')}")
+                              text=f"{tr(spec.GROUP_LABELS[group])}: {current.group_materials.get(group) or tr('do módulo')}")
             op.target, op.group = 'GROUP', group
         obj = context.active_object
         if obj is not root and obj.type == 'MESH':
             op = col.operator("caffmob.customize_set_material",
-                              text=f"Peça {obj.name}: {obj.btm_custom.material or 'do grupo'}", icon='MESH_CUBE')
+                              text=tr("Peça {}: {}").format(obj.name, obj.btm_custom.material or tr("do grupo")), icon='MESH_CUBE')
             op.target = 'PART'
     layout.operator("caffmob.module_save", icon='FILE_TICK')
 
@@ -90,7 +91,7 @@ def draw_library(layout, context):
     try:
         entries = library_io.list_modules()
     except (OSError, ValueError) as exc:
-        layout.label(text=f"Biblioteca indisponível: {exc}", icon='ERROR')
+        layout.label(text=tr("Biblioteca indisponível: {}").format(exc), icon='ERROR')
         return
     if not entries:
         layout.label(text="Nenhum módulo salvo ainda.", icon='INFO')
@@ -102,7 +103,7 @@ def draw_library(layout, context):
             category = entry["category"]
             col.label(text=category, icon='FILE_FOLDER')
         row = col.row(align=True)
-        label = entry["name"] if entry["has_manifest"] else f"{entry['name']} (sem personalização)"
+        label = entry["name"] if entry["has_manifest"] else tr("{} (sem personalização)").format(entry['name'])
         row.operator("caffmob.module_insert", text=label, icon='IMPORT').filepath = entry["blend"]
         row.operator("caffmob.module_rename", text="", icon='GREASEPENCIL').filepath = entry["blend"]
         row.operator("caffmob.module_delete", text="", icon='TRASH').filepath = entry["blend"]

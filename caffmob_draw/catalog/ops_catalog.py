@@ -10,6 +10,7 @@ entries can wire to until their real operator is built.
 """
 import bpy
 
+from ..data.i18n import tr
 from . import catalog_data
 
 
@@ -53,16 +54,16 @@ class hb_catalog_OT_activate_item(bpy.types.Operator):
     def execute(self, context):
         entry = catalog_data.find_entry(self.item_id)
         if entry is None:
-            self.report({'WARNING'}, f"Unknown catalog item: {self.item_id}")
+            self.report({'WARNING'}, tr("Unknown catalog item: {}").format(self.item_id))
             return {'CANCELLED'}
 
         action_op = entry.get('action_operator', '') or ''
         if not action_op:
-            self.report({'INFO'}, f"{entry['name']}: no action wired")
+            self.report({'INFO'}, tr("{}: no action wired").format(entry['name']))
             return {'CANCELLED'}
 
         if '.' not in action_op:
-            self.report({'ERROR'}, f"Bad action_operator format: {action_op}")
+            self.report({'ERROR'}, tr("Bad action_operator format: {}").format(action_op))
             return {'CANCELLED'}
 
         module_name, method_name = action_op.split('.', 1)
@@ -80,7 +81,7 @@ class hb_catalog_OT_activate_item(bpy.types.Operator):
             op(**kwargs)
             _apply_global_assembly_config(context, context.active_object)
         except Exception as e:
-            self.report({'ERROR'}, f"Failed to activate {entry['name']}: {e}")
+            self.report({'ERROR'}, tr("Failed to activate {}: {}").format(entry['name'], e))
             return {'CANCELLED'}
 
         return {'FINISHED'}

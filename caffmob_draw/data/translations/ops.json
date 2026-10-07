@@ -1,0 +1,242 @@
+{
+ "Add Lit Backplate": {
+  "pt_BR": "Adicionar Fundo Iluminado",
+  "en_US": "Add Lit Backplate"
+ },
+ "Add Track To Target": {
+  "pt_BR": "Adicionar Alvo de Rastreio",
+  "en_US": "Add Track To Target"
+ },
+ "Apply Settings to All": {
+  "pt_BR": "Aplicar a Todas",
+  "en_US": "Apply Settings to All"
+ },
+ "Apply annotation settings to all annotations in the current scene": {
+  "pt_BR": "Aplica as configurações de anotação a todas as anotações da cena",
+  "en_US": "Apply annotation settings to all annotations in the current scene"
+ },
+ "Backplate Color": {
+  "pt_BR": "Cor do Fundo",
+  "en_US": "Backplate Color"
+ },
+ "Backplate Distance": {
+  "pt_BR": "Distância do Fundo",
+  "en_US": "Backplate Distance"
+ },
+ "Cancelled": {
+  "pt_BR": "Cancelado",
+  "en_US": "Cancelled"
+ },
+ "Change Studio Lighting": {
+  "pt_BR": "Trocar Iluminação de Estúdio",
+  "en_US": "Change Studio Lighting"
+ },
+ "Click the FIRST point on the image": {
+  "pt_BR": "Clique o PRIMEIRO ponto na imagem",
+  "en_US": "Click the FIRST point on the image"
+ },
+ "Click the SECOND point on the image": {
+  "pt_BR": "Clique o SEGUNDO ponto na imagem",
+  "en_US": "Click the SECOND point on the image"
+ },
+ "Color Management": {
+  "pt_BR": "Gerenciamento de Cor",
+  "en_US": "Color Management"
+ },
+ "Configure common Eevee rendering settings": {
+  "pt_BR": "Configura as opções comuns de renderização do Eevee",
+  "en_US": "Configure common Eevee rendering settings"
+ },
+ "Create a camera from the current viewport view": {
+  "pt_BR": "Cria uma câmera a partir da vista atual",
+  "en_US": "Create a camera from the current viewport view"
+ },
+ "Create an emissive plane behind the scene that fills the camera view": {
+  "pt_BR": "Cria um plano emissivo atrás da cena que preenche a vista da câmera",
+  "en_US": "Create an emissive plane behind the scene that fills the camera view"
+ },
+ "Create an empty at scene center and track the camera to it": {
+  "pt_BR": "Cria um empty no centro da cena e aponta a câmera para ele",
+  "en_US": "Create an empty at scene center and track the camera to it"
+ },
+ "Created camera: {}": {
+  "pt_BR": "Câmera criada: {}",
+  "en_US": "Created camera: {}"
+ },
+ "Distance": {
+  "pt_BR": "Distância",
+  "en_US": "Distance"
+ },
+ "Distance from camera to backplate": {
+  "pt_BR": "Distância da câmera ao fundo",
+  "en_US": "Distance from camera to backplate"
+ },
+ "Enable Freestyle": {
+  "pt_BR": "Ligar Freestyle",
+  "en_US": "Enable Freestyle"
+ },
+ "Enable Ray Tracing": {
+  "pt_BR": "Ligar Ray Tracing",
+  "en_US": "Enable Ray Tracing"
+ },
+ "Enter the known distance between two points:": {
+  "pt_BR": "Digite a distância conhecida entre os dois pontos:",
+  "en_US": "Enter the known distance between two points:"
+ },
+ "Features:": {
+  "pt_BR": "Recursos:",
+  "en_US": "Features:"
+ },
+ "Film": {
+  "pt_BR": "Filme",
+  "en_US": "Film"
+ },
+ "Image scaled by {:.4f}": {
+  "pt_BR": "Imagem escalada em {:.4f}",
+  "en_US": "Image scaled by {:.4f}"
+ },
+ "Known Distance": {
+  "pt_BR": "Distância Conhecida",
+  "en_US": "Known Distance"
+ },
+ "Look": {
+  "pt_BR": "Aparência",
+  "en_US": "Look"
+ },
+ "Max Roughness": {
+  "pt_BR": "Rugosidade Máxima",
+  "en_US": "Max Roughness"
+ },
+ "No 3D View found": {
+  "pt_BR": "Nenhuma vista 3D encontrada",
+  "en_US": "No 3D View found"
+ },
+ "Points are too close together": {
+  "pt_BR": "Os pontos estão próximos demais",
+  "en_US": "Points are too close together"
+ },
+ "Quality": {
+  "pt_BR": "Qualidade",
+  "en_US": "Quality"
+ },
+ "Ray Tracing": {
+  "pt_BR": "Ray Tracing",
+  "en_US": "Ray Tracing"
+ },
+ "Render Samples": {
+  "pt_BR": "Amostras de Renderização",
+  "en_US": "Render Samples"
+ },
+ "Resolution Scale": {
+  "pt_BR": "Escala da Resolução",
+  "en_US": "Resolution Scale"
+ },
+ "Scale a reference image by clicking two points of a known distance": {
+  "pt_BR": "Escala uma imagem de referência clicando dois pontos de distância conhecida",
+  "en_US": "Scale a reference image by clicking two points of a known distance"
+ },
+ "Set Recommended Settings": {
+  "pt_BR": "Aplicar Configurações Recomendadas",
+  "en_US": "Set Recommended Settings"
+ },
+ "Show Wireframes": {
+  "pt_BR": "Mostrar Arames",
+  "en_US": "Show Wireframes"
+ },
+ "Soft Shadows": {
+  "pt_BR": "Sombras Suaves",
+  "en_US": "Soft Shadows"
+ },
+ "Studio light 'paint.sl' not available in this Blender build": {
+  "pt_BR": "A luz de estúdio 'paint.sl' não existe nesta versão do Blender",
+  "en_US": "Studio light 'paint.sl' not available in this Blender build"
+ },
+ "The real-world distance between the two points you will select": {
+  "pt_BR": "A distância real entre os dois pontos que você vai escolher",
+  "en_US": "The real-world distance between the two points you will select"
+ },
+ "These are the recommended CAFFMob Draw settings.": {
+  "pt_BR": "Estas são as configurações recomendadas do CAFFMob Draw.",
+  "en_US": "These are the recommended CAFFMob Draw settings."
+ },
+ "These are the required CAFFMob Draw settings.": {
+  "pt_BR": "Estas são as configurações obrigatórias do CAFFMob Draw.",
+  "en_US": "These are the required CAFFMob Draw settings."
+ },
+ "Thickness Mode": {
+  "pt_BR": "Modo de Espessura",
+  "en_US": "Thickness Mode"
+ },
+ "This is a placeholder for a to do list": {
+  "pt_BR": "Espaço reservado para uma lista de tarefas",
+  "en_US": "This is a placeholder for a to do list"
+ },
+ "This setting changes the studio lighting to the recommended lighting": {
+  "pt_BR": "Troca a iluminação de estúdio pela recomendada",
+  "en_US": "This setting changes the studio lighting to the recommended lighting"
+ },
+ "This setting clutters the interface with unneeded relationship lines": {
+  "pt_BR": "Esta opção polui a interface com linhas de relação desnecessárias",
+  "en_US": "This setting clutters the interface with unneeded relationship lines"
+ },
+ "This setting shows the wireframes": {
+  "pt_BR": "Mostra os arames",
+  "en_US": "This setting shows the wireframes"
+ },
+ "This setting turns off the 3D cursor": {
+  "pt_BR": "Desliga o cursor 3D",
+  "en_US": "This setting turns off the 3D cursor"
+ },
+ "This setting turns on the object color type": {
+  "pt_BR": "Liga o tipo de cor por objeto",
+  "en_US": "This setting turns on the object color type"
+ },
+ "This setting turns on vertex snapping": {
+  "pt_BR": "Liga o encaixe em vértices",
+  "en_US": "This setting turns on vertex snapping"
+ },
+ "This will set the recommended blender settings": {
+  "pt_BR": "Aplica as configurações recomendadas do Blender",
+  "en_US": "This will set the recommended blender settings"
+ },
+ "To Do": {
+  "pt_BR": "A Fazer",
+  "en_US": "To Do"
+ },
+ "Transparent Background": {
+  "pt_BR": "Fundo Transparente",
+  "en_US": "Transparent Background"
+ },
+ "Turn Off 3D Cursor": {
+  "pt_BR": "Desligar Cursor 3D",
+  "en_US": "Turn Off 3D Cursor"
+ },
+ "Turn Off Relationship Lines": {
+  "pt_BR": "Desligar Linhas de Relação",
+  "en_US": "Turn Off Relationship Lines"
+ },
+ "Turn On Object Color Type": {
+  "pt_BR": "Ligar Cor por Objeto",
+  "en_US": "Turn On Object Color Type"
+ },
+ "Turn On Object Color Type - REQUIRED": {
+  "pt_BR": "Ligar Cor por Objeto - OBRIGATÓRIO",
+  "en_US": "Turn On Object Color Type - REQUIRED"
+ },
+ "Updated {} annotations ({} lines, {} texts, {} dimensions)": {
+  "pt_BR": "{} anotações atualizadas ({} linhas, {} textos, {} cotas)",
+  "en_US": "Updated {} annotations ({} lines, {} texts, {} dimensions)"
+ },
+ "Use Vertex Snapping": {
+  "pt_BR": "Usar Encaixe em Vértices",
+  "en_US": "Use Vertex Snapping"
+ },
+ "View Transform": {
+  "pt_BR": "Transformação de Vista",
+  "en_US": "View Transform"
+ },
+ "Viewport Samples": {
+  "pt_BR": "Amostras da Viewport",
+  "en_US": "Viewport Samples"
+ }
+}

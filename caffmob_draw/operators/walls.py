@@ -8,6 +8,7 @@ from mathutils import Vector
 from mathutils.geometry import intersect_line_plane
 from bpy_extras import view3d_utils
 from gpu_extras.batch import batch_for_shader
+from ..data.i18n import N_, tr
 from .. import hb_types, hb_snap, hb_placement, hb_utils, units
 
 # Wall Miter Angle Calculation
@@ -332,7 +333,7 @@ def offset_wall_perpendicular(wall_obj, offset, tolerance_deg=None):
 
     chain, idx, is_closed = get_wall_chain_info(wall_obj)
     if chain is None:
-        return False, "Selected wall is not part of a detected chain"
+        return False, tr("Selected wall is not part of a detected chain")
 
     n = len(chain)
     this_rot = wall_obj.rotation_euler.z
@@ -379,8 +380,8 @@ def offset_wall_perpendicular(wall_obj, offset, tolerance_deg=None):
     # So pred new_vec = old + delta, succ new_vec = old - delta.
     planned = []
     for neighbor_obj, sign, label in (
-        (pred_obj, +1.0, "predecessor"),
-        (succ_obj, -1.0, "successor"),
+        (pred_obj, +1.0, N_("predecessor")),
+        (succ_obj, -1.0, N_("successor")),
     ):
         if neighbor_obj is None:
             continue
@@ -388,14 +389,12 @@ def offset_wall_perpendicular(wall_obj, offset, tolerance_deg=None):
         new_vec = old_vec + sign * delta
         new_len = new_vec.length
         if new_len <= 0.001:
-            return False, (f"Offset would collapse {label} wall "
-                           f"(new length would be {new_len:.3f} m)")
+            return False, (tr("Offset would collapse {} wall (new length would be {:.3f} m)").format(tr(label), new_len))
         # Reject drags large enough to reverse a neighbor's direction. The
         # geometry would still be "valid" but the wall flips, which is almost
         # never what the user wants.
         if old_vec.dot(new_vec) <= 0.0:
-            return False, (f"Offset would reverse {label} wall direction "
-                           f"(try a smaller offset)")
+            return False, (tr("Offset would reverse {} wall direction (try a smaller offset)").format(tr(label)))
         new_rot = math.atan2(new_vec.y, new_vec.x)
         planned.append((neighbor_obj, new_len, new_rot, label))
 
@@ -417,7 +416,7 @@ def offset_wall_perpendicular(wall_obj, offset, tolerance_deg=None):
     # closure seam for closed loops, which update_connected_wall_miters misses).
     _update_chain_miters(chain, is_closed)
 
-    return True, f"Offset wall by {offset:.3f} m"
+    return True, tr("Offset wall by {:.3f} m").format(offset)
 
 
 
@@ -925,7 +924,7 @@ def draw_wall_snap_indicator(op, context):
             color = (0.2, 1.0, 0.2, 0.95)
             _draw_snap_point(end_2d.x, end_2d.y, color, 14, 9, diamond=True)
             # BlenderToMob (D-39): pergunta de fechamento junto do ponto inicial
-            label = ("Deseja fechar a parede?  Enter/clique: Sim · Esc: Não"
+            label = (tr("Deseja fechar a parede?  Enter/clique: Sim · Esc: Não")
                      if getattr(op, 'pending_close', False) else "Fechar")
             blf.size(0, 14)
             blf.color(0, *color)
@@ -2026,7 +2025,7 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
         tolerance = 0.01
         wall_length = self.current_wall.get_input('Length')
         if wall_length < tolerance:
-            return "Wall is too short to place"
+            return tr("Wall is too short to place")
 
         angle = self.current_wall.obj.rotation_euler.z
         direction = Vector((math.cos(angle), math.sin(angle)))
@@ -2055,7 +2054,7 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
             t2 = (p2 - start).dot(seg_dir)
             overlap = min(max(t1, t2), seg_length) - max(min(t1, t2), 0.0)
             if overlap > tolerance:
-                return "Wall overlaps an existing wall"
+                return tr("Wall overlaps an existing wall")
         return None
 
     def confirm_current_wall(self):
@@ -2120,40 +2119,38 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
                     axis_label = "+X" if d.x > 0 else "-X"
                 else:
                     axis_label = "+Y" if d.y > 0 else "-Y"
-                text = (f"Distance from tracked point ({axis_label}): "
-                        f"{self.typed_value}_ | Enter to place first point | "
-                        f"Esc to cancel typing")
+                text = (tr("Distance from tracked point ({}): {}_ | Enter to place first point | Esc to cancel typing").format(axis_label, self.typed_value))
             else:
-                text = f"Wall Length: {self.typed_value}_ | Enter to confirm | Esc to cancel typing"
+                text = tr("Wall Length: {}_ | Enter to confirm | Esc to cancel typing").format(self.typed_value)
         elif self.has_start_point:
             length = self.current_wall.get_input('Length')
             length_str = units.unit_to_string(context.scene.unit_settings, length)
             angle_deg = round(math.degrees(self.current_wall.obj.rotation_euler.z))
-            rotation_mode = "Free (15°)" if self.free_rotation else "Ortho (90°)"
-            close_hint = " | C: close room (or click start)" if self.confirmed_wall_count >= 2 and self.first_wall is not None else ""
-            snap_hint = f" [Snap: {self.end_snap_face} face]" if self.end_snap_wall else ""
+            rotation_mode = tr("Free (15°)") if self.free_rotation else tr("Ortho (90°)")
+            close_hint = tr(" | C: close room (or click start)") if self.confirmed_wall_count >= 2 and self.first_wall is not None else ""
+            snap_hint = tr(" [Snap: {} face]").format(self.end_snap_face) if self.end_snap_wall else ""
             if self.close_snap_active:
-                snap_hint = " [CLOSE]"
+                snap_hint = tr(" [CLOSE]")
             if getattr(self, 'pending_close', False):
-                context.area.header_text_set("Deseja fechar a parede?  Enter ou clique: Sim  |  Esc: Não")
+                context.area.header_text_set(tr("Deseja fechar a parede?  Enter ou clique: Sim  |  Esc: Não"))
                 return
-            fine_hint = " [Fine: 1/16\"]" if self.fine_snap else ""
+            fine_hint = tr(" [Fine: 1/16\"]") if self.fine_snap else ""
             tp_count = len(self.track_points)
-            track_hint = f" [Track: {tp_count}]" if tp_count else ""
+            track_hint = tr(" [Track: {}]").format(tp_count) if tp_count else ""
             if self._active_track_lines:
-                track_hint += " [TRACKING]"
-            text = f"Length: {length_str} | Angle: {angle_deg}°{snap_hint}{fine_hint}{track_hint} | {rotation_mode} | Shift: fine | Alt: rotation | T: track | Click to place{close_hint}"
+                track_hint += tr(" [TRACKING]")
+            text = tr("Length: {} | Angle: {}°{}{}{} | {} | Shift: fine | Alt: rotation | T: track | Click to place{}").format(length_str, angle_deg, snap_hint, fine_hint, track_hint, rotation_mode, close_hint)
         else:
             tp_count = len(self.track_points)
-            track_hint = f" [Track: {tp_count}]" if tp_count else ""
+            track_hint = tr(" [Track: {}]").format(tp_count) if tp_count else ""
             if self._active_track_lines:
-                track_hint += " [TRACKING]"
+                track_hint += tr(" [TRACKING]")
             if self.snap_wall and self.snap_endpoint:
-                text = f"Click to connect to wall endpoint{track_hint} | T: track | Esc to cancel"
+                text = tr("Click to connect to wall endpoint{} | T: track | Esc to cancel").format(track_hint)
             elif self.snap_wall and self.snap_surface:
-                text = f"Click to start on wall ({self.snap_surface} face){track_hint} | T: track | Esc to cancel"
+                text = tr("Click to start on wall ({} face){} | T: track | Esc to cancel").format(self.snap_surface, track_hint)
             else:
-                text = f"Click to place first point{track_hint} | T: track point (hover 0.5s or press T) | Esc to cancel"
+                text = tr("Click to place first point{} | T: track point (hover 0.5s or press T) | Esc to cancel").format(track_hint)
 
         hb_placement.draw_header_text(context, text)
 
@@ -3011,10 +3008,10 @@ class home_builder_walls_OT_change_room_size(bpy.types.Operator):
         fixed, dragged = (start_2d, end_2d) if which == 'end' else (end_2d, start_2d)
         axis = dragged - fixed
         if axis.length < 1e-6:
-            return False, "Wall has zero length"
+            return False, tr("Wall has zero length")
         hit = self._mouse_to_world_z0(context, event)
         if hit is None:
-            return False, "Cannot project cursor onto Z=0 plane"
+            return False, tr("Cannot project cursor onto Z=0 plane")
         cur_len = hb_types.GeoNodeWall(wall_obj).get_input('Length')
         self._drag_snapshot = self._snapshot_walls()
         self._drag_wall = wall_obj
@@ -3172,14 +3169,14 @@ class home_builder_walls_OT_change_room_size(bpy.types.Operator):
         succ_obj = chain[(idx + 1) % len(chain)]
         outward, _closed = self._compute_outward_normal(succ_obj)
         if outward is None:
-            return False, "Next wall is not part of a detected chain"
+            return False, tr("Next wall is not part of a detected chain")
         rot = wall_obj.rotation_euler.z
         cur_len = gw.get_input('Length')
         v = Vector((math.cos(rot) * cur_len, math.sin(rot) * cur_len, 0))
         vn = v.dot(outward)
         disc = vn * vn - v.length_squared + new_len * new_len
         if disc < 0.0:
-            return False, "Length not reachable by moving the next wall"
+            return False, tr("Length not reachable by moving the next wall")
         root = math.sqrt(disc)
         d1 = -vn + root
         d2 = -vn - root
@@ -3195,7 +3192,7 @@ class home_builder_walls_OT_change_room_size(bpy.types.Operator):
     def _start_drag(self, context, event, wall_obj):
         outward, _is_closed = self._compute_outward_normal(wall_obj)
         if outward is None:
-            return False, "Wall is not part of a detected chain"
+            return False, tr("Wall is not part of a detected chain")
 
         # Feasibility check via a tiny offset, immediately rolled back
         snap = self._snapshot_walls()
@@ -3206,7 +3203,7 @@ class home_builder_walls_OT_change_room_size(bpy.types.Operator):
 
         hit = self._mouse_to_world_z0(context, event)
         if hit is None:
-            return False, "Cannot project cursor onto Z=0 plane"
+            return False, tr("Cannot project cursor onto Z=0 plane")
 
         # Identify the loop-adjacent neighbors that will have their lengths
         # adjusted, and cache their outward normals for the dim text.
@@ -3345,7 +3342,7 @@ class home_builder_walls_OT_change_room_size(bpy.types.Operator):
         if self._pill_edit_wall is not None:
             if val < ENDPOINT_MIN_LENGTH:
                 self._current_offset = self._baseline_offset()
-                self._last_error = "Length must be positive"
+                self._last_error = tr("Length must be positive")
                 return
             ok, msg = self._apply_pill_length(self._drag_wall, val)
             if not ok:
@@ -3359,7 +3356,7 @@ class home_builder_walls_OT_change_room_size(bpy.types.Operator):
         if self._drag_mode == 'ENDPOINT':
             if val < ENDPOINT_MIN_LENGTH:
                 self._current_offset = self._baseline_offset()
-                self._last_error = "Length must be positive"
+                self._last_error = tr("Length must be positive")
                 return
             self._apply_endpoint_length(val)
             self._last_error = None
@@ -3380,25 +3377,22 @@ class home_builder_walls_OT_change_room_size(bpy.types.Operator):
         if area is None:
             return
         if self._typing:
-            label = ("length" if (self._drag_mode == 'ENDPOINT'
-                                  or self._pill_edit_wall is not None) else "offset")
-            text = (f"Change Room Size — Typing {label}: {self._typed_value}_   |   "
-                    "Enter: commit   |   Backspace: erase   |   Esc: stop typing")
+            label = (tr("length") if (self._drag_mode == 'ENDPOINT'
+                                      or self._pill_edit_wall is not None) else tr("offset"))
+            text = (tr("Change Room Size — Typing {}: {}_   |   Enter: commit   |   Backspace: erase   |   Esc: stop typing").format(label, self._typed_value))
         elif self._drag_active and self._drag_mode == 'ENDPOINT':
-            msg = f"Length: {self._current_offset:.3f} m"
+            msg = tr("Length: {:.3f} m").format(self._current_offset)
             if self._last_error:
                 msg += f"   [{self._last_error}]"
-            text = (f"Change Room Size — {msg}   |   "
-                    "Release: commit drag   |   Type digits for exact length   |   Esc: cancel drag")
+            text = (tr("Change Room Size — {}   |   Release: commit drag   |   Type digits for exact length   |   Esc: cancel drag").format(msg))
         elif self._drag_active:
-            msg = f"Offset: {self._current_offset:+.3f} m"
+            msg = tr("Offset: {:+.3f} m").format(self._current_offset)
             if self._last_error:
                 msg += f"   [{self._last_error}]"
-            text = (f"Change Room Size — {msg}   |   "
-                    "Release: commit drag   |   Type digits for exact value   |   Esc: cancel drag")
+            text = (tr("Change Room Size — {}   |   Release: commit drag   |   Type digits for exact value   |   Esc: cancel drag").format(msg))
         else:
-            text = ("Change Room Size — click+drag a wall body or a free wall end   |   "
-                    "Click a length pill to type   |   Enter: confirm   |   Esc: cancel all")
+            text = (tr("Change Room Size — click+drag a wall body or a free wall end   |   "
+                    "Click a length pill to type   |   Enter: confirm   |   Esc: cancel all"))
         area.header_text_set(text)
 
     def _cleanup(self, context):
@@ -3701,7 +3695,7 @@ class home_builder_walls_OT_add_floor(bpy.types.Operator):
                 floors_created += 1
 
         if floors_created > 0:
-            self.report({'INFO'}, f"Created {floors_created} floor(s)")
+            self.report({'INFO'}, tr("Created {} floor(s)").format(floors_created))
             return {'FINISHED'}
         else:
             self.report({'WARNING'}, "Could not create floor - insufficient wall data")
@@ -3830,7 +3824,7 @@ class home_builder_walls_OT_add_ceiling(bpy.types.Operator):
                 ceilings_created += 1
 
         if ceilings_created > 0:
-            self.report({'INFO'}, f"Created {ceilings_created} ceiling(s)")
+            self.report({'INFO'}, tr("Created {} ceiling(s)").format(ceilings_created))
             return {'FINISHED'}
         else:
             self.report({'WARNING'}, "Could not create ceiling - insufficient wall data")
@@ -4123,7 +4117,7 @@ class home_builder_walls_OT_add_room_lights(bpy.types.Operator):
             total_lights += len(lights)
 
         if total_lights > 0:
-            self.report({'INFO'}, f"Created {total_lights} light(s)")
+            self.report({'INFO'}, tr("Created {} light(s)").format(total_lights))
             return {'FINISHED'}
         else:
             self.report({'WARNING'}, "No closed wall loops found for light placement")
@@ -4161,7 +4155,7 @@ class home_builder_walls_OT_delete_room_lights(bpy.types.Operator):
                         scene.collection.children.unlink(col)
                     bpy.data.collections.remove(col)
 
-        self.report({'INFO'}, f"Deleted {count} room light(s)")
+        self.report({'INFO'}, tr("Deleted {} room light(s)").format(count))
         return {'FINISHED'}
 
 
@@ -4260,7 +4254,7 @@ class home_builder_walls_OT_update_room_lights(bpy.types.Operator):
             obj.data.color = color
             obj.data.shadow_soft_size = self.light_radius
 
-        self.report({'INFO'}, f"Updated {len(light_objects)} room light(s)")
+        self.report({'INFO'}, tr("Updated {} room light(s)").format(len(light_objects)))
         return {'FINISHED'}
 
 
@@ -4300,7 +4294,7 @@ class home_builder_walls_OT_update_wall_height(bpy.types.Operator):
 
         if count and context.area is not None:
             context.area.tag_redraw()
-        self.report({'INFO'}, f"Updated height on {count} {wall_type} wall(s)")
+        self.report({'INFO'}, tr("Updated height on {} {} wall(s)").format(count, wall_type))
         return {'FINISHED'}
 
 
@@ -4338,7 +4332,7 @@ class home_builder_walls_OT_update_wall_thickness(bpy.types.Operator):
 
         if count and context.area is not None:
             context.area.tag_redraw()
-        self.report({'INFO'}, f"Updated thickness on {count} {wall_type} wall(s)")
+        self.report({'INFO'}, tr("Updated thickness on {} {} wall(s)").format(count, wall_type))
         return {'FINISHED'}
 
 
@@ -4487,7 +4481,7 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
             img = bpy.data.images.load(hdri_path, check_existing=True)
             env_tex.image = img
         else:
-            self.report({'WARNING'}, f"HDRI file not found: {hdri_path}")
+            self.report({'WARNING'}, tr("HDRI file not found: {}").format(hdri_path))
             return False
 
         # Connect nodes
@@ -4562,12 +4556,12 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
     def execute(self, context):
         if self.lighting_type == 'HDRI':
             if self.setup_hdri(context):
-                self.report({'INFO'}, f"Setup HDRI environment: {self.hdri_choice}")
+                self.report({'INFO'}, tr("Setup HDRI environment: {}").format(self.hdri_choice))
             else:
                 return {'CANCELLED'}
         else:
             if self.setup_sky(context):
-                self.report({'INFO'}, f"Setup {self.sky_type} sky texture")
+                self.report({'INFO'}, tr("Setup {} sky texture").format(self.sky_type))
             else:
                 return {'CANCELLED'}
 
@@ -4600,7 +4594,7 @@ class home_builder_walls_OT_apply_wall_material(bpy.types.Operator):
                     wall.set_input(input_name, mat)
                 wall_count += 1
 
-        self.report({'INFO'}, f"Applied material to {wall_count} wall(s)")
+        self.report({'INFO'}, tr("Applied material to {} wall(s)").format(wall_count))
         return {'FINISHED'}
 
 
@@ -4706,9 +4700,9 @@ class home_builder_walls_OT_add_soffit(bpy.types.Operator):
                 continue
             self.create_soffit(context, wall_obj)
             added += 1
-        msg = f"Added {added} soffit{'s' if added != 1 else ''}"
+        msg = tr("Added {} soffit(s)").format(added)
         if skipped:
-            msg += f" ({skipped} wall{'s' if skipped != 1 else ''} already had one)"
+            msg += tr(" ({} wall(s) already had one)").format(skipped)
         self.report({'INFO'}, msg)
         return {'FINISHED'}
 
@@ -4902,7 +4896,7 @@ class home_builder_walls_OT_delete_wall(bpy.types.Operator):
         if deleted_count == 1:
             self.report({'INFO'}, "Wall deleted")
         else:
-            self.report({'INFO'}, f"{deleted_count} walls deleted")
+            self.report({'INFO'}, tr("{} walls deleted").format(deleted_count))
         return {'FINISHED'}
 
 
@@ -4951,7 +4945,7 @@ class home_builder_walls_OT_hide_wall(bpy.types.Operator):
                 obj.hide_viewport = True
                 obj[ISOLATE_HIDDEN_TAG] = True
 
-        self.report({'INFO'}, f"{len(wall_bps)} wall(s) hidden")
+        self.report({'INFO'}, tr("{} wall(s) hidden").format(len(wall_bps)))
         return {'FINISHED'}
 
 
@@ -4988,7 +4982,7 @@ class home_builder_walls_OT_show_all_walls(bpy.types.Operator):
                 count += 1
 
         if count > 0:
-            self.report({'INFO'}, f"Restored {count} hidden object(s)")
+            self.report({'INFO'}, tr("Restored {} hidden object(s)").format(count))
         else:
             self.report({'INFO'}, "No hidden objects found")
         return {'FINISHED'}
@@ -5051,7 +5045,7 @@ class home_builder_walls_OT_isolate_selected_walls(bpy.types.Operator):
             obj[ISOLATE_HIDDEN_TAG] = True
             hidden_count += 1
 
-        self.report({'INFO'}, f"Isolated {len(selected_wall_bps)} wall(s), hid {hidden_count} object(s)")
+        self.report({'INFO'}, tr("Isolated {} wall(s), hid {} object(s)").format(len(selected_wall_bps), hidden_count))
         return {'FINISHED'}
 
 
@@ -5297,7 +5291,7 @@ class home_builder_walls_OT_draw_floor_cutter(bpy.types.Operator, hb_placement.P
         # Parent cutter to the floor so they stay linked
         cutter.parent = self.floor_obj
 
-        self.report({'INFO'}, f"Created floor cutter with {len(self.confirmed_points)} points")
+        self.report({'INFO'}, tr("Created floor cutter with {} points").format(len(self.confirmed_points)))
         return {'FINISHED'}
 
     def cancel(self, context):
@@ -5312,13 +5306,13 @@ class home_builder_walls_OT_draw_floor_cutter(bpy.types.Operator, hb_placement.P
         n = len(self.confirmed_points)
         parts = []
         if n == 0:
-            parts.append("Click to place first point")
+            parts.append(tr("Click to place first point"))
         elif n < 3:
-            parts.append(f"{n} point(s) — click to add more (need {3 - n} more minimum)")
+            parts.append(tr("{} point(s) — click to add more (need {} more minimum)").format(n, 3 - n))
         else:
-            close_text = " [CLOSE SNAP]" if self.close_snap else ""
-            parts.append(f"{n} points — click to add, Enter to finish{close_text}")
-        parts.append("Backspace: undo point | Esc: cancel")
+            close_text = tr(" [CLOSE SNAP]") if self.close_snap else ""
+            parts.append(tr("{} points — click to add, Enter to finish{}").format(n, close_text))
+        parts.append(tr("Backspace: undo point | Esc: cancel"))
         hb_placement.draw_header_text(context, " | ".join(parts))
 
     def execute(self, context):
@@ -5378,7 +5372,7 @@ class home_builder_walls_OT_draw_floor_cutter(bpy.types.Operator, hb_placement.P
             if len(self.confirmed_points) >= 3:
                 return self.finish(context)
             else:
-                self.report({'WARNING'}, f"Need at least 3 points (have {len(self.confirmed_points)})")
+                self.report({'WARNING'}, tr("Need at least 3 points (have {})").format(len(self.confirmed_points)))
                 return {'RUNNING_MODAL'}
 
         # --- Backspace: remove last point ---
@@ -5672,7 +5666,7 @@ class home_builder_walls_OT_draw_wall_cutter(bpy.types.Operator, hb_placement.Pl
         cutter = self.create_wall_cutter(context, self.target_wall, self.first_point, self.cursor_point)
         self.add_boolean_to_wall(self.target_wall, cutter)
 
-        self.report({'INFO'}, f"Created wall cutter on {self.target_wall.name}")
+        self.report({'INFO'}, tr("Created wall cutter on {}").format(self.target_wall.name))
         return {'FINISHED'}
 
     def cancel_op(self, context):
@@ -5686,10 +5680,10 @@ class home_builder_walls_OT_draw_wall_cutter(bpy.types.Operator, hb_placement.Pl
     def update_header(self, context):
         parts = []
         if self.first_point is None:
-            parts.append("Click on a wall to place first corner")
+            parts.append(tr("Click on a wall to place first corner"))
         else:
-            parts.append(f"Click to place second corner on {self.target_wall.name}")
-        parts.append("Esc: cancel")
+            parts.append(tr("Click to place second corner on {}").format(self.target_wall.name))
+        parts.append(tr("Esc: cancel"))
         hb_placement.draw_header_text(context, " | ".join(parts))
 
     def execute(self, context):

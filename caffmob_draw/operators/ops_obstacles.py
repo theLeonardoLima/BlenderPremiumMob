@@ -2,6 +2,7 @@ import bpy
 import math
 import bmesh
 from mathutils import Vector
+from ..data.i18n import tr
 from .. import hb_utils, hb_snap, hb_placement, units
 
 
@@ -350,15 +351,15 @@ class home_builder_obstacles_OT_place_obstacle(bpy.types.Operator, hb_placement.
 
         if self.placement_state == hb_placement.PlacementState.TYPING:
             display = self.get_typed_display_string()
-            text = f"{display}_ | Enter to confirm | Esc to cancel"
+            text = tr("{}_ | Enter to confirm | Esc to cancel").format(display)
         elif self.target_type == 'WALL' and self.target_wall:
             pos_str = units.unit_to_string(context.scene.unit_settings, self.wall_position_x)
             len_str = units.unit_to_string(context.scene.unit_settings, self.wall_length)
             height_str = units.unit_to_string(context.scene.unit_settings, self.height_from_floor)
             face_str = self.wall_face.capitalize()
-            text = f"{obs_name} | {self.target_wall.name} ({face_str}) | Pos: {pos_str}/{len_str} | H: {height_str} | ← → H Tab | Click to place"
+            text = tr("{} | {} ({}) | Pos: {}/{} | H: {} | ← → H Tab | Click to place").format(obs_name, self.target_wall.name, face_str, pos_str, len_str, height_str)
         else:
-            text = f"{obs_name} ({self.target_type}) | Click to place | Esc to cancel"
+            text = tr("{} ({}) | Click to place | Esc to cancel").format(obs_name, self.target_type)
 
         hb_placement.draw_header_text(context, text)
 
@@ -489,7 +490,7 @@ class home_builder_obstacles_OT_place_obstacle(bpy.types.Operator, hb_placement.
                 context.view_layer.objects.active = self.obstacle_obj
 
                 hb_placement.clear_header_text(context)
-                self.report({'INFO'}, f"Placed {self.obstacle_obj.name}")
+                self.report({'INFO'}, tr("Placed {}").format(self.obstacle_obj.name))
                 return {'FINISHED'}
 
         # Cancel
@@ -537,7 +538,7 @@ class home_builder_obstacles_OT_delete_obstacle(bpy.types.Operator):
 
         name = obj.name
         bpy.data.objects.remove(obj, do_unlink=True)
-        self.report({'INFO'}, f"Deleted: {name}")
+        self.report({'INFO'}, tr("Deleted: {}").format(name))
         return {'FINISHED'}
 
 
@@ -559,7 +560,7 @@ class home_builder_obstacles_OT_select_obstacles(bpy.types.Operator):
                 obj.select_set(True)
                 count += 1
 
-        self.report({'INFO'}, f"Selected {count} obstacles" if count else "No obstacles in scene")
+        self.report({'INFO'}, tr("Selected {} obstacles").format(count) if count else "No obstacles in scene")
         return {'FINISHED'}
 
 

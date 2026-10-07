@@ -1,4 +1,5 @@
 import bpy  # type: ignore
+from ..data.i18n import tr
 from ..geometry.mesh_gen import generate_cabinet_mesh
 from ..geometry import door_controller
 from ..data import units
@@ -53,5 +54,5 @@ class BTM_OT_CabinetBuilder(bpy.types.Operator):
         w_str = units.format_value(self.width, context.scene)
         h_str = units.format_value(self.height, context.scene)
         d_str = units.format_value(self.depth, context.scene)
-        self.report({'INFO'}, f"Módulo de Armário inserido: {w_str} x {h_str} x {d_str}")
+        self.report({'INFO'}, tr("Módulo de Armário inserido: {} x {} x {}").format(w_str, h_str, d_str))
         return {'FINISHED'}

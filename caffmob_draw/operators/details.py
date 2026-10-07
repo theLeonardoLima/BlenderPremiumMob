@@ -2,6 +2,7 @@ import bpy
 import math
 import gpu
 from mathutils import Vector
+from ..data.i18n import tr
 from .. import hb_details
 from .. import hb_types
 from .. import hb_snap
@@ -205,7 +206,7 @@ class home_builder_details_OT_create_detail(bpy.types.Operator):
         # Switch to the new scene
         bpy.ops.caffmob_layouts.go_to_layout_view(scene_name=scene.name)
 
-        self.report({'INFO'}, f"Created detail: {scene.name}")
+        self.report({'INFO'}, tr("Created detail: {}").format(scene.name))
         return {'FINISHED'}
 
 
@@ -241,7 +242,7 @@ class home_builder_details_OT_delete_detail(bpy.types.Operator):
                         hb_utils.frame_all_objects()
 
             bpy.data.scenes.remove(scene)
-            self.report({'INFO'}, f"Deleted detail: {self.scene_name}")
+            self.report({'INFO'}, tr("Deleted detail: {}").format(self.scene_name))
 
         return {'FINISHED'}
 
@@ -843,7 +844,7 @@ class home_builder_details_OT_draw_line(bpy.types.Operator, hb_placement.Placeme
             snap_text = ""
 
         if self.placement_state == hb_placement.PlacementState.TYPING:
-            text = f"Segment Length: {self.typed_value}_ | Enter to confirm | Esc to cancel typing"
+            text = tr("Segment Length: {}_ | Enter to confirm | Esc to cancel typing").format(self.typed_value)
         elif self.point_count > 0:
             length = self._get_segment_length()
             length_str = units.unit_to_string(context.scene.unit_settings, length)
@@ -858,9 +859,9 @@ class home_builder_details_OT_draw_line(bpy.types.Operator, hb_placement.Placeme
 
             close_text = " | C: close" if self.point_count >= 2 else ""
             lock_hint = "L: unlock" if self.angle_locked else "L: lock"
-            text = f"Length: {length_str} | {angle_deg}° | {mode}{snap_text} | {lock_hint}{close_text} | Right-click: finish"
+            text = tr("Length: {} | {}° | {}{} | {}{} | Right-click: finish").format(length_str, angle_deg, mode, snap_text, lock_hint, close_text)
         else:
-            text = f"Click to place first point{snap_text} | Right-click/Esc to cancel"
+            text = tr("Click to place first point{} | Right-click/Esc to cancel").format(snap_text)
 
         hb_placement.draw_header_text(context, text)
 
@@ -1493,17 +1494,17 @@ class home_builder_details_OT_draw_rectangle(bpy.types.Operator, hb_placement.Pl
         snap_text = " [SNAP]" if self.is_snapped else ""
 
         if not self.has_first_corner:
-            text = f"Click first corner{snap_text} | Right-click/Esc to cancel"
+            text = tr("Click first corner{} | Right-click/Esc to cancel").format(snap_text)
         elif self.is_typing:
             if self.typing_width:
-                text = f"Width: {self.typed_width}_ | Tab for height | Enter to confirm | Esc to cancel"
+                text = tr("Width: {}_ | Tab for height | Enter to confirm | Esc to cancel").format(self.typed_width)
             else:
                 width_str = units.unit_to_string(context.scene.unit_settings, self.parse_dimension(self.typed_width) or self.current_width)
-                text = f"Width: {width_str} | Height: {self.typed_height}_ | Enter to confirm | Esc to cancel"
+                text = tr("Width: {} | Height: {}_ | Enter to confirm | Esc to cancel").format(width_str, self.typed_height)
         else:
             width_str = units.unit_to_string(context.scene.unit_settings, self.current_width)
             height_str = units.unit_to_string(context.scene.unit_settings, self.current_height)
-            text = f"Width: {width_str} | Height: {height_str}{snap_text} | Type for exact size | Click to place"
+            text = tr("Width: {} | Height: {}{} | Type for exact size | Click to place").format(width_str, height_str, snap_text)
 
         hb_placement.draw_header_text(context, text)
 
@@ -1826,13 +1827,13 @@ class home_builder_details_OT_draw_circle(bpy.types.Operator, hb_placement.Place
         snap_text = " [SNAP]" if self.is_snapped else ""
 
         if not self.has_center:
-            text = f"Click to place center{snap_text} | Right-click/Esc to cancel"
+            text = tr("Click to place center{} | Right-click/Esc to cancel").format(snap_text)
         elif self.is_typing:
-            text = f"Radius: {self.typed_radius}_ | Enter to confirm | Esc to cancel typing"
+            text = tr("Radius: {}_ | Enter to confirm | Esc to cancel typing").format(self.typed_radius)
         else:
             radius_str = units.unit_to_string(context.scene.unit_settings, self.current_radius)
             diameter_str = units.unit_to_string(context.scene.unit_settings, self.current_radius * 2)
-            text = f"Radius: {radius_str} | Diameter: {diameter_str}{snap_text} | Type for exact | Click to place"
+            text = tr("Radius: {} | Diameter: {}{} | Type for exact | Click to place").format(radius_str, diameter_str, snap_text)
 
         hb_placement.draw_header_text(context, text)
 
@@ -2112,7 +2113,7 @@ class home_builder_details_OT_add_text(bpy.types.Operator, hb_placement.Placemen
 
     def update_header(self, context):
         snap_text = " [SNAP]" if self.is_snapped else ""
-        text = f"Click to place text{snap_text} | Tab to edit after placing | Right-click/Esc to cancel"
+        text = tr("Click to place text{} | Tab to edit after placing | Right-click/Esc to cancel").format(snap_text)
         hb_placement.draw_header_text(context, text)
 
     def execute(self, context):
@@ -3139,11 +3140,11 @@ class home_builder_details_OT_create_detail_from_library(bpy.types.Operator):
             # Switch to the new detail scene with proper view
             bpy.ops.caffmob_layouts.go_to_layout_view(scene_name=scene.name)
             if is_crown_detail:
-                self.report({'INFO'}, f"Created crown detail '{detail_name}' from library")
+                self.report({'INFO'}, tr("Created crown detail '{}' from library").format(detail_name))
             else:
-                self.report({'INFO'}, f"Created detail '{scene.name}' from library")
+                self.report({'INFO'}, tr("Created detail '{}' from library").format(scene.name))
         else:
-            self.report({'WARNING'}, f"Created detail but failed to load objects: {message}")
+            self.report({'WARNING'}, tr("Created detail but failed to load objects: {}").format(message))
 
         return {'FINISHED'}
 

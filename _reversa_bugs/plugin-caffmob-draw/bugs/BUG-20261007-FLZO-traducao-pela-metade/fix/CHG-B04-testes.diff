@@ -1,0 +1,27 @@
+diff --git a/tests/_blender_env.py b/tests/_blender_env.py
+index 6a77403..934c268 100644
+--- a/tests/_blender_env.py
++++ b/tests/_blender_env.py
+@@ -1,7 +1,8 @@
+ """Ambiente comum dos testes de fumaça da feature 003 no Blender (sem a extensão instalada).
+ 
+ - `extension_path_user` cai numa pasta temporária quando o pacote não é uma extensão instalada;
+-- preferências do add-on (cores) com valores neutros, como nos testes da 002.
++- preferências do add-on (cores) com valores neutros, como nos testes da 002;
++- interface em pt_BR (as mensagens conferidas pelos smokes estão em português).
+ """
+ 
+ import os
+@@ -29,6 +30,12 @@ def _extension_path_user(package, path="", create=False):
+ 
+ bpy.utils.extension_path_user = _extension_path_user
+ 
++# Os smokes conferem comportamento com as mensagens em português; o Blender de fábrica abre em inglês e, com a
++# tradução da interface (BUG-20261007-FLZO), as mensagens seguiriam o inglês. O idioma é testado à parte
++# (`blender_bug_FLZO_i18n.py`, que troca a língua por conta própria).
++bpy.context.preferences.view.language = 'pt_BR'
++bpy.context.preferences.view.use_translate_new_dataname = False   # "Cube" continua "Cube"
++
+ import caffmob_draw as addon  # noqa: E402
+ 
+ addon.register()

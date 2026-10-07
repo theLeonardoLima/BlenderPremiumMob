@@ -8,6 +8,7 @@ import os
 
 import bpy  # type: ignore
 from bpy_extras.io_utils import ImportHelper  # type: ignore
+from ..data.i18n import tr
 
 FORMATS = {'.obj': ('wm', 'obj_import'), '.fbx': ('import_scene', 'fbx'), '.glb': ('import_scene', 'gltf'),
            '.gltf': ('import_scene', 'gltf')}
@@ -25,17 +26,17 @@ class BTM_OT_ImportModel(bpy.types.Operator, ImportHelper):
         ext = os.path.splitext(self.filepath)[1].lower()
         target = FORMATS.get(ext)
         if target is None:
-            self.report({'ERROR'}, f"Formato não suportado: {ext or 'sem extensão'} (use OBJ, FBX, glTF ou GLB)")
+            self.report({'ERROR'}, tr("Formato não suportado: {} (use OBJ, FBX, glTF ou GLB)").format(ext or tr("sem extensão")))
             return {'CANCELLED'}
         before = set(bpy.data.objects)
         operator = getattr(getattr(bpy.ops, target[0]), target[1])
         try:
             result = operator(filepath=self.filepath)
         except RuntimeError as exc:
-            self.report({'ERROR'}, f"O Blender não conseguiu importar {os.path.basename(self.filepath)}: {exc}")
+            self.report({'ERROR'}, tr("O Blender não conseguiu importar {}: {}").format(os.path.basename(self.filepath), exc))
             return {'CANCELLED'}
         if 'FINISHED' not in result:
-            self.report({'ERROR'}, f"Importação cancelada: {os.path.basename(self.filepath)}")
+            self.report({'ERROR'}, tr("Importação cancelada: {}").format(os.path.basename(self.filepath)))
             return {'CANCELLED'}
         new = [obj for obj in bpy.data.objects if obj not in before]
         meshes = [obj for obj in new if obj.type == 'MESH']
@@ -45,8 +46,7 @@ class BTM_OT_ImportModel(bpy.types.Operator, ImportHelper):
             obj.select_set(True)
         if meshes:
             context.view_layer.objects.active = meshes[0]
-        self.report({'INFO'}, f"{len(meshes)} malha(s) importada(s). Selecione o pai por último e use "
-                              "\"Converter em agregado\"")
+        self.report({'INFO'}, tr("{} malha(s) importada(s). Selecione o pai por último e use \"Converter em agregado\"").format(len(meshes)))
         return {'FINISHED'}
 
 

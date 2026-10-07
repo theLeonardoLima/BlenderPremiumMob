@@ -9,6 +9,7 @@ import os
 
 import bpy  # type: ignore
 
+from ...data.i18n import tr
 from .. import spec
 from . import common
 
@@ -92,8 +93,8 @@ def set_front(context, root, opening, front, drawer_count=1):
         tc.recalculate_closet_starter(root)
         return []
     else:
-        return [f"O closets não tem a frente '{spec.FRONT_LABELS.get(front, front)}'"]
-    return [] if tc.apply_opening_config(opening, config) else ["A biblioteca recusou a troca da frente"]
+        return [tr("O closets não tem a frente '{}'").format(tr(spec.FRONT_LABELS.get(front, front)))]
+    return [] if tc.apply_opening_config(opening, config) else [tr("A biblioteca recusou a troca da frente")]
 
 
 def set_interior(context, root, opening, interior):
@@ -107,11 +108,11 @@ def set_interior(context, root, opening, interior):
     elif tc.PROP_ADJ_SHELF_QTY in opening:
         del opening[tc.PROP_ADJ_SHELF_QTY]
     if interior.dividers:
-        messages.append("O closets não tem divisória vertical dentro do vão; use outro compartimento")
+        messages.append(tr("O closets não tem divisória vertical dentro do vão; use outro compartimento"))
     if interior.drawers:
-        messages.append("No closets as gavetas são frentes; troque a frente do vão para Gavetas")
+        messages.append(tr("No closets as gavetas são frentes; troque a frente do vão para Gavetas"))
     if interior.heights:
-        messages.append("O closets distribui as prateleiras por igual; as alturas digitadas foram ignoradas")
+        messages.append(tr("O closets distribui as prateleiras por igual; as alturas digitadas foram ignoradas"))
     tc.recalculate_closet_starter(root)
     return messages
 
@@ -134,7 +135,7 @@ def _pull_object(filename, warnings):
     from ...product_libraries.closets import pulls_closets
     obj = pulls_closets.resolve_pull_object(filename)
     if obj is None:
-        warnings.append(f"Puxador '{os.path.splitext(filename)[0]}' não encontrado")
+        warnings.append(tr("Puxador '{}' não encontrado").format(os.path.splitext(filename)[0]))
         return None
     obj['btm_pull_file'] = key
     pulls_closets._pull_cache['selection'] = None     # o objeto é nosso; o próximo pedido da cena recarrega o dela
@@ -182,7 +183,7 @@ def reapply(context, root):
                     fronts_closets.apply_style_to_front(front, is_drawer, style=style)
                     front['DOOR_STYLE_NAME'] = style
                 else:
-                    warnings.append(f"Estilo '{style}' não existe no closets")
+                    warnings.append(tr("Estilo '{}' não existe no closets").format(style))
             if model or custom.pull_position != 'DEFAULT':
                 _apply_pull(front, model, custom.pull_position, warnings)
             if mat is not None and not front.btm_custom.material:

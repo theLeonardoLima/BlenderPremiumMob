@@ -1,6 +1,7 @@
 import bpy
 import math
 from mathutils import Vector
+from ....data.i18n import N_, tr
 from .... import hb_types, hb_snap, units
 
 
@@ -112,7 +113,7 @@ class hb_frameless_OT_place_snap_line(bpy.types.Operator):
     typing_target = None  # 'LEFT' or 'RIGHT'
     typed_value = ""
 
-    _header_text = "Click on a wall to place snap line | ESC to cancel"
+    _header_text = N_("Click on a wall to place snap line | ESC to cancel")
 
     def find_wall_from_hit(self, hit_obj):
         """Walk up parent chain to find wall."""
@@ -281,13 +282,13 @@ class hb_frameless_OT_place_snap_line(bpy.types.Operator):
 
         if self.typing_active:
             side = "Left" if self.typing_target == 'LEFT' else "Right"
-            text = f"{side} Distance: {self.typed_value}_ | Enter to confirm | ESC to cancel typing"
+            text = tr("{} Distance: {}_ | Enter to confirm | ESC to cancel typing").format(side, self.typed_value)
         elif self.selected_wall:
             left_str = units.unit_to_string(unit_settings, self.snap_x)
             right_str = units.unit_to_string(unit_settings, self.wall_length - self.snap_x)
-            text = f"← {left_str} | {right_str} → | ← set left | → set right | Click place | ESC cancel"
+            text = tr("← {} | {} → | ← set left | → set right | Click place | ESC cancel").format(left_str, right_str)
         else:
-            text = "Move cursor over a wall | ← set left | → set right | ESC to cancel"
+            text = tr("Move cursor over a wall | ← set left | → set right | ESC to cancel")
 
         context.area.header_text_set(text)
 
@@ -359,7 +360,7 @@ class hb_frameless_OT_place_snap_line(bpy.types.Operator):
         context.scene.collection.objects.link(snap_line)
 
         unit_settings = context.scene.unit_settings
-        self.report({'INFO'}, f"Snap line placed at {units.unit_to_string(unit_settings, x_pos)}")
+        self.report({'INFO'}, tr("Snap line placed at {}").format(units.unit_to_string(unit_settings, x_pos)))
         return True
 
     def cleanup(self, context):
@@ -454,7 +455,7 @@ class hb_frameless_OT_place_snap_line(bpy.types.Operator):
         self.typing_target = None
         self.typed_value = ""
 
-        context.area.header_text_set(self._header_text)
+        context.area.header_text_set(tr(self._header_text))
         context.window_manager.modal_handler_add(self)
         return {'RUNNING_MODAL'}
 
@@ -494,7 +495,7 @@ class hb_frameless_OT_delete_all_snap_lines(bpy.types.Operator):
             if obj.get('IS_SNAP_LINE'):
                 bpy.data.objects.remove(obj, do_unlink=True)
                 removed += 1
-        self.report({'INFO'}, f"Removed {removed} snap line(s)")
+        self.report({'INFO'}, tr("Removed {} snap line(s)").format(removed))
         return {'FINISHED'}
 
 

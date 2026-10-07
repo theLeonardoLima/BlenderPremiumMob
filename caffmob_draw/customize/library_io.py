@@ -13,6 +13,7 @@ import tempfile
 import bpy  # type: ignore
 from mathutils import Vector  # type: ignore
 
+from ..data.i18n import tr
 from ..selection import classify
 from . import adapters, manifest, reapply
 from .adapters import common
@@ -167,7 +168,7 @@ def build_manifest(root, name, category):
 def save(context, root, name, category, thumbnail=True):
     """Grava `.blend` + `.json` (+ `.png`). Devolve (caminhos, mensagens de erro). Erro → nada parcial fica."""
     if adapters.for_root(root) is None:
-        return None, ["O objeto selecionado não é um módulo"]
+        return None, [tr("O objeto selecionado não é um módulo")]
     paths = paths_for(name, category)
     folder = os.path.dirname(paths["blend"])
     written = []
@@ -189,7 +190,7 @@ def save(context, root, name, category, thumbnail=True):
         for path in written:
             if os.path.exists(path):
                 os.remove(path)
-        return None, [f"Não foi possível gravar o módulo em {folder}: {exc}"]
+        return None, [tr("Não foi possível gravar o módulo em {}: {}").format(folder, exc)]
     if thumbnail:
         _thumbnail(context, _tree(root), paths["png"])
     return paths, []
@@ -237,7 +238,7 @@ def load(context, entry):
         with open(entry["json"], encoding="utf-8") as handle:
             data, _spec, errors = manifest.loads(handle.read())
         if errors:
-            return None, [], ["Manifesto inválido: " + "; ".join(errors)]
+            return None, [], [tr("Manifesto inválido: {}").format("; ".join(errors))]
     with bpy.data.libraries.load(entry["blend"], link=False) as (data_from, data_to):
         data_to.objects = data_from.objects
     loaded = [obj for obj in data_to.objects if obj is not None]
@@ -252,13 +253,15 @@ def load(context, entry):
     if data is not None:
         missing = _missing_styles(data)
         if missing:
-            warnings.append("Estilos ausentes neste arquivo (mantida a geometria salva): " + ", ".join(missing))
+            warnings.append(tr("Estilos ausentes neste arquivo (mantida a geometria salva): {}").format(", ".join(missing)))
     if root is not None and data is not None:
         warnings += reapply.reapply(context, root)
     elif root is None:
-        warnings.append("Nenhum módulo encontrado no arquivo")
-    if any(w.startswith("Estilos ausentes") for w in warnings):
-        warnings = [w for w in warnings if not w.startswith("Estilo '")]
+        warnings.append(tr("Nenhum módulo encontrado no arquivo"))
+    if missing:
+        # O aviso geral de estilos ausentes substitui o aviso por estilo dos adaptadores (prefixo na língua atual).
+        prefix = tr("Estilo '{}' não existe neste arquivo").split("{}")[0]
+        warnings = [w for w in warnings if not w.startswith(prefix)]
     return root, loaded, common.unique(warnings)
 
 
@@ -272,7 +275,7 @@ def rename(entry, new_name):
     """Renomeia os arquivos e o nome no manifesto; devolve mensagens de erro."""
     target = paths_for(new_name, entry["category"])
     if os.path.exists(target["blend"]):
-        return [f"Já existe um módulo '{new_name}' nessa categoria"]
+        return [tr("Já existe um módulo '{}' nessa categoria").format(new_name)]
     for key in ("blend", "png", "json"):
         if os.path.exists(entry[key]):
             os.replace(entry[key], target[key])

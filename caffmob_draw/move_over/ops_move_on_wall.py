@@ -12,6 +12,7 @@ from bpy_extras import view3d_utils  # type: ignore
 from mathutils import Vector  # type: ignore
 from mathutils.geometry import intersect_line_plane  # type: ignore
 
+from ..data.i18n import tr
 from ..data import units
 from ..measure import cotas, scene_cotas
 
@@ -96,8 +97,7 @@ class BTM_OT_MoveOnWall(bpy.types.Operator):
         unit = units.get_scene_length_unit()
         fmt = lambda v: units.format_length(v, unit) if v is not None else "—"  # noqa: E731
         context.area.header_text_set(
-            f"Anterior {fmt(values.anterior)} | Posterior {fmt(values.posterior)} | Inferior {fmt(values.inferior)} | "
-            "Shift: altura | Clique confirma | Esc cancela")
+            tr("Anterior {} | Posterior {} | Inferior {} | Shift: altura | Clique confirma | Esc cancela").format(fmt(values.anterior), fmt(values.posterior), fmt(values.inferior)))
 
     def _end(self, context, result):
         context.area.header_text_set(None)

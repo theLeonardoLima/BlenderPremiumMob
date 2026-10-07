@@ -11,6 +11,7 @@ explicit allowlist is the safeguard against rendering misleading images.
 """
 import os
 import bpy
+from ....data.i18n import tr
 from .. import types_face_frame
 from .. import props_hb_face_frame
 from .. import thumbnail_render
@@ -161,9 +162,9 @@ class hb_face_frame_OT_render_library_thumbnails(bpy.types.Operator):
         for area in context.screen.areas:
             area.tag_redraw()
 
-        message = f"Rendered {len(rendered)}/{len(RENDERABLE_CATALOG)} thumbnails"
+        message = tr("Rendered {}/{} thumbnails").format(len(rendered), len(RENDERABLE_CATALOG))
         if failed:
-            message += f" - failed: {', '.join(failed)}"
+            message += tr(" - failed: {}").format(', '.join(failed))
         self.report({'INFO'}, message)
         return {'FINISHED'}
 

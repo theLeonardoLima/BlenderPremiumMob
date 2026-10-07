@@ -4,6 +4,7 @@ O módulo é uma malha única (`geometry/mesh_gen.py`) com portas filhas (`geome
 o próprio módulo. Gavetas, divisórias e estilos de porta não existem nessa linha e aparecem com o motivo.
 """
 
+from ...data.i18n import N_, tr
 from ...geometry import door_controller
 from ...geometry.mesh_gen import MAT_BACK, MAT_CARCASS, MAT_SHELF
 from .. import spec
@@ -13,7 +14,7 @@ LIBRARY = 'BTM'
 SWING_TO_FRONT = {'LEFT': 'DOOR_LEFT', 'RIGHT': 'DOOR_RIGHT', 'DOUBLE': 'DOUBLE_DOORS', 'FLIP': 'FLIP_UP',
                   'NONE': 'OPEN'}
 FRONT_TO_SWING = {v: k for k, v in SWING_TO_FRONT.items()}
-NO_STYLES = "O módulo paramétrico não tem estilos de porta"
+NO_STYLES = N_("O módulo paramétrico não tem estilos de porta")
 
 
 def capabilities(root):
@@ -46,7 +47,7 @@ def read(root):
 
 def set_front(context, root, opening, front, drawer_count=1):
     if front not in FRONT_TO_SWING:
-        return [f"O módulo paramétrico não tem a frente '{spec.FRONT_LABELS.get(front, front)}'"]
+        return [tr("O módulo paramétrico não tem a frente '{}'").format(spec.FRONT_LABELS.get(front, front))]
     root.btm_cabinet.door_swing = FRONT_TO_SWING[front]      # o update refaz malha, portas e reaplica
     return []
 
@@ -58,9 +59,9 @@ def set_interior(context, root, opening, interior):
     root.btm_custom.interior = spec.interior_to_json(interior)
     root.btm_cabinet.shelves = int(interior.shelves)
     if interior.dividers or interior.drawers:
-        messages.append("O módulo paramétrico só tem prateleiras; divisórias e gavetas internas foram ignoradas")
+        messages.append(tr("O módulo paramétrico só tem prateleiras; divisórias e gavetas internas foram ignoradas"))
     if interior.heights:
-        messages.append("O módulo paramétrico distribui as prateleiras por igual; as alturas foram ignoradas")
+        messages.append(tr("O módulo paramétrico distribui as prateleiras por igual; as alturas foram ignoradas"))
     return messages
 
 

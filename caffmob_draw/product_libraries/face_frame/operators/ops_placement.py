@@ -30,6 +30,7 @@ The cage is flagged HB_CURRENT_DRAW_OBJ so hb_snap raycasts skip it
 """
 
 import bpy
+from ....data.i18n import tr
 from .... import units
 import math
 from mathutils import Vector, Matrix
@@ -1830,8 +1831,7 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
             src = bpy.data.objects.get(self.source_cabinet_name)
             if src is None or not src.get(types_face_frame.TAG_CABINET_CAGE):
                 self.report({'WARNING'},
-                            f"Source cabinet not found: "
-                            f"{self.source_cabinet_name}")
+                            tr("Source cabinet not found: {}").format(self.source_cabinet_name))
                 return {'CANCELLED'}
             self._source_obj = src
             self.cabinet_name = _dispatch_name_for_source(src)
@@ -1840,7 +1840,7 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
             return {'CANCELLED'}
         if types_face_frame.get_cabinet_class(self.cabinet_name) is None:
             self.report({'WARNING'},
-                        f"Unknown cabinet name: {self.cabinet_name}")
+                        tr("Unknown cabinet name: {}").format(self.cabinet_name))
             return {'CANCELLED'}
 
         scene_props = context.scene.hb_face_frame
@@ -1894,7 +1894,7 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
         try:
             self._create_preview_cage(context)
         except Exception as e:
-            self.report({'ERROR'}, f"Preview creation failed: {e}")
+            self.report({'ERROR'}, tr("Preview creation failed: {}").format(e))
             return {'CANCELLED'}
 
         # Initial position: 3D cursor (XY); Z follows cabinet_type
@@ -2258,13 +2258,12 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
             self._position_from_hit(bpy.context)
 
     def _update_header(self, context):
-        title = (self.cabinet_name if self._source_obj is None
-                 else ("Duplicate Mirror " if self.mirror else "Duplicate ")
-                 + self._source_obj.name)
-        bay_label = f"{self.bay_qty} bay" + ("" if self.bay_qty == 1 else "s")
-        mode = "auto" if self._auto_bay_qty else "manual"
-        side = ("peninsula" if self._peninsula
-                else "front" if self._place_on_front else "back")
+        title = (tr(self.cabinet_name) if self._source_obj is None
+                 else tr("Duplicate Mirror {}" if self.mirror else "Duplicate {}").format(self._source_obj.name))
+        bay_label = tr("{} bay(s)").format(self.bay_qty)
+        mode = tr("auto") if self._auto_bay_qty else tr("manual")
+        side = (tr("peninsula") if self._peninsula
+                else tr("front") if self._place_on_front else tr("back"))
         width_in = self._cabinet_width * 39.37008
 
         # When the user is typing, show the live buffer prominently so
@@ -2279,9 +2278,7 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
             }.get(self.typing_target, "Value")
             hb_placement.draw_header_text(
                 context,
-                f"{title}  -  {label}: {typed}  -  "
-                "Enter: apply   ←/→: switch offset   "
-                "Esc: cancel typing   Backspace: delete"
+                tr("{}  -  {}: {}  -  Enter: apply   ←/→: switch offset   Esc: cancel typing   Backspace: delete").format(title, label, typed)
             )
         else:
             offset_hint = ""
@@ -2295,12 +2292,9 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
                 )
             hb_placement.draw_header_text(
                 context,
-                f"{title}  -  {bay_label} ({mode})  -  "
-                f"width: {width_in:.1f}\"  -  side: {side}{offset_hint}  -  "
-                + ("F: fill gap   " if self._source_obj is not None else "")
-                + "W/numbers: width   Up/Down: bays   "
-                "←/→: gap offset   R: rotate 90   "
-                "Click: place   Esc: cancel"
+                tr("{}  -  {} ({})  -  width: {:.1f}\"  -  side: {}{}  -  ").format(title, bay_label, mode, width_in, side, offset_hint)
+                + (tr("F: fill gap   ") if self._source_obj is not None else "")
+                + tr("W/numbers: width   Up/Down: bays   ←/→: gap offset   R: rotate 90   Click: place   Esc: cancel")
             )
 
     # ---------------- wall detection ----------------
@@ -3563,7 +3557,7 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
             cabinet = cls()
             cabinet.create(self.cabinet_name, bay_qty=captured_bay_qty)
         except Exception as e:
-            self.report({'ERROR'}, f"Cabinet creation failed: {e}")
+            self.report({'ERROR'}, tr("Cabinet creation failed: {}").format(e))
             hb_placement.clear_header_text(context)
             return {'CANCELLED'}
 
@@ -3604,8 +3598,7 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
             context.view_layer.objects.active = cab_obj
             hb_placement.clear_header_text(context)
             self.report({'INFO'},
-                        f"Placed {self.cabinet_name} "
-                        f"({captured_width * 39.37008:.1f}\" wide)")
+                        tr("Placed {} ({:.1f}\" wide)").format(self.cabinet_name, captured_width * 39.37008))
             return {'FINISHED'}
 
         # Resize to match cage width via the property update callback
@@ -3742,8 +3735,7 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
         hb_placement.clear_header_text(context)
         bay_label = f"{captured_bay_qty} bay" + ("" if captured_bay_qty == 1 else "s")
         self.report({'INFO'},
-                    f"Placed {self.cabinet_name} ({bay_label}, "
-                    f"{captured_width * 39.37008:.1f}\" wide)")
+                    tr("Placed {} ({}, {:.1f}\" wide)").format(self.cabinet_name, bay_label, captured_width * 39.37008))
         return {'FINISHED'}
 
     def _finalize_duplicate(self, context, captured_parent, captured_world,
@@ -3908,7 +3900,7 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
             return {'CANCELLED'}
         if self.appliance_name not in types_face_frame.APPLIANCE_NAME_DISPATCH:
             self.report({'WARNING'},
-                        f"Unknown appliance: {self.appliance_name}")
+                        tr("Unknown appliance: {}").format(self.appliance_name))
             return {'CANCELLED'}
 
         scene_props = context.scene.hb_face_frame
@@ -3926,7 +3918,7 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
         try:
             self._create_preview_cage(context)
         except Exception as e:
-            self.report({'ERROR'}, f"Preview creation failed: {e}")
+            self.report({'ERROR'}, tr("Preview creation failed: {}").format(e))
             return {'CANCELLED'}
 
         cage_obj = self._preview_cage.obj
@@ -4054,9 +4046,7 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
             }.get(self.typing_target, "Value")
             hb_placement.draw_header_text(
                 context,
-                f"{self.appliance_name}  -  {label}: {typed}  -  "
-                "Enter: apply   ←/→: switch offset   "
-                "Esc: cancel typing   Backspace: delete"
+                tr("{}  -  {}: {}  -  Enter: apply   ←/→: switch offset   Esc: cancel typing   Backspace: delete").format(self.appliance_name, label, typed)
             )
             return
 
@@ -4072,9 +4062,7 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
         width_key = "   W: width" if self._variable_width else ""
         hb_placement.draw_header_text(
             context,
-            f"{self.appliance_name}  -  width: {width_in:.1f}\""
-            f"  -  side: {side}{offset_hint}  -  "
-            f"←/→: gap offset{width_key}   Click: place   Esc: cancel"
+            tr("{}  -  width: {:.1f}\"  -  side: {}{}  -  ←/→: gap offset{}   Click: place   Esc: cancel").format(self.appliance_name, width_in, side, offset_hint, width_key)
         )
 
     # ---------------- typed-input handlers ----------------
@@ -4558,7 +4546,7 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
 
         cls = types_face_frame.APPLIANCE_NAME_DISPATCH.get(self.appliance_name)
         if cls is None:
-            self.report({'ERROR'}, f"Unknown appliance: {self.appliance_name}")
+            self.report({'ERROR'}, tr("Unknown appliance: {}").format(self.appliance_name))
             hb_placement.clear_header_text(context)
             return {'CANCELLED'}
         appliance = cls()
@@ -4570,7 +4558,7 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
         try:
             appliance.create(self.appliance_name)
         except Exception as e:
-            self.report({'ERROR'}, f"Appliance creation failed: {e}")
+            self.report({'ERROR'}, tr("Appliance creation failed: {}").format(e))
             hb_placement.clear_header_text(context)
             return {'CANCELLED'}
 
@@ -4601,7 +4589,7 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
             pass
 
         hb_placement.clear_header_text(context)
-        self.report({'INFO'}, f"Placed {self.appliance_name}")
+        self.report({'INFO'}, tr("Placed {}").format(self.appliance_name))
         return {'FINISHED'}
 
     def _cancel(self, context):
@@ -4693,7 +4681,7 @@ class hb_face_frame_OT_place_corner_cabinet(bpy.types.Operator,
         if cls is None or not issubclass(
                 cls, types_face_frame_corner.CornerFaceFrameCabinet):
             self.report({'WARNING'},
-                        f"Not a corner cabinet: {self.cabinet_name}")
+                        tr("Not a corner cabinet: {}").format(self.cabinet_name))
             return {'CANCELLED'}
         self._cabinet_class = cls
 
@@ -4714,7 +4702,7 @@ class hb_face_frame_OT_place_corner_cabinet(bpy.types.Operator,
         try:
             self._create_preview_cage(context)
         except Exception as e:
-            self.report({'ERROR'}, f"Preview creation failed: {e}")
+            self.report({'ERROR'}, tr("Preview creation failed: {}").format(e))
             return {'CANCELLED'}
 
         cage_obj = self._preview_cage.obj
@@ -5154,9 +5142,7 @@ class hb_face_frame_OT_place_corner_cabinet(bpy.types.Operator,
             }.get(self.typing_target, "Value")
             hb_placement.draw_header_text(
                 context,
-                f"{self.cabinet_name}  -  {label}: {typed}  -  "
-                "Enter: apply   ←/→: switch offset   "
-                "Esc: cancel typing   Backspace: delete"
+                tr("{}  -  {}: {}  -  Enter: apply   ←/→: switch offset   Esc: cancel typing   Backspace: delete").format(self.cabinet_name, label, typed)
             )
             return
 
@@ -5169,9 +5155,7 @@ class hb_face_frame_OT_place_corner_cabinet(bpy.types.Operator,
             offset_hint += (
                 f"  R:{units.unit_to_string(context.scene.unit_settings, self._right_offset)}"
             )
-        msg = (f"Place {self.cabinet_name} - move cursor near a wall corner."
-               f"{offset_hint}  -  type a size   ←/→: gap offset   "
-               f"R: rotate facing   LMB commits, Esc cancels.")
+        msg = (tr("Place {} - move cursor near a wall corner.{}  -  type a size   ←/→: gap offset   R: rotate facing   LMB commits, Esc cancels.").format(self.cabinet_name, offset_hint))
         hb_placement.draw_header_text(context, msg)
 
     # ---------------- typed-input handlers ----------------
@@ -5361,7 +5345,7 @@ class hb_face_frame_OT_place_corner_cabinet(bpy.types.Operator,
             cabinet = cls()
             cabinet.create(self.cabinet_name)
         except Exception as e:
-            self.report({'ERROR'}, f"Cabinet creation failed: {e}")
+            self.report({'ERROR'}, tr("Cabinet creation failed: {}").format(e))
             hb_placement.clear_header_text(context)
             return {'CANCELLED'}
 
@@ -5407,7 +5391,7 @@ class hb_face_frame_OT_place_corner_cabinet(bpy.types.Operator,
 
         hb_placement.clear_header_text(context)
         side = self._corner_side or 'free'
-        self.report({'INFO'}, f"Placed {self.cabinet_name} ({side})")
+        self.report({'INFO'}, tr("Placed {} ({})").format(self.cabinet_name, side))
         return {'FINISHED'}
 
     def _cancel(self, context):
@@ -5513,7 +5497,7 @@ class hb_face_frame_OT_set_blind_corner_void_amount(bpy.types.Operator):
 
         side_label = "left" if self.blind_side == 'LEFT' else "right"
         layout.label(
-            text=f"{blind.name}'s {side_label} end will become blind",
+            text=tr("{}'s {} end will become blind").format(blind.name, side_label),
             icon='INFO',
         )
 
@@ -5524,7 +5508,7 @@ class hb_face_frame_OT_set_blind_corner_void_amount(bpy.types.Operator):
         if self.match_cabinet_depth:
             depth_in = placed.face_frame_cabinet.depth * 39.37008
             layout.label(
-                text=f"Void will match the placed cabinet's depth ({depth_in:.2f} in)"
+                text=tr("Void will match the placed cabinet's depth ({:.2f} in)").format(depth_in)
             )
         else:
             row = layout.row(align=True)
@@ -5742,7 +5726,7 @@ class hb_face_frame_OT_set_angled_corner_void_amount(bpy.types.Operator):
             layout.label(text="Cabinet reference lost", icon='ERROR')
             return
 
-        layout.label(text=f"Corner Angle: {self.corner_angle_deg:.1f}°",
+        layout.label(text=tr("Corner Angle: {:.1f}°").format(self.corner_angle_deg),
                      icon='DRIVER_ROTATIONAL_DIFFERENCE')
         row = layout.row(align=True)
         row.label(text="Action:")
@@ -5753,8 +5737,8 @@ class hb_face_frame_OT_set_angled_corner_void_amount(bpy.types.Operator):
             box = layout.box()
             col = box.column(align=True)
             col.label(text="The cabinets will be notched back from the corner:")
-            col.label(text=f"  {placed.name}: {vc * 39.37008:.4f} in")
-            col.label(text=f"  {angled.name}: {va * 39.37008:.4f} in")
+            col.label(text=tr("  {}: {:.4f} in").format(placed.name, vc * 39.37008))
+            col.label(text=tr("  {}: {:.4f} in").format(angled.name, va * 39.37008))
             col.label(text="Their fronts will meet at the angle bisector.")
         elif self.action == 'FILL':
             box = layout.box()

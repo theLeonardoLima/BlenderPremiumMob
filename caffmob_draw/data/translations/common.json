@@ -1,0 +1,510 @@
+{
+ "4 inch shiplap boards": {
+  "pt_BR": "Ripas de 4 polegadas",
+  "en_US": "4 inch shiplap boards"
+ },
+ "5 inch shiplap boards": {
+  "pt_BR": "Ripas de 5 polegadas",
+  "en_US": "5 inch shiplap boards"
+ },
+ "6 inch shiplap boards": {
+  "pt_BR": "Ripas de 6 polegadas",
+  "en_US": "6 inch shiplap boards"
+ },
+ "Angle Front": {
+  "pt_BR": "Inclinar Frente",
+  "en_US": "Angle Front"
+ },
+ "Angle Sides": {
+  "pt_BR": "Inclinar Laterais",
+  "en_US": "Angle Sides"
+ },
+ "Angles, top section, and shiplap": {
+  "pt_BR": "Ângulos, seção superior e ripado",
+  "en_US": "Angles, top section, and shiplap"
+ },
+ "Bay": {
+  "pt_BR": "Compartimento",
+  "en_US": "Bay"
+ },
+ "Bay {}:": {
+  "pt_BR": "Compartimento {}:",
+  "en_US": "Bay {}:"
+ },
+ "Bottom Rail Width": {
+  "pt_BR": "Largura da Travessa Inferior",
+  "en_US": "Bottom Rail Width"
+ },
+ "Box": {
+  "pt_BR": "Caixa",
+  "en_US": "Box"
+ },
+ "Box hood with shiplap face": {
+  "pt_BR": "Coifa em caixa com frente ripada",
+  "en_US": "Box hood with shiplap face"
+ },
+ "Box wood hood": {
+  "pt_BR": "Coifa de madeira em caixa",
+  "en_US": "Box wood hood"
+ },
+ "Build Wood Hood": {
+  "pt_BR": "Montar Coifa de Madeira",
+  "en_US": "Build Wood Hood"
+ },
+ "Build wood-hood parts on the selected range hood (parts resize with the hood)": {
+  "pt_BR": "Monta as peças de madeira na coifa selecionada (as peças acompanham a coifa)",
+  "en_US": "Build wood-hood parts on the selected range hood (parts resize with the hood)"
+ },
+ "Built {} wood hood": {
+  "pt_BR": "Coifa de madeira {} montada",
+  "en_US": "Built {} wood hood"
+ },
+ "Chimney": {
+  "pt_BR": "Chaminé",
+  "en_US": "Chimney"
+ },
+ "Chimney wood hood": {
+  "pt_BR": "Coifa de madeira tipo chaminé",
+  "en_US": "Chimney wood hood"
+ },
+ "Custom": {
+  "pt_BR": "Personalizado",
+  "en_US": "Custom"
+ },
+ "Custom hood built from user options (angles, mantle, fan cutout, front panel)": {
+  "pt_BR": "Coifa personalizada a partir das opções (ângulos, cornija, recorte do exaustor, painel frontal)",
+  "en_US": "Custom hood built from user options (angles, mantle, fan cutout, front panel)"
+ },
+ "Cutout Offset": {
+  "pt_BR": "Deslocamento do Recorte",
+  "en_US": "Cutout Offset"
+ },
+ "Cutout Offset:": {
+  "pt_BR": "Deslocamento do Recorte:",
+  "en_US": "Cutout Offset:"
+ },
+ "Depth of the fan opening in the bottom liner shelf": {
+  "pt_BR": "Profundidade da abertura do exaustor no fundo",
+  "en_US": "Depth of the fan opening in the bottom liner shelf"
+ },
+ "Discard manual edits on this hood part and let it follow the hood again. Hand edits are lost": {
+  "pt_BR": "Descarta as edições manuais desta peça da coifa e volta a acompanhar a coifa. As edições à mão se perdem",
+  "en_US": "Discard manual edits on this hood part and let it follow the hood again. Hand edits are lost"
+ },
+ "Door Grid:": {
+  "pt_BR": "Grade de Portas:",
+  "en_US": "Door Grid:"
+ },
+ "Door Mid Rails": {
+  "pt_BR": "Travessas Centrais da Porta",
+  "en_US": "Door Mid Rails"
+ },
+ "Door Mid Stiles": {
+  "pt_BR": "Montantes Centrais da Porta",
+  "en_US": "Door Mid Stiles"
+ },
+ "Door inset in the opening, flush with the frame": {
+  "pt_BR": "Porta embutida no vão, faceando o quadro",
+  "en_US": "Door inset in the opening, flush with the frame"
+ },
+ "Door overlaying the face frame opening": {
+  "pt_BR": "Porta sobreposta ao vão do quadro frontal",
+  "en_US": "Door overlaying the face frame opening"
+ },
+ "Edit the size and style of the selected wood hood": {
+  "pt_BR": "Edita o tamanho e o estilo da coifa de madeira selecionada",
+  "en_US": "Edit the size and style of the selected wood hood"
+ },
+ "Ends": {
+  "pt_BR": "Laterais",
+  "en_US": "Ends"
+ },
+ "Face frame, bays, and door grid": {
+  "pt_BR": "Quadro frontal, compartimentos e grade de portas",
+  "en_US": "Face frame, bays, and door grid"
+ },
+ "Fan Cutout Depth": {
+  "pt_BR": "Profundidade do Recorte do Exaustor",
+  "en_US": "Fan Cutout Depth"
+ },
+ "Fan Cutout Width": {
+  "pt_BR": "Largura do Recorte do Exaustor",
+  "en_US": "Fan Cutout Width"
+ },
+ "Fan Cutout:": {
+  "pt_BR": "Recorte do Exaustor:",
+  "en_US": "Fan Cutout:"
+ },
+ "Fan cutout and floor": {
+  "pt_BR": "Recorte do exaustor e fundo",
+  "en_US": "Fan cutout and floor"
+ },
+ "Floor Height": {
+  "pt_BR": "Altura do Fundo",
+  "en_US": "Floor Height"
+ },
+ "Floor Height:": {
+  "pt_BR": "Altura do Fundo:",
+  "en_US": "Floor Height:"
+ },
+ "Front": {
+  "pt_BR": "Frente",
+  "en_US": "Front"
+ },
+ "Front for this bay of the face frame": {
+  "pt_BR": "Frente deste compartimento do quadro frontal",
+  "en_US": "Front for this bay of the face frame"
+ },
+ "Front-to-back depth of the mantle part, measured from the sides' front edges": {
+  "pt_BR": "Profundidade da cornija, medida a partir da borda frontal das laterais",
+  "en_US": "Front-to-back depth of the mantle part, measured from the sides' front edges"
+ },
+ "Grand Mantle": {
+  "pt_BR": "Cornija Grande",
+  "en_US": "Grand Mantle"
+ },
+ "Grand mantle wood hood": {
+  "pt_BR": "Coifa de madeira com cornija grande",
+  "en_US": "Grand mantle wood hood"
+ },
+ "Height of the mantle band": {
+  "pt_BR": "Altura da faixa da cornija",
+  "en_US": "Height of the mantle band"
+ },
+ "Height of the molding strip": {
+  "pt_BR": "Altura da tira de moldura",
+  "en_US": "Height of the molding strip"
+ },
+ "Height of the straight section at the top of an angled hood; the angle stops there and the hood continues straight to the top (0 = angle runs all the way up)": {
+  "pt_BR": "Altura da parte reta no topo de uma coifa inclinada; a inclinação para ali e a coifa segue reta até o topo (0 = inclinada até o fim)",
+  "en_US": "Height of the straight section at the top of an angled hood; the angle stops there and the hood continues straight to the top (0 = angle runs all the way up)"
+ },
+ "Hood depth at the top when the front is angled": {
+  "pt_BR": "Profundidade da coifa no topo quando a frente é inclinada",
+  "en_US": "Hood depth at the top when the front is angled"
+ },
+ "Hood width at the top when the sides are angled": {
+  "pt_BR": "Largura da coifa no topo quando as laterais são inclinadas",
+  "en_US": "Hood width at the top when the sides are angled"
+ },
+ "How far the molding stands proud of the mantle faces": {
+  "pt_BR": "Quanto a moldura sobressai das faces da cornija",
+  "en_US": "How far the molding stands proud of the mantle faces"
+ },
+ "Include Front Panel": {
+  "pt_BR": "Incluir Painel Frontal",
+  "en_US": "Include Front Panel"
+ },
+ "Include Mantle": {
+  "pt_BR": "Incluir Cornija",
+  "en_US": "Include Mantle"
+ },
+ "Include Shiplap": {
+  "pt_BR": "Incluir Ripado",
+  "en_US": "Include Shiplap"
+ },
+ "Inset Door": {
+  "pt_BR": "Porta Embutida",
+  "en_US": "Inset Door"
+ },
+ "Inset Panel": {
+  "pt_BR": "Painel Embutido",
+  "en_US": "Inset Panel"
+ },
+ "Left End Front": {
+  "pt_BR": "Frente da Lateral Esquerda",
+  "en_US": "Left End Front"
+ },
+ "Left End:": {
+  "pt_BR": "Lateral Esquerda:",
+  "en_US": "Left End:"
+ },
+ "Left Paneled End": {
+  "pt_BR": "Lateral Esquerda Almofadada",
+  "en_US": "Left Paneled End"
+ },
+ "Liner": {
+  "pt_BR": "Forro",
+  "en_US": "Liner"
+ },
+ "Mantle": {
+  "pt_BR": "Cornija",
+  "en_US": "Mantle"
+ },
+ "Mantle Depth": {
+  "pt_BR": "Profundidade da Cornija",
+  "en_US": "Mantle Depth"
+ },
+ "Mantle Height": {
+  "pt_BR": "Altura da Cornija",
+  "en_US": "Mantle Height"
+ },
+ "Mantle Molding": {
+  "pt_BR": "Moldura da Cornija",
+  "en_US": "Mantle Molding"
+ },
+ "Mantle band and molding": {
+  "pt_BR": "Faixa da cornija e moldura",
+  "en_US": "Mantle band and molding"
+ },
+ "Mantle hood with shiplap face": {
+  "pt_BR": "Coifa com cornija e frente ripada",
+  "en_US": "Mantle hood with shiplap face"
+ },
+ "Mantle wood hood": {
+  "pt_BR": "Coifa de madeira com cornija",
+  "en_US": "Mantle wood hood"
+ },
+ "Mid rails on every hood door, splitting it into panel rows (0 = the door style's own mid rail setting)": {
+  "pt_BR": "Travessas centrais em todas as portas da coifa, dividindo em linhas de almofadas (0 = o que o estilo da porta define)",
+  "en_US": "Mid rails on every hood door, splitting it into panel rows (0 = the door style's own mid rail setting)"
+ },
+ "Mid stiles on every hood door, splitting each panel row into columns": {
+  "pt_BR": "Montantes centrais em todas as portas da coifa, dividindo cada linha em colunas",
+  "en_US": "Mid stiles on every hood door, splitting each panel row into columns"
+ },
+ "Molding Thickness": {
+  "pt_BR": "Espessura da Moldura",
+  "en_US": "Molding Thickness"
+ },
+ "Molding Width": {
+  "pt_BR": "Largura da Moldura",
+  "en_US": "Molding Width"
+ },
+ "Niche": {
+  "pt_BR": "Nicho",
+  "en_US": "Niche"
+ },
+ "Niche wood hood": {
+  "pt_BR": "Coifa de madeira com nicho",
+  "en_US": "Niche wood hood"
+ },
+ "No door; a 1/4\" inset panel closes the opening": {
+  "pt_BR": "Sem porta; um painel embutido de 1/4\" fecha o vão",
+  "en_US": "No door; a 1/4\" inset panel closes the opening"
+ },
+ "No revertable hood parts (no snapshot)": {
+  "pt_BR": "Nenhuma peça da coifa para reverter (sem cópia salva)",
+  "en_US": "No revertable hood parts (no snapshot)"
+ },
+ "Number of face frame bays across; mid stiles = bays - 1": {
+  "pt_BR": "Número de compartimentos do quadro frontal; montantes centrais = compartimentos - 1",
+  "en_US": "Number of face frame bays across; mid stiles = bays - 1"
+ },
+ "Overlay Door": {
+  "pt_BR": "Porta Sobreposta",
+  "en_US": "Overlay Door"
+ },
+ "Paneled Ends:": {
+  "pt_BR": "Laterais Almofadadas:",
+  "en_US": "Paneled Ends:"
+ },
+ "Paneled end (frame + front) replacing the left side": {
+  "pt_BR": "Lateral almofadada (quadro + frente) no lugar da lateral esquerda",
+  "en_US": "Paneled end (frame + front) replacing the left side"
+ },
+ "Paneled end (frame + front) replacing the right side": {
+  "pt_BR": "Lateral almofadada (quadro + frente) no lugar da lateral direita",
+  "en_US": "Paneled end (frame + front) replacing the right side"
+ },
+ "Paneled ends and their fronts": {
+  "pt_BR": "Laterais almofadadas e suas frentes",
+  "en_US": "Paneled ends and their fronts"
+ },
+ "Paneled face frame that replaces the plain front (stiles, rails, mid stiles over a recessed panel)": {
+  "pt_BR": "Quadro frontal almofadado que substitui a frente lisa (montantes, travessas e montantes centrais sobre uma almofada rebaixada)",
+  "en_US": "Paneled face frame that replaces the plain front (stiles, rails, mid stiles over a recessed panel)"
+ },
+ "Peninsula": {
+  "pt_BR": "Península",
+  "en_US": "Peninsula"
+ },
+ "Peninsula hood with shiplap, finished all sides": {
+  "pt_BR": "Coifa de península ripada, acabada em todos os lados",
+  "en_US": "Peninsula hood with shiplap, finished all sides"
+ },
+ "Peninsula wood hood": {
+  "pt_BR": "Coifa de madeira de península",
+  "en_US": "Peninsula wood hood"
+ },
+ "Plantation": {
+  "pt_BR": "Plantation",
+  "en_US": "Plantation"
+ },
+ "Plantation wood hood": {
+  "pt_BR": "Coifa de madeira Plantation",
+  "en_US": "Plantation wood hood"
+ },
+ "Projecting mantle band at the bottom of the hood": {
+  "pt_BR": "Faixa de cornija saliente na base da coifa",
+  "en_US": "Projecting mantle band at the bottom of the hood"
+ },
+ "Rails": {
+  "pt_BR": "Travessas",
+  "en_US": "Rails"
+ },
+ "Rails:": {
+  "pt_BR": "Travessas:",
+  "en_US": "Rails:"
+ },
+ "Raise the hood's bottom liner shelf this far up from the hood bottom": {
+  "pt_BR": "Sobe o fundo da coifa esta distância a partir da base dela",
+  "en_US": "Raise the hood's bottom liner shelf this far up from the hood bottom"
+ },
+ "Revert to Parametric": {
+  "pt_BR": "Voltar ao Paramétrico",
+  "en_US": "Revert to Parametric"
+ },
+ "Right End Front": {
+  "pt_BR": "Frente da Lateral Direita",
+  "en_US": "Right End Front"
+ },
+ "Right End:": {
+  "pt_BR": "Lateral Direita:",
+  "en_US": "Right End:"
+ },
+ "Right Paneled End": {
+  "pt_BR": "Lateral Direita Almofadada",
+  "en_US": "Right Paneled End"
+ },
+ "Section": {
+  "pt_BR": "Seção",
+  "en_US": "Section"
+ },
+ "Shape": {
+  "pt_BR": "Forma",
+  "en_US": "Shape"
+ },
+ "Shelf": {
+  "pt_BR": "Prateleira",
+  "en_US": "Shelf"
+ },
+ "Shelf wood hood": {
+  "pt_BR": "Coifa de madeira com prateleira",
+  "en_US": "Shelf wood hood"
+ },
+ "Shift the fan opening toward the front (+) or the wall (-)": {
+  "pt_BR": "Desloca a abertura do exaustor para a frente (+) ou para a parede (-)",
+  "en_US": "Shift the fan opening toward the front (+) or the wall (-)"
+ },
+ "Shiplap Board Width": {
+  "pt_BR": "Largura da Ripa",
+  "en_US": "Shiplap Board Width"
+ },
+ "Shiplap Box": {
+  "pt_BR": "Caixa Ripada",
+  "en_US": "Shiplap Box"
+ },
+ "Shiplap Mantle": {
+  "pt_BR": "Cornija Ripada",
+  "en_US": "Shiplap Mantle"
+ },
+ "Shiplap Peninsula": {
+  "pt_BR": "Península Ripada",
+  "en_US": "Shiplap Peninsula"
+ },
+ "Shiplap boards on the front face": {
+  "pt_BR": "Ripas na face da frente",
+  "en_US": "Shiplap boards on the front face"
+ },
+ "Shiplap course width; the last course trims down to whatever remains at the top": {
+  "pt_BR": "Largura de cada ripa; a última é cortada no que sobrar no topo",
+  "en_US": "Shiplap course width; the last course trims down to whatever remains at the top"
+ },
+ "Slope the front back to the top depth": {
+  "pt_BR": "Inclina a frente até a profundidade do topo",
+  "en_US": "Slope the front back to the top depth"
+ },
+ "Stile Width": {
+  "pt_BR": "Largura do Montante",
+  "en_US": "Stile Width"
+ },
+ "Stile:": {
+  "pt_BR": "Montante:",
+  "en_US": "Stile:"
+ },
+ "Stiles": {
+  "pt_BR": "Montantes",
+  "en_US": "Stiles"
+ },
+ "Strips of material wrapping the top and bottom of the mantle, mitred at the front corners": {
+  "pt_BR": "Tiras que envolvem o topo e a base da cornija, em meia-esquadria nos cantos da frente",
+  "en_US": "Strips of material wrapping the top and bottom of the mantle, mitred at the front corners"
+ },
+ "Style": {
+  "pt_BR": "Estilo",
+  "en_US": "Style"
+ },
+ "Taper the sides in to the top width": {
+  "pt_BR": "Afunila as laterais até a largura do topo",
+  "en_US": "Taper the sides in to the top width"
+ },
+ "Top Depth": {
+  "pt_BR": "Profundidade do Topo",
+  "en_US": "Top Depth"
+ },
+ "Top Height": {
+  "pt_BR": "Altura do Topo",
+  "en_US": "Top Height"
+ },
+ "Top Height:": {
+  "pt_BR": "Altura do Topo:",
+  "en_US": "Top Height:"
+ },
+ "Top Rail Width": {
+  "pt_BR": "Largura da Travessa Superior",
+  "en_US": "Top Rail Width"
+ },
+ "Top Width": {
+  "pt_BR": "Largura do Topo",
+  "en_US": "Top Width"
+ },
+ "Traditional": {
+  "pt_BR": "Tradicional",
+  "en_US": "Traditional"
+ },
+ "Traditional wood hood": {
+  "pt_BR": "Coifa de madeira tradicional",
+  "en_US": "Traditional wood hood"
+ },
+ "Villa": {
+  "pt_BR": "Villa",
+  "en_US": "Villa"
+ },
+ "Villa wood hood": {
+  "pt_BR": "Coifa de madeira Villa",
+  "en_US": "Villa wood hood"
+ },
+ "What fills the left paneled end's frame": {
+  "pt_BR": "O que preenche o quadro da lateral esquerda",
+  "en_US": "What fills the left paneled end's frame"
+ },
+ "What fills the right paneled end's frame": {
+  "pt_BR": "O que preenche o quadro da lateral direita",
+  "en_US": "What fills the right paneled end's frame"
+ },
+ "Width of the bottom frame rail": {
+  "pt_BR": "Largura da travessa inferior do quadro",
+  "en_US": "Width of the bottom frame rail"
+ },
+ "Width of the fan opening in the bottom liner shelf": {
+  "pt_BR": "Largura da abertura do exaustor no fundo",
+  "en_US": "Width of the fan opening in the bottom liner shelf"
+ },
+ "Width of the frame stiles (outer and mid)": {
+  "pt_BR": "Largura dos montantes do quadro (externos e centrais)",
+  "en_US": "Width of the frame stiles (outer and mid)"
+ },
+ "Width of the top frame rail": {
+  "pt_BR": "Largura da travessa superior do quadro",
+  "en_US": "Width of the top frame rail"
+ },
+ "Wood Hood Prompts": {
+  "pt_BR": "Opções da Coifa de Madeira",
+  "en_US": "Wood Hood Prompts"
+ },
+ "{} hood part(s) restored to parametric": {
+  "pt_BR": "{} peça(s) da coifa voltaram ao paramétrico",
+  "en_US": "{} hood part(s) restored to parametric"
+ }
+}

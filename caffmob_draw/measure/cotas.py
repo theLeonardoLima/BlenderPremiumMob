@@ -8,13 +8,14 @@ do piso, Y = profundidade com a face da parede em Y = 0 e os módulos do lado da
 """
 
 from collections import namedtuple
+from ..data.i18n import N_, tr
 
 Cotas = namedtuple('Cotas', 'afastamento anterior posterior inferior superior')
 Placement = namedtuple('Placement', 'x0 width z0 height back_y')
 
 FIELDS = ('afastamento', 'anterior', 'posterior', 'inferior', 'superior')
-LABELS = {'afastamento': "Afastamento da parede", 'anterior': "Cota anterior", 'posterior': "Cota posterior",
-          'inferior': "Cota inferior", 'superior': "Cota superior"}
+LABELS = {'afastamento': N_("Afastamento da parede"), 'anterior': N_("Cota anterior"), 'posterior': N_("Cota posterior"),
+          'inferior': N_("Cota inferior"), 'superior': N_("Cota superior")}
 
 
 def _vertical_overlap(z0, z1, oz0, oz1):
@@ -58,7 +59,7 @@ def apply(field, value, placement, obstacles, wall_length, ceiling_height):
     Levanta ValueError com mensagem "Valor Inválido" para valor negativo ou que tire o módulo da parede.
     """
     if value < 0:
-        raise ValueError(f"Valor Inválido: {LABELS[field]} não pode ser negativa.")
+        raise ValueError(tr("Valor Inválido: {} não pode ser negativa.").format(tr(LABELS[field])))
     p = placement
     if field == 'afastamento':
         return p._replace(back_y=-value)
@@ -67,7 +68,7 @@ def apply(field, value, placement, obstacles, wall_length, ceiling_height):
     if field == 'superior':
         z0 = ceiling_height - value - p.height
         if z0 < 0:
-            raise ValueError(f"Valor Inválido: {LABELS[field]} maior que o espaço até o piso.")
+            raise ValueError(tr("Valor Inválido: {} maior que o espaço até o piso.").format(tr(LABELS[field])))
         return p._replace(z0=z0)
     left, right = limits(p, obstacles, wall_length)
     if field == 'anterior':
@@ -77,7 +78,7 @@ def apply(field, value, placement, obstacles, wall_length, ceiling_height):
     else:
         raise ValueError(f"Cota desconhecida: {field}")
     if x0 < 0 or x0 + p.width > wall_length + 1e-9:
-        raise ValueError(f"Valor Inválido: {LABELS[field]} tira o módulo da parede.")
+        raise ValueError(tr("Valor Inválido: {} tira o módulo da parede.").format(tr(LABELS[field])))
     return p._replace(x0=x0)
 
 

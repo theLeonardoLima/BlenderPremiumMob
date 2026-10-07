@@ -11,6 +11,7 @@ O pé-direito vem de `scene.home_builder.ceiling_height` (cena principal); sem e
 
 import math
 
+from ..data.i18n import tr
 from .. import hb_types
 from ..selection import classify
 from . import cotas
@@ -104,7 +105,7 @@ class ModuleCotas:
     def apply(self, field, value):
         """Aplica a cota (RN-04); levanta ValueError("Valor Inválido…") sem mudar nada se for inválida."""
         if not self.on_wall and field in ('anterior', 'posterior', 'afastamento'):
-            raise ValueError("Valor Inválido: módulo livre (sem parede) não tem cota anterior, posterior ou afastamento.")
+            raise ValueError(tr("Valor Inválido: módulo livre (sem parede) não tem cota anterior, posterior ou afastamento."))
         if self.on_wall:
             new = cotas.apply(field, value, self.placement, self.obstacles(), self.wall_length, self.ceiling)
             self.root.location = (new.x0, new.back_y, new.z0)

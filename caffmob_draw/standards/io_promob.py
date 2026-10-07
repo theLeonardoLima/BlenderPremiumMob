@@ -12,6 +12,7 @@ import tempfile
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 
+from ..data.i18n import tr
 from ..data import dimension_schema as schema
 
 
@@ -34,12 +35,12 @@ def read_dimensionexport(path):
         tree = ET.parse(str(path))
     except ET.ParseError as exc:
         line, column = getattr(exc, 'position', (0, 0))
-        raise PromobFormatError(f"Arquivo XML inválido (linha {line}, coluna {column}).") from None
+        raise PromobFormatError(tr("Arquivo XML inválido (linha {}, coluna {}).").format(line, column)) from None
     except OSError as exc:
-        raise PromobFormatError(f"Não foi possível ler o arquivo: {exc}") from None
+        raise PromobFormatError(tr("Não foi possível ler o arquivo: {}").format(exc)) from None
     root = tree.getroot()
     if root.tag != 'DIMENSIONEXPORT':
-        raise PromobFormatError(f"Não é uma configuração de dimensões do Promob (raiz <{root.tag}>).")
+        raise PromobFormatError(tr("Não é uma configuração de dimensões do Promob (raiz <{}>).").format(root.tag))
     definition = root.find('DEFINITION')
     name = " ".join((definition.get('DESCRIPTION', '') if definition is not None else '').split())
     doc = PromobDocument(
@@ -53,7 +54,7 @@ def read_dimensionexport(path):
         if attr_id:
             doc.attributes.append((attr_id, attr.get('VALUE', '')))
     if not doc.attributes:
-        raise PromobFormatError("O arquivo não contém atributos de dimensão.")
+        raise PromobFormatError(tr("O arquivo não contém atributos de dimensão."))
     return doc
 
 

@@ -13,6 +13,7 @@
 import bpy  # type: ignore
 from bpy_extras import view3d_utils  # type: ignore
 
+from ..data.i18n import tr
 from ..canvas2d import draw
 from ..selection import classify
 
@@ -75,7 +76,7 @@ class BTM_OT_MoveOverDrag(bpy.types.Operator):
         self._handle = bpy.types.SpaceView3D.draw_handler_add(self._draw, (), 'WINDOW', 'POST_PIXEL')
         context.window_manager.modal_handler_add(self)
         context.workspace.status_text_set(
-            f"Mover Sobre: solte o botão direito sobre o objeto de referência  |  Esc: cancelar  ({self.a.name})")
+            tr("Mover Sobre: solte o botão direito sobre o objeto de referência  |  Esc: cancelar  ({})").format(self.a.name))
         return {'RUNNING_MODAL'}
 
     def _draw(self):

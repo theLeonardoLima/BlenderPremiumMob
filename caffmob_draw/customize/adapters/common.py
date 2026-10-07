@@ -2,11 +2,12 @@
 
 import bpy  # type: ignore
 
+from ...data.i18n import N_, tr
 from ... import compat
 from ...cutting import part_roles
 from .. import spec
 
-NO_STYLE_REASON = "A biblioteca não tem estilos de porta"
+NO_STYLE_REASON = N_("A biblioteca não tem estilos de porta")
 
 
 def ordered(objs):
@@ -21,7 +22,7 @@ def material(name, warnings):
         return None
     mat = bpy.data.materials.get(name)
     if mat is None:
-        warnings.append(f"Material '{name}' não existe neste arquivo")
+        warnings.append(tr("Material '{}' não existe neste arquivo").format(name))
     return mat
 
 

@@ -1,0 +1,2699 @@
+diff --git a/caffmob_draw/cutting/json_exporter.py b/caffmob_draw/cutting/json_exporter.py
+index 3c60647..b676cf5 100644
+--- a/caffmob_draw/cutting/json_exporter.py
++++ b/caffmob_draw/cutting/json_exporter.py
+@@ -12,6 +12,7 @@ import json
+ import os
+ import tempfile
+ 
++from ..data.i18n import tr
+ from .nesting import NestingPart
+ 
+ FORMAT = "caffmob_draw.project"
+@@ -178,13 +179,13 @@ def _warnings(parts, nesting_result):
+     for part in sorted(parts, key=lambda p: p.uid):
+         if part.limit_status != "OK":
+             warnings.append({"code": part.limit_status, "part_uid": part.uid,
+-                             "message": f"{part.name}: maior que o limite de chapa do componente {part.component}."})
++                             "message": tr("{}: maior que o limite de chapa do componente {}.").format(part.name, part.component)})
+         if part.component == "UNCLASSIFIED":
+             warnings.append({"code": "UNCLASSIFIED", "part_uid": part.uid,
+-                             "message": f"{part.name}: peça sem componente do padrão de dimensões."})
++                             "message": tr("{}: peça sem componente do padrão de dimensões.").format(part.name)})
+     for item in (nesting_result or {}).get("unplaced", []):
+         warnings.append({"code": "UNPLACED", "part_uid": item.get("uid") or item["id"],
+-                         "message": f"{item.get('name', '')}: {item.get('reason', 'não coube na chapa')}."})
++                         "message": f"{item.get('name', '')}: {item.get('reason', tr('não coube na chapa'))}."})
+     return warnings
+ 
+ 
+@@ -234,26 +235,26 @@ def validate_global_json(payload):
+ 
+     def need(obj, path, key, kind, check=None):
+         if not isinstance(obj, dict) or key not in obj:
+-            errors.append(f"{path}{key}: campo obrigatório ausente")
++            errors.append(tr("{}{}: campo obrigatório ausente").format(path, key))
+             return None
+         value = obj[key]
+         ok = _is_number(value) if kind == 'number' else isinstance(value, kind)
+         if not ok:
+-            errors.append(f"{path}{key}: tipo inválido")
++            errors.append(tr("{}{}: tipo inválido").format(path, key))
+             return None
+         if check is not None and not check(value):
+-            errors.append(f"{path}{key}: valor inválido ({value!r})")
++            errors.append(tr("{}{}: valor inválido ({!r})").format(path, key, value))
+         return value
+ 
+     if not isinstance(payload, dict):
+-        return ["$: o documento deve ser um objeto JSON"]
++        return [tr("$: o documento deve ser um objeto JSON")]
+     if payload.get("schema") not in ACCEPTED_FORMATS:
+-        errors.append(f"schema: esperado {FORMAT!r}")
++        errors.append(tr("schema: esperado {!r}").format(FORMAT))
+     version = need(payload, "", "schema_version", str)
+     if version is not None:
+         major = _major(version)
+         if major is None or major > SUPPORTED_MAJOR:
+-            errors.append(f"schema_version: versão {version} não suportada (máximo {SUPPORTED_MAJOR}.x)")
++            errors.append(tr("schema_version: versão {} não suportada (máximo {}.x)").format(version, SUPPORTED_MAJOR))
+     need(payload, "", "generator", dict)
+     need(payload, "", "exported_at", str)
+     need(payload, "", "unit", str, lambda u: u == "mm")
+@@ -282,7 +283,7 @@ def validate_global_json(payload):
+         uid = need(part, p, "uid", str)
+         if uid is not None:
+             if uid in part_uids:
+-                errors.append(f"{p}uid: duplicado ({uid})")
++                errors.append(tr("{}uid: duplicado ({})").format(p, uid))
+             part_uids.add(uid)
+         need(part, p, "name", str)
+         need(part, p, "component", str)
+@@ -308,7 +309,7 @@ def validate_global_json(payload):
+     plan = payload.get("cut_plan")
+     if plan is not None:
+         if not isinstance(plan, dict):
+-            errors.append("cut_plan: tipo inválido")
++            errors.append(tr("cut_plan: tipo inválido"))
+         else:
+             for i, sheet in enumerate(need(plan, "cut_plan.", "sheets", list) or []):
+                 s = f"cut_plan.sheets[{i}]."
+@@ -328,7 +329,7 @@ def write_global_json(path, payload):
+     """Escrita atômica, UTF-8 sem BOM. Levanta GlobalJsonError se o conteúdo não passar na validação."""
+     errors = validate_global_json(payload)
+     if errors:
+-        raise GlobalJsonError("JSON global inválido.", errors)
++        raise GlobalJsonError(tr("JSON global inválido."), errors)
+     directory = os.path.dirname(os.path.abspath(str(path))) or "."
+     fd, tmp = tempfile.mkstemp(dir=directory, suffix=".tmp")
+     try:
+@@ -349,14 +350,14 @@ def read_global_json(path):
+         with open(str(path), encoding='utf-8-sig') as handle:
+             payload = json.load(handle)
+     except json.JSONDecodeError as exc:
+-        raise GlobalJsonError(f"JSON inválido (linha {exc.lineno}, coluna {exc.colno}).") from None
++        raise GlobalJsonError(tr("JSON inválido (linha {}, coluna {}).").format(exc.lineno, exc.colno)) from None
+     except OSError as exc:
+-        raise GlobalJsonError(f"Não foi possível ler o arquivo: {exc}") from None
++        raise GlobalJsonError(tr("Não foi possível ler o arquivo: {}").format(exc)) from None
+     if isinstance(payload, dict) and _major(payload.get("schema_version", "")) == 1:
+         payload = convert_v1(payload)
+     errors = validate_global_json(payload)
+     if errors:
+-        raise GlobalJsonError("O arquivo não é um JSON global válido do CAFFMob Draw.", errors)
++        raise GlobalJsonError(tr("O arquivo não é um JSON global válido do CAFFMob Draw."), errors)
+     return payload
+ 
+ 
+@@ -397,7 +398,7 @@ def convert_v1(document):
+     warnings = []
+     if document.get("sheets"):
+         warnings.append({"code": "V1_CUT_PLAN_DROPPED", "part_uid": None,
+-                         "message": "Plano de corte do arquivo v1 não convertido: gere o plano novamente."})
++                         "message": tr("Plano de corte do arquivo v1 não convertido: gere o plano novamente.")})
+     return build_global_payload(
+         project={"name": project.get("name", "Projeto"), "uid": "", "rooms": []},
+         standard={"uid": "", "name": "", "version": 0, "market": "BR"},
+diff --git a/caffmob_draw/cutting/nesting.py b/caffmob_draw/cutting/nesting.py
+index 530f3dc..9fe1bf9 100644
+--- a/caffmob_draw/cutting/nesting.py
++++ b/caffmob_draw/cutting/nesting.py
+@@ -4,6 +4,8 @@ Algoritmo de otimização de corte 2D Guilhotina / Bin-Packing para chapas de MD
+ Suporta refilo perimetral por borda, espessura da lâmina (kerf), veio da madeira e fitas de borda.
+ """
+ 
++from ..data.i18n import tr
++
+ 
+ class NestingPart:
+     """Peça de corte em mm. `height` é o comprimento (veio VERTICAL acompanha o comprimento) e `width` a largura.
+@@ -176,7 +178,7 @@ def optimize_nesting(
+                     "height": p.height,
+                     "thickness": p.thickness,
+                     "material": p.material,
+-                    "reason": f"Dimensões ({p.width}x{p.height}mm) excedem a área útil ({usable_width}x{usable_height}mm)"
++                    "reason": tr("Dimensões ({}x{}mm) excedem a área útil ({}x{}mm)").format(p.width, p.height, usable_width, usable_height)
+                 })
+                 continue
+ 
+@@ -347,7 +349,7 @@ def optimize_nesting(
+                         "height": part["height"],
+                         "thickness": part["thickness"],
+                         "material": part["material"],
+-                        "reason": "Espaço insuficiente para inicializar chapa"
++                        "reason": tr("Espaço insuficiente para inicializar chapa")
+                     })
+ 
+         all_sheets_used.extend(group_sheets)
+diff --git a/caffmob_draw/hb_assets.py b/caffmob_draw/hb_assets.py
+index d636b0a..1dbd1a2 100644
+--- a/caffmob_draw/hb_assets.py
++++ b/caffmob_draw/hb_assets.py
+@@ -1,6 +1,7 @@
+ import bpy  # type: ignore
+ import os
+ import uuid
++from .data.i18n import tr
+ 
+ BUNDLED_LIBRARY_NAME = "CAFFMob Draw"
+ USER_LIBRARY_PREFIX = "HB: "
+@@ -390,7 +391,7 @@ class HB_OT_assign_asset_catalog(bpy.types.Operator):
+                 col.asset_data.catalog_id = catalog_uuid
+                 count += 1
+ 
+-        self.report({'INFO'}, f"Assigned {count} assets to catalog: {self.catalog_path}")
++        self.report({'INFO'}, tr("Assigned {} assets to catalog: {}").format(count, self.catalog_path))
+         return {'FINISHED'}
+ 
+ 
+diff --git a/caffmob_draw/hb_detail_library.py b/caffmob_draw/hb_detail_library.py
+index dddd0d2..024ad7f 100644
+--- a/caffmob_draw/hb_detail_library.py
++++ b/caffmob_draw/hb_detail_library.py
+@@ -9,6 +9,7 @@ import bpy
+ import os
+ import json
+ from datetime import datetime
++from .data.i18n import tr
+ 
+ 
+ def get_user_library_path() -> str:
+@@ -69,7 +70,7 @@ def save_detail_to_library(context, name: str, description: str = "") -> tuple:
+     is_crown_detail = scene.get('IS_CROWN_DETAIL', False)
+ 
+     if not is_detail and not is_crown_detail:
+-        return (False, "Not in a detail view", "")
++        return (False, tr("Not in a detail view"), "")
+ 
+     # Get all detail objects in the scene
+     detail_objects = []
+@@ -79,7 +80,7 @@ def save_detail_to_library(context, name: str, description: str = "") -> tuple:
+             detail_objects.append(obj)
+ 
+     if not detail_objects:
+-        return (False, "No objects in detail view", "")
++        return (False, tr("No objects in detail view"), "")
+ 
+     # Generate filename
+     filename = generate_detail_filename(name)
+@@ -172,7 +173,7 @@ def load_detail_from_library(context, filepath: str) -> tuple:
+     is_crown_detail = scene.get('IS_CROWN_DETAIL', False)
+ 
+     if not is_detail and not is_crown_detail:
+-        return (False, "Not in a detail view", [])
++        return (False, tr("Not in a detail view"), [])
+ 
+     if not os.path.exists(filepath):
+         return (False, f"File not found: {filepath}", [])
+@@ -192,7 +193,7 @@ def load_detail_from_library(context, filepath: str) -> tuple:
+             new_objects.append(obj)
+ 
+     if not new_objects:
+-        return (False, "No objects found in library file", [])
++        return (False, tr("No objects found in library file"), [])
+ 
+     # Select the new objects
+     bpy.ops.object.select_all(action='DESELECT')
+diff --git a/caffmob_draw/hb_layouts.py b/caffmob_draw/hb_layouts.py
+index 23e4671..321312f 100644
+--- a/caffmob_draw/hb_layouts.py
++++ b/caffmob_draw/hb_layouts.py
+@@ -1,6 +1,7 @@
+ import bpy
+ import math
+ from mathutils import Vector, Matrix, Euler
++from .data.i18n import tr
+ from . import hb_types
+ from . import units
+ 
+@@ -1104,7 +1105,7 @@ class TitleBlock:
+                 obj.data.body = scene.name
+             elif 'scale' in obj.name:
+                 scale_text = scene.hb_layout_scale if hasattr(scene, 'hb_layout_scale') else '1/4"=1\''
+-                obj.data.body = f"Scale: {scale_text}"
++                obj.data.body = tr("Scale: {}").format(scale_text)
+ 
+ 
+ class LayoutView:
+diff --git a/caffmob_draw/hb_placement.py b/caffmob_draw/hb_placement.py
+index 21e6d0e..99b6543 100644
+--- a/caffmob_draw/hb_placement.py
++++ b/caffmob_draw/hb_placement.py
+@@ -8,6 +8,7 @@ from enum import Enum, auto
+ from bpy_extras import view3d_utils
+ from gpu_extras.batch import batch_for_shader
+ from . import hb_snap, units
++from .data.i18n import tr
+ 
+ 
+ # Placement-dimension spec consumed by draw_placement_dimensions.
+@@ -1272,7 +1273,8 @@ def draw_header_text(context, text: str):
+     Call this in a draw handler.
+     """
+     # This is a simple approach - for more complex UI, use gpu/blf directly
+-    context.area.header_text_set(text)
++    # Traduz o texto (constante do catálogo); texto já montado com tr() passa sem mudar (BUG-20261007-FLZO).
++    context.area.header_text_set(tr(text))
+ 
+ 
+ def clear_header_text(context):
+@@ -1351,11 +1353,11 @@ class DimensionOperatorMixin:
+         ortho_text = self.get_ortho_display()
+ 
+         if self.dim_state == self.DIM_STATE_FIRST:
+-            return f"Click first point{snap_text} | O: ortho | Right-click/Esc: cancel"
++            return tr("Click first point{} | O: ortho | Right-click/Esc: cancel").format(snap_text)
+         elif self.dim_state == self.DIM_STATE_SECOND:
+-            return f"Click second point{snap_text}{ortho_text} | O: toggle ortho | Right-click/Esc: cancel"
++            return tr("Click second point{}{} | O: toggle ortho | Right-click/Esc: cancel").format(snap_text, ortho_text)
+         else:  # OFFSET
+-            return "Move to set offset, click to place | Right-click/Esc: cancel"
++            return tr("Move to set offset, click to place | Right-click/Esc: cancel")
+ 
+     def update_dimension_header(self, context):
+         """Update the header with current state."""
+diff --git a/caffmob_draw/inspection/adapters/aggregate_leaf.py b/caffmob_draw/inspection/adapters/aggregate_leaf.py
+index f5cdf40..d8dfaef 100644
+--- a/caffmob_draw/inspection/adapters/aggregate_leaf.py
++++ b/caffmob_draw/inspection/adapters/aggregate_leaf.py
+@@ -11,6 +11,7 @@ import math
+ import bpy  # type: ignore
+ from mathutils import Vector  # type: ignore
+ 
++from ...data.i18n import tr
+ from ...aggregates import leaf
+ from .. import fronts, pivot_math
+ 
+@@ -31,7 +32,7 @@ class AggregateLeafFront(fronts.Front):
+ 
+     @property
+     def label(self):
+-        return f"Folha — {self.obj.name}"
++        return tr("Folha — {}").format(self.obj.name)
+ 
+     @property
+     def max_value(self):
+diff --git a/caffmob_draw/inspection/adapters/room_doors.py b/caffmob_draw/inspection/adapters/room_doors.py
+index 602e4b0..74cc20e 100644
+--- a/caffmob_draw/inspection/adapters/room_doors.py
++++ b/caffmob_draw/inspection/adapters/room_doors.py
+@@ -9,6 +9,7 @@ import math
+ 
+ from mathutils import Vector  # type: ignore
+ 
++from ...data.i18n import tr
+ from .. import fronts, room_door_leaf
+ 
+ 
+@@ -20,7 +21,7 @@ class RoomDoorFront(fronts.Front):
+ 
+     @property
+     def label(self):
+-        return f"Porta de ambiente — {self.obj.name}"
++        return tr("Porta de ambiente — {}").format(self.obj.name)
+ 
+     def get(self):
+         pivots = room_door_leaf.pivots_of(self.module_root)
+diff --git a/caffmob_draw/inspection/fronts.py b/caffmob_draw/inspection/fronts.py
+index 2c68dda..dd6a9d6 100644
+--- a/caffmob_draw/inspection/fronts.py
++++ b/caffmob_draw/inspection/fronts.py
+@@ -10,6 +10,7 @@ o valor de abertura sem recalcular o módulo:
+ - `hinge_frame()`: (origem, eixo, direção de referência) em coordenadas do mundo, para o controle no 3D.
+ """
+ 
++from ..data.i18n import N_
+ from . import pivot_math
+ 
+ DOOR = 'DOOR'
+@@ -19,8 +20,8 @@ DRAWER = 'DRAWER'
+ PULLOUT = 'PULLOUT'
+ 
+ HINGED = frozenset({DOOR, FLIP_UP, FLIP_DOWN})
+-KIND_LABELS = {DOOR: "Porta", FLIP_UP: "Basculante", FLIP_DOWN: "Basculante p/ baixo", DRAWER: "Gaveta",
+-               PULLOUT: "Pullout"}
++KIND_LABELS = {DOOR: N_("Porta"), FLIP_UP: N_("Basculante"), FLIP_DOWN: N_("Basculante p/ baixo"), DRAWER: N_("Gaveta"),
++               PULLOUT: N_("Pullout")}
+ 
+ 
+ class Front:
+diff --git a/caffmob_draw/inspection/ops_inspect.py b/caffmob_draw/inspection/ops_inspect.py
+index f58f81b..00391f6 100644
+--- a/caffmob_draw/inspection/ops_inspect.py
++++ b/caffmob_draw/inspection/ops_inspect.py
+@@ -9,6 +9,7 @@ import time
+ import bpy  # type: ignore
+ from bpy_extras import view3d_utils  # type: ignore
+ 
++from ..data.i18n import tr
+ from . import fronts
+ 
+ ANIM_DURATION = 0.35
+@@ -85,7 +86,7 @@ class BTM_OT_FrontsSetOpen(bpy.types.Operator):
+             except ReferenceError:
+                 continue
+         verb = "fechadas" if self.mode == 'CLOSE' else "abertas"
+-        self.report({'INFO'}, f"{len(targets)} frente(s) {verb}.")
++        self.report({'INFO'}, tr("{} frente(s) {}.").format(len(targets), verb))
+         return {'FINISHED'}
+ 
+ 
+@@ -150,7 +151,7 @@ class BTM_OT_InspectFronts(bpy.types.Operator):
+         self._timer = context.window_manager.event_timer_add(1.0 / TIMER_HZ, window=context.window)
+         context.window_manager.modal_handler_add(self)
+         context.workspace.status_text_set(
+-            "Abrir portas e gavetas  |  Clique: abrir/fechar  |  Esc / botão direito: sair")
++            tr("Abrir portas e gavetas  |  Clique: abrir/fechar  |  Esc / botão direito: sair"))
+         from ..operators.viewport_hud import register_active_modal
+         register_active_modal(self)
+         _active = self
+diff --git a/caffmob_draw/inspection/ops_interference.py b/caffmob_draw/inspection/ops_interference.py
+index 2849e4e..8dfb176 100644
+--- a/caffmob_draw/inspection/ops_interference.py
++++ b/caffmob_draw/inspection/ops_interference.py
+@@ -5,6 +5,7 @@ Roda só sob demanda. Ausência de aviso só vale para as frentes verificadas: o
+ 
+ import bpy  # type: ignore
+ 
++from ..data.i18n import tr
+ from . import interference
+ from .ops_inspect import scope_fronts
+ 
+@@ -31,9 +32,9 @@ class BTM_OT_CheckFrontInterference(bpy.types.Operator):
+         if checked == 0:
+             self.report({'WARNING'}, "Nenhuma frente foi verificada: não há portas ou gavetas no escopo.")
+         elif results:
+-            self.report({'WARNING'}, f"{len(results)} interferência(s) em {checked} frente(s) verificada(s).")
++            self.report({'WARNING'}, tr("{} interferência(s) em {} frente(s) verificada(s).").format(len(results), checked))
+         else:
+-            self.report({'INFO'}, f"Nenhuma interferência nas {checked} frente(s) verificada(s).")
++            self.report({'INFO'}, tr("Nenhuma interferência nas {} frente(s) verificada(s).").format(checked))
+         return {'FINISHED'}
+ 
+ 
+diff --git a/caffmob_draw/measure/cotas.py b/caffmob_draw/measure/cotas.py
+index 7517d8a..8bfbf73 100644
+--- a/caffmob_draw/measure/cotas.py
++++ b/caffmob_draw/measure/cotas.py
+@@ -8,13 +8,14 @@ do piso, Y = profundidade com a face da parede em Y = 0 e os módulos do lado da
+ """
+ 
+ from collections import namedtuple
++from ..data.i18n import N_, tr
+ 
+ Cotas = namedtuple('Cotas', 'afastamento anterior posterior inferior superior')
+ Placement = namedtuple('Placement', 'x0 width z0 height back_y')
+ 
+ FIELDS = ('afastamento', 'anterior', 'posterior', 'inferior', 'superior')
+-LABELS = {'afastamento': "Afastamento da parede", 'anterior': "Cota anterior", 'posterior': "Cota posterior",
+-          'inferior': "Cota inferior", 'superior': "Cota superior"}
++LABELS = {'afastamento': N_("Afastamento da parede"), 'anterior': N_("Cota anterior"), 'posterior': N_("Cota posterior"),
++          'inferior': N_("Cota inferior"), 'superior': N_("Cota superior")}
+ 
+ 
+ def _vertical_overlap(z0, z1, oz0, oz1):
+@@ -58,7 +59,7 @@ def apply(field, value, placement, obstacles, wall_length, ceiling_height):
+     Levanta ValueError com mensagem "Valor Inválido" para valor negativo ou que tire o módulo da parede.
+     """
+     if value < 0:
+-        raise ValueError(f"Valor Inválido: {LABELS[field]} não pode ser negativa.")
++        raise ValueError(tr("Valor Inválido: {} não pode ser negativa.").format(tr(LABELS[field])))
+     p = placement
+     if field == 'afastamento':
+         return p._replace(back_y=-value)
+@@ -67,7 +68,7 @@ def apply(field, value, placement, obstacles, wall_length, ceiling_height):
+     if field == 'superior':
+         z0 = ceiling_height - value - p.height
+         if z0 < 0:
+-            raise ValueError(f"Valor Inválido: {LABELS[field]} maior que o espaço até o piso.")
++            raise ValueError(tr("Valor Inválido: {} maior que o espaço até o piso.").format(tr(LABELS[field])))
+         return p._replace(z0=z0)
+     left, right = limits(p, obstacles, wall_length)
+     if field == 'anterior':
+@@ -77,7 +78,7 @@ def apply(field, value, placement, obstacles, wall_length, ceiling_height):
+     else:
+         raise ValueError(f"Cota desconhecida: {field}")
+     if x0 < 0 or x0 + p.width > wall_length + 1e-9:
+-        raise ValueError(f"Valor Inválido: {LABELS[field]} tira o módulo da parede.")
++        raise ValueError(tr("Valor Inválido: {} tira o módulo da parede.").format(tr(LABELS[field])))
+     return p._replace(x0=x0)
+ 
+ 
+diff --git a/caffmob_draw/measure/scene_cotas.py b/caffmob_draw/measure/scene_cotas.py
+index 67655e8..0f82cb7 100644
+--- a/caffmob_draw/measure/scene_cotas.py
++++ b/caffmob_draw/measure/scene_cotas.py
+@@ -11,6 +11,7 @@ O pé-direito vem de `scene.home_builder.ceiling_height` (cena principal); sem e
+ 
+ import math
+ 
++from ..data.i18n import tr
+ from .. import hb_types
+ from ..selection import classify
+ from . import cotas
+@@ -104,7 +105,7 @@ class ModuleCotas:
+     def apply(self, field, value):
+         """Aplica a cota (RN-04); levanta ValueError("Valor Inválido…") sem mudar nada se for inválida."""
+         if not self.on_wall and field in ('anterior', 'posterior', 'afastamento'):
+-            raise ValueError("Valor Inválido: módulo livre (sem parede) não tem cota anterior, posterior ou afastamento.")
++            raise ValueError(tr("Valor Inválido: módulo livre (sem parede) não tem cota anterior, posterior ou afastamento."))
+         if self.on_wall:
+             new = cotas.apply(field, value, self.placement, self.obstacles(), self.wall_length, self.ceiling)
+             self.root.location = (new.x0, new.back_y, new.z0)
+diff --git a/caffmob_draw/move_over/insertion_plane.py b/caffmob_draw/move_over/insertion_plane.py
+index a990526..ec51b53 100644
+--- a/caffmob_draw/move_over/insertion_plane.py
++++ b/caffmob_draw/move_over/insertion_plane.py
+@@ -7,6 +7,7 @@ Menu de contexto do objeto › "Usar como plano de inserção" e um clique na fa
+ import bpy  # type: ignore
+ from bpy_extras import view3d_utils  # type: ignore
+ from mathutils import Matrix, Vector  # type: ignore
++from ..data.i18n import tr
+ 
+ 
+ def _plane_matrix(location, normal):
+@@ -28,7 +29,7 @@ class BTM_OT_SetInsertionPlane(bpy.types.Operator):
+     def invoke(self, context, event):
+         # O clique no menu não está sobre a face: pede um clique na face (Esc/botão direito cancela).
+         context.window_manager.modal_handler_add(self)
+-        context.workspace.status_text_set("Plano de inserção  |  Clique na face  |  Esc/botão direito: cancelar")
++        context.workspace.status_text_set(tr("Plano de inserção  |  Clique na face  |  Esc/botão direito: cancelar"))
+         context.window.cursor_set('EYEDROPPER')
+         return {'RUNNING_MODAL'}
+ 
+@@ -60,7 +61,7 @@ class BTM_OT_SetInsertionPlane(bpy.types.Operator):
+         plane.matrix = [v for row in _plane_matrix(Vector(location), Vector(normal)) for v in row]
+         plane.source_name = source
+         plane.active = True
+-        self.report({'INFO'}, f"Plano de inserção: face de {source}")
++        self.report({'INFO'}, tr("Plano de inserção: face de {}").format(source))
+         return {'FINISHED'}
+ 
+     def execute(self, context):
+diff --git a/caffmob_draw/move_over/ops_dialog.py b/caffmob_draw/move_over/ops_dialog.py
+index 785e855..b43ccb3 100644
+--- a/caffmob_draw/move_over/ops_dialog.py
++++ b/caffmob_draw/move_over/ops_dialog.py
+@@ -19,6 +19,7 @@ Fora do painel, a navegação da viewport (botão do meio, roda) continua funcio
+ 
+ import bpy  # type: ignore
+ 
++from ..data.i18n import N_, tr
+ from ..canvas2d import draw
+ from ..canvas2d.view import View2D
+ from ..data import units
+@@ -28,7 +29,7 @@ from .scene import MoveOver
+ 
+ NAV_EVENTS = {'MIDDLEMOUSE', 'WHEELUPMOUSE', 'WHEELDOWNMOUSE', 'TRACKPADPAN', 'TRACKPADZOOM', 'MOUSEROTATE',
+               'NDOF_MOTION'}
+-FIELD_LABELS = ("X", "Profundidade", "Altura")
++FIELD_LABELS = ("X", N_("Profundidade"), N_("Altura"))
+ ABS_LABELS = ("X", "Y", "Z")
+ ROTATION, STEP = 3, 4             # campos da segunda linha
+ FIELD_COUNT = 5
+@@ -85,8 +86,8 @@ class BTM_OT_MoveOverDialog(bpy.types.Operator):
+         self._handle = bpy.types.SpaceView3D.draw_handler_add(self._draw, (), 'WINDOW', 'POST_PIXEL')
+         context.window_manager.modal_handler_add(self)
+         context.workspace.status_text_set(
+-            "Mover Sobre  |  Clique perto de um lado ou de uma linha  |  Tab: digitar  |  Setas/PgUp/PgDn: passo  |  "
+-            "Enter: confirmar  |  Esc: cancelar")
++            tr("Mover Sobre  |  Clique perto de um lado ou de uma linha  |  Tab: digitar  |  Setas/PgUp/PgDn: passo  |  "
++            "Enter: confirmar  |  Esc: cancelar"))
+         context.area.tag_redraw()
+         return {'RUNNING_MODAL'}
+ 
+@@ -196,9 +197,9 @@ class BTM_OT_MoveOverDialog(bpy.types.Operator):
+         draw.rect(sh, self.panel, draw.COLORS['panel'])
+         draw.outline(sh, self.panel, draw.COLORS['border'])
+         draw.text(self.title_pos[0], self.title_pos[1],
+-                  f"Mover Sobre — {self.mo.a.name} sobre {self.mo.b.name} (referência)", size=13)
++                  tr("Mover Sobre — {} sobre {} (referência)").format(self.mo.a.name, self.mo.b.name), size=13)
+         a, b = self.mo.box_a(), self.mo.box_b
+-        self._draw_pane(sh, self.pane_top, self.view_top, "Superior (frente embaixo)", self._top_lines(),
++        self._draw_pane(sh, self.pane_top, self.view_top, N_("Superior (frente embaixo)"), self._top_lines(),
+                         self.hot['top'], ((b[0][0], b[0][1]), (b[1][0], b[1][1])),
+                         ((a[0][0], a[0][1]), (a[1][0], a[1][1])), align.DEPTH)
+         self._draw_pane(sh, self.pane_front, self.view_front, "Frontal", self._front_lines(),
+@@ -212,13 +213,13 @@ class BTM_OT_MoveOverDialog(bpy.types.Operator):
+             draw.rect(sh, rect, draw.COLORS['button_hot'] if active else draw.COLORS['button'])
+             draw.outline(sh, rect, draw.COLORS['target_hot'] if active else draw.COLORS['border'])
+             if i == ROTATION:
+-                label, shown = "Rotação", f"{self.mo.rotation:.1f}°".replace(".", ",")
++                label, shown = N_("Rotação"), f"{self.mo.rotation:.1f}°".replace(".", ",")
+             elif i == STEP:
+-                label, shown = "Passo", draw.length_label(self.state.step)
++                label, shown = N_("Passo"), draw.length_label(self.state.step)
+             else:
+                 label, shown = labels[i], draw.length_label(values[i])
+             value = (self.buffer + "▏") if active else shown
+-            draw.text(rect[0] + 8, rect[1] + 8, f"{label}: {value}")
++            draw.text(rect[0] + 8, rect[1] + 8, f"{tr(label)}: {value}")
+         draw.button(sh, self.button_mode, "Posição relativa" if relative else "Posição absoluta",
+                     hot=point_in_rect(*self.mouse, self.button_mode))
+         draw.button(sh, self.button_save, "Salvar posição", hot=point_in_rect(*self.mouse, self.button_save))
+@@ -250,13 +251,13 @@ class BTM_OT_MoveOverDialog(bpy.types.Operator):
+         saved = self.mo.saved()
+         items = context.scene.btm_saved_positions
+         item = items.add()
+-        item.name = f"Posição {len(items)}"
++        item.name = tr("Posição {}").format(len(items))
+         item.delta, item.rotation, item.b_side = saved['delta'], saved['rotation'], saved['b_side']
+-        self.warning = f"{item.name} salva ({self.mo.a.name} em relação a {self.mo.b.name})."
++        self.warning = tr("{} salva ({} em relação a {}).").format(item.name, self.mo.a.name, self.mo.b.name)
+ 
+     def _apply_saved(self, item):
+         self.mo.apply_saved({'delta': tuple(item.delta), 'rotation': item.rotation, 'b_side': item.b_side})
+-        self.warned, self.warning = False, f"{item.name} aplicada."
++        self.warned, self.warning = False, tr("{} aplicada.").format(item.name)
+         self._fit_views()
+ 
+     def _commit_typing(self):
+@@ -267,7 +268,7 @@ class BTM_OT_MoveOverDialog(bpy.types.Operator):
+                 value = units.parse_length(self.buffer, units.get_scene_length_unit(),
+                                            allow_negative=self.typing != STEP, allow_zero=self.typing != STEP)
+         except ValueError as exc:
+-            self.warning = str(exc) if str(exc) else "Valor inválido"
++            self.warning = str(exc) if str(exc) else N_("Valor inválido")
+             return False
+         if self.typing == ROTATION:
+             self.mo.set_rotation(value)
+@@ -288,11 +289,11 @@ class BTM_OT_MoveOverDialog(bpy.types.Operator):
+             overlapping = self.mo.overlapping()
+             if overlapping:
+                 names = ", ".join(o.name for o in overlapping[:4])
+-                self.warning = f"Sobrepõe: {names}. Confirme de novo para gravar mesmo assim."
++                self.warning = tr("Sobrepõe: {}. Confirme de novo para gravar mesmo assim.").format(names)
+                 self.warned = True
+                 return {'RUNNING_MODAL'}
+         self._finish(context)
+-        self.report({'INFO'}, f"{self.mo.a.name} alinhado a {self.mo.b.name}.")
++        self.report({'INFO'}, tr("{} alinhado a {}.").format(self.mo.a.name, self.mo.b.name))
+         return {'FINISHED'}
+ 
+     def modal(self, context, event):
+diff --git a/caffmob_draw/move_over/ops_drag.py b/caffmob_draw/move_over/ops_drag.py
+index 5241e22..9dd84c5 100644
+--- a/caffmob_draw/move_over/ops_drag.py
++++ b/caffmob_draw/move_over/ops_drag.py
+@@ -13,6 +13,7 @@
+ import bpy  # type: ignore
+ from bpy_extras import view3d_utils  # type: ignore
+ 
++from ..data.i18n import tr
+ from ..canvas2d import draw
+ from ..selection import classify
+ 
+@@ -75,7 +76,7 @@ class BTM_OT_MoveOverDrag(bpy.types.Operator):
+         self._handle = bpy.types.SpaceView3D.draw_handler_add(self._draw, (), 'WINDOW', 'POST_PIXEL')
+         context.window_manager.modal_handler_add(self)
+         context.workspace.status_text_set(
+-            f"Mover Sobre: solte o botão direito sobre o objeto de referência  |  Esc: cancelar  ({self.a.name})")
++            tr("Mover Sobre: solte o botão direito sobre o objeto de referência  |  Esc: cancelar  ({})").format(self.a.name))
+         return {'RUNNING_MODAL'}
+ 
+     def _draw(self):
+diff --git a/caffmob_draw/move_over/ops_move_on_wall.py b/caffmob_draw/move_over/ops_move_on_wall.py
+index 48c05e8..5c7c4fa 100644
+--- a/caffmob_draw/move_over/ops_move_on_wall.py
++++ b/caffmob_draw/move_over/ops_move_on_wall.py
+@@ -12,6 +12,7 @@ from bpy_extras import view3d_utils  # type: ignore
+ from mathutils import Vector  # type: ignore
+ from mathutils.geometry import intersect_line_plane  # type: ignore
+ 
++from ..data.i18n import tr
+ from ..data import units
+ from ..measure import cotas, scene_cotas
+ 
+@@ -96,8 +97,7 @@ class BTM_OT_MoveOnWall(bpy.types.Operator):
+         unit = units.get_scene_length_unit()
+         fmt = lambda v: units.format_length(v, unit) if v is not None else "—"  # noqa: E731
+         context.area.header_text_set(
+-            f"Anterior {fmt(values.anterior)} | Posterior {fmt(values.posterior)} | Inferior {fmt(values.inferior)} | "
+-            "Shift: altura | Clique confirma | Esc cancela")
++            tr("Anterior {} | Posterior {} | Inferior {} | Shift: altura | Clique confirma | Esc cancela").format(fmt(values.anterior), fmt(values.posterior), fmt(values.inferior)))
+ 
+     def _end(self, context, result):
+         context.area.header_text_set(None)
+diff --git a/caffmob_draw/move_over/ops_substitute.py b/caffmob_draw/move_over/ops_substitute.py
+index 4bb694d..e8d49ae 100644
+--- a/caffmob_draw/move_over/ops_substitute.py
++++ b/caffmob_draw/move_over/ops_substitute.py
+@@ -8,6 +8,7 @@ desfazer. Nesta versão a busca cobre a biblioteca de módulos do usuário (`cus
+ import bpy  # type: ignore
+ from mathutils import Vector  # type: ignore
+ 
++from ..data.i18n import N_, tr
+ from ..customize import library_io
+ from . import reposition
+ from .scene import _frame, _local_box
+@@ -18,7 +19,7 @@ _ITEMS = []
+ def _module_items(self, context):
+     global _ITEMS
+     _ITEMS = [(e["blend"], f"{e['category']} / {e['name']}", "") for e in library_io.list_modules()]
+-    return _ITEMS or [("", "Nenhum módulo salvo", "")]
++    return _ITEMS or [("", N_("Nenhum módulo salvo"), "")]
+ 
+ 
+ def _box_in(frame_inv, obj):
+@@ -91,7 +92,7 @@ class BTM_OT_MoveOverSubstitute(bpy.types.Operator):
+         new.select_set(True)
+         context.view_layer.objects.active = new
+         self.report({'WARNING'} if warnings else {'INFO'},
+-                    " | ".join(warnings) if warnings else f"{name} substituído por {new.name}")
++                    " | ".join(warnings) if warnings else tr("{} substituído por {}").format(name, new.name))
+         return {'FINISHED'}
+ 
+ 
+diff --git a/caffmob_draw/move_over/scene.py b/caffmob_draw/move_over/scene.py
+index 1d7cb40..e0930a1 100644
+--- a/caffmob_draw/move_over/scene.py
++++ b/caffmob_draw/move_over/scene.py
+@@ -12,6 +12,7 @@ import math
+ 
+ from mathutils import Matrix, Vector  # type: ignore
+ 
++from ..data.i18n import tr
+ from ..selection import classify
+ from . import align, reposition
+ 
+@@ -40,7 +41,7 @@ class MoveOver:
+         self.a = classify.movable_root(obj_a)
+         self.b = classify.reference_root(obj_b)
+         if self.a is None or self.b is None or self.a == self.b:
+-            raise ValueError("Esses objetos não podem ser usados no Mover Sobre.")
++            raise ValueError(tr("Esses objetos não podem ser usados no Mover Sobre."))
+         info_b = classify.classify(self.b)
+         self.b_is_wall = info_b.kind == classify.WALL
+         self.original_parent = self.a.parent
+diff --git a/caffmob_draw/operators/cabinet_builder.py b/caffmob_draw/operators/cabinet_builder.py
+index dda3d5e..5bb3faa 100644
+--- a/caffmob_draw/operators/cabinet_builder.py
++++ b/caffmob_draw/operators/cabinet_builder.py
+@@ -1,4 +1,5 @@
+ import bpy  # type: ignore
++from ..data.i18n import tr
+ from ..geometry.mesh_gen import generate_cabinet_mesh
+ from ..geometry import door_controller
+ from ..data import units
+@@ -53,5 +54,5 @@ class BTM_OT_CabinetBuilder(bpy.types.Operator):
+         w_str = units.format_value(self.width, context.scene)
+         h_str = units.format_value(self.height, context.scene)
+         d_str = units.format_value(self.depth, context.scene)
+-        self.report({'INFO'}, f"Módulo de Armário inserido: {w_str} x {h_str} x {d_str}")
++        self.report({'INFO'}, tr("Módulo de Armário inserido: {} x {} x {}").format(w_str, h_str, d_str))
+         return {'FINISHED'}
+diff --git a/caffmob_draw/operators/details.py b/caffmob_draw/operators/details.py
+index 6b4ddd5..8e9a7f3 100644
+--- a/caffmob_draw/operators/details.py
++++ b/caffmob_draw/operators/details.py
+@@ -2,6 +2,7 @@ import bpy
+ import math
+ import gpu
+ from mathutils import Vector
++from ..data.i18n import tr
+ from .. import hb_details
+ from .. import hb_types
+ from .. import hb_snap
+@@ -205,7 +206,7 @@ class home_builder_details_OT_create_detail(bpy.types.Operator):
+         # Switch to the new scene
+         bpy.ops.caffmob_layouts.go_to_layout_view(scene_name=scene.name)
+ 
+-        self.report({'INFO'}, f"Created detail: {scene.name}")
++        self.report({'INFO'}, tr("Created detail: {}").format(scene.name))
+         return {'FINISHED'}
+ 
+ 
+@@ -241,7 +242,7 @@ class home_builder_details_OT_delete_detail(bpy.types.Operator):
+                         hb_utils.frame_all_objects()
+ 
+             bpy.data.scenes.remove(scene)
+-            self.report({'INFO'}, f"Deleted detail: {self.scene_name}")
++            self.report({'INFO'}, tr("Deleted detail: {}").format(self.scene_name))
+ 
+         return {'FINISHED'}
+ 
+@@ -843,7 +844,7 @@ class home_builder_details_OT_draw_line(bpy.types.Operator, hb_placement.Placeme
+             snap_text = ""
+ 
+         if self.placement_state == hb_placement.PlacementState.TYPING:
+-            text = f"Segment Length: {self.typed_value}_ | Enter to confirm | Esc to cancel typing"
++            text = tr("Segment Length: {}_ | Enter to confirm | Esc to cancel typing").format(self.typed_value)
+         elif self.point_count > 0:
+             length = self._get_segment_length()
+             length_str = units.unit_to_string(context.scene.unit_settings, length)
+@@ -858,9 +859,9 @@ class home_builder_details_OT_draw_line(bpy.types.Operator, hb_placement.Placeme
+ 
+             close_text = " | C: close" if self.point_count >= 2 else ""
+             lock_hint = "L: unlock" if self.angle_locked else "L: lock"
+-            text = f"Length: {length_str} | {angle_deg}° | {mode}{snap_text} | {lock_hint}{close_text} | Right-click: finish"
++            text = tr("Length: {} | {}° | {}{} | {}{} | Right-click: finish").format(length_str, angle_deg, mode, snap_text, lock_hint, close_text)
+         else:
+-            text = f"Click to place first point{snap_text} | Right-click/Esc to cancel"
++            text = tr("Click to place first point{} | Right-click/Esc to cancel").format(snap_text)
+ 
+         hb_placement.draw_header_text(context, text)
+ 
+@@ -1493,17 +1494,17 @@ class home_builder_details_OT_draw_rectangle(bpy.types.Operator, hb_placement.Pl
+         snap_text = " [SNAP]" if self.is_snapped else ""
+ 
+         if not self.has_first_corner:
+-            text = f"Click first corner{snap_text} | Right-click/Esc to cancel"
++            text = tr("Click first corner{} | Right-click/Esc to cancel").format(snap_text)
+         elif self.is_typing:
+             if self.typing_width:
+-                text = f"Width: {self.typed_width}_ | Tab for height | Enter to confirm | Esc to cancel"
++                text = tr("Width: {}_ | Tab for height | Enter to confirm | Esc to cancel").format(self.typed_width)
+             else:
+                 width_str = units.unit_to_string(context.scene.unit_settings, self.parse_dimension(self.typed_width) or self.current_width)
+-                text = f"Width: {width_str} | Height: {self.typed_height}_ | Enter to confirm | Esc to cancel"
++                text = tr("Width: {} | Height: {}_ | Enter to confirm | Esc to cancel").format(width_str, self.typed_height)
+         else:
+             width_str = units.unit_to_string(context.scene.unit_settings, self.current_width)
+             height_str = units.unit_to_string(context.scene.unit_settings, self.current_height)
+-            text = f"Width: {width_str} | Height: {height_str}{snap_text} | Type for exact size | Click to place"
++            text = tr("Width: {} | Height: {}{} | Type for exact size | Click to place").format(width_str, height_str, snap_text)
+ 
+         hb_placement.draw_header_text(context, text)
+ 
+@@ -1826,13 +1827,13 @@ class home_builder_details_OT_draw_circle(bpy.types.Operator, hb_placement.Place
+         snap_text = " [SNAP]" if self.is_snapped else ""
+ 
+         if not self.has_center:
+-            text = f"Click to place center{snap_text} | Right-click/Esc to cancel"
++            text = tr("Click to place center{} | Right-click/Esc to cancel").format(snap_text)
+         elif self.is_typing:
+-            text = f"Radius: {self.typed_radius}_ | Enter to confirm | Esc to cancel typing"
++            text = tr("Radius: {}_ | Enter to confirm | Esc to cancel typing").format(self.typed_radius)
+         else:
+             radius_str = units.unit_to_string(context.scene.unit_settings, self.current_radius)
+             diameter_str = units.unit_to_string(context.scene.unit_settings, self.current_radius * 2)
+-            text = f"Radius: {radius_str} | Diameter: {diameter_str}{snap_text} | Type for exact | Click to place"
++            text = tr("Radius: {} | Diameter: {}{} | Type for exact | Click to place").format(radius_str, diameter_str, snap_text)
+ 
+         hb_placement.draw_header_text(context, text)
+ 
+@@ -2112,7 +2113,7 @@ class home_builder_details_OT_add_text(bpy.types.Operator, hb_placement.Placemen
+ 
+     def update_header(self, context):
+         snap_text = " [SNAP]" if self.is_snapped else ""
+-        text = f"Click to place text{snap_text} | Tab to edit after placing | Right-click/Esc to cancel"
++        text = tr("Click to place text{} | Tab to edit after placing | Right-click/Esc to cancel").format(snap_text)
+         hb_placement.draw_header_text(context, text)
+ 
+     def execute(self, context):
+@@ -3139,11 +3140,11 @@ class home_builder_details_OT_create_detail_from_library(bpy.types.Operator):
+             # Switch to the new detail scene with proper view
+             bpy.ops.caffmob_layouts.go_to_layout_view(scene_name=scene.name)
+             if is_crown_detail:
+-                self.report({'INFO'}, f"Created crown detail '{detail_name}' from library")
++                self.report({'INFO'}, tr("Created crown detail '{}' from library").format(detail_name))
+             else:
+-                self.report({'INFO'}, f"Created detail '{scene.name}' from library")
++                self.report({'INFO'}, tr("Created detail '{}' from library").format(scene.name))
+         else:
+-            self.report({'WARNING'}, f"Created detail but failed to load objects: {message}")
++            self.report({'WARNING'}, tr("Created detail but failed to load objects: {}").format(message))
+ 
+         return {'FINISHED'}
+ 
+diff --git a/caffmob_draw/operators/doors_windows.py b/caffmob_draw/operators/doors_windows.py
+index 1bda7fc..f22193c 100644
+--- a/caffmob_draw/operators/doors_windows.py
++++ b/caffmob_draw/operators/doors_windows.py
+@@ -3,6 +3,7 @@ import gpu
+ import blf
+ from gpu_extras.batch import batch_for_shader
+ from bpy_extras import view3d_utils
++from ..data.i18n import N_, tr
+ from .. import hb_types, hb_snap, hb_placement, units
+ import math
+ from mathutils import Vector
+@@ -10,16 +11,16 @@ from ..hb_details import GeoNodeText
+ 
+ # Single door swing options: (label, {geo node inputs})
+ SINGLE_DOOR_SWINGS = [
+-    ('Inside Left',   {'Swing Inside': True,  'Is Left': True,  'Is Double': False}),
+-    ('Inside Right',  {'Swing Inside': True,  'Is Left': False, 'Is Double': False}),
+-    ('Outside Left',  {'Swing Inside': False, 'Is Left': True,  'Is Double': False}),
+-    ('Outside Right', {'Swing Inside': False, 'Is Left': False, 'Is Double': False}),
++    (N_('Inside Left'),   {'Swing Inside': True,  'Is Left': True,  'Is Double': False}),
++    (N_('Inside Right'),  {'Swing Inside': True,  'Is Left': False, 'Is Double': False}),
++    (N_('Outside Left'),  {'Swing Inside': False, 'Is Left': True,  'Is Double': False}),
++    (N_('Outside Right'), {'Swing Inside': False, 'Is Left': False, 'Is Double': False}),
+ ]
+ 
+ # Double door swing options: (label, {geo node inputs})
+ DOUBLE_DOOR_SWINGS = [
+-    ('Inside',  {'Swing Inside': True,  'Is Double': True}),
+-    ('Outside', {'Swing Inside': False, 'Is Double': True}),
++    (N_('Inside'),  {'Swing Inside': True,  'Is Double': True}),
++    (N_('Outside'), {'Swing Inside': False, 'Is Double': True}),
+ ]
+ 
+ 
+@@ -422,9 +423,9 @@ class WallObjectPlacementMixin(hb_placement.PlacementMixin):
+ 
+         if self.offset_from_right:
+             offset_from_right = self.wall_length - self.placement_x - obj_width
+-            return f"Offset (→): {units.unit_to_string(unit_settings, offset_from_right)}"
++            return tr("Offset (→): {}").format(units.unit_to_string(unit_settings, offset_from_right))
+         else:
+-            return f"Offset (←): {units.unit_to_string(unit_settings, self.placement_x)}"
++            return tr("Offset (←): {}").format(units.unit_to_string(unit_settings, self.placement_x))
+ 
+     def cut_wall(self, wall_obj, cutting_obj):
+         """Add a boolean modifier to the wall to cut a hole for the door/window."""
+@@ -667,7 +668,7 @@ class _PlaceWallObjectBase(bpy.types.Operator, WallObjectPlacementMixin):
+ 
+     # ===== Per-type configuration (override in subclasses) =====
+     OBJECT_NAME = "Object"           # passed to GeoNodeCage.create()
+-    OBJECT_LABEL = "object"          # human label for headers/messages
++    OBJECT_LABEL = N_("object")          # human label for headers/messages
+     BP_FLAG = ""                     # 'IS_ENTRY_DOOR_BP' / 'IS_WINDOW_BP'
+     MENU_ID = ""                     # menu shown when clicking the placed object
+     WIDTH_PROP_NAME = ""             # 'door_single_width' / 'window_width' / etc.
+@@ -854,9 +855,9 @@ class _PlaceWallObjectBase(bpy.types.Operator, WallObjectPlacementMixin):
+         swing_label = ""
+         if self.HAS_SWING and self.SWING_LIST:
+             swing_label = self.SWING_LIST[self.door_swing_index][0]
+-        swing_text = f" | Swing: {swing_label}" if swing_label else ""
++        swing_text = tr(" | Swing: {}").format(tr(swing_label)) if swing_label else ""
+         swing_keys = " | \u2191/\u2193 swing" if self.HAS_SWING else ""
+-        label = self.OBJECT_LABEL
++        label = tr(self.OBJECT_LABEL)
+ 
+         if self.placement_state == hb_placement.PlacementState.TYPING:
+             target_name = {
+@@ -865,19 +866,19 @@ class _PlaceWallObjectBase(bpy.types.Operator, WallObjectPlacementMixin):
+                 hb_placement.TypingTarget.WIDTH: "Width",
+                 hb_placement.TypingTarget.HEIGHT: "Height",
+             }.get(self.typing_target, "Value")
+-            text = f"{target_name}: {self.typed_value}_{swing_text} | Enter to confirm | W width | H height | Esc cancel{mode_tag}"
++            text = tr("{}: {}_{} | Enter to confirm | W width | H height | Esc cancel{}").format(target_name, self.typed_value, swing_text, mode_tag)
+         elif self.two_point_in_phase2():
+             width_str = units.unit_to_string(context.scene.unit_settings, self.get_placed_object_width())
+             lock_hint = " [W locked]" if self.width_locked_in_phase2 else ""
+-            text = f"{mode_tag} Click end point | Width: {width_str}{lock_hint}{swing_text} | W: type width | Right-click: re-pick start | D: exit 2-point | Esc cancel"
++            text = tr("{} Click end point | Width: {}{}{} | W: type width | Right-click: re-pick start | D: exit 2-point | Esc cancel").format(mode_tag, width_str, lock_hint, swing_text)
+         elif self.two_point_in_phase1():
+-            text = f"{mode_tag} Click start point on wall{swing_text} | W: type width | D: exit 2-point | Esc cancel"
++            text = tr("{} Click start point on wall{} | W: type width | D: exit 2-point | Esc cancel").format(mode_tag, swing_text)
+         elif self.selected_wall:
+             offset_str = self.get_offset_display(context)
+             width_str = units.unit_to_string(context.scene.unit_settings, self.get_placed_object_width())
+-            text = f"{offset_str} | Width: {width_str}{swing_text}{swing_keys} | \u2190/\u2192 offset | W width | D: 2-point width | Click to place | Esc cancel"
++            text = tr("{} | Width: {}{}{} | ←/→ offset | W width | D: 2-point width | Click to place | Esc cancel").format(offset_str, width_str, swing_text, swing_keys)
+         else:
+-            text = f"Move over a wall to place {label}{swing_keys} | D: 2-point width | Esc to cancel"
++            text = tr("Move over a wall to place {}{} | D: 2-point width | Esc to cancel").format(label, swing_keys)
+ 
+         hb_placement.draw_header_text(context, text)
+ 
+@@ -993,7 +994,7 @@ class _PlaceWallObjectBase(bpy.types.Operator, WallObjectPlacementMixin):
+                 context.window.cursor_set('DEFAULT')
+                 return {'FINISHED'}
+             else:
+-                self.report({'WARNING'}, f"{self.OBJECT_LABEL.capitalize()} must be placed on a wall")
++                self.report({'WARNING'}, tr("{} must be placed on a wall").format(tr(self.OBJECT_LABEL).capitalize()))
+                 return {'RUNNING_MODAL'}
+ 
+         # Right click in two-point phase 2 = soft undo
+@@ -1024,7 +1025,7 @@ class home_builder_doors_windows_OT_place_door(_PlaceWallObjectBase):
+     bl_description = "Place a door on a wall. Arrow keys for offset direction, W for width, Up/Down for swing type, Escape to cancel"
+ 
+     OBJECT_NAME = "Door"
+-    OBJECT_LABEL = "door"
++    OBJECT_LABEL = N_("door")
+     BP_FLAG = "IS_ENTRY_DOOR_BP"
+     MENU_ID = "HOME_BUILDER_MT_door_commands"
+     WIDTH_PROP_NAME = "door_single_width"
+@@ -1041,7 +1042,7 @@ class home_builder_doors_windows_OT_place_double_door(_PlaceWallObjectBase):
+     bl_description = "Place a double door on a wall. Arrow keys for offset direction, W for width, Up/Down for swing type, Escape to cancel"
+ 
+     OBJECT_NAME = "Double Door"
+-    OBJECT_LABEL = "double door"
++    OBJECT_LABEL = N_("double door")
+     BP_FLAG = "IS_ENTRY_DOOR_BP"
+     MENU_ID = "HOME_BUILDER_MT_door_commands"
+     WIDTH_PROP_NAME = "door_double_width"
+@@ -1059,7 +1060,7 @@ class home_builder_doors_windows_OT_place_open_door(_PlaceWallObjectBase):
+     bl_description = "Place an open doorway on a wall. Arrow keys for offset direction, W for width, Escape to cancel"
+ 
+     OBJECT_NAME = "Open Door"
+-    OBJECT_LABEL = "open door"
++    OBJECT_LABEL = N_("open door")
+     BP_FLAG = "IS_ENTRY_DOOR_BP"
+     MENU_ID = "HOME_BUILDER_MT_door_commands"
+     WIDTH_PROP_NAME = "door_single_width"
+@@ -1074,7 +1075,7 @@ class home_builder_doors_windows_OT_place_window(_PlaceWallObjectBase):
+     bl_description = "Place a window on a wall. Arrow keys for offset direction, W for width, Escape to cancel"
+ 
+     OBJECT_NAME = "Window"
+-    OBJECT_LABEL = "window"
++    OBJECT_LABEL = N_("window")
+     BP_FLAG = "IS_WINDOW_BP"
+     MENU_ID = "HOME_BUILDER_MT_window_commands"
+     WIDTH_PROP_NAME = "window_width"
+@@ -1258,7 +1259,7 @@ class home_builder_doors_windows_OT_toggle_double_door(bpy.types.Operator):
+                     current = door_swing.get_input('Is Double')
+                     door_swing.set_input('Is Double', not current)
+                     status = "double" if not current else "single"
+-                    self.report({'INFO'}, f"Door set to {status}")
++                    self.report({'INFO'}, tr("Door set to {}").format(status))
+                 except Exception:
+                     self.report({'WARNING'}, "Could not find Is Double input")
+                 break
+@@ -1299,7 +1300,7 @@ class home_builder_doors_windows_OT_delete_door_window(bpy.types.Operator):
+         # Delete the door/window object
+         bpy.data.objects.remove(obj, do_unlink=True)
+ 
+-        self.report({'INFO'}, f"{self.object_type.title()} deleted")
++        self.report({'INFO'}, tr("{} deleted").format(self.object_type.title()))
+         return {'FINISHED'}
+ 
+ 
+@@ -1399,7 +1400,7 @@ class home_builder_doors_windows_OT_duplicate_window(_DuplicateWallObjectBase):
+     bl_description = "Duplicate the selected window and place the copy on a wall"
+ 
+     OBJECT_NAME = "Window"
+-    OBJECT_LABEL = "window"
++    OBJECT_LABEL = N_("window")
+     BP_FLAG = "IS_WINDOW_BP"
+     MENU_ID = "HOME_BUILDER_MT_window_commands"
+     WIDTH_PROP_NAME = "window_width"
+@@ -1417,7 +1418,7 @@ class home_builder_doors_windows_OT_duplicate_door(_DuplicateWallObjectBase):
+     bl_description = "Duplicate the selected door and place the copy on a wall"
+ 
+     OBJECT_NAME = "Door"
+-    OBJECT_LABEL = "door"
++    OBJECT_LABEL = N_("door")
+     BP_FLAG = "IS_ENTRY_DOOR_BP"
+     MENU_ID = "HOME_BUILDER_MT_door_commands"
+     WIDTH_PROP_NAME = "door_single_width"
+diff --git a/caffmob_draw/operators/export.py b/caffmob_draw/operators/export.py
+index 9b51725..8e71cd9 100644
+--- a/caffmob_draw/operators/export.py
++++ b/caffmob_draw/operators/export.py
+@@ -1,4 +1,5 @@
+ import bpy
++from ..data.i18n import tr
+ 
+ # Custom properties that mark objects we should DELETE during export prep
+ DELETE_FLAGS = {
+@@ -176,9 +177,7 @@ class HOME_BUILDER_OT_prepare_for_export(bpy.types.Operator):
+         context.window.scene = original_scene
+ 
+         self.report({'INFO'},
+-            f"Export prep complete: {converted_count} objects converted, "
+-            f"{deleted_count} helper objects removed, {driver_count} drivers removed. "
+-            f"You can now export using File > Export > FBX or glTF.")
++            tr("Export prep complete: {} objects converted, {} helper objects removed, {} drivers removed. You can now export using File > Export > FBX or glTF.").format(converted_count, deleted_count, driver_count))
+ 
+         return {'FINISHED'}
+ 
+diff --git a/caffmob_draw/operators/floor_builder.py b/caffmob_draw/operators/floor_builder.py
+index 8043f76..c3c319a 100644
+--- a/caffmob_draw/operators/floor_builder.py
++++ b/caffmob_draw/operators/floor_builder.py
+@@ -4,6 +4,7 @@ import bmesh  # type: ignore
+ import bpy  # type: ignore
+ from mathutils import Matrix, Vector  # type: ignore
+ 
++from ..data.i18n import tr
+ from ..geometry import floor_outline
+ from ..geometry.mesh_gen import generate_floor_mesh
+ from ..data import units
+@@ -101,9 +102,9 @@ class BTM_OT_AdjustFloor(bpy.types.Operator):
+                 self.report({'WARNING'}, "Nenhuma parede encontrada na cena.")
+                 return {'CANCELLED'}
+             polygons = [rect]
+-            message = "Nenhuma sala fechada: piso pelo retângulo das paredes."
++            message = tr("Nenhuma sala fechada: piso pelo retângulo das paredes.")
+         else:
+-            message = f"Piso ajustado à face interna das paredes ({len(polygons)} sala(s))."
++            message = tr("Piso ajustado à face interna das paredes ({} sala(s)).").format(len(polygons))
+ 
+         # Encontra ou cria o piso
+         floor_obj = None
+@@ -148,5 +149,5 @@ class BTM_OT_FloorBuilder(bpy.types.Operator):
+ 
+         x_str = units.format_value(self.size_x, context.scene)
+         y_str = units.format_value(self.size_y, context.scene)
+-        self.report({'INFO'}, f"Piso base criado: {x_str} x {y_str}")
++        self.report({'INFO'}, tr("Piso base criado: {} x {}").format(x_str, y_str))
+         return {'FINISHED'}
+diff --git a/caffmob_draw/operators/layouts.py b/caffmob_draw/operators/layouts.py
+index e6197c8..67667b2 100644
+--- a/caffmob_draw/operators/layouts.py
++++ b/caffmob_draw/operators/layouts.py
+@@ -7,6 +7,7 @@ from gpu_extras.batch import batch_for_shader
+ from mathutils import Vector, Matrix, Euler
+ from bpy_extras.view3d_utils import location_3d_to_region_2d
+ from bpy_extras.view3d_utils import region_2d_to_origin_3d, region_2d_to_vector_3d
++from ..data.i18n import tr
+ from .. import hb_layouts
+ from .. import hb_types
+ from .. import hb_placement
+@@ -319,7 +320,7 @@ class home_builder_layouts_OT_create_elevation_view(bpy.types.Operator):
+         # Apply default settings from addon preferences
+         apply_default_layout_settings(scene)
+ 
+-        self.report({'INFO'}, f"Created elevation view: {scene.name}")
++        self.report({'INFO'}, tr("Created elevation view: {}").format(scene.name))
+         return {'FINISHED'}
+ 
+ 
+@@ -338,7 +339,7 @@ class home_builder_layouts_OT_create_plan_view(bpy.types.Operator):
+         # Apply default settings from addon preferences
+         apply_default_layout_settings(scene)
+ 
+-        self.report({'INFO'}, f"Created plan view: {scene.name}")
++        self.report({'INFO'}, tr("Created plan view: {}").format(scene.name))
+         return {'FINISHED'}
+ 
+ 
+@@ -361,7 +362,7 @@ class home_builder_layouts_OT_create_3d_view(bpy.types.Operator):
+         bpy.ops.caffmob_layouts.go_to_layout_view(scene_name=scene.name)
+ 
+         view_type = "perspective" if self.perspective else "isometric"
+-        self.report({'INFO'}, f"Created 3D {view_type} view: {scene.name}")
++        self.report({'INFO'}, tr("Created 3D {} view: {}").format(view_type, scene.name))
+         return {'FINISHED'}
+ 
+ 
+@@ -378,7 +379,7 @@ class home_builder_layouts_OT_create_all_elevations(bpy.types.Operator):
+         for view in views:
+             apply_default_layout_settings(view.scene)
+ 
+-        self.report({'INFO'}, f"Created {len(views)} elevation views")
++        self.report({'INFO'}, tr("Created {} elevation views").format(len(views)))
+         return {'FINISHED'}
+ 
+ 
+@@ -472,7 +473,7 @@ class home_builder_layouts_OT_create_multi_view(bpy.types.Operator):
+             apply_default_layout_settings(scene)
+ 
+             bpy.ops.caffmob_layouts.go_to_layout_view(scene_name=scene.name)
+-            self.report({'INFO'}, f"Created multi-view layout: {scene.name}")
++            self.report({'INFO'}, tr("Created multi-view layout: {}").format(scene.name))
+ 
+         return {'FINISHED'}
+ 
+@@ -532,7 +533,7 @@ class home_builder_layouts_OT_delete_layout_view(bpy.types.Operator):
+ 
+         bpy.data.scenes.remove(scene)
+ 
+-        self.report({'INFO'}, f"Deleted layout view: {scene_name}")
++        self.report({'INFO'}, tr("Deleted layout view: {}").format(scene_name))
+         return {'FINISHED'}
+ 
+ 
+@@ -618,7 +619,7 @@ class home_builder_layouts_OT_fit_view_to_content(bpy.types.Operator):
+             # Don't trigger update callback (would reset ortho_scale)
+             scene['hb_layout_scale'] = best_scale
+ 
+-            self.report({'INFO'}, f"Fit to content (approximate scale: {best_scale})")
++            self.report({'INFO'}, tr("Fit to content (approximate scale: {})").format(best_scale))
+         else:
+             self.report({'WARNING'}, "Could not determine content bounds")
+ 
+@@ -733,7 +734,7 @@ class home_builder_layouts_OT_render_layout(bpy.types.Operator):
+         scene.render.resolution_y = orig_resolution_y
+         scene.render.film_transparent = orig_film_transparent
+ 
+-        self.report({'INFO'}, f"Rendered: {image_name}")
++        self.report({'INFO'}, tr("Rendered: {}").format(image_name))
+         return {'FINISHED'}
+ 
+     def _setup_compositor_white_background(self, context, scene):
+@@ -957,7 +958,7 @@ class home_builder_layouts_OT_export_all_to_pdf(bpy.types.Operator):
+                     append_images=pil_images[1:] if len(pil_images) > 1 else []
+                 )
+ 
+-                self.report({'INFO'}, f"Exported {len(pil_images)} layouts to: {output_path}")
++                self.report({'INFO'}, tr("Exported {} layouts to: {}").format(len(pil_images), output_path))
+ 
+                 # Open the PDF automatically
+                 import subprocess
+@@ -970,7 +971,7 @@ class home_builder_layouts_OT_export_all_to_pdf(bpy.types.Operator):
+                     else:  # Linux
+                         subprocess.run(['xdg-open', output_path])
+                 except Exception as e:
+-                    self.report({'WARNING'}, f"Could not open PDF: {e}")
++                    self.report({'WARNING'}, tr("Could not open PDF: {}").format(e))
+             else:
+                 self.report({'WARNING'}, "No layouts were rendered")
+                 return {'CANCELLED'}
+@@ -1449,7 +1450,7 @@ class home_builder_layouts_OT_add_dimension_3d(bpy.types.Operator, hb_placement.
+     def get_dimension_header_text(self) -> str:
+         """Override to include view plane info."""
+         base_text = super().get_dimension_header_text()
+-        return f"{base_text} | Plane: {self.view_plane}"
++        return tr("{} | Plane: {}").format(base_text, self.view_plane)
+ 
+     def _detect_view_plane(self, context):
+         """Detect which plane the user is most aligned with."""
+@@ -2343,7 +2344,7 @@ class home_builder_layouts_OT_draw_line(bpy.types.Operator, hb_placement.Placeme
+             snap_text = ""
+ 
+         if self.placement_state == hb_placement.PlacementState.TYPING:
+-            text = f"Segment Length: {self.typed_value}_ | Enter to confirm | Esc to cancel typing"
++            text = tr("Segment Length: {}_ | Enter to confirm | Esc to cancel typing").format(self.typed_value)
+         elif self.point_count > 0:
+             length = self._get_segment_length()
+             length_str = units.unit_to_string(context.scene.unit_settings, length)
+@@ -2357,9 +2358,9 @@ class home_builder_layouts_OT_draw_line(bpy.types.Operator, hb_placement.Placeme
+ 
+             close_text = " | C: close" if self.point_count >= 2 else ""
+             lock_hint = "L: unlock" if self.angle_locked else "L: lock"
+-            text = f"Length: {length_str} | {angle_deg}° | {mode}{snap_text} | {lock_hint}{close_text} | Right-click: finish"
++            text = tr("Length: {} | {}° | {}{} | {}{} | Right-click: finish").format(length_str, angle_deg, mode, snap_text, lock_hint, close_text)
+         else:
+-            text = f"Click to place first point{snap_text} | Right-click/Esc to cancel"
++            text = tr("Click to place first point{} | Right-click/Esc to cancel").format(snap_text)
+ 
+         hb_placement.draw_header_text(context, text)
+ 
+@@ -2837,17 +2838,17 @@ class home_builder_layouts_OT_draw_rectangle(bpy.types.Operator, hb_placement.Pl
+         snap_text = " [SNAP]" if self.is_snapped else ""
+ 
+         if not self.has_first_corner:
+-            text = f"Click first corner{snap_text} | Right-click/Esc to cancel"
++            text = tr("Click first corner{} | Right-click/Esc to cancel").format(snap_text)
+         elif self.is_typing:
+             if self.typing_width:
+-                text = f"Width: {self.typed_width}_ | Tab for height | Enter to confirm | Esc to cancel"
++                text = tr("Width: {}_ | Tab for height | Enter to confirm | Esc to cancel").format(self.typed_width)
+             else:
+                 width_str = units.unit_to_string(context.scene.unit_settings, self.parse_dimension(self.typed_width) or self.current_width)
+-                text = f"Width: {width_str} | Height: {self.typed_height}_ | Enter to confirm | Esc to cancel"
++                text = tr("Width: {} | Height: {}_ | Enter to confirm | Esc to cancel").format(width_str, self.typed_height)
+         else:
+             width_str = units.unit_to_string(context.scene.unit_settings, self.current_width)
+             height_str = units.unit_to_string(context.scene.unit_settings, self.current_height)
+-            text = f"Width: {width_str} | Height: {height_str}{snap_text} | Type for exact size | Click to place"
++            text = tr("Width: {} | Height: {}{} | Type for exact size | Click to place").format(width_str, height_str, snap_text)
+ 
+         hb_placement.draw_header_text(context, text)
+ 
+@@ -3341,13 +3342,13 @@ class home_builder_layouts_OT_draw_circle(bpy.types.Operator, hb_placement.Place
+         snap_text = " [SNAP]" if self.is_snapped else ""
+ 
+         if not self.has_center:
+-            text = f"Click to place center{snap_text} | Right-click/Esc to cancel"
++            text = tr("Click to place center{} | Right-click/Esc to cancel").format(snap_text)
+         elif self.is_typing:
+-            text = f"Radius: {self.typed_radius}_ | Enter to confirm | Esc to cancel typing"
++            text = tr("Radius: {}_ | Enter to confirm | Esc to cancel typing").format(self.typed_radius)
+         else:
+             radius_str = units.unit_to_string(context.scene.unit_settings, self.current_radius)
+             diameter_str = units.unit_to_string(context.scene.unit_settings, self.current_radius * 2)
+-            text = f"Radius: {radius_str} | Diameter: {diameter_str}{snap_text} | Type for exact | Click to place"
++            text = tr("Radius: {} | Diameter: {}{} | Type for exact | Click to place").format(radius_str, diameter_str, snap_text)
+ 
+         hb_placement.draw_header_text(context, text)
+ 
+@@ -3772,7 +3773,7 @@ class home_builder_layouts_OT_add_text(bpy.types.Operator, hb_placement.Placemen
+ 
+     def update_header(self, context):
+         snap_text = " [SNAP]" if self.is_snapped else ""
+-        text = f"Click to place text{snap_text} | Tab to edit after placing | Right-click/Esc to cancel"
++        text = tr("Click to place text{} | Tab to edit after placing | Right-click/Esc to cancel").format(snap_text)
+         hb_placement.draw_header_text(context, text)
+ 
+     def execute(self, context):
+@@ -3869,7 +3870,7 @@ class home_builder_layouts_OT_add_detail_to_layout(bpy.types.Operator):
+ 
+     def execute(self, context):
+         if self.detail_scene_name not in bpy.data.scenes:
+-            self.report({'ERROR'}, f"Detail scene '{self.detail_scene_name}' not found")
++            self.report({'ERROR'}, tr("Detail scene '{}' not found").format(self.detail_scene_name))
+             return {'CANCELLED'}
+ 
+         detail_scene = bpy.data.scenes[self.detail_scene_name]
+@@ -3935,7 +3936,7 @@ class home_builder_layouts_OT_add_detail_to_layout(bpy.types.Operator):
+         instance.select_set(True)
+         context.view_layer.objects.active = instance
+ 
+-        self.report({'INFO'}, f"Added detail '{detail_scene.name}' to layout. Move to reposition.")
++        self.report({'INFO'}, tr("Added detail '{}' to layout. Move to reposition.").format(detail_scene.name))
+         return {'FINISHED'}
+ 
+ 
+@@ -4032,7 +4033,7 @@ class home_builder_layouts_OT_generate_2d_plan(bpy.types.Operator):
+         if solid_coll and plan_obj.name not in solid_coll.objects:
+             solid_coll.objects.link(plan_obj)
+ 
+-        self.report({'INFO'}, f"Generated 2D plan mesh ({len(plan_obj.data.polygons)} faces)")
++        self.report({'INFO'}, tr("Generated 2D plan mesh ({} faces)").format(len(plan_obj.data.polygons)))
+         return {'FINISHED'}
+ 
+     def generate_plan_mesh(self, wall_objects):
+@@ -4287,7 +4288,7 @@ class home_builder_layouts_OT_place_room_label(bpy.types.Operator):
+                 w_str = units.unit_to_string(context.scene.unit_settings, w)
+                 h_str = units.unit_to_string(context.scene.unit_settings, h)
+                 hb_placement.draw_header_text(context,
+-                    f"Width: {w_str} x Depth: {h_str} | Click second corner | Esc to cancel")
++                    tr("Width: {} x Depth: {} | Click second corner | Esc to cancel").format(w_str, h_str))
+         else:
+             hb_placement.draw_header_text(context,
+                 "Click first corner of room | Esc to cancel")
+@@ -4399,7 +4400,7 @@ def get_layout_view_items(self, context):
+         # Find the content collection via the collection instance
+         for obj in scene.objects:
+             if obj.type == 'EMPTY' and obj.instance_type == 'COLLECTION' and obj.instance_collection:
+-                items.append((scene.name, scene.name, f"Add to {obj.instance_collection.name}"))
++                items.append((scene.name, scene.name, tr("Add to {}").format(obj.instance_collection.name)))
+                 break
+     if not items:
+         items.append(('NONE', 'No Layout Views', 'Create a layout view first'))
+@@ -4479,7 +4480,7 @@ class home_builder_layouts_OT_link_objects_to_layout(bpy.types.Operator):
+             row.label(text=obj.name, icon='OBJECT_DATA')
+             child_count = len(obj.children_recursive) if self.include_children else 0
+             if child_count > 0:
+-                row.label(text=f"(+{child_count} children)")
++                row.label(text=tr("(+{} children)").format(child_count))
+ 
+     def execute(self, context):
+         if self.target_layout == 'NONE':
+@@ -4488,7 +4489,7 @@ class home_builder_layouts_OT_link_objects_to_layout(bpy.types.Operator):
+ 
+         collection = self._get_content_collection(self.target_layout)
+         if not collection:
+-            self.report({'ERROR'}, f"Could not find content collection for '{self.target_layout}'")
++            self.report({'ERROR'}, tr("Could not find content collection for '{}'").format(self.target_layout))
+             return {'CANCELLED'}
+ 
+         linked_count = 0
+@@ -4502,9 +4503,9 @@ class home_builder_layouts_OT_link_objects_to_layout(bpy.types.Operator):
+ 
+         parts = []
+         if linked_count > 0:
+-            parts.append(f"Linked {linked_count} object(s)")
++            parts.append(tr("Linked {} object(s)").format(linked_count))
+         if already_linked > 0:
+-            parts.append(f"{already_linked} already linked")
++            parts.append(tr("{} already linked").format(already_linked))
+         self.report({'INFO'}, f"{' | '.join(parts)} → {self.target_layout}")
+         return {'FINISHED'}
+ 
+diff --git a/caffmob_draw/operators/opening_builder.py b/caffmob_draw/operators/opening_builder.py
+index 681c16c..dc53ac2 100644
+--- a/caffmob_draw/operators/opening_builder.py
++++ b/caffmob_draw/operators/opening_builder.py
+@@ -3,6 +3,7 @@ import gpu
+ import json
+ from gpu_extras.batch import batch_for_shader
+ from mathutils import Vector, Matrix
++from ..data.i18n import tr
+ from ..geometry.mesh_gen import generate_opening_tool_mesh
+ from ..data import units
+ 
+@@ -396,7 +397,7 @@ class BTM_OT_InsertOpening(bpy.types.Operator):
+         cut_obj.select_set(True)
+ 
+         type_name = "Porta" if self.opening_type == 'DOOR' else "Janela"
+-        self.report({'INFO'}, f"{type_name} inserida na parede {self.target_wall.name}.")
++        self.report({'INFO'}, tr("{} inserida na parede {}.").format(type_name, self.target_wall.name))
+ 
+         self._cleanup(context)
+ 
+@@ -421,8 +422,8 @@ class BTM_OT_InsertOpening(bpy.types.Operator):
+             return
+ 
+         field_labels = {
+-            'POSITION': 'Afastamento Inicial',
+-            'SILL_HEIGHT': 'Peitoril',
++            'POSITION': tr('Afastamento Inicial'),
++            'SILL_HEIGHT': tr('Peitoril'),
+         }
+ 
+         active_unit = units.get_scene_length_unit(context.scene)
+@@ -444,10 +445,7 @@ class BTM_OT_InsertOpening(bpy.types.Operator):
+ 
+         active = field_labels.get(self.active_field, '?')
+         context.area.header_text_set(
+-            f"Adicionar Abertura ({self.opening_type})  |  "
+-            f"Parede: {self.target_wall.name} (Seg: {self.target_seg_idx + 1})  |  "
+-            f"[{active}]: {display_val}  |  "
+-            f"TAB: alternar campo  |  ENTER: confirmar  |  ESC/RMB: cancelar"
++            tr("Adicionar Abertura ({})  |  Parede: {} (Seg: {})  |  [{}]: {}  |  TAB: alternar campo  |  ENTER: confirmar  |  ESC/RMB: cancelar").format(self.opening_type, self.target_wall.name, self.target_seg_idx + 1, active, display_val)
+         )
+ 
+     # -------------------------------------------------------------------
+@@ -543,7 +541,7 @@ class BTM_OT_InsertOpening(bpy.types.Operator):
+             m_sill = P_door + Vector((0.0, 0.0, self.sill / 2.0))
+             co_2d_sill = location_3d_to_region_2d(region, rv3d, m_sill)
+             if co_2d_sill:
+-                sill_formatted = f"Peitoril: {units.format_value(self.sill, context.scene)}"
++                sill_formatted = tr("Peitoril: {}").format(units.format_value(self.sill, context.scene))
+                 blf.color(font_id, 0.0, 0.0, 0.0, 0.9)
+                 blf.position(font_id, co_2d_sill.x + 1, co_2d_sill.y - 1, 0)
+                 blf.draw(font_id, sill_formatted)
+diff --git a/caffmob_draw/operators/ops_cutting.py b/caffmob_draw/operators/ops_cutting.py
+index a92d04d..f4eda15 100644
+--- a/caffmob_draw/operators/ops_cutting.py
++++ b/caffmob_draw/operators/ops_cutting.py
+@@ -10,6 +10,7 @@ import json
+ import bpy  # type: ignore
+ from bpy_extras.io_utils import ExportHelper, ImportHelper  # type: ignore
+ 
++from ..data.i18n import tr
+ from ..cutting import csv_exporter, json_exporter
+ from ..cutting.nesting import optimize_nesting
+ from ..cutting.part_extractor import extract_production_parts, module_entries
+@@ -81,8 +82,7 @@ def calculate(context):
+           "length": p.height, "width": p.width} for p in incompatible], ensure_ascii=False)
+     stats = result["stats"]
+     scene["btm_nesting_result"] = (
+-        f"{stats['sheets_count']} chapa(s), {stats['total_placed_parts']} peça(s) posicionada(s), "
+-        f"aproveitamento {stats['utilization_percentage']}%")
++        tr("{} chapa(s), {} peça(s) posicionada(s), aproveitamento {}%").format(stats['sheets_count'], stats['total_placed_parts'], stats['utilization_percentage']))
+     scene["btm_nesting_parts_count"] = len(parts)
+     scene["btm_nesting_sheets_count"] = stats["sheets_count"]
+     scene["btm_nesting_utilization"] = stats["utilization_percentage"]
+@@ -114,12 +114,11 @@ class BTM_OT_CalculateNesting(bpy.types.Operator):
+             self.report({'WARNING'}, "Nenhum módulo com peças de marcenaria encontrado no projeto.")
+             return {'CANCELLED'}
+         stats = result["stats"]
+-        message = (f"Plano de corte: {stats['sheets_count']} chapa(s), {stats['total_placed_parts']} peça(s), "
+-                   f"aproveitamento {stats['utilization_percentage']}%.")
++        message = (tr("Plano de corte: {} chapa(s), {} peça(s), aproveitamento {}%.").format(stats['sheets_count'], stats['total_placed_parts'], stats['utilization_percentage']))
+         if incompatible:
+-            message += f" {len(incompatible)} peça(s) maior(es) que o limite de chapa do componente."
++            message += tr(" {} peça(s) maior(es) que o limite de chapa do componente.").format(len(incompatible))
+         if result["unplaced"]:
+-            message += f" {len(result['unplaced'])} peça(s) não couberam na chapa."
++            message += tr(" {} peça(s) não couberam na chapa.").format(len(result['unplaced']))
+         self.report({'WARNING'} if incompatible or result["unplaced"] else {'INFO'}, message)
+         return {'FINISHED'}
+ 
+@@ -167,9 +166,9 @@ class BTM_OT_ExportCutPlanJSON(bpy.types.Operator, ExportHelper):
+             self.report({'ERROR'}, f"{exc} {'; '.join(exc.errors[:3])}")
+             return {'CANCELLED'}
+         except OSError as exc:
+-            self.report({'ERROR'}, f"Não foi possível gravar: {exc}")
++            self.report({'ERROR'}, tr("Não foi possível gravar: {}").format(exc))
+             return {'CANCELLED'}
+-        self.report({'INFO'}, f"JSON global exportado: {len(payload['parts'])} peça(s) em {self.filepath}")
++        self.report({'INFO'}, tr("JSON global exportado: {} peça(s) em {}").format(len(payload['parts']), self.filepath))
+         return {'FINISHED'}
+ 
+ 
+@@ -195,7 +194,7 @@ class BTM_OT_ImportCutPlanJSON(bpy.types.Operator, ImportHelper):
+         if plan is not None:
+             scene["btm_imported_cut_plan"] = json.dumps(plan, ensure_ascii=False)
+         sheets = len(plan["sheets"]) if plan else 0
+-        self.report({'INFO'}, f"\"{payload['project']['name']}\": {len(parts)} peça(s), {sheets} chapa(s) no plano.")
++        self.report({'INFO'}, tr("\"{}\": {} peça(s), {} chapa(s) no plano.").format(payload['project']['name'], len(parts), sheets))
+         return {'FINISHED'}
+ 
+ 
+@@ -216,9 +215,9 @@ class BTM_OT_ExportPartsCSV(bpy.types.Operator, ExportHelper):
+         try:
+             count = csv_exporter.write_parts_csv(self.filepath, parts)
+         except OSError as exc:
+-            self.report({'ERROR'}, f"Não foi possível gravar: {exc}")
++            self.report({'ERROR'}, tr("Não foi possível gravar: {}").format(exc))
+             return {'CANCELLED'}
+-        self.report({'INFO'}, f"CSV exportado: {count} peça(s) em {self.filepath}")
++        self.report({'INFO'}, tr("CSV exportado: {} peça(s) em {}").format(count, self.filepath))
+         return {'FINISHED'}
+ 
+ 
+diff --git a/caffmob_draw/operators/ops_obstacles.py b/caffmob_draw/operators/ops_obstacles.py
+index 321489f..9fcfc5b 100644
+--- a/caffmob_draw/operators/ops_obstacles.py
++++ b/caffmob_draw/operators/ops_obstacles.py
+@@ -2,6 +2,7 @@ import bpy
+ import math
+ import bmesh
+ from mathutils import Vector
++from ..data.i18n import tr
+ from .. import hb_utils, hb_snap, hb_placement, units
+ 
+ 
+@@ -350,15 +351,15 @@ class home_builder_obstacles_OT_place_obstacle(bpy.types.Operator, hb_placement.
+ 
+         if self.placement_state == hb_placement.PlacementState.TYPING:
+             display = self.get_typed_display_string()
+-            text = f"{display}_ | Enter to confirm | Esc to cancel"
++            text = tr("{}_ | Enter to confirm | Esc to cancel").format(display)
+         elif self.target_type == 'WALL' and self.target_wall:
+             pos_str = units.unit_to_string(context.scene.unit_settings, self.wall_position_x)
+             len_str = units.unit_to_string(context.scene.unit_settings, self.wall_length)
+             height_str = units.unit_to_string(context.scene.unit_settings, self.height_from_floor)
+             face_str = self.wall_face.capitalize()
+-            text = f"{obs_name} | {self.target_wall.name} ({face_str}) | Pos: {pos_str}/{len_str} | H: {height_str} | ← → H Tab | Click to place"
++            text = tr("{} | {} ({}) | Pos: {}/{} | H: {} | ← → H Tab | Click to place").format(obs_name, self.target_wall.name, face_str, pos_str, len_str, height_str)
+         else:
+-            text = f"{obs_name} ({self.target_type}) | Click to place | Esc to cancel"
++            text = tr("{} ({}) | Click to place | Esc to cancel").format(obs_name, self.target_type)
+ 
+         hb_placement.draw_header_text(context, text)
+ 
+@@ -489,7 +490,7 @@ class home_builder_obstacles_OT_place_obstacle(bpy.types.Operator, hb_placement.
+                 context.view_layer.objects.active = self.obstacle_obj
+ 
+                 hb_placement.clear_header_text(context)
+-                self.report({'INFO'}, f"Placed {self.obstacle_obj.name}")
++                self.report({'INFO'}, tr("Placed {}").format(self.obstacle_obj.name))
+                 return {'FINISHED'}
+ 
+         # Cancel
+@@ -537,7 +538,7 @@ class home_builder_obstacles_OT_delete_obstacle(bpy.types.Operator):
+ 
+         name = obj.name
+         bpy.data.objects.remove(obj, do_unlink=True)
+-        self.report({'INFO'}, f"Deleted: {name}")
++        self.report({'INFO'}, tr("Deleted: {}").format(name))
+         return {'FINISHED'}
+ 
+ 
+@@ -559,7 +560,7 @@ class home_builder_obstacles_OT_select_obstacles(bpy.types.Operator):
+                 obj.select_set(True)
+                 count += 1
+ 
+-        self.report({'INFO'}, f"Selected {count} obstacles" if count else "No obstacles in scene")
++        self.report({'INFO'}, tr("Selected {} obstacles").format(count) if count else "No obstacles in scene")
+         return {'FINISHED'}
+ 
+ 
+diff --git a/caffmob_draw/operators/ops_stairs.py b/caffmob_draw/operators/ops_stairs.py
+index 513deed..9cb97f5 100644
+--- a/caffmob_draw/operators/ops_stairs.py
++++ b/caffmob_draw/operators/ops_stairs.py
+@@ -2,6 +2,7 @@ import bpy
+ import math
+ import bmesh
+ from mathutils import Vector, Matrix
++from ..data.i18n import tr
+ from .. import hb_snap, units
+ 
+ 
+@@ -442,9 +443,7 @@ class home_builder_stairs_OT_place_stairs(bpy.types.Operator):
+         types = {'STRAIGHT': "Straight", 'L_SHAPE': "L-Shaped", 'U_SHAPE': "U-Shaped"}
+         label = types.get(self.stair_type, "Straight")
+         num_steps = max(1, round(units.inch(96) / units.inch(7.5)))
+-        text = (f"{label} Stairs: {num_steps} steps | "
+-                "Click to place | R rotate | "
+-                "T toggle type | D toggle direction | ESC cancel")
++        text = (tr("{} Stairs: {} steps | Click to place | R rotate | T toggle type | D toggle direction | ESC cancel").format(label, num_steps))
+         context.area.header_text_set(text)
+ 
+     def confirm_placement(self, context):
+@@ -453,7 +452,7 @@ class home_builder_stairs_OT_place_stairs(bpy.types.Operator):
+         num_steps = max(1, round(
+             self.preview_obj['STAIR_TOTAL_RISE'] / self.preview_obj['STAIR_RISER_HEIGHT']
+         ))
+-        self.report({'INFO'}, f"Placed staircase: {num_steps} steps")
++        self.report({'INFO'}, tr("Placed staircase: {} steps").format(num_steps))
+         bpy.ops.object.select_all(action='DESELECT')
+         self.preview_obj.select_set(True)
+         context.view_layer.objects.active = self.preview_obj
+@@ -537,7 +536,7 @@ class home_builder_stairs_OT_place_stairs(bpy.types.Operator):
+         self.region = context.region
+         self.preview_obj = None
+         self.create_preview(context)
+-        context.area.header_text_set("Click to place | R rotate | T type | D direction | ESC cancel")
++        context.area.header_text_set(tr("Click to place | R rotate | T type | D direction | ESC cancel"))
+         context.window_manager.modal_handler_add(self)
+         return {'RUNNING_MODAL'}
+ 
+@@ -674,15 +673,15 @@ class home_builder_stairs_OT_stair_prompts(bpy.types.Operator):
+             flight2_rise = self.total_rise - landing_h
+             steps1 = max(1, round(landing_h / self.riser_height))
+             steps2 = max(1, round(flight2_rise / self.riser_height))
+-            box.label(text=f"Flight 1: {steps1} steps", icon='MOD_ARRAY')
+-            box.label(text=f"Flight 2: {steps2} steps")
++            box.label(text=tr("Flight 1: {} steps").format(steps1), icon='MOD_ARRAY')
++            box.label(text=tr("Flight 2: {} steps").format(steps2))
+             row = box.row()
+             row.label(text="Total Steps:")
+             row.label(text=str(steps1 + steps2))
+         else:
+             num_steps = max(1, round(self.total_rise / self.riser_height))
+             total_run = num_steps * self.tread_depth
+-            box.label(text=f"Steps: {num_steps}", icon='MOD_ARRAY')
++            box.label(text=tr("Steps: {}").format(num_steps), icon='MOD_ARRAY')
+             row = box.row()
+             row.label(text="Total Run:")
+             row.label(text=units.unit_to_string(unit_settings, total_run))
+diff --git a/caffmob_draw/operators/ops_standards.py b/caffmob_draw/operators/ops_standards.py
+index 8bbbd6a..c8f783a 100644
+--- a/caffmob_draw/operators/ops_standards.py
++++ b/caffmob_draw/operators/ops_standards.py
+@@ -12,6 +12,7 @@ import os
+ import bpy  # type: ignore
+ from bpy_extras.io_utils import ExportHelper, ImportHelper  # type: ignore
+ 
++from ..data.i18n import tr
+ from ..data import dimension_schema as schema
+ from ..standards import api, io_json, io_promob, sync
+ 
+@@ -32,29 +33,27 @@ def _show_report(context):
+ 
+ 
+ def _apply_report_lines(report):
+-    lines = [f"Definição: {report.get('definition', '')}",
+-             f"Módulos atualizados: {report.get('modules_updated', 0)} "
+-             f"(cozinha {report.get('frameless', 0)}, dormitório {report.get('closets', 0)})"]
++    lines = [tr("Definição: {}").format(report.get('definition', '')),
++             tr("Módulos atualizados: {} (cozinha {}, dormitório {})").format(report.get('modules_updated', 0), report.get('frameless', 0), report.get('closets', 0))]
+     changes = report.get('changes') or []
+     if changes:
+-        lines.append(f"Parâmetros alterados: {len(changes)}")
++        lines.append(tr("Parâmetros alterados: {}").format(len(changes)))
+         lines += [f"  {c['label']}: {c['old']} → {c['new']}" for c in changes[:20]]
+         if len(changes) > 20:
+-            lines.append(f"  … e mais {len(changes) - 20}")
++            lines.append(tr("  … e mais {}").format(len(changes) - 20))
+     skipped = report.get('skipped_manual') or []
+     if skipped:
+-        lines.append(f"Medidas manuais preservadas: {len(skipped)}")
++        lines.append(tr("Medidas manuais preservadas: {}").format(len(skipped)))
+         lines += [f"  {module}: {name}" for module, name in skipped[:10]]
+     without = report.get('without_target') or []
+     if without:
+-        lines.append(f"Sem destino nas bibliotecas atuais (valem para a lista de peças): {len(without)}")
++        lines.append(tr("Sem destino nas bibliotecas atuais (valem para a lista de peças): {}").format(len(without)))
+         lines += [f"  {schema.label(k)}" for k in without[:10]]
+     return lines
+ 
+ 
+ def _sync_report_message(report):
+-    return (f"Padrão aplicado: {report.get('modules_updated', 0)} módulo(s) atualizado(s); "
+-            f"{len(report.get('skipped_manual') or [])} medida(s) manual(is) preservada(s).")
++    return (tr("Padrão aplicado: {} módulo(s) atualizado(s); {} medida(s) manual(is) preservada(s).").format(report.get('modules_updated', 0), len(report.get('skipped_manual') or [])))
+ 
+ 
+ # ----------------------------------------------------------------------------------------------------------------
+@@ -67,12 +66,12 @@ def draw_pending(layout, scene, draft):
+     if not changes:
+         box.label(text="Nenhuma alteração pendente.", icon='CHECKMARK')
+         return changes
+-    box.label(text=f"Alterações pendentes: {len(changes)}", icon='MODIFIER')
++    box.label(text=tr("Alterações pendentes: {}").format(len(changes)), icon='MODIFIER')
+     col = box.column(align=True)
+     for change in changes[:PENDING_ROWS]:
+         col.label(text=f"{change['label']}: {change['old']} → {change['new']}")
+     if len(changes) > PENDING_ROWS:
+-        col.label(text=f"… e mais {len(changes) - PENDING_ROWS}")
++        col.label(text=tr("… e mais {}").format(len(changes) - PENDING_ROWS))
+     return changes
+ 
+ 
+@@ -89,7 +88,7 @@ def draw_editor(layout, context, draft):
+     if param is None:
+         col.label(text="Selecione um parâmetro na árvore.", icon='INFO')
+         return
+-    title = schema.line_label(param.line) if param.line != 'GLOBAL' else "Medidas Máximas"
++    title = schema.line_label(param.line) if param.line != 'GLOBAL' else tr("Medidas Máximas")
+     if param.component:
+         title += f" › {schema.COMPONENTS_BY_CODE[param.component].label_pt}"
+     col.label(text=title)
+@@ -101,7 +100,7 @@ def draw_editor(layout, context, draft):
+         unit = api.user_unit(context.scene)
+         low = api.format_param_value(param, param.min, unit) if param.min is not None else "—"
+         high = api.format_param_value(param, param.max, unit) if param.max is not None else "—"
+-        col.label(text=f"Faixa: {low} a {high}", icon='INFO')
++        col.label(text=tr("Faixa: {} a {}").format(low, high), icon='INFO')
+     if draft.error:
+         row = col.row()
+         row.alert = True
+@@ -132,7 +131,7 @@ class BTM_OT_StandardsConfigurator(bpy.types.Operator):
+         layout = self.layout
+         row = layout.row()
+         if definition is not None and definition.builtin:
+-            row.label(text=f"{definition.name} (somente leitura)", icon='LOCKED')
++            row.label(text=tr("{} (somente leitura)").format(definition.name), icon='LOCKED')
+             row.operator("caffmob.standards_duplicate", text="Duplicar para editar", icon='DUPLICATE')
+         else:
+             row.prop(draft, "definition_name", text="Definição")
+@@ -146,7 +145,7 @@ class BTM_OT_StandardsConfigurator(bpy.types.Operator):
+         if changes and definition is not None and not definition.builtin:
+             count = len(sync.affected_modules(scene))
+             row = layout.row()
+-            row.label(text=f"Ao aplicar, {count} módulo(s) do projeto serão atualizados.", icon='MOD_BUILD')
++            row.label(text=tr("Ao aplicar, {} módulo(s) do projeto serão atualizados.").format(count), icon='MOD_BUILD')
+             row.prop(draft, "include_manual")
+ 
+     def execute(self, context):
+@@ -163,7 +162,7 @@ class BTM_OT_StandardsConfigurator(bpy.types.Operator):
+         except api.StandardsError as exc:
+             self.report({'ERROR'}, str(exc))
+             return {'CANCELLED'}
+-        _set_report("Padrão de Dimensões aplicado", _apply_report_lines(report))
++        _set_report(tr("Padrão de Dimensões aplicado"), _apply_report_lines(report))
+         self.report({'INFO'}, _sync_report_message(report))
+         _show_report(context)
+         return {'FINISHED'}
+@@ -184,7 +183,7 @@ class BTM_OT_StandardsApply(bpy.types.Operator):
+         count = len(sync.affected_modules(context.scene))
+         return context.window_manager.invoke_confirm(
+             self, event, title="Aplicar Padrão de Dimensões",
+-            message=f"{count} módulo(s) serão atualizados.", confirm_text="Aplicar")
++            message=tr("{} módulo(s) serão atualizados.").format(count), confirm_text="Aplicar")
+ 
+     def execute(self, context):
+         draft = context.window_manager.btm_standards_draft
+@@ -193,7 +192,7 @@ class BTM_OT_StandardsApply(bpy.types.Operator):
+         except api.StandardsError as exc:
+             self.report({'ERROR'}, str(exc))
+             return {'CANCELLED'}
+-        _set_report("Padrão de Dimensões aplicado", _apply_report_lines(report))
++        _set_report(tr("Padrão de Dimensões aplicado"), _apply_report_lines(report))
+         self.report({'INFO'}, _sync_report_message(report))
+         return {'FINISHED'}
+ 
+@@ -230,7 +229,7 @@ class BTM_OT_StandardsSetActive(bpy.types.Operator):
+     def draw(self, context):
+         layout = self.layout
+         layout.prop(self, "definition")
+-        layout.label(text=f"{len(sync.affected_modules(context.scene))} módulo(s) serão atualizados.",
++        layout.label(text=tr("{} módulo(s) serão atualizados.").format(len(sync.affected_modules(context.scene))),
+                      icon='MOD_BUILD')
+         layout.prop(self, "include_manual")
+ 
+@@ -242,7 +241,7 @@ class BTM_OT_StandardsSetActive(bpy.types.Operator):
+             return {'CANCELLED'}
+         api.set_active(scene, definition)
+         report = sync.apply_definition(scene, definition, include_manual=self.include_manual)
+-        _set_report("Definição ativa alterada", _apply_report_lines(report))
++        _set_report(tr("Definição ativa alterada"), _apply_report_lines(report))
+         self.report({'INFO'}, _sync_report_message(report))
+         return {'FINISHED'}
+ 
+@@ -266,7 +265,7 @@ class BTM_OT_StandardsDuplicate(bpy.types.Operator):
+             # Configurador aberto sobre a embutida: o rascunho passa a editar a cópia.
+             draft.definition_uid = new.uid
+             draft.definition_name = new.name
+-        self.report({'INFO'}, f"Definição \"{new.name}\" criada e ativa.")
++        self.report({'INFO'}, tr("Definição \"{}\" criada e ativa.").format(new.name))
+         return {'FINISHED'}
+ 
+ 
+@@ -312,7 +311,7 @@ class BTM_OT_StandardsDelete(bpy.types.Operator):
+     def invoke(self, context, event):
+         definition = api.active_definition(context.scene)
+         return context.window_manager.invoke_confirm(
+-            self, event, title="Excluir Definição", message=f"Excluir \"{definition.name}\"?",
++            self, event, title="Excluir Definição", message=tr("Excluir \"{}\"?").format(definition.name),
+             confirm_text="Excluir", icon='WARNING')
+ 
+     def execute(self, context):
+@@ -358,9 +357,9 @@ class BTM_OT_StandardsExportJSON(bpy.types.Operator, ExportHelper):
+         try:
+             io_json.export_definition(self.filepath, definition)
+         except OSError as exc:
+-            self.report({'ERROR'}, f"Não foi possível gravar: {exc}")
++            self.report({'ERROR'}, tr("Não foi possível gravar: {}").format(exc))
+             return {'CANCELLED'}
+-        self.report({'INFO'}, f"Definição exportada: {self.filepath}")
++        self.report({'INFO'}, tr("Definição exportada: {}").format(self.filepath))
+         return {'FINISHED'}
+ 
+ 
+@@ -379,8 +378,8 @@ class BTM_OT_StandardsImportJSON(bpy.types.Operator, ImportHelper):
+         except (io_json.StandardFileError, api.StandardsError) as exc:
+             self.report({'ERROR'}, str(exc))
+             return {'CANCELLED'}
+-        _set_report("Definição importada", [f"Definição: {definition.name}"] + [f"  {w}" for w in warnings])
+-        self.report({'INFO'}, f"Definição \"{definition.name}\" importada ({len(warnings)} aviso(s)).")
++        _set_report("Definição importada", [tr("Definição: {}").format(definition.name)] + [tr("  {}").format(w) for w in warnings])
++        self.report({'INFO'}, tr("Definição \"{}\" importada ({} aviso(s)).").format(definition.name, len(warnings)))
+         _show_report(context)
+         return {'FINISHED'}
+ 
+@@ -418,18 +417,17 @@ class BTM_OT_StandardsImportPromob(bpy.types.Operator, ImportHelper):
+             item = definition.raw_attributes.add()
+             item.attr_id, item.value, item.key = raw['id'], raw['value'], raw['key']
+         rep = data['report']
+-        lines = [f"Definição: {name}",
+-                 f"Atributos no arquivo: {rep['total']}; reconhecidos: {rep['mapped']}",
+-                 f"Não reconhecidos (mantidos para reexportação): {len(rep['unrecognized'])}",
+-                 f"  dos quais de família conhecida sem componente equivalente: "
+-                 f"{len(rep['confirmed_without_equivalent'])}"]
++        lines = [tr("Definição: {}").format(name),
++                 tr("Atributos no arquivo: {}; reconhecidos: {}").format(rep['total'], rep['mapped']),
++                 tr("Não reconhecidos (mantidos para reexportação): {}").format(len(rep['unrecognized'])),
++                 tr("  dos quais de família conhecida sem componente equivalente: {}").format(len(rep['confirmed_without_equivalent']))]
+         if rep['invalid']:
+-            lines.append(f"Valores inválidos ignorados: {', '.join(rep['invalid'][:10])}")
++            lines.append(tr("Valores inválidos ignorados: {}").format(', '.join(rep['invalid'][:10])))
+         if rep['duplicates']:
+-            lines.append(f"IDs duplicados (vale o último): {', '.join(rep['duplicates'][:10])}")
+-        lines.append("Use \"Definir ativa\" para aplicar esta definição ao projeto.")
+-        _set_report("Importação do Promob", lines)
+-        self.report({'INFO'}, f"\"{name}\": {rep['mapped']} de {rep['total']} atributos reconhecidos.")
++            lines.append(tr("IDs duplicados (vale o último): {}").format(', '.join(rep['duplicates'][:10])))
++        lines.append(tr("Use \"Definir ativa\" para aplicar esta definição ao projeto."))
++        _set_report(tr("Importação do Promob"), lines)
++        self.report({'INFO'}, tr("\"{}\": {} de {} atributos reconhecidos.").format(name, rep['mapped'], rep['total']))
+         _show_report(context)
+         return {'FINISHED'}
+ 
+@@ -455,9 +453,9 @@ class BTM_OT_StandardsExportPromob(bpy.types.Operator, ExportHelper):
+         try:
+             io_promob.write_dimensionexport(self.filepath, definition.name, values, raw)
+         except OSError as exc:
+-            self.report({'ERROR'}, f"Não foi possível gravar: {exc}")
++            self.report({'ERROR'}, tr("Não foi possível gravar: {}").format(exc))
+             return {'CANCELLED'}
+-        self.report({'INFO'}, f"Exportado para o Promob: {self.filepath}")
++        self.report({'INFO'}, tr("Exportado para o Promob: {}").format(self.filepath))
+         return {'FINISHED'}
+ 
+ 
+@@ -476,7 +474,7 @@ class BTM_OT_StandardsReport(bpy.types.Operator):
+ 
+     def draw(self, context):
+         layout = self.layout
+-        layout.label(text=_LAST_REPORT['title'] or "Sem relatório.", icon='INFO')
++        layout.label(text=_LAST_REPORT['title'] or tr("Sem relatório."), icon='INFO')
+         col = layout.column(align=True)
+         for line in _LAST_REPORT['lines']:
+             col.label(text=line)
+diff --git a/caffmob_draw/operators/ops_wall_extras.py b/caffmob_draw/operators/ops_wall_extras.py
+index 99453ee..2a0d193 100644
+--- a/caffmob_draw/operators/ops_wall_extras.py
++++ b/caffmob_draw/operators/ops_wall_extras.py
+@@ -11,6 +11,7 @@
+ import bmesh  # type: ignore
+ import bpy  # type: ignore
+ 
++from ..data.i18n import tr
+ from .. import hb_types
+ 
+ LOWERED_PROP = 'btm_wall_lowered'
+@@ -128,7 +129,7 @@ class BTM_OT_WallRemove(bpy.types.Operator):
+             if target.name in bpy.data.objects:
+                 neighbors.update(remove_wall(target, self.remove_modules))
+         _remiter(neighbors - names)
+-        self.report({'INFO'}, f"{len(targets)} parede(s) removida(s).")
++        self.report({'INFO'}, tr("{} parede(s) removida(s).").format(len(targets)))
+         return {'FINISHED'}
+ 
+ 
+@@ -194,7 +195,7 @@ class BTM_OT_WallLower(bpy.types.Operator):
+             else:
+                 lower_wall(context, obj)
+                 lowered += 1
+-        self.report({'INFO'}, f"{lowered} parede(s) rebaixada(s), {raised} restaurada(s).")
++        self.report({'INFO'}, tr("{} parede(s) rebaixada(s), {} restaurada(s).").format(lowered, raised))
+         return {'FINISHED'}
+ 
+ 
+diff --git a/caffmob_draw/operators/rooms.py b/caffmob_draw/operators/rooms.py
+index 2f8db02..9d55fdd 100644
+--- a/caffmob_draw/operators/rooms.py
++++ b/caffmob_draw/operators/rooms.py
+@@ -1,4 +1,5 @@
+ import bpy
++from ..data.i18n import tr
+ from .. import hb_utils
+ from .. import hb_project
+ 
+@@ -79,7 +80,7 @@ class home_builder_OT_create_room(bpy.types.Operator):
+         if not original_scene.get('IS_LAYOUT_VIEW') and not original_scene.get('IS_ROOM_SCENE'):
+             original_scene['IS_ROOM_SCENE'] = True
+ 
+-        self.report({'INFO'}, f"Created room: {self.room_name}")
++        self.report({'INFO'}, tr("Created room: {}").format(self.room_name))
+         return {'FINISHED'}
+ 
+ 
+@@ -106,9 +107,9 @@ class home_builder_OT_switch_room(bpy.types.Operator):
+             if hb_utils.is_room_scene(target_scene):
+                 hb_utils.restore_view_state(target_scene)
+ 
+-            self.report({'INFO'}, f"Switched to: {self.scene_name}")
++            self.report({'INFO'}, tr("Switched to: {}").format(self.scene_name))
+         else:
+-            self.report({'WARNING'}, f"Scene not found: {self.scene_name}")
++            self.report({'WARNING'}, tr("Scene not found: {}").format(self.scene_name))
+         return {'FINISHED'}
+ 
+ 
+@@ -125,7 +126,7 @@ class home_builder_OT_delete_room(bpy.types.Operator):
+ 
+     def execute(self, context):
+         if self.scene_name not in bpy.data.scenes:
+-            self.report({'WARNING'}, f"Scene not found: {self.scene_name}")
++            self.report({'WARNING'}, tr("Scene not found: {}").format(self.scene_name))
+             return {'CANCELLED'}
+ 
+         scene_to_delete = bpy.data.scenes[self.scene_name]
+@@ -164,7 +165,7 @@ class home_builder_OT_delete_room(bpy.types.Operator):
+         if was_main:
+             hb_project.ensure_main_scene(context)
+ 
+-        self.report({'INFO'}, f"Deleted room: {scene_name}")
++        self.report({'INFO'}, tr("Deleted room: {}").format(scene_name))
+         return {'FINISHED'}
+ 
+ 
+@@ -210,7 +211,7 @@ class home_builder_OT_rename_room(bpy.types.Operator):
+             return {'CANCELLED'}
+         old_name = target.name
+         target.name = self.new_name
+-        self.report({'INFO'}, f"Renamed '{old_name}' to '{self.new_name}'")
++        self.report({'INFO'}, tr("Renamed '{}' to '{}'").format(old_name, self.new_name))
+         return {'FINISHED'}
+ 
+ 
+@@ -276,7 +277,7 @@ class home_builder_OT_duplicate_room(bpy.types.Operator):
+         orders = [s.home_builder.sort_order for s in other_rooms]
+         new_scene.home_builder.sort_order = (max(orders) + 1) if orders else 0
+ 
+-        self.report({'INFO'}, f"Duplicated room as: {new_scene.name}")
++        self.report({'INFO'}, tr("Duplicated room as: {}").format(new_scene.name))
+         return {'FINISHED'}
+ 
+ 
+@@ -470,7 +471,7 @@ class home_builder_OT_toggle_link_room(bpy.types.Operator):
+     def execute(self, context):
+         source_scene = bpy.data.scenes.get(self.scene_name)
+         if not source_scene:
+-            self.report({'WARNING'}, f"Scene '{self.scene_name}' not found")
++            self.report({'WARNING'}, tr("Scene '{}' not found").format(self.scene_name))
+             return {'CANCELLED'}
+ 
+         target_scene = context.scene
+@@ -532,7 +533,7 @@ class home_builder_OT_toggle_link_room(bpy.types.Operator):
+ 
+         target_scene.collection.objects.link(empty)
+ 
+-        self.report({'INFO'}, f"Linked '{room_name}' into '{target_scene.name}'")
++        self.report({'INFO'}, tr("Linked '{}' into '{}'").format(room_name, target_scene.name))
+         return {'FINISHED'}
+ 
+ 
+@@ -570,7 +571,7 @@ class home_builder_OT_toggle_linked_room_category(bpy.types.Operator):
+         prop_key, col_name = cat_map[self.category]
+         sub_col = bpy.data.collections.get(col_name)
+         if not sub_col:
+-            self.report({'WARNING'}, f"Collection '{col_name}' not found")
++            self.report({'WARNING'}, tr("Collection '{}' not found").format(col_name))
+             return {'CANCELLED'}
+ 
+         # Toggle
+@@ -626,7 +627,7 @@ class home_builder_OT_unlink_room(bpy.types.Operator):
+         # Remove the empty
+         bpy.data.objects.remove(obj, do_unlink=True)
+ 
+-        self.report({'INFO'}, f"Unlinked '{room_name}'")
++        self.report({'INFO'}, tr("Unlinked '{}'").format(room_name))
+         return {'FINISHED'}
+ 
+ 
+diff --git a/caffmob_draw/operators/scene_navigator.py b/caffmob_draw/operators/scene_navigator.py
+index 1cdde7d..3d3efe2 100644
+--- a/caffmob_draw/operators/scene_navigator.py
++++ b/caffmob_draw/operators/scene_navigator.py
+@@ -15,6 +15,7 @@ import bpy
+ import gpu
+ import blf
+ 
++from ..data.i18n import tr
+ from ..hb_gpu_draw import (
+     get_visible_window_bounds as _get_visible_window_bounds,
+     draw_rect as _draw_rect,
+@@ -571,13 +572,13 @@ class home_builder_OT_scene_navigator(bpy.types.Operator):
+         try:
+             bpy.ops.caffmob_layouts.go_to_layout_view(scene_name=scene_name)
+         except Exception as e:
+-            self.report({'WARNING'}, f"Could not switch to {scene_name}: {e}")
++            self.report({'WARNING'}, tr("Could not switch to {}: {}").format(scene_name, e))
+ 
+     def _create_room(self, context):
+         try:
+             bpy.ops.caffmob.create_room('INVOKE_DEFAULT')
+         except Exception as e:
+-            self.report({'WARNING'}, f"Could not create room: {e}")
++            self.report({'WARNING'}, tr("Could not create room: {}").format(e))
+ 
+     def _rename_room(self, context, scene):
+         # temp_override(scene=...) so rename_room's poll and invoke see the
+@@ -587,14 +588,14 @@ class home_builder_OT_scene_navigator(bpy.types.Operator):
+                 bpy.ops.caffmob.rename_room(
+                     'INVOKE_DEFAULT', scene_name=scene.name)
+         except Exception as e:
+-            self.report({'WARNING'}, f"Could not rename {scene.name}: {e}")
++            self.report({'WARNING'}, tr("Could not rename {}: {}").format(scene.name, e))
+ 
+     def _delete_room(self, context, scene):
+         try:
+             bpy.ops.caffmob.delete_room(
+                 'INVOKE_DEFAULT', scene_name=scene.name)
+         except Exception as e:
+-            self.report({'WARNING'}, f"Could not delete {scene.name}: {e}")
++            self.report({'WARNING'}, tr("Could not delete {}: {}").format(scene.name, e))
+ 
+     def modal(self, context, event):
+         global _pinned
+diff --git a/caffmob_draw/operators/viewport_hud.py b/caffmob_draw/operators/viewport_hud.py
+index 922f4b4..006664d 100644
+--- a/caffmob_draw/operators/viewport_hud.py
++++ b/caffmob_draw/operators/viewport_hud.py
+@@ -21,6 +21,7 @@ import gpu
+ import blf
+ from collections import namedtuple
+ 
++from ..data.i18n import N_, tr
+ from ..hb_gpu_draw import (
+     get_visible_window_bounds,
+     draw_rect,
+@@ -291,8 +292,8 @@ class _ModalToggleButton:
+         return active_modal_idname() == self.op_idname
+ 
+     def _label(self):
+-        return (self.disable_label if self._is_my_modal_active()
+-                else self.enable_label)
++        return tr(self.disable_label if self._is_my_modal_active()
++                  else self.enable_label)
+ 
+     # ---- widget protocol ----
+ 
+@@ -302,8 +303,8 @@ class _ModalToggleButton:
+         # doesn't shift width when state flips.
+         s = _s()
+         blf.size(0, FONT_SIZE * s)
+-        w_enable = blf.dimensions(0, self.enable_label)[0]
+-        w_disable = blf.dimensions(0, self.disable_label)[0]
++        w_enable = blf.dimensions(0, tr(self.enable_label))[0]
++        w_disable = blf.dimensions(0, tr(self.disable_label))[0]
+         return int(max(w_enable, w_disable) + 24 * s)  # text + horizontal pad
+ 
+     def visible(self, context):
+@@ -372,23 +373,23 @@ _MODE_BUTTONS = [
+ 
+ _GRAB_CABINET_BUTTON = _ModalToggleButton(
+     'caffmob_face_frame.grab_cabinet', 'Cabinets',
+-    enable_label="Enable Grab Cabinet",
+-    disable_label="Disable Grab Cabinet",
++    enable_label=N_("Enable Grab Cabinet"),
++    disable_label=N_("Disable Grab Cabinet"),
+ )
+ _GRAB_FACE_FRAME_BUTTON = _ModalToggleButton(
+     'caffmob_face_frame.grab_face_frame', 'Face Frame',
+-    enable_label="Enable Grab Face Frame",
+-    disable_label="Disable Grab Face Frame",
++    enable_label=N_("Enable Grab Face Frame"),
++    disable_label=N_("Disable Grab Face Frame"),
+ )
+ _GRAB_BAY_BUTTON = _ModalToggleButton(
+     'caffmob_face_frame.grab_bay', 'Bays',
+-    enable_label="Enable Grab Bays",
+-    disable_label="Disable Grab Bays",
++    enable_label=N_("Enable Grab Bays"),
++    disable_label=N_("Disable Grab Bays"),
+ )
+ _GRAB_OPENING_BUTTON = _ModalToggleButton(
+     'caffmob_face_frame.grab_opening', 'Openings',
+-    enable_label="Enable Grab Openings",
+-    disable_label="Disable Grab Openings",
++    enable_label=N_("Enable Grab Openings"),
++    disable_label=N_("Disable Grab Openings"),
+ )
+ class _InspectButton(_ModalToggleButton):
+     """Modo de inspeção (`caffmob.inspect_fronts`): visível no modo Parts de qualquer linha de produto (T067)."""
+@@ -411,8 +412,8 @@ class _InspectButton(_ModalToggleButton):
+ 
+ _OPEN_DOOR_BUTTON = _InspectButton(
+     'caffmob.inspect_fronts', 'Parts',
+-    enable_label="Abrir Portas e Gavetas",
+-    disable_label="Sair do Modo de Abrir",
++    enable_label=N_("Abrir Portas e Gavetas"),
++    disable_label=N_("Sair do Modo de Abrir"),
+ )
+ class _MoveOverButton(_ModalToggleButton):
+     """Modo "Mover Sobre" (feature 002): liga/desliga `WindowManager.btm_move_over.enabled`. Não é um modal — o
+@@ -437,8 +438,8 @@ class _MoveOverButton(_ModalToggleButton):
+ 
+ _MOVE_OVER_BUTTON = _MoveOverButton(
+     'caffmob.move_over_toggle', None,
+-    enable_label="Mover Sobre",
+-    disable_label="Sair do Mover Sobre",
++    enable_label=N_("Mover Sobre"),
++    disable_label=N_("Sair do Mover Sobre"),
+ )
+ _MODAL_TOGGLE_BUTTONS = [
+     _GRAB_CABINET_BUTTON, _GRAB_FACE_FRAME_BUTTON, _GRAB_BAY_BUTTON,
+diff --git a/caffmob_draw/operators/wall_builder.py b/caffmob_draw/operators/wall_builder.py
+index 58f9b89..b996833 100644
+--- a/caffmob_draw/operators/wall_builder.py
++++ b/caffmob_draw/operators/wall_builder.py
+@@ -3,6 +3,7 @@ import math
+ import gpu
+ from gpu_extras.batch import batch_for_shader
+ from mathutils import Vector
++from ..data.i18n import tr
+ from ..geometry.mesh_gen import generate_wall_from_segments
+ from ..data import units
+ 
+@@ -271,7 +272,7 @@ class BTM_OT_WallBuilder(bpy.types.Operator):
+         self.segments.append(seg)
+ 
+         length_formatted = units.format_value((end - self.current_start).length, context.scene)
+-        self.report({'INFO'}, f"Segmento {len(self.segments)}: {length_formatted} confirmado.")
++        self.report({'INFO'}, tr("Segmento {}: {} confirmado.").format(len(self.segments), length_formatted))
+ 
+         if self._closes_loop(end):
+             self._finish(context)
+@@ -322,7 +323,7 @@ class BTM_OT_WallBuilder(bpy.types.Operator):
+             for s in self.segments
+         )
+         total_formatted = units.format_value(total_length, context.scene)
+-        self.report({'INFO'}, f"Paredes geradas: {len(self.segments)} segmentos, total: {total_formatted}.")
++        self.report({'INFO'}, tr("Paredes geradas: {} segmentos, total: {}.").format(len(self.segments), total_formatted))
+ 
+         self._cleanup(context)
+ 
+@@ -339,15 +340,15 @@ class BTM_OT_WallBuilder(bpy.types.Operator):
+     def _update_header(self, context):
+         if not self.building:
+             context.area.header_text_set(
+-                "Construtor de Parede | Clique no piso para definir o ponto inicial  |  ESC: cancelar"
++                tr("Construtor de Parede | Clique no piso para definir o ponto inicial  |  ESC: cancelar")
+             )
+             return
+ 
+         field_labels = {
+-            'LENGTH': 'Comprimento',
+-            'ANGLE': 'Ângulo',
+-            'THICKNESS': 'Espessura',
+-            'HEIGHT': 'Altura',
++            'LENGTH': tr('Comprimento'),
++            'ANGLE': tr('Ângulo'),
++            'THICKNESS': tr('Espessura'),
++            'HEIGHT': tr('Altura'),
+         }
+ 
+         # Formata os valores exibidos no cabeçalho na unidade ativa do Blender
+@@ -376,10 +377,7 @@ class BTM_OT_WallBuilder(bpy.types.Operator):
+         seg_count = len(self.segments)
+ 
+         context.area.header_text_set(
+-            f"Parede | Segmento: {seg_count + 1}  |  "
+-            f"[{active}]: {display_val}  |  "
+-            f"TAB: próximo campo  |  ENTER: confirmar  |  "
+-            f"Botão Direito: concluir polilinha  |  ESC: cancelar"
++            tr("Parede | Segmento: {}  |  [{}]: {}  |  TAB: próximo campo  |  ENTER: confirmar  |  Botão Direito: concluir polilinha  |  ESC: cancelar").format(seg_count + 1, active, display_val)
+         )
+ 
+     # -------------------------------------------------------------------
+diff --git a/caffmob_draw/operators/walls.py b/caffmob_draw/operators/walls.py
+index b7addbc..dd0e0d6 100644
+--- a/caffmob_draw/operators/walls.py
++++ b/caffmob_draw/operators/walls.py
+@@ -8,6 +8,7 @@ from mathutils import Vector
+ from mathutils.geometry import intersect_line_plane
+ from bpy_extras import view3d_utils
+ from gpu_extras.batch import batch_for_shader
++from ..data.i18n import N_, tr
+ from .. import hb_types, hb_snap, hb_placement, hb_utils, units
+ 
+ # Wall Miter Angle Calculation
+@@ -332,7 +333,7 @@ def offset_wall_perpendicular(wall_obj, offset, tolerance_deg=None):
+ 
+     chain, idx, is_closed = get_wall_chain_info(wall_obj)
+     if chain is None:
+-        return False, "Selected wall is not part of a detected chain"
++        return False, tr("Selected wall is not part of a detected chain")
+ 
+     n = len(chain)
+     this_rot = wall_obj.rotation_euler.z
+@@ -379,8 +380,8 @@ def offset_wall_perpendicular(wall_obj, offset, tolerance_deg=None):
+     # So pred new_vec = old + delta, succ new_vec = old - delta.
+     planned = []
+     for neighbor_obj, sign, label in (
+-        (pred_obj, +1.0, "predecessor"),
+-        (succ_obj, -1.0, "successor"),
++        (pred_obj, +1.0, N_("predecessor")),
++        (succ_obj, -1.0, N_("successor")),
+     ):
+         if neighbor_obj is None:
+             continue
+@@ -388,14 +389,12 @@ def offset_wall_perpendicular(wall_obj, offset, tolerance_deg=None):
+         new_vec = old_vec + sign * delta
+         new_len = new_vec.length
+         if new_len <= 0.001:
+-            return False, (f"Offset would collapse {label} wall "
+-                           f"(new length would be {new_len:.3f} m)")
++            return False, (tr("Offset would collapse {} wall (new length would be {:.3f} m)").format(tr(label), new_len))
+         # Reject drags large enough to reverse a neighbor's direction. The
+         # geometry would still be "valid" but the wall flips, which is almost
+         # never what the user wants.
+         if old_vec.dot(new_vec) <= 0.0:
+-            return False, (f"Offset would reverse {label} wall direction "
+-                           f"(try a smaller offset)")
++            return False, (tr("Offset would reverse {} wall direction (try a smaller offset)").format(tr(label)))
+         new_rot = math.atan2(new_vec.y, new_vec.x)
+         planned.append((neighbor_obj, new_len, new_rot, label))
+ 
+@@ -417,7 +416,7 @@ def offset_wall_perpendicular(wall_obj, offset, tolerance_deg=None):
+     # closure seam for closed loops, which update_connected_wall_miters misses).
+     _update_chain_miters(chain, is_closed)
+ 
+-    return True, f"Offset wall by {offset:.3f} m"
++    return True, tr("Offset wall by {:.3f} m").format(offset)
+ 
+ 
+ 
+@@ -925,7 +924,7 @@ def draw_wall_snap_indicator(op, context):
+             color = (0.2, 1.0, 0.2, 0.95)
+             _draw_snap_point(end_2d.x, end_2d.y, color, 14, 9, diamond=True)
+             # BlenderToMob (D-39): pergunta de fechamento junto do ponto inicial
+-            label = ("Deseja fechar a parede?  Enter/clique: Sim · Esc: Não"
++            label = (tr("Deseja fechar a parede?  Enter/clique: Sim · Esc: Não")
+                      if getattr(op, 'pending_close', False) else "Fechar")
+             blf.size(0, 14)
+             blf.color(0, *color)
+@@ -2026,7 +2025,7 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
+         tolerance = 0.01
+         wall_length = self.current_wall.get_input('Length')
+         if wall_length < tolerance:
+-            return "Wall is too short to place"
++            return tr("Wall is too short to place")
+ 
+         angle = self.current_wall.obj.rotation_euler.z
+         direction = Vector((math.cos(angle), math.sin(angle)))
+@@ -2055,7 +2054,7 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
+             t2 = (p2 - start).dot(seg_dir)
+             overlap = min(max(t1, t2), seg_length) - max(min(t1, t2), 0.0)
+             if overlap > tolerance:
+-                return "Wall overlaps an existing wall"
++                return tr("Wall overlaps an existing wall")
+         return None
+ 
+     def confirm_current_wall(self):
+@@ -2120,40 +2119,38 @@ class home_builder_walls_OT_draw_walls(bpy.types.Operator, hb_placement.Placemen
+                     axis_label = "+X" if d.x > 0 else "-X"
+                 else:
+                     axis_label = "+Y" if d.y > 0 else "-Y"
+-                text = (f"Distance from tracked point ({axis_label}): "
+-                        f"{self.typed_value}_ | Enter to place first point | "
+-                        f"Esc to cancel typing")
++                text = (tr("Distance from tracked point ({}): {}_ | Enter to place first point | Esc to cancel typing").format(axis_label, self.typed_value))
+             else:
+-                text = f"Wall Length: {self.typed_value}_ | Enter to confirm | Esc to cancel typing"
++                text = tr("Wall Length: {}_ | Enter to confirm | Esc to cancel typing").format(self.typed_value)
+         elif self.has_start_point:
+             length = self.current_wall.get_input('Length')
+             length_str = units.unit_to_string(context.scene.unit_settings, length)
+             angle_deg = round(math.degrees(self.current_wall.obj.rotation_euler.z))
+-            rotation_mode = "Free (15°)" if self.free_rotation else "Ortho (90°)"
+-            close_hint = " | C: close room (or click start)" if self.confirmed_wall_count >= 2 and self.first_wall is not None else ""
+-            snap_hint = f" [Snap: {self.end_snap_face} face]" if self.end_snap_wall else ""
++            rotation_mode = tr("Free (15°)") if self.free_rotation else tr("Ortho (90°)")
++            close_hint = tr(" | C: close room (or click start)") if self.confirmed_wall_count >= 2 and self.first_wall is not None else ""
++            snap_hint = tr(" [Snap: {} face]").format(self.end_snap_face) if self.end_snap_wall else ""
+             if self.close_snap_active:
+-                snap_hint = " [CLOSE]"
++                snap_hint = tr(" [CLOSE]")
+             if getattr(self, 'pending_close', False):
+-                context.area.header_text_set("Deseja fechar a parede?  Enter ou clique: Sim  |  Esc: Não")
++                context.area.header_text_set(tr("Deseja fechar a parede?  Enter ou clique: Sim  |  Esc: Não"))
+                 return
+-            fine_hint = " [Fine: 1/16\"]" if self.fine_snap else ""
++            fine_hint = tr(" [Fine: 1/16\"]") if self.fine_snap else ""
+             tp_count = len(self.track_points)
+-            track_hint = f" [Track: {tp_count}]" if tp_count else ""
++            track_hint = tr(" [Track: {}]").format(tp_count) if tp_count else ""
+             if self._active_track_lines:
+-                track_hint += " [TRACKING]"
+-            text = f"Length: {length_str} | Angle: {angle_deg}°{snap_hint}{fine_hint}{track_hint} | {rotation_mode} | Shift: fine | Alt: rotation | T: track | Click to place{close_hint}"
++                track_hint += tr(" [TRACKING]")
++            text = tr("Length: {} | Angle: {}°{}{}{} | {} | Shift: fine | Alt: rotation | T: track | Click to place{}").format(length_str, angle_deg, snap_hint, fine_hint, track_hint, rotation_mode, close_hint)
+         else:
+             tp_count = len(self.track_points)
+-            track_hint = f" [Track: {tp_count}]" if tp_count else ""
++            track_hint = tr(" [Track: {}]").format(tp_count) if tp_count else ""
+             if self._active_track_lines:
+-                track_hint += " [TRACKING]"
++                track_hint += tr(" [TRACKING]")
+             if self.snap_wall and self.snap_endpoint:
+-                text = f"Click to connect to wall endpoint{track_hint} | T: track | Esc to cancel"
++                text = tr("Click to connect to wall endpoint{} | T: track | Esc to cancel").format(track_hint)
+             elif self.snap_wall and self.snap_surface:
+-                text = f"Click to start on wall ({self.snap_surface} face){track_hint} | T: track | Esc to cancel"
++                text = tr("Click to start on wall ({} face){} | T: track | Esc to cancel").format(self.snap_surface, track_hint)
+             else:
+-                text = f"Click to place first point{track_hint} | T: track point (hover 0.5s or press T) | Esc to cancel"
++                text = tr("Click to place first point{} | T: track point (hover 0.5s or press T) | Esc to cancel").format(track_hint)
+ 
+         hb_placement.draw_header_text(context, text)
+ 
+@@ -3011,10 +3008,10 @@ class home_builder_walls_OT_change_room_size(bpy.types.Operator):
+         fixed, dragged = (start_2d, end_2d) if which == 'end' else (end_2d, start_2d)
+         axis = dragged - fixed
+         if axis.length < 1e-6:
+-            return False, "Wall has zero length"
++            return False, tr("Wall has zero length")
+         hit = self._mouse_to_world_z0(context, event)
+         if hit is None:
+-            return False, "Cannot project cursor onto Z=0 plane"
++            return False, tr("Cannot project cursor onto Z=0 plane")
+         cur_len = hb_types.GeoNodeWall(wall_obj).get_input('Length')
+         self._drag_snapshot = self._snapshot_walls()
+         self._drag_wall = wall_obj
+@@ -3172,14 +3169,14 @@ class home_builder_walls_OT_change_room_size(bpy.types.Operator):
+         succ_obj = chain[(idx + 1) % len(chain)]
+         outward, _closed = self._compute_outward_normal(succ_obj)
+         if outward is None:
+-            return False, "Next wall is not part of a detected chain"
++            return False, tr("Next wall is not part of a detected chain")
+         rot = wall_obj.rotation_euler.z
+         cur_len = gw.get_input('Length')
+         v = Vector((math.cos(rot) * cur_len, math.sin(rot) * cur_len, 0))
+         vn = v.dot(outward)
+         disc = vn * vn - v.length_squared + new_len * new_len
+         if disc < 0.0:
+-            return False, "Length not reachable by moving the next wall"
++            return False, tr("Length not reachable by moving the next wall")
+         root = math.sqrt(disc)
+         d1 = -vn + root
+         d2 = -vn - root
+@@ -3195,7 +3192,7 @@ class home_builder_walls_OT_change_room_size(bpy.types.Operator):
+     def _start_drag(self, context, event, wall_obj):
+         outward, _is_closed = self._compute_outward_normal(wall_obj)
+         if outward is None:
+-            return False, "Wall is not part of a detected chain"
++            return False, tr("Wall is not part of a detected chain")
+ 
+         # Feasibility check via a tiny offset, immediately rolled back
+         snap = self._snapshot_walls()
+@@ -3206,7 +3203,7 @@ class home_builder_walls_OT_change_room_size(bpy.types.Operator):
+ 
+         hit = self._mouse_to_world_z0(context, event)
+         if hit is None:
+-            return False, "Cannot project cursor onto Z=0 plane"
++            return False, tr("Cannot project cursor onto Z=0 plane")
+ 
+         # Identify the loop-adjacent neighbors that will have their lengths
+         # adjusted, and cache their outward normals for the dim text.
+@@ -3345,7 +3342,7 @@ class home_builder_walls_OT_change_room_size(bpy.types.Operator):
+         if self._pill_edit_wall is not None:
+             if val < ENDPOINT_MIN_LENGTH:
+                 self._current_offset = self._baseline_offset()
+-                self._last_error = "Length must be positive"
++                self._last_error = tr("Length must be positive")
+                 return
+             ok, msg = self._apply_pill_length(self._drag_wall, val)
+             if not ok:
+@@ -3359,7 +3356,7 @@ class home_builder_walls_OT_change_room_size(bpy.types.Operator):
+         if self._drag_mode == 'ENDPOINT':
+             if val < ENDPOINT_MIN_LENGTH:
+                 self._current_offset = self._baseline_offset()
+-                self._last_error = "Length must be positive"
++                self._last_error = tr("Length must be positive")
+                 return
+             self._apply_endpoint_length(val)
+             self._last_error = None
+@@ -3380,25 +3377,22 @@ class home_builder_walls_OT_change_room_size(bpy.types.Operator):
+         if area is None:
+             return
+         if self._typing:
+-            label = ("length" if (self._drag_mode == 'ENDPOINT'
+-                                  or self._pill_edit_wall is not None) else "offset")
+-            text = (f"Change Room Size — Typing {label}: {self._typed_value}_   |   "
+-                    "Enter: commit   |   Backspace: erase   |   Esc: stop typing")
++            label = (tr("length") if (self._drag_mode == 'ENDPOINT'
++                                      or self._pill_edit_wall is not None) else tr("offset"))
++            text = (tr("Change Room Size — Typing {}: {}_   |   Enter: commit   |   Backspace: erase   |   Esc: stop typing").format(label, self._typed_value))
+         elif self._drag_active and self._drag_mode == 'ENDPOINT':
+-            msg = f"Length: {self._current_offset:.3f} m"
++            msg = tr("Length: {:.3f} m").format(self._current_offset)
+             if self._last_error:
+                 msg += f"   [{self._last_error}]"
+-            text = (f"Change Room Size — {msg}   |   "
+-                    "Release: commit drag   |   Type digits for exact length   |   Esc: cancel drag")
++            text = (tr("Change Room Size — {}   |   Release: commit drag   |   Type digits for exact length   |   Esc: cancel drag").format(msg))
+         elif self._drag_active:
+-            msg = f"Offset: {self._current_offset:+.3f} m"
++            msg = tr("Offset: {:+.3f} m").format(self._current_offset)
+             if self._last_error:
+                 msg += f"   [{self._last_error}]"
+-            text = (f"Change Room Size — {msg}   |   "
+-                    "Release: commit drag   |   Type digits for exact value   |   Esc: cancel drag")
++            text = (tr("Change Room Size — {}   |   Release: commit drag   |   Type digits for exact value   |   Esc: cancel drag").format(msg))
+         else:
+-            text = ("Change Room Size — click+drag a wall body or a free wall end   |   "
+-                    "Click a length pill to type   |   Enter: confirm   |   Esc: cancel all")
++            text = (tr("Change Room Size — click+drag a wall body or a free wall end   |   "
++                    "Click a length pill to type   |   Enter: confirm   |   Esc: cancel all"))
+         area.header_text_set(text)
+ 
+     def _cleanup(self, context):
+@@ -3701,7 +3695,7 @@ class home_builder_walls_OT_add_floor(bpy.types.Operator):
+                 floors_created += 1
+ 
+         if floors_created > 0:
+-            self.report({'INFO'}, f"Created {floors_created} floor(s)")
++            self.report({'INFO'}, tr("Created {} floor(s)").format(floors_created))
+             return {'FINISHED'}
+         else:
+             self.report({'WARNING'}, "Could not create floor - insufficient wall data")
+@@ -3830,7 +3824,7 @@ class home_builder_walls_OT_add_ceiling(bpy.types.Operator):
+                 ceilings_created += 1
+ 
+         if ceilings_created > 0:
+-            self.report({'INFO'}, f"Created {ceilings_created} ceiling(s)")
++            self.report({'INFO'}, tr("Created {} ceiling(s)").format(ceilings_created))
+             return {'FINISHED'}
+         else:
+             self.report({'WARNING'}, "Could not create ceiling - insufficient wall data")
+@@ -4123,7 +4117,7 @@ class home_builder_walls_OT_add_room_lights(bpy.types.Operator):
+             total_lights += len(lights)
+ 
+         if total_lights > 0:
+-            self.report({'INFO'}, f"Created {total_lights} light(s)")
++            self.report({'INFO'}, tr("Created {} light(s)").format(total_lights))
+             return {'FINISHED'}
+         else:
+             self.report({'WARNING'}, "No closed wall loops found for light placement")
+@@ -4161,7 +4155,7 @@ class home_builder_walls_OT_delete_room_lights(bpy.types.Operator):
+                         scene.collection.children.unlink(col)
+                     bpy.data.collections.remove(col)
+ 
+-        self.report({'INFO'}, f"Deleted {count} room light(s)")
++        self.report({'INFO'}, tr("Deleted {} room light(s)").format(count))
+         return {'FINISHED'}
+ 
+ 
+@@ -4260,7 +4254,7 @@ class home_builder_walls_OT_update_room_lights(bpy.types.Operator):
+             obj.data.color = color
+             obj.data.shadow_soft_size = self.light_radius
+ 
+-        self.report({'INFO'}, f"Updated {len(light_objects)} room light(s)")
++        self.report({'INFO'}, tr("Updated {} room light(s)").format(len(light_objects)))
+         return {'FINISHED'}
+ 
+ 
+@@ -4300,7 +4294,7 @@ class home_builder_walls_OT_update_wall_height(bpy.types.Operator):
+ 
+         if count and context.area is not None:
+             context.area.tag_redraw()
+-        self.report({'INFO'}, f"Updated height on {count} {wall_type} wall(s)")
++        self.report({'INFO'}, tr("Updated height on {} {} wall(s)").format(count, wall_type))
+         return {'FINISHED'}
+ 
+ 
+@@ -4338,7 +4332,7 @@ class home_builder_walls_OT_update_wall_thickness(bpy.types.Operator):
+ 
+         if count and context.area is not None:
+             context.area.tag_redraw()
+-        self.report({'INFO'}, f"Updated thickness on {count} {wall_type} wall(s)")
++        self.report({'INFO'}, tr("Updated thickness on {} {} wall(s)").format(count, wall_type))
+         return {'FINISHED'}
+ 
+ 
+@@ -4487,7 +4481,7 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
+             img = bpy.data.images.load(hdri_path, check_existing=True)
+             env_tex.image = img
+         else:
+-            self.report({'WARNING'}, f"HDRI file not found: {hdri_path}")
++            self.report({'WARNING'}, tr("HDRI file not found: {}").format(hdri_path))
+             return False
+ 
+         # Connect nodes
+@@ -4562,12 +4556,12 @@ class home_builder_walls_OT_setup_world_lighting(bpy.types.Operator):
+     def execute(self, context):
+         if self.lighting_type == 'HDRI':
+             if self.setup_hdri(context):
+-                self.report({'INFO'}, f"Setup HDRI environment: {self.hdri_choice}")
++                self.report({'INFO'}, tr("Setup HDRI environment: {}").format(self.hdri_choice))
+             else:
+                 return {'CANCELLED'}
+         else:
+             if self.setup_sky(context):
+-                self.report({'INFO'}, f"Setup {self.sky_type} sky texture")
++                self.report({'INFO'}, tr("Setup {} sky texture").format(self.sky_type))
+             else:
+                 return {'CANCELLED'}
+ 
+@@ -4600,7 +4594,7 @@ class home_builder_walls_OT_apply_wall_material(bpy.types.Operator):
+                     wall.set_input(input_name, mat)
+                 wall_count += 1
+ 
+-        self.report({'INFO'}, f"Applied material to {wall_count} wall(s)")
++        self.report({'INFO'}, tr("Applied material to {} wall(s)").format(wall_count))
+         return {'FINISHED'}
+ 
+ 
+@@ -4706,9 +4700,9 @@ class home_builder_walls_OT_add_soffit(bpy.types.Operator):
+                 continue
+             self.create_soffit(context, wall_obj)
+             added += 1
+-        msg = f"Added {added} soffit{'s' if added != 1 else ''}"
++        msg = tr("Added {} soffit(s)").format(added)
+         if skipped:
+-            msg += f" ({skipped} wall{'s' if skipped != 1 else ''} already had one)"
++            msg += tr(" ({} wall(s) already had one)").format(skipped)
+         self.report({'INFO'}, msg)
+         return {'FINISHED'}
+ 
+@@ -4902,7 +4896,7 @@ class home_builder_walls_OT_delete_wall(bpy.types.Operator):
+         if deleted_count == 1:
+             self.report({'INFO'}, "Wall deleted")
+         else:
+-            self.report({'INFO'}, f"{deleted_count} walls deleted")
++            self.report({'INFO'}, tr("{} walls deleted").format(deleted_count))
+         return {'FINISHED'}
+ 
+ 
+@@ -4951,7 +4945,7 @@ class home_builder_walls_OT_hide_wall(bpy.types.Operator):
+                 obj.hide_viewport = True
+                 obj[ISOLATE_HIDDEN_TAG] = True
+ 
+-        self.report({'INFO'}, f"{len(wall_bps)} wall(s) hidden")
++        self.report({'INFO'}, tr("{} wall(s) hidden").format(len(wall_bps)))
+         return {'FINISHED'}
+ 
+ 
+@@ -4988,7 +4982,7 @@ class home_builder_walls_OT_show_all_walls(bpy.types.Operator):
+                 count += 1
+ 
+         if count > 0:
+-            self.report({'INFO'}, f"Restored {count} hidden object(s)")
++            self.report({'INFO'}, tr("Restored {} hidden object(s)").format(count))
+         else:
+             self.report({'INFO'}, "No hidden objects found")
+         return {'FINISHED'}
+@@ -5051,7 +5045,7 @@ class home_builder_walls_OT_isolate_selected_walls(bpy.types.Operator):
+             obj[ISOLATE_HIDDEN_TAG] = True
+             hidden_count += 1
+ 
+-        self.report({'INFO'}, f"Isolated {len(selected_wall_bps)} wall(s), hid {hidden_count} object(s)")
++        self.report({'INFO'}, tr("Isolated {} wall(s), hid {} object(s)").format(len(selected_wall_bps), hidden_count))
+         return {'FINISHED'}
+ 
+ 
+@@ -5297,7 +5291,7 @@ class home_builder_walls_OT_draw_floor_cutter(bpy.types.Operator, hb_placement.P
+         # Parent cutter to the floor so they stay linked
+         cutter.parent = self.floor_obj
+ 
+-        self.report({'INFO'}, f"Created floor cutter with {len(self.confirmed_points)} points")
++        self.report({'INFO'}, tr("Created floor cutter with {} points").format(len(self.confirmed_points)))
+         return {'FINISHED'}
+ 
+     def cancel(self, context):
+@@ -5312,13 +5306,13 @@ class home_builder_walls_OT_draw_floor_cutter(bpy.types.Operator, hb_placement.P
+         n = len(self.confirmed_points)
+         parts = []
+         if n == 0:
+-            parts.append("Click to place first point")
++            parts.append(tr("Click to place first point"))
+         elif n < 3:
+-            parts.append(f"{n} point(s) — click to add more (need {3 - n} more minimum)")
++            parts.append(tr("{} point(s) — click to add more (need {} more minimum)").format(n, 3 - n))
+         else:
+-            close_text = " [CLOSE SNAP]" if self.close_snap else ""
+-            parts.append(f"{n} points — click to add, Enter to finish{close_text}")
+-        parts.append("Backspace: undo point | Esc: cancel")
++            close_text = tr(" [CLOSE SNAP]") if self.close_snap else ""
++            parts.append(tr("{} points — click to add, Enter to finish{}").format(n, close_text))
++        parts.append(tr("Backspace: undo point | Esc: cancel"))
+         hb_placement.draw_header_text(context, " | ".join(parts))
+ 
+     def execute(self, context):
+@@ -5378,7 +5372,7 @@ class home_builder_walls_OT_draw_floor_cutter(bpy.types.Operator, hb_placement.P
+             if len(self.confirmed_points) >= 3:
+                 return self.finish(context)
+             else:
+-                self.report({'WARNING'}, f"Need at least 3 points (have {len(self.confirmed_points)})")
++                self.report({'WARNING'}, tr("Need at least 3 points (have {})").format(len(self.confirmed_points)))
+                 return {'RUNNING_MODAL'}
+ 
+         # --- Backspace: remove last point ---
+@@ -5672,7 +5666,7 @@ class home_builder_walls_OT_draw_wall_cutter(bpy.types.Operator, hb_placement.Pl
+         cutter = self.create_wall_cutter(context, self.target_wall, self.first_point, self.cursor_point)
+         self.add_boolean_to_wall(self.target_wall, cutter)
+ 
+-        self.report({'INFO'}, f"Created wall cutter on {self.target_wall.name}")
++        self.report({'INFO'}, tr("Created wall cutter on {}").format(self.target_wall.name))
+         return {'FINISHED'}
+ 
+     def cancel_op(self, context):
+@@ -5686,10 +5680,10 @@ class home_builder_walls_OT_draw_wall_cutter(bpy.types.Operator, hb_placement.Pl
+     def update_header(self, context):
+         parts = []
+         if self.first_point is None:
+-            parts.append("Click on a wall to place first corner")
++            parts.append(tr("Click on a wall to place first corner"))
+         else:
+-            parts.append(f"Click to place second corner on {self.target_wall.name}")
+-        parts.append("Esc: cancel")
++            parts.append(tr("Click to place second corner on {}").format(self.target_wall.name))
++        parts.append(tr("Esc: cancel"))
+         hb_placement.draw_header_text(context, " | ".join(parts))
+ 
+     def execute(self, context):
+diff --git a/caffmob_draw/ops.py b/caffmob_draw/ops.py
+index 6892c29..2e6e5f4 100644
+--- a/caffmob_draw/ops.py
++++ b/caffmob_draw/ops.py
+@@ -5,6 +5,7 @@ from mathutils import Vector
+ from gpu_extras.batch import batch_for_shader
+ from bpy_extras.view3d_utils import location_3d_to_region_2d
+ import bmesh
++from .data.i18n import tr
+ from . import hb_utils
+ 
+ class home_builder_OT_to_do(bpy.types.Operator):
+@@ -188,7 +189,7 @@ class home_builder_annotations_OT_apply_settings_to_all(bpy.types.Operator):
+                 dimensions_updated += 1
+ 
+         total = lines_updated + texts_updated + dimensions_updated
+-        self.report({'INFO'}, f"Updated {total} annotations ({lines_updated} lines, {texts_updated} texts, {dimensions_updated} dimensions)")
++        self.report({'INFO'}, tr("Updated {} annotations ({} lines, {} texts, {} dimensions)").format(total, lines_updated, texts_updated, dimensions_updated))
+         return {'FINISHED'}
+ 
+ 
+@@ -475,7 +476,7 @@ class home_builder_OT_create_camera(bpy.types.Operator):
+         space.lock_camera = True
+         space.region_3d.view_perspective = 'CAMERA'
+ 
+-        self.report({'INFO'}, f"Created camera: {cam_obj.name}")
++        self.report({'INFO'}, tr("Created camera: {}").format(cam_obj.name))
+         return {'FINISHED'}
+ 
+     def draw(self, context):
+@@ -580,7 +581,7 @@ class home_builder_OT_set_scale_with_two_points(bpy.types.Operator):
+         self._draw_handle = bpy.types.SpaceView3D.draw_handler_add(
+             _draw_scale_line, (self, context), 'WINDOW', 'POST_PIXEL')
+ 
+-        context.area.header_text_set("Click the FIRST point on the image")
++        context.area.header_text_set(tr("Click the FIRST point on the image"))
+         context.window.cursor_set('CROSSHAIR')
+         context.window_manager.modal_handler_add(self)
+         return {'RUNNING_MODAL'}
+@@ -627,14 +628,14 @@ class home_builder_OT_set_scale_with_two_points(bpy.types.Operator):
+ 
+             if self.first_point is None:
+                 self.first_point = point
+-                context.area.header_text_set("Click the SECOND point on the image")
++                context.area.header_text_set(tr("Click the SECOND point on the image"))
+             else:
+                 # Calculate and apply scale
+                 distance = (self.first_point - point).length
+                 if distance > 0:
+                     scale_factor = self.known_distance / distance
+                     self.empty_image.empty_display_size *= scale_factor
+-                    self.report({'INFO'}, f"Image scaled by {scale_factor:.4f}")
++                    self.report({'INFO'}, tr("Image scaled by {:.4f}").format(scale_factor))
+                 else:
+                     self.report({'WARNING'}, "Points are too close together")
+ 
+diff --git a/caffmob_draw/selection/classify.py b/caffmob_draw/selection/classify.py
+index e535dde..c1169b2 100644
+--- a/caffmob_draw/selection/classify.py
++++ b/caffmob_draw/selection/classify.py
+@@ -12,6 +12,7 @@ Só usa `.get()`, `.parent` e atributos simples, então funciona com objetos sim
+ """
+ 
+ from collections import namedtuple
++from ..data.i18n import N_
+ 
+ Classified = namedtuple('Classified', 'kind obj root library')
+ 
+@@ -21,12 +22,12 @@ WALL, FLOOR, CEILING, OTHER = 'WALL', 'FLOOR', 'CEILING', 'OTHER'
+ KINDS = (ANNOTATION, FRONT, PART, MODULE, ROOM_DOOR, WINDOW, GEOMETRY, OBSTACLE, WALL, FLOOR, CEILING, OTHER)
+ 
+ KIND_LABELS = {
+-    ANNOTATION: "Cota / anotação", FRONT: "Frente", PART: "Peça", MODULE: "Módulo", ROOM_DOOR: "Porta",
+-    WINDOW: "Janela", GEOMETRY: "Geometria", OBSTACLE: "Obstáculo", WALL: "Parede", FLOOR: "Piso",
+-    CEILING: "Teto", OTHER: "Objeto",
++    ANNOTATION: N_("Cota / anotação"), FRONT: N_("Frente"), PART: N_("Peça"), MODULE: N_("Módulo"), ROOM_DOOR: N_("Porta"),
++    WINDOW: N_("Janela"), GEOMETRY: N_("Geometria"), OBSTACLE: N_("Obstáculo"), WALL: N_("Parede"), FLOOR: N_("Piso"),
++    CEILING: N_("Teto"), OTHER: N_("Objeto"),
+ }
+-LIBRARY_LABELS = {'FRAMELESS': "Frameless", 'FACE_FRAME': "Face frame", 'CLOSETS': "Closets",
+-                  'BTM': "Módulo rápido", 'HB': "Ambiente"}
++LIBRARY_LABELS = {'FRAMELESS': N_("Frameless"), 'FACE_FRAME': N_("Face frame"), 'CLOSETS': N_("Closets"),
++                  'BTM': N_("Módulo rápido"), 'HB': N_("Ambiente")}
+ 
+ MODULE_TAGS = (
+     ('IS_FRAMELESS_CABINET_CAGE', 'FRAMELESS'),
+diff --git a/caffmob_draw/selection/editing.py b/caffmob_draw/selection/editing.py
+index d26304c..89161d6 100644
+--- a/caffmob_draw/selection/editing.py
++++ b/caffmob_draw/selection/editing.py
+@@ -11,15 +11,16 @@ Cada biblioteca guarda as medidas num lugar diferente:
+ Valores fora do domínio levantam `ValueError("Valor Inválido: …")` sem alterar nada.
+ """
+ 
++from ..data.i18n import N_, tr
+ from .. import hb_types
+ from ..data import units
+ from . import classify
+ 
+ DIM_FIELDS = ('width', 'height', 'depth')
+-DIM_LABELS = {'width': "Largura", 'height': "Altura", 'depth': "Profundidade"}
++DIM_LABELS = {'width': N_("Largura"), 'height': N_("Altura"), 'depth': N_("Profundidade")}
+ GN_DIM = {'width': 'Dim X', 'depth': 'Dim Y', 'height': 'Dim Z'}
+-WALL_FIELDS = {'length': ('Length', "Comprimento"), 'height': ('Height', "Pé-direito inicial"),
+-               'end_height': ('End Height', "Pé-direito final"), 'thickness': ('Thickness', "Espessura")}
++WALL_FIELDS = {'length': ('Length', N_("Comprimento")), 'height': ('Height', N_("Pé-direito inicial")),
++               'end_height': ('End Height', N_("Pé-direito final")), 'thickness': ('Thickness', N_("Espessura"))}
+ LIMITS = {'width': (0.01, 10.0), 'height': (0.01, 10.0), 'depth': (0.005, 10.0),
+           'length': (0.05, 100.0), 'end_height': (0.5, 10.0), 'thickness': (0.01, 2.0), 'sill': (0.0, 5.0)}
+ WALL_LIMITS = {'height': (0.5, 10.0)}
+@@ -29,8 +30,7 @@ def _check(field, value, label, limits=None):
+     lo, hi = (limits or LIMITS)[field]
+     if not lo <= value <= hi:
+         unit = units.get_scene_length_unit()
+-        raise ValueError(f"Valor Inválido: {label} deve estar entre {units.format_length(lo, unit)} e "
+-                         f"{units.format_length(hi, unit)} (recebido: {units.format_length(value, unit)}).")
++        raise ValueError(tr("Valor Inválido: {} deve estar entre {} e {} (recebido: {}).").format(tr(label), units.format_length(lo, unit), units.format_length(hi, unit), units.format_length(value, unit)))
+ 
+ 
+ def _geo(obj):
+@@ -74,7 +74,7 @@ def get_dimension(info, field):
+ 
+ def set_dimension(context, info, field, value):
+     if field not in editable_dimensions(info):
+-        raise ValueError(f"Valor Inválido: {DIM_LABELS[field]} não é editável para este objeto.")
++        raise ValueError(tr("Valor Inválido: {} não é editável para este objeto.").format(tr(DIM_LABELS[field])))
+     _check(field, value, DIM_LABELS[field])
+     obj = info.root if info.kind == classify.MODULE else info.obj
+     if info.kind == classify.MODULE and info.library == 'FACE_FRAME':
+@@ -100,7 +100,7 @@ def get_sill(info):
+ 
+ def set_sill(info, value):
+     if info.kind == classify.ROOM_DOOR:
+-        raise ValueError("Valor Inválido: o peitoril de uma porta é sempre 0.")
++        raise ValueError(tr("Valor Inválido: o peitoril de uma porta é sempre 0."))
+     _check('sill', value, "Peitoril")
+     info.obj.location.z = value
+ 
+@@ -113,7 +113,7 @@ def get_wall(info, field):
+ 
+ def set_wall(info, field, value):
+     if info.library != 'HB':
+-        raise ValueError("Valor Inválido: esta parede não é editável por aqui.")
++        raise ValueError(tr("Valor Inválido: esta parede não é editável por aqui."))
+     gn_name, label = WALL_FIELDS[field]
+     _check(field, value, label, {**LIMITS, **WALL_LIMITS})
+     wall = hb_types.GeoNodeWall(info.obj)

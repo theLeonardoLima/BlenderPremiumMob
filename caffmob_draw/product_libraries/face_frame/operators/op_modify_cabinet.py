@@ -27,6 +27,7 @@ from mathutils import Vector
 from gpu_extras.batch import batch_for_shader
 from bpy_extras import view3d_utils
 
+from ....data.i18n import tr
 from .. import solver_face_frame as solver
 from .. import types_face_frame
 from .... import hb_types
@@ -970,10 +971,7 @@ class _GrabBaseMixin:
         # convention. Mention click-to-unlock since the lock-icon
         # affordance is otherwise only discoverable by experiment.
         context.area.header_text_set(
-            f"{self.bl_label}  |  LMB: drag boundary or click lock"
-            f" to unlock  |  Type: numeric  |  Tab: cycle snap"
-            f"  |  Shift: hold to disable snap  |  Enter: confirm"
-            f"  |  Esc / RMB: cancel"
+            tr("{}  |  LMB: drag boundary or click lock to unlock  |  Type: numeric  |  Tab: cycle snap  |  Shift: hold to disable snap  |  Enter: confirm  |  Esc / RMB: cancel").format(self.bl_label)
         )
         context.window.cursor_modal_set('SCROLL_XY')
         context.area.tag_redraw()
@@ -1829,7 +1827,7 @@ class _GrabBaseMixin:
                 'COARSE': 'FINE',
                 'FINE': 'OFF',
             }[self._snap_mode]
-            self.report({'INFO'}, f"Snap: {self._snap_mode}")
+            self.report({'INFO'}, tr("Snap: {}").format(self._snap_mode))
             context.area.tag_redraw()
             return {'RUNNING_MODAL'}
 

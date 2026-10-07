@@ -11,6 +11,7 @@ types_face_frame._apply_wedge_cuts.
 import bpy
 from bpy.props import FloatProperty
 
+from ....data.i18n import tr
 from .. import solver_face_frame as solver
 from ....units import inch, meter_to_inch
 
@@ -79,8 +80,8 @@ class HB_FACE_FRAME_OT_add_refrigerator_wedge(bpy.types.Operator):
         box = layout.box()
         box.label(text="Cabinet", icon='MESH_CUBE')
         row = box.row()
-        row.label(text="Leg Height:  " + _fmt(leg_height))
-        row.label(text="Leg Depth:  " + _fmt(leg_depth))
+        row.label(text=tr("Leg Height:  {}").format(_fmt(leg_height)))
+        row.label(text=tr("Leg Depth:  {}").format(_fmt(leg_depth)))
 
         box = layout.box()
         box.label(text="Room & Settings", icon='SETTINGS')
@@ -96,8 +97,8 @@ class HB_FACE_FRAME_OT_add_refrigerator_wedge(bpy.types.Operator):
         if needed:
             box.label(text="Computed Wedge", icon='MOD_BEVEL')
             row = box.row()
-            row.label(text="Wedge Length:  " + _fmt(length))
-            row.label(text="Wedge Height:  " + _fmt(height))
+            row.label(text=tr("Wedge Length:  {}").format(_fmt(length)))
+            row.label(text=tr("Wedge Height:  {}").format(_fmt(height)))
             if clamped:
                 row = box.row()
                 row.alert = True

@@ -1,0 +1,54 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Plano de correção · #7 YIMY</title><style>
+body{background:#0d1117;color:#e6edf3;font:14px system-ui,sans-serif;margin:0;padding:16px;max-width:1100px}
+.meta{color:#8b949e;font-size:12px}.cards{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}
+.card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px 16px;min-width:120px}
+.card b{font-size:18px;display:block}svg{max-width:100%;height:auto}
+table{border-collapse:collapse;width:100%;margin-top:8px}td,th{border-bottom:1px solid #30363d;padding:6px;text-align:left;font-size:13px;vertical-align:top}
+a{color:#58a6ff}.wrap{overflow-x:auto}code{background:#161b22;padding:1px 4px;border-radius:4px}.ok{color:#3fb950}.bad{color:#e5484d}.warn{color:#d29922}h2{margin-top:28px}</style></head><body>
+<h1>Plano de correção · #7 BUG-20261007-YIMY</h1>
+<p class="meta">Contexto <b>editor-de-paredes</b> · 2026-10-07 · /reversa-debugger-fix · <a href="../bug.md">bug.md</a></p>
+<div class="cards"><div class="card"><b class="bad">high</b>severidade</div><div class="card"><b>P1</b>prioridade</div>
+<div class="card"><b>3/3</b>reprodução (determinístico)</div><div class="card"><b class="ok">confirmed</b>causa raiz</div>
+<div class="card"><b class="warn">média</b>risco da mudança</div></div>
+<h2>Defeito e causa raiz</h2>
+<p>A inserção põe a porta certa: dentro da espessura, com furo de face a face. Ela sai da parede quando o
+<b>editor de paredes reaplica a parede</b> (<code>walls2d/apply.py</code> <code>apply_plan</code>):</p>
+<ol><li><b>Direção trocada</b>: a parede passa a ser desenhada do outro nó, e a espessura vai para o outro lado da linha. O código mantém
+a posição no mundo de todos os filhos (<code>apply.py:126-131</code>). Para módulos isso está certo; para porta e janela, não: a porta fica
+do lado antigo (y de -0,15 a 0), fora da parede.</li>
+<li><b>Espessura alterada</b>: a profundidade da gaiola (<code>Dim Y</code>) foi copiada uma vez na inserção (<code>doors_windows.py:827</code>)
+e ninguém a atualiza. Uma parede de 0,25 fica com porta de 0,15, e o furo não atravessa.</li></ol>
+<p>Estado: <b class="ok">confirmed</b>, medido com a cena real. Evidência: <a href="../evidence/reproduction.md">evidence/reproduction.md</a>.
+As hipóteses 1 (o "bloco" é a gaiola sólida) e 3 (cortador coplanar) do registro: a 1 é comportamento do legado e a porta realista é
+feature nova; a 3 <b>foi refutada</b>, porque o furo sai limpo com o cortador do mesmo tamanho da espessura (solver EXACT).</p>
+<h2>Estratégia escolhida: correção direta</h2>
+<p>No <code>apply_plan</code>, as aberturas filhas da parede (<code>IS_ENTRY_DOOR_BP</code>/<code>IS_WINDOW_BP</code>) passam a ser
+<b>re-hospedadas</b> em vez de ficarem paradas no mundo. Quando a Direção vira, a abertura continua no mesmo vão físico:
+<code>x novo = fim antigo − largura</code>, com <code>y = 0</code> e rotação 0. O arco da porta inverte "Swing Inside" e "Is Left" e por
+isso continua abrindo para o mesmo lado e na mesma mão. Em toda reaplicação a <code>Dim Y</code> da abertura passa a ser a espessura do
+trecho. Os módulos e os outros filhos continuam como estão.</p>
+<p class="meta">Mitigação até a correção: não trocar a Direção nem a espessura de paredes com porta e janela; se já trocou, apague e insira de novo.</p>
+<h2>Correction Change Set proposto</h2>
+<table><tr><th>CHG</th><th>tipo</th><th>artefato</th><th>propósito</th></tr>
+<tr><td>CHG-001</td><td>code</td><td><code>caffmob_draw/walls2d/apply.py</code></td><td><code>_is_opening</code> + <code>_rehost_opening</code> (Direção trocada) + <code>Dim Y</code> = espessura do trecho para as aberturas filhas, em cada reaplicação</td></tr>
+<tr><td>CHG-002</td><td>specification</td><td><code>_reversa_sdd/addenda/bug-BUG-20261007-YIMY-v001.md</code></td><td>Só se o veredito for spec-desatualizada/gap: R-04 descreve outro operador (<code>caffmob.insert_opening</code>)</td></tr></table>
+<h2>Testes planejados</h2>
+<table><tr><th>teste</th><th>tipo</th><th>prova</th></tr>
+<tr><td><code>tests/blender_bug_YIMY_openings.py</code> §1</td><td>reprodução</td><td>Porta inserida, Direção trocada no editor: a porta continua com y de 0 à espessura, no mesmo vão do mundo, com o arco do mesmo lado e o furo de face a face</td></tr>
+<tr><td>§2</td><td>reprodução</td><td>Espessura 0,15 → 0,25: <code>Dim Y</code> da porta = 0,25 e o raio no meio do vão atravessa</td></tr>
+<tr><td>§3</td><td>regressão</td><td>Janela (com <code>z</code> do peitoril) e porta dupla com a Direção trocada duas vezes voltam ao lugar de origem</td></tr>
+<tr><td>§4</td><td>regressão</td><td>Módulo filho da parede continua parado no mundo quando a Direção vira (comportamento atual preservado)</td></tr></table>
+<h2>Riscos</h2>
+<p>Risco <b class="warn">média</b>: o <code>apply_plan</code> é o OK do editor para todas as paredes e mexe em portas de arquivos já salvos,
+mas a mudança só altera filhos marcados como abertura e o Ctrl+Z do Blender a desfaz. Fora da correção (Agent Notes): porta e janela
+realistas, tipo Portal, "furar a parede" por padrão (feature nova); a espessura mudada pelo painel da parede fora do editor (outro caminho:
+fica registrado e não entra aqui).</p>
+<h2>Mini-grafo</h2>
+<div class="wrap"><svg width="560" height="120" viewBox="0 0 560 120">
+<a href="../bug.md"><rect x="180" y="30" width="200" height="60" rx="10" fill="#161b22" stroke="#e5484d" stroke-width="2"/>
+<text x="280" y="55" fill="#e6edf3" text-anchor="middle" font-size="13">#7 YIMY</text>
+<text x="280" y="75" fill="#d29922" text-anchor="middle" font-size="11">active · aberturas</text></a>
+</svg></div>
+<h2>Relações</h2><table><tr><th>origem</th><th>tipo</th><th>destino</th><th>estado</th></tr><tr><td colspan="4">nenhuma relação registrada</td></tr></table>
+</body></html>

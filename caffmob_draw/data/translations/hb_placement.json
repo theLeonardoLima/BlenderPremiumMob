@@ -1,0 +1,14 @@
+{
+ "Click first point{} | O: ortho | Right-click/Esc: cancel": {
+  "pt_BR": "Clique o primeiro ponto{} | O: ortogonal | Botão direito/Esc: cancelar",
+  "en_US": "Click first point{} | O: ortho | Right-click/Esc: cancel"
+ },
+ "Click second point{}{} | O: toggle ortho | Right-click/Esc: cancel": {
+  "pt_BR": "Clique o segundo ponto{}{} | O: alternar ortogonal | Botão direito/Esc: cancelar",
+  "en_US": "Click second point{}{} | O: toggle ortho | Right-click/Esc: cancel"
+ },
+ "Move to set offset, click to place | Right-click/Esc: cancel": {
+  "pt_BR": "Mova para definir o afastamento, clique para inserir | Botão direito/Esc: cancelar",
+  "en_US": "Move to set offset, click to place | Right-click/Esc: cancel"
+ }
+}

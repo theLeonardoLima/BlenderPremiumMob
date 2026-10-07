@@ -1,0 +1,70 @@
+{
+ "Default": {
+  "pt_BR": "Padrão",
+  "en_US": "Default"
+ },
+ "Flat-stock spacer at the reveal line with no crown profile": {
+  "pt_BR": "Espaçador reto na linha de recuo, sem perfil de moldura",
+  "en_US": "Flat-stock spacer at the reveal line with no crown profile"
+ },
+ "Flat-stock spacer with a crown profile on top": {
+  "pt_BR": "Espaçador reto com um perfil de moldura em cima",
+  "en_US": "Flat-stock spacer with a crown profile on top"
+ },
+ "No molding": {
+  "pt_BR": "Sem moldura",
+  "en_US": "No molding"
+ },
+ "None": {
+  "pt_BR": "Nenhum",
+  "en_US": "None"
+ },
+ "One base profile along the toe kicks": {
+  "pt_BR": "Um perfil de rodapé ao longo dos rodapés dos módulos",
+  "en_US": "One base profile along the toe kicks"
+ },
+ "One crown profile along the cabinet tops": {
+  "pt_BR": "Um perfil de moldura ao longo do topo dos módulos",
+  "en_US": "One crown profile along the cabinet tops"
+ },
+ "One light-rail profile under the upper cabinet fronts": {
+  "pt_BR": "Um perfil de sanefa sob as frentes dos aéreos",
+  "en_US": "One light-rail profile under the upper cabinet fronts"
+ },
+ "Rebuild this room's molding packages after cabinets change": {
+  "pt_BR": "Refaz os pacotes de moldura do ambiente depois que os módulos mudam",
+  "en_US": "Rebuild this room's molding packages after cabinets change"
+ },
+ "Rebuilt {} molding run(s)": {
+  "pt_BR": "{} trecho(s) de moldura refeito(s)",
+  "en_US": "Rebuilt {} molding run(s)"
+ },
+ "Refresh Room Molding": {
+  "pt_BR": "Atualizar Molduras do Ambiente",
+  "en_US": "Refresh Room Molding"
+ },
+ "Simple Base": {
+  "pt_BR": "Rodapé Simples",
+  "en_US": "Simple Base"
+ },
+ "Simple Crown": {
+  "pt_BR": "Moldura Superior Simples",
+  "en_US": "Simple Crown"
+ },
+ "Simple Light Rail": {
+  "pt_BR": "Sanefa Simples",
+  "en_US": "Simple Light Rail"
+ },
+ "Spacer Only": {
+  "pt_BR": "Só Espaçador",
+  "en_US": "Spacer Only"
+ },
+ "Stacked w/ Spacer": {
+  "pt_BR": "Sobreposta com Espaçador",
+  "en_US": "Stacked w/ Spacer"
+ },
+ "Use the package's standard profile": {
+  "pt_BR": "Usa o perfil padrão do pacote",
+  "en_US": "Use the package's standard profile"
+ }
+}

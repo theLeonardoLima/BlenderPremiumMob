@@ -12,6 +12,7 @@ import math
 
 from mathutils import Matrix, Vector  # type: ignore
 
+from ..data.i18n import tr
 from ..selection import classify
 from . import align, reposition
 
@@ -40,7 +41,7 @@ class MoveOver:
         self.a = classify.movable_root(obj_a)
         self.b = classify.reference_root(obj_b)
         if self.a is None or self.b is None or self.a == self.b:
-            raise ValueError("Esses objetos não podem ser usados no Mover Sobre.")
+            raise ValueError(tr("Esses objetos não podem ser usados no Mover Sobre."))
         info_b = classify.classify(self.b)
         self.b_is_wall = info_b.kind == classify.WALL
         self.original_parent = self.a.parent

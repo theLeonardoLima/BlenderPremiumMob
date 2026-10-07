@@ -11,6 +11,7 @@ import gpu  # type: ignore
 from bpy_extras.view3d_utils import location_3d_to_region_2d  # type: ignore
 from gpu_extras.batch import batch_for_shader  # type: ignore
 
+from ..data.i18n import tr
 from . import leaf
 
 PATH_COLOR = (0.2, 0.75, 1.0, 0.9)
@@ -93,7 +94,7 @@ def _draw_2d():
     co = location_3d_to_region_2d(region, rv3d, obj.matrix_world.translation)
     if co is None:
         return
-    text = f"Folha bateu em {obj.btm_aggregate.contact_name}"
+    text = tr("Folha bateu em {}").format(obj.btm_aggregate.contact_name)
     blf.size(0, 14)
     blf.color(0, 0.0, 0.0, 0.0, 0.85)
     blf.position(0, co.x + 11, co.y + 9, 0)

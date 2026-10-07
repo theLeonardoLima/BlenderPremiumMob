@@ -1,5 +1,6 @@
 import bpy
 import math
+from ....data.i18n import tr
 from .. import types_frameless
 from .... import hb_utils, hb_types, hb_project
 from ....units import inch
@@ -362,7 +363,7 @@ class hb_frameless_OT_update_finished_end(bpy.types.Operator):
         layout = self.layout
 
         box = layout.box()
-        box.label(text=f"Update {self.side.title()} Finished End", icon='MOD_SOLIDIFY')
+        box.label(text=tr("Update {} Finished End").format(tr(self.side.title())), icon='MOD_SOLIDIFY')
 
         col = box.column(align=True)
         col.prop(self, "finished_end_type", text="Type")

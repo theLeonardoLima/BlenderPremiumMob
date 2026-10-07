@@ -26,6 +26,7 @@ from mathutils import Vector
 from gpu_extras.batch import batch_for_shader
 from bpy_extras import view3d_utils
 
+from ....data.i18n import tr
 from .... import units
 from ....units import inch
 from ....hb_types import GeoNodeCage, GeoNodeCutpart
@@ -841,7 +842,7 @@ class hb_closets_OT_grab_drag(bpy.types.Operator):
         if event.type == 'TAB' and event.value == 'PRESS':
             self._snap_mode = {'OFF': 'COARSE', 'COARSE': 'FINE',
                                'FINE': 'OFF'}[self._snap_mode]
-            self.report({'INFO'}, f"Snap: {self._snap_mode}")
+            self.report({'INFO'}, tr("Snap: {}").format(self._snap_mode))
             return {'RUNNING_MODAL'}
 
         if event.value == 'PRESS':

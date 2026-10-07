@@ -1,0 +1,110 @@
+{
+ "Abre as portas até 45°": {
+  "pt_BR": "Abre as portas até 45°",
+  "en_US": "Opens the doors up to 45°"
+ },
+ "Abre as portas até 90°": {
+  "pt_BR": "Abre as portas até 90°",
+  "en_US": "Opens the doors up to 90°"
+ },
+ "Abre ou fecha portas, basculantes e gavetas para inspeção (o arquivo é salvo fechado)": {
+  "pt_BR": "Abre ou fecha portas, basculantes e gavetas para inspeção (o arquivo é salvo fechado)",
+  "en_US": "Opens or closes doors, flip-ups and drawers for inspection (the file is saved closed)"
+ },
+ "Abrir portas e gavetas  |  Clique: abrir/fechar  |  Esc / botão direito: sair": {
+  "pt_BR": "Abrir portas e gavetas  |  Clique: abrir/fechar  |  Esc / botão direito: sair",
+  "en_US": "Open doors and drawers  |  Click: open/close  |  Esc / right button: exit"
+ },
+ "Centraliza a vista no ponto da interferência e seleciona a frente e o objeto atingido": {
+  "pt_BR": "Centraliza a vista no ponto da interferência e seleciona a frente e o objeto atingido",
+  "en_US": "Centers the view on the interference point and selects the front and the object hit"
+ },
+ "Fecha tudo": {
+  "pt_BR": "Fecha tudo",
+  "en_US": "Closes everything"
+ },
+ "Folha — {}": {
+  "pt_BR": "Folha — {}",
+  "en_US": "Leaf — {}"
+ },
+ "Frentes do módulo do objeto ativo": {
+  "pt_BR": "Frentes do módulo do objeto ativo",
+  "en_US": "Fronts of the active object's module"
+ },
+ "Frentes dos módulos e peças selecionados": {
+  "pt_BR": "Frentes dos módulos e peças selecionados",
+  "en_US": "Fronts of the selected modules and parts"
+ },
+ "Frentes verificadas": {
+  "pt_BR": "Frentes verificadas",
+  "en_US": "Checked fronts"
+ },
+ "Frentes verificadas na última checagem (-1 = nunca)": {
+  "pt_BR": "Frentes verificadas na última checagem (-1 = nunca)",
+  "en_US": "Fronts checked in the last check (-1 = never)"
+ },
+ "Inspeção ativa": {
+  "pt_BR": "Inspeção ativa",
+  "en_US": "Inspection on"
+ },
+ "Item": {
+  "pt_BR": "Item",
+  "en_US": "Item"
+ },
+ "Modo de inspeção: clique em portas, basculantes e gavetas para abrir ou fechar. Esc ou botão direito sai": {
+  "pt_BR": "Modo de inspeção: clique em portas, basculantes e gavetas para abrir ou fechar. Esc ou botão direito sai",
+  "en_US": "Inspection mode: click doors, flip-ups and drawers to open or close them. Esc or right button exits"
+ },
+ "Nenhuma frente foi verificada: não há portas ou gavetas no escopo.": {
+  "pt_BR": "Nenhuma frente foi verificada: não há portas ou gavetas no escopo.",
+  "en_US": "No front was checked: there are no doors or drawers in scope."
+ },
+ "Nenhuma interferência nas {} frente(s) verificada(s).": {
+  "pt_BR": "Nenhuma interferência nas {} frente(s) verificada(s).",
+  "en_US": "No interference on the {} checked front(s)."
+ },
+ "Nenhuma porta, basculante ou gaveta encontrada.": {
+  "pt_BR": "Nenhuma porta, basculante ou gaveta encontrada.",
+  "en_US": "No door, flip-up or drawer found."
+ },
+ "O controle giratório encaixa nas paradas de 0°, 45° e 90° quando chega perto delas": {
+  "pt_BR": "O controle giratório encaixa nas paradas de 0°, 45° e 90° quando chega perto delas",
+  "en_US": "The rotary control snaps to the 0°, 45° and 90° stops when it gets close to them"
+ },
+ "Porta de ambiente — {}": {
+  "pt_BR": "Porta de ambiente — {}",
+  "en_US": "Room door — {}"
+ },
+ "Portas a 45°, gavetas pela metade": {
+  "pt_BR": "Portas a 45°, gavetas pela metade",
+  "en_US": "Doors at 45°, drawers halfway"
+ },
+ "Portas a 90°, gavetas no curso total": {
+  "pt_BR": "Portas a 90°, gavetas no curso total",
+  "en_US": "Doors at 90°, drawers fully out"
+ },
+ "Pullout": {
+  "pt_BR": "Gaveteiro corrediço",
+  "en_US": "Pullout"
+ },
+ "Todas as frentes do projeto": {
+  "pt_BR": "Todas as frentes do projeto",
+  "en_US": "All project fronts"
+ },
+ "Verifica se portas, basculantes e gavetas batem em outros objetos ao abrir (paredes, sancas, módulos)": {
+  "pt_BR": "Verifica se portas, basculantes e gavetas batem em outros objetos ao abrir (paredes, sancas, módulos)",
+  "en_US": "Checks whether doors, flip-ups and drawers hit other objects when opening (walls, soffits, modules)"
+ },
+ "{} frente(s) {}.": {
+  "pt_BR": "{} frente(s) {}.",
+  "en_US": "{} front(s) {}."
+ },
+ "{} interferência(s) em {} frente(s) verificada(s).": {
+  "pt_BR": "{} interferência(s) em {} frente(s) verificada(s).",
+  "en_US": "{} interference(s) on {} checked front(s)."
+ },
+ "Ângulo usado pelo clique no modo de inspeção e por \"Abrir tudo\"": {
+  "pt_BR": "Ângulo usado pelo clique no modo de inspeção e por \"Abrir tudo\"",
+  "en_US": "Angle used by clicking in inspection mode and by \"Open all\""
+ }
+}

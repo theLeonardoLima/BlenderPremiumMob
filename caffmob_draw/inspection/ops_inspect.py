@@ -9,6 +9,7 @@ import time
 import bpy  # type: ignore
 from bpy_extras import view3d_utils  # type: ignore
 
+from ..data.i18n import tr
 from . import fronts
 
 ANIM_DURATION = 0.35
@@ -85,7 +86,7 @@ class BTM_OT_FrontsSetOpen(bpy.types.Operator):
             except ReferenceError:
                 continue
         verb = "fechadas" if self.mode == 'CLOSE' else "abertas"
-        self.report({'INFO'}, f"{len(targets)} frente(s) {verb}.")
+        self.report({'INFO'}, tr("{} frente(s) {}.").format(len(targets), verb))
         return {'FINISHED'}
 
 
@@ -150,7 +151,7 @@ class BTM_OT_InspectFronts(bpy.types.Operator):
         self._timer = context.window_manager.event_timer_add(1.0 / TIMER_HZ, window=context.window)
         context.window_manager.modal_handler_add(self)
         context.workspace.status_text_set(
-            "Abrir portas e gavetas  |  Clique: abrir/fechar  |  Esc / botão direito: sair")
+            tr("Abrir portas e gavetas  |  Clique: abrir/fechar  |  Esc / botão direito: sair"))
         from ..operators.viewport_hud import register_active_modal
         register_active_modal(self)
         _active = self

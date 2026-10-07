@@ -4,6 +4,7 @@ import bmesh  # type: ignore
 import bpy  # type: ignore
 from mathutils import Matrix, Vector  # type: ignore
 
+from ..data.i18n import tr
 from ..geometry import floor_outline
 from ..geometry.mesh_gen import generate_floor_mesh
 from ..data import units
@@ -101,9 +102,9 @@ class BTM_OT_AdjustFloor(bpy.types.Operator):
                 self.report({'WARNING'}, "Nenhuma parede encontrada na cena.")
                 return {'CANCELLED'}
             polygons = [rect]
-            message = "Nenhuma sala fechada: piso pelo retângulo das paredes."
+            message = tr("Nenhuma sala fechada: piso pelo retângulo das paredes.")
         else:
-            message = f"Piso ajustado à face interna das paredes ({len(polygons)} sala(s))."
+            message = tr("Piso ajustado à face interna das paredes ({} sala(s)).").format(len(polygons))
 
         # Encontra ou cria o piso
         floor_obj = None
@@ -148,5 +149,5 @@ class BTM_OT_FloorBuilder(bpy.types.Operator):
 
         x_str = units.format_value(self.size_x, context.scene)
         y_str = units.format_value(self.size_y, context.scene)
-        self.report({'INFO'}, f"Piso base criado: {x_str} x {y_str}")
+        self.report({'INFO'}, tr("Piso base criado: {} x {}").format(x_str, y_str))
         return {'FINISHED'}

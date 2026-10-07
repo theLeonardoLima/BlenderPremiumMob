@@ -1,0 +1,54 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Plano de correção · #11 FLZO</title><style>
+body{background:#0d1117;color:#e6edf3;font:14px system-ui,sans-serif;margin:0;padding:16px;max-width:1100px}
+.meta{color:#8b949e;font-size:12px}.cards{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}
+.card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px 16px;min-width:120px}
+.card b{font-size:18px;display:block}
+table{border-collapse:collapse;width:100%;margin-top:8px}td,th{border-bottom:1px solid #30363d;padding:6px;text-align:left;font-size:13px;vertical-align:top}
+a{color:#58a6ff}code{background:#161b22;padding:1px 4px;border-radius:4px}.ok{color:#3fb950}.bad{color:#e5484d}.warn{color:#d29922}h2{margin-top:28px}</style></head><body>
+<h1>Plano de correção · #11 BUG-20261007-FLZO</h1>
+<p class="meta">Contexto <b>plugin-caffmob-draw</b> · 2026-10-07 · /reversa-debugger-fix · <a href="../bug.md">bug.md</a> · relacionado (proposed): <a href="../../BUG-20261006-QAVK-nome-e-identificador-caffmob-draw/bug.md">#QAVK</a></p>
+<div class="cards"><div class="card"><b class="warn">medium</b>severidade</div><div class="card"><b>P2</b>prioridade</div>
+<div class="card"><b>~3.975</b>textos únicos</div><div class="card"><b class="ok">confirmed</b>causa raiz</div>
+<div class="card"><b class="warn">média</b>risco (volume)</div><div class="card"><b>6</b>etapas</div></div>
+<h2>Defeito e causa raiz</h2>
+<ol><li><b>Não há uma língua-fonte</b>: o legado escreve em inglês e o código novo em português. Cada texto só aparece certo num dos idiomas.</li>
+<li><b>O dicionário cobre ~270 dos ~4.000 textos</b> (<code>data/i18n.py</code>) e usa só o contexto <code>"*"</code>. Rótulos de operador
+são traduzidos no contexto <code>"Operator"</code> e nunca casam (sonda: <code>("Place Door","Operator")</code> fica sem tradução).</li>
+<li><b>Textos montados ou desenhados não passam pela tradução</b>: f-strings, <code>self.report</code>, barra de status (<code>status_text_set</code>,
+<code>header_text_set</code>) e <code>blf.draw</code>, como a barra "Clique numa face…" do print.</li></ol>
+<p>Evidência: <a href="../evidence/reproduction.md">evidence/reproduction.md</a>.</p>
+<h2>Estratégia: correção direta, por etapas</h2>
+<p><b>Sem reescrever os textos nas ~5.400 chamadas.</b> Cada texto continua como está no código (msgid). O catálogo ganha os dois sentidos:
+texto em inglês ganha entrada <code>pt_BR</code> e texto em português ganha entrada <code>en_US</code>, nos contextos <code>"*"</code> e
+<code>"Operator"</code>. O catálogo sai do <code>.py</code> e vai para JSON por área (<code>data/i18n/&lt;área&gt;.json</code>), carregado no
+<code>register()</code>. Os textos dinâmicos passam a usar um helper <code>tr()</code> (<code>pgettext_iface</code>/<code>pgettext_rpt</code>)
+com formato separado (<code>tr("Largura: {}").format(v)</code>). Um teste de cobertura levanta os textos pela AST e falha se aparecer
+texto sem tradução fora da lista de pendências; a lista diminui a cada etapa e chega a zero na etapa F.</p>
+<p>Glossário de marcenaria (aprovado na etapa A e usado em todas): Cabinet → Módulo, Base cabinet → Balcão, Upper/Wall cabinet → Aéreo,
+Tall cabinet → Paneleiro/Torre, Stile → Montante, Rail → Travessa, Face frame → Quadro frontal, Toe kick → Rodapé, Drawer → Gaveta,
+Shelf → Prateleira, Back → Fundo, Side → Lateral, Edge banding → Fita de borda, Pull/Handle → Puxador, Hinge → Dobradiça, Molding → Moldura.</p>
+<h2>Etapas (cada uma passa pelos gates 1 e 2)</h2>
+<table><tr><th>etapa</th><th>área</th><th>ocorrências</th><th>entrega</th></tr>
+<tr><td>A</td><td>infra + editor de paredes + <code>ui/</code> + <code>data/</code></td><td>~570</td><td>JSON por área, loader, <code>tr()</code>, contexto Operator, teste de cobertura com a lista de pendências, glossário; o caso do print resolvido</td></tr>
+<tr><td>B</td><td>módulos da 002/003 (customize, aggregates, move_over, standards, inspection, catalog, geometry_free, molding)</td><td>~290</td><td>textos novos em português ganham en_US</td></tr>
+<tr><td>C</td><td><code>operators/</code> + raiz do pacote</td><td>~940</td><td>maior volume de f-string (~107)</td></tr>
+<tr><td>D</td><td>closets + common</td><td>~340</td><td>bibliotecas herdadas</td></tr>
+<tr><td>E</td><td>frameless</td><td>~1.290</td><td>idem</td></tr>
+<tr><td>F</td><td>face frame</td><td>~2.020</td><td>lista de pendências zerada → fecha o bug</td></tr></table>
+<h2>Correction Change Set (etapa A, proposto)</h2>
+<table><tr><th>CHG</th><th>tipo</th><th>artefato</th><th>propósito</th></tr>
+<tr><td>CHG-001</td><td>code</td><td><code>caffmob_draw/data/i18n.py</code> + <code>data/i18n/*.json</code></td><td>loader dos JSON, contextos <code>*</code>/<code>Operator</code>, migração dos ~270 pares atuais, helper <code>tr()</code></td></tr>
+<tr><td>CHG-002</td><td>code</td><td><code>walls2d/</code>, <code>ui/</code>, <code>data/</code></td><td><code>tr()</code> nos textos dinâmicos e catálogo completo dessas áreas</td></tr>
+<tr><td>CHG-003</td><td>code</td><td><code>tools/i18n_scan.py</code> (ou em <code>docs/rag/tools/</code>)</td><td>levantamento AST reutilizável, que também gera o esqueleto do JSON</td></tr>
+<tr><td>CHG-004</td><td>specification</td><td><code>_reversa_sdd/addenda/bug-BUG-20261007-FLZO-v001.md</code></td><td>spec-gap: regra de idioma da interface (en_US/pt_BR 100%, língua-fonte, contextos, <code>tr()</code>)</td></tr></table>
+<h2>Testes planejados</h2>
+<table><tr><th>teste</th><th>tipo</th><th>prova</th></tr>
+<tr><td><code>tests/test_i18n_coverage.py</code></td><td>reprodução + regressão</td><td>todo texto de UI fora de <code>pendentes.json</code> tem pt_BR e en_US; texto novo sem tradução quebra o teste</td></tr>
+<tr><td><code>tests/blender_bug_FLZO_i18n.py</code></td><td>reprodução</td><td>no Blender: com en_US, o rótulo e a barra de status do editor saem em inglês; com pt_BR, os rótulos herdados (ex.: <code>Place Door</code>) saem em português; trocar o idioma muda sem reinstalar</td></tr></table>
+<h2>Riscos e custo</h2>
+<p>Risco <b class="warn">média</b>, pelo volume: ~5.400 pontos de texto, mas sem mudar a lógica. O erro típico é uma tradução ruim ou um
+<code>.format</code> errado num texto dinâmico; o teste de cobertura e os smokes existentes pegam o segundo.
+<b>Custo de tokens</b>: traduzir ~4.000 textos dá algo como 250–400 mil tokens de saída, divididos pelas 6 etapas (~40–80 mil cada).
+Nomes próprios, unidades (mm, m) e nomes de arquivo ficam iguais. O bug fica <code>active/delivering</code> até a etapa F.</p>
+</body></html>

@@ -1,0 +1,226 @@
+{
+ ", {} sala(s) fechada(s) no OK": {
+  "pt_BR": ", {} sala(s) fechada(s) no OK",
+  "en_US": ", {} room(s) closed on OK"
+ },
+ "A parede cresce para a direita da linha desenhada (face interna)": {
+  "pt_BR": "A parede cresce para a direita da linha desenhada (face interna)",
+  "en_US": "The wall grows to the right of the drawn line (inner face)"
+ },
+ "A parede cresce para a esquerda da linha desenhada (face interna)": {
+  "pt_BR": "A parede cresce para a esquerda da linha desenhada (face interna)",
+  "en_US": "The wall grows to the left of the drawn line (inner face)"
+ },
+ "Abre o Editor de Paredes: planta 2D para desenhar e editar as paredes do ambiente": {
+  "pt_BR": "Abre o Editor de Paredes: planta 2D para desenhar e editar as paredes do ambiente",
+  "en_US": "Opens the Wall Editor: a 2D plan to draw and edit the room walls"
+ },
+ "Aparecem tracejadas na planta, sem edição": {
+  "pt_BR": "Aparecem tracejadas na planta, sem edição",
+  "en_US": "Shown dashed on the plan, not editable"
+ },
+ "Aplica as paredes desenhadas ao ambiente": {
+  "pt_BR": "Aplica as paredes desenhadas ao ambiente",
+  "en_US": "Applies the drawn walls to the room"
+ },
+ "As paredes listadas passam ao pé-direito das Configurações (Mureta, meia-parede e parede falsa ficam como estão)": {
+  "pt_BR": "As paredes listadas passam ao pé-direito das Configurações (Mureta, meia-parede e parede falsa ficam como estão)",
+  "en_US": "The listed walls take the ceiling height from Settings (low walls, half walls and fake walls stay as they are)"
+ },
+ "Clique num trecho para dividi-lo.": {
+  "pt_BR": "Clique num trecho para dividi-lo.",
+  "en_US": "Click a segment to split it."
+ },
+ "Clique num vértice para unir os trechos.": {
+  "pt_BR": "Clique num vértice para unir os trechos.",
+  "en_US": "Click a vertex to join its segments."
+ },
+ "Clique numa face (interna tracejada / externa) ou num vértice e digite a medida + Enter; arraste os vértices. Delete remove o trecho.": {
+  "pt_BR": "Clique numa face (interna tracejada / externa) ou num vértice e digite a medida + Enter; arraste os vértices. Delete remove o trecho.",
+  "en_US": "Click a face (dashed inner / outer) or a vertex and type the measure + Enter; drag the vertices. Delete removes the segment."
+ },
+ "Clique numa parede para inverter o sentido.": {
+  "pt_BR": "Clique numa parede para inverter o sentido.",
+  "en_US": "Click a wall to reverse its direction."
+ },
+ "Clique o ponto inicial, digite o comprimento e Enter. Clique no início para fechar. Esc termina.": {
+  "pt_BR": "Clique o ponto inicial, digite o comprimento e Enter. Clique no início para fechar. Esc termina.",
+  "en_US": "Click the start point, type the length and press Enter. Click the start to close. Esc finishes."
+ },
+ "Comprimento na linha selecionada (interna ou externa)": {
+  "pt_BR": "Comprimento na linha selecionada (interna ou externa)",
+  "en_US": "Length on the selected line (inner or outer)"
+ },
+ "Comprimento na linha selecionada; sem unidade, vale a do projeto": {
+  "pt_BR": "Comprimento na linha selecionada; sem unidade, vale a do projeto",
+  "en_US": "Length on the selected line; without a unit, the project unit applies"
+ },
+ "Comprimento: {}": {
+  "pt_BR": "Comprimento: {}",
+  "en_US": "Length: {}"
+ },
+ "Confira os avisos no painel e clique OK de novo para aplicar.": {
+  "pt_BR": "Confira os avisos no painel e clique OK de novo para aplicar.",
+  "en_US": "Check the warnings in the panel and click OK again to apply."
+ },
+ "Deseja fechar a parede e finalizar a sua construção?": {
+  "pt_BR": "Deseja fechar a parede e finalizar a sua construção?",
+  "en_US": "Close the wall and finish building it?"
+ },
+ "Desenhar paredes a lápis": {
+  "pt_BR": "Desenhar paredes a lápis",
+  "en_US": "Draw walls with the pencil"
+ },
+ "Direção trocada em paredes existentes: no OK elas mudam de sentido; portas e janelas acompanham e os módulos ficam onde estão.": {
+  "pt_BR": "Direção trocada em paredes existentes: no OK elas mudam de sentido; portas e janelas acompanham e os módulos ficam onde estão.",
+  "en_US": "Direction changed on existing walls: on OK they reverse; doors and windows follow and modules stay where they are."
+ },
+ "Dividir o trecho no ponto clicado": {
+  "pt_BR": "Dividir o trecho no ponto clicado",
+  "en_US": "Split the segment at the clicked point"
+ },
+ "Enquadra todas as paredes na planta": {
+  "pt_BR": "Enquadra todas as paredes na planta",
+  "en_US": "Frames all walls on the plan"
+ },
+ "Fecha o editor sem alterar as paredes": {
+  "pt_BR": "Fecha o editor sem alterar as paredes",
+  "en_US": "Closes the editor without changing the walls"
+ },
+ "Ferramenta": {
+  "pt_BR": "Ferramenta",
+  "en_US": "Tool"
+ },
+ "Interação da planta do Editor de Paredes": {
+  "pt_BR": "Interação da planta do Editor de Paredes",
+  "en_US": "Wall Editor plan interaction"
+ },
+ "Inverter o sentido da parede clicada": {
+  "pt_BR": "Inverter o sentido da parede clicada",
+  "en_US": "Reverse the direction of the clicked wall"
+ },
+ "Lado da espessura nas paredes novas; ao fechar uma sala, a espessura vai para fora": {
+  "pt_BR": "Lado da espessura nas paredes novas; ao fechar uma sala, a espessura vai para fora",
+  "en_US": "Thickness side for new walls; when a room is closed, the thickness goes outside"
+ },
+ "Medida: {}▏  (Enter aplica, Esc limpa)": {
+  "pt_BR": "Medida: {}▏  (Enter aplica, Esc limpa)",
+  "en_US": "Measure: {}▏  (Enter applies, Esc clears)"
+ },
+ "Nada para desfazer.": {
+  "pt_BR": "Nada para desfazer.",
+  "en_US": "Nothing to undo."
+ },
+ "Nada para refazer.": {
+  "pt_BR": "Nada para refazer.",
+  "en_US": "Nothing to redo."
+ },
+ "Não": {
+  "pt_BR": "Não",
+  "en_US": "No"
+ },
+ "O Editor de Paredes precisa de uma janela do Blender aberta.": {
+  "pt_BR": "O Editor de Paredes precisa de uma janela do Blender aberta.",
+  "en_US": "The Wall Editor needs an open Blender window."
+ },
+ "OK": {
+  "pt_BR": "OK",
+  "en_US": "OK"
+ },
+ "Os módulos dos trechos apagados saem com a parede; desmarcado, ficam soltos no lugar": {
+  "pt_BR": "Os módulos dos trechos apagados saem com a parede; desmarcado, ficam soltos no lugar",
+  "en_US": "Modules on deleted segments are removed with the wall; unchecked, they stay loose in place"
+ },
+ "Padrão de altura 1.100 mm": {
+  "pt_BR": "Padrão de altura 1.100 mm",
+  "en_US": "Default height 1,100 mm"
+ },
+ "Padrão de espessura 100 mm": {
+  "pt_BR": "Padrão de espessura 100 mm",
+  "en_US": "Default thickness 100 mm"
+ },
+ "Paredes aplicadas: {} nova(s), {} atualizada(s), {} removida(s){}.": {
+  "pt_BR": "Paredes aplicadas: {} nova(s), {} atualizada(s), {} removida(s){}.",
+  "en_US": "Walls applied: {} new, {} updated, {} removed{}."
+ },
+ "Pé-direito do projeto: {}": {
+  "pt_BR": "Pé-direito do projeto: {}",
+  "en_US": "Project ceiling height: {}"
+ },
+ "Pé-direito final": {
+  "pt_BR": "Pé-direito final",
+  "en_US": "End ceiling height"
+ },
+ "Pé-direito inicial": {
+  "pt_BR": "Pé-direito inicial",
+  "en_US": "Start ceiling height"
+ },
+ "Selecionar trechos e arrastar vértices": {
+  "pt_BR": "Selecionar trechos e arrastar vértices",
+  "en_US": "Select segments and drag vertices"
+ },
+ "Sem dados de trechos, ficam como referência: {}": {
+  "pt_BR": "Sem dados de trechos, ficam como referência: {}",
+  "en_US": "No segment data, kept as reference: {}"
+ },
+ "Sim": {
+  "pt_BR": "Sim",
+  "en_US": "Yes"
+ },
+ "Uma cadeia precisa de pelo menos um trecho.": {
+  "pt_BR": "Uma cadeia precisa de pelo menos um trecho.",
+  "en_US": "A chain needs at least one segment."
+ },
+ "Unir os trechos do vértice clicado": {
+  "pt_BR": "Unir os trechos do vértice clicado",
+  "en_US": "Join the segments of the clicked vertex"
+ },
+ "Valor Inválido: o primeiro vértice de uma parede aberta não tem trecho chegando nele.": {
+  "pt_BR": "Valor Inválido: o primeiro vértice de uma parede aberta não tem trecho chegando nele.",
+  "en_US": "Invalid Value: the first vertex of an open wall has no segment arriving at it."
+ },
+ "Valor Inválido: tipo de parede {}.": {
+  "pt_BR": "Valor Inválido: tipo de parede {}.",
+  "en_US": "Invalid Value: wall type {}."
+ },
+ "Valor Inválido: {} deve estar entre {} e {} (recebido: {}).": {
+  "pt_BR": "Valor Inválido: {} deve estar entre {} e {} (recebido: {}).",
+  "en_US": "Invalid Value: {} must be between {} and {} (got: {})."
+ },
+ "Viram trechos editáveis; no OK, são trocadas por paredes do CAFFMob Draw 5": {
+  "pt_BR": "Viram trechos editáveis; no OK, são trocadas por paredes do CAFFMob Draw 5",
+  "en_US": "They become editable segments; on OK, they are replaced by CAFFMob Draw 5 walls"
+ },
+ "Vértices encaixam nos cruzamentos da grade": {
+  "pt_BR": "Vértices encaixam nos cruzamentos da grade",
+  "en_US": "Vertices snap to the grid crossings"
+ },
+ "nova {}": {
+  "pt_BR": "nova {}",
+  "en_US": "new {}"
+ },
+ "{} (em {})": {
+  "pt_BR": "{} (em {})",
+  "en_US": "{} (on {})"
+ },
+ "{} não cabe em {}": {
+  "pt_BR": "{} não cabe em {}",
+  "en_US": "{} does not fit in {}"
+ },
+ "{} parede(s) selecionada(s) foram feitas com o construtor antigo.": {
+  "pt_BR": "{} parede(s) selecionada(s) foram feitas com o construtor antigo.",
+  "en_US": "{} selected wall(s) were made with the old builder."
+ },
+ "Ângulo absoluto": {
+  "pt_BR": "Ângulo absoluto",
+  "en_US": "Absolute angle"
+ },
+ "Ângulo relativo": {
+  "pt_BR": "Ângulo relativo",
+  "en_US": "Relative angle"
+ },
+ "… e mais {}": {
+  "pt_BR": "… e mais {}",
+  "en_US": "… and {} more"
+ }
+}

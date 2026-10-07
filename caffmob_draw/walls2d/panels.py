@@ -10,6 +10,7 @@ Só aparecem na área do Image Editor marcada como editor (`window.is_editor_are
 
 import bpy  # type: ignore
 
+from ..data.i18n import tr
 from . import props, window
 
 
@@ -100,25 +101,25 @@ class BTM_PT_WallEditorConfirm(_EditorPanel, bpy.types.Panel):
             for text in s.warnings[:8]:
                 box.label(text=text)
             if len(s.warnings) > 8:
-                box.label(text=f"… e mais {len(s.warnings) - 8}")
+                box.label(text=tr("… e mais {}").format(len(s.warnings) - 8))
         if s is not None and s.removed_modules:
             box = layout.box()
             box.label(text="Módulos em trechos apagados:", icon='QUESTION')
             for text in s.removed_modules[:8]:
                 box.label(text=text)
             if len(s.removed_modules) > 8:
-                box.label(text=f"… e mais {len(s.removed_modules) - 8}")
+                box.label(text=tr("… e mais {}").format(len(s.removed_modules) - 8))
             box.prop(context.window_manager.btm_wall_editor, "remove_modules")
             box.label(text="Desmarcado, os módulos ficam soltos no lugar.")
         if s is not None and s.height_mismatches:
             box = layout.box()
             from ..data import units
-            box.label(text=f"Pé-direito do projeto: {units.format_value(s.project_height)}", icon='INFO')
+            box.label(text=tr("Pé-direito do projeto: {}").format(units.format_value(s.project_height)), icon='INFO')
             box.label(text="Paredes com outra altura:")
             for text in s.height_mismatches[:8]:
                 box.label(text=text)
             if len(s.height_mismatches) > 8:
-                box.label(text=f"… e mais {len(s.height_mismatches) - 8}")
+                box.label(text=tr("… e mais {}").format(len(s.height_mismatches) - 8))
             box.prop(context.window_manager.btm_wall_editor, "equalize_height")
         row = layout.row(align=True)
         row.scale_y = 1.4

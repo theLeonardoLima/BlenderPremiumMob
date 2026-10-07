@@ -1,5 +1,6 @@
 import bpy
 import math
+from ....data.i18n import tr
 from .... import hb_types, hb_project
 
 
@@ -668,7 +669,7 @@ class hb_frameless_OT_add_countertops(bpy.types.Operator):
             if ct:
                 ct_count += 1
 
-        self.report({'INFO'}, f"Created {ct_count} countertop(s)")
+        self.report({'INFO'}, tr("Created {} countertop(s)").format(ct_count))
         return {'FINISHED'}
 
 
@@ -685,7 +686,7 @@ class hb_frameless_OT_remove_countertops(bpy.types.Operator):
                 bpy.data.objects.remove(obj, do_unlink=True)
                 removed += 1
 
-        self.report({'INFO'}, f"Removed {removed} countertop(s)")
+        self.report({'INFO'}, tr("Removed {} countertop(s)").format(removed))
         return {'FINISHED'}
 
 
@@ -731,7 +732,7 @@ class hb_frameless_OT_countertop_boolean_cut(bpy.types.Operator):
         cutter.hide_render = True
         cutter['IS_CUTTING_OBJ'] = True
 
-        self.report({'INFO'}, f"Added boolean cut using {cutter.name}")
+        self.report({'INFO'}, tr("Added boolean cut using {}").format(cutter.name))
         return {'FINISHED'}
 
 

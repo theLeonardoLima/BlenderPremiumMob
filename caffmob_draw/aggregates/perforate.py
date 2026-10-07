@@ -10,6 +10,7 @@ Desligar remove tudo; a malha do pai nunca é alterada de forma destrutiva.
 import bmesh  # type: ignore
 import bpy  # type: ignore
 
+from ..data.i18n import tr
 from .. import compat, hb_types
 from ..cutting import machining
 from . import apply, limits
@@ -31,9 +32,9 @@ def real_hole_reason(obj):
     agg = obj.btm_aggregate
     parent = agg.parent_ref
     if parent is None or _cutpart_mod(parent) is None:
-        return "O pai não é uma peça do plano de corte"
+        return tr("O pai não é uma peça do plano de corte")
     if agg.face not in ('POS_Z', 'NEG_Z'):
-        return "O furo real só vale quando o agregado entra pela face da chapa (topo ou base da peça)"
+        return tr("O furo real só vale quando o agregado entra pela face da chapa (topo ou base da peça)")
     return None
 
 

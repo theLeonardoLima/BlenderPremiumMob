@@ -1,4 +1,5 @@
 import bpy
+from ....data.i18n import tr
 from .. import types_frameless
 from .... import hb_utils, hb_types
 from ....units import inch
@@ -238,7 +239,7 @@ class hb_frameless_OT_interior_part_prompts(bpy.types.Operator):
         obj = context.object
 
         box = layout.box()
-        box.label(text=f"Part: {obj.name}")
+        box.label(text=tr("Part: {}").format(obj.name))
 
         # Show relevant properties from the object
         if obj.modifiers:
@@ -543,7 +544,7 @@ class hb_frameless_OT_custom_interior_vertical(bpy.types.Operator):
         col = box.column(align=True)
         for i in range(self.section_count):
             row = col.row(align=True)
-            row.label(text=f"Section {i+1}:")
+            row.label(text=tr("Section {}:").format(i+1))
             row.prop(self, type_props[i], text="")
 
 
@@ -820,7 +821,7 @@ class hb_frameless_OT_custom_interior_horizontal(bpy.types.Operator):
         col = box.column(align=True)
         for i in range(self.section_count):
             row = col.row(align=True)
-            row.label(text=f"Section {i+1}:")
+            row.label(text=tr("Section {}:").format(i+1))
             row.prop(self, type_props[i], text="")
 
 

@@ -15,6 +15,7 @@ import math
 import os
 from mathutils import Vector
 
+from ....data.i18n import N_, tr
 from .... import hb_types, hb_placement, hb_snap, units
 from ...frameless.operators.ops_placement import toggle_cabinet_color
 # Shared wall detection (raycast + nearest-wall floor fallback). Lives in
@@ -452,8 +453,7 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
             src = bpy.data.objects.get(self.source_starter_name)
             if src is None or not src.get(types_closets.TAG_STARTER_CAGE):
                 self.report({'WARNING'},
-                            f"Source starter not found: "
-                            f"{self.source_starter_name}")
+                            tr("Source starter not found: {}").format(self.source_starter_name))
                 return {'CANCELLED'}
             name = _dispatch_name_for_starter(src)
             if name is None:
@@ -464,7 +464,7 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
             self.starter_name = name
         cls = types_closets.get_starter_class(self.starter_name)
         if cls is None:
-            self.report({'WARNING'}, f"Unknown starter: {self.starter_name}")
+            self.report({'WARNING'}, tr("Unknown starter: {}").format(self.starter_name))
             return {'CANCELLED'}
 
         scene_props = context.scene.hb_closets
@@ -1188,38 +1188,35 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
     # ---------------- header ----------------
 
     def _update_header(self, context):
-        title = (f"{self.starter_name} Starter" if self._source_obj is None
-                 else ("Duplicate Mirror " if self.mirror else "Duplicate ")
-                 + self._source_obj.name)
-        bay_label = f"{self.bay_qty} bay" + ("" if self.bay_qty == 1 else "s")
-        mode = "auto" if self._auto_bay_qty else "manual"
+        title = (tr("{} Starter").format(self.starter_name) if self._source_obj is None
+                 else tr("Duplicate Mirror {}" if self.mirror else "Duplicate {}").format(self._source_obj.name))
+        bay_label = tr("{} bay(s)").format(self.bay_qty)
+        mode = tr("auto") if self._auto_bay_qty else tr("manual")
         width_str = units.unit_to_string(
             context.scene.unit_settings, self._cabinet_width)
         if self.placement_state == hb_placement.PlacementState.TYPING:
             typed = self.get_typed_display_string()
             label = {
-                hb_placement.TypingTarget.WIDTH: "Width",
-                hb_placement.TypingTarget.OFFSET_X: "Offset (left)",
-                hb_placement.TypingTarget.OFFSET_RIGHT: "Offset (right)",
-            }.get(self.typing_target, "Value")
+                hb_placement.TypingTarget.WIDTH: N_("Width"),
+                hb_placement.TypingTarget.OFFSET_X: N_("Offset (left)"),
+                hb_placement.TypingTarget.OFFSET_RIGHT: N_("Offset (right)"),
+            }.get(self.typing_target, N_("Value"))
+            label = tr(label)
             if (getattr(self, '_is_island', False)
                     and self._gap_wall is None
                     and self.typing_target
                     == hb_placement.TypingTarget.OFFSET_X):
                 side = self._active_clearance_side.title()
-                label = f"Clearance ({side})"
+                label = tr("Clearance ({})").format(tr(side))
             hb_placement.draw_header_text(
                 context,
-                f"{title}  -  {label}: {typed}  -  "
-                "Enter: apply   Esc: cancel typing   Backspace: delete")
+                tr("{}  -  {}: {}  -  Enter: apply   Esc: cancel typing   Backspace: delete").format(title, label, typed))
         else:
             hb_placement.draw_header_text(
                 context,
-                f"{title}  -  {bay_label} ({mode})  -  "
-                f"width: {width_str}  -  "
-                + ("F: fill gap   " if self._source_obj is not None else "")
-                + "W/numbers: width   Up/Down: bays   Left/Right: gap offset   "
-                "R: rotate   Click: place   Esc: cancel")
+                tr("{}  -  {} ({})  -  width: {}  -  ").format(title, bay_label, mode, width_str)
+                + (tr("F: fill gap   ") if self._source_obj is not None else "")
+                + tr("W/numbers: width   Up/Down: bays   Left/Right: gap offset   R: rotate   Click: place   Esc: cancel"))
 
     # ---------------- modal ----------------
 
@@ -1355,7 +1352,7 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
             starter.create_starter(f"{self.starter_name} Closet",
                                    captured_bay_qty)
         except Exception as e:
-            self.report({'ERROR'}, f"Starter creation failed: {e}")
+            self.report({'ERROR'}, tr("Starter creation failed: {}").format(e))
             hb_placement.clear_header_text(context)
             return {'CANCELLED'}
 
@@ -1405,7 +1402,7 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
         width_str = units.unit_to_string(
             context.scene.unit_settings, captured_width)
         self.report({'INFO'},
-                    f"Placed {self.starter_name} starter ({width_str})")
+                    tr("Placed {} starter ({})").format(self.starter_name, width_str))
         return {'FINISHED'}
 
     def _finalize_duplicate(self, context, captured_parent, captured_world,
@@ -1539,7 +1536,7 @@ class hb_closets_OT_delete_bay(bpy.types.Operator):
             # the right-click Delete Starter command).
             name = root.name
             types_closets.delete_starter(root)
-            self.report({'INFO'}, f"Deleted starter {name}")
+            self.report({'INFO'}, tr("Deleted starter {}").format(name))
             return {'FINISHED'}
         starter = types_closets._wrap_starter(root)
         if not starter.delete_bay(bay.get('hb_bay_index', 0)):
@@ -1719,12 +1716,11 @@ class hb_closets_OT_add_part(bpy.types.Operator,
             self.report({'WARNING'}, "No 3D viewport available")
             return {'CANCELLED'}
         self.add_placement_dim_handler(context)
-        label = ("fixed shelf" if self.part_type == 'FIXED_SHELF'
-                 else "closet rod")
+        label = (tr("fixed shelf") if self.part_type == 'FIXED_SHELF'
+                 else tr("closet rod"))
         hb_placement.draw_header_text(
             context,
-            f"Add {label}: hover an opening, click to place "
-            "(keeps adding), Right-click/Esc to finish")
+            tr("Add {}: hover an opening, click to place (keeps adding), Right-click/Esc to finish").format(label))
         context.window.cursor_set('CROSSHAIR')
         context.window_manager.modal_handler_add(self)
         return {'RUNNING_MODAL'}
@@ -2104,7 +2100,7 @@ class hb_closets_OT_change_bay(bpy.types.Operator):
             _apply_selection_shading(context, root)
         _reselect_cages(context, bays)
         if applied > 1:
-            self.report({'INFO'}, f"Changed {applied} bays")
+            self.report({'INFO'}, tr("Changed {} bays").format(applied))
         return {'FINISHED'}
 
 
@@ -2244,7 +2240,7 @@ class hb_closets_OT_change_opening(bpy.types.Operator):
             _apply_selection_shading(context, root)
         _reselect_cages(context, openings)
         if applied > 1:
-            self.report({'INFO'}, f"Changed {applied} openings")
+            self.report({'INFO'}, tr("Changed {} openings").format(applied))
         return {'FINISHED'}
 
 
@@ -2604,8 +2600,7 @@ class hb_closets_OT_set_corner_clearance(bpy.types.Operator):
         for side in self._sides():
             box = layout.box()
             box.label(
-                text=f"{getattr(self, 'neighbor_' + side)} occupies "
-                     f"the corner on the {side}.")
+                text=tr("{} occupies the corner on the {}.").format(getattr(self, 'neighbor_' + side), side))
             box.prop(self, f'clearance_{side}')
             box.prop(self, f'top_{side}')
             if getattr(self, f'top_{side}'):
@@ -2748,7 +2743,7 @@ class hb_closets_OT_randomize_hangers(bpy.types.Operator):
         if not count:
             self.report({'INFO'}, "No hangers in the room")
             return {'CANCELLED'}
-        self.report({'INFO'}, f"Randomized {count} hangers")
+        self.report({'INFO'}, tr("Randomized {} hangers").format(count))
         return {'FINISHED'}
 
 
@@ -2795,7 +2790,7 @@ class hb_closets_OT_install_model_pack(bpy.types.Operator):
             self.report({'WARNING'}, "No models found in the pack")
             return {'CANCELLED'}
         pulls_closets.refresh()
-        self.report({'INFO'}, f"Installed {installed} models")
+        self.report({'INFO'}, tr("Installed {} models").format(installed))
         return {'FINISHED'}
 
 
@@ -2826,7 +2821,7 @@ class hb_closets_OT_add_molding(bpy.types.Operator):
             self.report({'INFO'},
                         "No qualifying runs (bays under 60\" are skipped)")
             return {'CANCELLED'}
-        self.report({'INFO'}, f"Added crown to {made} runs")
+        self.report({'INFO'}, tr("Added crown to {} runs").format(made))
         return {'FINISHED'}
 
 
@@ -2843,7 +2838,7 @@ class hb_closets_OT_delete_molding(bpy.types.Operator):
             if obj.get(molding_closets.TAG_MOLDING):
                 bpy.data.objects.remove(obj, do_unlink=True)
                 removed += 1
-        self.report({'INFO'}, f"Removed {removed} molding runs")
+        self.report({'INFO'}, tr("Removed {} molding runs").format(removed))
         return {'FINISHED'}
 
 

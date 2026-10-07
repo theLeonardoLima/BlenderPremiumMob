@@ -29,6 +29,7 @@ import gpu
 from mathutils import Vector
 from bpy_extras import view3d_utils
 
+from ...data.i18n import N_, tr
 from ... import units
 from ... import hb_placement
 from ...hb_gpu_draw import get_visible_window_bounds
@@ -64,10 +65,10 @@ _PILL_GAP = 4
 # design review (too busy) - those actions live on the right-click
 # menus. The overlay keeps dims, mount toggles, and the Grab pill.
 _FILTERS = [
-    ("Dims", 'hb_ov_show_dims',
+    (N_("Dims"), 'hb_ov_show_dims',
      ('STARTER_', 'BAY_', 'OPEN_H', 'PART_Z', 'DRAWER_H', 'TOGGLE_LOCK'),
      ('Starters', 'Bays', 'Openings')),
-    ("Bottoms", 'hb_ov_show_mount',
+    (N_("Bottoms"), 'hb_ov_show_mount',
      ('TOGGLE_BOTTOM',), ('Bays',)),
 ]
 
@@ -215,12 +216,13 @@ def _filter_pill_rects(context, area, mode):
         pills.append((label, key))
     if mode == 'Parts':
         # Parts mode: only the Open Door action pill.
-        pills.append(("Open Door", '__open_door__'))
+        pills.append((N_("Open Door"), '__open_door__'))
     else:
-        pills.append(("Grab", '__grab__'))
+        pills.append((N_("Grab"), '__grab__'))
         # Static add-part actions (start the hover-to-place modals).
-        pills.append(("Add Shelf", '__add_shelf__'))
-        pills.append(("Add Rod", '__add_rod__'))
+        pills.append((N_("Add Shelf"), '__add_shelf__'))
+        pills.append((N_("Add Rod"), '__add_rod__'))
+    pills = [(tr(label), key) for label, key in pills]       # rótulos desenhados com blf (FLZO)
     widths = [blf.dimensions(0, label)[0] + 24 * s for label, _k in pills]
     h = _HUD_BTN_H * s
     total = sum(widths) + _PILL_GAP * s * max(0, len(pills) - 1)
@@ -791,7 +793,7 @@ class hb_closets_OT_edit_dim_label(bpy.types.Operator):
                 return {'FINISHED'}
             if obj is None or value is None or value <= 0.0:
                 self.report({'WARNING'},
-                            f"Could not read '{typed}' as a size")
+                            tr("Could not read '{}' as a size").format(typed))
                 self._finish(context)
                 return {'CANCELLED'}
             self._finish(context)

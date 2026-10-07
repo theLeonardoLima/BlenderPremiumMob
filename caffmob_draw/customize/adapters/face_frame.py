@@ -11,6 +11,7 @@ import os
 
 import bpy  # type: ignore
 
+from ...data.i18n import tr
 from ... import hb_project
 from .. import spec
 from . import common
@@ -114,7 +115,7 @@ def set_front(context, root, opening, front, drawer_count=1):
                 result = bpy.ops.caffmob_face_frame.split_opening('EXEC_DEFAULT', axis='H', count=count, **kwargs)
         finally:
             view_layer.objects.active = previous
-        return [] if 'FINISHED' in result else ["A biblioteca recusou dividir o vão em gavetas"]
+        return [] if 'FINISHED' in result else [tr("A biblioteca recusou dividir o vão em gavetas")]
     if front in FRONT_TO_HINGE:
         props.hinge_side = FRONT_TO_HINGE[front]
         props.front_type = 'DOOR'
@@ -125,7 +126,7 @@ def set_front(context, root, opening, front, drawer_count=1):
     elif front == 'OPEN':
         props.front_type = 'NONE'
     else:
-        return [f"Frente '{front}' não suportada"]
+        return [tr("Frente '{}' não suportada").format(front)]
     _tff().recalculate_face_frame_cabinet(root)
     return []
 
@@ -135,7 +136,7 @@ def set_interior(context, root, opening, interior):
     if messages:
         return messages
     if interior.heights:
-        messages.append("O face frame distribui as prateleiras por igual; as alturas digitadas foram ignoradas")
+        messages.append(tr("O face frame distribui as prateleiras por igual; as alturas digitadas foram ignoradas"))
     opening.btm_custom.interior = spec.interior_to_json(interior)
     items = opening.face_frame_opening.interior_items
     for i in reversed(range(len(items))):
@@ -155,13 +156,13 @@ def set_interior(context, root, opening, interior):
         has_tree = any(c.get(_tff().TAG_INTERIOR_SPLIT_NODE) or c.get(_tff().TAG_INTERIOR_REGION)
                        for c in opening.children)
         if has_tree:
-            messages.append("Este vão já tem divisões; edite-as pela ferramenta do face frame")
+            messages.append(tr("Este vão já tem divisões; edite-as pela ferramenta do face frame"))
         else:
             result = bpy.ops.caffmob_face_frame.add_interior_division(target_name=opening.name)
             if 'FINISHED' not in result:
-                messages.append("A biblioteca recusou a divisória")
+                messages.append(tr("A biblioteca recusou a divisória"))
             if int(interior.dividers) > 1:
-                messages.append("O face frame cria uma divisória por vez; as demais pela ferramenta do face frame")
+                messages.append(tr("O face frame cria uma divisória por vez; as demais pela ferramenta do face frame"))
     _tff().recalculate_face_frame_cabinet(root)
     return messages
 
@@ -191,7 +192,7 @@ def _pull_object(key, warnings):
     folder, _sep, filename = key.rpartition("/")
     obj = ffp.load_pull_object(filename, folder or None)
     if obj is None:
-        warnings.append(f"Puxador '{os.path.splitext(filename)[0]}' não encontrado")
+        warnings.append(tr("Puxador '{}' não encontrado").format(os.path.splitext(filename)[0]))
         return None
     obj['btm_pull_file'] = key
     return obj
@@ -202,7 +203,7 @@ def _apply_style(front, name, warnings):
     pool = props.drawer_front_styles if front.get('hb_part_role') in DRAWER_ROLES else props.door_styles
     style = pool.get(name) or props.door_styles.get(name)
     if style is None:
-        warnings.append(f"Estilo '{name}' não existe neste arquivo")
+        warnings.append(tr("Estilo '{}' não existe neste arquivo").format(name))
         return
     style.assign_style_to_front(front, record_override=True)
 

@@ -1,4 +1,5 @@
 import bpy
+from ....data.i18n import tr
 from .. import types_frameless
 from .... import hb_utils, hb_types, units
 from . import ops_interior
@@ -1431,7 +1432,7 @@ class hb_frameless_OT_custom_vertical_splitter(bpy.types.Operator):
         col = box.column(align=True)
         for i in range(self.opening_count):
             row = col.row(align=True)
-            row.label(text=f"Opening {i+1}:")
+            row.label(text=tr("Opening {}:").format(i+1))
             row.prop(self, insert_props[i], text="")
 
 
@@ -1712,7 +1713,7 @@ class hb_frameless_OT_custom_horizontal_splitter(bpy.types.Operator):
         col = box.column(align=True)
         for i in range(self.opening_count):
             row = col.row(align=True)
-            row.label(text=f"Opening {i+1}:")
+            row.label(text=tr("Opening {}:").format(i+1))
             row.prop(self, insert_props[i], text="")
 
 

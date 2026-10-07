@@ -7,18 +7,19 @@ O pai e a matriz originais ficam guardados para desconverter sem perda.
 import bpy  # type: ignore
 from mathutils import Matrix  # type: ignore
 
+from ..data.i18n import tr
 from . import apply, limits
 
 
 def can_convert(obj, parent):
     if obj is None or obj.type != 'MESH':
-        return "Selecione um objeto de malha para converter"
+        return tr("Selecione um objeto de malha para converter")
     if parent is None:
-        return "Selecione também o elemento pai (por último, como ativo)"
+        return tr("Selecione também o elemento pai (por último, como ativo)")
     if parent == obj or obj in parent.children_recursive:
-        return "O pai não pode ser o próprio objeto nem um filho dele"
+        return tr("O pai não pode ser o próprio objeto nem um filho dele")
     if getattr(parent, 'btm_aggregate', None) is not None and parent.btm_aggregate.kind == 'LEAF':
-        return "Uma folha de porta não pode receber agregados"
+        return tr("Uma folha de porta não pode receber agregados")
     return None
 
 

@@ -1,4 +1,5 @@
 import bpy
+from ..data.i18n import tr
 from .. import hb_utils
 from .. import hb_project
 
@@ -79,7 +80,7 @@ class home_builder_OT_create_room(bpy.types.Operator):
         if not original_scene.get('IS_LAYOUT_VIEW') and not original_scene.get('IS_ROOM_SCENE'):
             original_scene['IS_ROOM_SCENE'] = True
 
-        self.report({'INFO'}, f"Created room: {self.room_name}")
+        self.report({'INFO'}, tr("Created room: {}").format(self.room_name))
         return {'FINISHED'}
 
 
@@ -106,9 +107,9 @@ class home_builder_OT_switch_room(bpy.types.Operator):
             if hb_utils.is_room_scene(target_scene):
                 hb_utils.restore_view_state(target_scene)
 
-            self.report({'INFO'}, f"Switched to: {self.scene_name}")
+            self.report({'INFO'}, tr("Switched to: {}").format(self.scene_name))
         else:
-            self.report({'WARNING'}, f"Scene not found: {self.scene_name}")
+            self.report({'WARNING'}, tr("Scene not found: {}").format(self.scene_name))
         return {'FINISHED'}
 
 
@@ -125,7 +126,7 @@ class home_builder_OT_delete_room(bpy.types.Operator):
 
     def execute(self, context):
         if self.scene_name not in bpy.data.scenes:
-            self.report({'WARNING'}, f"Scene not found: {self.scene_name}")
+            self.report({'WARNING'}, tr("Scene not found: {}").format(self.scene_name))
             return {'CANCELLED'}
 
         scene_to_delete = bpy.data.scenes[self.scene_name]
@@ -164,7 +165,7 @@ class home_builder_OT_delete_room(bpy.types.Operator):
         if was_main:
             hb_project.ensure_main_scene(context)
 
-        self.report({'INFO'}, f"Deleted room: {scene_name}")
+        self.report({'INFO'}, tr("Deleted room: {}").format(scene_name))
         return {'FINISHED'}
 
 
@@ -210,7 +211,7 @@ class home_builder_OT_rename_room(bpy.types.Operator):
             return {'CANCELLED'}
         old_name = target.name
         target.name = self.new_name
-        self.report({'INFO'}, f"Renamed '{old_name}' to '{self.new_name}'")
+        self.report({'INFO'}, tr("Renamed '{}' to '{}'").format(old_name, self.new_name))
         return {'FINISHED'}
 
 
@@ -276,7 +277,7 @@ class home_builder_OT_duplicate_room(bpy.types.Operator):
         orders = [s.home_builder.sort_order for s in other_rooms]
         new_scene.home_builder.sort_order = (max(orders) + 1) if orders else 0
 
-        self.report({'INFO'}, f"Duplicated room as: {new_scene.name}")
+        self.report({'INFO'}, tr("Duplicated room as: {}").format(new_scene.name))
         return {'FINISHED'}
 
 
@@ -470,7 +471,7 @@ class home_builder_OT_toggle_link_room(bpy.types.Operator):
     def execute(self, context):
         source_scene = bpy.data.scenes.get(self.scene_name)
         if not source_scene:
-            self.report({'WARNING'}, f"Scene '{self.scene_name}' not found")
+            self.report({'WARNING'}, tr("Scene '{}' not found").format(self.scene_name))
             return {'CANCELLED'}
 
         target_scene = context.scene
@@ -532,7 +533,7 @@ class home_builder_OT_toggle_link_room(bpy.types.Operator):
 
         target_scene.collection.objects.link(empty)
 
-        self.report({'INFO'}, f"Linked '{room_name}' into '{target_scene.name}'")
+        self.report({'INFO'}, tr("Linked '{}' into '{}'").format(room_name, target_scene.name))
         return {'FINISHED'}
 
 
@@ -570,7 +571,7 @@ class home_builder_OT_toggle_linked_room_category(bpy.types.Operator):
         prop_key, col_name = cat_map[self.category]
         sub_col = bpy.data.collections.get(col_name)
         if not sub_col:
-            self.report({'WARNING'}, f"Collection '{col_name}' not found")
+            self.report({'WARNING'}, tr("Collection '{}' not found").format(col_name))
             return {'CANCELLED'}
 
         # Toggle
@@ -626,7 +627,7 @@ class home_builder_OT_unlink_room(bpy.types.Operator):
         # Remove the empty
         bpy.data.objects.remove(obj, do_unlink=True)
 
-        self.report({'INFO'}, f"Unlinked '{room_name}'")
+        self.report({'INFO'}, tr("Unlinked '{}'").format(room_name))
         return {'FINISHED'}
 
 

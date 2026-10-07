@@ -6,6 +6,7 @@ Contrato: `_reversa_forward/003-modulos-agregados-reposicionar/interfaces/user-m
 import json
 import re
 
+from ..data.i18n import tr
 from . import spec as spec_mod
 
 FORMAT = "caffmob_draw.user-module"
@@ -50,18 +51,18 @@ def _major(version):
 def validate(data):
     errors = []
     if not isinstance(data, dict):
-        return ["o manifesto não é um objeto JSON"]
+        return [tr("o manifesto não é um objeto JSON")]
     if data.get("format") != FORMAT:
-        errors.append(f"formato desconhecido: {data.get('format')!r}")
+        errors.append(tr("formato desconhecido: {!r}").format(data.get('format')))
     major = _major(data.get("schema_version", ""))
     if major is None or major > SUPPORTED_MAJOR:
-        errors.append(f"schema_version {data.get('schema_version')!r} não suportada (máximo {SUPPORTED_MAJOR}.x)")
+        errors.append(tr("schema_version {!r} não suportada (máximo {}.x)").format(data.get('schema_version'), SUPPORTED_MAJOR))
     if data.get("library") not in LIBRARIES:
-        errors.append(f"biblioteca desconhecida: {data.get('library')!r}")
+        errors.append(tr("biblioteca desconhecida: {!r}").format(data.get('library')))
     if not str(data.get("name", "")).strip():
-        errors.append("nome vazio")
+        errors.append(tr("nome vazio"))
     if not str(data.get("root_object", "")).strip():
-        errors.append("objeto raiz não informado")
+        errors.append(tr("objeto raiz não informado"))
     if not errors:
         errors += spec_mod.validate(spec_mod.from_dict(data.get("spec")))
     return errors
@@ -76,7 +77,7 @@ def loads(text):
     try:
         data = json.loads(text)
     except ValueError as exc:
-        return None, None, [f"JSON inválido: {exc}"]
+        return None, None, [tr("JSON inválido: {}").format(exc)]
     errors = validate(data)
     if errors:
         return data, None, errors

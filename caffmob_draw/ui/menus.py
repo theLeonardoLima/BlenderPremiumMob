@@ -2,6 +2,7 @@ import bpy
 from mathutils import Vector
 
 from .. import hb_types
+from ..data.i18n import tr
 from .. import units
 
 
@@ -291,10 +292,8 @@ class HOME_BUILDER_OT_adjust_dimension_leader_length(bpy.types.Operator):
                 dim.set_input("Leader Length", initial_length + delta)
             if context.area:
                 context.area.header_text_set(
-                    "Delta: %s | %d dimension(s) | LMB: Confirm | RMB/ESC: Cancel"
-                    % (units.unit_to_string(
-                        context.scene.unit_settings, abs(delta)),
-                       len(self.dimensions)))
+                    tr("Delta: {} | {} dimension(s) | LMB: Confirm | RMB/ESC: Cancel").format(
+                        units.unit_to_string(context.scene.unit_settings, abs(delta)), len(self.dimensions)))
 
         elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
             if context.area:
@@ -331,8 +330,8 @@ class HOME_BUILDER_OT_adjust_dimension_leader_length(bpy.types.Operator):
         context.window_manager.modal_handler_add(self)
         if context.area:
             context.area.header_text_set(
-                "Move mouse to adjust leader length | %d dimension(s) | "
-                "LMB: Confirm | RMB/ESC: Cancel" % len(self.dimensions))
+                tr("Move mouse to adjust leader length | {} dimension(s) | LMB: Confirm | RMB/ESC: Cancel").format(
+                    len(self.dimensions)))
         return {'RUNNING_MODAL'}
 
 
@@ -405,9 +404,7 @@ class HOME_BUILDER_OT_move_dimension_text(bpy.types.Operator):
                 dim.set_input("Offset Text Amount", init_y + perp)
             if context.area:
                 context.area.header_text_set(
-                    "Move text | %d dimension(s) | "
-                    "LMB: Confirm | RMB/ESC: Cancel"
-                    % len(self.dimensions))
+                    tr("Move text | {} dimension(s) | LMB: Confirm | RMB/ESC: Cancel").format(len(self.dimensions)))
 
         elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
             if context.area:
@@ -456,8 +453,8 @@ class HOME_BUILDER_OT_move_dimension_text(bpy.types.Operator):
         context.window_manager.modal_handler_add(self)
         if context.area:
             context.area.header_text_set(
-                "Move mouse to place text | %d dimension(s) | "
-                "LMB: Confirm | RMB/ESC: Cancel" % len(self.dimensions))
+                tr("Move mouse to place text | {} dimension(s) | LMB: Confirm | RMB/ESC: Cancel").format(
+                    len(self.dimensions)))
         return {'RUNNING_MODAL'}
 
 

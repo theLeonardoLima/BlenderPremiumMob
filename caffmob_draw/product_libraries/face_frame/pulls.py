@@ -9,6 +9,7 @@ into pull instances so swapping the source updates every cabinet at once.
 import os
 import bpy
 
+from ...data.i18n import tr
 from . import props_hb_face_frame  # for the existing thumbnail preview collection
 
 
@@ -32,7 +33,7 @@ def get_pull_categories():
         for entry in sorted(os.listdir(root)):
             full = os.path.join(root, entry)
             if os.path.isdir(full):
-                items.append((entry.upper(), entry, f"Pulls in {entry}"))
+                items.append((entry.upper(), entry, tr("Pulls in {}").format(entry)))
     items.append(('NONE', "None", "No pull"))
     return items
 

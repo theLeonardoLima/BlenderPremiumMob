@@ -1,4 +1,5 @@
 import bpy
+from ....data.i18n import N_, tr
 from .... import hb_utils, hb_types, units, hb_project
 
 
@@ -180,9 +181,9 @@ class hb_frameless_OT_product_prompts(bpy.types.Operator):
 
         col.separator()
 
-        for corner in ('Front Left', 'Front Right', 'Back Left', 'Back Right'):
+        for corner in (N_('Front Left'), N_('Front Right'), N_('Back Left'), N_('Back Right')):
             row = col.row(align=True)
-            row.label(text=f"{corner} Leg:")
+            row.label(text=tr("{} Leg:").format(tr(corner)))
             row.prop(obj, f'["{corner} Leg"]', text="")
             row.prop(obj, f'["{corner} Leg Type"]', text="")
 

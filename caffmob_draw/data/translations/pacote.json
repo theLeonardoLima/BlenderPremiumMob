@@ -1,0 +1,106 @@
+{
+ "Biblioteca Ativa": {
+  "pt_BR": "Biblioteca Ativa",
+  "en_US": "Active Library"
+ },
+ "Bibliotecas de Ativos": {
+  "pt_BR": "Bibliotecas de Ativos",
+  "en_US": "Asset Libraries"
+ },
+ "Controles na Viewport": {
+  "pt_BR": "Controles na Viewport",
+  "en_US": "Viewport Controls"
+ },
+ "Cor das Paredes": {
+  "pt_BR": "Cor das Paredes",
+  "en_US": "Wall Color"
+ },
+ "Cor de Destaque": {
+  "pt_BR": "Cor de Destaque",
+  "en_US": "Highlight Color"
+ },
+ "Cor de Portas/Janelas": {
+  "pt_BR": "Cor de Portas/Janelas",
+  "en_US": "Door/Window Color"
+ },
+ "Cor dos Armários": {
+  "pt_BR": "Cor dos Armários",
+  "en_US": "Cabinet Color"
+ },
+ "Cor dos Obstáculos": {
+  "pt_BR": "Cor dos Obstáculos",
+  "en_US": "Obstacle Color"
+ },
+ "Cor dos Textos": {
+  "pt_BR": "Cor dos Textos",
+  "en_US": "Text Color"
+ },
+ "Desenhar os atalhos de navegação e modos de seleção diretamente na Viewport 3D": {
+  "pt_BR": "Desenhar os atalhos de navegação e modos de seleção diretamente na Viewport 3D",
+  "en_US": "Draw navigation shortcuts and selection modes directly in the 3D Viewport"
+ },
+ "Engine 2D": {
+  "pt_BR": "Engine 2D",
+  "en_US": "2D Engine"
+ },
+ "Escala Padrão": {
+  "pt_BR": "Escala Padrão",
+  "en_US": "Default Scale"
+ },
+ "Freestyle": {
+  "pt_BR": "Freestyle",
+  "en_US": "Freestyle"
+ },
+ "Freestyle clássico": {
+  "pt_BR": "Freestyle clássico",
+  "en_US": "Classic Freestyle"
+ },
+ "Grease Pencil Line Art": {
+  "pt_BR": "Grease Pencil Line Art",
+  "en_US": "Grease Pencil Line Art"
+ },
+ "Letter (Carta)": {
+  "pt_BR": "Letter (Carta)",
+  "en_US": "Letter"
+ },
+ "Linhas em tempo real (Line Art)": {
+  "pt_BR": "Linhas em tempo real (Line Art)",
+  "en_US": "Real-time lines (Line Art)"
+ },
+ "Nome do Designer": {
+  "pt_BR": "Nome do Designer",
+  "en_US": "Designer Name"
+ },
+ "Nome impresso nas pranchas e relatórios técnicos": {
+  "pt_BR": "Nome impresso nas pranchas e relatórios técnicos",
+  "en_US": "Name printed on the drawing sheets and technical reports"
+ },
+ "Ocultar Painéis 2D": {
+  "pt_BR": "Ocultar Painéis 2D",
+  "en_US": "Hide 2D Panels"
+ },
+ "Ocultar as abas de Views 2D, Detalhes e Anotações na barra lateral": {
+  "pt_BR": "Ocultar as abas de Views 2D, Detalhes e Anotações na barra lateral",
+  "en_US": "Hide the 2D Views, Details and Annotations tabs in the sidebar"
+ },
+ "Ofício": {
+  "pt_BR": "Ofício",
+  "en_US": "Legal"
+ },
+ "Orientação Paisagem": {
+  "pt_BR": "Orientação Paisagem",
+  "en_US": "Landscape Orientation"
+ },
+ "Padrões do Layout 2D": {
+  "pt_BR": "Padrões do Layout 2D",
+  "en_US": "2D Layout Defaults"
+ },
+ "Tabloide": {
+  "pt_BR": "Tabloide",
+  "en_US": "Tabloid"
+ },
+ "Tamanho de Papel Padrão": {
+  "pt_BR": "Tamanho de Papel Padrão",
+  "en_US": "Default Paper Size"
+ }
+}

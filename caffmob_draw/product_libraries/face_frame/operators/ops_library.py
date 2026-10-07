@@ -19,6 +19,7 @@ import os
 import platform
 import subprocess
 from mathutils import Vector
+from ....data.i18n import tr
 from .. import props_hb_face_frame
 from .... import hb_types, hb_placement, hb_snap, hb_utils
 
@@ -185,7 +186,7 @@ class hb_face_frame_OT_save_cabinet_group_to_user_library(bpy.types.Operator):
         blend_filepath = os.path.join(actual_save_path, blend_filename)
 
         if os.path.exists(blend_filepath):
-            self.report({'WARNING'}, f"File already exists: {blend_filename}. Overwriting.")
+            self.report({'WARNING'}, tr("File already exists: {}. Overwriting.").format(blend_filename))
 
         objects_to_save = self._collect_objects_recursive(cabinet_group)
         data_blocks = self._collect_data_blocks(objects_to_save)
@@ -200,7 +201,7 @@ class hb_face_frame_OT_save_cabinet_group_to_user_library(bpy.types.Operator):
         if self.create_thumbnail:
             self._create_thumbnail(context, cabinet_group, actual_save_path, safe_name)
 
-        self.report({'INFO'}, f"Saved cabinet group to: {blend_filepath}")
+        self.report({'INFO'}, tr("Saved cabinet group to: {}").format(blend_filepath))
         return {'FINISHED'}
 
     def _collect_objects_recursive(self, obj):
@@ -395,12 +396,12 @@ class hb_face_frame_OT_load_cabinet_group_from_library(bpy.types.Operator, hb_pl
                 pass
 
     def update_header(self, context):
-        text = "Click to place cabinet group | R: rotate 90 | Right-click/Esc: cancel"
+        text = tr("Click to place cabinet group | R: rotate 90 | Right-click/Esc: cancel")
         hb_placement.draw_header_text(context, text)
 
     def execute(self, context):
         if not self.filepath or not os.path.exists(self.filepath):
-            self.report({'ERROR'}, f"File not found: {self.filepath}")
+            self.report({'ERROR'}, tr("File not found: {}").format(self.filepath))
             return {'CANCELLED'}
 
         self.init_placement(context)
@@ -443,7 +444,7 @@ class hb_face_frame_OT_load_cabinet_group_from_library(bpy.types.Operator, hb_pl
         if event.type == 'LEFTMOUSE' and event.value == 'PRESS':
             hb_placement.clear_header_text(context)
             context.window.cursor_set('DEFAULT')
-            self.report({'INFO'}, f"Placed cabinet group from: {os.path.basename(self.filepath)}")
+            self.report({'INFO'}, tr("Placed cabinet group from: {}").format(os.path.basename(self.filepath)))
             return {'FINISHED'}
 
         if event.type == 'R' and event.value == 'PRESS':
@@ -514,7 +515,7 @@ class hb_face_frame_OT_delete_library_item(bpy.types.Operator):
 
     def execute(self, context):
         if not self.filepath or not os.path.exists(self.filepath):
-            self.report({'ERROR'}, f"File not found: {self.filepath}")
+            self.report({'ERROR'}, tr("File not found: {}").format(self.filepath))
             return {'CANCELLED'}
         os.remove(self.filepath)
         # Remove the matching thumbnail too - leaving it would point at a
@@ -523,7 +524,7 @@ class hb_face_frame_OT_delete_library_item(bpy.types.Operator):
         if os.path.exists(thumbnail_path):
             os.remove(thumbnail_path)
         props_hb_face_frame.clear_library_previews()
-        self.report({'INFO'}, f"Deleted: {self.item_name}")
+        self.report({'INFO'}, tr("Deleted: {}").format(self.item_name))
         for area in context.screen.areas:
             area.tag_redraw()
         return {'FINISHED'}

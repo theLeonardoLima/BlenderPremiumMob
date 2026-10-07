@@ -1,0 +1,622 @@
+{
+ "A biblioteca não tem estilos de porta": {
+  "pt_BR": "A biblioteca não tem estilos de porta",
+  "en_US": "The library has no door styles"
+ },
+ "A biblioteca recusou a divisória": {
+  "pt_BR": "A biblioteca recusou a divisória",
+  "en_US": "The library refused the partition"
+ },
+ "A biblioteca recusou a troca da frente": {
+  "pt_BR": "A biblioteca recusou a troca da frente",
+  "en_US": "The library refused to change the front"
+ },
+ "A biblioteca recusou a troca das gavetas": {
+  "pt_BR": "A biblioteca recusou a troca das gavetas",
+  "en_US": "The library refused to change the drawers"
+ },
+ "A biblioteca recusou dividir o vão em gavetas": {
+  "pt_BR": "A biblioteca recusou dividir o vão em gavetas",
+  "en_US": "The library refused to split the opening into drawers"
+ },
+ "Abre a pasta da biblioteca de módulos do usuário": {
+  "pt_BR": "Abre a pasta da biblioteca de módulos do usuário",
+  "en_US": "Opens the user module library folder"
+ },
+ "Abrir pasta": {
+  "pt_BR": "Abrir pasta",
+  "en_US": "Open folder"
+ },
+ "Abrir pasta dos módulos": {
+  "pt_BR": "Abrir pasta dos módulos",
+  "en_US": "Open modules folder"
+ },
+ "Alturas": {
+  "pt_BR": "Alturas",
+  "en_US": "Heights"
+ },
+ "Alturas das prateleiras a partir da base do vão, separadas por ';' (na unidade da cena). Vazio = espaçamento igual": {
+  "pt_BR": "Alturas das prateleiras a partir da base do vão, separadas por ';' (na unidade da cena). Vazio = espaçamento igual",
+  "en_US": "Shelf heights from the bottom of the opening, separated by ';' (in the scene unit). Empty = even spacing"
+ },
+ "Alturas inválidas": {
+  "pt_BR": "Alturas inválidas",
+  "en_US": "Invalid heights"
+ },
+ "Apaga o módulo da biblioteca do usuário (arquivo, miniatura e manifesto)": {
+  "pt_BR": "Apaga o módulo da biblioteca do usuário (arquivo, miniatura e manifesto)",
+  "en_US": "Deletes the module from the user library (file, thumbnail and manifest)"
+ },
+ "Apagar": {
+  "pt_BR": "Apagar",
+  "en_US": "Delete"
+ },
+ "Apagar módulo": {
+  "pt_BR": "Apagar módulo",
+  "en_US": "Delete module"
+ },
+ "Apagar módulo da biblioteca?": {
+  "pt_BR": "Apagar módulo da biblioteca?",
+  "en_US": "Delete the module from the library?"
+ },
+ "Aplica um estilo só nas frentes deste vão": {
+  "pt_BR": "Aplica um estilo só nas frentes deste vão",
+  "en_US": "Applies a style only to the fronts of this opening"
+ },
+ "Aplicar a todas as frentes": {
+  "pt_BR": "Aplicar a todas as frentes",
+  "en_US": "Apply to all fronts"
+ },
+ "Biblioteca de módulos": {
+  "pt_BR": "Biblioteca de módulos",
+  "en_US": "Module library"
+ },
+ "Biblioteca indisponível: {}": {
+  "pt_BR": "Biblioteca indisponível: {}",
+  "en_US": "Library unavailable: {}"
+ },
+ "Categoria": {
+  "pt_BR": "Categoria",
+  "en_US": "Category"
+ },
+ "Clique para posicionar  |  R: girar 90°  |  Botão direito/Esc: cancelar": {
+  "pt_BR": "Clique para posicionar  |  R: girar 90°  |  Botão direito/Esc: cancelar",
+  "en_US": "Click to place  |  R: rotate 90°  |  Right button/Esc: cancel"
+ },
+ "Digite um nome para o módulo": {
+  "pt_BR": "Digite um nome para o módulo",
+  "en_US": "Type a name for the module"
+ },
+ "Divisórias": {
+  "pt_BR": "Divisórias",
+  "en_US": "Partitions"
+ },
+ "Divisões internas": {
+  "pt_BR": "Divisões internas",
+  "en_US": "Interior layout"
+ },
+ "Divisões internas atualizadas": {
+  "pt_BR": "Divisões internas atualizadas",
+  "en_US": "Interior layout updated"
+ },
+ "Duas portas": {
+  "pt_BR": "Duas portas",
+  "en_US": "Two doors"
+ },
+ "Escolhe o material das frentes de um vão, de um grupo de peças ou da peça selecionada": {
+  "pt_BR": "Escolhe o material das frentes de um vão, de um grupo de peças ou da peça selecionada",
+  "en_US": "Chooses the material of an opening's fronts, of a part group or of the selected part"
+ },
+ "Este vão já tem divisões; edite-as pela ferramenta do face frame": {
+  "pt_BR": "Este vão já tem divisões; edite-as pela ferramenta do face frame",
+  "en_US": "This opening already has divisions; edit them with the face frame tool"
+ },
+ "Estilo": {
+  "pt_BR": "Estilo",
+  "en_US": "Style"
+ },
+ "Estilo '{}' não existe neste arquivo": {
+  "pt_BR": "Estilo '{}' não existe neste arquivo",
+  "en_US": "Style '{}' does not exist in this file"
+ },
+ "Estilo '{}' não existe no closets": {
+  "pt_BR": "Estilo '{}' não existe no closets",
+  "en_US": "Style '{}' does not exist in the closets library"
+ },
+ "Estilo aplicado: {}": {
+  "pt_BR": "Estilo aplicado: {}",
+  "en_US": "Style applied: {}"
+ },
+ "Estilo da frente": {
+  "pt_BR": "Estilo da frente",
+  "en_US": "Front style"
+ },
+ "Estilo da gaveta": {
+  "pt_BR": "Estilo da gaveta",
+  "en_US": "Drawer style"
+ },
+ "Estilo da porta": {
+  "pt_BR": "Estilo da porta",
+  "en_US": "Door style"
+ },
+ "Estilo do módulo": {
+  "pt_BR": "Estilo do módulo",
+  "en_US": "Module style"
+ },
+ "Estilos ausentes neste arquivo (mantida a geometria salva): {}": {
+  "pt_BR": "Estilos ausentes neste arquivo (mantida a geometria salva): {}",
+  "en_US": "Styles missing in this file (saved geometry kept): {}"
+ },
+ "Frente '{}' não suportada": {
+  "pt_BR": "Frente '{}' não suportada",
+  "en_US": "Front '{}' not supported"
+ },
+ "Frente trocada para {}": {
+  "pt_BR": "Frente trocada para {}",
+  "en_US": "Front changed to {}"
+ },
+ "Frentes": {
+  "pt_BR": "Frentes",
+  "en_US": "Fronts"
+ },
+ "Frentes do vão": {
+  "pt_BR": "Frentes do vão",
+  "en_US": "Opening fronts"
+ },
+ "Gavetas": {
+  "pt_BR": "Gavetas",
+  "en_US": "Drawers"
+ },
+ "Gavetas internas": {
+  "pt_BR": "Gavetas internas",
+  "en_US": "Inner drawers"
+ },
+ "Gerar miniatura": {
+  "pt_BR": "Gerar miniatura",
+  "en_US": "Make thumbnail"
+ },
+ "Grupo": {
+  "pt_BR": "Grupo",
+  "en_US": "Group"
+ },
+ "Insere um módulo da biblioteca do usuário. Clique para posicionar; R gira 90°; botão direito ou Esc cancela": {
+  "pt_BR": "Insere um módulo da biblioteca do usuário. Clique para posicionar; R gira 90°; botão direito ou Esc cancela",
+  "en_US": "Inserts a module from the user library. Click to place; R rotates 90°; right button or Esc cancels"
+ },
+ "Inserir módulo": {
+  "pt_BR": "Inserir módulo",
+  "en_US": "Insert module"
+ },
+ "Interior: {} prat., {} div., {} gav.": {
+  "pt_BR": "Interior: {} prat., {} div., {} gav.",
+  "en_US": "Interior: {} shelves, {} partitions, {} drawers"
+ },
+ "JSON inválido: {}": {
+  "pt_BR": "JSON inválido: {}",
+  "en_US": "Invalid JSON: {}"
+ },
+ "JSON {shelves, dividers, drawers, heights}; vazio = interior da biblioteca": {
+  "pt_BR": "JSON {shelves, dividers, drawers, heights}; vazio = interior da biblioteca",
+  "en_US": "JSON {shelves, dividers, drawers, heights}; empty = library interior"
+ },
+ "Já existe um módulo '{}' nessa categoria": {
+  "pt_BR": "Já existe um módulo '{}' nessa categoria",
+  "en_US": "A module '{}' already exists in this category"
+ },
+ "Já existe um módulo com esse nome nesta categoria.": {
+  "pt_BR": "Já existe um módulo com esse nome nesta categoria.",
+  "en_US": "A module with this name already exists in this category."
+ },
+ "Limpar personalização do vão": {
+  "pt_BR": "Limpar personalização do vão",
+  "en_US": "Clear opening customization"
+ },
+ "Mais de uma gaveta só num vão que ocupa o compartimento inteiro": {
+  "pt_BR": "Mais de uma gaveta só num vão que ocupa o compartimento inteiro",
+  "en_US": "More than one drawer only in an opening that takes the whole compartment"
+ },
+ "Manifesto inválido: {}": {
+  "pt_BR": "Manifesto inválido: {}",
+  "en_US": "Invalid manifest: {}"
+ },
+ "Materiais": {
+  "pt_BR": "Materiais",
+  "en_US": "Materials"
+ },
+ "Material '{}' não existe neste arquivo": {
+  "pt_BR": "Material '{}' não existe neste arquivo",
+  "en_US": "Material '{}' does not exist in this file"
+ },
+ "Material da peça": {
+  "pt_BR": "Material da peça",
+  "en_US": "Part material"
+ },
+ "Material das frentes": {
+  "pt_BR": "Material das frentes",
+  "en_US": "Front material"
+ },
+ "Material das frentes: {}": {
+  "pt_BR": "Material das frentes: {}",
+  "en_US": "Front material: {}"
+ },
+ "Material: {}": {
+  "pt_BR": "Material: {}",
+  "en_US": "Material: {}"
+ },
+ "Meio": {
+  "pt_BR": "Meio",
+  "en_US": "Middle"
+ },
+ "Modelo": {
+  "pt_BR": "Modelo",
+  "en_US": "Model"
+ },
+ "Modelos — Personalizar módulo": {
+  "pt_BR": "Modelos — Personalizar módulo",
+  "en_US": "Models — Customize module"
+ },
+ "Módulo apagado: {}": {
+  "pt_BR": "Módulo apagado: {}",
+  "en_US": "Module deleted: {}"
+ },
+ "Módulo não encontrado": {
+  "pt_BR": "Módulo não encontrado",
+  "en_US": "Module not found"
+ },
+ "Módulo não encontrado: {}": {
+  "pt_BR": "Módulo não encontrado: {}",
+  "en_US": "Module not found: {}"
+ },
+ "Módulo ou nome inválido": {
+  "pt_BR": "Módulo ou nome inválido",
+  "en_US": "Invalid module or name"
+ },
+ "Módulo salvo: {}": {
+  "pt_BR": "Módulo salvo: {}",
+  "en_US": "Module saved: {}"
+ },
+ "Nenhum módulo encontrado no arquivo": {
+  "pt_BR": "Nenhum módulo encontrado no arquivo",
+  "en_US": "No module found in the file"
+ },
+ "Nenhum módulo salvo ainda.": {
+  "pt_BR": "Nenhum módulo salvo ainda.",
+  "en_US": "No saved module yet."
+ },
+ "No closets as gavetas são frentes; troque a frente do vão para Gavetas": {
+  "pt_BR": "No closets as gavetas são frentes; troque a frente do vão para Gavetas",
+  "en_US": "In the closets library drawers are fronts; change the opening front to Drawers"
+ },
+ "Nome do puxador; vazio = puxador do projeto": {
+  "pt_BR": "Nome do puxador; vazio = puxador do projeto",
+  "en_US": "Pull name; empty = project pull"
+ },
+ "Novo nome": {
+  "pt_BR": "Novo nome",
+  "en_US": "New name"
+ },
+ "Não foi possível gravar o módulo em {}: {}": {
+  "pt_BR": "Não foi possível gravar o módulo em {}: {}",
+  "en_US": "Could not save the module to {}: {}"
+ },
+ "O closets distribui as prateleiras por igual; as alturas digitadas foram ignoradas": {
+  "pt_BR": "O closets distribui as prateleiras por igual; as alturas digitadas foram ignoradas",
+  "en_US": "The closets library spaces the shelves evenly; the typed heights were ignored"
+ },
+ "O closets não tem a frente '{}'": {
+  "pt_BR": "O closets não tem a frente '{}'",
+  "en_US": "The closets library has no '{}' front"
+ },
+ "O closets não tem divisória vertical dentro do vão; use outro compartimento": {
+  "pt_BR": "O closets não tem divisória vertical dentro do vão; use outro compartimento",
+  "en_US": "The closets library has no vertical partition inside the opening; use another compartment"
+ },
+ "O face frame cria uma divisória por vez; as demais pela ferramenta do face frame": {
+  "pt_BR": "O face frame cria uma divisória por vez; as demais pela ferramenta do face frame",
+  "en_US": "The face frame library creates one partition at a time; add the others with the face frame tool"
+ },
+ "O face frame distribui as prateleiras por igual; as alturas digitadas foram ignoradas": {
+  "pt_BR": "O face frame distribui as prateleiras por igual; as alturas digitadas foram ignoradas",
+  "en_US": "The face frame library spaces the shelves evenly; the typed heights were ignored"
+ },
+ "O frameless empilha no máximo {} gavetas": {
+  "pt_BR": "O frameless empilha no máximo {} gavetas",
+  "en_US": "The frameless library stacks at most {} drawers"
+ },
+ "O módulo '{}' já existe; marque \"Substituir\" para gravar por cima": {
+  "pt_BR": "O módulo '{}' já existe; marque \"Substituir\" para gravar por cima",
+  "en_US": "Module '{}' already exists; check \"Replace\" to overwrite it"
+ },
+ "O módulo paramétrico distribui as prateleiras por igual; as alturas foram ignoradas": {
+  "pt_BR": "O módulo paramétrico distribui as prateleiras por igual; as alturas foram ignoradas",
+  "en_US": "The parametric module spaces the shelves evenly; the heights were ignored"
+ },
+ "O módulo paramétrico não tem a frente '{}'": {
+  "pt_BR": "O módulo paramétrico não tem a frente '{}'",
+  "en_US": "The parametric module has no '{}' front"
+ },
+ "O módulo paramétrico não tem estilos de porta": {
+  "pt_BR": "O módulo paramétrico não tem estilos de porta",
+  "en_US": "The parametric module has no door styles"
+ },
+ "O módulo paramétrico só tem prateleiras; divisórias e gavetas internas foram ignoradas": {
+  "pt_BR": "O módulo paramétrico só tem prateleiras; divisórias e gavetas internas foram ignoradas",
+  "en_US": "The parametric module only has shelves; partitions and inner drawers were ignored"
+ },
+ "O objeto selecionado não é um módulo": {
+  "pt_BR": "O objeto selecionado não é um módulo",
+  "en_US": "The selected object is not a module"
+ },
+ "Padrão": {
+  "pt_BR": "Padrão",
+  "en_US": "Default"
+ },
+ "Painel fixo": {
+  "pt_BR": "Painel fixo",
+  "en_US": "Fixed panel"
+ },
+ "Personalização desta biblioteca ainda não disponível": {
+  "pt_BR": "Personalização desta biblioteca ainda não disponível",
+  "en_US": "Customization not available for this library yet"
+ },
+ "Personalização do vão removida; troque o estilo do projeto para refazer as frentes": {
+  "pt_BR": "Personalização do vão removida; troque o estilo do projeto para refazer as frentes",
+  "en_US": "Opening customization removed; change the project style to rebuild the fronts"
+ },
+ "Peça selecionada": {
+  "pt_BR": "Peça selecionada",
+  "en_US": "Selected part"
+ },
+ "Peça {}: {}": {
+  "pt_BR": "Peça {}: {}",
+  "en_US": "Part {}: {}"
+ },
+ "Porta à direita": {
+  "pt_BR": "Porta à direita",
+  "en_US": "Right door"
+ },
+ "Porta à esquerda": {
+  "pt_BR": "Porta à esquerda",
+  "en_US": "Left door"
+ },
+ "Posição definida pela biblioteca": {
+  "pt_BR": "Posição definida pela biblioteca",
+  "en_US": "Position set by the library"
+ },
+ "Posição do puxador": {
+  "pt_BR": "Posição do puxador",
+  "en_US": "Pull position"
+ },
+ "Prateleiras, divisórias e gavetas internas deste vão": {
+  "pt_BR": "Prateleiras, divisórias e gavetas internas deste vão",
+  "en_US": "Shelves, partitions and inner drawers of this opening"
+ },
+ "Puxador": {
+  "pt_BR": "Puxador",
+  "en_US": "Pull"
+ },
+ "Puxador '{}' não encontrado": {
+  "pt_BR": "Puxador '{}' não encontrado",
+  "en_US": "Pull '{}' not found"
+ },
+ "Puxador atualizado": {
+  "pt_BR": "Puxador atualizado",
+  "en_US": "Pull updated"
+ },
+ "Puxador do projeto": {
+  "pt_BR": "Puxador do projeto",
+  "en_US": "Project pull"
+ },
+ "Puxador na lateral livre da frente": {
+  "pt_BR": "Puxador na lateral livre da frente",
+  "en_US": "Pull on the free side of the front"
+ },
+ "Puxador no meio da frente": {
+  "pt_BR": "Puxador no meio da frente",
+  "en_US": "Pull in the middle of the front"
+ },
+ "Puxador perto da borda de baixo": {
+  "pt_BR": "Puxador perto da borda de baixo",
+  "en_US": "Pull near the bottom edge"
+ },
+ "Puxador perto da borda de cima": {
+  "pt_BR": "Puxador perto da borda de cima",
+  "en_US": "Pull near the top edge"
+ },
+ "Puxador: {}": {
+  "pt_BR": "Puxador: {}",
+  "en_US": "Pull: {}"
+ },
+ "Puxadores": {
+  "pt_BR": "Puxadores",
+  "en_US": "Pulls"
+ },
+ "Renomear módulo": {
+  "pt_BR": "Renomear módulo",
+  "en_US": "Rename module"
+ },
+ "Renomeia o módulo da biblioteca do usuário": {
+  "pt_BR": "Renomeia o módulo da biblioteca do usuário",
+  "en_US": "Renames the user library module"
+ },
+ "Salva o módulo selecionado, com a personalização, na biblioteca do usuário": {
+  "pt_BR": "Salva o módulo selecionado, com a personalização, na biblioteca do usuário",
+  "en_US": "Saves the selected module, with its customization, to the user library"
+ },
+ "Salvar como módulo": {
+  "pt_BR": "Salvar como módulo",
+  "en_US": "Save as module"
+ },
+ "Selecione um módulo": {
+  "pt_BR": "Selecione um módulo",
+  "en_US": "Select a module"
+ },
+ "Sem puxador": {
+  "pt_BR": "Sem puxador",
+  "en_US": "No pull"
+ },
+ "Substituir o módulo existente": {
+  "pt_BR": "Substituir o módulo existente",
+  "en_US": "Replace the existing module"
+ },
+ "Topo": {
+  "pt_BR": "Topo",
+  "en_US": "Top"
+ },
+ "Troca a frente deste vão (porta, gavetas, basculante, painel ou vazio)": {
+  "pt_BR": "Troca a frente deste vão (porta, gavetas, basculante, painel ou vazio)",
+  "en_US": "Changes the front of this opening (door, drawers, flip-up, panel or empty)"
+ },
+ "Troca o puxador das frentes deste vão (ou de todas as frentes do módulo)": {
+  "pt_BR": "Troca o puxador das frentes deste vão (ou de todas as frentes do módulo)",
+  "en_US": "Changes the pull of this opening's fronts (or of all the module fronts)"
+ },
+ "Trocar frente": {
+  "pt_BR": "Trocar frente",
+  "en_US": "Change front"
+ },
+ "Usa a escolha geral do projeto": {
+  "pt_BR": "Usa a escolha geral do projeto",
+  "en_US": "Uses the project-wide choice"
+ },
+ "Usa o mesmo puxador em todas as frentes do módulo": {
+  "pt_BR": "Usa o mesmo puxador em todas as frentes do módulo",
+  "en_US": "Uses the same pull on all module fronts"
+ },
+ "Vazio": {
+  "pt_BR": "Vazio",
+  "en_US": "Empty"
+ },
+ "Vazio = estilo do módulo": {
+  "pt_BR": "Vazio = estilo do módulo",
+  "en_US": "Empty = module style"
+ },
+ "Vazio = volta ao material da biblioteca": {
+  "pt_BR": "Vazio = volta ao material da biblioteca",
+  "en_US": "Empty = back to the library material"
+ },
+ "Vence o material do grupo": {
+  "pt_BR": "Vence o material do grupo",
+  "en_US": "Overrides the group material"
+ },
+ "Volta ao estilo da biblioteca": {
+  "pt_BR": "Volta ao estilo da biblioteca",
+  "en_US": "Back to the library style"
+ },
+ "Volta estilo, puxador e material deste vão aos da biblioteca": {
+  "pt_BR": "Volta estilo, puxador e material deste vão aos da biblioteca",
+  "en_US": "Resets this opening's style, pull and material to the library ones"
+ },
+ "Vão não encontrado; selecione o módulo de novo": {
+  "pt_BR": "Vão não encontrado; selecione o módulo de novo",
+  "en_US": "Opening not found; select the module again"
+ },
+ "Vão {}: {}": {
+  "pt_BR": "Vão {}: {}",
+  "en_US": "Opening {}: {}"
+ },
+ "a quantidade de alturas não bate com a de prateleiras": {
+  "pt_BR": "a quantidade de alturas não bate com a de prateleiras",
+  "en_US": "the number of heights does not match the number of shelves"
+ },
+ "altura fora do vão": {
+  "pt_BR": "altura fora do vão",
+  "en_US": "height outside the opening"
+ },
+ "as alturas precisam ser crescentes": {
+  "pt_BR": "as alturas precisam ser crescentes",
+  "en_US": "the heights must increase"
+ },
+ "biblioteca desconhecida: {!r}": {
+  "pt_BR": "biblioteca desconhecida: {!r}",
+  "en_US": "unknown library: {!r}"
+ },
+ "da biblioteca": {
+  "pt_BR": "da biblioteca",
+  "en_US": "library's"
+ },
+ "divisórias fora de 0 a {}": {
+  "pt_BR": "divisórias fora de 0 a {}",
+  "en_US": "partitions outside 0 to {}"
+ },
+ "do grupo": {
+  "pt_BR": "do grupo",
+  "en_US": "group's"
+ },
+ "do módulo": {
+  "pt_BR": "do módulo",
+  "en_US": "module's"
+ },
+ "do projeto": {
+  "pt_BR": "do projeto",
+  "en_US": "project's"
+ },
+ "formato desconhecido: {!r}": {
+  "pt_BR": "formato desconhecido: {!r}",
+  "en_US": "unknown format: {!r}"
+ },
+ "gavetas internas fora de 0 a {}": {
+  "pt_BR": "gavetas internas fora de 0 a {}",
+  "en_US": "inner drawers outside 0 to {}"
+ },
+ "grupo de material desconhecido '{}'": {
+  "pt_BR": "grupo de material desconhecido '{}'",
+  "en_US": "unknown material group '{}'"
+ },
+ "material vazio em '{}'": {
+  "pt_BR": "material vazio em '{}'",
+  "en_US": "empty material in '{}'"
+ },
+ "nome vazio": {
+  "pt_BR": "nome vazio",
+  "en_US": "empty name"
+ },
+ "o manifesto não é um objeto JSON": {
+  "pt_BR": "o manifesto não é um objeto JSON",
+  "en_US": "the manifest is not a JSON object"
+ },
+ "objeto raiz não informado": {
+  "pt_BR": "objeto raiz não informado",
+  "en_US": "root object not given"
+ },
+ "prateleiras fora de 0 a {}": {
+  "pt_BR": "prateleiras fora de 0 a {}",
+  "en_US": "shelves outside 0 to {}"
+ },
+ "schema_version {!r} não suportada (máximo {}.x)": {
+  "pt_BR": "schema_version {!r} não suportada (máximo {}.x)",
+  "en_US": "schema_version {!r} not supported (maximum {}.x)"
+ },
+ "vão sem caminho": {
+  "pt_BR": "vão sem caminho",
+  "en_US": "opening without a path"
+ },
+ "vão {}": {
+  "pt_BR": "vão {}",
+  "en_US": "opening {}"
+ },
+ "{} (sem personalização)": {
+  "pt_BR": "{} (sem personalização)",
+  "en_US": "{} (no customization)"
+ },
+ "{} gavetas": {
+  "pt_BR": "{} gavetas",
+  "en_US": "{} drawers"
+ },
+ "{}: frente desconhecida '{}'": {
+  "pt_BR": "{}: frente desconhecida '{}'",
+  "en_US": "{}: unknown front '{}'"
+ },
+ "{}: posição de puxador desconhecida '{}'": {
+  "pt_BR": "{}: posição de puxador desconhecida '{}'",
+  "en_US": "{}: unknown pull position '{}'"
+ },
+ "{}: quantidade de gavetas fora de 1 a {}": {
+  "pt_BR": "{}: quantidade de gavetas fora de 1 a {}",
+  "en_US": "{}: drawer count outside 1 to {}"
+ },
+ "{}: repetido": {
+  "pt_BR": "{}: repetido",
+  "en_US": "{}: repeated"
+ }
+}

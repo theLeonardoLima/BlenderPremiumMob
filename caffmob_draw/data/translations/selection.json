@@ -1,0 +1,50 @@
+{
+ "Ambiente": {
+  "pt_BR": "Ambiente",
+  "en_US": "Room"
+ },
+ "Closets": {
+  "pt_BR": "Closets",
+  "en_US": "Closets"
+ },
+ "Cota / anotação": {
+  "pt_BR": "Cota / anotação",
+  "en_US": "Dimension / annotation"
+ },
+ "Face frame": {
+  "pt_BR": "Face frame",
+  "en_US": "Face frame"
+ },
+ "Módulo rápido": {
+  "pt_BR": "Módulo rápido",
+  "en_US": "Quick module"
+ },
+ "Objeto": {
+  "pt_BR": "Objeto",
+  "en_US": "Object"
+ },
+ "Obstáculo": {
+  "pt_BR": "Obstáculo",
+  "en_US": "Obstacle"
+ },
+ "Peça": {
+  "pt_BR": "Peça",
+  "en_US": "Part"
+ },
+ "Teto": {
+  "pt_BR": "Teto",
+  "en_US": "Ceiling"
+ },
+ "Valor Inválido: esta parede não é editável por aqui.": {
+  "pt_BR": "Valor Inválido: esta parede não é editável por aqui.",
+  "en_US": "Invalid Value: this wall cannot be edited here."
+ },
+ "Valor Inválido: o peitoril de uma porta é sempre 0.": {
+  "pt_BR": "Valor Inválido: o peitoril de uma porta é sempre 0.",
+  "en_US": "Invalid Value: a door sill is always 0."
+ },
+ "Valor Inválido: {} não é editável para este objeto.": {
+  "pt_BR": "Valor Inválido: {} não é editável para este objeto.",
+  "en_US": "Invalid Value: {} is not editable for this object."
+ }
+}

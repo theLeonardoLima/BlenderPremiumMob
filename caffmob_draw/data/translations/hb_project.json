@@ -1,0 +1,98 @@
+{
+ "Address": {
+  "pt_BR": "Endereço",
+  "en_US": "Address"
+ },
+ "CAFFMob Draw Project": {
+  "pt_BR": "Projeto CAFFMob Draw",
+  "en_US": "CAFFMob Draw Project"
+ },
+ "City": {
+  "pt_BR": "Cidade",
+  "en_US": "City"
+ },
+ "Client Name": {
+  "pt_BR": "Nome do Cliente",
+  "en_US": "Client Name"
+ },
+ "Client city": {
+  "pt_BR": "Cidade do cliente",
+  "en_US": "Client city"
+ },
+ "Client email address": {
+  "pt_BR": "E-mail do cliente",
+  "en_US": "Client email address"
+ },
+ "Client name": {
+  "pt_BR": "Nome do cliente",
+  "en_US": "Client name"
+ },
+ "Client phone number": {
+  "pt_BR": "Telefone do cliente",
+  "en_US": "Client phone number"
+ },
+ "Client state/province": {
+  "pt_BR": "Estado do cliente",
+  "en_US": "Client state/province"
+ },
+ "Client street address": {
+  "pt_BR": "Endereço do cliente",
+  "en_US": "Client street address"
+ },
+ "Client zip/postal code": {
+  "pt_BR": "CEP do cliente",
+  "en_US": "Client zip/postal code"
+ },
+ "Date": {
+  "pt_BR": "Data",
+  "en_US": "Date"
+ },
+ "Designer Email": {
+  "pt_BR": "E-mail do Projetista",
+  "en_US": "Designer Email"
+ },
+ "Designer Phone": {
+  "pt_BR": "Telefone do Projetista",
+  "en_US": "Designer Phone"
+ },
+ "Designer email address": {
+  "pt_BR": "E-mail do projetista",
+  "en_US": "Designer email address"
+ },
+ "Designer phone number": {
+  "pt_BR": "Telefone do projetista",
+  "en_US": "Designer phone number"
+ },
+ "Name of the designer": {
+  "pt_BR": "Nome do projetista",
+  "en_US": "Name of the designer"
+ },
+ "Name of the project": {
+  "pt_BR": "Nome do projeto",
+  "en_US": "Name of the project"
+ },
+ "Project Name": {
+  "pt_BR": "Nome do Projeto",
+  "en_US": "Project Name"
+ },
+ "Project Number": {
+  "pt_BR": "Número do Projeto",
+  "en_US": "Project Number"
+ },
+ "Project date": {
+  "pt_BR": "Data do projeto",
+  "en_US": "Project date"
+ },
+ "Project notes": {
+  "pt_BR": "Observações do projeto",
+  "en_US": "Project notes"
+ },
+ "Project number or ID": {
+  "pt_BR": "Número ou ID do projeto",
+  "en_US": "Project number or ID"
+ },
+ "Project-level properties": {
+  "pt_BR": "Propriedades do projeto",
+  "en_US": "Project-level properties"
+ }
+}

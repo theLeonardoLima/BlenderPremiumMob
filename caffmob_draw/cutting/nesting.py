@@ -4,6 +4,8 @@ Algoritmo de otimização de corte 2D Guilhotina / Bin-Packing para chapas de MD
 Suporta refilo perimetral por borda, espessura da lâmina (kerf), veio da madeira e fitas de borda.
 """
 
+from ..data.i18n import tr
+
 
 class NestingPart:
     """Peça de corte em mm. `height` é o comprimento (veio VERTICAL acompanha o comprimento) e `width` a largura.
@@ -176,7 +178,7 @@ def optimize_nesting(
                     "height": p.height,
                     "thickness": p.thickness,
                     "material": p.material,
-                    "reason": f"Dimensões ({p.width}x{p.height}mm) excedem a área útil ({usable_width}x{usable_height}mm)"
+                    "reason": tr("Dimensões ({}x{}mm) excedem a área útil ({}x{}mm)").format(p.width, p.height, usable_width, usable_height)
                 })
                 continue
 
@@ -347,7 +349,7 @@ def optimize_nesting(
                         "height": part["height"],
                         "thickness": part["thickness"],
                         "material": part["material"],
-                        "reason": "Espaço insuficiente para inicializar chapa"
+                        "reason": tr("Espaço insuficiente para inicializar chapa")
                     })
 
         all_sheets_used.extend(group_sheets)

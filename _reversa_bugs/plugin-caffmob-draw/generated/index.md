@@ -1,4 +1,4 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-07T14:56:05+00:00 a partir de 3 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-07T19:54:45+00:00 a partir de 4 bugs -->
 
 # Bugs · plugin-caffmob-draw
 
@@ -6,10 +6,11 @@
 
 | status | qtd |
 |---|---|
-| resolved | 3 |
+| resolved | 4 |
 
 | phase | qtd |
 |---|---|
+| delivering | 1 |
 | patching | 3 |
 
 ## Abertos / ativos
@@ -21,8 +22,9 @@
 
 | resolution_kind | qtd |
 |---|---|
-| fixed | 3 |
+| fixed | 4 |
 
 - #1 BUG-20261006-NO4Q (fixed) · travado: Interface legada Home Builder aparece separada do plugin
 - #2 BUG-20261006-QAVK (fixed) · travado: Nome e identificador do plugin devem ser CAFFMob Draw
 - #3 BUG-20261006-SCVF (fixed) · travado: Cópia antiga do plugin na raiz do repositório com o mesmo id e add-on legado nas preferências
+- #11 BUG-20261007-FLZO (fixed) · travado: Interface metade em português e metade em inglês

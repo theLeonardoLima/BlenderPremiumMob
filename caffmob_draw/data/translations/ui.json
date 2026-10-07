@@ -1,0 +1,1258 @@
+{
+ "... and {} more": {
+  "pt_BR": "... e mais {}",
+  "en_US": "... and {} more"
+ },
+ "2D Details": {
+  "pt_BR": "Detalhes 2D",
+  "en_US": "2D Details"
+ },
+ "3D Perspective": {
+  "pt_BR": "Perspectiva 3D",
+  "en_US": "3D Perspective"
+ },
+ "Aberturas & Vãos": {
+  "pt_BR": "Aberturas & Vãos",
+  "en_US": "Openings"
+ },
+ "Abrir": {
+  "pt_BR": "Abrir",
+  "en_US": "Open"
+ },
+ "Add": {
+  "pt_BR": "Adicionar",
+  "en_US": "Add"
+ },
+ "Add Dimension": {
+  "pt_BR": "Adicionar Cota",
+  "en_US": "Add Dimension"
+ },
+ "Add Fillet/Radius": {
+  "pt_BR": "Adicionar Arredondamento/Raio",
+  "en_US": "Add Fillet/Radius"
+ },
+ "Add Molding Profile": {
+  "pt_BR": "Adicionar Perfil de Moldura",
+  "en_US": "Add Molding Profile"
+ },
+ "Add Room Lights": {
+  "pt_BR": "Adicionar Luzes do Ambiente",
+  "en_US": "Add Room Lights"
+ },
+ "Add Soffit": {
+  "pt_BR": "Adicionar Sanca",
+  "en_US": "Add Soffit"
+ },
+ "Add Solid Lumber": {
+  "pt_BR": "Adicionar Madeira Maciça",
+  "en_US": "Add Solid Lumber"
+ },
+ "Add Text": {
+  "pt_BR": "Adicionar Texto",
+  "en_US": "Add Text"
+ },
+ "Additional Text": {
+  "pt_BR": "Texto Adicional",
+  "en_US": "Additional Text"
+ },
+ "Additional Text Offset X Amount": {
+  "pt_BR": "Deslocamento X do Texto Adicional",
+  "en_US": "Additional Text Offset X Amount"
+ },
+ "Additional Text Offset Y Amount": {
+  "pt_BR": "Deslocamento Y do Texto Adicional",
+  "en_US": "Additional Text Offset Y Amount"
+ },
+ "Additional Text Size": {
+  "pt_BR": "Tamanho do Texto Adicional",
+  "en_US": "Additional Text Size"
+ },
+ "Adjust Leader Length": {
+  "pt_BR": "Ajustar Linha de Chamada",
+  "en_US": "Adjust Leader Length"
+ },
+ "Agregado: horizontal até {}, vertical até {}, afunda até {}": {
+  "pt_BR": "Agregado: horizontal até {}, vertical até {}, afunda até {}",
+  "en_US": "Aggregate: horizontal up to {}, vertical up to {}, sinks up to {}"
+ },
+ "Agregados ({})": {
+  "pt_BR": "Agregados ({})",
+  "en_US": "Aggregates ({})"
+ },
+ "Ajustar Piso": {
+  "pt_BR": "Ajustar Piso",
+  "en_US": "Fit Floor"
+ },
+ "Align Text to Curve": {
+  "pt_BR": "Alinhar Texto à Curva",
+  "en_US": "Align Text to Curve"
+ },
+ "All Wall Elevations": {
+  "pt_BR": "Todas as Elevações de Parede",
+  "en_US": "All Wall Elevations"
+ },
+ "Altura balcão": {
+  "pt_BR": "Altura balcão",
+  "en_US": "Base height"
+ },
+ "Annotation Settings": {
+  "pt_BR": "Configurações de Anotação",
+  "en_US": "Annotation Settings"
+ },
+ "Annotations": {
+  "pt_BR": "Anotações",
+  "en_US": "Annotations"
+ },
+ "Apply to All Annotations": {
+  "pt_BR": "Aplicar a Todas as Anotações",
+  "en_US": "Apply to All Annotations"
+ },
+ "Aproveitamento: {}%": {
+  "pt_BR": "Aproveitamento: {}%",
+  "en_US": "Yield: {}%"
+ },
+ "Arranjo": {
+  "pt_BR": "Arranjo",
+  "en_US": "Arrangement"
+ },
+ "Atrair ao Grid (Snap)": {
+  "pt_BR": "Atrair ao Grid (Snap)",
+  "en_US": "Attract to Grid (Snap)"
+ },
+ "Auto Scale with Drawing Scale": {
+  "pt_BR": "Escalar com a Escala do Desenho",
+  "en_US": "Auto Scale with Drawing Scale"
+ },
+ "Available 2D Details": {
+  "pt_BR": "Detalhes 2D Disponíveis",
+  "en_US": "Available 2D Details"
+ },
+ "Available Layout Views": {
+  "pt_BR": "Vistas de Layout Disponíveis",
+  "en_US": "Available Layout Views"
+ },
+ "Biblioteca": {
+  "pt_BR": "Biblioteca",
+  "en_US": "Library"
+ },
+ "Biblioteca de módulos indisponível": {
+  "pt_BR": "Biblioteca de módulos indisponível",
+  "en_US": "Module library unavailable"
+ },
+ "CAFFMob Draw": {
+  "pt_BR": "CAFFMob Draw",
+  "en_US": "CAFFMob Draw"
+ },
+ "CENTIMETERS": {
+  "pt_BR": "CENTÍMETROS",
+  "en_US": "CENTIMETERS"
+ },
+ "Cabinet Group Layout": {
+  "pt_BR": "Layout do Grupo de Módulos",
+  "en_US": "Cabinet Group Layout"
+ },
+ "Category:": {
+  "pt_BR": "Categoria:",
+  "en_US": "Category:"
+ },
+ "Ceiling Height": {
+  "pt_BR": "Pé-direito",
+  "en_US": "Ceiling Height"
+ },
+ "Centimeters": {
+  "pt_BR": "Centímetros",
+  "en_US": "Centimeters"
+ },
+ "Change Room Size": {
+  "pt_BR": "Mudar Tamanho do Ambiente",
+  "en_US": "Change Room Size"
+ },
+ "Change Units": {
+  "pt_BR": "Trocar Unidades",
+  "en_US": "Change Units"
+ },
+ "Change the scene unit system": {
+  "pt_BR": "Troca o sistema de unidades da cena",
+  "en_US": "Change the scene unit system"
+ },
+ "Chapas necessárias: {}": {
+  "pt_BR": "Chapas necessárias: {}",
+  "en_US": "Sheets needed: {}"
+ },
+ "Client": {
+  "pt_BR": "Cliente",
+  "en_US": "Client"
+ },
+ "Closet Selection Mode": {
+  "pt_BR": "Modo de Seleção do Closet",
+  "en_US": "Closet Selection Mode"
+ },
+ "Coleção: {}": {
+  "pt_BR": "Coleção: {}",
+  "en_US": "Collection: {}"
+ },
+ "Color": {
+  "pt_BR": "Cor",
+  "en_US": "Color"
+ },
+ "Colors will not display correctly.": {
+  "pt_BR": "As cores não vão aparecer corretamente.",
+  "en_US": "Colors will not display correctly."
+ },
+ "Comprimento/Altura": {
+  "pt_BR": "Comprimento/Altura",
+  "en_US": "Length/Height"
+ },
+ "Create Camera": {
+  "pt_BR": "Criar Câmera",
+  "en_US": "Create Camera"
+ },
+ "Create Layout Views": {
+  "pt_BR": "Criar Vistas de Layout",
+  "en_US": "Create Layout Views"
+ },
+ "Create Room": {
+  "pt_BR": "Criar Ambiente",
+  "en_US": "Create Room"
+ },
+ "Create View": {
+  "pt_BR": "Criar Vista",
+  "en_US": "Create View"
+ },
+ "Create Views": {
+  "pt_BR": "Criar Vistas",
+  "en_US": "Create Views"
+ },
+ "Create details in the 2D Details panel": {
+  "pt_BR": "Crie detalhes no painel Detalhes 2D",
+  "en_US": "Create details in the 2D Details panel"
+ },
+ "Create from Library:": {
+  "pt_BR": "Criar da biblioteca:",
+  "en_US": "Create from Library:"
+ },
+ "Criar Teto": {
+  "pt_BR": "Criar Teto",
+  "en_US": "Create Ceiling"
+ },
+ "Current Detail View: {}": {
+  "pt_BR": "Vista de detalhe atual: {}",
+  "en_US": "Current Detail View: {}"
+ },
+ "Current Layout View: {}": {
+  "pt_BR": "Vista de layout atual: {}",
+  "en_US": "Current Layout View: {}"
+ },
+ "Da lateral direita até o item ou o fim de parede mais próximo": {
+  "pt_BR": "Da lateral direita até o item ou o fim de parede mais próximo",
+  "en_US": "From the right side to the nearest item or wall end"
+ },
+ "Da lateral esquerda até o item ou o fim de parede mais próximo": {
+  "pt_BR": "Da lateral esquerda até o item ou o fim de parede mais próximo",
+  "en_US": "From the left side to the nearest item or wall end"
+ },
+ "Decimals": {
+  "pt_BR": "Casas Decimais",
+  "en_US": "Decimals"
+ },
+ "Delete All Snap Lines": {
+  "pt_BR": "Apagar Todas as Linhas de Encaixe",
+  "en_US": "Delete All Snap Lines"
+ },
+ "Delete Dimension": {
+  "pt_BR": "Apagar Cota",
+  "en_US": "Delete Dimension"
+ },
+ "Delete Door": {
+  "pt_BR": "Apagar Porta",
+  "en_US": "Delete Door"
+ },
+ "Delete Room": {
+  "pt_BR": "Apagar Ambiente",
+  "en_US": "Delete Room"
+ },
+ "Delete Room Lights": {
+  "pt_BR": "Apagar Luzes do Ambiente",
+  "en_US": "Delete Room Lights"
+ },
+ "Delete Soffit": {
+  "pt_BR": "Apagar Sanca",
+  "en_US": "Delete Soffit"
+ },
+ "Delete Wall": {
+  "pt_BR": "Apagar Parede",
+  "en_US": "Delete Wall"
+ },
+ "Delete Window": {
+  "pt_BR": "Apagar Janela",
+  "en_US": "Delete Window"
+ },
+ "Delta: {} | {} dimension(s) | LMB: Confirm | RMB/ESC: Cancel": {
+  "pt_BR": "Delta: {} | {} cota(s) | Botão esquerdo: confirmar | Botão direito/Esc: cancelar",
+  "en_US": "Delta: {} | {} dimension(s) | LMB: Confirm | RMB/ESC: Cancel"
+ },
+ "Depth": {
+  "pt_BR": "Profundidade",
+  "en_US": "Depth"
+ },
+ "Desenhar Paredes": {
+  "pt_BR": "Desenhar Paredes",
+  "en_US": "Draw Walls"
+ },
+ "Designer": {
+  "pt_BR": "Projetista",
+  "en_US": "Designer"
+ },
+ "Detail Library": {
+  "pt_BR": "Biblioteca de Detalhes",
+  "en_US": "Detail Library"
+ },
+ "Detail Name": {
+  "pt_BR": "Nome do Detalhe",
+  "en_US": "Detail Name"
+ },
+ "Dim Line Thickness": {
+  "pt_BR": "Espessura da Linha da Cota",
+  "en_US": "Dim Line Thickness"
+ },
+ "Dim Text Height": {
+  "pt_BR": "Altura do Texto da Cota",
+  "en_US": "Dim Text Height"
+ },
+ "Dim Tick Length": {
+  "pt_BR": "Comprimento da Marca da Cota",
+  "en_US": "Dim Tick Length"
+ },
+ "Dim Tick Thickness": {
+  "pt_BR": "Espessura da Marca da Cota",
+  "en_US": "Dim Tick Thickness"
+ },
+ "Dimension Commands": {
+  "pt_BR": "Comandos da Cota",
+  "en_US": "Dimension Commands"
+ },
+ "Dimension Options": {
+  "pt_BR": "Opções da Cota",
+  "en_US": "Dimension Options"
+ },
+ "Dimensions": {
+  "pt_BR": "Dimensões",
+  "en_US": "Dimensions"
+ },
+ "Dimensions (Computed)": {
+  "pt_BR": "Cotas (calculado)",
+  "en_US": "Dimensions (Computed)"
+ },
+ "Dimensões e limites": {
+  "pt_BR": "Dimensões e limites",
+  "en_US": "Dimensions and limits"
+ },
+ "Direito": {
+  "pt_BR": "Direito",
+  "en_US": "Right"
+ },
+ "Display Size": {
+  "pt_BR": "Tamanho de Exibição",
+  "en_US": "Display Size"
+ },
+ "Do fundo do módulo até a face da parede": {
+  "pt_BR": "Do fundo do módulo até a face da parede",
+  "en_US": "From the module back to the wall face"
+ },
+ "Do piso até a base do módulo": {
+  "pt_BR": "Do piso até a base do módulo",
+  "en_US": "From the floor to the module bottom"
+ },
+ "Do topo do módulo até o teto": {
+  "pt_BR": "Do topo do módulo até o teto",
+  "en_US": "From the module top to the ceiling"
+ },
+ "Door Commands": {
+  "pt_BR": "Comandos da Porta",
+  "en_US": "Door Commands"
+ },
+ "Door Defaults": {
+  "pt_BR": "Padrões de Porta",
+  "en_US": "Door Defaults"
+ },
+ "Door Prompts": {
+  "pt_BR": "Opções da Porta",
+  "en_US": "Door Prompts"
+ },
+ "Doors & Windows": {
+  "pt_BR": "Portas e Janelas",
+  "en_US": "Doors & Windows"
+ },
+ "Double Door": {
+  "pt_BR": "Porta Dupla",
+  "en_US": "Double Door"
+ },
+ "Double Width:": {
+  "pt_BR": "Largura dupla:",
+  "en_US": "Double Width:"
+ },
+ "Drag an image into the 3D viewport.": {
+  "pt_BR": "arraste uma imagem para a viewport 3D.",
+  "en_US": "Drag an image into the 3D viewport."
+ },
+ "Draw Circle": {
+  "pt_BR": "Desenhar Círculo",
+  "en_US": "Draw Circle"
+ },
+ "Draw Line": {
+  "pt_BR": "Desenhar Linha",
+  "en_US": "Draw Line"
+ },
+ "Draw Rectangle": {
+  "pt_BR": "Desenhar Retângulo",
+  "en_US": "Draw Rectangle"
+ },
+ "Draw Wall Cutter": {
+  "pt_BR": "Desenhar Recorte na Parede",
+  "en_US": "Draw Wall Cutter"
+ },
+ "Draw Walls": {
+  "pt_BR": "Desenhar Paredes",
+  "en_US": "Draw Walls"
+ },
+ "Drawing Tools": {
+  "pt_BR": "Ferramentas de Desenho",
+  "en_US": "Drawing Tools"
+ },
+ "Duplicate": {
+  "pt_BR": "Duplicar",
+  "en_US": "Duplicate"
+ },
+ "Duplicate Door": {
+  "pt_BR": "Duplicar Porta",
+  "en_US": "Duplicate Door"
+ },
+ "Duplicate Window": {
+  "pt_BR": "Duplicar Janela",
+  "en_US": "Duplicate Window"
+ },
+ "Edit Tools": {
+  "pt_BR": "Ferramentas de Edição",
+  "en_US": "Edit Tools"
+ },
+ "Edit the options for the active dimension and optionally push sizes to all dimensions / defaults": {
+  "pt_BR": "Edita as opções da cota ativa e, se quiser, aplica os tamanhos a todas as cotas ou ao padrão",
+  "en_US": "Edit the options for the active dimension and optionally push sizes to all dimensions / defaults"
+ },
+ "Elevation (Selected Wall)": {
+  "pt_BR": "Elevação (Parede Selecionada)",
+  "en_US": "Elevation (Selected Wall)"
+ },
+ "Email": {
+  "pt_BR": "E-mail",
+  "en_US": "Email"
+ },
+ "Esquerdo": {
+  "pt_BR": "Esquerdo",
+  "en_US": "Left"
+ },
+ "Export PDF": {
+  "pt_BR": "Exportar PDF",
+  "en_US": "Export PDF"
+ },
+ "Extend Line Amount": {
+  "pt_BR": "Prolongamento da Linha",
+  "en_US": "Extend Line Amount"
+ },
+ "FEET": {
+  "pt_BR": "PÉS",
+  "en_US": "FEET"
+ },
+ "Face Frame Selection Mode": {
+  "pt_BR": "Modo de Seleção do Quadro Frontal",
+  "en_US": "Face Frame Selection Mode"
+ },
+ "Falha ao salvar: veja a mensagem do Blender e o console": {
+  "pt_BR": "Falha ao salvar: veja a mensagem do Blender e o console",
+  "en_US": "Save failed: see the Blender message and the console"
+ },
+ "Feet": {
+  "pt_BR": "Pés",
+  "en_US": "Feet"
+ },
+ "Filhos: {}": {
+  "pt_BR": "Filhos: {}",
+  "en_US": "Children: {}"
+ },
+ "Fill Plan Walls": {
+  "pt_BR": "Preencher Paredes na Planta",
+  "en_US": "Fill Plan Walls"
+ },
+ "Flip Arrows": {
+  "pt_BR": "Inverter Setas",
+  "en_US": "Flip Arrows"
+ },
+ "Flip Dimensions": {
+  "pt_BR": "Inverter Cotas",
+  "en_US": "Flip Dimensions"
+ },
+ "Flip Door Hand": {
+  "pt_BR": "Inverter Mão da Porta",
+  "en_US": "Flip Door Hand"
+ },
+ "Flip Door Swing": {
+  "pt_BR": "Inverter Abertura da Porta",
+  "en_US": "Flip Door Swing"
+ },
+ "Flip Text": {
+  "pt_BR": "Inverter Texto",
+  "en_US": "Flip Text"
+ },
+ "Flip the leader side of all selected dimensions": {
+  "pt_BR": "Inverte o lado da linha de chamada de todas as cotas selecionadas",
+  "en_US": "Flip the leader side of all selected dimensions"
+ },
+ "Floor & Ceiling": {
+  "pt_BR": "Piso e Teto",
+  "en_US": "Floor & Ceiling"
+ },
+ "Floor Plan": {
+  "pt_BR": "Planta Baixa",
+  "en_US": "Floor Plan"
+ },
+ "Font": {
+  "pt_BR": "Fonte",
+  "en_US": "Font"
+ },
+ "Formato": {
+  "pt_BR": "Formato",
+  "en_US": "Size"
+ },
+ "Frameless Selection Mode": {
+  "pt_BR": "Modo de Seleção sem Quadro",
+  "en_US": "Frameless Selection Mode"
+ },
+ "From Floor": {
+  "pt_BR": "Do Piso",
+  "en_US": "From Floor"
+ },
+ "Gerenciador de Ambientes": {
+  "pt_BR": "Gerenciador de Ambientes",
+  "en_US": "Room Manager"
+ },
+ "Grade: {}": {
+  "pt_BR": "Grade: {}",
+  "en_US": "Grid: {}"
+ },
+ "Half Wall Height": {
+  "pt_BR": "Altura da Meia-parede",
+  "en_US": "Half Wall Height"
+ },
+ "Height": {
+  "pt_BR": "Altura",
+  "en_US": "Height"
+ },
+ "Height From Floor:": {
+  "pt_BR": "Altura do piso:",
+  "en_US": "Height From Floor:"
+ },
+ "Height:": {
+  "pt_BR": "Altura:",
+  "en_US": "Height:"
+ },
+ "Hide Wall": {
+  "pt_BR": "Ocultar Parede",
+  "en_US": "Hide Wall"
+ },
+ "INCHES": {
+  "pt_BR": "POLEGADAS",
+  "en_US": "INCHES"
+ },
+ "Inches": {
+  "pt_BR": "Polegadas",
+  "en_US": "Inches"
+ },
+ "Incremento do Snap": {
+  "pt_BR": "Incremento do Snap",
+  "en_US": "Snap Step"
+ },
+ "Inferior": {
+  "pt_BR": "Inferior",
+  "en_US": "Bottom"
+ },
+ "Inserir Obstáculo": {
+  "pt_BR": "Inserir Obstáculo",
+  "en_US": "Insert Obstacle"
+ },
+ "Insert 2D Details": {
+  "pt_BR": "Inserir Detalhes 2D",
+  "en_US": "Insert 2D Details"
+ },
+ "Inspeção indisponível.": {
+  "pt_BR": "Inspeção indisponível.",
+  "en_US": "Inspection unavailable."
+ },
+ "Interactively adjust the leader length of all selected dimensions based on mouse position": {
+  "pt_BR": "Ajusta com o mouse o comprimento da linha de chamada de todas as cotas selecionadas",
+  "en_US": "Interactively adjust the leader length of all selected dimensions based on mouse position"
+ },
+ "Interactively move the dimension text of all selected dimensions with the mouse": {
+  "pt_BR": "Move com o mouse o texto de todas as cotas selecionadas",
+  "en_US": "Interactively move the dimension text of all selected dimensions with the mouse"
+ },
+ "Isolate Selected Walls": {
+  "pt_BR": "Isolar Paredes Selecionadas",
+  "en_US": "Isolate Selected Walls"
+ },
+ "Isometric": {
+  "pt_BR": "Isométrica",
+  "en_US": "Isometric"
+ },
+ "Layout Views": {
+  "pt_BR": "Vistas de Layout",
+  "en_US": "Layout Views"
+ },
+ "Leader Length": {
+  "pt_BR": "Linha de Chamada",
+  "en_US": "Leader Length"
+ },
+ "Length Unit": {
+  "pt_BR": "Unidade de Comprimento",
+  "en_US": "Length Unit"
+ },
+ "Lighting": {
+  "pt_BR": "Iluminação",
+  "en_US": "Lighting"
+ },
+ "Limites & Configurações de Chapas MDF": {
+  "pt_BR": "Limites & Configurações de Chapas MDF",
+  "en_US": "MDF Sheet Limits & Settings"
+ },
+ "Limites: definidos pela biblioteca do módulo": {
+  "pt_BR": "Limites: definidos pela biblioteca do módulo",
+  "en_US": "Limits: set by the module library"
+ },
+ "Line Thickness": {
+  "pt_BR": "Espessura da Linha",
+  "en_US": "Line Thickness"
+ },
+ "Lines": {
+  "pt_BR": "Linhas",
+  "en_US": "Lines"
+ },
+ "Lines (Computed)": {
+  "pt_BR": "Linhas (calculado)",
+  "en_US": "Lines (Computed)"
+ },
+ "Linha: {}": {
+  "pt_BR": "Linha: {}",
+  "en_US": "Line: {}"
+ },
+ "Link Selected to Layout": {
+  "pt_BR": "Vincular Selecionados ao Layout",
+  "en_US": "Link Selected to Layout"
+ },
+ "Linked Rooms": {
+  "pt_BR": "Ambientes Vinculados",
+  "en_US": "Linked Rooms"
+ },
+ "Luzes do Quarto": {
+  "pt_BR": "Luzes do Quarto",
+  "en_US": "Room Lights"
+ },
+ "Lâmina de Serra (Kerf)": {
+  "pt_BR": "Lâmina de Serra (Kerf)",
+  "en_US": "Saw Blade (Kerf)"
+ },
+ "METERS": {
+  "pt_BR": "METROS",
+  "en_US": "METERS"
+ },
+ "MILLIMETERS": {
+  "pt_BR": "MILÍMETROS",
+  "en_US": "MILLIMETERS"
+ },
+ "Meters": {
+  "pt_BR": "Metros",
+  "en_US": "Meters"
+ },
+ "Millimeters": {
+  "pt_BR": "Milímetros",
+  "en_US": "Millimeters"
+ },
+ "Mobiliário & Iluminação": {
+  "pt_BR": "Mobiliário & Iluminação",
+  "en_US": "Furniture & Lighting"
+ },
+ "Molding Library": {
+  "pt_BR": "Biblioteca de Molduras",
+  "en_US": "Molding Library"
+ },
+ "Molding:": {
+  "pt_BR": "Moldura:",
+  "en_US": "Molding:"
+ },
+ "Move Text": {
+  "pt_BR": "Mover Texto",
+  "en_US": "Move Text"
+ },
+ "Move mouse to adjust leader length | {} dimension(s) | LMB: Confirm | RMB/ESC: Cancel": {
+  "pt_BR": "Mova o mouse para ajustar a linha de chamada | {} cota(s) | Botão esquerdo: confirmar | Botão direito/Esc: cancelar",
+  "en_US": "Move mouse to adjust leader length | {} dimension(s) | LMB: Confirm | RMB/ESC: Cancel"
+ },
+ "Move mouse to place text | {} dimension(s) | LMB: Confirm | RMB/ESC: Cancel": {
+  "pt_BR": "Mova o mouse para posicionar o texto | {} cota(s) | Botão esquerdo: confirmar | Botão direito/Esc: cancelar",
+  "en_US": "Move mouse to place text | {} dimension(s) | LMB: Confirm | RMB/ESC: Cancel"
+ },
+ "Move text | {} dimension(s) | LMB: Confirm | RMB/ESC: Cancel": {
+  "pt_BR": "Mover texto | {} cota(s) | Botão esquerdo: confirmar | Botão direito/Esc: cancelar",
+  "en_US": "Move text | {} dimension(s) | LMB: Confirm | RMB/ESC: Cancel"
+ },
+ "Mover Sobre (botão direito + arraste)": {
+  "pt_BR": "Mover Sobre (botão direito + arraste)",
+  "en_US": "Move Over (right button + drag)"
+ },
+ "Mover Sobre (botão direito)": {
+  "pt_BR": "Mover Sobre (botão direito)",
+  "en_US": "Move Over (right button)"
+ },
+ "Movimentação": {
+  "pt_BR": "Movimentação",
+  "en_US": "Movement"
+ },
+ "Multi-View Layout": {
+  "pt_BR": "Layout com Várias Vistas",
+  "en_US": "Multi-View Layout"
+ },
+ "Módulo livre (sem parede): só cotas verticais.": {
+  "pt_BR": "Módulo livre (sem parede): só cotas verticais.",
+  "en_US": "Free module (no wall): vertical dimensions only."
+ },
+ "Módulo: {}": {
+  "pt_BR": "Módulo: {}",
+  "en_US": "Module: {}"
+ },
+ "Name": {
+  "pt_BR": "Nome",
+  "en_US": "Name"
+ },
+ "Nenhum objeto selecionado.": {
+  "pt_BR": "Nenhum objeto selecionado.",
+  "en_US": "No object selected."
+ },
+ "Nenhuma definição": {
+  "pt_BR": "Nenhuma definição",
+  "en_US": "No definition"
+ },
+ "New Detail": {
+  "pt_BR": "Novo Detalhe",
+  "en_US": "New Detail"
+ },
+ "New Room": {
+  "pt_BR": "Novo Ambiente",
+  "en_US": "New Room"
+ },
+ "No 2D details available": {
+  "pt_BR": "Nenhum detalhe 2D disponível",
+  "en_US": "No 2D details available"
+ },
+ "No dimensions selected": {
+  "pt_BR": "Nenhuma cota selecionada",
+  "en_US": "No dimensions selected"
+ },
+ "No layout views yet": {
+  "pt_BR": "Nenhuma vista de layout ainda",
+  "en_US": "No layout views yet"
+ },
+ "No other rooms in project": {
+  "pt_BR": "Nenhum outro ambiente no projeto",
+  "en_US": "No other rooms in project"
+ },
+ "No saved details": {
+  "pt_BR": "Nenhum detalhe salvo",
+  "en_US": "No saved details"
+ },
+ "Notes": {
+  "pt_BR": "Observações",
+  "en_US": "Notes"
+ },
+ "Novo Ambiente": {
+  "pt_BR": "Novo Ambiente",
+  "en_US": "New Room"
+ },
+ "Object Color Type is not enabled!": {
+  "pt_BR": "O tipo de cor por objeto não está ativado!",
+  "en_US": "Object Color Type is not enabled!"
+ },
+ "Objeto: {}": {
+  "pt_BR": "Objeto: {}",
+  "en_US": "Object: {}"
+ },
+ "Obstacle Type:": {
+  "pt_BR": "Tipo de obstáculo:",
+  "en_US": "Obstacle Type:"
+ },
+ "Obstacles": {
+  "pt_BR": "Obstáculos",
+  "en_US": "Obstacles"
+ },
+ "Obstacles in Scene ({})": {
+  "pt_BR": "Obstáculos na cena ({})",
+  "en_US": "Obstacles in Scene ({})"
+ },
+ "Obstacles module not loaded": {
+  "pt_BR": "Módulo de obstáculos não carregado",
+  "en_US": "Obstacles module not loaded"
+ },
+ "Offset": {
+  "pt_BR": "Deslocamento",
+  "en_US": "Offset"
+ },
+ "Offset Curve": {
+  "pt_BR": "Deslocar Curva",
+  "en_US": "Offset Curve"
+ },
+ "Offset Text Amount": {
+  "pt_BR": "Afastamento do Texto",
+  "en_US": "Offset Text Amount"
+ },
+ "Offset Text from Line": {
+  "pt_BR": "Afastar Texto da Linha",
+  "en_US": "Offset Text from Line"
+ },
+ "Opacity": {
+  "pt_BR": "Opacidade",
+  "en_US": "Opacity"
+ },
+ "Open Library Folder": {
+  "pt_BR": "Abrir Pasta da Biblioteca",
+  "en_US": "Open Library Folder"
+ },
+ "Open Passage": {
+  "pt_BR": "Vão Livre",
+  "en_US": "Open Passage"
+ },
+ "Open Recommended Settings": {
+  "pt_BR": "Abrir Configurações Recomendadas",
+  "en_US": "Open Recommended Settings"
+ },
+ "Page Settings": {
+  "pt_BR": "Configurações da Página",
+  "en_US": "Page Settings"
+ },
+ "Pai: {}": {
+  "pt_BR": "Pai: {}",
+  "en_US": "Parent: {}"
+ },
+ "Paper": {
+  "pt_BR": "Papel",
+  "en_US": "Paper"
+ },
+ "Paper-Space Sizes (inches on paper)": {
+  "pt_BR": "Tamanhos no Papel (polegadas no papel)",
+  "en_US": "Paper-Space Sizes (inches on paper)"
+ },
+ "Paredes & Piso": {
+  "pt_BR": "Paredes & Piso",
+  "en_US": "Walls & Floor"
+ },
+ "Permitir Rotação de Peças": {
+  "pt_BR": "Permitir Rotação de Peças",
+  "en_US": "Allow Part Rotation"
+ },
+ "Peças maiores que o limite de chapa: {}": {
+  "pt_BR": "Peças maiores que o limite de chapa: {}",
+  "en_US": "Parts larger than the sheet limit: {}"
+ },
+ "Phone": {
+  "pt_BR": "Telefone",
+  "en_US": "Phone"
+ },
+ "Piso Manual": {
+  "pt_BR": "Piso Manual",
+  "en_US": "Manual Floor"
+ },
+ "Place Obstacle": {
+  "pt_BR": "Inserir Obstáculo",
+  "en_US": "Place Obstacle"
+ },
+ "Place Room Label": {
+  "pt_BR": "Inserir Nome do Ambiente",
+  "en_US": "Place Room Label"
+ },
+ "Place Snap Line": {
+  "pt_BR": "Inserir Linha de Encaixe",
+  "en_US": "Place Snap Line"
+ },
+ "Place Stairs": {
+  "pt_BR": "Inserir Escada",
+  "en_US": "Place Stairs"
+ },
+ "Plan View Tools": {
+  "pt_BR": "Ferramentas da Planta",
+  "en_US": "Plan View Tools"
+ },
+ "Plano ativo: face de {}": {
+  "pt_BR": "Plano ativo: face de {}",
+  "en_US": "Active plane: face of {}"
+ },
+ "Plano de inserção": {
+  "pt_BR": "Plano de inserção",
+  "en_US": "Insertion plane"
+ },
+ "Porta Dupla": {
+  "pt_BR": "Porta Dupla",
+  "en_US": "Double Door"
+ },
+ "Porta Simples": {
+  "pt_BR": "Porta Simples",
+  "en_US": "Single Door"
+ },
+ "Portas": {
+  "pt_BR": "Portas",
+  "en_US": "Doors"
+ },
+ "Product Library": {
+  "pt_BR": "Biblioteca de Produtos",
+  "en_US": "Product Library"
+ },
+ "Prof. balcão": {
+  "pt_BR": "Prof. balcão",
+  "en_US": "Base depth"
+ },
+ "Project": {
+  "pt_BR": "Projeto",
+  "en_US": "Project"
+ },
+ "Project Info": {
+  "pt_BR": "Dados do Projeto",
+  "en_US": "Project Info"
+ },
+ "Projeto salvo: {}": {
+  "pt_BR": "Projeto salvo: {}",
+  "en_US": "Project saved: {}"
+ },
+ "Recommended Settings": {
+  "pt_BR": "Configurações Recomendadas",
+  "en_US": "Recommended Settings"
+ },
+ "Recompute text placement and decimal precision for all selected dimensions": {
+  "pt_BR": "Recalcula a posição do texto e as casas decimais de todas as cotas selecionadas",
+  "en_US": "Recompute text placement and decimal precision for all selected dimensions"
+ },
+ "Reference Image": {
+  "pt_BR": "Imagem de Referência",
+  "en_US": "Reference Image"
+ },
+ "Refilos (Descarte de Bordas)": {
+  "pt_BR": "Refilos (Descarte de Bordas)",
+  "en_US": "Trims (Edge Waste)"
+ },
+ "Relativa": {
+  "pt_BR": "Relativa",
+  "en_US": "Relative"
+ },
+ "Rename": {
+  "pt_BR": "Renomear",
+  "en_US": "Rename"
+ },
+ "Rename Room": {
+  "pt_BR": "Renomear Ambiente",
+  "en_US": "Rename Room"
+ },
+ "Render": {
+  "pt_BR": "Renderizar",
+  "en_US": "Render"
+ },
+ "Rendering Settings": {
+  "pt_BR": "Configurações de Renderização",
+  "en_US": "Rendering Settings"
+ },
+ "Renomear": {
+  "pt_BR": "Renomear",
+  "en_US": "Rename"
+ },
+ "Replace Text": {
+  "pt_BR": "Substituir Texto",
+  "en_US": "Replace Text"
+ },
+ "Room Layout": {
+  "pt_BR": "Layout do Ambiente",
+  "en_US": "Room Layout"
+ },
+ "Room Lights: {}": {
+  "pt_BR": "Luzes do ambiente: {}",
+  "en_US": "Room Lights: {}"
+ },
+ "Rooms": {
+  "pt_BR": "Ambientes",
+  "en_US": "Rooms"
+ },
+ "Rotação Z": {
+  "pt_BR": "Rotação Z",
+  "en_US": "Z Rotation"
+ },
+ "Sair do Mover Sobre": {
+  "pt_BR": "Sair do Mover Sobre",
+  "en_US": "Exit Move Over"
+ },
+ "Save Current Detail": {
+  "pt_BR": "Salvar Detalhe Atual",
+  "en_US": "Save Current Detail"
+ },
+ "Scale": {
+  "pt_BR": "Escala",
+  "en_US": "Scale"
+ },
+ "Select Room": {
+  "pt_BR": "Escolher Ambiente",
+  "en_US": "Select Room"
+ },
+ "Select a Room": {
+  "pt_BR": "Escolha um Ambiente",
+  "en_US": "Select a Room"
+ },
+ "Select an obstacle type above": {
+  "pt_BR": "Escolha um tipo de obstáculo acima",
+  "en_US": "Select an obstacle type above"
+ },
+ "Select wall for elevation": {
+  "pt_BR": "Escolha a parede da elevação",
+  "en_US": "Select wall for elevation"
+ },
+ "Sem interferência em {} frente(s).": {
+  "pt_BR": "Sem interferência em {} frente(s).",
+  "en_US": "No interference on {} front(s)."
+ },
+ "Set As Default": {
+  "pt_BR": "Definir como Padrão",
+  "en_US": "Set As Default"
+ },
+ "Set Image Scale": {
+  "pt_BR": "Definir Escala da Imagem",
+  "en_US": "Set Image Scale"
+ },
+ "Setup World Lighting": {
+  "pt_BR": "Configurar Iluminação do Mundo",
+  "en_US": "Setup World Lighting"
+ },
+ "Show All Walls": {
+  "pt_BR": "Mostrar Todas as Paredes",
+  "en_US": "Show All Walls"
+ },
+ "Show Entry Door and Window Cages": {
+  "pt_BR": "Mostrar Gaiolas de Portas e Janelas",
+  "en_US": "Show Entry Door and Window Cages"
+ },
+ "Show in Ortho": {
+  "pt_BR": "Mostrar na Ortogonal",
+  "en_US": "Show in Ortho"
+ },
+ "Show in Perspective": {
+  "pt_BR": "Mostrar na Perspectiva",
+  "en_US": "Show in Perspective"
+ },
+ "Single Door": {
+  "pt_BR": "Porta Simples",
+  "en_US": "Single Door"
+ },
+ "Single Width:": {
+  "pt_BR": "Largura simples:",
+  "en_US": "Single Width:"
+ },
+ "Size": {
+  "pt_BR": "Tamanho",
+  "en_US": "Size"
+ },
+ "Soffit Commands": {
+  "pt_BR": "Comandos da Sanca",
+  "en_US": "Soffit Commands"
+ },
+ "Soffit Prompts": {
+  "pt_BR": "Opções da Sanca",
+  "en_US": "Soffit Prompts"
+ },
+ "Stairs": {
+  "pt_BR": "Escadas",
+  "en_US": "Stairs"
+ },
+ "State": {
+  "pt_BR": "Estado",
+  "en_US": "State"
+ },
+ "Superior": {
+  "pt_BR": "Superior",
+  "en_US": "Top"
+ },
+ "Switch Room": {
+  "pt_BR": "Trocar Ambiente",
+  "en_US": "Switch Room"
+ },
+ "Text": {
+  "pt_BR": "Texto",
+  "en_US": "Text"
+ },
+ "Text (Computed)": {
+  "pt_BR": "Texto (calculado)",
+  "en_US": "Text (Computed)"
+ },
+ "Text Height": {
+  "pt_BR": "Altura do Texto",
+  "en_US": "Text Height"
+ },
+ "Text Size": {
+  "pt_BR": "Tamanho do Texto",
+  "en_US": "Text Size"
+ },
+ "Text X Offset Amount": {
+  "pt_BR": "Deslocamento X do Texto",
+  "en_US": "Text X Offset Amount"
+ },
+ "Thickness": {
+  "pt_BR": "Espessura",
+  "en_US": "Thickness"
+ },
+ "This can be used to trace floor plans.": {
+  "pt_BR": "Serve para decalcar plantas baixas.",
+  "en_US": "This can be used to trace floor plans."
+ },
+ "Tick Length": {
+  "pt_BR": "Comprimento da Marca",
+  "en_US": "Tick Length"
+ },
+ "Tick Thickness": {
+  "pt_BR": "Espessura da Marca",
+  "en_US": "Tick Thickness"
+ },
+ "To add a reference image.": {
+  "pt_BR": "Para adicionar uma imagem de referência,",
+  "en_US": "To add a reference image."
+ },
+ "Toggle Double Door": {
+  "pt_BR": "Alternar Porta Dupla",
+  "en_US": "Toggle Double Door"
+ },
+ "Toggle the Flip Text input on all selected dimensions": {
+  "pt_BR": "Alterna a inversão do texto em todas as cotas selecionadas",
+  "en_US": "Toggle the Flip Text input on all selected dimensions"
+ },
+ "Total de peças: {}": {
+  "pt_BR": "Total de peças: {}",
+  "en_US": "Total parts: {}"
+ },
+ "Unidade & Precisão": {
+  "pt_BR": "Unidade & Precisão",
+  "en_US": "Unit & Precision"
+ },
+ "Unidade do Projeto": {
+  "pt_BR": "Unidade do Projeto",
+  "en_US": "Project Unit"
+ },
+ "Unit System": {
+  "pt_BR": "Sistema de Unidades",
+  "en_US": "Unit System"
+ },
+ "Update All Dimensions": {
+  "pt_BR": "Atualizar Todas as Cotas",
+  "en_US": "Update All Dimensions"
+ },
+ "Update Dimensions": {
+  "pt_BR": "Atualizar Cotas",
+  "en_US": "Update Dimensions"
+ },
+ "Update Room Lights": {
+  "pt_BR": "Atualizar Luzes do Ambiente",
+  "en_US": "Update Room Lights"
+ },
+ "Update Selected Dimensions": {
+  "pt_BR": "Atualizar Cotas Selecionadas",
+  "en_US": "Update Selected Dimensions"
+ },
+ "Use Alpha": {
+  "pt_BR": "Usar Transparência",
+  "en_US": "Use Alpha"
+ },
+ "View Name": {
+  "pt_BR": "Nome da Vista",
+  "en_US": "View Name"
+ },
+ "Vão Livre": {
+  "pt_BR": "Vão Livre",
+  "en_US": "Open Passage"
+ },
+ "Wall Commands": {
+  "pt_BR": "Comandos da Parede",
+  "en_US": "Wall Commands"
+ },
+ "Wall Height": {
+  "pt_BR": "Altura da Parede",
+  "en_US": "Wall Height"
+ },
+ "Wall Material": {
+  "pt_BR": "Material da Parede",
+  "en_US": "Wall Material"
+ },
+ "Wall Prompts": {
+  "pt_BR": "Opções da Parede",
+  "en_US": "Wall Prompts"
+ },
+ "Wall Thickness": {
+  "pt_BR": "Espessura da Parede",
+  "en_US": "Wall Thickness"
+ },
+ "Walls": {
+  "pt_BR": "Paredes",
+  "en_US": "Walls"
+ },
+ "Width": {
+  "pt_BR": "Largura",
+  "en_US": "Width"
+ },
+ "Width:": {
+  "pt_BR": "Largura:",
+  "en_US": "Width:"
+ },
+ "Window": {
+  "pt_BR": "Janela",
+  "en_US": "Window"
+ },
+ "Window Commands": {
+  "pt_BR": "Comandos da Janela",
+  "en_US": "Window Commands"
+ },
+ "Window Defaults": {
+  "pt_BR": "Padrões de Janela",
+  "en_US": "Window Defaults"
+ },
+ "Window Prompts": {
+  "pt_BR": "Opções da Janela",
+  "en_US": "Window Prompts"
+ },
+ "You are in a detail view. Select a room below.": {
+  "pt_BR": "Você está numa vista de detalhe. Escolha um ambiente abaixo.",
+  "en_US": "You are in a detail view. Select a room below."
+ },
+ "You are in a layout view. Select a room below.": {
+  "pt_BR": "Você está numa vista de layout. Escolha um ambiente abaixo.",
+  "en_US": "You are in a layout view. Select a room below."
+ },
+ "Zip": {
+  "pt_BR": "CEP",
+  "en_US": "Zip"
+ },
+ "{} interferência(s) em {} frente(s):": {
+  "pt_BR": "{} interferência(s) em {} frente(s):",
+  "en_US": "{} interference(s) on {} front(s):"
+ },
+ "{} objetos selecionados — editando o ativo.": {
+  "pt_BR": "{} objetos selecionados — editando o ativo.",
+  "en_US": "{} objects selected — editing the active one."
+ },
+ "{} › {}: {} (excede {})": {
+  "pt_BR": "{} › {}: {} (excede {})",
+  "en_US": "{} › {}: {} (exceeds {})"
+ },
+ "{}: {}  (mín. {}, máx. {})": {
+  "pt_BR": "{}: {}  (mín. {}, máx. {})",
+  "en_US": "{}: {}  (min. {}, max. {})"
+ },
+ "{}: {} ({}) — rotação {:.0f}°": {
+  "pt_BR": "{}: {} ({}) — rotação {:.0f}°",
+  "en_US": "{}: {} ({}) — rotation {:.0f}°"
+ }
+}

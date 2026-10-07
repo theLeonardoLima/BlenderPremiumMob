@@ -1,5 +1,6 @@
 import bpy
 
+from ....data.i18n import tr
 from .. import types_face_frame
 from .... import hb_project
 
@@ -43,7 +44,7 @@ class hb_face_frame_OT_update_cabinet_sizes(bpy.types.Operator):
                 continue
             updated += 1
 
-        self.report({'INFO'}, f"Updated {updated} cabinet(s)")
+        self.report({'INFO'}, tr("Updated {} cabinet(s)").format(updated))
         return {'FINISHED'}
 
 

@@ -7,6 +7,7 @@ from gpu_extras.batch import batch_for_shader
 from mathutils import Vector, Matrix, Euler
 from bpy_extras.view3d_utils import location_3d_to_region_2d
 from bpy_extras.view3d_utils import region_2d_to_origin_3d, region_2d_to_vector_3d
+from ..data.i18n import tr
 from .. import hb_layouts
 from .. import hb_types
 from .. import hb_placement
@@ -319,7 +320,7 @@ class home_builder_layouts_OT_create_elevation_view(bpy.types.Operator):
         # Apply default settings from addon preferences
         apply_default_layout_settings(scene)
 
-        self.report({'INFO'}, f"Created elevation view: {scene.name}")
+        self.report({'INFO'}, tr("Created elevation view: {}").format(scene.name))
         return {'FINISHED'}
 
 
@@ -338,7 +339,7 @@ class home_builder_layouts_OT_create_plan_view(bpy.types.Operator):
         # Apply default settings from addon preferences
         apply_default_layout_settings(scene)
 
-        self.report({'INFO'}, f"Created plan view: {scene.name}")
+        self.report({'INFO'}, tr("Created plan view: {}").format(scene.name))
         return {'FINISHED'}
 
 
@@ -361,7 +362,7 @@ class home_builder_layouts_OT_create_3d_view(bpy.types.Operator):
         bpy.ops.caffmob_layouts.go_to_layout_view(scene_name=scene.name)
 
         view_type = "perspective" if self.perspective else "isometric"
-        self.report({'INFO'}, f"Created 3D {view_type} view: {scene.name}")
+        self.report({'INFO'}, tr("Created 3D {} view: {}").format(view_type, scene.name))
         return {'FINISHED'}
 
 
@@ -378,7 +379,7 @@ class home_builder_layouts_OT_create_all_elevations(bpy.types.Operator):
         for view in views:
             apply_default_layout_settings(view.scene)
 
-        self.report({'INFO'}, f"Created {len(views)} elevation views")
+        self.report({'INFO'}, tr("Created {} elevation views").format(len(views)))
         return {'FINISHED'}
 
 
@@ -472,7 +473,7 @@ class home_builder_layouts_OT_create_multi_view(bpy.types.Operator):
             apply_default_layout_settings(scene)
 
             bpy.ops.caffmob_layouts.go_to_layout_view(scene_name=scene.name)
-            self.report({'INFO'}, f"Created multi-view layout: {scene.name}")
+            self.report({'INFO'}, tr("Created multi-view layout: {}").format(scene.name))
 
         return {'FINISHED'}
 
@@ -532,7 +533,7 @@ class home_builder_layouts_OT_delete_layout_view(bpy.types.Operator):
 
         bpy.data.scenes.remove(scene)
 
-        self.report({'INFO'}, f"Deleted layout view: {scene_name}")
+        self.report({'INFO'}, tr("Deleted layout view: {}").format(scene_name))
         return {'FINISHED'}
 
 
@@ -618,7 +619,7 @@ class home_builder_layouts_OT_fit_view_to_content(bpy.types.Operator):
             # Don't trigger update callback (would reset ortho_scale)
             scene['hb_layout_scale'] = best_scale
 
-            self.report({'INFO'}, f"Fit to content (approximate scale: {best_scale})")
+            self.report({'INFO'}, tr("Fit to content (approximate scale: {})").format(best_scale))
         else:
             self.report({'WARNING'}, "Could not determine content bounds")
 
@@ -733,7 +734,7 @@ class home_builder_layouts_OT_render_layout(bpy.types.Operator):
         scene.render.resolution_y = orig_resolution_y
         scene.render.film_transparent = orig_film_transparent
 
-        self.report({'INFO'}, f"Rendered: {image_name}")
+        self.report({'INFO'}, tr("Rendered: {}").format(image_name))
         return {'FINISHED'}
 
     def _setup_compositor_white_background(self, context, scene):
@@ -957,7 +958,7 @@ class home_builder_layouts_OT_export_all_to_pdf(bpy.types.Operator):
                     append_images=pil_images[1:] if len(pil_images) > 1 else []
                 )
 
-                self.report({'INFO'}, f"Exported {len(pil_images)} layouts to: {output_path}")
+                self.report({'INFO'}, tr("Exported {} layouts to: {}").format(len(pil_images), output_path))
 
                 # Open the PDF automatically
                 import subprocess
@@ -970,7 +971,7 @@ class home_builder_layouts_OT_export_all_to_pdf(bpy.types.Operator):
                     else:  # Linux
                         subprocess.run(['xdg-open', output_path])
                 except Exception as e:
-                    self.report({'WARNING'}, f"Could not open PDF: {e}")
+                    self.report({'WARNING'}, tr("Could not open PDF: {}").format(e))
             else:
                 self.report({'WARNING'}, "No layouts were rendered")
                 return {'CANCELLED'}
@@ -1449,7 +1450,7 @@ class home_builder_layouts_OT_add_dimension_3d(bpy.types.Operator, hb_placement.
     def get_dimension_header_text(self) -> str:
         """Override to include view plane info."""
         base_text = super().get_dimension_header_text()
-        return f"{base_text} | Plane: {self.view_plane}"
+        return tr("{} | Plane: {}").format(base_text, self.view_plane)
 
     def _detect_view_plane(self, context):
         """Detect which plane the user is most aligned with."""
@@ -2343,7 +2344,7 @@ class home_builder_layouts_OT_draw_line(bpy.types.Operator, hb_placement.Placeme
             snap_text = ""
 
         if self.placement_state == hb_placement.PlacementState.TYPING:
-            text = f"Segment Length: {self.typed_value}_ | Enter to confirm | Esc to cancel typing"
+            text = tr("Segment Length: {}_ | Enter to confirm | Esc to cancel typing").format(self.typed_value)
         elif self.point_count > 0:
             length = self._get_segment_length()
             length_str = units.unit_to_string(context.scene.unit_settings, length)
@@ -2357,9 +2358,9 @@ class home_builder_layouts_OT_draw_line(bpy.types.Operator, hb_placement.Placeme
 
             close_text = " | C: close" if self.point_count >= 2 else ""
             lock_hint = "L: unlock" if self.angle_locked else "L: lock"
-            text = f"Length: {length_str} | {angle_deg}° | {mode}{snap_text} | {lock_hint}{close_text} | Right-click: finish"
+            text = tr("Length: {} | {}° | {}{} | {}{} | Right-click: finish").format(length_str, angle_deg, mode, snap_text, lock_hint, close_text)
         else:
-            text = f"Click to place first point{snap_text} | Right-click/Esc to cancel"
+            text = tr("Click to place first point{} | Right-click/Esc to cancel").format(snap_text)
 
         hb_placement.draw_header_text(context, text)
 
@@ -2837,17 +2838,17 @@ class home_builder_layouts_OT_draw_rectangle(bpy.types.Operator, hb_placement.Pl
         snap_text = " [SNAP]" if self.is_snapped else ""
 
         if not self.has_first_corner:
-            text = f"Click first corner{snap_text} | Right-click/Esc to cancel"
+            text = tr("Click first corner{} | Right-click/Esc to cancel").format(snap_text)
         elif self.is_typing:
             if self.typing_width:
-                text = f"Width: {self.typed_width}_ | Tab for height | Enter to confirm | Esc to cancel"
+                text = tr("Width: {}_ | Tab for height | Enter to confirm | Esc to cancel").format(self.typed_width)
             else:
                 width_str = units.unit_to_string(context.scene.unit_settings, self.parse_dimension(self.typed_width) or self.current_width)
-                text = f"Width: {width_str} | Height: {self.typed_height}_ | Enter to confirm | Esc to cancel"
+                text = tr("Width: {} | Height: {}_ | Enter to confirm | Esc to cancel").format(width_str, self.typed_height)
         else:
             width_str = units.unit_to_string(context.scene.unit_settings, self.current_width)
             height_str = units.unit_to_string(context.scene.unit_settings, self.current_height)
-            text = f"Width: {width_str} | Height: {height_str}{snap_text} | Type for exact size | Click to place"
+            text = tr("Width: {} | Height: {}{} | Type for exact size | Click to place").format(width_str, height_str, snap_text)
 
         hb_placement.draw_header_text(context, text)
 
@@ -3341,13 +3342,13 @@ class home_builder_layouts_OT_draw_circle(bpy.types.Operator, hb_placement.Place
         snap_text = " [SNAP]" if self.is_snapped else ""
 
         if not self.has_center:
-            text = f"Click to place center{snap_text} | Right-click/Esc to cancel"
+            text = tr("Click to place center{} | Right-click/Esc to cancel").format(snap_text)
         elif self.is_typing:
-            text = f"Radius: {self.typed_radius}_ | Enter to confirm | Esc to cancel typing"
+            text = tr("Radius: {}_ | Enter to confirm | Esc to cancel typing").format(self.typed_radius)
         else:
             radius_str = units.unit_to_string(context.scene.unit_settings, self.current_radius)
             diameter_str = units.unit_to_string(context.scene.unit_settings, self.current_radius * 2)
-            text = f"Radius: {radius_str} | Diameter: {diameter_str}{snap_text} | Type for exact | Click to place"
+            text = tr("Radius: {} | Diameter: {}{} | Type for exact | Click to place").format(radius_str, diameter_str, snap_text)
 
         hb_placement.draw_header_text(context, text)
 
@@ -3772,7 +3773,7 @@ class home_builder_layouts_OT_add_text(bpy.types.Operator, hb_placement.Placemen
 
     def update_header(self, context):
         snap_text = " [SNAP]" if self.is_snapped else ""
-        text = f"Click to place text{snap_text} | Tab to edit after placing | Right-click/Esc to cancel"
+        text = tr("Click to place text{} | Tab to edit after placing | Right-click/Esc to cancel").format(snap_text)
         hb_placement.draw_header_text(context, text)
 
     def execute(self, context):
@@ -3869,7 +3870,7 @@ class home_builder_layouts_OT_add_detail_to_layout(bpy.types.Operator):
 
     def execute(self, context):
         if self.detail_scene_name not in bpy.data.scenes:
-            self.report({'ERROR'}, f"Detail scene '{self.detail_scene_name}' not found")
+            self.report({'ERROR'}, tr("Detail scene '{}' not found").format(self.detail_scene_name))
             return {'CANCELLED'}
 
         detail_scene = bpy.data.scenes[self.detail_scene_name]
@@ -3935,7 +3936,7 @@ class home_builder_layouts_OT_add_detail_to_layout(bpy.types.Operator):
         instance.select_set(True)
         context.view_layer.objects.active = instance
 
-        self.report({'INFO'}, f"Added detail '{detail_scene.name}' to layout. Move to reposition.")
+        self.report({'INFO'}, tr("Added detail '{}' to layout. Move to reposition.").format(detail_scene.name))
         return {'FINISHED'}
 
 
@@ -4032,7 +4033,7 @@ class home_builder_layouts_OT_generate_2d_plan(bpy.types.Operator):
         if solid_coll and plan_obj.name not in solid_coll.objects:
             solid_coll.objects.link(plan_obj)
 
-        self.report({'INFO'}, f"Generated 2D plan mesh ({len(plan_obj.data.polygons)} faces)")
+        self.report({'INFO'}, tr("Generated 2D plan mesh ({} faces)").format(len(plan_obj.data.polygons)))
         return {'FINISHED'}
 
     def generate_plan_mesh(self, wall_objects):
@@ -4287,7 +4288,7 @@ class home_builder_layouts_OT_place_room_label(bpy.types.Operator):
                 w_str = units.unit_to_string(context.scene.unit_settings, w)
                 h_str = units.unit_to_string(context.scene.unit_settings, h)
                 hb_placement.draw_header_text(context,
-                    f"Width: {w_str} x Depth: {h_str} | Click second corner | Esc to cancel")
+                    tr("Width: {} x Depth: {} | Click second corner | Esc to cancel").format(w_str, h_str))
         else:
             hb_placement.draw_header_text(context,
                 "Click first corner of room | Esc to cancel")
@@ -4399,7 +4400,7 @@ def get_layout_view_items(self, context):
         # Find the content collection via the collection instance
         for obj in scene.objects:
             if obj.type == 'EMPTY' and obj.instance_type == 'COLLECTION' and obj.instance_collection:
-                items.append((scene.name, scene.name, f"Add to {obj.instance_collection.name}"))
+                items.append((scene.name, scene.name, tr("Add to {}").format(obj.instance_collection.name)))
                 break
     if not items:
         items.append(('NONE', 'No Layout Views', 'Create a layout view first'))
@@ -4479,7 +4480,7 @@ class home_builder_layouts_OT_link_objects_to_layout(bpy.types.Operator):
             row.label(text=obj.name, icon='OBJECT_DATA')
             child_count = len(obj.children_recursive) if self.include_children else 0
             if child_count > 0:
-                row.label(text=f"(+{child_count} children)")
+                row.label(text=tr("(+{} children)").format(child_count))
 
     def execute(self, context):
         if self.target_layout == 'NONE':
@@ -4488,7 +4489,7 @@ class home_builder_layouts_OT_link_objects_to_layout(bpy.types.Operator):
 
         collection = self._get_content_collection(self.target_layout)
         if not collection:
-            self.report({'ERROR'}, f"Could not find content collection for '{self.target_layout}'")
+            self.report({'ERROR'}, tr("Could not find content collection for '{}'").format(self.target_layout))
             return {'CANCELLED'}
 
         linked_count = 0
@@ -4502,9 +4503,9 @@ class home_builder_layouts_OT_link_objects_to_layout(bpy.types.Operator):
 
         parts = []
         if linked_count > 0:
-            parts.append(f"Linked {linked_count} object(s)")
+            parts.append(tr("Linked {} object(s)").format(linked_count))
         if already_linked > 0:
-            parts.append(f"{already_linked} already linked")
+            parts.append(tr("{} already linked").format(already_linked))
         self.report({'INFO'}, f"{' | '.join(parts)} → {self.target_layout}")
         return {'FINISHED'}
 

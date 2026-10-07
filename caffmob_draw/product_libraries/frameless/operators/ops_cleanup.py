@@ -2,6 +2,7 @@ import bpy
 import bmesh
 import math
 import mathutils
+from ....data.i18n import tr
 
 
 class hb_frameless_OT_cleanup_mesh(bpy.types.Operator):
@@ -74,8 +75,7 @@ class hb_frameless_OT_cleanup_mesh(bpy.types.Operator):
         after_faces = len(mesh.polygons)
 
         self.report({'INFO'},
-            f"Cleaned: {before_faces} → {after_faces} faces, "
-            f"{before_verts} → {after_verts} verts")
+            tr("Cleaned: {} → {} faces, {} → {} verts").format(before_faces, after_faces, before_verts, after_verts))
         return {'FINISHED'}
 
 
@@ -131,7 +131,7 @@ class hb_frameless_OT_dissolve_selected(bpy.types.Operator):
             bmesh.update_edit_mesh(obj.data)
 
             after = sum(1 for f in bm.faces if f.select)
-            self.report({'INFO'}, f"Dissolved: {before} → {after} faces")
+            self.report({'INFO'}, tr("Dissolved: {} → {} faces").format(before, after))
         else:
             self.report({'INFO'}, "No interior edges found — faces may be floating duplicates. Try Delete Selected.")
 
@@ -169,7 +169,7 @@ class hb_frameless_OT_delete_floating_faces(bpy.types.Operator):
             bmesh.ops.delete(bm, geom=loose, context='VERTS')
             bmesh.update_edit_mesh(obj.data)
 
-        self.report({'INFO'}, f"Deleted {count} faces")
+        self.report({'INFO'}, tr("Deleted {} faces").format(count))
         return {'FINISHED'}
 
 
@@ -268,11 +268,11 @@ class hb_frameless_OT_rebuild_selected_faces(bpy.types.Operator):
                 new_face.normal_flip()
             new_face.select = True
         except ValueError as e:
-            self.report({'WARNING'}, f"Could not create face: {e}")
+            self.report({'WARNING'}, tr("Could not create face: {}").format(e))
             return {'CANCELLED'}
 
         bmesh.update_edit_mesh(obj.data)
-        self.report({'INFO'}, f"Rebuilt {len(sel_faces)} faces → 1 clean face ({len(hull_coords)} verts)")
+        self.report({'INFO'}, tr("Rebuilt {} faces → 1 clean face ({} verts)").format(len(sel_faces), len(hull_coords)))
         return {'FINISHED'}
 
     def convex_hull_2d(self, points):

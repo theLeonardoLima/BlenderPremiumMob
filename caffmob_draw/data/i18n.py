@@ -1,323 +1,83 @@
+"""Tradução da interface do CAFFMob Draw: pt_BR e en_US (BUG-20261007-FLZO).
+
+O texto escrito no código é a chave (msgid), em português ou em inglês. O catálogo fica em `translations/*.json`,
+um arquivo por área: `{"texto do código": {"pt_BR": "...", "en_US": "..."}}`. As duas línguas são obrigatórias (o teste
+`tests/test_i18n_coverage.py` confere). Cada texto é registrado nos contextos padrão (`*`) e de operador (`Operator`),
+porque o Blender traduz o `bl_label` dos operadores no contexto `Operator`.
+
+As traduções de um add-on valem para o Blender inteiro. Por isso um texto-fonte em inglês de uma palavra só ("Size",
+"Render") entra só no contexto padrão, com a tradução de uso geral; no contexto de operador vale a do próprio Blender.
+Texto com sentido próprio do plugin não pode ser uma palavra genérica (ex.: o botão de vão livre é "Open Passage").
+Quando o texto não pode mudar (ex.: o nome de um item do catálogo também é o id dele, "Range"), a entrada leva
+`"contexto"` e é registrada só nesse contexto; quem desenha passa o mesmo contexto (`text_ctxt`, `tr(texto, contexto)`).
+
+O Blender já traduz rótulos, dicas, nomes de propriedade e `self.report`. Texto desenhado ou montado não passa por ele:
+- `tr("texto")` traduz na hora (use `tr("Comprimento: {}").format(valor)` em vez de f-string);
+- `N_("texto")` só marca o texto para o catálogo, quando quem desenha é que traduz (ex.: `canvas2d.draw.text`).
+
+O módulo não importa `bpy` no topo: o código puro (`walls2d/model.py`, `data/units.py`) usa `tr` nas mensagens e roda
+nos testes sem o Blender, onde o texto sai como está no código.
 """
-BlenderToMob Internationalization & Localization (i18n)
-Dicionário de traduções oficial (Português do Brasil pt_BR e Inglês en_US)
-"""
 
-import bpy  # type: ignore
+import json
+import os
 
-translations_dict = {
-    "pt_BR": {
-        ("*", "Construir Parede"): "Construir Parede",
-        ("*", "Inserir Abertura"): "Inserir Abertura",
-        ("*", "Remover Abertura"): "Remover Abertura",
-        ("*", "Inserir Armário"): "Inserir Armário",
-        ("*", "Módulo Rápido"): "Módulo Rápido",
-        ("*", "Largura"): "Largura",
-        ("*", "Altura"): "Altura",
-        ("*", "Profundidade"): "Profundidade",
-        ("*", "Espessura"): "Espessura",
-        ("*", "Espessura MDF"): "Espessura MDF",
-        ("*", "Espessura Chapas"): "Espessura Chapas",
-        ("*", "Comprimento"): "Comprimento",
-        ("*", "Afastamento"): "Afastamento",
-        ("*", "Flecha"): "Flecha",
-        ("*", "Peitoril"): "Peitoril",
-        ("*", "Porta"): "Porta",
-        ("*", "Janela"): "Janela",
-        ("*", "Basculante"): "Basculante",
-        ("*", "Configurações"): "Configurações",
-        ("*", "Piso"): "Piso",
-        ("*", "Módulos"): "Módulos",
-        ("*", "Calcular Plano de Corte"): "Calcular Plano de Corte",
-        ("*", "Exportar Plano de Corte (JSON)"): "Exportar Plano de Corte (JSON)",
-        ("*", "Plano de Corte (Nesting)"): "Plano de Corte (Nesting)",
-        ("*", "Abertura Porta"): "Abertura Porta",
-        ("*", "Sentido Abertura"): "Sentido Abertura",
-        ("*", "Configurador de Dimensões"): "Configurador de Dimensões",
-        ("*", "Configurações de Dimensões"): "Configurações de Dimensões",
-        ("*", "Material"): "Material",
-        ("*", "Largura Máxima da Chapa"): "Largura Máxima da Chapa",
-        ("*", "Comprimento Máximo da Chapa"): "Comprimento Máximo da Chapa",
-        ("*", "Espessura da Chapa"): "Espessura da Chapa",
-        ("*", "Fita Borda 1 (Superior)"): "Fita Borda 1 (Superior)",
-        ("*", "Fita Borda 2 (Inferior)"): "Fita Borda 2 (Inferior)",
-        ("*", "Fita Borda 3 (Direita/Traseira)"): "Fita Borda 3 (Direita/Traseira)",
-        ("*", "Fita Borda 4 (Esquerda/Frontal)"): "Fita Borda 4 (Esquerda/Frontal)",
-        ("*", "Refilo Superior"): "Refilo Superior",
-        ("*", "Refilo Inferior"): "Refilo Inferior",
-        ("*", "Refilo Esquerdo"): "Refilo Esquerdo",
-        ("*", "Refilo Direito"): "Refilo Direito",
-        ("*", "Espessura da Serra (Kerf)"): "Espessura da Serra (Kerf)",
-        ("*", "Respeitar Veio da Madeira"): "Respeitar Veio da Madeira",
-        ("*", "Permitir Rotação"): "Permitir Rotação",
-        ("*", "Altura do Rodapé / Base"): "Altura do Rodapé / Base",
-        ("*", "Folga entre Portas"): "Folga entre Portas",
-        ("*", "Recuo do Fundo"): "Recuo do Fundo",
-        ("*", "Profundidade do Canal"): "Profundidade do Canal",
-    },
-    "en_US": {
-        ("*", "Construir Parede"): "Build Wall",
-        ("*", "Inserir Abertura"): "Insert Opening",
-        ("*", "Remover Abertura"): "Remove Opening",
-        ("*", "Inserir Armário"): "Insert Cabinet",
-        ("*", "Módulo Rápido"): "Quick Cabinet",
-        ("*", "Largura"): "Width",
-        ("*", "Altura"): "Height",
-        ("*", "Profundidade"): "Depth",
-        ("*", "Espessura"): "Thickness",
-        ("*", "Espessura MDF"): "MDF Thickness",
-        ("*", "Espessura Chapas"): "Panel Thickness",
-        ("*", "Comprimento"): "Length",
-        ("*", "Afastamento"): "Offset",
-        ("*", "Flecha"): "Sagitta",
-        ("*", "Peitoril"): "Sill Height",
-        ("*", "Porta"): "Door",
-        ("*", "Janela"): "Window",
-        ("*", "Basculante"): "Flip Up",
-        ("*", "Configurações"): "Settings",
-        ("*", "Piso"): "Floor",
-        ("*", "Módulos"): "Modules",
-        ("*", "Calcular Plano de Corte"): "Calculate Cut Plan",
-        ("*", "Exportar Plano de Corte (JSON)"): "Export Cut Plan (JSON)",
-        ("*", "Plano de Corte (Nesting)"): "Cut Plan (Nesting)",
-        ("*", "Abertura Porta"): "Door Opening",
-        ("*", "Sentido Abertura"): "Swing Direction",
-        ("*", "Configurador de Dimensões"): "Dimension Configurator",
-        ("*", "Configurações de Dimensões"): "Dimension Settings",
-        ("*", "Material"): "Material",
-        ("*", "Largura Máxima da Chapa"): "Max Sheet Width",
-        ("*", "Comprimento Máximo da Chapa"): "Max Sheet Length",
-        ("*", "Espessura da Chapa"): "Sheet Thickness",
-        ("*", "Fita Borda 1 (Superior)"): "Edge Band 1 (Top)",
-        ("*", "Fita Borda 2 (Inferior)"): "Edge Band 2 (Bottom)",
-        ("*", "Fita Borda 3 (Direita/Traseira)"): "Edge Band 3 (Right/Back)",
-        ("*", "Fita Borda 4 (Esquerda/Frontal)"): "Edge Band 4 (Left/Front)",
-        ("*", "Refilo Superior"): "Top Margin (Trim)",
-        ("*", "Refilo Inferior"): "Bottom Margin (Trim)",
-        ("*", "Refilo Esquerdo"): "Left Margin (Trim)",
-        ("*", "Refilo Direito"): "Right Margin (Trim)",
-        ("*", "Espessura da Serra (Kerf)"): "Saw Blade Kerf",
-        ("*", "Respeitar Veio da Madeira"): "Respect Wood Grain",
-        ("*", "Permitir Rotação"): "Allow Part Rotation",
-        ("*", "Altura do Rodapé / Base"): "Base / Plinth Height",
-        ("*", "Folga entre Portas"): "Door Clearance Gap",
-        ("*", "Recuo do Fundo"): "Back Panel Inset",
-        ("*", "Profundidade do Canal"): "Groove Depth",
-        # Padrão de Dimensões / Configurador (T044)
-        ("*", "Padrão de Dimensões"): "Dimension Standard",
-        ("*", "Abrir Configurador de Dimensões"): "Open Dimension Configurator",
-        ("*", "Config. Dimensões"): "Dimension Settings",
-        ("*", "Aplicar Padrão de Dimensões"): "Apply Dimension Standard",
-        ("*", "Definir Definição Ativa"): "Set Active Definition",
-        ("*", "Definir e aplicar"): "Set and Apply",
-        ("*", "Duplicar Definição"): "Duplicate Definition",
-        ("*", "Duplicar para editar"): "Duplicate to Edit",
-        ("*", "Renomear Definição"): "Rename Definition",
-        ("*", "Excluir Definição"): "Delete Definition",
-        ("*", "Exportar Definição (JSON)"): "Export Definition (JSON)",
-        ("*", "Importar Definição (JSON)"): "Import Definition (JSON)",
-        ("*", "Importar do Promob"): "Import from Promob",
-        ("*", "Exportar para o Promob"): "Export to Promob",
-        ("*", "Exportar p/ Promob"): "Export to Promob",
-        ("*", "Relatório do Padrão de Dimensões"): "Dimension Standard Report",
-        ("*", "Incluir medidas manuais"): "Include Manual Measurements",
-        ("*", "Definição"): "Definition",
-        ("*", "Nome"): "Name",
-        ("*", "Buscar"): "Search",
-        ("*", "Valor"): "Value",
-        ("*", "Aplicar"): "Apply",
-        ("*", "Fechar"): "Close",
-        ("*", "Importar"): "Import",
-        ("*", "Exportar"): "Export",
-        ("*", "Medidas Máximas"): "Maximum Measurements",
-        ("*", "Dimensões Externas"): "External Dimensions",
-        ("*", "Chapas"): "Sheets",
-        ("*", "Componentes"): "Components",
-        ("*", "Nenhuma alteração pendente."): "No pending changes.",
-        ("*", "Selecione um parâmetro na árvore."): "Select a parameter in the tree.",
-        ("*", "Imagem de referência indisponível."): "Reference image unavailable.",
-        # Lista de peças e plano de corte (T044)
-        ("*", "Lista de Peças e Plano de Corte"): "Parts List and Cut Plan",
-        ("*", "Exportar JSON Global"): "Export Global JSON",
-        ("*", "Importar JSON Global"): "Import Global JSON",
-        ("*", "Exportar Peças (CSV)"): "Export Parts (CSV)",
-        ("*", "Incluir dados do cliente"): "Include Client Data",
-        ("*", "Incluir Dados do Cliente"): "Include Client Data",
-        ("*", "Incluir plano de corte"): "Include Cut Plan",
-        ("*", "Plano de Corte Desatualizado"): "Cut Plan Out of Date",
-        ("*", "O projeto mudou: recalcule o plano de corte."): "The project changed: recalculate the cut plan.",
-        ("*", "Nenhuma otimização calculada."): "No optimization calculated.",
-        ("*", "Otimizador de Chapas MDF"): "MDF Sheet Optimizer",
-        # Inspeção de portas e gavetas (incremento 3, T077)
-        ("*", "Inspeção de Portas e Gavetas"): "Door and Drawer Inspection",
-        ("*", "Abrir Portas e Gavetas"): "Open Doors and Drawers",
-        ("*", "Sair do Modo de Abrir"): "Exit Open Mode",
-        ("*", "Abrir/Fechar Frentes"): "Open/Close Fronts",
-        ("*", "Abrir tudo 90°"): "Open all 90°",
-        ("*", "Fechar tudo"): "Close all",
-        ("*", "Ângulo do clique"): "Click angle",
-        ("*", "Ângulo de abertura"): "Opening angle",
-        ("*", "Encaixar em 0°, 45° e 90°"): "Snap to 0°, 45° and 90°",
-        ("*", "Salvar com Frentes Abertas"): "Save with Fronts Open",
-        ("*", "Verificar Interferência"): "Check Interference",
-        ("*", "Ir para a Interferência"): "Go to Interference",
-        ("*", "Ainda não verificado."): "Not checked yet.",
-        ("*", "Nenhuma frente verificada."): "No fronts checked.",
-        ("*", "Abertura de portas e gavetas"): "Door and drawer opening",
-        ("*", "Evitar Sobreposição"): "Avoid Overlap",
-        ("*", "Escopo"): "Scope",
-        ("*", "Ação"): "Action",
-        ("*", "Projeto"): "Project",
-        ("*", "Selecionados"): "Selected",
-        ("*", "Módulo ativo"): "Active module",
-        ("*", "Abrir 45°"): "Open 45°",
-        ("*", "Abrir 90°"): "Open 90°",
-        ("*", "Frente"): "Front",
-        ("*", "Módulo"): "Module",
-        ("*", "Objeto atingido"): "Hit object",
-        ("*", "Ponto"): "Point",
-        ("*", "Basculante p/ baixo"): "Flip-down door",
-        ("*", "Gaveta"): "Drawer",
-        # Feature 002: editor de paredes, operações de parede, geometria, propriedades e movimento
-        ("*", "Editar Paredes…"): "Edit Walls…",
-        ("*", "Editor de Paredes"): "Wall Editor",
-        ("*", "Ferramentas"): "Tools",
-        ("*", "Selecionar/Mover"): "Select/Move",
-        ("*", "Inverter Sentido"): "Flip Direction",
-        ("*", "Adicionar Vértice"): "Add Vertex",
-        ("*", "Remover Vértice"): "Remove Vertex",
-        ("*", "Enquadrar Tudo"): "Frame All",
-        ("*", "Painel"): "Panel",
-        ("*", "Linha"): "Line",
-        ("*", "Interna"): "Inner",
-        ("*", "Externa"): "Outer",
-        ("*", "Referência"): "Reference",
-        ("*", "Ângulo Absoluto"): "Absolute Angle",
-        ("*", "Ângulo Relativo"): "Relative Angle",
-        ("*", "Bloquear Ângulo"): "Lock Angle",
-        ("*", "Pé-direito"): "Ceiling Height",
-        ("*", "Pé-direito Inicial"): "Start Height",
-        ("*", "Pé-direito Final"): "End Height",
-        ("*", "Orientação"): "Orientation",
-        ("*", "Tipo de Parede"): "Wall Type",
-        ("*", "Normal"): "Normal",
-        ("*", "Divisória"): "Partition",
-        ("*", "Mureta"): "Low Wall",
-        ("*", "Direita"): "Right",
-        ("*", "Esquerda"): "Left",
-        ("*", "Centro"): "Center",
-        ("*", "Grid"): "Grid",
-        ("*", "Tamanho"): "Size",
-        ("*", "Linhas Magnéticas"): "Magnetic Lines",
-        ("*", "Novas paredes"): "New walls",
-        ("*", "Cancelar"): "Cancel",
-        ("*", "Selecione um trecho na planta."): "Select a segment on the plan.",
-        ("*", "Ângulo do Arco: paredes curvas não são suportadas"): "Arc Angle: curved walls are not supported",
-        ("*", "Itens que não cabem:"): "Items that do not fit:",
-        ("*", "Remover Parede"): "Remove Wall",
-        ("*", "Remover Parede…"): "Remove Wall…",
-        ("*", "Segmento"): "Segment",
-        ("*", "Tudo"): "All",
-        ("*", "Manter o selecionado"): "Keep Selected",
-        ("*", "Remover módulos que estão na parede"): "Remove modules on the wall",
-        ("*", "Rebaixar Parede"): "Lower Wall",
-        ("*", "Rebaixar"): "Lower",
-        ("*", "Restaurar Altura"): "Restore Height",
-        ("*", "Visibilidade"): "Visibility",
-        ("*", "Visibilidade da Parede"): "Wall Visibility",
-        ("*", "Visível"): "Visible",
-        ("*", "Invisível"): "Invisible",
-        ("*", "Esconder contorno"): "Hide Outline",
-        ("*", "Abrir editor de paredes"): "Open wall editor",
-        ("*", "Geometria"): "Geometry",
-        ("*", "Criar Geometria"): "Create Geometry",
-        ("*", "Placa"): "Panel Sheet",
-        ("*", "Caixa"): "Box",
-        ("*", "Forma"): "Shape",
-        ("*", "Posição da Placa"): "Sheet Orientation",
-        ("*", "Deitada"): "Lying",
-        ("*", "Em pé, de frente"): "Upright, front",
-        ("*", "Em pé, de lado"): "Upright, side",
-        ("*", "Peça de Fabricação"): "Manufactured Part",
-        ("*", "Componente"): "Component",
-        ("*", "Matéria-prima"): "Raw Material",
-        ("*", "Acabamento"): "Finish",
-        ("*", "Posição"): "Position",
-        ("*", "Duplicar"): "Duplicate",
-        ("*", "Espelhar"): "Mirror",
-        ("*", "Excluir"): "Delete",
-        ("*", "Duplicar Geometria"): "Duplicate Geometry",
-        ("*", "Espelhar Geometria"): "Mirror Geometry",
-        ("*", "Excluir Geometria"): "Delete Geometry",
-        ("*", "Propriedades"): "Properties",
-        ("*", "Dimensões"): "Dimensions",
-        ("*", "Cotas"): "Clearances",
-        ("*", "Outras"): "Other",
-        ("*", "Ações"): "Actions",
-        ("*", "Parede"): "Wall",
-        ("*", "Mover Sobre"): "Move Over",
-        ("*", "Mover na Parede"): "Move Along Wall",
-        ("*", "Cota anterior"): "Left clearance",
-        ("*", "Cota posterior"): "Right clearance",
-        ("*", "Cota inferior"): "Bottom clearance",
-        ("*", "Cota superior"): "Top clearance",
-        ("*", "Afastamento da parede"): "Wall offset",
-        ("*", "Porta de ambiente"): "Room door",
-        ("*", "Remover os módulos junto?"): "Remove the modules too?",
-        ("*", "Módulos em trechos apagados:"): "Modules on deleted segments:",
-        ("*", "Desmarcado, os módulos ficam soltos no lugar."): "Unchecked, the modules stay loose in place.",
-        ("*", "Paredes de outra camada"): "Walls from another layer",
-        ("*", "Paredes selecionadas de outra camada"): "Selected walls from another layer",
-        ("*", "Converter para paredes editáveis"): "Convert to editable walls",
-        ("*", "Só referência"): "Reference only",
-        ("*", "Direção"): "Direction",
-        ("*", "Deseja fechar a parede? O último ponto chegou ao início."): "Close the wall? The last point reached the start.",
-        ("*", "Igualar ao pé-direito do projeto"): "Match the project ceiling height",
-        ("*", "Paredes com outra altura:"): "Walls with a different height:",
-        ("*", "Confirmar"): "Confirm",
-        ("*", "Descartar alterações"): "Discard changes",
-        ("*", "Descartar as alterações e fechar o editor?"): "Discard the changes and close the editor?",
-        ("*", "Descartar"): "Discard",
-        ("*", "Face interna (medida real, tracejada)"): "Inner face (real measure, dashed)",
-        ("*", "Face externa (interna + espessuras)"): "Outer face (inner + thicknesses)",
-        ("*", "Lado para onde a espessura cresce; a medida interna não muda"):
-            "Side where the thickness grows; the inner measure does not change",
-        ("Operator", "Cancelar"): "Cancel",
-        ("Operator", "Enquadrar Tudo"): "Frame All",
-        ("Operator", "Editar Paredes…"): "Edit Walls…",
-        ("Operator", "Mover na Parede"): "Move Along Wall",
-        ("Operator", "Remover Parede…"): "Remove Wall…",
-        ("Operator", "Rebaixar Parede"): "Lower Wall",
-    }
-}
+LOCALES = ('pt_BR', 'en_US')
+CONTEXTS = ('*', 'Operator')
+FOLDER = os.path.join(os.path.dirname(__file__), 'translations')
 
 
-def _schema_translations():
+def tr(msgid, context=None):
+    """Texto traduzido para o idioma atual da interface do Blender (fora do Blender, o próprio texto)."""
+    try:
+        import bpy  # type: ignore
+    except ImportError:
+        return msgid
+    return bpy.app.translations.pgettext_iface(msgid, context)
+
+
+def N_(msgid):
+    """Marca o texto para o catálogo sem traduzir (quem desenha traduz)."""
+    return msgid
+
+
+def _schema_entries():
     """Rótulos do esquema do Padrão de Dimensões (label_pt → label_en), gerados do próprio esquema."""
     from . import dimension_schema as schema
-    entries = {}
-    for param in schema.PARAMS.values():
-        entries[("*", param.label_pt)] = param.label_en
-    for comp in schema.COMPONENTS:
-        entries[("*", comp.label_pt)] = comp.label_en
-    for _code, pt, en in schema.LINES:
-        entries[("*", pt)] = en
-    return entries
+    pairs = [(param.label_pt, param.label_en) for param in schema.PARAMS.values()]
+    pairs += [(comp.label_pt, comp.label_en) for comp in schema.COMPONENTS]
+    pairs += [(pt, en) for _code, pt, en in schema.LINES]
+    return {pt: {'pt_BR': pt, 'en_US': en} for pt, en in pairs}
 
 
-for _key, _value in _schema_translations().items():
-    translations_dict["en_US"].setdefault(_key, _value)
+def load_catalog():
+    catalog = _schema_entries()
+    for name in sorted(os.listdir(FOLDER)):
+        if name.endswith('.json'):
+            with open(os.path.join(FOLDER, name), encoding='utf-8') as handle:
+                catalog.update(json.load(handle))
+    return catalog
+
+
+def translations_dict():
+    """Formato de `bpy.app.translations.register`: só as entradas que mudam o texto."""
+    result = {locale: {} for locale in LOCALES}
+    for msgid, entry in load_catalog().items():
+        generic = entry.get('en_US') == msgid and ' ' not in msgid.strip()
+        contexts = (entry['contexto'],) if 'contexto' in entry else CONTEXTS[:1] if generic else CONTEXTS
+        for locale in LOCALES:
+            text = entry.get(locale)
+            if text and text != msgid:
+                for context in contexts:
+                    result[locale][(context, msgid)] = text
+    return result
 
 
 def register():
-    try:
-        bpy.app.translations.register(__name__, translations_dict)
-    except Exception:
-        pass
+    import bpy  # type: ignore
+    bpy.app.translations.register(__name__, translations_dict())
 
 
 def unregister():
-    try:
-        bpy.app.translations.unregister(__name__)
-    except Exception:
-        pass
+    import bpy  # type: ignore
+    bpy.app.translations.unregister(__name__)

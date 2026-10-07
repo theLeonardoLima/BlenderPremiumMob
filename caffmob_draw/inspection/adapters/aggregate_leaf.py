@@ -11,6 +11,7 @@ import math
 import bpy  # type: ignore
 from mathutils import Vector  # type: ignore
 
+from ...data.i18n import tr
 from ...aggregates import leaf
 from .. import fronts, pivot_math
 
@@ -31,7 +32,7 @@ class AggregateLeafFront(fronts.Front):
 
     @property
     def label(self):
-        return f"Folha — {self.obj.name}"
+        return tr("Folha — {}").format(self.obj.name)
 
     @property
     def max_value(self):

@@ -6,12 +6,13 @@ Estilos, materiais e puxadores são guardados **por nome** (RN-06). Os vãos sã
 """
 
 from dataclasses import asdict, dataclass, field
+from ..data.i18n import N_, tr
 
 SECTIONS = ('FRONTS', 'PULLS', 'MATERIALS', 'INTERIOR')
-SECTION_LABELS = {'FRONTS': "Frentes", 'PULLS': "Puxadores", 'MATERIALS': "Materiais", 'INTERIOR': "Divisões internas"}
+SECTION_LABELS = {'FRONTS': N_("Frentes"), 'PULLS': N_("Puxadores"), 'MATERIALS': N_("Materiais"), 'INTERIOR': N_("Divisões internas")}
 FRONT_TYPES = ('DOOR_LEFT', 'DOOR_RIGHT', 'DOUBLE_DOORS', 'DRAWERS', 'FLIP_UP', 'PANEL', 'OPEN')
-FRONT_LABELS = {'DOOR_LEFT': "Porta à esquerda", 'DOOR_RIGHT': "Porta à direita", 'DOUBLE_DOORS': "Duas portas",
-                'DRAWERS': "Gavetas", 'FLIP_UP': "Basculante", 'PANEL': "Painel fixo", 'OPEN': "Vazio"}
+FRONT_LABELS = {'DOOR_LEFT': N_("Porta à esquerda"), 'DOOR_RIGHT': N_("Porta à direita"), 'DOUBLE_DOORS': N_("Duas portas"),
+                'DRAWERS': N_("Gavetas"), 'FLIP_UP': N_("Basculante"), 'PANEL': N_("Painel fixo"), 'OPEN': N_("Vazio")}
 PULL_POSITIONS = ('DEFAULT', 'TOP', 'MIDDLE', 'BOTTOM', 'SIDE')
 NO_PULL = "__NONE__"
 GROUPS = ('CAIXA', 'FRENTES', 'FUNDO', 'INTERNO')
@@ -105,45 +106,45 @@ def validate(spec):
     errors = []
     seen = set()
     for item in spec.openings:
-        where = f"vão {item.path}"
+        where = tr("vão {}").format(item.path)
         if not item.path:
-            errors.append("vão sem caminho")
+            errors.append(tr("vão sem caminho"))
         if item.path in seen:
-            errors.append(f"{where}: repetido")
+            errors.append(tr("{}: repetido").format(where))
         seen.add(item.path)
         if item.front and item.front not in FRONT_TYPES:
-            errors.append(f"{where}: frente desconhecida '{item.front}'")
+            errors.append(tr("{}: frente desconhecida '{}'").format(where, item.front))
         if item.front == 'DRAWERS' and not 1 <= int(item.drawer_count) <= MAX_DRAWERS:
-            errors.append(f"{where}: quantidade de gavetas fora de 1 a {MAX_DRAWERS}")
+            errors.append(tr("{}: quantidade de gavetas fora de 1 a {}").format(where, MAX_DRAWERS))
         if item.pull_position not in PULL_POSITIONS:
-            errors.append(f"{where}: posição de puxador desconhecida '{item.pull_position}'")
+            errors.append(tr("{}: posição de puxador desconhecida '{}'").format(where, item.pull_position))
         if item.interior is not None:
             errors += [f"{where}: {msg}" for msg in validate_interior(item.interior)]
     for group in spec.group_materials:
         if group not in GROUPS:
-            errors.append(f"grupo de material desconhecido '{group}'")
+            errors.append(tr("grupo de material desconhecido '{}'").format(group))
     for key, name in list(spec.group_materials.items()) + list(spec.part_materials.items()):
         if not str(name).strip():
-            errors.append(f"material vazio em '{key}'")
+            errors.append(tr("material vazio em '{}'").format(key))
     return errors
 
 
 def validate_interior(interior, inner_height=None):
     errors = []
     if not 0 <= int(interior.shelves) <= MAX_SHELVES:
-        errors.append(f"prateleiras fora de 0 a {MAX_SHELVES}")
+        errors.append(tr("prateleiras fora de 0 a {}").format(MAX_SHELVES))
     if not 0 <= int(interior.dividers) <= MAX_DIVIDERS:
-        errors.append(f"divisórias fora de 0 a {MAX_DIVIDERS}")
+        errors.append(tr("divisórias fora de 0 a {}").format(MAX_DIVIDERS))
     if not 0 <= int(interior.drawers) <= MAX_DRAWERS:
-        errors.append(f"gavetas internas fora de 0 a {MAX_DRAWERS}")
+        errors.append(tr("gavetas internas fora de 0 a {}").format(MAX_DRAWERS))
     heights = list(interior.heights)
     if heights:
         if len(heights) != int(interior.shelves):
-            errors.append("a quantidade de alturas não bate com a de prateleiras")
+            errors.append(tr("a quantidade de alturas não bate com a de prateleiras"))
         if any(b <= a for a, b in zip(heights, heights[1:])):
-            errors.append("as alturas precisam ser crescentes")
+            errors.append(tr("as alturas precisam ser crescentes"))
         if heights[0] <= 0.0 or (inner_height is not None and heights[-1] >= inner_height):
-            errors.append("altura fora do vão")
+            errors.append(tr("altura fora do vão"))
     return errors
 
 

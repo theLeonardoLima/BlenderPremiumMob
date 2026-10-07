@@ -12,6 +12,7 @@ Só usa `.get()`, `.parent` e atributos simples, então funciona com objetos sim
 """
 
 from collections import namedtuple
+from ..data.i18n import N_
 
 Classified = namedtuple('Classified', 'kind obj root library')
 
@@ -21,12 +22,12 @@ WALL, FLOOR, CEILING, OTHER = 'WALL', 'FLOOR', 'CEILING', 'OTHER'
 KINDS = (ANNOTATION, FRONT, PART, MODULE, ROOM_DOOR, WINDOW, GEOMETRY, OBSTACLE, WALL, FLOOR, CEILING, OTHER)
 
 KIND_LABELS = {
-    ANNOTATION: "Cota / anotação", FRONT: "Frente", PART: "Peça", MODULE: "Módulo", ROOM_DOOR: "Porta",
-    WINDOW: "Janela", GEOMETRY: "Geometria", OBSTACLE: "Obstáculo", WALL: "Parede", FLOOR: "Piso",
-    CEILING: "Teto", OTHER: "Objeto",
+    ANNOTATION: N_("Cota / anotação"), FRONT: N_("Frente"), PART: N_("Peça"), MODULE: N_("Módulo"), ROOM_DOOR: N_("Porta"),
+    WINDOW: N_("Janela"), GEOMETRY: N_("Geometria"), OBSTACLE: N_("Obstáculo"), WALL: N_("Parede"), FLOOR: N_("Piso"),
+    CEILING: N_("Teto"), OTHER: N_("Objeto"),
 }
-LIBRARY_LABELS = {'FRAMELESS': "Frameless", 'FACE_FRAME': "Face frame", 'CLOSETS': "Closets",
-                  'BTM': "Módulo rápido", 'HB': "Ambiente"}
+LIBRARY_LABELS = {'FRAMELESS': N_("Frameless"), 'FACE_FRAME': N_("Face frame"), 'CLOSETS': N_("Closets"),
+                  'BTM': N_("Módulo rápido"), 'HB': N_("Ambiente")}
 
 MODULE_TAGS = (
     ('IS_FRAMELESS_CABINET_CAGE', 'FRAMELESS'),

@@ -9,6 +9,8 @@ que as funções puras possam ser testadas fora do Blender (`tests/test_units.py
 
 import re
 
+from .i18n import tr
+
 # Fatores de conversão para metros (unidade base do Blender)
 UNIT_CONVERSION_TO_METERS = {
     'MM': 0.001,
@@ -161,21 +163,21 @@ def parse_length(text, default_unit='MM', allow_negative=False, allow_zero=True)
     Não aceita frações nem pés/polegadas (decisão PL-03). Levanta `ValueError` com mensagem em português.
     """
     if text is None:
-        raise ValueError("Valor Inválido: medida vazia.")
+        raise ValueError(tr("Valor Inválido: medida vazia."))
     match = _NUMBER_RE.match(str(text))
     if not match:
-        raise ValueError(f"Valor Inválido: \"{text}\" não é uma medida (use números com mm, cm ou m).")
+        raise ValueError(tr('Valor Inválido: "{}" não é uma medida (use números com mm, cm ou m).').format(text))
     sign, number_text, suffix = match.groups()
     try:
         number = _to_float(number_text)
     except ValueError:
-        raise ValueError(f"Valor Inválido: \"{text}\" não é um número válido.") from None
+        raise ValueError(tr('Valor Inválido: "{}" não é um número válido.').format(text)) from None
     if sign == '-':
         number = -number
     if number < 0 and not allow_negative:
-        raise ValueError("Valor Inválido: a medida não pode ser negativa.")
+        raise ValueError(tr("Valor Inválido: a medida não pode ser negativa."))
     if number == 0 and not allow_zero:
-        raise ValueError("Valor Inválido: a medida não pode ser zero.")
+        raise ValueError(tr("Valor Inválido: a medida não pode ser zero."))
     unit = _SUFFIX_TO_UNIT[suffix.lower()] if suffix else canonical_unit(default_unit)
     return to_meters(number, unit)
 

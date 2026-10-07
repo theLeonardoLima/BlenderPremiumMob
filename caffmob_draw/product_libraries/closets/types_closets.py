@@ -22,6 +22,7 @@ Width runs -Y (Mirror Y), Thickness extrudes +X (Mirror Z).
 import bpy
 import math
 
+from ...data.i18n import N_
 from ... import hb_utils
 from ...hb_types import (GeoNodeCage, GeoNodeCutpart, GeoNodeObject,
                          GeoNodeDrawerBox, CabinetPartModifier)
@@ -2077,21 +2078,21 @@ def apply_bay_data(bay_obj, data):
 # Grouped for the menu (separators between groups); the flat BAY_CONFIGS
 # below feeds the operator enum.
 BAY_CONFIG_GROUPS = [
-    [('ADJ_SHELVES', "Adjustable Shelves")],
-    [('DOUBLE_HANG', "Double Hang"),
-     ('DH_TOP_SHELF', "Double Hang with Top Shelf"),
-     ('DH_MID_SHELF', "Double Hang with Mid Shelf")],
-    [('DOORS_3DR', "Doors Over 3 Drawers"),
-     ('DOORS_4DR', "Doors Over 4 Drawers"),
-     ('DOORS_5DR', "Doors Over 5 Drawers"),
-     ('DOORS_6DR', "Doors Over 6 Drawers")],
-    [('DOORS_OPEN_3DR', "Doors Open 3 Drawers"),
-     ('DOORS_OPEN_4DR', "Doors Open 4 Drawers"),
-     ('DOORS_OPEN_5DR', "Doors Open 5 Drawers"),
-     ('DOORS_OPEN_6DR', "Doors Open 6 Drawers")],
-    [('OPEN_OVER_DOORS', "Base Doors"),
-     ('DOORS_OVER_OPEN', "Upper Doors"),
-     ('FULL_HEIGHT_DOORS', "Full Height Doors")],
+    [('ADJ_SHELVES', N_("Adjustable Shelves"))],
+    [('DOUBLE_HANG', N_("Double Hang")),
+     ('DH_TOP_SHELF', N_("Double Hang with Top Shelf")),
+     ('DH_MID_SHELF', N_("Double Hang with Mid Shelf"))],
+    [('DOORS_3DR', N_("Doors Over 3 Drawers")),
+     ('DOORS_4DR', N_("Doors Over 4 Drawers")),
+     ('DOORS_5DR', N_("Doors Over 5 Drawers")),
+     ('DOORS_6DR', N_("Doors Over 6 Drawers"))],
+    [('DOORS_OPEN_3DR', N_("Doors Open 3 Drawers")),
+     ('DOORS_OPEN_4DR', N_("Doors Open 4 Drawers")),
+     ('DOORS_OPEN_5DR', N_("Doors Open 5 Drawers")),
+     ('DOORS_OPEN_6DR', N_("Doors Open 6 Drawers"))],
+    [('OPEN_OVER_DOORS', N_("Base Doors")),
+     ('DOORS_OVER_OPEN', N_("Upper Doors")),
+     ('FULL_HEIGHT_DOORS', N_("Full Height Doors"))],
 ]
 BAY_CONFIGS = [item for group in BAY_CONFIG_GROUPS for item in group]
 
@@ -2240,15 +2241,15 @@ def apply_bay_config(bay_obj, config):
 # Opening configurations ("Change Opening" - swap one opening's contents).
 # ---------------------------------------------------------------------------
 OPENING_CONFIG_GROUPS = [
-    [('ADJ_SHELVES', "Adjustable Shelves")],
-    [('DOOR_LEFT', "Left Swing Door"),
-     ('DOOR_RIGHT', "Right Swing Door"),
-     ('DOOR_DOUBLE', "Double Door")],
-    [('DRAWERS_1', "1 Drawer"), ('DRAWERS_2', "2 Drawer"),
-     ('DRAWERS_3', "3 Drawer"), ('DRAWERS_4', "4 Drawer"),
-     ('DRAWERS_5', "5 Drawer"), ('DRAWERS_6', "6 Drawer"),
-     ('DRAWERS_7', "7 Drawer"), ('DRAWERS_8', "8 Drawer")],
-    [('CUBBIES', "Cubbies")],
+    [('ADJ_SHELVES', N_("Adjustable Shelves"))],
+    [('DOOR_LEFT', N_("Left Swing Door")),
+     ('DOOR_RIGHT', N_("Right Swing Door")),
+     ('DOOR_DOUBLE', N_("Double Door"))],
+    [('DRAWERS_1', N_("1 Drawer")), ('DRAWERS_2', N_("2 Drawer")),
+     ('DRAWERS_3', N_("3 Drawer")), ('DRAWERS_4', N_("4 Drawer")),
+     ('DRAWERS_5', N_("5 Drawer")), ('DRAWERS_6', N_("6 Drawer")),
+     ('DRAWERS_7', N_("7 Drawer")), ('DRAWERS_8', N_("8 Drawer"))],
+    [('CUBBIES', N_("Cubbies"))],
 ]
 OPENING_CONFIGS = [item for group in OPENING_CONFIG_GROUPS for item in group]
 

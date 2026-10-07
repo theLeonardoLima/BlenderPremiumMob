@@ -1,5 +1,6 @@
 import bpy
 from .. import hb_project
+from ..data.i18n import N_, tr
 from .. import hb_layouts
 from .. import hb_details
 
@@ -57,17 +58,17 @@ class HOME_BUILDER_PT_hidden_header(bpy.types.Panel):
         if not use_hud:
             if in_layout_view:
                 box = layout.box()
-                box.label(text="Current Layout View: " + context.scene.name, icon='INFO')
+                box.label(text=tr("Current Layout View: {}").format(context.scene.name), icon='INFO')
                 box.label(text="You are in a layout view. Select a room below.", icon='BLANK1')
             if in_detail_view:
                 box = layout.box()
-                box.label(text="Current Detail View: " + context.scene.name, icon='INFO')
+                box.label(text=tr("Current Detail View: {}").format(context.scene.name), icon='INFO')
                 box.label(text="You are in a detail view. Select a room below.", icon='BLANK1')
 
             if not in_layout_view and not in_detail_view:
                 text = context.scene.name
             else:
-                text = "Select a Room"
+                text = N_("Select a Room")
 
             row = layout.row(align=True)
             row.scale_y = 1.5
@@ -435,7 +436,7 @@ class HOME_BUILDER_PT_room_layout_doors_windows(bpy.types.Panel):
         row.scale_y = 1.2
         row.operator('caffmob_doors_windows.place_door', text="Single Door", icon='MESH_CUBE')
         row.operator('caffmob_doors_windows.place_double_door', text="Double Door", icon='MESH_CUBE')
-        row.operator('caffmob_doors_windows.place_open_door', text="Open", icon='MESH_CUBE')
+        row.operator('caffmob_doors_windows.place_open_door', text="Open Passage", icon='MESH_CUBE')
         row = layout.row(align=True)
         row.scale_y = 1.2
         row.operator('caffmob_doors_windows.place_window', text="Window", icon='MESH_PLANE')
@@ -508,7 +509,7 @@ class HOME_BUILDER_PT_room_layout_lighting(bpy.types.Panel):
         if room_lights:
             box = layout.box()
             row = box.row()
-            row.label(text=f"Room Lights: {len(room_lights)}", icon='OUTLINER_OB_LIGHT')
+            row.label(text=tr("Room Lights: {}").format(len(room_lights)), icon='OUTLINER_OB_LIGHT')
             col = box.column(align=True)
             col.scale_y = 1.2
             col.operator("caffmob_walls.update_room_lights", text="Update Room Lights", icon='PREFERENCES')
@@ -573,7 +574,7 @@ class HOME_BUILDER_PT_room_layout_obstacles(bpy.types.Panel):
         if obstacles_in_scene:
             box = layout.box()
             row = box.row()
-            row.label(text=f"Obstacles in Scene ({len(obstacles_in_scene)})", icon='OUTLINER_OB_MESH')
+            row.label(text=tr("Obstacles in Scene ({})").format(len(obstacles_in_scene)), icon='OUTLINER_OB_MESH')
             row.operator("caffmob_obstacles.select_all", text="", icon='RESTRICT_SELECT_OFF')
 
             col = box.column(align=True)
@@ -605,7 +606,7 @@ class HOME_BUILDER_PT_room_layout_obstacles(bpy.types.Panel):
                 op.object_name = obj.name
 
             if len(obstacles_in_scene) > 10:
-                col.label(text=f"... and {len(obstacles_in_scene) - 10} more")
+                col.label(text=tr("... and {} more").format(len(obstacles_in_scene) - 10))
 
 
 # -----------------------------------------------------------------------------

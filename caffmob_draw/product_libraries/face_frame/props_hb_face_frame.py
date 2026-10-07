@@ -21,6 +21,7 @@ from bpy.props import (
     CollectionProperty,
     EnumProperty,
 )
+from ...data.i18n import N_, tr
 from ... import units
 from ... import hb_utils
 from . import finish_colors, wood_materials, style_options
@@ -199,7 +200,7 @@ def get_stain_color_enum_items(self, context):
     colors = finish_colors.get_all_stain_colors()
     for i, name in enumerate(colors.keys()):
         is_custom = finish_colors.is_custom_color(name, 'stain')
-        desc = f"Custom: {name}" if is_custom else name
+        desc = tr("Custom: {}").format(name) if is_custom else name
         items.append((name, name, desc, i))
     if not items:
         items.append(('Natural', "Natural", "Natural", 0))
@@ -212,7 +213,7 @@ def get_paint_color_enum_items(self, context):
     colors = finish_colors.get_all_paint_colors()
     for i, name in enumerate(colors.keys()):
         is_custom = finish_colors.is_custom_color(name, 'paint')
-        desc = f"Custom: {name}" if is_custom else name
+        desc = tr("Custom: {}").format(name) if is_custom else name
         items.append((name, name, desc, i))
     if not items:
         items.append(('Arctic White', "Arctic White", "Arctic White", 0))
@@ -2509,7 +2510,7 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
 
         box = layout.box()
         row = box.row()
-        row.label(text=f"Face Frame Sizes: Overlay = {self.door_overlay_type.replace('_', ' ').title()}")
+        row.label(text=tr("Face Frame Sizes: Overlay = {}").format(self.door_overlay_type.replace('_', ' ').title()))
 
         # Header row
         row = box.row(align=True)
@@ -2521,9 +2522,9 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
 
         # Rail rows - each cell has an unlock checkbox + value
         for row_label, row_key, prop_root in (
-            ("Top Rail", "top", "ff_top_rail_width"),
-            ("Bottom Rail", "bottom", "ff_bottom_rail_width"),
-            ("Mid Rail", "mid", "ff_mid_rail_width"),
+            (N_("Top Rail"), "top", "ff_top_rail_width"),
+            (N_("Bottom Rail"), "bottom", "ff_bottom_rail_width"),
+            (N_("Mid Rail"), "mid", "ff_mid_rail_width"),
         ):
             r = box.row(align=True)
             r.label(text=row_label)
@@ -2540,13 +2541,13 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
 
         # Stile rows - read-only labels (overlay-driven)
         for row_label, prop_root in (
-            ("Wall Stile", "ff_wall_stile_width"),
-            ("Mid Stile", "ff_mid_stile_width"),
-            ("End Stile", "ff_end_stile_width"),
-            ("Blind Stile", "ff_blind_stile_width"),
-            ("Butt Stile", "ff_butt_stile_width"),
-            ("Inside 90 Stile", "ff_inside_90_stile_width"),
-            ("Angle Stile", "ff_angle_stile_width"),
+            (N_("Wall Stile"), "ff_wall_stile_width"),
+            (N_("Mid Stile"), "ff_mid_stile_width"),
+            (N_("End Stile"), "ff_end_stile_width"),
+            (N_("Blind Stile"), "ff_blind_stile_width"),
+            (N_("Butt Stile"), "ff_butt_stile_width"),
+            (N_("Inside 90 Stile"), "ff_inside_90_stile_width"),
+            (N_("Angle Stile"), "ff_angle_stile_width"),
         ):
             r = box.row(align=True)
             r.label(text=row_label)
@@ -2596,14 +2597,14 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         row.alignment = 'CENTER'
         row.label(text="CABINET")
         col = box.column(align=True)
-        self._draw_toggle_field(col, "finish_wood", "Wood", "ss_wood")
-        self._draw_toggle_field(col, "interior_material_type", "Interior",
+        self._draw_toggle_field(col, "finish_wood", N_("Wood"), "ss_wood")
+        self._draw_toggle_field(col, "interior_material_type", N_("Interior"),
                                 "ss_interior")
         if not self.ss_interior_is_custom and self.interior_material_type == 'CUSTOM':
             col.prop(self, "custom_interior_material", text="")
-        self._draw_toggle_field(col, "finish_overlay", "Overlay", "ss_overlay")
-        self._draw_toggle_field(col, "ss_corner_treatment", "Corner Treatment")
-        self._draw_toggle_field(col, "ss_fin_opening_edge", "Fin Opening Edge")
+        self._draw_toggle_field(col, "finish_overlay", N_("Overlay"), "ss_overlay")
+        self._draw_toggle_field(col, "ss_corner_treatment", N_("Corner Treatment"))
+        self._draw_toggle_field(col, "ss_fin_opening_edge", N_("Fin Opening Edge"))
         # Face frame size grid is large; collapsed by default.
         row = box.row()
         row.alignment = 'LEFT'
@@ -2630,13 +2631,13 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         # NAME (shown on the Style Section page next to the field descriptor)
         # and a ref IMAGE path (collected into the page's right-side references
         # box). Gated on the References toggle above.
-        self._draw_toggle_field(col, "finish_color", "Color", "ss_color")
+        self._draw_toggle_field(col, "finish_color", N_("Color"), "ss_color")
         if show_refs:
             self._draw_finish_reference(col, "ss_color_ref_name", "ss_color_ref_image")
-        self._draw_toggle_field(col, "finish_varnish", "Varnish", "ss_varnish")
+        self._draw_toggle_field(col, "finish_varnish", N_("Varnish"), "ss_varnish")
         if show_refs:
             self._draw_finish_reference(col, "ss_varnish_ref_name", "ss_varnish_ref_image")
-        self._draw_toggle_field(col, "finish_glaze", "Glaze", "ss_glaze")
+        self._draw_toggle_field(col, "finish_glaze", N_("Glaze"), "ss_glaze")
         if show_refs:
             self._draw_finish_reference(col, "ss_glaze_ref_name", "ss_glaze_ref_image")
         # Special effects: catalog finish add-ons gated by this style's
@@ -2659,7 +2660,7 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         row.alignment = 'CENTER'
         row.label(text="FRONTS")
         col = box.column(align=True)
-        self._draw_toggle_field(col, "door_style", "Door", "ss_door")
+        self._draw_toggle_field(col, "door_style", N_("Door"), "ss_door")
         # Extra door styles: additional front styles listed on the Style
         # Section page (documentation only; no geometric effect).
         for i, ex in enumerate(self.extra_door_styles):
@@ -2673,7 +2674,7 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
                      text="Add Door Style", icon='ADD').kind = 'DOOR'
 
         col.separator()
-        self._draw_toggle_field(col, "drawer_front_style", "Drawer Front", "ss_drawer")
+        self._draw_toggle_field(col, "drawer_front_style", N_("Drawer Front"), "ss_drawer")
         for i, ex in enumerate(self.extra_drawer_front_styles):
             r = col.row(align=True)
             r.prop(ex, "style", text="")
@@ -2689,15 +2690,15 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         row.alignment = 'CENTER'
         row.label(text="DOORS")
         col = box.column(align=True)
-        self._draw_toggle_field(col, "finish_hinge", "Hinge", "ss_hinge")
+        self._draw_toggle_field(col, "finish_hinge", N_("Hinge"), "ss_hinge")
 
         box = main.box()
         row = box.row()
         row.alignment = 'CENTER'
         row.label(text="DRAWERS")
         col = box.column(align=True)
-        self._draw_toggle_field(col, "ss_drawer_slides", "Drawer Slides")
-        self._draw_toggle_field(col, "ss_drawer_box_construction", "Box Construction")
+        self._draw_toggle_field(col, "ss_drawer_slides", N_("Drawer Slides"))
+        self._draw_toggle_field(col, "ss_drawer_box_construction", N_("Box Construction"))
         # Drawer-box brand logo (FILE_PATH image) -- plain file-picker row; the
         # Style Section page renders the logo in the DRAWERS section when set.
         col.prop(self, "ss_drawer_box_brand", text="Box Brand Logo")
@@ -2707,7 +2708,7 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
         row.alignment = 'CENTER'
         row.label(text="DOOR & DRAWER EDGE PROFILE")
         col = box.column(align=True)
-        self._draw_toggle_field(col, "ss_edge_profile", "Edge Profile")
+        self._draw_toggle_field(col, "ss_edge_profile", N_("Edge Profile"))
 
 
 class HB_UL_face_frame_cabinet_styles(UIList):
@@ -3301,7 +3302,7 @@ class Face_Frame_Door_Style(PropertyGroup):
             front_length = part.get_input("Length")
             front_width = part.get_input("Width")
         except Exception:
-            return "Could not read front dimensions"
+            return tr("Could not read front dimensions")
         try:
             front_thickness = part.get_input("Thickness")
         except Exception:
@@ -3414,13 +3415,11 @@ class Face_Frame_Door_Style(PropertyGroup):
         if front_width < min_width:
             self._apply_slab_front(front_obj, front_length, front_width,
                                    front_thickness)
-            return (f"Front too narrow ({front_width:.3f}m) for stile "
-                    f"widths (need {min_width:.3f}m)")
+            return (tr("Front too narrow ({:.3f}m) for stile widths (need {:.3f}m)").format(front_width, min_width))
         if front_length < min_height:
             self._apply_slab_front(front_obj, front_length, front_width,
                                    front_thickness)
-            return (f"Front too short ({front_length:.3f}m) for rail "
-                    f"widths (need {min_height:.3f}m)")
+            return (tr("Front too short ({:.3f}m) for rail widths (need {:.3f}m)").format(front_length, min_height))
 
         # Per-front mid rail override (durable, set from the Set Door Frame
         # popup) wins over the style / auto-center. CENTERED centers it; THIRD /
@@ -4228,18 +4227,18 @@ class Face_Frame_Corner_Section(PropertyGroup):
 # rebuilt fresh tuples each call would risk them being garbage collected.
 _EXTERIOR_CONFIG_ITEMS = {
     'BASE': [
-        ('DOORS',             "Full Height Doors",      "One full-height door pair"),
-        ('FALSE_FRONT_DOORS', "False Front with Doors", "False front above a door pair"),
+        ('DOORS',             N_("Full Height Doors"),      N_("One full-height door pair")),
+        ('FALSE_FRONT_DOORS', N_("False Front with Doors"), N_("False front above a door pair")),
     ],
     'UPPER': [
-        ('DOORS',         "Doors",             "One door pair"),
-        ('STACKED_DOORS', "Stacked Doors",     "Two stacked door pairs"),
-        ('HUTCH',         "Hutch",             "Doors on top, open below"),
-        ('OPEN_SHELVES',  "Open with Shelves", "Open shelf section"),
+        ('DOORS',         N_("Doors"),             N_("One door pair")),
+        ('STACKED_DOORS', N_("Stacked Doors"),     N_("Two stacked door pairs")),
+        ('HUTCH',         N_("Hutch"),             N_("Doors on top, open below")),
+        ('OPEN_SHELVES',  N_("Open with Shelves"), N_("Open shelf section")),
     ],
     'TALL': [
-        ('HUTCH',    "Hutch",    "Upper doors, open middle, base doors"),
-        ('BOOKCASE', "Bookcase", "Open shelves on top, base doors below"),
+        ('HUTCH',    N_("Hutch"),    N_("Upper doors, open middle, base doors")),
+        ('BOOKCASE', N_("Bookcase"), N_("Open shelves on top, base doors below")),
     ],
 }
 
@@ -4249,11 +4248,11 @@ _EXTERIOR_CONFIG_ITEMS = {
 # only; upper pie cut adds a two-section stacked option.
 _PIE_CUT_CONFIG_ITEMS = {
     'BASE': [
-        ('DOORS', "Full Height Doors", "One full-height door per arm"),
+        ('DOORS', N_("Full Height Doors"), N_("One full-height door per arm")),
     ],
     'UPPER': [
-        ('DOORS',         "Full Height Doors", "One full-height door per arm"),
-        ('STACKED_DOORS', "Stacked Doors",     "Two stacked doors per arm"),
+        ('DOORS',         N_("Full Height Doors"), N_("One full-height door per arm")),
+        ('STACKED_DOORS', N_("Stacked Doors"),     N_("Two stacked doors per arm")),
     ],
 }
 
@@ -7188,8 +7187,8 @@ class Face_Frame_Scene_Props(PropertyGroup):
         # One row, short labels (the section header already says
         # "Standard Cabinets", so no per-row label is needed).
         self._draw_catalog_labeled_row(layout, "", [
-            ("Base", "Base"), ("Tall", "Tall"), ("Upper", "Upper"),
-            ("Lap", "Lap Drawer"), ("Stacked", "Upper Stacked"),
+            (N_("Base"), "Base"), (N_("Tall"), "Tall"), (N_("Upper"), "Upper"),
+            (N_("Lap"), "Lap Drawer"), (N_("Stacked"), "Upper Stacked"),
         ])
 
     # =====================================================================
@@ -7199,13 +7198,13 @@ class Face_Frame_Scene_Props(PropertyGroup):
         # Sizes moved to Cabinet Sizes. Grouped by corner type, one
         # labeled row each: Pie Cut (Base/Drawer/Upper), Diagonal
         # (Base/Tall/Upper).
-        self._draw_catalog_labeled_row(layout, "Pie Cut", [
-            ("Base", "Pie Cut Base"), ("Drawer", "Pie Cut Drawer"),
-            ("Upper", "Pie Cut Upper"),
+        self._draw_catalog_labeled_row(layout, N_("Pie Cut"), [
+            (N_("Base"), "Pie Cut Base"), (N_("Drawer"), "Pie Cut Drawer"),
+            (N_("Upper"), "Pie Cut Upper"),
         ])
-        self._draw_catalog_labeled_row(layout, "Diagonal", [
-            ("Base", "Diagonal Base"), ("Tall", "Diagonal Tall"),
-            ("Upper", "Diagonal Upper"),
+        self._draw_catalog_labeled_row(layout, N_("Diagonal"), [
+            (N_("Base"), "Diagonal Base"), (N_("Tall"), "Diagonal Tall"),
+            (N_("Upper"), "Diagonal Upper"),
         ])
 
     # =====================================================================
@@ -7216,23 +7215,23 @@ class Face_Frame_Scene_Props(PropertyGroup):
         # two labeled rows: freestanding appliances vs appliance cabinets.
         # NOTE: there is no dedicated "Oven" product, so the Oven button
         # maps to "Built in Tall" (the built-in tall oven tower).
-        self._draw_catalog_labeled_row(layout, "Cabinet", [
-            ("Sink", "Sink"), ("Refrigerator", "Refrigerator Cabinet"),
-            ("Oven", "Built in Tall"),
+        self._draw_catalog_labeled_row(layout, N_("Cabinet"), [
+            (N_("Sink"), "Sink"), (N_("Refrigerator"), "Refrigerator Cabinet"),
+            (N_("Oven"), "Built in Tall"),
         ])
-        self._draw_catalog_labeled_row(layout, "Standalone", [
-            ("Dishwasher", "Dishwasher"), ("Range", "Range"),
-            ("Hood", "Range Hood"),
-            ("Refrigerator", "Standalone Refrigerator"),
+        self._draw_catalog_labeled_row(layout, N_("Standalone"), [
+            (N_("Dishwasher"), "Dishwasher"), (N_("Range"), "Range"),
+            (N_("Hood"), "Range Hood"),
+            (N_("Refrigerator"), "Standalone Refrigerator"),
         ])
 
     # =====================================================================
     # UI: vanities library
     # =====================================================================
     def draw_vanity_library_ui(self, layout, context):
-        self._draw_catalog_labeled_row(layout, "Vanity", [
-            ("Special", "Special"), ("Combination", "Combination"),
-            ("Deluxe", "Deluxe"),
+        self._draw_catalog_labeled_row(layout, N_("Vanity"), [
+            (N_("Special"), "Special"), (N_("Combination"), "Combination"),
+            (N_("Deluxe"), "Deluxe"),
         ])
 
     # =====================================================================
@@ -7248,25 +7247,25 @@ class Face_Frame_Scene_Props(PropertyGroup):
         # ])
         # Split into two rows of three; blank labels keep the rows unlabeled.
         self._draw_catalog_labeled_row(layout, "", [
-            ("Panel", "Panel"), ("Leg", "Leg Product"), ("Door", "Door"),
+            (N_("Panel"), "Panel"), (N_("Leg"), "Leg Product"), (N_("Door"), "Door"),
         ])
         self._draw_catalog_labeled_row(layout, "", [
-            ("Misc", "Misc Part"), ("Floating Shelf", "Floating Shelves"),
-            ("Valance", "Valance"),
+            (N_("Misc"), "Misc Part"), (N_("Floating Shelf"), "Floating Shelves"),
+            (N_("Valance"), "Valance"),
         ])
 
     # =====================================================================
     # UI: specialty bath library
     # =====================================================================
     def draw_specialty_bath_library_ui(self, layout, context):
-        self._draw_catalog_labeled_row(layout, "Medicine", [
-            ("Recessed", "Standard Recessed Medicine Cabinet"),
-            ("Standard", "Medicine Cabinet"),
-            ("Tri-View", "Tri-View Medicine Cabinet"),
+        self._draw_catalog_labeled_row(layout, N_("Medicine"), [
+            (N_("Recessed"), "Standard Recessed Medicine Cabinet"),
+            (N_("Standard"), "Medicine Cabinet"),
+            (N_("Tri-View"), "Tri-View Medicine Cabinet"),
         ])
-        self._draw_catalog_labeled_row(layout, "Other", [
-            ("Overstool", "Overstool Cabinet"), ("Mirror", "Mirror Frame"),
-            ("Tub Skirt", "Tub Skirt"),
+        self._draw_catalog_labeled_row(layout, N_("Other"), [
+            (N_("Overstool"), "Overstool Cabinet"), (N_("Mirror"), "Mirror Frame"),
+            (N_("Tub Skirt"), "Tub Skirt"),
         ])
 
     # =====================================================================
@@ -7275,20 +7274,20 @@ class Face_Frame_Scene_Props(PropertyGroup):
     def draw_bedroom_bookcase_library_ui(self, layout, context):
         # Bookcase Corner / Bookcase Corner Upper dropped -- not in the
         # catalog dispatch (dead buttons).
-        self._draw_catalog_labeled_row(layout, "Bookcase", [
-            ("Base", "Bookcase"), ("Storage", "Bookcase Storage Unit"),
-            ("Upper", "Bookcase Upper"),
+        self._draw_catalog_labeled_row(layout, N_("Bookcase"), [
+            (N_("Base"), "Bookcase"), (N_("Storage"), "Bookcase Storage Unit"),
+            (N_("Upper"), "Bookcase Upper"),
         ])
-        self._draw_catalog_labeled_row(layout, "Dresser", [
-            ("5 Drawer", "5 Drawer Dresser"),
-            ("6 Drawer", "6 Drawer Dresser"),
+        self._draw_catalog_labeled_row(layout, N_("Dresser"), [
+            (N_("5 Drawer"), "5 Drawer Dresser"),
+            (N_("6 Drawer"), "6 Drawer Dresser"),
         ])
-        self._draw_catalog_labeled_row(layout, "Night Stand", [
-            ("Standard", "Night Stand"),
-            ("3 Drawer", "3 Drawer Night Stand"),
+        self._draw_catalog_labeled_row(layout, N_("Night Stand"), [
+            (N_("Standard"), "Night Stand"),
+            (N_("3 Drawer"), "3 Drawer Night Stand"),
         ])
-        self._draw_catalog_labeled_row(layout, "Other", [
-            ("Hutch", "Hutch Upper"), ("Window Seat", "Window Seat"),
+        self._draw_catalog_labeled_row(layout, N_("Other"), [
+            (N_("Hutch"), "Hutch Upper"), (N_("Window Seat"), "Window Seat"),
         ])
 
     # =====================================================================
@@ -7308,8 +7307,8 @@ class Face_Frame_Scene_Props(PropertyGroup):
         # hidden for now -- re-add when that product has a builder:
         #     ("X-Frame", "X-Frame Ends"),
         self._draw_catalog_labeled_row(layout, "", [
-            ("Half Wall", "Half Wall"), ("Support", "Support Frame"),
-            ("FF & Doors", "Face Frame and Doors"),
+            (N_("Half Wall"), "Half Wall"), (N_("Support"), "Support Frame"),
+            (N_("FF & Doors"), "Face Frame and Doors"),
         ])
 
     # =====================================================================
@@ -7350,7 +7349,7 @@ class Face_Frame_Scene_Props(PropertyGroup):
             return
 
         box = layout.box()
-        box.label(text=f"Saved Groups ({len(library_items)})", icon='ASSET_MANAGER')
+        box.label(text=tr("Saved Groups ({})").format(len(library_items)), icon='ASSET_MANAGER')
 
         # Two-column grid of saved items. Each cell shows name + delete +
         # thumbnail (if rendered) + an Add-to-Scene button that fires the
@@ -7526,12 +7525,12 @@ class Face_Frame_Scene_Props(PropertyGroup):
             coll, idx_attr = "drawer_front_styles", "active_drawer_front_style_index"
             add_op = "caffmob_face_frame.add_drawer_front_style"
             rem_op = "caffmob_face_frame.remove_drawer_front_style"
-            empty = "No drawer front styles defined"
+            empty = tr("No drawer front styles defined")
         else:
             coll, idx_attr = "door_styles", "active_door_style_index"
             add_op = "caffmob_face_frame.add_door_style"
             rem_op = "caffmob_face_frame.remove_door_style"
-            empty = "No door styles defined"
+            empty = tr("No door styles defined")
 
         row = layout.row()
         row.template_list(
@@ -7582,17 +7581,17 @@ class Face_Frame_Scene_Props(PropertyGroup):
             # catalog. Order mirrors the canonical product-list order so
             # users can scan top-down.
             sections = [
-                ('show_cabinet_library',          "Standard Cabinets",            self.draw_cabinet_library_ui),
-                ('show_appliance_library',        "Appliance Products",           self.draw_appliance_library_ui),
-                ('show_corner_cabinet_library',   "Corner Cabinets",              self.draw_corner_cabinet_library_ui),
-                ('show_vanity_library',           "Vanities",                     self.draw_vanity_library_ui),
-                ('show_part_library',             "Parts",                        self.draw_part_library_ui),
-                ('show_specialty_bath_library',   "Specialty Bath",               self.draw_specialty_bath_library_ui),
-                ('show_bedroom_bookcase_library', "Specialty Bedroom & Bookcases", self.draw_bedroom_bookcase_library_ui),
+                ('show_cabinet_library',          N_("Standard Cabinets"),            self.draw_cabinet_library_ui),
+                ('show_appliance_library',        N_("Appliance Products"),           self.draw_appliance_library_ui),
+                ('show_corner_cabinet_library',   N_("Corner Cabinets"),              self.draw_corner_cabinet_library_ui),
+                ('show_vanity_library',           N_("Vanities"),                     self.draw_vanity_library_ui),
+                ('show_part_library',             N_("Parts"),                        self.draw_part_library_ui),
+                ('show_specialty_bath_library',   N_("Specialty Bath"),               self.draw_specialty_bath_library_ui),
+                ('show_bedroom_bookcase_library', N_("Specialty Bedroom & Bookcases"), self.draw_bedroom_bookcase_library_ui),
                 # Angled hidden for now -- re-add when Angled products exist:
                 # ('show_angled_library', "Angled", self.draw_angled_library_ui),
-                ('show_misc_library',             "Misc",                         self.draw_misc_library_ui),
-                ('show_user_library',             "User",                         self.draw_user_library_ui),
+                ('show_misc_library',             N_("Misc"),                         self.draw_misc_library_ui),
+                ('show_user_library',             N_("User"),                         self.draw_user_library_ui),
             ]
             for prop_name, label, draw_fn in sections:
                 expanded = getattr(self, prop_name)

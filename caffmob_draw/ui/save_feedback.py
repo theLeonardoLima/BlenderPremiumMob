@@ -10,6 +10,8 @@ import os
 import bpy  # type: ignore
 from bpy.app.handlers import persistent  # type: ignore
 
+from ..data.i18n import tr
+
 SHOW_SECONDS = 4.0
 
 
@@ -40,14 +42,14 @@ def _show(text):
 @persistent
 def on_save_post(filepath, *_args):
     if filepath:
-        _show(f"Projeto salvo: {os.path.basename(filepath)}")
+        _show(tr("Projeto salvo: {}").format(os.path.basename(filepath)))
 
 
 @persistent
 def on_save_fail(filepath, *_args):
     print(f"CAFFMob Draw: falha ao salvar '{filepath or '(arquivo de inicialização)'}'. "
           "Confira permissão de escrita, espaço em disco e se o arquivo está aberto em outro programa.")
-    _show("Falha ao salvar: veja a mensagem do Blender e o console")
+    _show(tr("Falha ao salvar: veja a mensagem do Blender e o console"))
 
 
 _HANDLERS = ((bpy.app.handlers.save_post, on_save_post), (bpy.app.handlers.save_post_fail, on_save_fail))

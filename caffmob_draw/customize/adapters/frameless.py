@@ -10,6 +10,7 @@ import os
 
 import bpy  # type: ignore
 
+from ...data.i18n import tr
 from ... import hb_project, hb_types, hb_utils
 from .. import spec
 from . import common
@@ -136,21 +137,21 @@ def set_front(context, root, opening, front, drawer_count=1):
     """Troca a frente do vão pela própria biblioteca (D-05). Devolve mensagens; vazio = ok."""
     if front == 'DRAWERS' and int(drawer_count) > 1:
         if not opening.parent or not opening.parent.get(BAY_TAG):
-            return ["Mais de uma gaveta só num vão que ocupa o compartimento inteiro"]
+            return [tr("Mais de uma gaveta só num vão que ocupa o compartimento inteiro")]
         count = min(int(drawer_count), MAX_STACKED_DRAWERS)
         preset = 'SINGLE_DRAWER' if count == 1 else f"{count}_DRAWER_STACK"
         result = common.run_operator(context, bpy.ops.caffmob_frameless.change_bay_opening, opening.parent,
                                      opening_type=preset)
-        messages = [] if 'FINISHED' in result else ["A biblioteca recusou a troca das gavetas"]
+        messages = [] if 'FINISHED' in result else [tr("A biblioteca recusou a troca das gavetas")]
         if int(drawer_count) > MAX_STACKED_DRAWERS:
-            messages.append(f"O frameless empilha no máximo {MAX_STACKED_DRAWERS} gavetas")
+            messages.append(tr("O frameless empilha no máximo {} gavetas").format(MAX_STACKED_DRAWERS))
         return messages
     opening_type = 'SINGLE_DRAWER' if front == 'DRAWERS' else FRONT_TO_TYPE.get(front)
     if opening_type is None:
-        return [f"Frente '{front}' não suportada"]
+        return [tr("Frente '{}' não suportada").format(front)]
     result = common.run_operator(context, bpy.ops.caffmob_frameless.change_opening_type, opening,
                                  opening_type=opening_type)
-    return [] if 'FINISHED' in result else ["A biblioteca recusou a troca da frente"]
+    return [] if 'FINISHED' in result else [tr("A biblioteca recusou a troca da frente")]
 
 
 def _remove_tree(obj):
@@ -236,7 +237,7 @@ def _pull_object(filename, warnings):
     from ...product_libraries.frameless import props_hb_frameless as pf
     obj = pf.load_pull_object(filename)
     if obj is None:
-        warnings.append(f"Puxador '{os.path.splitext(filename)[0]}' não encontrado")
+        warnings.append(tr("Puxador '{}' não encontrado").format(os.path.splitext(filename)[0]))
         return None
     obj['btm_pull_file'] = filename
     return obj
@@ -246,7 +247,7 @@ def _apply_style(front, name, warnings):
     styles = _props().door_styles
     index = styles.find(name)
     if index < 0:
-        warnings.append(f"Estilo '{name}' não existe neste arquivo")
+        warnings.append(tr("Estilo '{}' não existe neste arquivo").format(name))
         return
     result = styles[index].assign_style_to_front(front)
     front['DOOR_STYLE_INDEX'] = index

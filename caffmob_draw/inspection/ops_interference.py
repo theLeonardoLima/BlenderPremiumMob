@@ -5,6 +5,7 @@ Roda só sob demanda. Ausência de aviso só vale para as frentes verificadas: o
 
 import bpy  # type: ignore
 
+from ..data.i18n import tr
 from . import interference
 from .ops_inspect import scope_fronts
 
@@ -31,9 +32,9 @@ class BTM_OT_CheckFrontInterference(bpy.types.Operator):
         if checked == 0:
             self.report({'WARNING'}, "Nenhuma frente foi verificada: não há portas ou gavetas no escopo.")
         elif results:
-            self.report({'WARNING'}, f"{len(results)} interferência(s) em {checked} frente(s) verificada(s).")
+            self.report({'WARNING'}, tr("{} interferência(s) em {} frente(s) verificada(s).").format(len(results), checked))
         else:
-            self.report({'INFO'}, f"Nenhuma interferência nas {checked} frente(s) verificada(s).")
+            self.report({'INFO'}, tr("Nenhuma interferência nas {} frente(s) verificada(s).").format(checked))
         return {'FINISHED'}
 
 

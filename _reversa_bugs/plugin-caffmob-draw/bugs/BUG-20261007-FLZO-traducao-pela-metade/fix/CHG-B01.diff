@@ -1,0 +1,2040 @@
+diff --git a/caffmob_draw/aggregates/convert.py b/caffmob_draw/aggregates/convert.py
+index 17271a9..b99ce5b 100644
+--- a/caffmob_draw/aggregates/convert.py
++++ b/caffmob_draw/aggregates/convert.py
+@@ -7,18 +7,19 @@ O pai e a matriz originais ficam guardados para desconverter sem perda.
+ import bpy  # type: ignore
+ from mathutils import Matrix  # type: ignore
+ 
++from ..data.i18n import tr
+ from . import apply, limits
+ 
+ 
+ def can_convert(obj, parent):
+     if obj is None or obj.type != 'MESH':
+-        return "Selecione um objeto de malha para converter"
++        return tr("Selecione um objeto de malha para converter")
+     if parent is None:
+-        return "Selecione também o elemento pai (por último, como ativo)"
++        return tr("Selecione também o elemento pai (por último, como ativo)")
+     if parent == obj or obj in parent.children_recursive:
+-        return "O pai não pode ser o próprio objeto nem um filho dele"
++        return tr("O pai não pode ser o próprio objeto nem um filho dele")
+     if getattr(parent, 'btm_aggregate', None) is not None and parent.btm_aggregate.kind == 'LEAF':
+-        return "Uma folha de porta não pode receber agregados"
++        return tr("Uma folha de porta não pode receber agregados")
+     return None
+ 
+ 
+diff --git a/caffmob_draw/aggregates/ops_aggregate.py b/caffmob_draw/aggregates/ops_aggregate.py
+index 5810d9d..7dec972 100644
+--- a/caffmob_draw/aggregates/ops_aggregate.py
++++ b/caffmob_draw/aggregates/ops_aggregate.py
+@@ -8,6 +8,7 @@ import bpy  # type: ignore
+ from bpy_extras import view3d_utils  # type: ignore
+ from mathutils import Vector, geometry  # type: ignore
+ 
++from ..data.i18n import tr
+ from . import apply, convert, limits, props
+ 
+ _addon_keymaps = []
+@@ -54,7 +55,7 @@ class BTM_OT_AggregateConvert(bpy.types.Operator):
+             obj.select_set(False)
+         meshes[0].select_set(True)
+         context.view_layer.objects.active = meshes[0]
+-        self.report({'INFO'}, f"Agregado(s) de {parent.name}: " + ", ".join(done))
++        self.report({'INFO'}, tr("Agregado(s) de {}: ").format(parent.name) + ", ".join(done))
+         return {'FINISHED'}
+ 
+ 
+@@ -106,7 +107,7 @@ class BTM_OT_LeafConvert(bpy.types.Operator):
+             other.select_set(False)
+         obj.select_set(True)
+         context.view_layer.objects.active = obj
+-        self.report({'INFO'}, f"{obj.name} virou folha de porta de {parent.name}; use a barra Abertura")
++        self.report({'INFO'}, tr("{} virou folha de porta de {}; use a barra Abertura").format(obj.name, parent.name))
+         return {'FINISHED'}
+ 
+ 
+@@ -122,7 +123,7 @@ class BTM_OT_AggregateUnconvert(bpy.types.Operator):
+ 
+     def execute(self, context):
+         count = sum(1 for obj in _aggregates(context) if convert.unconvert(obj))
+-        self.report({'INFO'}, f"{count} objeto(s) desconvertido(s)")
++        self.report({'INFO'}, tr("{} objeto(s) desconvertido(s)").format(count))
+         return {'FINISHED'}
+ 
+ 
+@@ -214,7 +215,7 @@ class BTM_OT_DeleteWithAggregates(bpy.types.Operator):
+ 
+     def draw(self, context):
+         count = sum(len(_children_aggregates(o)) for o in context.selected_objects)
+-        self.layout.label(text=f"{count} agregado(s) presos aos objetos selecionados.")
++        self.layout.label(text=tr("{} agregado(s) presos aos objetos selecionados.").format(count))
+         self.layout.prop(self, "with_aggregates")
+ 
+     def execute(self, context):
+diff --git a/caffmob_draw/aggregates/ops_import.py b/caffmob_draw/aggregates/ops_import.py
+index 941d944..ccba717 100644
+--- a/caffmob_draw/aggregates/ops_import.py
++++ b/caffmob_draw/aggregates/ops_import.py
+@@ -8,6 +8,7 @@ import os
+ 
+ import bpy  # type: ignore
+ from bpy_extras.io_utils import ImportHelper  # type: ignore
++from ..data.i18n import tr
+ 
+ FORMATS = {'.obj': ('wm', 'obj_import'), '.fbx': ('import_scene', 'fbx'), '.glb': ('import_scene', 'gltf'),
+            '.gltf': ('import_scene', 'gltf')}
+@@ -25,17 +26,17 @@ class BTM_OT_ImportModel(bpy.types.Operator, ImportHelper):
+         ext = os.path.splitext(self.filepath)[1].lower()
+         target = FORMATS.get(ext)
+         if target is None:
+-            self.report({'ERROR'}, f"Formato não suportado: {ext or 'sem extensão'} (use OBJ, FBX, glTF ou GLB)")
++            self.report({'ERROR'}, tr("Formato não suportado: {} (use OBJ, FBX, glTF ou GLB)").format(ext or tr("sem extensão")))
+             return {'CANCELLED'}
+         before = set(bpy.data.objects)
+         operator = getattr(getattr(bpy.ops, target[0]), target[1])
+         try:
+             result = operator(filepath=self.filepath)
+         except RuntimeError as exc:
+-            self.report({'ERROR'}, f"O Blender não conseguiu importar {os.path.basename(self.filepath)}: {exc}")
++            self.report({'ERROR'}, tr("O Blender não conseguiu importar {}: {}").format(os.path.basename(self.filepath), exc))
+             return {'CANCELLED'}
+         if 'FINISHED' not in result:
+-            self.report({'ERROR'}, f"Importação cancelada: {os.path.basename(self.filepath)}")
++            self.report({'ERROR'}, tr("Importação cancelada: {}").format(os.path.basename(self.filepath)))
+             return {'CANCELLED'}
+         new = [obj for obj in bpy.data.objects if obj not in before]
+         meshes = [obj for obj in new if obj.type == 'MESH']
+@@ -45,8 +46,7 @@ class BTM_OT_ImportModel(bpy.types.Operator, ImportHelper):
+             obj.select_set(True)
+         if meshes:
+             context.view_layer.objects.active = meshes[0]
+-        self.report({'INFO'}, f"{len(meshes)} malha(s) importada(s). Selecione o pai por último e use "
+-                              "\"Converter em agregado\"")
++        self.report({'INFO'}, tr("{} malha(s) importada(s). Selecione o pai por último e use \"Converter em agregado\"").format(len(meshes)))
+         return {'FINISHED'}
+ 
+ 
+diff --git a/caffmob_draw/aggregates/overlay.py b/caffmob_draw/aggregates/overlay.py
+index cab87d7..796b226 100644
+--- a/caffmob_draw/aggregates/overlay.py
++++ b/caffmob_draw/aggregates/overlay.py
+@@ -11,6 +11,7 @@ import gpu  # type: ignore
+ from bpy_extras.view3d_utils import location_3d_to_region_2d  # type: ignore
+ from gpu_extras.batch import batch_for_shader  # type: ignore
+ 
++from ..data.i18n import tr
+ from . import leaf
+ 
+ PATH_COLOR = (0.2, 0.75, 1.0, 0.9)
+@@ -93,7 +94,7 @@ def _draw_2d():
+     co = location_3d_to_region_2d(region, rv3d, obj.matrix_world.translation)
+     if co is None:
+         return
+-    text = f"Folha bateu em {obj.btm_aggregate.contact_name}"
++    text = tr("Folha bateu em {}").format(obj.btm_aggregate.contact_name)
+     blf.size(0, 14)
+     blf.color(0, 0.0, 0.0, 0.0, 0.85)
+     blf.position(0, co.x + 11, co.y + 9, 0)
+diff --git a/caffmob_draw/aggregates/panels.py b/caffmob_draw/aggregates/panels.py
+index dce681e..c0cab07 100644
+--- a/caffmob_draw/aggregates/panels.py
++++ b/caffmob_draw/aggregates/panels.py
+@@ -7,6 +7,7 @@ movimento, eixo, sentido, máximo ou curso, a barra de abertura e o aviso de bat
+ 
+ import bpy  # type: ignore
+ 
++from ..data.i18n import tr
+ from ..data import units
+ from . import apply, leaf, limits, perforate
+ 
+@@ -35,7 +36,7 @@ def draw_aggregate(layout, context):
+         return
+     agg = obj.btm_aggregate
+     box = layout.box()
+-    box.label(text=f"{obj.name} — pai: {agg.parent_ref.name if agg.parent_ref else '—'}", icon='OBJECT_DATA')
++    box.label(text=tr("{} — pai: {}").format(obj.name, agg.parent_ref.name if agg.parent_ref else '—'), icon='OBJECT_DATA')
+     if agg.kind == 'AGGREGATE':
+         box.prop(agg, "face")
+         box_p = apply.parent_box(obj)
+@@ -48,7 +49,7 @@ def draw_aggregate(layout, context):
+         row = box.row(align=True)
+         row.prop(agg, "offset")
+         if lim:
+-            row.label(text=f"mín. {_fmt(context, lim['offset'][0])}")
++            row.label(text=tr("mín. {}").format(_fmt(context, lim['offset'][0])))
+         box.operator("caffmob.aggregate_move", icon='VIEW_PAN')
+         box.prop(agg, "perforate")
+         row = box.row()
+@@ -76,7 +77,7 @@ def draw_aggregate(layout, context):
+         if agg.contact_name:
+             row = box.row()
+             row.alert = True
+-            row.label(text=f"Folha bateu em {agg.contact_name}", icon='ERROR')
++            row.label(text=tr("Folha bateu em {}").format(agg.contact_name), icon='ERROR')
+         if leaf.pivot_of(obj) is None:
+             box.label(text="Pivô ausente; desconverta e converta de novo", icon='ERROR')
+     layout.operator("caffmob.aggregate_unconvert", icon='UNLINKED')
+diff --git a/caffmob_draw/aggregates/perforate.py b/caffmob_draw/aggregates/perforate.py
+index 9aa735c..7e2f1de 100644
+--- a/caffmob_draw/aggregates/perforate.py
++++ b/caffmob_draw/aggregates/perforate.py
+@@ -10,6 +10,7 @@ Desligar remove tudo; a malha do pai nunca é alterada de forma destrutiva.
+ import bmesh  # type: ignore
+ import bpy  # type: ignore
+ 
++from ..data.i18n import tr
+ from .. import compat, hb_types
+ from ..cutting import machining
+ from . import apply, limits
+@@ -31,9 +32,9 @@ def real_hole_reason(obj):
+     agg = obj.btm_aggregate
+     parent = agg.parent_ref
+     if parent is None or _cutpart_mod(parent) is None:
+-        return "O pai não é uma peça do plano de corte"
++        return tr("O pai não é uma peça do plano de corte")
+     if agg.face not in ('POS_Z', 'NEG_Z'):
+-        return "O furo real só vale quando o agregado entra pela face da chapa (topo ou base da peça)"
++        return tr("O furo real só vale quando o agregado entra pela face da chapa (topo ou base da peça)")
+     return None
+ 
+ 
+diff --git a/caffmob_draw/catalog/catalog_data.py b/caffmob_draw/catalog/catalog_data.py
+index 103978c..fa6b577 100644
+--- a/caffmob_draw/catalog/catalog_data.py
++++ b/caffmob_draw/catalog/catalog_data.py
+@@ -17,8 +17,14 @@ They are placed via right-click on a face-frame bay, not from this
+ browse-and-place library.
+ """
+ 
++from ..data.i18n import N_
++
++# Contexto de tradução dos nomes e descrições dos itens: o nome também é o id do item e pode ser uma palavra genérica
++# ("Range"), que não pode mudar a tradução do resto do Blender (BUG-20261007-FLZO).
++TEXT_CTXT = "caffmob_catalogo"
++
+ KIND_VERBS = {
+-    'product': 'Place at cursor',
++    'product': N_('Place at cursor'),
+ }
+ 
+ KIND_ICONS = {
+@@ -79,269 +85,269 @@ CATALOG = [
+     # =======================================================================
+     # Standard cabinets
+     # =======================================================================
+-    _e('standard', 'Base',
+-       'Standard 1-door 1-drawer base cabinet.',
++    _e('standard', N_('Base'),
++       N_('Standard 1-door 1-drawer base cabinet.'),
+        _ff('Base Door'), tags=['base', 'standard']),
+-    _e('standard', 'Tall',
+-       'Tall pantry, oven, broom, or refrigerator surround.',
++    _e('standard', N_('Tall'),
++       N_('Tall pantry, oven, broom, or refrigerator surround.'),
+        _ff('Tall'), tags=['tall', 'pantry']),
+-    _e('standard', 'Upper',
+-       'Standard wall cabinet.',
++    _e('standard', N_('Upper'),
++       N_('Standard wall cabinet.'),
+        _ff('Upper'), tags=['wall', 'upper']),
+-    _e('standard', 'Upper Stacked',
+-       'Wall cabinet with stacked door configuration.',
++    _e('standard', N_('Upper Stacked'),
++       N_('Wall cabinet with stacked door configuration.'),
+        _ff('Upper Stacked'), tags=['wall', 'stacked']),
+-    _e('standard', 'Lap Drawer',
+-       'Lap drawer cabinet.',
++    _e('standard', N_('Lap Drawer'),
++       N_('Lap drawer cabinet.'),
+        _ff('Lap Drawer'), tags=['drawer', 'lap']),
+-    _e('standard', 'Floating Base Cabinet',
+-       'Floating base cabinet (no toe kick).',
++    _e('standard', N_('Floating Base Cabinet'),
++       N_('Floating base cabinet (no toe kick).'),
+        _todo('Floating Base Cabinet'), tags=['base', 'floating']),
+ 
+     # =======================================================================
+     # Corner cabinets
+     # =======================================================================
+-    _e('corner', 'Pie Cut Door - Left Opens First',
+-       'Pie cut corner; left door opens first.',
++    _e('corner', N_('Pie Cut Door - Left Opens First'),
++       N_('Pie cut corner; left door opens first.'),
+        _todo('Pie Cut Door (Left Opens First)'), tags=['pie cut', 'corner']),
+-    _e('corner', 'Pie Cut Door - Bi-fold',
+-       'Pie cut corner with bi-fold doors.',
++    _e('corner', N_('Pie Cut Door - Bi-fold'),
++       N_('Pie cut corner with bi-fold doors.'),
+        _todo('Pie Cut Door (Bi-fold)'), tags=['pie cut', 'bi-fold']),
+-    _e('corner', 'Pie Cut Door - Tray Compartment',
+-       'Pie cut corner with tray compartment.',
++    _e('corner', N_('Pie Cut Door - Tray Compartment'),
++       N_('Pie cut corner with tray compartment.'),
+        _todo('Pie Cut Door (Tray Compartment)'), tags=['pie cut', 'tray']),
+-    _e('corner', 'Diagonal',
+-       'Diagonal corner cabinet.',
++    _e('corner', N_('Diagonal'),
++       N_('Diagonal corner cabinet.'),
+        _todo('Diagonal corner'), tags=['diagonal', 'corner']),
+-    _e('corner', 'Diagonal Sink - Full Height Doors',
+-       'Diagonal sink corner with full-height doors.',
++    _e('corner', N_('Diagonal Sink - Full Height Doors'),
++       N_('Diagonal sink corner with full-height doors.'),
+        _todo('Diagonal Sink (Full Height Doors)'), tags=['diagonal', 'sink']),
+-    _e('corner', 'Diagonal Sink - Standard with False Front',
+-       'Diagonal sink corner, standard configuration with false drawer front.',
++    _e('corner', N_('Diagonal Sink - Standard with False Front'),
++       N_('Diagonal sink corner, standard configuration with false drawer front.'),
+        _todo('Diagonal Sink (Standard, False Front)'), tags=['diagonal', 'sink', 'false front']),
+-    _e('corner', 'Pie Cut Drawer - 2',
+-       'Pie cut corner with 2 drawers.',
++    _e('corner', N_('Pie Cut Drawer - 2'),
++       N_('Pie cut corner with 2 drawers.'),
+        _todo('Pie Cut Drawer (2)'), tags=['pie cut', 'drawer']),
+-    _e('corner', 'Pie Cut Drawer - 3',
+-       'Pie cut corner with 3 drawers.',
++    _e('corner', N_('Pie Cut Drawer - 3'),
++       N_('Pie cut corner with 3 drawers.'),
+        _todo('Pie Cut Drawer (3)'), tags=['pie cut', 'drawer']),
+-    _e('corner', 'Pie Cut Drawer - 4',
+-       'Pie cut corner with 4 drawers.',
++    _e('corner', N_('Pie Cut Drawer - 4'),
++       N_('Pie cut corner with 4 drawers.'),
+        _todo('Pie Cut Drawer (4)'), tags=['pie cut', 'drawer']),
+ 
+     # =======================================================================
+     # Appliance products
+     # =======================================================================
+-    _e('appliance', 'Elevated Dishwasher - Standard',
+-       'Elevated dishwasher cabinet, standard.',
++    _e('appliance', N_('Elevated Dishwasher - Standard'),
++       N_('Elevated dishwasher cabinet, standard.'),
+        _todo('Elevated Dishwasher (Standard)'), tags=['dishwasher', 'elevated']),
+-    _e('appliance', 'Elevated Dishwasher - With Drawer',
+-       'Elevated dishwasher cabinet with drawer.',
++    _e('appliance', N_('Elevated Dishwasher - With Drawer'),
++       N_('Elevated dishwasher cabinet with drawer.'),
+        _todo('Elevated Dishwasher (With Drawer)'), tags=['dishwasher', 'elevated', 'drawer']),
+-    _e('appliance', 'Dishwasher',
+-       'Dishwasher cabinet.',
++    _e('appliance', N_('Dishwasher'),
++       N_('Dishwasher cabinet.'),
+        _todo('Dishwasher cabinet'), tags=['dishwasher']),
+-    _e('appliance', 'Single Oven',
+-       'Single oven cabinet.',
++    _e('appliance', N_('Single Oven'),
++       N_('Single oven cabinet.'),
+        _todo('Single Oven cabinet'), tags=['oven', 'single']),
+-    _e('appliance', 'Double Oven',
+-       'Double oven cabinet.',
++    _e('appliance', N_('Double Oven'),
++       N_('Double oven cabinet.'),
+        _todo('Double Oven cabinet'), tags=['oven', 'double']),
+-    _e('appliance', 'Microwave',
+-       'Microwave cabinet.',
++    _e('appliance', N_('Microwave'),
++       N_('Microwave cabinet.'),
+        _todo('Microwave cabinet'), tags=['microwave']),
+-    _e('appliance', 'Microwave and Oven',
+-       'Combined microwave and oven cabinet.',
++    _e('appliance', N_('Microwave and Oven'),
++       N_('Combined microwave and oven cabinet.'),
+        _todo('Microwave and Oven'), tags=['oven', 'microwave']),
+-    _e('appliance', 'Refrigerator - Integrated Legs',
+-       'Refrigerator surround with integrated legs.',
++    _e('appliance', N_('Refrigerator - Integrated Legs'),
++       N_('Refrigerator surround with integrated legs.'),
+        _todo('Refrigerator (Integrated Legs)'), tags=['refrigerator', 'legs']),
+-    _e('appliance', 'Refrigerator - Stile (in lieu of leg)',
+-       'Refrigerator surround with stile in lieu of leg.',
++    _e('appliance', N_('Refrigerator - Stile (in lieu of leg)'),
++       N_('Refrigerator surround with stile in lieu of leg.'),
+        _todo('Refrigerator (Stile)'), tags=['refrigerator', 'stile']),
+-    _e('appliance', 'Refrigerator Columns',
+-       'Refrigerator columns.',
++    _e('appliance', N_('Refrigerator Columns'),
++       N_('Refrigerator columns.'),
+        _todo('Refrigerator Columns'), tags=['refrigerator', 'columns']),
+-    _e('appliance', 'Refrigerator Pilasters?',
+-       'Refrigerator pilasters - confirm before placing.',
++    _e('appliance', N_('Refrigerator Pilasters?'),
++       N_('Refrigerator pilasters - confirm before placing.'),
+        _todo('Refrigerator Pilasters'), tags=['refrigerator', 'pilasters']),
+-    _e('appliance', 'Step-back Surround Set',
+-       'Step-back refrigerator surround set.',
++    _e('appliance', N_('Step-back Surround Set'),
++       N_('Step-back refrigerator surround set.'),
+        _todo('Step-back Surround Set'), tags=['refrigerator', 'surround']),
+-    _e('appliance', 'Range',
+-       'Range cabinet.',
++    _e('appliance', N_('Range'),
++       N_('Range cabinet.'),
+        _todo('Range cabinet'), tags=['range']),
+-    _e('appliance', 'Standalone Refrigerator?',
+-       'Standalone refrigerator placeholder - confirm before placing.',
++    _e('appliance', N_('Standalone Refrigerator?'),
++       N_('Standalone refrigerator placeholder - confirm before placing.'),
+        _todo('Standalone Refrigerator'), tags=['refrigerator', 'standalone']),
+ 
+     # =======================================================================
+     # Vanities
+     # =======================================================================
+-    _e('vanity', 'Vanity Special',
+-       'Special vanity cabinet.',
++    _e('vanity', N_('Vanity Special'),
++       N_('Special vanity cabinet.'),
+        _todo('Vanity Special'), tags=['vanity']),
+-    _e('vanity', 'Vanity Combination',
+-       'Combination vanity cabinet.',
++    _e('vanity', N_('Vanity Combination'),
++       N_('Combination vanity cabinet.'),
+        _todo('Vanity Combination'), tags=['vanity']),
+-    _e('vanity', 'Vanity Deluxe',
+-       'Deluxe vanity cabinet.',
++    _e('vanity', N_('Vanity Deluxe'),
++       N_('Deluxe vanity cabinet.'),
+        _todo('Vanity Deluxe'), tags=['vanity']),
+ 
+     # =======================================================================
+     # Parts
+     # =======================================================================
+-    _e('parts', 'Leg Product',
+-       'Face-frame leg / post / filler. Loose-stile, end-leg, and '
++    _e('parts', N_('Leg Product'),
++       N_('Face-frame leg / post / filler. Loose-stile, end-leg, and '
+        'intermediate-leg behaviour are all options on its prompts '
+-       '(Finish Type / Only Stile).',
++       '(Finish Type / Only Stile).'),
+        _ff('Leg Product'), tags=['leg', 'stile', 'end']),
+-    _e('parts', 'Vanity End Leg Assembly',
+-       'Vanity end leg assembly.',
++    _e('parts', N_('Vanity End Leg Assembly'),
++       N_('Vanity end leg assembly.'),
+        _todo('Vanity End Leg Assembly'), tags=['vanity', 'leg']),
+-    _e('parts', 'Vanity Support Leg - Square',
+-       'Square vanity support leg.',
++    _e('parts', N_('Vanity Support Leg - Square'),
++       N_('Square vanity support leg.'),
+        _todo('Vanity Support Leg (Square)'), tags=['vanity', 'leg', 'square']),
+-    _e('parts', 'Vanity Support Leg - Curved',
+-       'Curved vanity support leg.',
++    _e('parts', N_('Vanity Support Leg - Curved'),
++       N_('Curved vanity support leg.'),
+        _todo('Vanity Support Leg (Curved)'), tags=['vanity', 'leg', 'curved']),
+-    _e('parts', 'Vanity Fixed Shelf - Finished',
+-       'Finished vanity fixed shelf.',
++    _e('parts', N_('Vanity Fixed Shelf - Finished'),
++       N_('Finished vanity fixed shelf.'),
+        _todo('Vanity Fixed Shelf (Finished)'), tags=['vanity', 'shelf']),
+-    _e('parts', 'Vanity Fixed Shelf - Slotted',
+-       'Slotted vanity fixed shelf.',
++    _e('parts', N_('Vanity Fixed Shelf - Slotted'),
++       N_('Slotted vanity fixed shelf.'),
+        _todo('Vanity Fixed Shelf (Slotted)'), tags=['vanity', 'shelf', 'slotted']),
+-    _e('parts', 'Floating Shelves',
+-       'Wall-mounted floating shelf.',
++    _e('parts', N_('Floating Shelves'),
++       N_('Wall-mounted floating shelf.'),
+        _ff('Floating Shelves'), tags=['shelf', 'floating']),
+-    _e('parts', 'Shelf - Non-Floating',
+-       'Non-floating shelf.',
++    _e('parts', N_('Shelf - Non-Floating'),
++       N_('Non-floating shelf.'),
+        _todo('Non-Floating Shelf'), tags=['shelf']),
+-    _e('parts', 'Shelf - Heavy Duty',
+-       'Heavy duty shelf.',
++    _e('parts', N_('Shelf - Heavy Duty'),
++       N_('Heavy duty shelf.'),
+        _todo('Heavy Duty Shelf'), tags=['shelf', 'heavy duty']),
+ 
+     # =======================================================================
+     # Specialty
+     # =======================================================================
+-    _e('specialty', 'Recessed Medicine Cabinet',
+-       'Recessed medicine cabinet.',
++    _e('specialty', N_('Recessed Medicine Cabinet'),
++       N_('Recessed medicine cabinet.'),
+        _todo('Recessed Medicine Cabinet'), tags=['medicine', 'recessed']),
+-    _e('specialty', 'Tri-View Medicine Cabinet',
+-       'Tri-view medicine cabinet.',
++    _e('specialty', N_('Tri-View Medicine Cabinet'),
++       N_('Tri-view medicine cabinet.'),
+        _todo('Tri-View Medicine Cabinet'), tags=['medicine', 'tri-view']),
+-    _e('specialty', 'Overstool - With Shelf',
+-       'Overstool with shelf.',
++    _e('specialty', N_('Overstool - With Shelf'),
++       N_('Overstool with shelf.'),
+        _todo('Overstool (With Shelf)'), tags=['overstool']),
+-    _e('specialty', 'Overstool - With Towel Bar',
+-       'Overstool with towel bar.',
++    _e('specialty', N_('Overstool - With Towel Bar'),
++       N_('Overstool with towel bar.'),
+        _todo('Overstool (With Towel Bar)'), tags=['overstool', 'towel bar']),
+-    _e('specialty', 'Overstool - With Shelf and Towel Bar',
+-       'Overstool with shelf and towel bar.',
++    _e('specialty', N_('Overstool - With Shelf and Towel Bar'),
++       N_('Overstool with shelf and towel bar.'),
+        _todo('Overstool (With Shelf and Towel Bar)'), tags=['overstool', 'shelf', 'towel bar']),
+-    _e('specialty', 'Mirror Frame - Shaker',
+-       'Shaker-style mirror frame.',
++    _e('specialty', N_('Mirror Frame - Shaker'),
++       N_('Shaker-style mirror frame.'),
+        _todo('Mirror Frame (Shaker)'), tags=['mirror', 'shaker']),
+-    _e('specialty', 'Mirror Frame - Colonial',
+-       'Colonial-style mirror frame.',
++    _e('specialty', N_('Mirror Frame - Colonial'),
++       N_('Colonial-style mirror frame.'),
+        _todo('Mirror Frame (Colonial)'), tags=['mirror', 'colonial']),
+-    _e('specialty', 'Mirror Frame - Clover',
+-       'Clover-style mirror frame.',
++    _e('specialty', N_('Mirror Frame - Clover'),
++       N_('Clover-style mirror frame.'),
+        _todo('Mirror Frame (Clover)'), tags=['mirror', 'clover']),
+-    _e('specialty', 'Mirror Frame - Gothic',
+-       'Gothic-style mirror frame.',
++    _e('specialty', N_('Mirror Frame - Gothic'),
++       N_('Gothic-style mirror frame.'),
+        _todo('Mirror Frame (Gothic)'), tags=['mirror', 'gothic']),
+-    _e('specialty', 'Tub Skirt - Finished',
+-       'Finished tub skirt.',
++    _e('specialty', N_('Tub Skirt - Finished'),
++       N_('Finished tub skirt.'),
+        _todo('Tub Skirt (Finished)'), tags=['tub skirt']),
+-    _e('specialty', 'Tub Skirt - Paneled',
+-       'Paneled tub skirt.',
++    _e('specialty', N_('Tub Skirt - Paneled'),
++       N_('Paneled tub skirt.'),
+        _todo('Tub Skirt (Paneled)'), tags=['tub skirt', 'paneled']),
+-    _e('specialty', 'Tub Skirt - Working or Removable Door',
+-       'Tub skirt with working or removable door.',
++    _e('specialty', N_('Tub Skirt - Working or Removable Door'),
++       N_('Tub skirt with working or removable door.'),
+        _todo('Tub Skirt (Working / Removable Door)'), tags=['tub skirt', 'door']),
+-    _e('specialty', 'Tub Skirt - Removable Panels',
+-       'Tub skirt with removable panels.',
++    _e('specialty', N_('Tub Skirt - Removable Panels'),
++       N_('Tub skirt with removable panels.'),
+        _todo('Tub Skirt (Removable Panels)'), tags=['tub skirt', 'panels']),
+-    _e('specialty', 'Bookcase - Standard',
+-       'Standard bookcase.',
++    _e('specialty', N_('Bookcase - Standard'),
++       N_('Standard bookcase.'),
+        _todo('Bookcase (Standard)'), tags=['bookcase']),
+-    _e('specialty', 'Bookcase - Storage Unit',
+-       'Bookcase as a storage unit.',
++    _e('specialty', N_('Bookcase - Storage Unit'),
++       N_('Bookcase as a storage unit.'),
+        _todo('Bookcase (Storage Unit)'), tags=['bookcase', 'storage']),
+-    _e('specialty', 'Bookcase Upper - Standard',
+-       'Standard upper bookcase.',
++    _e('specialty', N_('Bookcase Upper - Standard'),
++       N_('Standard upper bookcase.'),
+        _todo('Bookcase Upper (Standard)'), tags=['bookcase', 'upper']),
+-    _e('specialty', 'Bookcase Upper - Hutch',
+-       'Hutch upper bookcase.',
++    _e('specialty', N_('Bookcase Upper - Hutch'),
++       N_('Hutch upper bookcase.'),
+        _todo('Bookcase Upper (Hutch)'), tags=['bookcase', 'hutch']),
+-    _e('specialty', 'Bookcase Corner - Hutch',
+-       'Hutch corner bookcase.',
++    _e('specialty', N_('Bookcase Corner - Hutch'),
++       N_('Hutch corner bookcase.'),
+        _todo('Bookcase Corner (Hutch)'), tags=['bookcase', 'corner', 'hutch']),
+-    _e('specialty', 'Bookcase Corner - Storage',
+-       'Storage corner bookcase.',
++    _e('specialty', N_('Bookcase Corner - Storage'),
++       N_('Storage corner bookcase.'),
+        _todo('Bookcase Corner (Storage)'), tags=['bookcase', 'corner', 'storage']),
+-    _e('specialty', 'Bookcase Corner Upper - Standard',
+-       'Standard upper corner bookcase.',
++    _e('specialty', N_('Bookcase Corner Upper - Standard'),
++       N_('Standard upper corner bookcase.'),
+        _todo('Bookcase Corner Upper (Standard)'), tags=['bookcase', 'corner', 'upper']),
+-    _e('specialty', 'Bookcase Corner Upper - Hutch',
+-       'Hutch upper corner bookcase.',
++    _e('specialty', N_('Bookcase Corner Upper - Hutch'),
++       N_('Hutch upper corner bookcase.'),
+        _todo('Bookcase Corner Upper (Hutch)'), tags=['bookcase', 'corner', 'upper', 'hutch']),
+-    _e('specialty', 'Window Seat - Veneer Front',
+-       'Window seat with veneer front.',
++    _e('specialty', N_('Window Seat - Veneer Front'),
++       N_('Window seat with veneer front.'),
+        _todo('Window Seat (Veneer Front)'), tags=['window seat']),
+-    _e('specialty', 'Window Seat - Paneled Front',
+-       'Window seat with paneled front.',
++    _e('specialty', N_('Window Seat - Paneled Front'),
++       N_('Window seat with paneled front.'),
+        _todo('Window Seat (Paneled Front)'), tags=['window seat', 'paneled']),
+-    _e('specialty', 'Window Seat - With Doors',
+-       'Window seat with doors.',
++    _e('specialty', N_('Window Seat - With Doors'),
++       N_('Window seat with doors.'),
+        _todo('Window Seat (With Doors)'), tags=['window seat', 'doors']),
+-    _e('specialty', 'Window Seat - With Drawers',
+-       'Window seat with drawers.',
++    _e('specialty', N_('Window Seat - With Drawers'),
++       N_('Window seat with drawers.'),
+        _todo('Window Seat (With Drawers)'), tags=['window seat', 'drawers']),
+-    _e('specialty', 'Window Seat - Hinged Lid?',
+-       'Window seat with hinged lid - confirm before placing.',
++    _e('specialty', N_('Window Seat - Hinged Lid?'),
++       N_('Window seat with hinged lid - confirm before placing.'),
+        _todo('Window Seat (Hinged Lid)'), tags=['window seat', 'lid']),
+-    _e('specialty', 'Dresser - 5 Drawers',
+-       'Dresser with 5 drawers.',
++    _e('specialty', N_('Dresser - 5 Drawers'),
++       N_('Dresser with 5 drawers.'),
+        _todo('Dresser (5 Drawers)'), tags=['dresser', 'drawer']),
+-    _e('specialty', 'Dresser - 6 Drawers',
+-       'Dresser with 6 drawers.',
++    _e('specialty', N_('Dresser - 6 Drawers'),
++       N_('Dresser with 6 drawers.'),
+        _todo('Dresser (6 Drawers)'), tags=['dresser', 'drawer']),
+-    _e('specialty', 'Night Stand - Standard',
+-       'Standard night stand.',
++    _e('specialty', N_('Night Stand - Standard'),
++       N_('Standard night stand.'),
+        _todo('Night Stand (Standard)'), tags=['night stand']),
+-    _e('specialty', 'Night Stand - 3 Drawer',
+-       '3-drawer night stand.',
++    _e('specialty', N_('Night Stand - 3 Drawer'),
++       N_('3-drawer night stand.'),
+        _todo('Night Stand (3 Drawer)'), tags=['night stand', 'drawer']),
+ 
+     # =======================================================================
+     # Angled
+     # =======================================================================
+-    _e('angled', 'Angled Ends with Doors',
+-       'Angled end cabinet with doors.',
++    _e('angled', N_('Angled Ends with Doors'),
++       N_('Angled end cabinet with doors.'),
+        _todo('Angled Ends with Doors'), tags=['angled', 'ends', 'doors']),
+-    _e('angled', 'Double Angled Ends',
+-       'Double angled end cabinet.',
++    _e('angled', N_('Double Angled Ends'),
++       N_('Double angled end cabinet.'),
+        _todo('Double Angled Ends'), tags=['angled', 'ends']),
+-    _e('angled', 'Angled Finished Ends',
+-       'Angled finished end cabinet.',
++    _e('angled', N_('Angled Finished Ends'),
++       N_('Angled finished end cabinet.'),
+        _todo('Angled Finished Ends'), tags=['angled', 'ends', 'finished']),
+ 
+     # =======================================================================
+     # Misc
+     # =======================================================================
+-    _e('misc', 'Half Wall',
+-       'Half wall.',
++    _e('misc', N_('Half Wall'),
++       N_('Half wall.'),
+        _todo('Half Wall'), tags=['wall']),
+-    _e('misc', 'Support Frame',
+-       'Support frame.',
++    _e('misc', N_('Support Frame'),
++       N_('Support frame.'),
+        _todo('Support Frame'), tags=['frame', 'support']),
+-    _e('misc', 'Face Frame and Doors',
+-       'Face frame and doors only (no carcass).',
++    _e('misc', N_('Face Frame and Doors'),
++       N_('Face frame and doors only (no carcass).'),
+        _todo('Face Frame and Doors'), tags=['face frame', 'doors']),
+-    _e('misc', 'X-Frame Ends',
+-       'X-frame ends.',
++    _e('misc', N_('X-Frame Ends'),
++       N_('X-frame ends.'),
+        _todo('X-Frame Ends'), tags=['x-frame', 'ends']),
+ ]
+ 
+diff --git a/caffmob_draw/catalog/ops_catalog.py b/caffmob_draw/catalog/ops_catalog.py
+index 4c369d9..e253e39 100644
+--- a/caffmob_draw/catalog/ops_catalog.py
++++ b/caffmob_draw/catalog/ops_catalog.py
+@@ -10,6 +10,7 @@ entries can wire to until their real operator is built.
+ """
+ import bpy
+ 
++from ..data.i18n import tr
+ from . import catalog_data
+ 
+ 
+@@ -53,16 +54,16 @@ class hb_catalog_OT_activate_item(bpy.types.Operator):
+     def execute(self, context):
+         entry = catalog_data.find_entry(self.item_id)
+         if entry is None:
+-            self.report({'WARNING'}, f"Unknown catalog item: {self.item_id}")
++            self.report({'WARNING'}, tr("Unknown catalog item: {}").format(self.item_id))
+             return {'CANCELLED'}
+ 
+         action_op = entry.get('action_operator', '') or ''
+         if not action_op:
+-            self.report({'INFO'}, f"{entry['name']}: no action wired")
++            self.report({'INFO'}, tr("{}: no action wired").format(entry['name']))
+             return {'CANCELLED'}
+ 
+         if '.' not in action_op:
+-            self.report({'ERROR'}, f"Bad action_operator format: {action_op}")
++            self.report({'ERROR'}, tr("Bad action_operator format: {}").format(action_op))
+             return {'CANCELLED'}
+ 
+         module_name, method_name = action_op.split('.', 1)
+@@ -80,7 +81,7 @@ class hb_catalog_OT_activate_item(bpy.types.Operator):
+             op(**kwargs)
+             _apply_global_assembly_config(context, context.active_object)
+         except Exception as e:
+-            self.report({'ERROR'}, f"Failed to activate {entry['name']}: {e}")
++            self.report({'ERROR'}, tr("Failed to activate {}: {}").format(entry['name'], e))
+             return {'CANCELLED'}
+ 
+         return {'FINISHED'}
+diff --git a/caffmob_draw/catalog/ui_catalog.py b/caffmob_draw/catalog/ui_catalog.py
+index 3df9ac3..7b325a3 100644
+--- a/caffmob_draw/catalog/ui_catalog.py
++++ b/caffmob_draw/catalog/ui_catalog.py
+@@ -14,6 +14,7 @@ filter_items() does three jobs in one place:
+ """
+ import bpy
+ 
++from ..data.i18n import tr
+ from . import catalog_data
+ from . import previews_catalog
+ 
+@@ -79,7 +80,7 @@ class HB_UL_catalog(bpy.types.UIList):
+             # Kind icon (small leading icon - product cube vs insert)
+             row.label(text="", icon=kind_icon)
+             # Name takes the full available width
+-            row.label(text=item.name)
++            row.label(text=item.name, text_ctxt=catalog_data.TEXT_CTXT)
+             # Code aligned to the right, narrow column
+             if item.code:
+                 code_col = row.row()
+@@ -90,7 +91,7 @@ class HB_UL_catalog(bpy.types.UIList):
+             # Grid view shows the thumbnail (or placeholder) + name.
+             # icon_value renders a real raster image, unlike icon=.
+             layout.alignment = 'CENTER'
+-            layout.label(text=item.name, icon_value=thumb_icon)
++            layout.label(text=item.name, text_ctxt=catalog_data.TEXT_CTXT, icon_value=thumb_icon)
+ 
+     def filter_items(self, context, data, propname):
+         """Filter + reorder. Returns (filter_flags, neworder)."""
+@@ -236,7 +237,7 @@ class HB_CATALOG_PT_browser(bpy.types.Panel):
+             cell.template_icon(icon_value=thumb_icon, scale=4.0)
+             op = cell.operator(
+                 'caffmob_catalog.activate_item',
+-                text=item.name,
++                text=item.name, text_ctxt=catalog_data.TEXT_CTXT,
+             )
+             op.item_id = item.item_id
+ 
+@@ -246,19 +247,19 @@ class HB_CATALOG_PT_browser(bpy.types.Panel):
+         col = box.column(align=True)
+ 
+         kind_icon = catalog_data.KIND_ICONS.get(entry['kind'], 'QUESTION')
+-        col.label(text=entry['name'], icon=kind_icon)
++        col.label(text=entry['name'], text_ctxt=catalog_data.TEXT_CTXT, icon=kind_icon)
+ 
+         if entry.get('code') or entry.get('catalog_page'):
+             sub = col.row()
+             if entry.get('code'):
+-                sub.label(text=f"Code: {entry['code']}")
++                sub.label(text=tr("Code: {}").format(entry['code']))
+             if entry.get('catalog_page'):
+                 sub.label(text=f"p. {entry['catalog_page']}")
+ 
+         if entry.get('description'):
+             col.separator()
+             # Word-wrap: split into ~40-char chunks
+-            desc = entry['description']
++            desc = tr(entry['description'], catalog_data.TEXT_CTXT)     # traduzida antes da quebra em linhas
+             for chunk in _wrap(desc, 40):
+                 col.label(text=chunk)
+ 
+diff --git a/caffmob_draw/customize/adapters/btm.py b/caffmob_draw/customize/adapters/btm.py
+index 0621bb2..530e039 100644
+--- a/caffmob_draw/customize/adapters/btm.py
++++ b/caffmob_draw/customize/adapters/btm.py
+@@ -4,6 +4,7 @@ O módulo é uma malha única (`geometry/mesh_gen.py`) com portas filhas (`geome
+ o próprio módulo. Gavetas, divisórias e estilos de porta não existem nessa linha e aparecem com o motivo.
+ """
+ 
++from ...data.i18n import N_, tr
+ from ...geometry import door_controller
+ from ...geometry.mesh_gen import MAT_BACK, MAT_CARCASS, MAT_SHELF
+ from .. import spec
+@@ -13,7 +14,7 @@ LIBRARY = 'BTM'
+ SWING_TO_FRONT = {'LEFT': 'DOOR_LEFT', 'RIGHT': 'DOOR_RIGHT', 'DOUBLE': 'DOUBLE_DOORS', 'FLIP': 'FLIP_UP',
+                   'NONE': 'OPEN'}
+ FRONT_TO_SWING = {v: k for k, v in SWING_TO_FRONT.items()}
+-NO_STYLES = "O módulo paramétrico não tem estilos de porta"
++NO_STYLES = N_("O módulo paramétrico não tem estilos de porta")
+ 
+ 
+ def capabilities(root):
+@@ -46,7 +47,7 @@ def read(root):
+ 
+ def set_front(context, root, opening, front, drawer_count=1):
+     if front not in FRONT_TO_SWING:
+-        return [f"O módulo paramétrico não tem a frente '{spec.FRONT_LABELS.get(front, front)}'"]
++        return [tr("O módulo paramétrico não tem a frente '{}'").format(spec.FRONT_LABELS.get(front, front))]
+     root.btm_cabinet.door_swing = FRONT_TO_SWING[front]      # o update refaz malha, portas e reaplica
+     return []
+ 
+@@ -58,9 +59,9 @@ def set_interior(context, root, opening, interior):
+     root.btm_custom.interior = spec.interior_to_json(interior)
+     root.btm_cabinet.shelves = int(interior.shelves)
+     if interior.dividers or interior.drawers:
+-        messages.append("O módulo paramétrico só tem prateleiras; divisórias e gavetas internas foram ignoradas")
++        messages.append(tr("O módulo paramétrico só tem prateleiras; divisórias e gavetas internas foram ignoradas"))
+     if interior.heights:
+-        messages.append("O módulo paramétrico distribui as prateleiras por igual; as alturas foram ignoradas")
++        messages.append(tr("O módulo paramétrico distribui as prateleiras por igual; as alturas foram ignoradas"))
+     return messages
+ 
+ 
+diff --git a/caffmob_draw/customize/adapters/closets.py b/caffmob_draw/customize/adapters/closets.py
+index d6cbe49..ba481a6 100644
+--- a/caffmob_draw/customize/adapters/closets.py
++++ b/caffmob_draw/customize/adapters/closets.py
+@@ -9,6 +9,7 @@ import os
+ 
+ import bpy  # type: ignore
+ 
++from ...data.i18n import tr
+ from .. import spec
+ from . import common
+ 
+@@ -92,8 +93,8 @@ def set_front(context, root, opening, front, drawer_count=1):
+         tc.recalculate_closet_starter(root)
+         return []
+     else:
+-        return [f"O closets não tem a frente '{spec.FRONT_LABELS.get(front, front)}'"]
+-    return [] if tc.apply_opening_config(opening, config) else ["A biblioteca recusou a troca da frente"]
++        return [tr("O closets não tem a frente '{}'").format(tr(spec.FRONT_LABELS.get(front, front)))]
++    return [] if tc.apply_opening_config(opening, config) else [tr("A biblioteca recusou a troca da frente")]
+ 
+ 
+ def set_interior(context, root, opening, interior):
+@@ -107,11 +108,11 @@ def set_interior(context, root, opening, interior):
+     elif tc.PROP_ADJ_SHELF_QTY in opening:
+         del opening[tc.PROP_ADJ_SHELF_QTY]
+     if interior.dividers:
+-        messages.append("O closets não tem divisória vertical dentro do vão; use outro compartimento")
++        messages.append(tr("O closets não tem divisória vertical dentro do vão; use outro compartimento"))
+     if interior.drawers:
+-        messages.append("No closets as gavetas são frentes; troque a frente do vão para Gavetas")
++        messages.append(tr("No closets as gavetas são frentes; troque a frente do vão para Gavetas"))
+     if interior.heights:
+-        messages.append("O closets distribui as prateleiras por igual; as alturas digitadas foram ignoradas")
++        messages.append(tr("O closets distribui as prateleiras por igual; as alturas digitadas foram ignoradas"))
+     tc.recalculate_closet_starter(root)
+     return messages
+ 
+@@ -134,7 +135,7 @@ def _pull_object(filename, warnings):
+     from ...product_libraries.closets import pulls_closets
+     obj = pulls_closets.resolve_pull_object(filename)
+     if obj is None:
+-        warnings.append(f"Puxador '{os.path.splitext(filename)[0]}' não encontrado")
++        warnings.append(tr("Puxador '{}' não encontrado").format(os.path.splitext(filename)[0]))
+         return None
+     obj['btm_pull_file'] = key
+     pulls_closets._pull_cache['selection'] = None     # o objeto é nosso; o próximo pedido da cena recarrega o dela
+@@ -182,7 +183,7 @@ def reapply(context, root):
+                     fronts_closets.apply_style_to_front(front, is_drawer, style=style)
+                     front['DOOR_STYLE_NAME'] = style
+                 else:
+-                    warnings.append(f"Estilo '{style}' não existe no closets")
++                    warnings.append(tr("Estilo '{}' não existe no closets").format(style))
+             if model or custom.pull_position != 'DEFAULT':
+                 _apply_pull(front, model, custom.pull_position, warnings)
+             if mat is not None and not front.btm_custom.material:
+diff --git a/caffmob_draw/customize/adapters/common.py b/caffmob_draw/customize/adapters/common.py
+index bd92e2d..8e25945 100644
+--- a/caffmob_draw/customize/adapters/common.py
++++ b/caffmob_draw/customize/adapters/common.py
+@@ -2,11 +2,12 @@
+ 
+ import bpy  # type: ignore
+ 
++from ...data.i18n import N_, tr
+ from ... import compat
+ from ...cutting import part_roles
+ from .. import spec
+ 
+-NO_STYLE_REASON = "A biblioteca não tem estilos de porta"
++NO_STYLE_REASON = N_("A biblioteca não tem estilos de porta")
+ 
+ 
+ def ordered(objs):
+@@ -21,7 +22,7 @@ def material(name, warnings):
+         return None
+     mat = bpy.data.materials.get(name)
+     if mat is None:
+-        warnings.append(f"Material '{name}' não existe neste arquivo")
++        warnings.append(tr("Material '{}' não existe neste arquivo").format(name))
+     return mat
+ 
+ 
+diff --git a/caffmob_draw/customize/adapters/face_frame.py b/caffmob_draw/customize/adapters/face_frame.py
+index 32485a7..9fc9180 100644
+--- a/caffmob_draw/customize/adapters/face_frame.py
++++ b/caffmob_draw/customize/adapters/face_frame.py
+@@ -11,6 +11,7 @@ import os
+ 
+ import bpy  # type: ignore
+ 
++from ...data.i18n import tr
+ from ... import hb_project
+ from .. import spec
+ from . import common
+@@ -114,7 +115,7 @@ def set_front(context, root, opening, front, drawer_count=1):
+                 result = bpy.ops.caffmob_face_frame.split_opening('EXEC_DEFAULT', axis='H', count=count, **kwargs)
+         finally:
+             view_layer.objects.active = previous
+-        return [] if 'FINISHED' in result else ["A biblioteca recusou dividir o vão em gavetas"]
++        return [] if 'FINISHED' in result else [tr("A biblioteca recusou dividir o vão em gavetas")]
+     if front in FRONT_TO_HINGE:
+         props.hinge_side = FRONT_TO_HINGE[front]
+         props.front_type = 'DOOR'
+@@ -125,7 +126,7 @@ def set_front(context, root, opening, front, drawer_count=1):
+     elif front == 'OPEN':
+         props.front_type = 'NONE'
+     else:
+-        return [f"Frente '{front}' não suportada"]
++        return [tr("Frente '{}' não suportada").format(front)]
+     _tff().recalculate_face_frame_cabinet(root)
+     return []
+ 
+@@ -135,7 +136,7 @@ def set_interior(context, root, opening, interior):
+     if messages:
+         return messages
+     if interior.heights:
+-        messages.append("O face frame distribui as prateleiras por igual; as alturas digitadas foram ignoradas")
++        messages.append(tr("O face frame distribui as prateleiras por igual; as alturas digitadas foram ignoradas"))
+     opening.btm_custom.interior = spec.interior_to_json(interior)
+     items = opening.face_frame_opening.interior_items
+     for i in reversed(range(len(items))):
+@@ -155,13 +156,13 @@ def set_interior(context, root, opening, interior):
+         has_tree = any(c.get(_tff().TAG_INTERIOR_SPLIT_NODE) or c.get(_tff().TAG_INTERIOR_REGION)
+                        for c in opening.children)
+         if has_tree:
+-            messages.append("Este vão já tem divisões; edite-as pela ferramenta do face frame")
++            messages.append(tr("Este vão já tem divisões; edite-as pela ferramenta do face frame"))
+         else:
+             result = bpy.ops.caffmob_face_frame.add_interior_division(target_name=opening.name)
+             if 'FINISHED' not in result:
+-                messages.append("A biblioteca recusou a divisória")
++                messages.append(tr("A biblioteca recusou a divisória"))
+             if int(interior.dividers) > 1:
+-                messages.append("O face frame cria uma divisória por vez; as demais pela ferramenta do face frame")
++                messages.append(tr("O face frame cria uma divisória por vez; as demais pela ferramenta do face frame"))
+     _tff().recalculate_face_frame_cabinet(root)
+     return messages
+ 
+@@ -191,7 +192,7 @@ def _pull_object(key, warnings):
+     folder, _sep, filename = key.rpartition("/")
+     obj = ffp.load_pull_object(filename, folder or None)
+     if obj is None:
+-        warnings.append(f"Puxador '{os.path.splitext(filename)[0]}' não encontrado")
++        warnings.append(tr("Puxador '{}' não encontrado").format(os.path.splitext(filename)[0]))
+         return None
+     obj['btm_pull_file'] = key
+     return obj
+@@ -202,7 +203,7 @@ def _apply_style(front, name, warnings):
+     pool = props.drawer_front_styles if front.get('hb_part_role') in DRAWER_ROLES else props.door_styles
+     style = pool.get(name) or props.door_styles.get(name)
+     if style is None:
+-        warnings.append(f"Estilo '{name}' não existe neste arquivo")
++        warnings.append(tr("Estilo '{}' não existe neste arquivo").format(name))
+         return
+     style.assign_style_to_front(front, record_override=True)
+ 
+diff --git a/caffmob_draw/customize/adapters/frameless.py b/caffmob_draw/customize/adapters/frameless.py
+index b5b76c5..b60078d 100644
+--- a/caffmob_draw/customize/adapters/frameless.py
++++ b/caffmob_draw/customize/adapters/frameless.py
+@@ -10,6 +10,7 @@ import os
+ 
+ import bpy  # type: ignore
+ 
++from ...data.i18n import tr
+ from ... import hb_project, hb_types, hb_utils
+ from .. import spec
+ from . import common
+@@ -136,21 +137,21 @@ def set_front(context, root, opening, front, drawer_count=1):
+     """Troca a frente do vão pela própria biblioteca (D-05). Devolve mensagens; vazio = ok."""
+     if front == 'DRAWERS' and int(drawer_count) > 1:
+         if not opening.parent or not opening.parent.get(BAY_TAG):
+-            return ["Mais de uma gaveta só num vão que ocupa o compartimento inteiro"]
++            return [tr("Mais de uma gaveta só num vão que ocupa o compartimento inteiro")]
+         count = min(int(drawer_count), MAX_STACKED_DRAWERS)
+         preset = 'SINGLE_DRAWER' if count == 1 else f"{count}_DRAWER_STACK"
+         result = common.run_operator(context, bpy.ops.caffmob_frameless.change_bay_opening, opening.parent,
+                                      opening_type=preset)
+-        messages = [] if 'FINISHED' in result else ["A biblioteca recusou a troca das gavetas"]
++        messages = [] if 'FINISHED' in result else [tr("A biblioteca recusou a troca das gavetas")]
+         if int(drawer_count) > MAX_STACKED_DRAWERS:
+-            messages.append(f"O frameless empilha no máximo {MAX_STACKED_DRAWERS} gavetas")
++            messages.append(tr("O frameless empilha no máximo {} gavetas").format(MAX_STACKED_DRAWERS))
+         return messages
+     opening_type = 'SINGLE_DRAWER' if front == 'DRAWERS' else FRONT_TO_TYPE.get(front)
+     if opening_type is None:
+-        return [f"Frente '{front}' não suportada"]
++        return [tr("Frente '{}' não suportada").format(front)]
+     result = common.run_operator(context, bpy.ops.caffmob_frameless.change_opening_type, opening,
+                                  opening_type=opening_type)
+-    return [] if 'FINISHED' in result else ["A biblioteca recusou a troca da frente"]
++    return [] if 'FINISHED' in result else [tr("A biblioteca recusou a troca da frente")]
+ 
+ 
+ def _remove_tree(obj):
+@@ -236,7 +237,7 @@ def _pull_object(filename, warnings):
+     from ...product_libraries.frameless import props_hb_frameless as pf
+     obj = pf.load_pull_object(filename)
+     if obj is None:
+-        warnings.append(f"Puxador '{os.path.splitext(filename)[0]}' não encontrado")
++        warnings.append(tr("Puxador '{}' não encontrado").format(os.path.splitext(filename)[0]))
+         return None
+     obj['btm_pull_file'] = filename
+     return obj
+@@ -246,7 +247,7 @@ def _apply_style(front, name, warnings):
+     styles = _props().door_styles
+     index = styles.find(name)
+     if index < 0:
+-        warnings.append(f"Estilo '{name}' não existe neste arquivo")
++        warnings.append(tr("Estilo '{}' não existe neste arquivo").format(name))
+         return
+     result = styles[index].assign_style_to_front(front)
+     front['DOOR_STYLE_INDEX'] = index
+diff --git a/caffmob_draw/customize/library_io.py b/caffmob_draw/customize/library_io.py
+index f264ca2..38ddf01 100644
+--- a/caffmob_draw/customize/library_io.py
++++ b/caffmob_draw/customize/library_io.py
+@@ -13,6 +13,7 @@ import tempfile
+ import bpy  # type: ignore
+ from mathutils import Vector  # type: ignore
+ 
++from ..data.i18n import tr
+ from ..selection import classify
+ from . import adapters, manifest, reapply
+ from .adapters import common
+@@ -167,7 +168,7 @@ def build_manifest(root, name, category):
+ def save(context, root, name, category, thumbnail=True):
+     """Grava `.blend` + `.json` (+ `.png`). Devolve (caminhos, mensagens de erro). Erro → nada parcial fica."""
+     if adapters.for_root(root) is None:
+-        return None, ["O objeto selecionado não é um módulo"]
++        return None, [tr("O objeto selecionado não é um módulo")]
+     paths = paths_for(name, category)
+     folder = os.path.dirname(paths["blend"])
+     written = []
+@@ -189,7 +190,7 @@ def save(context, root, name, category, thumbnail=True):
+         for path in written:
+             if os.path.exists(path):
+                 os.remove(path)
+-        return None, [f"Não foi possível gravar o módulo em {folder}: {exc}"]
++        return None, [tr("Não foi possível gravar o módulo em {}: {}").format(folder, exc)]
+     if thumbnail:
+         _thumbnail(context, _tree(root), paths["png"])
+     return paths, []
+@@ -237,7 +238,7 @@ def load(context, entry):
+         with open(entry["json"], encoding="utf-8") as handle:
+             data, _spec, errors = manifest.loads(handle.read())
+         if errors:
+-            return None, [], ["Manifesto inválido: " + "; ".join(errors)]
++            return None, [], [tr("Manifesto inválido: {}").format("; ".join(errors))]
+     with bpy.data.libraries.load(entry["blend"], link=False) as (data_from, data_to):
+         data_to.objects = data_from.objects
+     loaded = [obj for obj in data_to.objects if obj is not None]
+@@ -252,13 +253,15 @@ def load(context, entry):
+     if data is not None:
+         missing = _missing_styles(data)
+         if missing:
+-            warnings.append("Estilos ausentes neste arquivo (mantida a geometria salva): " + ", ".join(missing))
++            warnings.append(tr("Estilos ausentes neste arquivo (mantida a geometria salva): {}").format(", ".join(missing)))
+     if root is not None and data is not None:
+         warnings += reapply.reapply(context, root)
+     elif root is None:
+-        warnings.append("Nenhum módulo encontrado no arquivo")
+-    if any(w.startswith("Estilos ausentes") for w in warnings):
+-        warnings = [w for w in warnings if not w.startswith("Estilo '")]
++        warnings.append(tr("Nenhum módulo encontrado no arquivo"))
++    if missing:
++        # O aviso geral de estilos ausentes substitui o aviso por estilo dos adaptadores (prefixo na língua atual).
++        prefix = tr("Estilo '{}' não existe neste arquivo").split("{}")[0]
++        warnings = [w for w in warnings if not w.startswith(prefix)]
+     return root, loaded, common.unique(warnings)
+ 
+ 
+@@ -272,7 +275,7 @@ def rename(entry, new_name):
+     """Renomeia os arquivos e o nome no manifesto; devolve mensagens de erro."""
+     target = paths_for(new_name, entry["category"])
+     if os.path.exists(target["blend"]):
+-        return [f"Já existe um módulo '{new_name}' nessa categoria"]
++        return [tr("Já existe um módulo '{}' nessa categoria").format(new_name)]
+     for key in ("blend", "png", "json"):
+         if os.path.exists(entry[key]):
+             os.replace(entry[key], target[key])
+diff --git a/caffmob_draw/customize/manifest.py b/caffmob_draw/customize/manifest.py
+index ef19ece..133bbeb 100644
+--- a/caffmob_draw/customize/manifest.py
++++ b/caffmob_draw/customize/manifest.py
+@@ -6,6 +6,7 @@ Contrato: `_reversa_forward/003-modulos-agregados-reposicionar/interfaces/user-m
+ import json
+ import re
+ 
++from ..data.i18n import tr
+ from . import spec as spec_mod
+ 
+ FORMAT = "caffmob_draw.user-module"
+@@ -50,18 +51,18 @@ def _major(version):
+ def validate(data):
+     errors = []
+     if not isinstance(data, dict):
+-        return ["o manifesto não é um objeto JSON"]
++        return [tr("o manifesto não é um objeto JSON")]
+     if data.get("format") != FORMAT:
+-        errors.append(f"formato desconhecido: {data.get('format')!r}")
++        errors.append(tr("formato desconhecido: {!r}").format(data.get('format')))
+     major = _major(data.get("schema_version", ""))
+     if major is None or major > SUPPORTED_MAJOR:
+-        errors.append(f"schema_version {data.get('schema_version')!r} não suportada (máximo {SUPPORTED_MAJOR}.x)")
++        errors.append(tr("schema_version {!r} não suportada (máximo {}.x)").format(data.get('schema_version'), SUPPORTED_MAJOR))
+     if data.get("library") not in LIBRARIES:
+-        errors.append(f"biblioteca desconhecida: {data.get('library')!r}")
++        errors.append(tr("biblioteca desconhecida: {!r}").format(data.get('library')))
+     if not str(data.get("name", "")).strip():
+-        errors.append("nome vazio")
++        errors.append(tr("nome vazio"))
+     if not str(data.get("root_object", "")).strip():
+-        errors.append("objeto raiz não informado")
++        errors.append(tr("objeto raiz não informado"))
+     if not errors:
+         errors += spec_mod.validate(spec_mod.from_dict(data.get("spec")))
+     return errors
+@@ -76,7 +77,7 @@ def loads(text):
+     try:
+         data = json.loads(text)
+     except ValueError as exc:
+-        return None, None, [f"JSON inválido: {exc}"]
++        return None, None, [tr("JSON inválido: {}").format(exc)]
+     errors = validate(data)
+     if errors:
+         return data, None, errors
+diff --git a/caffmob_draw/customize/ops_customize.py b/caffmob_draw/customize/ops_customize.py
+index 516d3ed..c9b700d 100644
+--- a/caffmob_draw/customize/ops_customize.py
++++ b/caffmob_draw/customize/ops_customize.py
+@@ -6,6 +6,7 @@ Todos com desfazer. O vão é endereçado pelo caminho estável do adaptador (`b
+ 
+ import bpy  # type: ignore
+ 
++from ..data.i18n import N_, tr
+ from ..data import units
+ from . import adapters, reapply, spec
+ from .props import PULL_POSITION_ITEMS
+@@ -51,7 +52,7 @@ def _style_items(self, context):
+ def _pull_items(self, context):
+     root, adapter = _target(context)
+     pulls = adapter.pull_items() if adapter else []
+-    items = ([("", "Puxador do projeto", "Usa a escolha geral do projeto"), (spec.NO_PULL, "Sem puxador", "")]
++    items = ([("", "Puxador do projeto", "Usa a escolha geral do projeto"), (spec.NO_PULL, N_("Sem puxador"), "")]
+              + [(key, label, "") for key, label in pulls])
+     _ENUM_CACHE['pull'] = items
+     return items
+@@ -94,7 +95,7 @@ class BTM_OT_CustomizeSetFront(_OpeningOperator, bpy.types.Operator):
+             return {'CANCELLED'}
+         messages = adapter.set_front(context, root, opening, self.front, self.drawer_count)
+         messages += reapply.reapply(context, root)
+-        _report(self, messages, f"Frente trocada para {spec.FRONT_LABELS[self.front]}")
++        _report(self, messages, tr("Frente trocada para {}").format(tr(spec.FRONT_LABELS[self.front])))
+         return {'FINISHED'}
+ 
+ 
+@@ -114,7 +115,7 @@ class BTM_OT_CustomizeSetStyle(_OpeningOperator, bpy.types.Operator):
+             opening.btm_custom.door_style = self.style
+         else:
+             opening.btm_custom.drawer_style = self.style
+-        _report(self, reapply.reapply(context, root), f"Estilo aplicado: {self.style or 'do módulo'}")
++        _report(self, reapply.reapply(context, root), tr("Estilo aplicado: {}").format(self.style or tr("do módulo")))
+         return {'FINISHED'}
+ 
+ 
+@@ -147,7 +148,7 @@ class BTM_OT_CustomizeSetPull(_OpeningOperator, bpy.types.Operator):
+         else:
+             opening.btm_custom.pull_model = self.model
+             opening.btm_custom.pull_position = self.position
+-        _report(self, reapply.reapply(context, root), "Puxador atualizado")
++        _report(self, reapply.reapply(context, root), tr("Puxador atualizado"))
+         return {'FINISHED'}
+ 
+ 
+@@ -184,7 +185,7 @@ class BTM_OT_CustomizeSetMaterial(bpy.types.Operator):
+             root.btm_custom.set_group_material(self.group, self.material)
+         else:
+             context.active_object.btm_custom.material = self.material
+-        _report(self, reapply.reapply(context, root), f"Material: {self.material or 'da biblioteca'}")
++        _report(self, reapply.reapply(context, root), tr("Material: {}").format(self.material or tr("da biblioteca")))
+         return {'FINISHED'}
+ 
+ 
+@@ -227,7 +228,7 @@ class BTM_OT_CustomizeSetInterior(_OpeningOperator, bpy.types.Operator):
+         messages = adapter.set_interior(context, root, opening, inner)
+         if not messages:
+             messages = reapply.reapply(context, root)
+-        _report(self, messages, "Divisões internas atualizadas")
++        _report(self, messages, tr("Divisões internas atualizadas"))
+         return {'FINISHED'}
+ 
+ 
+diff --git a/caffmob_draw/customize/ops_library.py b/caffmob_draw/customize/ops_library.py
+index f0877ca..de58c22 100644
+--- a/caffmob_draw/customize/ops_library.py
++++ b/caffmob_draw/customize/ops_library.py
+@@ -8,6 +8,7 @@ import subprocess
+ import bpy  # type: ignore
+ from mathutils import Vector  # type: ignore
+ 
++from ..data.i18n import tr
+ from .. import hb_placement, hb_snap
+ from . import adapters, library_io
+ 
+@@ -62,14 +63,14 @@ class BTM_OT_ModuleSave(bpy.types.Operator):
+             self.report({'ERROR'}, "Digite um nome para o módulo")
+             return {'CANCELLED'}
+         if library_io.exists(name, self.category) and not self.overwrite:
+-            self.report({'WARNING'}, f"O módulo '{name}' já existe; marque \"Substituir\" para gravar por cima")
++            self.report({'WARNING'}, tr("O módulo '{}' já existe; marque \"Substituir\" para gravar por cima").format(name))
+             return {'CANCELLED'}
+         root = adapters.module_root(context.active_object)
+         paths, errors = library_io.save(context, root, name, self.category.strip(), self.thumbnail)
+         if errors:
+             self.report({'ERROR'}, " | ".join(errors))
+             return {'CANCELLED'}
+-        self.report({'INFO'}, f"Módulo salvo: {paths['blend']}")
++        self.report({'INFO'}, tr("Módulo salvo: {}").format(paths['blend']))
+         _redraw(context)
+         return {'FINISHED'}
+ 
+@@ -86,7 +87,7 @@ class BTM_OT_ModuleInsert(bpy.types.Operator, hb_placement.PlacementMixin):
+     def execute(self, context):
+         entry = _entry(self.filepath)
+         if entry is None or not os.path.exists(self.filepath):
+-            self.report({'ERROR'}, f"Módulo não encontrado: {self.filepath}")
++            self.report({'ERROR'}, tr("Módulo não encontrado: {}").format(self.filepath))
+             return {'CANCELLED'}
+         self.init_placement(context)
+         self.root, loaded, warnings = library_io.load(context, entry)
+@@ -170,7 +171,7 @@ class BTM_OT_ModuleDelete(bpy.types.Operator):
+             self.report({'ERROR'}, "Módulo não encontrado")
+             return {'CANCELLED'}
+         library_io.delete(entry)
+-        self.report({'INFO'}, f"Módulo apagado: {entry['name']}")
++        self.report({'INFO'}, tr("Módulo apagado: {}").format(entry['name']))
+         _redraw(context)
+         return {'FINISHED'}
+ 
+diff --git a/caffmob_draw/customize/panels.py b/caffmob_draw/customize/panels.py
+index 4d84c03..3566d02 100644
+--- a/caffmob_draw/customize/panels.py
++++ b/caffmob_draw/customize/panels.py
+@@ -5,6 +5,7 @@ Subpainéis de "Propriedades" (`BTM_PT_object_properties`, feature 002).
+ 
+ import bpy  # type: ignore
+ 
++from ..data.i18n import tr
+ from . import adapters, library_io, spec
+ 
+ 
+@@ -24,7 +25,7 @@ def _section(layout, caps, section):
+ def _opening_label(item):
+     front = spec.FRONT_LABELS.get(item.front, "—")
+     if item.front == 'DRAWERS' and item.drawer_count > 1:
+-        front = f"{item.drawer_count} gavetas"
++        front = tr("{} gavetas").format(item.drawer_count)
+     return front
+ 
+ 
+@@ -38,11 +39,11 @@ def draw_customize(layout, context):
+         return
+     caps = adapter.capabilities(root)
+     current = adapter.read(root)
+-    layout.label(text=f"Módulo: {root.name}", icon='OBJECT_DATA')
++    layout.label(text=tr("Módulo: {}").format(root.name), icon='OBJECT_DATA')
+     for index, item in enumerate(current.openings):
+         box = layout.box()
+         header = box.row()
+-        header.label(text=f"Vão {index + 1}: {_opening_label(item)}", icon='MESH_PLANE')
++        header.label(text=tr("Vão {}: {}").format(index + 1, _opening_label(item)), icon='MESH_PLANE')
+         header.operator("caffmob.customize_clear", text="", icon='X').path = item.path
+         col = box.column(align=True)
+         row = col.row(align=True)
+@@ -53,18 +54,18 @@ def draw_customize(layout, context):
+                                    text=item.door_style or "Estilo").path = item.path
+         row = col.row(align=True)
+         row.enabled = caps.get('PULLS') is None
+-        op = row.operator("caffmob.customize_set_pull", text=f"Puxador: {item.pull_model or 'do projeto'}",
++        op = row.operator("caffmob.customize_set_pull", text=tr("Puxador: {}").format(item.pull_model or tr("do projeto")),
+                           icon='EMPTY_ARROWS')
+         op.path = item.path
+         row = col.row(align=True)
+         row.enabled = caps.get('MATERIALS') is None
+         op = row.operator("caffmob.customize_set_material",
+-                          text=f"Material das frentes: {item.front_material or 'do módulo'}", icon='MATERIAL')
++                          text=tr("Material das frentes: {}").format(item.front_material or tr("do módulo")), icon='MATERIAL')
+         op.target, op.path = 'FRONTS', item.path
+         row = col.row(align=True)
+         row.enabled = caps.get('INTERIOR') is None
+         inner = item.interior or spec.Interior()
+-        text = f"Interior: {inner.shelves} prat., {inner.dividers} div., {inner.drawers} gav."
++        text = tr("Interior: {} prat., {} div., {} gav.").format(inner.shelves, inner.dividers, inner.drawers)
+         row.operator("caffmob.customize_set_interior", text=text, icon='ALIGN_JUSTIFY').path = item.path
+     for section in ('FRONTS', 'PULLS', 'INTERIOR'):
+         if caps.get(section):
+@@ -74,12 +75,12 @@ def draw_customize(layout, context):
+         col = box.column(align=True)
+         for group in spec.GROUPS:
+             op = col.operator("caffmob.customize_set_material",
+-                              text=f"{spec.GROUP_LABELS[group]}: {current.group_materials.get(group, 'do módulo')}")
++                              text=f"{tr(spec.GROUP_LABELS[group])}: {current.group_materials.get(group) or tr('do módulo')}")
+             op.target, op.group = 'GROUP', group
+         obj = context.active_object
+         if obj is not root and obj.type == 'MESH':
+             op = col.operator("caffmob.customize_set_material",
+-                              text=f"Peça {obj.name}: {obj.btm_custom.material or 'do grupo'}", icon='MESH_CUBE')
++                              text=tr("Peça {}: {}").format(obj.name, obj.btm_custom.material or tr("do grupo")), icon='MESH_CUBE')
+             op.target = 'PART'
+     layout.operator("caffmob.module_save", icon='FILE_TICK')
+ 
+@@ -90,7 +91,7 @@ def draw_library(layout, context):
+     try:
+         entries = library_io.list_modules()
+     except (OSError, ValueError) as exc:
+-        layout.label(text=f"Biblioteca indisponível: {exc}", icon='ERROR')
++        layout.label(text=tr("Biblioteca indisponível: {}").format(exc), icon='ERROR')
+         return
+     if not entries:
+         layout.label(text="Nenhum módulo salvo ainda.", icon='INFO')
+@@ -102,7 +103,7 @@ def draw_library(layout, context):
+             category = entry["category"]
+             col.label(text=category, icon='FILE_FOLDER')
+         row = col.row(align=True)
+-        label = entry["name"] if entry["has_manifest"] else f"{entry['name']} (sem personalização)"
++        label = entry["name"] if entry["has_manifest"] else tr("{} (sem personalização)").format(entry['name'])
+         row.operator("caffmob.module_insert", text=label, icon='IMPORT').filepath = entry["blend"]
+         row.operator("caffmob.module_rename", text="", icon='GREASEPENCIL').filepath = entry["blend"]
+         row.operator("caffmob.module_delete", text="", icon='TRASH').filepath = entry["blend"]
+diff --git a/caffmob_draw/customize/spec.py b/caffmob_draw/customize/spec.py
+index 35078bd..0bb3f32 100644
+--- a/caffmob_draw/customize/spec.py
++++ b/caffmob_draw/customize/spec.py
+@@ -6,12 +6,13 @@ Estilos, materiais e puxadores são guardados **por nome** (RN-06). Os vãos sã
+ """
+ 
+ from dataclasses import asdict, dataclass, field
++from ..data.i18n import N_, tr
+ 
+ SECTIONS = ('FRONTS', 'PULLS', 'MATERIALS', 'INTERIOR')
+-SECTION_LABELS = {'FRONTS': "Frentes", 'PULLS': "Puxadores", 'MATERIALS': "Materiais", 'INTERIOR': "Divisões internas"}
++SECTION_LABELS = {'FRONTS': N_("Frentes"), 'PULLS': N_("Puxadores"), 'MATERIALS': N_("Materiais"), 'INTERIOR': N_("Divisões internas")}
+ FRONT_TYPES = ('DOOR_LEFT', 'DOOR_RIGHT', 'DOUBLE_DOORS', 'DRAWERS', 'FLIP_UP', 'PANEL', 'OPEN')
+-FRONT_LABELS = {'DOOR_LEFT': "Porta à esquerda", 'DOOR_RIGHT': "Porta à direita", 'DOUBLE_DOORS': "Duas portas",
+-                'DRAWERS': "Gavetas", 'FLIP_UP': "Basculante", 'PANEL': "Painel fixo", 'OPEN': "Vazio"}
++FRONT_LABELS = {'DOOR_LEFT': N_("Porta à esquerda"), 'DOOR_RIGHT': N_("Porta à direita"), 'DOUBLE_DOORS': N_("Duas portas"),
++                'DRAWERS': N_("Gavetas"), 'FLIP_UP': N_("Basculante"), 'PANEL': N_("Painel fixo"), 'OPEN': N_("Vazio")}
+ PULL_POSITIONS = ('DEFAULT', 'TOP', 'MIDDLE', 'BOTTOM', 'SIDE')
+ NO_PULL = "__NONE__"
+ GROUPS = ('CAIXA', 'FRENTES', 'FUNDO', 'INTERNO')
+@@ -105,45 +106,45 @@ def validate(spec):
+     errors = []
+     seen = set()
+     for item in spec.openings:
+-        where = f"vão {item.path}"
++        where = tr("vão {}").format(item.path)
+         if not item.path:
+-            errors.append("vão sem caminho")
++            errors.append(tr("vão sem caminho"))
+         if item.path in seen:
+-            errors.append(f"{where}: repetido")
++            errors.append(tr("{}: repetido").format(where))
+         seen.add(item.path)
+         if item.front and item.front not in FRONT_TYPES:
+-            errors.append(f"{where}: frente desconhecida '{item.front}'")
++            errors.append(tr("{}: frente desconhecida '{}'").format(where, item.front))
+         if item.front == 'DRAWERS' and not 1 <= int(item.drawer_count) <= MAX_DRAWERS:
+-            errors.append(f"{where}: quantidade de gavetas fora de 1 a {MAX_DRAWERS}")
++            errors.append(tr("{}: quantidade de gavetas fora de 1 a {}").format(where, MAX_DRAWERS))
+         if item.pull_position not in PULL_POSITIONS:
+-            errors.append(f"{where}: posição de puxador desconhecida '{item.pull_position}'")
++            errors.append(tr("{}: posição de puxador desconhecida '{}'").format(where, item.pull_position))
+         if item.interior is not None:
+             errors += [f"{where}: {msg}" for msg in validate_interior(item.interior)]
+     for group in spec.group_materials:
+         if group not in GROUPS:
+-            errors.append(f"grupo de material desconhecido '{group}'")
++            errors.append(tr("grupo de material desconhecido '{}'").format(group))
+     for key, name in list(spec.group_materials.items()) + list(spec.part_materials.items()):
+         if not str(name).strip():
+-            errors.append(f"material vazio em '{key}'")
++            errors.append(tr("material vazio em '{}'").format(key))
+     return errors
+ 
+ 
+ def validate_interior(interior, inner_height=None):
+     errors = []
+     if not 0 <= int(interior.shelves) <= MAX_SHELVES:
+-        errors.append(f"prateleiras fora de 0 a {MAX_SHELVES}")
++        errors.append(tr("prateleiras fora de 0 a {}").format(MAX_SHELVES))
+     if not 0 <= int(interior.dividers) <= MAX_DIVIDERS:
+-        errors.append(f"divisórias fora de 0 a {MAX_DIVIDERS}")
++        errors.append(tr("divisórias fora de 0 a {}").format(MAX_DIVIDERS))
+     if not 0 <= int(interior.drawers) <= MAX_DRAWERS:
+-        errors.append(f"gavetas internas fora de 0 a {MAX_DRAWERS}")
++        errors.append(tr("gavetas internas fora de 0 a {}").format(MAX_DRAWERS))
+     heights = list(interior.heights)
+     if heights:
+         if len(heights) != int(interior.shelves):
+-            errors.append("a quantidade de alturas não bate com a de prateleiras")
++            errors.append(tr("a quantidade de alturas não bate com a de prateleiras"))
+         if any(b <= a for a, b in zip(heights, heights[1:])):
+-            errors.append("as alturas precisam ser crescentes")
++            errors.append(tr("as alturas precisam ser crescentes"))
+         if heights[0] <= 0.0 or (inner_height is not None and heights[-1] >= inner_height):
+-            errors.append("altura fora do vão")
++            errors.append(tr("altura fora do vão"))
+     return errors
+ 
+ 
+diff --git a/caffmob_draw/geometry_free/ops_create.py b/caffmob_draw/geometry_free/ops_create.py
+index 0c6250e..7846d0d 100644
+--- a/caffmob_draw/geometry_free/ops_create.py
++++ b/caffmob_draw/geometry_free/ops_create.py
+@@ -13,6 +13,7 @@ from bpy_extras import view3d_utils  # type: ignore
+ from mathutils import Vector  # type: ignore
+ from mathutils.geometry import intersect_line_plane  # type: ignore
+ 
++from ..data.i18n import tr
+ from .. import hb_snap
+ from ..data import units
+ from . import mesh
+@@ -158,14 +159,14 @@ class BTM_OT_GeometryCreate(bpy.types.Operator):
+         g = self.obj.btm_geometry
+         unit = units.get_scene_length_unit()
+         fmt = lambda v: units.format_length(v, unit)  # noqa: E731
+-        typed = f"  Digitado: {self.typed}" if self.typed else ""
++        typed = tr("  Digitado: {}").format(self.typed) if self.typed else ""
+         if self.step == 0:
+-            text = "Clique o canto da peça (Ctrl encaixa em vértices e arestas). Esc cancela."
++            text = tr("Clique o canto da peça (Ctrl encaixa em vértices e arestas). Esc cancela.")
+         elif self.step == 1:
+-            label = "Largura" if self.typed_width is None else "Profundidade"
+-            text = f"Largura {fmt(g.width)} × Profundidade {fmt(g.depth)} — digite a {label} e Enter, ou clique.{typed}"
++            label = tr("Largura") if self.typed_width is None else tr("Profundidade")
++            text = tr("Largura {} × Profundidade {} — digite a {} e Enter, ou clique.{}").format(fmt(g.width), fmt(g.depth), label, typed)
+         else:
+-            text = f"Altura {fmt(g.height)} — digite e Enter, ou clique.{typed}"
++            text = tr("Altura {} — digite e Enter, ou clique.{}").format(fmt(g.height), typed)
+         context.area.header_text_set(text)
+ 
+     def _finish(self, context):
+diff --git a/caffmob_draw/geometry_free/props.py b/caffmob_draw/geometry_free/props.py
+index a1684db..7fbfc99 100644
+--- a/caffmob_draw/geometry_free/props.py
++++ b/caffmob_draw/geometry_free/props.py
+@@ -11,6 +11,7 @@ que mudar a espessura não move a face de apoio (RF-12).
+ 
+ import bpy  # type: ignore
+ 
++from ..data.i18n import N_
+ from ..data import dimension_schema as schema
+ 
+ KINDS = [('PLACA', "Placa", "Uma chapa"), ('CAIXA', "Caixa", "Uma caixa fechada de seis chapas")]
+@@ -36,10 +37,10 @@ def _length(name, default, description=""):
+ class BTM_PG_GeometryProps(bpy.types.PropertyGroup):
+     kind: bpy.props.EnumProperty(name="Forma", items=KINDS, default='PLACA', update=_update)  # type: ignore
+     plane: bpy.props.EnumProperty(name="Posição da Placa", items=PLANES, default='XY', update=_update)  # type: ignore
+-    width: _length("Largura", 0.6)  # type: ignore
+-    depth: _length("Profundidade", 0.4)  # type: ignore
+-    height: _length("Altura", 0.4)  # type: ignore
+-    thickness: _length("Espessura", 0.018, "Espessura da placa; numa caixa, das seis placas")  # type: ignore
++    width: _length(N_("Largura"), 0.6)  # type: ignore
++    depth: _length(N_("Profundidade"), 0.4)  # type: ignore
++    height: _length(N_("Altura"), 0.4)  # type: ignore
++    thickness: _length(N_("Espessura"), 0.018, N_("Espessura da placa; numa caixa, das seis placas"))  # type: ignore
+     fabrication: bpy.props.BoolProperty(
+         name="Peça de Fabricação", default=False,
+         description="Entra na lista de peças e no orçamento; sem a marca é só visual")  # type: ignore
+diff --git a/caffmob_draw/inspection/adapters/aggregate_leaf.py b/caffmob_draw/inspection/adapters/aggregate_leaf.py
+index f5cdf40..d8dfaef 100644
+--- a/caffmob_draw/inspection/adapters/aggregate_leaf.py
++++ b/caffmob_draw/inspection/adapters/aggregate_leaf.py
+@@ -11,6 +11,7 @@ import math
+ import bpy  # type: ignore
+ from mathutils import Vector  # type: ignore
+ 
++from ...data.i18n import tr
+ from ...aggregates import leaf
+ from .. import fronts, pivot_math
+ 
+@@ -31,7 +32,7 @@ class AggregateLeafFront(fronts.Front):
+ 
+     @property
+     def label(self):
+-        return f"Folha — {self.obj.name}"
++        return tr("Folha — {}").format(self.obj.name)
+ 
+     @property
+     def max_value(self):
+diff --git a/caffmob_draw/inspection/adapters/room_doors.py b/caffmob_draw/inspection/adapters/room_doors.py
+index 602e4b0..74cc20e 100644
+--- a/caffmob_draw/inspection/adapters/room_doors.py
++++ b/caffmob_draw/inspection/adapters/room_doors.py
+@@ -9,6 +9,7 @@ import math
+ 
+ from mathutils import Vector  # type: ignore
+ 
++from ...data.i18n import tr
+ from .. import fronts, room_door_leaf
+ 
+ 
+@@ -20,7 +21,7 @@ class RoomDoorFront(fronts.Front):
+ 
+     @property
+     def label(self):
+-        return f"Porta de ambiente — {self.obj.name}"
++        return tr("Porta de ambiente — {}").format(self.obj.name)
+ 
+     def get(self):
+         pivots = room_door_leaf.pivots_of(self.module_root)
+diff --git a/caffmob_draw/inspection/fronts.py b/caffmob_draw/inspection/fronts.py
+index 2c68dda..dd6a9d6 100644
+--- a/caffmob_draw/inspection/fronts.py
++++ b/caffmob_draw/inspection/fronts.py
+@@ -10,6 +10,7 @@ o valor de abertura sem recalcular o módulo:
+ - `hinge_frame()`: (origem, eixo, direção de referência) em coordenadas do mundo, para o controle no 3D.
+ """
+ 
++from ..data.i18n import N_
+ from . import pivot_math
+ 
+ DOOR = 'DOOR'
+@@ -19,8 +20,8 @@ DRAWER = 'DRAWER'
+ PULLOUT = 'PULLOUT'
+ 
+ HINGED = frozenset({DOOR, FLIP_UP, FLIP_DOWN})
+-KIND_LABELS = {DOOR: "Porta", FLIP_UP: "Basculante", FLIP_DOWN: "Basculante p/ baixo", DRAWER: "Gaveta",
+-               PULLOUT: "Pullout"}
++KIND_LABELS = {DOOR: N_("Porta"), FLIP_UP: N_("Basculante"), FLIP_DOWN: N_("Basculante p/ baixo"), DRAWER: N_("Gaveta"),
++               PULLOUT: N_("Pullout")}
+ 
+ 
+ class Front:
+diff --git a/caffmob_draw/inspection/ops_inspect.py b/caffmob_draw/inspection/ops_inspect.py
+index f58f81b..e681821 100644
+--- a/caffmob_draw/inspection/ops_inspect.py
++++ b/caffmob_draw/inspection/ops_inspect.py
+@@ -9,6 +9,7 @@ import time
+ import bpy  # type: ignore
+ from bpy_extras import view3d_utils  # type: ignore
+ 
++from ..data.i18n import tr
+ from . import fronts
+ 
+ ANIM_DURATION = 0.35
+@@ -85,7 +86,7 @@ class BTM_OT_FrontsSetOpen(bpy.types.Operator):
+             except ReferenceError:
+                 continue
+         verb = "fechadas" if self.mode == 'CLOSE' else "abertas"
+-        self.report({'INFO'}, f"{len(targets)} frente(s) {verb}.")
++        self.report({'INFO'}, tr("{} frente(s) {}.").format(len(targets), verb))
+         return {'FINISHED'}
+ 
+ 
+diff --git a/caffmob_draw/inspection/ops_interference.py b/caffmob_draw/inspection/ops_interference.py
+index 2849e4e..8dfb176 100644
+--- a/caffmob_draw/inspection/ops_interference.py
++++ b/caffmob_draw/inspection/ops_interference.py
+@@ -5,6 +5,7 @@ Roda só sob demanda. Ausência de aviso só vale para as frentes verificadas: o
+ 
+ import bpy  # type: ignore
+ 
++from ..data.i18n import tr
+ from . import interference
+ from .ops_inspect import scope_fronts
+ 
+@@ -31,9 +32,9 @@ class BTM_OT_CheckFrontInterference(bpy.types.Operator):
+         if checked == 0:
+             self.report({'WARNING'}, "Nenhuma frente foi verificada: não há portas ou gavetas no escopo.")
+         elif results:
+-            self.report({'WARNING'}, f"{len(results)} interferência(s) em {checked} frente(s) verificada(s).")
++            self.report({'WARNING'}, tr("{} interferência(s) em {} frente(s) verificada(s).").format(len(results), checked))
+         else:
+-            self.report({'INFO'}, f"Nenhuma interferência nas {checked} frente(s) verificada(s).")
++            self.report({'INFO'}, tr("Nenhuma interferência nas {} frente(s) verificada(s).").format(checked))
+         return {'FINISHED'}
+ 
+ 
+diff --git a/caffmob_draw/molding/ops.py b/caffmob_draw/molding/ops.py
+index b85644b..f0c752e 100644
+--- a/caffmob_draw/molding/ops.py
++++ b/caffmob_draw/molding/ops.py
+@@ -9,6 +9,7 @@ route through it, so the dropdowns are the whole UI.
+ import bpy
+ import mathutils
+ 
++from ..data.i18n import tr
+ from . import adapters, engine, packages
+ 
+ MOLDING_TAG = 'IS_HB_MOLDING_SWEEP'
+@@ -315,7 +316,7 @@ class home_builder_OT_refresh_room_molding(bpy.types.Operator):
+ 
+     def execute(self, context):
+         made = apply_scene_packages(context.scene)
+-        self.report({'INFO'}, f"Rebuilt {made} molding run(s)")
++        self.report({'INFO'}, tr("Rebuilt {} molding run(s)").format(made))
+         return {'FINISHED'}
+ 
+ 
+diff --git a/caffmob_draw/move_over/insertion_plane.py b/caffmob_draw/move_over/insertion_plane.py
+index a990526..9e322f9 100644
+--- a/caffmob_draw/move_over/insertion_plane.py
++++ b/caffmob_draw/move_over/insertion_plane.py
+@@ -7,6 +7,7 @@ Menu de contexto do objeto › "Usar como plano de inserção" e um clique na fa
+ import bpy  # type: ignore
+ from bpy_extras import view3d_utils  # type: ignore
+ from mathutils import Matrix, Vector  # type: ignore
++from ..data.i18n import tr
+ 
+ 
+ def _plane_matrix(location, normal):
+@@ -60,7 +61,7 @@ class BTM_OT_SetInsertionPlane(bpy.types.Operator):
+         plane.matrix = [v for row in _plane_matrix(Vector(location), Vector(normal)) for v in row]
+         plane.source_name = source
+         plane.active = True
+-        self.report({'INFO'}, f"Plano de inserção: face de {source}")
++        self.report({'INFO'}, tr("Plano de inserção: face de {}").format(source))
+         return {'FINISHED'}
+ 
+     def execute(self, context):
+diff --git a/caffmob_draw/move_over/ops_dialog.py b/caffmob_draw/move_over/ops_dialog.py
+index 785e855..4b6a3dd 100644
+--- a/caffmob_draw/move_over/ops_dialog.py
++++ b/caffmob_draw/move_over/ops_dialog.py
+@@ -19,6 +19,7 @@ Fora do painel, a navegação da viewport (botão do meio, roda) continua funcio
+ 
+ import bpy  # type: ignore
+ 
++from ..data.i18n import N_, tr
+ from ..canvas2d import draw
+ from ..canvas2d.view import View2D
+ from ..data import units
+@@ -28,7 +29,7 @@ from .scene import MoveOver
+ 
+ NAV_EVENTS = {'MIDDLEMOUSE', 'WHEELUPMOUSE', 'WHEELDOWNMOUSE', 'TRACKPADPAN', 'TRACKPADZOOM', 'MOUSEROTATE',
+               'NDOF_MOTION'}
+-FIELD_LABELS = ("X", "Profundidade", "Altura")
++FIELD_LABELS = ("X", N_("Profundidade"), N_("Altura"))
+ ABS_LABELS = ("X", "Y", "Z")
+ ROTATION, STEP = 3, 4             # campos da segunda linha
+ FIELD_COUNT = 5
+@@ -196,9 +197,9 @@ class BTM_OT_MoveOverDialog(bpy.types.Operator):
+         draw.rect(sh, self.panel, draw.COLORS['panel'])
+         draw.outline(sh, self.panel, draw.COLORS['border'])
+         draw.text(self.title_pos[0], self.title_pos[1],
+-                  f"Mover Sobre — {self.mo.a.name} sobre {self.mo.b.name} (referência)", size=13)
++                  tr("Mover Sobre — {} sobre {} (referência)").format(self.mo.a.name, self.mo.b.name), size=13)
+         a, b = self.mo.box_a(), self.mo.box_b
+-        self._draw_pane(sh, self.pane_top, self.view_top, "Superior (frente embaixo)", self._top_lines(),
++        self._draw_pane(sh, self.pane_top, self.view_top, N_("Superior (frente embaixo)"), self._top_lines(),
+                         self.hot['top'], ((b[0][0], b[0][1]), (b[1][0], b[1][1])),
+                         ((a[0][0], a[0][1]), (a[1][0], a[1][1])), align.DEPTH)
+         self._draw_pane(sh, self.pane_front, self.view_front, "Frontal", self._front_lines(),
+@@ -212,13 +213,13 @@ class BTM_OT_MoveOverDialog(bpy.types.Operator):
+             draw.rect(sh, rect, draw.COLORS['button_hot'] if active else draw.COLORS['button'])
+             draw.outline(sh, rect, draw.COLORS['target_hot'] if active else draw.COLORS['border'])
+             if i == ROTATION:
+-                label, shown = "Rotação", f"{self.mo.rotation:.1f}°".replace(".", ",")
++                label, shown = N_("Rotação"), f"{self.mo.rotation:.1f}°".replace(".", ",")
+             elif i == STEP:
+-                label, shown = "Passo", draw.length_label(self.state.step)
++                label, shown = N_("Passo"), draw.length_label(self.state.step)
+             else:
+                 label, shown = labels[i], draw.length_label(values[i])
+             value = (self.buffer + "▏") if active else shown
+-            draw.text(rect[0] + 8, rect[1] + 8, f"{label}: {value}")
++            draw.text(rect[0] + 8, rect[1] + 8, f"{tr(label)}: {value}")
+         draw.button(sh, self.button_mode, "Posição relativa" if relative else "Posição absoluta",
+                     hot=point_in_rect(*self.mouse, self.button_mode))
+         draw.button(sh, self.button_save, "Salvar posição", hot=point_in_rect(*self.mouse, self.button_save))
+@@ -250,13 +251,13 @@ class BTM_OT_MoveOverDialog(bpy.types.Operator):
+         saved = self.mo.saved()
+         items = context.scene.btm_saved_positions
+         item = items.add()
+-        item.name = f"Posição {len(items)}"
++        item.name = tr("Posição {}").format(len(items))
+         item.delta, item.rotation, item.b_side = saved['delta'], saved['rotation'], saved['b_side']
+-        self.warning = f"{item.name} salva ({self.mo.a.name} em relação a {self.mo.b.name})."
++        self.warning = tr("{} salva ({} em relação a {}).").format(item.name, self.mo.a.name, self.mo.b.name)
+ 
+     def _apply_saved(self, item):
+         self.mo.apply_saved({'delta': tuple(item.delta), 'rotation': item.rotation, 'b_side': item.b_side})
+-        self.warned, self.warning = False, f"{item.name} aplicada."
++        self.warned, self.warning = False, tr("{} aplicada.").format(item.name)
+         self._fit_views()
+ 
+     def _commit_typing(self):
+@@ -267,7 +268,7 @@ class BTM_OT_MoveOverDialog(bpy.types.Operator):
+                 value = units.parse_length(self.buffer, units.get_scene_length_unit(),
+                                            allow_negative=self.typing != STEP, allow_zero=self.typing != STEP)
+         except ValueError as exc:
+-            self.warning = str(exc) if str(exc) else "Valor inválido"
++            self.warning = str(exc) if str(exc) else N_("Valor inválido")
+             return False
+         if self.typing == ROTATION:
+             self.mo.set_rotation(value)
+@@ -288,11 +289,11 @@ class BTM_OT_MoveOverDialog(bpy.types.Operator):
+             overlapping = self.mo.overlapping()
+             if overlapping:
+                 names = ", ".join(o.name for o in overlapping[:4])
+-                self.warning = f"Sobrepõe: {names}. Confirme de novo para gravar mesmo assim."
++                self.warning = tr("Sobrepõe: {}. Confirme de novo para gravar mesmo assim.").format(names)
+                 self.warned = True
+                 return {'RUNNING_MODAL'}
+         self._finish(context)
+-        self.report({'INFO'}, f"{self.mo.a.name} alinhado a {self.mo.b.name}.")
++        self.report({'INFO'}, tr("{} alinhado a {}.").format(self.mo.a.name, self.mo.b.name))
+         return {'FINISHED'}
+ 
+     def modal(self, context, event):
+diff --git a/caffmob_draw/move_over/ops_drag.py b/caffmob_draw/move_over/ops_drag.py
+index 5241e22..9dd84c5 100644
+--- a/caffmob_draw/move_over/ops_drag.py
++++ b/caffmob_draw/move_over/ops_drag.py
+@@ -13,6 +13,7 @@
+ import bpy  # type: ignore
+ from bpy_extras import view3d_utils  # type: ignore
+ 
++from ..data.i18n import tr
+ from ..canvas2d import draw
+ from ..selection import classify
+ 
+@@ -75,7 +76,7 @@ class BTM_OT_MoveOverDrag(bpy.types.Operator):
+         self._handle = bpy.types.SpaceView3D.draw_handler_add(self._draw, (), 'WINDOW', 'POST_PIXEL')
+         context.window_manager.modal_handler_add(self)
+         context.workspace.status_text_set(
+-            f"Mover Sobre: solte o botão direito sobre o objeto de referência  |  Esc: cancelar  ({self.a.name})")
++            tr("Mover Sobre: solte o botão direito sobre o objeto de referência  |  Esc: cancelar  ({})").format(self.a.name))
+         return {'RUNNING_MODAL'}
+ 
+     def _draw(self):
+diff --git a/caffmob_draw/move_over/ops_move_on_wall.py b/caffmob_draw/move_over/ops_move_on_wall.py
+index 48c05e8..5c7c4fa 100644
+--- a/caffmob_draw/move_over/ops_move_on_wall.py
++++ b/caffmob_draw/move_over/ops_move_on_wall.py
+@@ -12,6 +12,7 @@ from bpy_extras import view3d_utils  # type: ignore
+ from mathutils import Vector  # type: ignore
+ from mathutils.geometry import intersect_line_plane  # type: ignore
+ 
++from ..data.i18n import tr
+ from ..data import units
+ from ..measure import cotas, scene_cotas
+ 
+@@ -96,8 +97,7 @@ class BTM_OT_MoveOnWall(bpy.types.Operator):
+         unit = units.get_scene_length_unit()
+         fmt = lambda v: units.format_length(v, unit) if v is not None else "—"  # noqa: E731
+         context.area.header_text_set(
+-            f"Anterior {fmt(values.anterior)} | Posterior {fmt(values.posterior)} | Inferior {fmt(values.inferior)} | "
+-            "Shift: altura | Clique confirma | Esc cancela")
++            tr("Anterior {} | Posterior {} | Inferior {} | Shift: altura | Clique confirma | Esc cancela").format(fmt(values.anterior), fmt(values.posterior), fmt(values.inferior)))
+ 
+     def _end(self, context, result):
+         context.area.header_text_set(None)
+diff --git a/caffmob_draw/move_over/ops_substitute.py b/caffmob_draw/move_over/ops_substitute.py
+index 4bb694d..e8d49ae 100644
+--- a/caffmob_draw/move_over/ops_substitute.py
++++ b/caffmob_draw/move_over/ops_substitute.py
+@@ -8,6 +8,7 @@ desfazer. Nesta versão a busca cobre a biblioteca de módulos do usuário (`cus
+ import bpy  # type: ignore
+ from mathutils import Vector  # type: ignore
+ 
++from ..data.i18n import N_, tr
+ from ..customize import library_io
+ from . import reposition
+ from .scene import _frame, _local_box
+@@ -18,7 +19,7 @@ _ITEMS = []
+ def _module_items(self, context):
+     global _ITEMS
+     _ITEMS = [(e["blend"], f"{e['category']} / {e['name']}", "") for e in library_io.list_modules()]
+-    return _ITEMS or [("", "Nenhum módulo salvo", "")]
++    return _ITEMS or [("", N_("Nenhum módulo salvo"), "")]
+ 
+ 
+ def _box_in(frame_inv, obj):
+@@ -91,7 +92,7 @@ class BTM_OT_MoveOverSubstitute(bpy.types.Operator):
+         new.select_set(True)
+         context.view_layer.objects.active = new
+         self.report({'WARNING'} if warnings else {'INFO'},
+-                    " | ".join(warnings) if warnings else f"{name} substituído por {new.name}")
++                    " | ".join(warnings) if warnings else tr("{} substituído por {}").format(name, new.name))
+         return {'FINISHED'}
+ 
+ 
+diff --git a/caffmob_draw/move_over/scene.py b/caffmob_draw/move_over/scene.py
+index 1d7cb40..e0930a1 100644
+--- a/caffmob_draw/move_over/scene.py
++++ b/caffmob_draw/move_over/scene.py
+@@ -12,6 +12,7 @@ import math
+ 
+ from mathutils import Matrix, Vector  # type: ignore
+ 
++from ..data.i18n import tr
+ from ..selection import classify
+ from . import align, reposition
+ 
+@@ -40,7 +41,7 @@ class MoveOver:
+         self.a = classify.movable_root(obj_a)
+         self.b = classify.reference_root(obj_b)
+         if self.a is None or self.b is None or self.a == self.b:
+-            raise ValueError("Esses objetos não podem ser usados no Mover Sobre.")
++            raise ValueError(tr("Esses objetos não podem ser usados no Mover Sobre."))
+         info_b = classify.classify(self.b)
+         self.b_is_wall = info_b.kind == classify.WALL
+         self.original_parent = self.a.parent
+diff --git a/caffmob_draw/standards/api.py b/caffmob_draw/standards/api.py
+index ada62a6..8d358f1 100644
+--- a/caffmob_draw/standards/api.py
++++ b/caffmob_draw/standards/api.py
+@@ -6,6 +6,7 @@ lista de pendências e validação ("Valor Inválido" — RN-06). Valores em mm
+ 
+ import uuid
+ 
++from ..data.i18n import N_, tr
+ from ..data import dimension_schema as schema
+ from ..data import units
+ from . import builtin
+@@ -38,7 +39,7 @@ def ensure_ready(scene=None):
+     """Garante as definições embutidas e um índice ativo válido. Devolve `Scene.btm_standards`."""
+     data = standards(scene)
+     if data is None:
+-        raise StandardsError("Padrão de Dimensões indisponível nesta cena.")
++        raise StandardsError(tr("Padrão de Dimensões indisponível nesta cena."))
+     builtin.ensure_builtins(data)
+     if data.active_index >= len(data.definitions):
+         data.active_index = 0
+@@ -69,7 +70,7 @@ def set_active(scene, definition):
+         if item.as_pointer() == definition.as_pointer():
+             data.active_index = index
+             return
+-    raise StandardsError("Definição não encontrada.")
++    raise StandardsError(tr("Definição não encontrada."))
+ 
+ 
+ def new_uid():
+@@ -122,14 +123,14 @@ def duplicate_definition(scene, definition, name=None):
+ 
+ def remove_definition(scene, definition):
+     if definition.builtin:
+-        raise StandardsError("Definições embutidas não podem ser excluídas.")
++        raise StandardsError(tr("Definições embutidas não podem ser excluídas."))
+     data = standards(scene)
+     for index, item in enumerate(data.definitions):
+         if item.as_pointer() == definition.as_pointer():
+             data.definitions.remove(index)
+             data.active_index = min(data.active_index, max(len(data.definitions) - 1, 0))
+             return
+-    raise StandardsError("Definição não encontrada.")
++    raise StandardsError(tr("Definição não encontrada."))
+ 
+ 
+ # ----------------------------------------------------------------------------------------------------------------
+@@ -147,7 +148,7 @@ def get_definition_value(definition, key):
+         return _raw_value(item)
+     param = schema.get_param(key)
+     if param is None:
+-        raise StandardsError(f"Parâmetro desconhecido: {key}")
++        raise StandardsError(tr("Parâmetro desconhecido: {}").format(key))
+     return param.default(definition.market)
+ 
+ 
+@@ -175,7 +176,7 @@ def definition_values(definition):
+ def _write(collection, key, value):
+     param = schema.get_param(key)
+     if param is None:
+-        raise StandardsError(f"Parâmetro desconhecido: {key}")
++        raise StandardsError(tr("Parâmetro desconhecido: {}").format(key))
+     ok, message = schema.validate(param, value)
+     if not ok:
+         raise StandardsError(message)
+@@ -193,7 +194,7 @@ def _write(collection, key, value):
+ 
+ def set_value(definition, key, value):
+     if definition.builtin:
+-        raise StandardsError("Definições embutidas são somente leitura: duplique para editar.")
++        raise StandardsError(tr("Definições embutidas são somente leitura: duplique para editar."))
+     _write(definition.values, key, value)
+ 
+ 
+@@ -203,7 +204,7 @@ def set_values(definition, values):
+     for key, value in values.items():
+         param = schema.get_param(key)
+         if param is None:
+-            errors.append(f"Parâmetro desconhecido: {key}")
++            errors.append(tr("Parâmetro desconhecido: {}").format(key))
+             continue
+         ok, message = schema.validate(param, value)
+         if not ok:
+@@ -269,8 +270,8 @@ def pending_changes(scene, draft):
+         if not same:
+             changes.append({
+                 'key': item.name,
+-                'label': f"{schema.line_label(param.line) if param.line != 'GLOBAL' else 'Medidas Máximas'} › "
+-                         f"{_component_label(param)}{param.label_pt}",
++                'label': f"{tr(schema.line_label(param.line)) if param.line != 'GLOBAL' else tr('Medidas Máximas')} › "
++                         f"{_component_label(param)}{tr(param.label_pt)}",
+                 'old': format_param_value(param, old, unit),
+                 'new': format_param_value(param, new, unit),
+             })
+@@ -279,7 +280,7 @@ def pending_changes(scene, draft):
+ 
+ def _component_label(param):
+     if param.component:
+-        return f"{schema.COMPONENTS_BY_CODE[param.component].label_pt} › "
++        return f"{tr(schema.COMPONENTS_BY_CODE[param.component].label_pt)} › "
+     return ""
+ 
+ 
+@@ -287,9 +288,9 @@ def apply_draft(scene, draft, include_manual=False):
+     """Grava o rascunho na definição (versão +1) e sincroniza os módulos. Devolve o relatório da sincronização."""
+     definition = draft_definition(scene, draft)
+     if definition is None:
+-        raise StandardsError("A definição do rascunho não existe mais.")
++        raise StandardsError(tr("A definição do rascunho não existe mais."))
+     if definition.builtin:
+-        raise StandardsError("Definições embutidas são somente leitura: duplique para editar.")
++        raise StandardsError(tr("Definições embutidas são somente leitura: duplique para editar."))
+     changes = pending_changes(scene, draft)
+     if draft.definition_name and draft.definition_name != definition.name:
+         definition.name = unique_name(scene, draft.definition_name)
+@@ -341,7 +342,7 @@ def rebuild_tree(draft):
+ 
+     params = [p for p in schema.params_for(group=schema.GROUP_MAX) if matches(p)]
+     if params:
+-        add("Medidas Máximas", 'GROUP', 0, "MAX")
++        add(N_("Medidas Máximas"), 'GROUP', 0, "MAX")
+         if is_open("MAX"):
+             for p in params:
+                 add(p.label_pt, 'PARAM', 1, "MAX", p.key)
+@@ -356,7 +357,7 @@ def rebuild_tree(draft):
+             continue
+         if ext:
+             path = f"{line}/EXT"
+-            add("Dimensões Externas", 'GROUP', 1, path)
++            add(N_("Dimensões Externas"), 'GROUP', 1, path)
+             if is_open(path):
+                 for p in ext:
+                     add(p.label_pt, 'PARAM', 2, path, p.key)
+diff --git a/caffmob_draw/standards/io_json.py b/caffmob_draw/standards/io_json.py
+index c3c79b2..0299dd9 100644
+--- a/caffmob_draw/standards/io_json.py
++++ b/caffmob_draw/standards/io_json.py
+@@ -8,6 +8,7 @@ import json
+ import os
+ import tempfile
+ 
++from ..data.i18n import tr
+ from ..data import dimension_schema as schema
+ 
+ FORMAT = "caffmob_draw.dimension-standard"
+@@ -72,20 +73,20 @@ def values_to_document(name, uid, market, source, version, updated_at, values, r
+ def document_to_values(document):
+     """Valida o documento e devolve (valores planos, avisos). Levanta StandardFileError se algo for inválido."""
+     if not isinstance(document, dict) or document.get("schema") not in ACCEPTED_FORMATS:
+-        raise StandardFileError("O arquivo não é uma definição de dimensões do CAFFMob Draw.")
++        raise StandardFileError(tr("O arquivo não é uma definição de dimensões do CAFFMob Draw."))
+     version = document.get("schema_version")
+     if not isinstance(version, int):
+-        raise StandardFileError("Versão do formato ausente.")
++        raise StandardFileError(tr("Versão do formato ausente."))
+     if version > SCHEMA_VERSION:
+-        raise StandardFileError("Arquivo criado por uma versão mais nova da extensão: atualize o CAFFMob Draw.")
++        raise StandardFileError(tr("Arquivo criado por uma versão mais nova da extensão: atualize o CAFFMob Draw."))
+     if document.get("unit", "mm") != "mm":
+-        raise StandardFileError("Unidade do arquivo deve ser mm.")
++        raise StandardFileError(tr("Unidade do arquivo deve ser mm."))
+     values, warnings, errors = {}, [], []
+ 
+     def put(key, value):
+         param = schema.get_param(key)
+         if param is None:
+-            warnings.append(f"Parâmetro desconhecido ignorado: {key}")
++            warnings.append(tr("Parâmetro desconhecido ignorado: {}").format(key))
+             return
+         ok, message = schema.validate(param, value)
+         if ok:
+@@ -97,7 +98,7 @@ def document_to_values(document):
+         put(schema.max_key(fname), value)
+     for line, data in (document.get("lines") or {}).items():
+         if line not in schema.LINE_CODES:
+-            warnings.append(f"Linha desconhecida ignorada: {line}")
++            warnings.append(tr("Linha desconhecida ignorada: {}").format(line))
+             continue
+         for fname, value in (data.get("external") or {}).items():
+             put(schema.external_key(line, fname), value)
+@@ -110,7 +111,7 @@ def document_to_values(document):
+                     else:
+                         put(schema.sheet_key(line, comp, fname), value)
+     if errors:
+-        raise StandardFileError("Valores fora do domínio:\n" + "\n".join(errors))
++        raise StandardFileError(tr("Valores fora do domínio:\n{}").format("\n".join(errors)))
+     return values, warnings
+ 
+ 
+@@ -138,9 +139,9 @@ def read_document(path):
+         with open(str(path), encoding='utf-8') as handle:
+             return json.load(handle)
+     except json.JSONDecodeError as exc:
+-        raise StandardFileError(f"JSON inválido (linha {exc.lineno}, coluna {exc.colno}).") from None
++        raise StandardFileError(tr("JSON inválido (linha {}, coluna {}).").format(exc.lineno, exc.colno)) from None
+     except OSError as exc:
+-        raise StandardFileError(f"Não foi possível ler o arquivo: {exc}") from None
++        raise StandardFileError(tr("Não foi possível ler o arquivo: {}").format(exc)) from None
+ 
+ 
+ # ----------------------------------------------------------------------------------------------------------------
+diff --git a/caffmob_draw/standards/io_promob.py b/caffmob_draw/standards/io_promob.py
+index 9f7a4b2..3c11b8b 100644
+--- a/caffmob_draw/standards/io_promob.py
++++ b/caffmob_draw/standards/io_promob.py
+@@ -12,6 +12,7 @@ import tempfile
+ import xml.etree.ElementTree as ET
+ from dataclasses import dataclass, field
+ 
++from ..data.i18n import tr
+ from ..data import dimension_schema as schema
+ 
+ 
+@@ -34,12 +35,12 @@ def read_dimensionexport(path):
+         tree = ET.parse(str(path))
+     except ET.ParseError as exc:
+         line, column = getattr(exc, 'position', (0, 0))
+-        raise PromobFormatError(f"Arquivo XML inválido (linha {line}, coluna {column}).") from None
++        raise PromobFormatError(tr("Arquivo XML inválido (linha {}, coluna {}).").format(line, column)) from None
+     except OSError as exc:
+-        raise PromobFormatError(f"Não foi possível ler o arquivo: {exc}") from None
++        raise PromobFormatError(tr("Não foi possível ler o arquivo: {}").format(exc)) from None
+     root = tree.getroot()
+     if root.tag != 'DIMENSIONEXPORT':
+-        raise PromobFormatError(f"Não é uma configuração de dimensões do Promob (raiz <{root.tag}>).")
++        raise PromobFormatError(tr("Não é uma configuração de dimensões do Promob (raiz <{}>).").format(root.tag))
+     definition = root.find('DEFINITION')
+     name = " ".join((definition.get('DESCRIPTION', '') if definition is not None else '').split())
+     doc = PromobDocument(
+@@ -53,7 +54,7 @@ def read_dimensionexport(path):
+         if attr_id:
+             doc.attributes.append((attr_id, attr.get('VALUE', '')))
+     if not doc.attributes:
+-        raise PromobFormatError("O arquivo não contém atributos de dimensão.")
++        raise PromobFormatError(tr("O arquivo não contém atributos de dimensão."))
+     return doc
+ 
+ 

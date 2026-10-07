@@ -47,6 +47,7 @@ import gpu
 from mathutils import Vector
 from bpy_extras import view3d_utils
 
+from ...data.i18n import tr
 from ... import units
 from ... import hb_placement
 from ...hb_gpu_draw import get_visible_window_bounds
@@ -727,7 +728,7 @@ class hb_face_frame_OT_edit_dim_label(bpy.types.Operator):
                 return {'FINISHED'}
             if obj is None or value is None or value <= 0.0:
                 self.report({'WARNING'},
-                            f"Could not read '{typed}' as a size")
+                            tr("Could not read '{}' as a size").format(typed))
                 self._finish(context)
                 return {'CANCELLED'}
             self._finish(context)

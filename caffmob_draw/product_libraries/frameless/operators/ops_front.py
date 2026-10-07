@@ -1,4 +1,5 @@
 import bpy
+from ....data.i18n import N_
 from .... import hb_utils
 
 class hb_frameless_OT_door_front_prompts(bpy.types.Operator):
@@ -69,18 +70,18 @@ class hb_frameless_OT_door_front_prompts(bpy.types.Operator):
             box = layout.box()
             box.label(text="Frame Sizes")
             col = box.column(align=True)
-            self.draw_modifier_input(col, mod, "Left Stile Width", "Left Stile")
-            self.draw_modifier_input(col, mod, "Right Stile Width", "Right Stile")
-            self.draw_modifier_input(col, mod, "Top Rail Width", "Top Rail")
-            self.draw_modifier_input(col, mod, "Bottom Rail Width", "Bottom Rail")
+            self.draw_modifier_input(col, mod, "Left Stile Width", N_("Left Stile"))
+            self.draw_modifier_input(col, mod, "Right Stile Width", N_("Right Stile"))
+            self.draw_modifier_input(col, mod, "Top Rail Width", N_("Top Rail"))
+            self.draw_modifier_input(col, mod, "Bottom Rail Width", N_("Bottom Rail"))
 
             box = layout.box()
             box.label(text="Mid Rail")
             col = box.column(align=True)
-            self.draw_modifier_input(col, mod, "Add Mid Rail", "Add Mid Rail")
-            self.draw_modifier_input(col, mod, "Mid Rail Width", "Width")
-            self.draw_modifier_input(col, mod, "Center Mid Rail", "Center Mid Rail")
-            self.draw_modifier_input(col, mod, "Mid Rail Location", "Location")
+            self.draw_modifier_input(col, mod, "Add Mid Rail", N_("Add Mid Rail"))
+            self.draw_modifier_input(col, mod, "Mid Rail Width", N_("Width"))
+            self.draw_modifier_input(col, mod, "Center Mid Rail", N_("Center Mid Rail"))
+            self.draw_modifier_input(col, mod, "Mid Rail Location", N_("Location"))
 
 
 class hb_frameless_OT_delete_front(bpy.types.Operator):

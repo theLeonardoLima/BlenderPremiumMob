@@ -3,6 +3,7 @@ import math
 import gpu
 from gpu_extras.batch import batch_for_shader
 from mathutils import Vector
+from ..data.i18n import tr
 from ..geometry.mesh_gen import generate_wall_from_segments
 from ..data import units
 
@@ -271,7 +272,7 @@ class BTM_OT_WallBuilder(bpy.types.Operator):
         self.segments.append(seg)
 
         length_formatted = units.format_value((end - self.current_start).length, context.scene)
-        self.report({'INFO'}, f"Segmento {len(self.segments)}: {length_formatted} confirmado.")
+        self.report({'INFO'}, tr("Segmento {}: {} confirmado.").format(len(self.segments), length_formatted))
 
         if self._closes_loop(end):
             self._finish(context)
@@ -322,7 +323,7 @@ class BTM_OT_WallBuilder(bpy.types.Operator):
             for s in self.segments
         )
         total_formatted = units.format_value(total_length, context.scene)
-        self.report({'INFO'}, f"Paredes geradas: {len(self.segments)} segmentos, total: {total_formatted}.")
+        self.report({'INFO'}, tr("Paredes geradas: {} segmentos, total: {}.").format(len(self.segments), total_formatted))
 
         self._cleanup(context)
 
@@ -339,15 +340,15 @@ class BTM_OT_WallBuilder(bpy.types.Operator):
     def _update_header(self, context):
         if not self.building:
             context.area.header_text_set(
-                "Construtor de Parede | Clique no piso para definir o ponto inicial  |  ESC: cancelar"
+                tr("Construtor de Parede | Clique no piso para definir o ponto inicial  |  ESC: cancelar")
             )
             return
 
         field_labels = {
-            'LENGTH': 'Comprimento',
-            'ANGLE': 'Ângulo',
-            'THICKNESS': 'Espessura',
-            'HEIGHT': 'Altura',
+            'LENGTH': tr('Comprimento'),
+            'ANGLE': tr('Ângulo'),
+            'THICKNESS': tr('Espessura'),
+            'HEIGHT': tr('Altura'),
         }
 
         # Formata os valores exibidos no cabeçalho na unidade ativa do Blender
@@ -376,10 +377,7 @@ class BTM_OT_WallBuilder(bpy.types.Operator):
         seg_count = len(self.segments)
 
         context.area.header_text_set(
-            f"Parede | Segmento: {seg_count + 1}  |  "
-            f"[{active}]: {display_val}  |  "
-            f"TAB: próximo campo  |  ENTER: confirmar  |  "
-            f"Botão Direito: concluir polilinha  |  ESC: cancelar"
+            tr("Parede | Segmento: {}  |  [{}]: {}  |  TAB: próximo campo  |  ENTER: confirmar  |  Botão Direito: concluir polilinha  |  ESC: cancelar").format(seg_count + 1, active, display_val)
         )
 
     # -------------------------------------------------------------------

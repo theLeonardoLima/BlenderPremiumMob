@@ -9,6 +9,7 @@ import math
 
 from mathutils import Vector  # type: ignore
 
+from ...data.i18n import tr
 from .. import fronts, room_door_leaf
 
 
@@ -20,7 +21,7 @@ class RoomDoorFront(fronts.Front):
 
     @property
     def label(self):
-        return f"Porta de ambiente — {self.obj.name}"
+        return tr("Porta de ambiente — {}").format(self.obj.name)
 
     def get(self):
         pivots = room_door_leaf.pivots_of(self.module_root)

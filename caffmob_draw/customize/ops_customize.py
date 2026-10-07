@@ -6,6 +6,7 @@ Todos com desfazer. O vão é endereçado pelo caminho estável do adaptador (`b
 
 import bpy  # type: ignore
 
+from ..data.i18n import N_, tr
 from ..data import units
 from . import adapters, reapply, spec
 from .props import PULL_POSITION_ITEMS
@@ -51,7 +52,7 @@ def _style_items(self, context):
 def _pull_items(self, context):
     root, adapter = _target(context)
     pulls = adapter.pull_items() if adapter else []
-    items = ([("", "Puxador do projeto", "Usa a escolha geral do projeto"), (spec.NO_PULL, "Sem puxador", "")]
+    items = ([("", "Puxador do projeto", "Usa a escolha geral do projeto"), (spec.NO_PULL, N_("Sem puxador"), "")]
              + [(key, label, "") for key, label in pulls])
     _ENUM_CACHE['pull'] = items
     return items
@@ -94,7 +95,7 @@ class BTM_OT_CustomizeSetFront(_OpeningOperator, bpy.types.Operator):
             return {'CANCELLED'}
         messages = adapter.set_front(context, root, opening, self.front, self.drawer_count)
         messages += reapply.reapply(context, root)
-        _report(self, messages, f"Frente trocada para {spec.FRONT_LABELS[self.front]}")
+        _report(self, messages, tr("Frente trocada para {}").format(tr(spec.FRONT_LABELS[self.front])))
         return {'FINISHED'}
 
 
@@ -114,7 +115,7 @@ class BTM_OT_CustomizeSetStyle(_OpeningOperator, bpy.types.Operator):
             opening.btm_custom.door_style = self.style
         else:
             opening.btm_custom.drawer_style = self.style
-        _report(self, reapply.reapply(context, root), f"Estilo aplicado: {self.style or 'do módulo'}")
+        _report(self, reapply.reapply(context, root), tr("Estilo aplicado: {}").format(self.style or tr("do módulo")))
         return {'FINISHED'}
 
 
@@ -147,7 +148,7 @@ class BTM_OT_CustomizeSetPull(_OpeningOperator, bpy.types.Operator):
         else:
             opening.btm_custom.pull_model = self.model
             opening.btm_custom.pull_position = self.position
-        _report(self, reapply.reapply(context, root), "Puxador atualizado")
+        _report(self, reapply.reapply(context, root), tr("Puxador atualizado"))
         return {'FINISHED'}
 
 
@@ -184,7 +185,7 @@ class BTM_OT_CustomizeSetMaterial(bpy.types.Operator):
             root.btm_custom.set_group_material(self.group, self.material)
         else:
             context.active_object.btm_custom.material = self.material
-        _report(self, reapply.reapply(context, root), f"Material: {self.material or 'da biblioteca'}")
+        _report(self, reapply.reapply(context, root), tr("Material: {}").format(self.material or tr("da biblioteca")))
         return {'FINISHED'}
 
 
@@ -227,7 +228,7 @@ class BTM_OT_CustomizeSetInterior(_OpeningOperator, bpy.types.Operator):
         messages = adapter.set_interior(context, root, opening, inner)
         if not messages:
             messages = reapply.reapply(context, root)
-        _report(self, messages, "Divisões internas atualizadas")
+        _report(self, messages, tr("Divisões internas atualizadas"))
         return {'FINISHED'}
 
 

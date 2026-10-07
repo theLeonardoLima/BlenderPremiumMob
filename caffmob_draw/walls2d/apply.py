@@ -10,7 +10,8 @@ Para cada cadeia do modelo, na ordem dos trechos:
 Paredes que saíram do rascunho são removidas; os módulos e aberturas filhos delas ficam soltos na mesma posição (a
 remoção junto com os módulos é opção do diálogo "Remover Parede"). Depois, as esquadrias de todas as paredes são
 recalculadas (`operators/walls.update_all_wall_miters`) e pisos/tetos existentes são refeitos com o contorno novo.
-Os filhos das paredes mantêm a posição relativa ao início.
+Os filhos das paredes mantêm a posição relativa ao início. Portas e janelas acompanham a parede: com a Direção trocada
+continuam no mesmo vão, dentro da espessura, e a profundidade delas segue a espessura do trecho (BUG-20261007-YIMY).
 """
 
 import math
@@ -18,7 +19,10 @@ import math
 import bpy  # type: ignore
 
 from .. import hb_types
+from ..data.i18n import tr
 from ..operators import ops_wall_extras
+
+OPENING_TAGS = ('IS_ENTRY_DOOR_BP', 'IS_WINDOW_BP')
 
 
 def items_that_do_not_fit(plan):
@@ -81,7 +85,7 @@ def height_mismatches(plan, project_height):
     found = []
     for chain in plan.chains:
         for i, seg in enumerate(chain.segments):
-            wall = {'name': seg.source or f"nova {i + 1}", 'height': seg.height, 'end_height': seg.end_height,
+            wall = {'name': seg.source or tr("nova {}").format(i + 1), 'height': seg.height, 'end_height': seg.end_height,
                     'btm_wall_type': seg.wall_type, 'legacy_wall_type': _legacy_type(seg)}
             if heights.walls_to_equalize([wall], project_height):
                 found.append(f"{wall['name']} ({seg.height * 1000:.0f} mm)")
@@ -138,11 +142,16 @@ def apply_plan(context, plan, remove_modules=False, project_height=None):
                 context.view_layer.update()
                 for child, matrix in kept:
                     child.matrix_world = matrix
+                    if _is_opening(child):
+                        _rehost_opening(child)
             wall.set_input('Length', draft.length(i))
             wall.set_input('Thickness', seg.thickness)
             wall.set_input('Height', seg.height)
             wall.set_input('End Height', seg.end_height)
             obj['btm_wall_type'] = seg.wall_type
+            for child in obj.children:
+                if _is_opening(child):
+                    hb_types.GeoNodeCage(child).set_input('Dim Y', seg.thickness)
             seg.source = obj.name
             previous = wall
     for name in plan.removed_sources:
@@ -164,6 +173,24 @@ def apply_plan(context, plan, remove_modules=False, project_height=None):
     walls_ops.update_all_wall_miters()
     report['floors'], report['ceilings'] = refresh_floors_and_ceilings(context)
     return report
+
+
+def _is_opening(obj):
+    return any(obj.get(tag) for tag in OPENING_TAGS)
+
+
+def _rehost_opening(child):
+    """Abertura de uma parede que mudou de sentido: depois de voltar à posição no mundo ela fica girada 180° e do lado
+    de fora da espessura. Volta para dentro da parede no mesmo vão, e o arco da porta troca de lado e de mão para
+    continuar abrindo igual."""
+    width = hb_types.GeoNodeCage(child).get_input('Dim X')
+    child.location = (child.location.x - width, 0.0, child.location.z)
+    child.rotation_euler = (0.0, 0.0, 0.0)
+    for sub in child.children:
+        if 'Door Swing' in sub.name:
+            swing = hb_types.GeoNodeObject(sub)
+            for name in ('Swing Inside', 'Is Left'):
+                swing.set_input(name, not swing.get_input(name))
 
 
 def _swap_mesh(obj, built):

@@ -6,6 +6,7 @@ lista de pendências e validação ("Valor Inválido" — RN-06). Valores em mm 
 
 import uuid
 
+from ..data.i18n import N_, tr
 from ..data import dimension_schema as schema
 from ..data import units
 from . import builtin
@@ -38,7 +39,7 @@ def ensure_ready(scene=None):
     """Garante as definições embutidas e um índice ativo válido. Devolve `Scene.btm_standards`."""
     data = standards(scene)
     if data is None:
-        raise StandardsError("Padrão de Dimensões indisponível nesta cena.")
+        raise StandardsError(tr("Padrão de Dimensões indisponível nesta cena."))
     builtin.ensure_builtins(data)
     if data.active_index >= len(data.definitions):
         data.active_index = 0
@@ -69,7 +70,7 @@ def set_active(scene, definition):
         if item.as_pointer() == definition.as_pointer():
             data.active_index = index
             return
-    raise StandardsError("Definição não encontrada.")
+    raise StandardsError(tr("Definição não encontrada."))
 
 
 def new_uid():
@@ -122,14 +123,14 @@ def duplicate_definition(scene, definition, name=None):
 
 def remove_definition(scene, definition):
     if definition.builtin:
-        raise StandardsError("Definições embutidas não podem ser excluídas.")
+        raise StandardsError(tr("Definições embutidas não podem ser excluídas."))
     data = standards(scene)
     for index, item in enumerate(data.definitions):
         if item.as_pointer() == definition.as_pointer():
             data.definitions.remove(index)
             data.active_index = min(data.active_index, max(len(data.definitions) - 1, 0))
             return
-    raise StandardsError("Definição não encontrada.")
+    raise StandardsError(tr("Definição não encontrada."))
 
 
 # ----------------------------------------------------------------------------------------------------------------
@@ -147,7 +148,7 @@ def get_definition_value(definition, key):
         return _raw_value(item)
     param = schema.get_param(key)
     if param is None:
-        raise StandardsError(f"Parâmetro desconhecido: {key}")
+        raise StandardsError(tr("Parâmetro desconhecido: {}").format(key))
     return param.default(definition.market)
 
 
@@ -175,7 +176,7 @@ def definition_values(definition):
 def _write(collection, key, value):
     param = schema.get_param(key)
     if param is None:
-        raise StandardsError(f"Parâmetro desconhecido: {key}")
+        raise StandardsError(tr("Parâmetro desconhecido: {}").format(key))
     ok, message = schema.validate(param, value)
     if not ok:
         raise StandardsError(message)
@@ -193,7 +194,7 @@ def _write(collection, key, value):
 
 def set_value(definition, key, value):
     if definition.builtin:
-        raise StandardsError("Definições embutidas são somente leitura: duplique para editar.")
+        raise StandardsError(tr("Definições embutidas são somente leitura: duplique para editar."))
     _write(definition.values, key, value)
 
 
@@ -203,7 +204,7 @@ def set_values(definition, values):
     for key, value in values.items():
         param = schema.get_param(key)
         if param is None:
-            errors.append(f"Parâmetro desconhecido: {key}")
+            errors.append(tr("Parâmetro desconhecido: {}").format(key))
             continue
         ok, message = schema.validate(param, value)
         if not ok:
@@ -269,8 +270,8 @@ def pending_changes(scene, draft):
         if not same:
             changes.append({
                 'key': item.name,
-                'label': f"{schema.line_label(param.line) if param.line != 'GLOBAL' else 'Medidas Máximas'} › "
-                         f"{_component_label(param)}{param.label_pt}",
+                'label': f"{tr(schema.line_label(param.line)) if param.line != 'GLOBAL' else tr('Medidas Máximas')} › "
+                         f"{_component_label(param)}{tr(param.label_pt)}",
                 'old': format_param_value(param, old, unit),
                 'new': format_param_value(param, new, unit),
             })
@@ -279,7 +280,7 @@ def pending_changes(scene, draft):
 
 def _component_label(param):
     if param.component:
-        return f"{schema.COMPONENTS_BY_CODE[param.component].label_pt} › "
+        return f"{tr(schema.COMPONENTS_BY_CODE[param.component].label_pt)} › "
     return ""
 
 
@@ -287,9 +288,9 @@ def apply_draft(scene, draft, include_manual=False):
     """Grava o rascunho na definição (versão +1) e sincroniza os módulos. Devolve o relatório da sincronização."""
     definition = draft_definition(scene, draft)
     if definition is None:
-        raise StandardsError("A definição do rascunho não existe mais.")
+        raise StandardsError(tr("A definição do rascunho não existe mais."))
     if definition.builtin:
-        raise StandardsError("Definições embutidas são somente leitura: duplique para editar.")
+        raise StandardsError(tr("Definições embutidas são somente leitura: duplique para editar."))
     changes = pending_changes(scene, draft)
     if draft.definition_name and draft.definition_name != definition.name:
         definition.name = unique_name(scene, draft.definition_name)
@@ -341,7 +342,7 @@ def rebuild_tree(draft):
 
     params = [p for p in schema.params_for(group=schema.GROUP_MAX) if matches(p)]
     if params:
-        add("Medidas Máximas", 'GROUP', 0, "MAX")
+        add(N_("Medidas Máximas"), 'GROUP', 0, "MAX")
         if is_open("MAX"):
             for p in params:
                 add(p.label_pt, 'PARAM', 1, "MAX", p.key)
@@ -356,7 +357,7 @@ def rebuild_tree(draft):
             continue
         if ext:
             path = f"{line}/EXT"
-            add("Dimensões Externas", 'GROUP', 1, path)
+            add(N_("Dimensões Externas"), 'GROUP', 1, path)
             if is_open(path):
                 for p in ext:
                     add(p.label_pt, 'PARAM', 2, path, p.key)

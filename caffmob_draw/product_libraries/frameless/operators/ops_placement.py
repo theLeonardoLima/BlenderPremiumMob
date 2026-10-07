@@ -2,6 +2,7 @@ import bpy
 import math
 from mathutils import Vector, Matrix
 from bpy_extras import view3d_utils
+from ....data.i18n import tr
 from .. import types_frameless
 from .. import types_products
 from mathutils.geometry import intersect_line_plane, intersect_point_line
@@ -263,9 +264,9 @@ class WallObjectPlacementMixin(hb_placement.PlacementMixin):
 
         if self.offset_from_right:
             offset_from_right = self.wall_length - self.placement_x - obj_width
-            return f"Offset (→): {units.unit_to_string(unit_settings, offset_from_right)}"
+            return tr("Offset (→): {}").format(units.unit_to_string(unit_settings, offset_from_right))
         else:
-            return f"Offset (←): {units.unit_to_string(unit_settings, self.placement_x)}"
+            return tr("Offset (←): {}").format(units.unit_to_string(unit_settings, self.placement_x))
 
 class hb_frameless_OT_place_cabinet(bpy.types.Operator, WallObjectPlacementMixin):
     bl_idname = "caffmob_frameless.place_cabinet"
@@ -1617,15 +1618,15 @@ class hb_frameless_OT_place_cabinet(bpy.types.Operator, WallObjectPlacementMixin
 
         if self.placement_state == hb_placement.PlacementState.TYPING:
             target_name = {
-                hb_placement.TypingTarget.OFFSET_X: "Gap Offset (←)",
-                hb_placement.TypingTarget.OFFSET_RIGHT: "Gap Offset (→)",
-                hb_placement.TypingTarget.WIDTH: "Width",
-                hb_placement.TypingTarget.HEIGHT: "Height",
-            }.get(self.typing_target, "Value")
-            text = f"{target_name}: {self.typed_value}_ | ↑/↓ qty | ←/→ offset | Enter place | Esc cancel"
+                hb_placement.TypingTarget.OFFSET_X: tr("Gap Offset (←)"),
+                hb_placement.TypingTarget.OFFSET_RIGHT: tr("Gap Offset (→)"),
+                hb_placement.TypingTarget.WIDTH: tr("Width"),
+                hb_placement.TypingTarget.HEIGHT: tr("Height"),
+            }.get(self.typing_target, tr("Value"))
+            text = tr("{}: {}_ | ↑/↓ qty | ←/→ offset | Enter place | Esc cancel").format(target_name, self.typed_value)
         elif self.selected_wall:
             # Show which side of wall
-            side_str = "Front" if self.place_on_front else "Back"
+            side_str = tr("Front") if self.place_on_front else tr("Back")
 
             # Show both offsets if set
             offset_parts = []
@@ -1644,7 +1645,7 @@ class hb_frameless_OT_place_cabinet(bpy.types.Operator, WallObjectPlacementMixin
             total_str = units.unit_to_string(unit_settings, total_width)
             individual_str = units.unit_to_string(unit_settings, self.individual_cabinet_width)
             qty_str = f"{self.cabinet_quantity}"
-            gap_str = f"Gap: {units.unit_to_string(unit_settings, self.gap_right_boundary - self.gap_left_boundary)}"
+            gap_str = tr("Gap: {}").format(units.unit_to_string(unit_settings, self.gap_right_boundary - self.gap_left_boundary))
 
             # Add center snap indicator
             center_str = ""
@@ -1653,7 +1654,7 @@ class hb_frameless_OT_place_cabinet(bpy.types.Operator, WallObjectPlacementMixin
             elif self.center_snap_state == 'cage':
                 center_str = " | ↔ CENTERED"
 
-            text = f"{side_str} | {gap_str} | {offset_str} | {qty_str} × {individual_str} = {total_str}{center_str} | ↑/↓ qty | ←/→ offset | Enter place | Esc cancel"
+            text = tr("{} | {} | {} | {} × {} = {}{} | ↑/↓ qty | ←/→ offset | Enter place | Esc cancel").format(side_str, gap_str, offset_str, qty_str, individual_str, total_str, center_str)
         else:
             # Floor placement
             unit_settings = context.scene.unit_settings
@@ -1662,10 +1663,10 @@ class hb_frameless_OT_place_cabinet(bpy.types.Operator, WallObjectPlacementMixin
             individual_str = units.unit_to_string(unit_settings, self.individual_cabinet_width)
             qty_str = f"{self.cabinet_quantity}"
             if self.snap_cabinet:
-                snap_str = f"Snap {self.snap_side}"
-                text = f"Floor | {snap_str} | {qty_str} × {individual_str} = {total_str} | ↑/↓ qty | Click place | Esc cancel"
+                snap_str = tr("Snap {}").format(self.snap_side)
+                text = tr("Floor | {} | {} × {} = {} | ↑/↓ qty | Click place | Esc cancel").format(snap_str, qty_str, individual_str, total_str)
             else:
-                text = f"Floor | {qty_str} × {individual_str} = {total_str} | ↑/↓ qty | Click place | Esc cancel"
+                text = tr("Floor | {} × {} = {} | ↑/↓ qty | Click place | Esc cancel").format(qty_str, individual_str, total_str)
 
         hb_placement.draw_header_text(context, text)
 

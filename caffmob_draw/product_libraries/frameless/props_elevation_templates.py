@@ -10,6 +10,7 @@ from bpy.props import (
     EnumProperty,
 )
 from mathutils import Vector
+from ...data.i18n import N_, tr
 from . import types_frameless
 from ..common import types_appliances
 from ... import hb_utils, hb_types, hb_project
@@ -1419,7 +1420,7 @@ class hb_frameless_OT_select_elevation_template(Operator):
 
         template = get_template(context, self.template_name)
         if not template:
-            self.report({'ERROR'}, f"Template '{self.template_name}' not found")
+            self.report({'ERROR'}, tr("Template '{}' not found").format(self.template_name))
             return {'CANCELLED'}
 
         # Clear any existing preview
@@ -1456,7 +1457,7 @@ class hb_frameless_OT_draw_elevation_template(Operator):
         # Clear template selection
         context.scene.hb_frameless.selected_template = ""
 
-        self.report({'INFO'}, f"Created {len(cabinets)} cabinet(s)")
+        self.report({'INFO'}, tr("Created {} cabinet(s)").format(len(cabinets)))
         return {'FINISHED'}
 
 
@@ -1514,7 +1515,7 @@ def draw_elevation_template_ui(context, layout):
 
     # Template selector
     if selected == "" or selected not in TEMPLATE_REGISTRY:
-        menu_text = "Select Elevation Template..."
+        menu_text = N_("Select Elevation Template...")
     else:
         menu_text = selected
 

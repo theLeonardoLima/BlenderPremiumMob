@@ -14,6 +14,7 @@ filter_items() does three jobs in one place:
 """
 import bpy
 
+from ..data.i18n import tr
 from . import catalog_data
 from . import previews_catalog
 
@@ -79,7 +80,7 @@ class HB_UL_catalog(bpy.types.UIList):
             # Kind icon (small leading icon - product cube vs insert)
             row.label(text="", icon=kind_icon)
             # Name takes the full available width
-            row.label(text=item.name)
+            row.label(text=item.name, text_ctxt=catalog_data.TEXT_CTXT)
             # Code aligned to the right, narrow column
             if item.code:
                 code_col = row.row()
@@ -90,7 +91,7 @@ class HB_UL_catalog(bpy.types.UIList):
             # Grid view shows the thumbnail (or placeholder) + name.
             # icon_value renders a real raster image, unlike icon=.
             layout.alignment = 'CENTER'
-            layout.label(text=item.name, icon_value=thumb_icon)
+            layout.label(text=item.name, text_ctxt=catalog_data.TEXT_CTXT, icon_value=thumb_icon)
 
     def filter_items(self, context, data, propname):
         """Filter + reorder. Returns (filter_flags, neworder)."""
@@ -236,7 +237,7 @@ class HB_CATALOG_PT_browser(bpy.types.Panel):
             cell.template_icon(icon_value=thumb_icon, scale=4.0)
             op = cell.operator(
                 'caffmob_catalog.activate_item',
-                text=item.name,
+                text=item.name, text_ctxt=catalog_data.TEXT_CTXT,
             )
             op.item_id = item.item_id
 
@@ -246,19 +247,19 @@ class HB_CATALOG_PT_browser(bpy.types.Panel):
         col = box.column(align=True)
 
         kind_icon = catalog_data.KIND_ICONS.get(entry['kind'], 'QUESTION')
-        col.label(text=entry['name'], icon=kind_icon)
+        col.label(text=entry['name'], text_ctxt=catalog_data.TEXT_CTXT, icon=kind_icon)
 
         if entry.get('code') or entry.get('catalog_page'):
             sub = col.row()
             if entry.get('code'):
-                sub.label(text=f"Code: {entry['code']}")
+                sub.label(text=tr("Code: {}").format(entry['code']))
             if entry.get('catalog_page'):
                 sub.label(text=f"p. {entry['catalog_page']}")
 
         if entry.get('description'):
             col.separator()
             # Word-wrap: split into ~40-char chunks
-            desc = entry['description']
+            desc = tr(entry['description'], catalog_data.TEXT_CTXT)     # traduzida antes da quebra em linhas
             for chunk in _wrap(desc, 40):
                 col.label(text=chunk)
 

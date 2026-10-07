@@ -1,0 +1,358 @@
+{
+ "Access Panel": {
+  "pt_BR": "Painel de Acesso",
+  "en_US": "Access Panel"
+ },
+ "Bathroom/kitchen exhaust fan": {
+  "pt_BR": "Exaustor de banheiro/cozinha",
+  "en_US": "Bathroom/kitchen exhaust fan"
+ },
+ "Beam": {
+  "pt_BR": "Viga",
+  "en_US": "Beam"
+ },
+ "CAFFMob Draw Obstacle Properties": {
+  "pt_BR": "Propriedades de Obstáculo do CAFFMob Draw",
+  "en_US": "CAFFMob Draw Obstacle Properties"
+ },
+ "CO Detector": {
+  "pt_BR": "Detector de CO",
+  "en_US": "CO Detector"
+ },
+ "Cable TV or data outlet": {
+  "pt_BR": "Tomada de TV a cabo ou de dados",
+  "en_US": "Cable TV or data outlet"
+ },
+ "Cable/Data Outlet": {
+  "pt_BR": "Tomada de Dados/TV",
+  "en_US": "Cable/Data Outlet"
+ },
+ "Carbon monoxide detector": {
+  "pt_BR": "Detector de monóxido de carbono",
+  "en_US": "Carbon monoxide detector"
+ },
+ "Ceiling Fan": {
+  "pt_BR": "Ventilador de Teto",
+  "en_US": "Ceiling Fan"
+ },
+ "Ceiling Vent": {
+  "pt_BR": "Grelha de Teto",
+  "en_US": "Ceiling Vent"
+ },
+ "Ceiling fan": {
+  "pt_BR": "Ventilador de teto",
+  "en_US": "Ceiling fan"
+ },
+ "Column/Post": {
+  "pt_BR": "Pilar/Coluna",
+  "en_US": "Column/Post"
+ },
+ "Custom Circle": {
+  "pt_BR": "Círculo Personalizado",
+  "en_US": "Custom Circle"
+ },
+ "Custom Rectangle": {
+  "pt_BR": "Retângulo Personalizado",
+  "en_US": "Custom Rectangle"
+ },
+ "Custom circular obstacle": {
+  "pt_BR": "Obstáculo circular personalizado",
+  "en_US": "Custom circular obstacle"
+ },
+ "Custom rectangular obstacle": {
+  "pt_BR": "Obstáculo retangular personalizado",
+  "en_US": "Custom rectangular obstacle"
+ },
+ "Dimensions:": {
+  "pt_BR": "Dimensões:",
+  "en_US": "Dimensions:"
+ },
+ "Dimmer Switch": {
+  "pt_BR": "Dimmer",
+  "en_US": "Dimmer Switch"
+ },
+ "Dimmer light switch": {
+  "pt_BR": "Interruptor dimmer",
+  "en_US": "Dimmer light switch"
+ },
+ "Double Outlet": {
+  "pt_BR": "Tomada Dupla",
+  "en_US": "Double Outlet"
+ },
+ "Double Switch": {
+  "pt_BR": "Interruptor Duplo",
+  "en_US": "Double Switch"
+ },
+ "Double light switch": {
+  "pt_BR": "Interruptor duplo",
+  "en_US": "Double light switch"
+ },
+ "Double-gang electrical outlet": {
+  "pt_BR": "Tomada elétrica dupla",
+  "en_US": "Double-gang electrical outlet"
+ },
+ "Exhaust Fan": {
+  "pt_BR": "Exaustor",
+  "en_US": "Exhaust Fan"
+ },
+ "Fire Alarm Pull": {
+  "pt_BR": "Acionador de Alarme de Incêndio",
+  "en_US": "Fire Alarm Pull"
+ },
+ "Fire Sprinkler": {
+  "pt_BR": "Sprinkler",
+  "en_US": "Fire Sprinkler"
+ },
+ "Fire alarm pull station": {
+  "pt_BR": "Acionador manual de alarme de incêndio",
+  "en_US": "Fire alarm pull station"
+ },
+ "Fire sprinkler head": {
+  "pt_BR": "Bico de sprinkler",
+  "en_US": "Fire sprinkler head"
+ },
+ "Floor Box": {
+  "pt_BR": "Caixa de Piso",
+  "en_US": "Floor Box"
+ },
+ "Floor Drain": {
+  "pt_BR": "Ralo",
+  "en_US": "Floor Drain"
+ },
+ "Floor Outlet": {
+  "pt_BR": "Tomada de Piso",
+  "en_US": "Floor Outlet"
+ },
+ "Floor Vent": {
+  "pt_BR": "Grelha de Piso",
+  "en_US": "Floor Vent"
+ },
+ "Floor drain": {
+  "pt_BR": "Ralo de piso",
+  "en_US": "Floor drain"
+ },
+ "Floor electrical outlet": {
+  "pt_BR": "Tomada elétrica de piso",
+  "en_US": "Floor electrical outlet"
+ },
+ "GFCI Outlet": {
+  "pt_BR": "Tomada com DR",
+  "en_US": "GFCI Outlet"
+ },
+ "Ground fault circuit interrupter outlet": {
+  "pt_BR": "Tomada com interruptor diferencial residual",
+  "en_US": "Ground fault circuit interrupter outlet"
+ },
+ "HVAC ceiling vent": {
+  "pt_BR": "Grelha de ventilação de teto",
+  "en_US": "HVAC ceiling vent"
+ },
+ "HVAC floor vent/register": {
+  "pt_BR": "Grelha de ventilação de piso",
+  "en_US": "HVAC floor vent/register"
+ },
+ "HVAC return air vent": {
+  "pt_BR": "Grelha de retorno de ar",
+  "en_US": "HVAC return air vent"
+ },
+ "HVAC wall vent/register": {
+  "pt_BR": "Grelha de ventilação de parede",
+  "en_US": "HVAC wall vent/register"
+ },
+ "Height from Floor": {
+  "pt_BR": "Altura do Piso",
+  "en_US": "Height from Floor"
+ },
+ "Height of obstacle center from floor (for wall obstacles)": {
+  "pt_BR": "Altura do centro do obstáculo em relação ao piso (obstáculos de parede)",
+  "en_US": "Height of obstacle center from floor (for wall obstacles)"
+ },
+ "Horizontal Pipe": {
+  "pt_BR": "Tubo Horizontal",
+  "en_US": "Horizontal Pipe"
+ },
+ "Horizontal pipe/conduit": {
+  "pt_BR": "Tubo/eletroduto horizontal",
+  "en_US": "Horizontal pipe/conduit"
+ },
+ "Intercom": {
+  "pt_BR": "Interfone",
+  "en_US": "Intercom"
+ },
+ "Large Access Panel": {
+  "pt_BR": "Painel de Acesso Grande",
+  "en_US": "Large Access Panel"
+ },
+ "Large Floor Vent": {
+  "pt_BR": "Grelha de Piso Grande",
+  "en_US": "Large Floor Vent"
+ },
+ "Large HVAC floor vent": {
+  "pt_BR": "Grelha de ventilação de piso grande",
+  "en_US": "Large HVAC floor vent"
+ },
+ "Large HVAC wall vent": {
+  "pt_BR": "Grelha de ventilação de parede grande",
+  "en_US": "Large HVAC wall vent"
+ },
+ "Large Wall Vent": {
+  "pt_BR": "Grelha de Parede Grande",
+  "en_US": "Large Wall Vent"
+ },
+ "Large wall access panel": {
+  "pt_BR": "Painel de acesso grande na parede",
+  "en_US": "Large wall access panel"
+ },
+ "Light Switch": {
+  "pt_BR": "Interruptor",
+  "en_US": "Light Switch"
+ },
+ "Multi-service floor box": {
+  "pt_BR": "Caixa de piso com várias tomadas",
+  "en_US": "Multi-service floor box"
+ },
+ "Obstacle Props": {
+  "pt_BR": "Propriedades do Obstáculo",
+  "en_US": "Obstacle Props"
+ },
+ "Obstacle Type": {
+  "pt_BR": "Tipo de Obstáculo",
+  "en_US": "Obstacle Type"
+ },
+ "Obstacle depth (into wall/floor)": {
+  "pt_BR": "Profundidade do obstáculo (na parede/piso)",
+  "en_US": "Obstacle depth (into wall/floor)"
+ },
+ "Obstacle height": {
+  "pt_BR": "Altura do obstáculo",
+  "en_US": "Obstacle height"
+ },
+ "Obstacle width": {
+  "pt_BR": "Largura do obstáculo",
+  "en_US": "Obstacle width"
+ },
+ "Recessed Light": {
+  "pt_BR": "Luminária Embutida",
+  "en_US": "Recessed Light"
+ },
+ "Recessed ceiling light": {
+  "pt_BR": "Luminária embutida no teto",
+  "en_US": "Recessed ceiling light"
+ },
+ "Return Vent": {
+  "pt_BR": "Grelha de Retorno",
+  "en_US": "Return Vent"
+ },
+ "Select an obstacle type": {
+  "pt_BR": "Escolha um tipo de obstáculo",
+  "en_US": "Select an obstacle type"
+ },
+ "Show Dimensions": {
+  "pt_BR": "Mostrar Dimensões",
+  "en_US": "Show Dimensions"
+ },
+ "Show obstacle dimensions in the UI": {
+  "pt_BR": "Mostra as dimensões do obstáculo na interface",
+  "en_US": "Show obstacle dimensions in the UI"
+ },
+ "Single light switch": {
+  "pt_BR": "Interruptor simples",
+  "en_US": "Single light switch"
+ },
+ "Small Ceiling Fan": {
+  "pt_BR": "Ventilador de Teto Pequeno",
+  "en_US": "Small Ceiling Fan"
+ },
+ "Small Recessed Light": {
+  "pt_BR": "Luminária Embutida Pequena",
+  "en_US": "Small Recessed Light"
+ },
+ "Small ceiling fan (42\")": {
+  "pt_BR": "Ventilador de teto pequeno (42\")",
+  "en_US": "Small ceiling fan (42\")"
+ },
+ "Small recessed light (4\")": {
+  "pt_BR": "Luminária embutida pequena (4\")",
+  "en_US": "Small recessed light (4\")"
+ },
+ "Smoke Detector": {
+  "pt_BR": "Detector de Fumaça",
+  "en_US": "Smoke Detector"
+ },
+ "Smoke/fire detector": {
+  "pt_BR": "Detector de fumaça/incêndio",
+  "en_US": "Smoke/fire detector"
+ },
+ "Standard Outlet": {
+  "pt_BR": "Tomada Simples",
+  "en_US": "Standard Outlet"
+ },
+ "Standard electrical outlet": {
+  "pt_BR": "Tomada elétrica simples",
+  "en_US": "Standard electrical outlet"
+ },
+ "Structural beam": {
+  "pt_BR": "Viga estrutural",
+  "en_US": "Structural beam"
+ },
+ "Structural column or post": {
+  "pt_BR": "Pilar ou coluna estrutural",
+  "en_US": "Structural column or post"
+ },
+ "Surface Light": {
+  "pt_BR": "Luminária de Sobrepor",
+  "en_US": "Surface Light"
+ },
+ "Surface mount ceiling light": {
+  "pt_BR": "Luminária de sobrepor no teto",
+  "en_US": "Surface mount ceiling light"
+ },
+ "Thermostat": {
+  "pt_BR": "Termostato",
+  "en_US": "Thermostat"
+ },
+ "Type of obstacle to place": {
+  "pt_BR": "Tipo de obstáculo a inserir",
+  "en_US": "Type of obstacle to place"
+ },
+ "Vertical Pipe": {
+  "pt_BR": "Tubo Vertical",
+  "en_US": "Vertical Pipe"
+ },
+ "Vertical pipe/conduit": {
+  "pt_BR": "Tubo/eletroduto vertical",
+  "en_US": "Vertical pipe/conduit"
+ },
+ "Wall Vent": {
+  "pt_BR": "Grelha de Parede",
+  "en_US": "Wall Vent"
+ },
+ "Wall access panel": {
+  "pt_BR": "Painel de acesso na parede",
+  "en_US": "Wall access panel"
+ },
+ "Wall intercom panel": {
+  "pt_BR": "Interfone de parede",
+  "en_US": "Wall intercom panel"
+ },
+ "Wall thermostat": {
+  "pt_BR": "Termostato de parede",
+  "en_US": "Wall thermostat"
+ },
+ "── Ceiling Obstacles ──": {
+  "pt_BR": "── Obstáculos de Teto ──",
+  "en_US": "── Ceiling Obstacles ──"
+ },
+ "── Floor Obstacles ──": {
+  "pt_BR": "── Obstáculos de Piso ──",
+  "en_US": "── Floor Obstacles ──"
+ },
+ "── Misc Obstacles ──": {
+  "pt_BR": "── Outros Obstáculos ──",
+  "en_US": "── Misc Obstacles ──"
+ },
+ "── Wall Obstacles ──": {
+  "pt_BR": "── Obstáculos de Parede ──",
+  "en_US": "── Wall Obstacles ──"
+ }
+}

@@ -11,6 +11,7 @@ Two operators:
 """
 import bpy
 
+from ....data.i18n import tr
 from .. import exposure
 from .. import types_face_frame
 from ..exposure import _is_face_frame_carcass
@@ -67,8 +68,7 @@ class HB_FACE_FRAME_OT_apply_finished_ends_to_exposed(bpy.types.Operator):
         target_type = scene_props.default_finished_end_type
         self.report(
             {'INFO'},
-            f"Updated {updated} exposed side(s); EXPOSED -> {target_type}, "
-            f"PARTIAL -> FINISHED",
+            tr("Updated {} exposed side(s); EXPOSED -> {}, PARTIAL -> FINISHED").format(updated, target_type),
         )
         return {'FINISHED'}
 

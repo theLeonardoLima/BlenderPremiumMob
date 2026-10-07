@@ -11,6 +11,7 @@
 import bmesh  # type: ignore
 import bpy  # type: ignore
 
+from ..data.i18n import tr
 from .. import hb_types
 
 LOWERED_PROP = 'btm_wall_lowered'
@@ -128,7 +129,7 @@ class BTM_OT_WallRemove(bpy.types.Operator):
             if target.name in bpy.data.objects:
                 neighbors.update(remove_wall(target, self.remove_modules))
         _remiter(neighbors - names)
-        self.report({'INFO'}, f"{len(targets)} parede(s) removida(s).")
+        self.report({'INFO'}, tr("{} parede(s) removida(s).").format(len(targets)))
         return {'FINISHED'}
 
 
@@ -194,7 +195,7 @@ class BTM_OT_WallLower(bpy.types.Operator):
             else:
                 lower_wall(context, obj)
                 lowered += 1
-        self.report({'INFO'}, f"{lowered} parede(s) rebaixada(s), {raised} restaurada(s).")
+        self.report({'INFO'}, tr("{} parede(s) rebaixada(s), {} restaurada(s).").format(lowered, raised))
         return {'FINISHED'}
 
 

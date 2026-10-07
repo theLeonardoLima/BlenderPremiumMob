@@ -6,22 +6,24 @@ class attributes on the starter classes (face_frame pattern). This module
 stays import-light (no bpy) so the solver/types can be smoke-reloaded.
 """
 
+from ...data.i18n import N_
+
 # Library sections: (section label, [(catalog name, button label, desc)]).
 # The library UI draws one collapsible-free header row per section.
 STARTER_SECTIONS = [
-    ("Closets", [
-        ('Base', "Base", "Floor-mounted base closet starter"),
-        ('Tall', "Tall", "Floor-mounted full-height closet starter"),
-        ('Hanging', "Hanging", "Wall-mounted hanging closet starter"),
+    (N_("Closets"), [
+        ('Base', N_("Base"), N_("Floor-mounted base closet starter")),
+        ('Tall', N_("Tall"), N_("Floor-mounted full-height closet starter")),
+        ('Hanging', N_("Hanging"), N_("Wall-mounted hanging closet starter")),
     ]),
-    ("L Shelves", [
-        ('L Shelf Base', "Base", "Floor-mounted corner L-shelf unit"),
-        ('L Shelf Tall', "Tall", "Floor-mounted full-height corner L-shelf unit"),
-        ('L Shelf Upper', "Hanging", "Wall-mounted corner L-shelf unit"),
+    (N_("L Shelves"), [
+        ('L Shelf Base', N_("Base"), N_("Floor-mounted corner L-shelf unit")),
+        ('L Shelf Tall', N_("Tall"), N_("Floor-mounted full-height corner L-shelf unit")),
+        ('L Shelf Upper', N_("Hanging"), N_("Wall-mounted corner L-shelf unit")),
     ]),
-    ("Islands", [
-        ('Island', "Single", "Single-sided island with countertop and applied back"),
-        ('Island Double', "Double", "Double-sided island with center back"),
+    (N_("Islands"), [
+        ('Island', N_("Single"), N_("Single-sided island with countertop and applied back")),
+        ('Island Double', N_("Double"), N_("Double-sided island with center back")),
     ]),
 ]
 

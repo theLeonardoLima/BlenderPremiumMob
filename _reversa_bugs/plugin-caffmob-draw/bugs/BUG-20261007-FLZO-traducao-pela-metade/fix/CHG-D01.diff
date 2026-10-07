@@ -1,0 +1,545 @@
+diff --git a/caffmob_draw/product_libraries/closets/gpu_overlay_closets.py b/caffmob_draw/product_libraries/closets/gpu_overlay_closets.py
+index a61aae7..f6b1440 100644
+--- a/caffmob_draw/product_libraries/closets/gpu_overlay_closets.py
++++ b/caffmob_draw/product_libraries/closets/gpu_overlay_closets.py
+@@ -29,6 +29,7 @@ import gpu
+ from mathutils import Vector
+ from bpy_extras import view3d_utils
+ 
++from ...data.i18n import N_, tr
+ from ... import units
+ from ... import hb_placement
+ from ...hb_gpu_draw import get_visible_window_bounds
+@@ -64,10 +65,10 @@ _PILL_GAP = 4
+ # design review (too busy) - those actions live on the right-click
+ # menus. The overlay keeps dims, mount toggles, and the Grab pill.
+ _FILTERS = [
+-    ("Dims", 'hb_ov_show_dims',
++    (N_("Dims"), 'hb_ov_show_dims',
+      ('STARTER_', 'BAY_', 'OPEN_H', 'PART_Z', 'DRAWER_H', 'TOGGLE_LOCK'),
+      ('Starters', 'Bays', 'Openings')),
+-    ("Bottoms", 'hb_ov_show_mount',
++    (N_("Bottoms"), 'hb_ov_show_mount',
+      ('TOGGLE_BOTTOM',), ('Bays',)),
+ ]
+ 
+@@ -215,12 +216,13 @@ def _filter_pill_rects(context, area, mode):
+         pills.append((label, key))
+     if mode == 'Parts':
+         # Parts mode: only the Open Door action pill.
+-        pills.append(("Open Door", '__open_door__'))
++        pills.append((N_("Open Door"), '__open_door__'))
+     else:
+-        pills.append(("Grab", '__grab__'))
++        pills.append((N_("Grab"), '__grab__'))
+         # Static add-part actions (start the hover-to-place modals).
+-        pills.append(("Add Shelf", '__add_shelf__'))
+-        pills.append(("Add Rod", '__add_rod__'))
++        pills.append((N_("Add Shelf"), '__add_shelf__'))
++        pills.append((N_("Add Rod"), '__add_rod__'))
++    pills = [(tr(label), key) for label, key in pills]       # rótulos desenhados com blf (FLZO)
+     widths = [blf.dimensions(0, label)[0] + 24 * s for label, _k in pills]
+     h = _HUD_BTN_H * s
+     total = sum(widths) + _PILL_GAP * s * max(0, len(pills) - 1)
+@@ -791,7 +793,7 @@ class hb_closets_OT_edit_dim_label(bpy.types.Operator):
+                 return {'FINISHED'}
+             if obj is None or value is None or value <= 0.0:
+                 self.report({'WARNING'},
+-                            f"Could not read '{typed}' as a size")
++                            tr("Could not read '{}' as a size").format(typed))
+                 self._finish(context)
+                 return {'CANCELLED'}
+             self._finish(context)
+diff --git a/caffmob_draw/product_libraries/closets/materials_closets.py b/caffmob_draw/product_libraries/closets/materials_closets.py
+index 514d302..78bd4bd 100644
+--- a/caffmob_draw/product_libraries/closets/materials_closets.py
++++ b/caffmob_draw/product_libraries/closets/materials_closets.py
+@@ -17,6 +17,7 @@ import math
+ import os
+ import bpy
+ 
++from ...data.i18n import N_
+ from ... import hb_utils
+ 
+ 
+@@ -82,8 +83,8 @@ def match_enum_items(self, context):
+     (= the dynamic-enum default), then the explicit materials."""
+     global _match_enum_cache
+     if _match_enum_cache is None:
+-        items = [(MATCH, "Match Closet",
+-                  "Follow the closet material selection")]
++        items = [(MATCH, N_("Match Closet"),
++                  N_("Follow the closet material selection"))]
+         items += [(n, n, "") for n in get_material_names()]
+         _match_enum_cache = items
+     return _match_enum_cache
+diff --git a/caffmob_draw/product_libraries/closets/operators/op_grab_closet.py b/caffmob_draw/product_libraries/closets/operators/op_grab_closet.py
+index dad8b8e..eaf0752 100644
+--- a/caffmob_draw/product_libraries/closets/operators/op_grab_closet.py
++++ b/caffmob_draw/product_libraries/closets/operators/op_grab_closet.py
+@@ -26,6 +26,7 @@ from mathutils import Vector
+ from gpu_extras.batch import batch_for_shader
+ from bpy_extras import view3d_utils
+ 
++from ....data.i18n import tr
+ from .... import units
+ from ....units import inch
+ from ....hb_types import GeoNodeCage, GeoNodeCutpart
+@@ -841,7 +842,7 @@ class hb_closets_OT_grab_drag(bpy.types.Operator):
+         if event.type == 'TAB' and event.value == 'PRESS':
+             self._snap_mode = {'OFF': 'COARSE', 'COARSE': 'FINE',
+                                'FINE': 'OFF'}[self._snap_mode]
+-            self.report({'INFO'}, f"Snap: {self._snap_mode}")
++            self.report({'INFO'}, tr("Snap: {}").format(self._snap_mode))
+             return {'RUNNING_MODAL'}
+ 
+         if event.value == 'PRESS':
+diff --git a/caffmob_draw/product_libraries/closets/operators/ops_closet.py b/caffmob_draw/product_libraries/closets/operators/ops_closet.py
+index 6b27d42..e6a2381 100644
+--- a/caffmob_draw/product_libraries/closets/operators/ops_closet.py
++++ b/caffmob_draw/product_libraries/closets/operators/ops_closet.py
+@@ -15,6 +15,7 @@ import math
+ import os
+ from mathutils import Vector
+ 
++from ....data.i18n import N_, tr
+ from .... import hb_types, hb_placement, hb_snap, units
+ from ...frameless.operators.ops_placement import toggle_cabinet_color
+ # Shared wall detection (raycast + nearest-wall floor fallback). Lives in
+@@ -452,8 +453,7 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
+             src = bpy.data.objects.get(self.source_starter_name)
+             if src is None or not src.get(types_closets.TAG_STARTER_CAGE):
+                 self.report({'WARNING'},
+-                            f"Source starter not found: "
+-                            f"{self.source_starter_name}")
++                            tr("Source starter not found: {}").format(self.source_starter_name))
+                 return {'CANCELLED'}
+             name = _dispatch_name_for_starter(src)
+             if name is None:
+@@ -464,7 +464,7 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
+             self.starter_name = name
+         cls = types_closets.get_starter_class(self.starter_name)
+         if cls is None:
+-            self.report({'WARNING'}, f"Unknown starter: {self.starter_name}")
++            self.report({'WARNING'}, tr("Unknown starter: {}").format(self.starter_name))
+             return {'CANCELLED'}
+ 
+         scene_props = context.scene.hb_closets
+@@ -1188,38 +1188,35 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
+     # ---------------- header ----------------
+ 
+     def _update_header(self, context):
+-        title = (f"{self.starter_name} Starter" if self._source_obj is None
+-                 else ("Duplicate Mirror " if self.mirror else "Duplicate ")
+-                 + self._source_obj.name)
+-        bay_label = f"{self.bay_qty} bay" + ("" if self.bay_qty == 1 else "s")
+-        mode = "auto" if self._auto_bay_qty else "manual"
++        title = (tr("{} Starter").format(self.starter_name) if self._source_obj is None
++                 else tr("Duplicate Mirror {}" if self.mirror else "Duplicate {}").format(self._source_obj.name))
++        bay_label = tr("{} bay(s)").format(self.bay_qty)
++        mode = tr("auto") if self._auto_bay_qty else tr("manual")
+         width_str = units.unit_to_string(
+             context.scene.unit_settings, self._cabinet_width)
+         if self.placement_state == hb_placement.PlacementState.TYPING:
+             typed = self.get_typed_display_string()
+             label = {
+-                hb_placement.TypingTarget.WIDTH: "Width",
+-                hb_placement.TypingTarget.OFFSET_X: "Offset (left)",
+-                hb_placement.TypingTarget.OFFSET_RIGHT: "Offset (right)",
+-            }.get(self.typing_target, "Value")
++                hb_placement.TypingTarget.WIDTH: N_("Width"),
++                hb_placement.TypingTarget.OFFSET_X: N_("Offset (left)"),
++                hb_placement.TypingTarget.OFFSET_RIGHT: N_("Offset (right)"),
++            }.get(self.typing_target, N_("Value"))
++            label = tr(label)
+             if (getattr(self, '_is_island', False)
+                     and self._gap_wall is None
+                     and self.typing_target
+                     == hb_placement.TypingTarget.OFFSET_X):
+                 side = self._active_clearance_side.title()
+-                label = f"Clearance ({side})"
++                label = tr("Clearance ({})").format(tr(side))
+             hb_placement.draw_header_text(
+                 context,
+-                f"{title}  -  {label}: {typed}  -  "
+-                "Enter: apply   Esc: cancel typing   Backspace: delete")
++                tr("{}  -  {}: {}  -  Enter: apply   Esc: cancel typing   Backspace: delete").format(title, label, typed))
+         else:
+             hb_placement.draw_header_text(
+                 context,
+-                f"{title}  -  {bay_label} ({mode})  -  "
+-                f"width: {width_str}  -  "
+-                + ("F: fill gap   " if self._source_obj is not None else "")
+-                + "W/numbers: width   Up/Down: bays   Left/Right: gap offset   "
+-                "R: rotate   Click: place   Esc: cancel")
++                tr("{}  -  {} ({})  -  width: {}  -  ").format(title, bay_label, mode, width_str)
++                + (tr("F: fill gap   ") if self._source_obj is not None else "")
++                + tr("W/numbers: width   Up/Down: bays   Left/Right: gap offset   R: rotate   Click: place   Esc: cancel"))
+ 
+     # ---------------- modal ----------------
+ 
+@@ -1355,7 +1352,7 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
+             starter.create_starter(f"{self.starter_name} Closet",
+                                    captured_bay_qty)
+         except Exception as e:
+-            self.report({'ERROR'}, f"Starter creation failed: {e}")
++            self.report({'ERROR'}, tr("Starter creation failed: {}").format(e))
+             hb_placement.clear_header_text(context)
+             return {'CANCELLED'}
+ 
+@@ -1405,7 +1402,7 @@ class hb_closets_OT_place_starter(bpy.types.Operator,
+         width_str = units.unit_to_string(
+             context.scene.unit_settings, captured_width)
+         self.report({'INFO'},
+-                    f"Placed {self.starter_name} starter ({width_str})")
++                    tr("Placed {} starter ({})").format(self.starter_name, width_str))
+         return {'FINISHED'}
+ 
+     def _finalize_duplicate(self, context, captured_parent, captured_world,
+@@ -1539,7 +1536,7 @@ class hb_closets_OT_delete_bay(bpy.types.Operator):
+             # the right-click Delete Starter command).
+             name = root.name
+             types_closets.delete_starter(root)
+-            self.report({'INFO'}, f"Deleted starter {name}")
++            self.report({'INFO'}, tr("Deleted starter {}").format(name))
+             return {'FINISHED'}
+         starter = types_closets._wrap_starter(root)
+         if not starter.delete_bay(bay.get('hb_bay_index', 0)):
+@@ -1719,12 +1716,11 @@ class hb_closets_OT_add_part(bpy.types.Operator,
+             self.report({'WARNING'}, "No 3D viewport available")
+             return {'CANCELLED'}
+         self.add_placement_dim_handler(context)
+-        label = ("fixed shelf" if self.part_type == 'FIXED_SHELF'
+-                 else "closet rod")
++        label = (tr("fixed shelf") if self.part_type == 'FIXED_SHELF'
++                 else tr("closet rod"))
+         hb_placement.draw_header_text(
+             context,
+-            f"Add {label}: hover an opening, click to place "
+-            "(keeps adding), Right-click/Esc to finish")
++            tr("Add {}: hover an opening, click to place (keeps adding), Right-click/Esc to finish").format(label))
+         context.window.cursor_set('CROSSHAIR')
+         context.window_manager.modal_handler_add(self)
+         return {'RUNNING_MODAL'}
+@@ -2104,7 +2100,7 @@ class hb_closets_OT_change_bay(bpy.types.Operator):
+             _apply_selection_shading(context, root)
+         _reselect_cages(context, bays)
+         if applied > 1:
+-            self.report({'INFO'}, f"Changed {applied} bays")
++            self.report({'INFO'}, tr("Changed {} bays").format(applied))
+         return {'FINISHED'}
+ 
+ 
+@@ -2244,7 +2240,7 @@ class hb_closets_OT_change_opening(bpy.types.Operator):
+             _apply_selection_shading(context, root)
+         _reselect_cages(context, openings)
+         if applied > 1:
+-            self.report({'INFO'}, f"Changed {applied} openings")
++            self.report({'INFO'}, tr("Changed {} openings").format(applied))
+         return {'FINISHED'}
+ 
+ 
+@@ -2604,8 +2600,7 @@ class hb_closets_OT_set_corner_clearance(bpy.types.Operator):
+         for side in self._sides():
+             box = layout.box()
+             box.label(
+-                text=f"{getattr(self, 'neighbor_' + side)} occupies "
+-                     f"the corner on the {side}.")
++                text=tr("{} occupies the corner on the {}.").format(getattr(self, 'neighbor_' + side), side))
+             box.prop(self, f'clearance_{side}')
+             box.prop(self, f'top_{side}')
+             if getattr(self, f'top_{side}'):
+@@ -2748,7 +2743,7 @@ class hb_closets_OT_randomize_hangers(bpy.types.Operator):
+         if not count:
+             self.report({'INFO'}, "No hangers in the room")
+             return {'CANCELLED'}
+-        self.report({'INFO'}, f"Randomized {count} hangers")
++        self.report({'INFO'}, tr("Randomized {} hangers").format(count))
+         return {'FINISHED'}
+ 
+ 
+@@ -2795,7 +2790,7 @@ class hb_closets_OT_install_model_pack(bpy.types.Operator):
+             self.report({'WARNING'}, "No models found in the pack")
+             return {'CANCELLED'}
+         pulls_closets.refresh()
+-        self.report({'INFO'}, f"Installed {installed} models")
++        self.report({'INFO'}, tr("Installed {} models").format(installed))
+         return {'FINISHED'}
+ 
+ 
+@@ -2826,7 +2821,7 @@ class hb_closets_OT_add_molding(bpy.types.Operator):
+             self.report({'INFO'},
+                         "No qualifying runs (bays under 60\" are skipped)")
+             return {'CANCELLED'}
+-        self.report({'INFO'}, f"Added crown to {made} runs")
++        self.report({'INFO'}, tr("Added crown to {} runs").format(made))
+         return {'FINISHED'}
+ 
+ 
+@@ -2843,7 +2838,7 @@ class hb_closets_OT_delete_molding(bpy.types.Operator):
+             if obj.get(molding_closets.TAG_MOLDING):
+                 bpy.data.objects.remove(obj, do_unlink=True)
+                 removed += 1
+-        self.report({'INFO'}, f"Removed {removed} molding runs")
++        self.report({'INFO'}, tr("Removed {} molding runs").format(removed))
+         return {'FINISHED'}
+ 
+ 
+diff --git a/caffmob_draw/product_libraries/closets/props_closets.py b/caffmob_draw/product_libraries/closets/props_closets.py
+index 40d941d..910b8d1 100644
+--- a/caffmob_draw/product_libraries/closets/props_closets.py
++++ b/caffmob_draw/product_libraries/closets/props_closets.py
+@@ -23,6 +23,7 @@ from bpy.props import (
+ 
+ import os
+ 
++from ...data.i18n import N_
+ from . import const_closets as const
+ from . import starter_presets
+ from . import materials_closets
+@@ -477,55 +478,55 @@ class Closets_Scene_Props(PropertyGroup):
+             # option rows read as separate items rather than a block.
+             opts = box.column(align=False)
+ 
+-            option_row(opts, "Materials").prop(
++            option_row(opts, N_("Materials")).prop(
+                 self, 'closet_material', text="")
+             if sub_toggle(opts, 'show_material_options',
+-                          "More Material Options"):
++                          N_("More Material Options")):
+                 sub = opts.box().column(align=True)
+-                option_row(sub, "Fronts").prop(
++                option_row(sub, N_("Fronts")).prop(
+                     self, 'closet_front_material', text="")
+-                option_row(sub, "Closet Edge").prop(
++                option_row(sub, N_("Closet Edge")).prop(
+                     self, 'closet_edge_material', text="")
+-                option_row(sub, "Front Edge").prop(
++                option_row(sub, N_("Front Edge")).prop(
+                     self, 'closet_front_edge_material', text="")
+-                option_row(sub, "Door Grain").prop(
++                option_row(sub, N_("Door Grain")).prop(
+                     self, 'closet_door_grain', text="")
+-                option_row(sub, "Drawer Grain").prop(
++                option_row(sub, N_("Drawer Grain")).prop(
+                     self, 'closet_drawer_grain', text="")
+ 
+-            option_row(opts, "Pulls").prop(self, 'closet_pull', text="")
+-            if sub_toggle(opts, 'show_pull_options', "More Pull Options"):
++            option_row(opts, N_("Pulls")).prop(self, 'closet_pull', text="")
++            if sub_toggle(opts, 'show_pull_options', N_("More Pull Options")):
+                 sub = opts.box().column(align=True)
+-                option_row(sub, "Finish").prop(
++                option_row(sub, N_("Finish")).prop(
+                     self, 'closet_pull_finish', text="")
+                 sub.label(text="Vertical Location:")
+                 vrow = sub.row(align=True)
+                 vrow.prop(self, 'pull_vertical_location_base')
+                 vrow.prop(self, 'pull_vertical_location_upper')
+                 vrow.prop(self, 'pull_vertical_location_tall')
+-                option_row(sub, "From Edge").prop(
++                option_row(sub, N_("From Edge")).prop(
+                     self, 'pull_horizontal_offset', text="")
+                 sub.prop(self, 'center_pulls_on_drawer_front')
+ 
+-            rrow = option_row(opts, "Rods")
++            rrow = option_row(opts, N_("Rods"))
+             rrow.prop(self, 'closet_rod_type', text="")
+             rrow.prop(self, 'closet_rod_finish', text="")
+ 
+-            hrow = option_row(opts, "Hangers")
++            hrow = option_row(opts, N_("Hangers"))
+             hrow.prop(self, 'closet_hanger_model', text="")
+             hrow.operator('caffmob_closets.randomize_hangers', text="",
+                           icon='FILE_REFRESH')
+             hrow.operator('caffmob_closets.install_model_pack', text="",
+                           icon='IMPORT')
+ 
+-            option_row(opts, "Front Style").prop(
++            option_row(opts, N_("Front Style")).prop(
+                 self, 'closet_front_style', text="")
+-            option_row(opts, "Door Panel").prop(
++            option_row(opts, N_("Door Panel")).prop(
+                 self, 'closet_panel_type', text="")
+-            option_row(opts, "Drawer Box").prop(
++            option_row(opts, N_("Drawer Box")).prop(
+                 self, 'closet_drawer_box', text="")
+ 
+-            mrow = option_row(opts, "Molding")
++            mrow = option_row(opts, N_("Molding"))
+             mrow.prop(self, 'closet_crown_profile', text="")
+             mrow.operator('caffmob_closets.add_molding', text="", icon='ADD')
+             mrow.operator('caffmob_closets.delete_molding', text="", icon='X')
+diff --git a/caffmob_draw/product_libraries/closets/starter_presets.py b/caffmob_draw/product_libraries/closets/starter_presets.py
+index a4e0473..7717f2c 100644
+--- a/caffmob_draw/product_libraries/closets/starter_presets.py
++++ b/caffmob_draw/product_libraries/closets/starter_presets.py
+@@ -6,22 +6,24 @@ class attributes on the starter classes (face_frame pattern). This module
+ stays import-light (no bpy) so the solver/types can be smoke-reloaded.
+ """
+ 
++from ...data.i18n import N_
++
+ # Library sections: (section label, [(catalog name, button label, desc)]).
+ # The library UI draws one collapsible-free header row per section.
+ STARTER_SECTIONS = [
+-    ("Closets", [
+-        ('Base', "Base", "Floor-mounted base closet starter"),
+-        ('Tall', "Tall", "Floor-mounted full-height closet starter"),
+-        ('Hanging', "Hanging", "Wall-mounted hanging closet starter"),
++    (N_("Closets"), [
++        ('Base', N_("Base"), N_("Floor-mounted base closet starter")),
++        ('Tall', N_("Tall"), N_("Floor-mounted full-height closet starter")),
++        ('Hanging', N_("Hanging"), N_("Wall-mounted hanging closet starter")),
+     ]),
+-    ("L Shelves", [
+-        ('L Shelf Base', "Base", "Floor-mounted corner L-shelf unit"),
+-        ('L Shelf Tall', "Tall", "Floor-mounted full-height corner L-shelf unit"),
+-        ('L Shelf Upper', "Hanging", "Wall-mounted corner L-shelf unit"),
++    (N_("L Shelves"), [
++        ('L Shelf Base', N_("Base"), N_("Floor-mounted corner L-shelf unit")),
++        ('L Shelf Tall', N_("Tall"), N_("Floor-mounted full-height corner L-shelf unit")),
++        ('L Shelf Upper', N_("Hanging"), N_("Wall-mounted corner L-shelf unit")),
+     ]),
+-    ("Islands", [
+-        ('Island', "Single", "Single-sided island with countertop and applied back"),
+-        ('Island Double', "Double", "Double-sided island with center back"),
++    (N_("Islands"), [
++        ('Island', N_("Single"), N_("Single-sided island with countertop and applied back")),
++        ('Island Double', N_("Double"), N_("Double-sided island with center back")),
+     ]),
+ ]
+ 
+diff --git a/caffmob_draw/product_libraries/closets/types_closets.py b/caffmob_draw/product_libraries/closets/types_closets.py
+index 73624c0..1fccdc7 100644
+--- a/caffmob_draw/product_libraries/closets/types_closets.py
++++ b/caffmob_draw/product_libraries/closets/types_closets.py
+@@ -22,6 +22,7 @@ Width runs -Y (Mirror Y), Thickness extrudes +X (Mirror Z).
+ import bpy
+ import math
+ 
++from ...data.i18n import N_
+ from ... import hb_utils
+ from ...hb_types import (GeoNodeCage, GeoNodeCutpart, GeoNodeObject,
+                          GeoNodeDrawerBox, CabinetPartModifier)
+@@ -2077,21 +2078,21 @@ def apply_bay_data(bay_obj, data):
+ # Grouped for the menu (separators between groups); the flat BAY_CONFIGS
+ # below feeds the operator enum.
+ BAY_CONFIG_GROUPS = [
+-    [('ADJ_SHELVES', "Adjustable Shelves")],
+-    [('DOUBLE_HANG', "Double Hang"),
+-     ('DH_TOP_SHELF', "Double Hang with Top Shelf"),
+-     ('DH_MID_SHELF', "Double Hang with Mid Shelf")],
+-    [('DOORS_3DR', "Doors Over 3 Drawers"),
+-     ('DOORS_4DR', "Doors Over 4 Drawers"),
+-     ('DOORS_5DR', "Doors Over 5 Drawers"),
+-     ('DOORS_6DR', "Doors Over 6 Drawers")],
+-    [('DOORS_OPEN_3DR', "Doors Open 3 Drawers"),
+-     ('DOORS_OPEN_4DR', "Doors Open 4 Drawers"),
+-     ('DOORS_OPEN_5DR', "Doors Open 5 Drawers"),
+-     ('DOORS_OPEN_6DR', "Doors Open 6 Drawers")],
+-    [('OPEN_OVER_DOORS', "Base Doors"),
+-     ('DOORS_OVER_OPEN', "Upper Doors"),
+-     ('FULL_HEIGHT_DOORS', "Full Height Doors")],
++    [('ADJ_SHELVES', N_("Adjustable Shelves"))],
++    [('DOUBLE_HANG', N_("Double Hang")),
++     ('DH_TOP_SHELF', N_("Double Hang with Top Shelf")),
++     ('DH_MID_SHELF', N_("Double Hang with Mid Shelf"))],
++    [('DOORS_3DR', N_("Doors Over 3 Drawers")),
++     ('DOORS_4DR', N_("Doors Over 4 Drawers")),
++     ('DOORS_5DR', N_("Doors Over 5 Drawers")),
++     ('DOORS_6DR', N_("Doors Over 6 Drawers"))],
++    [('DOORS_OPEN_3DR', N_("Doors Open 3 Drawers")),
++     ('DOORS_OPEN_4DR', N_("Doors Open 4 Drawers")),
++     ('DOORS_OPEN_5DR', N_("Doors Open 5 Drawers")),
++     ('DOORS_OPEN_6DR', N_("Doors Open 6 Drawers"))],
++    [('OPEN_OVER_DOORS', N_("Base Doors")),
++     ('DOORS_OVER_OPEN', N_("Upper Doors")),
++     ('FULL_HEIGHT_DOORS', N_("Full Height Doors"))],
+ ]
+ BAY_CONFIGS = [item for group in BAY_CONFIG_GROUPS for item in group]
+ 
+@@ -2240,15 +2241,15 @@ def apply_bay_config(bay_obj, config):
+ # Opening configurations ("Change Opening" - swap one opening's contents).
+ # ---------------------------------------------------------------------------
+ OPENING_CONFIG_GROUPS = [
+-    [('ADJ_SHELVES', "Adjustable Shelves")],
+-    [('DOOR_LEFT', "Left Swing Door"),
+-     ('DOOR_RIGHT', "Right Swing Door"),
+-     ('DOOR_DOUBLE', "Double Door")],
+-    [('DRAWERS_1', "1 Drawer"), ('DRAWERS_2', "2 Drawer"),
+-     ('DRAWERS_3', "3 Drawer"), ('DRAWERS_4', "4 Drawer"),
+-     ('DRAWERS_5', "5 Drawer"), ('DRAWERS_6', "6 Drawer"),
+-     ('DRAWERS_7', "7 Drawer"), ('DRAWERS_8', "8 Drawer")],
+-    [('CUBBIES', "Cubbies")],
++    [('ADJ_SHELVES', N_("Adjustable Shelves"))],
++    [('DOOR_LEFT', N_("Left Swing Door")),
++     ('DOOR_RIGHT', N_("Right Swing Door")),
++     ('DOOR_DOUBLE', N_("Double Door"))],
++    [('DRAWERS_1', N_("1 Drawer")), ('DRAWERS_2', N_("2 Drawer")),
++     ('DRAWERS_3', N_("3 Drawer")), ('DRAWERS_4', N_("4 Drawer")),
++     ('DRAWERS_5', N_("5 Drawer")), ('DRAWERS_6', N_("6 Drawer")),
++     ('DRAWERS_7', N_("7 Drawer")), ('DRAWERS_8', N_("8 Drawer"))],
++    [('CUBBIES', N_("Cubbies"))],
+ ]
+ OPENING_CONFIGS = [item for group in OPENING_CONFIG_GROUPS for item in group]
+ 
+diff --git a/caffmob_draw/product_libraries/common/wood_hoods.py b/caffmob_draw/product_libraries/common/wood_hoods.py
+index f0085e8..e5f9bb6 100644
+--- a/caffmob_draw/product_libraries/common/wood_hoods.py
++++ b/caffmob_draw/product_libraries/common/wood_hoods.py
+@@ -20,6 +20,7 @@ import re
+ import bpy
+ from bpy.props import BoolProperty, EnumProperty, FloatProperty, IntProperty
+ 
++from ...data.i18n import tr
+ from ... import hb_utils
+ from ...hb_types import GeoNodeObject, GeoNodeCutpart
+ from ...units import inch
+@@ -1797,7 +1798,7 @@ class HOME_BUILDER_OT_build_wood_hood(bpy.types.Operator):
+ 
+     def execute(self, context):
+         build_wood_hood(context.active_object, self.style)
+-        self.report({'INFO'}, "Built %s wood hood" % self.style)
++        self.report({'INFO'}, tr("Built {} wood hood").format(self.style))
+         return {'FINISHED'}
+ 
+ 
+@@ -1919,8 +1920,8 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
+     # panel_count are shown / used).
+     for _j in range(1, 11):
+         __annotations__['bay_front_%d' % _j] = EnumProperty(
+-            name="Bay %d" % _j, items=BAY_FRONT_ITEMS, default='PANEL',
+-            description="Front for bay %d of the face frame" % _j)
++            name="Bay", items=BAY_FRONT_ITEMS, default='PANEL',
++            description="Front for this bay of the face frame")   # o número vai no rótulo do painel (FLZO)
+     del _j
+     include_left_end_panel: BoolProperty(
+         name="Left Paneled End",
+@@ -2062,7 +2063,7 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
+ 
+     def execute(self, context):
+         self._apply()
+-        self.report({'INFO'}, "Built %s wood hood" % self.style)
++        self.report({'INFO'}, tr("Built {} wood hood").format(self.style))
+         return {'FINISHED'}
+ 
+     def draw(self, context):
+@@ -2148,7 +2149,7 @@ class HOME_BUILDER_OT_wood_hood_prompts(bpy.types.Operator):
+         bays.prop(self, 'panel_count')
+         for j in range(self.panel_count):
+             row = bays.row(align=True)
+-            row.label(text="Bay %d:" % (j + 1))
++            row.label(text=tr("Bay {}:").format(j + 1))
+             row.prop(self, 'bay_front_%d' % (j + 1), text="")
+ 
+         col.separator()
+@@ -2222,7 +2223,7 @@ class HOME_BUILDER_OT_revert_hood_part(bpy.types.Operator):
+         if done == 0:
+             self.report({'WARNING'}, "No revertable hood parts (no snapshot)")
+             return {'CANCELLED'}
+-        self.report({'INFO'}, "%d hood part(s) restored to parametric" % done)
++        self.report({'INFO'}, tr("{} hood part(s) restored to parametric").format(done))
+         return {'FINISHED'}
+ 
+ 

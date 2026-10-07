@@ -13,6 +13,7 @@ from bpy.props import (
         CollectionProperty,
         EnumProperty,
         )
+from ...data.i18n import N_, tr
 from ... import units
 from ... import hb_types
 from ... import hb_utils
@@ -123,11 +124,11 @@ def get_pull_enum_items(self, context):
                 if pull['filename'] not in seen:
                     seen.add(pull['filename'])
                     items.append((pull['filename'], pull['name'],
-                                 f"Use {pull['name']}", 'OBJECT_DATA', len(items)))
+                                 tr("Use {}").format(pull['name']), 'OBJECT_DATA', len(items)))
     elif category:
         for pull in get_pulls_in_category(category):
             items.append((pull['filename'], pull['name'],
-                         f"Use {pull['name']}", 'OBJECT_DATA', len(items)))
+                         tr("Use {}").format(pull['name']), 'OBJECT_DATA', len(items)))
 
     items.append(('NONE', "No Pulls", "Don't add pulls to cabinets", 'X', len(items)))
     items.append(('CUSTOM', "Custom", "Use a custom pull object from the scene", 'EYEDROPPER', len(items)))
@@ -169,73 +170,73 @@ def get_cabinet_group_category_items(self, context):
 
 PULL_FINISHES = {
     'CHROME': {
-        'name': 'Chrome',
+        'name': N_('Chrome'),
         'color': (0.8, 0.8, 0.8, 1.0),
         'metallic': 1.0,
         'roughness': 0.1,
     },
     'BRUSHED_NICKEL': {
-        'name': 'Brushed Nickel',
+        'name': N_('Brushed Nickel'),
         'color': (0.6, 0.58, 0.55, 1.0),
         'metallic': 1.0,
         'roughness': 0.35,
     },
     'MATTE_BLACK': {
-        'name': 'Matte Black',
+        'name': N_('Matte Black'),
         'color': (0.02, 0.02, 0.02, 1.0),
         'metallic': 0.9,
         'roughness': 0.5,
     },
     'OIL_RUBBED_BRONZE': {
-        'name': 'Oil Rubbed Bronze',
+        'name': N_('Oil Rubbed Bronze'),
         'color': (0.15, 0.08, 0.05, 1.0),
         'metallic': 0.8,
         'roughness': 0.4,
     },
     'POLISHED_BRASS': {
-        'name': 'Polished Brass',
+        'name': N_('Polished Brass'),
         'color': (0.85, 0.65, 0.2, 1.0),
         'metallic': 1.0,
         'roughness': 0.15,
     },
     'SATIN_BRASS': {
-        'name': 'Satin Brass',
+        'name': N_('Satin Brass'),
         'color': (0.75, 0.6, 0.25, 1.0),
         'metallic': 1.0,
         'roughness': 0.35,
     },
     'ANTIQUE_BRASS': {
-        'name': 'Antique Brass',
+        'name': N_('Antique Brass'),
         'color': (0.5, 0.38, 0.15, 1.0),
         'metallic': 0.85,
         'roughness': 0.45,
     },
     'STAINLESS_STEEL': {
-        'name': 'Stainless Steel',
+        'name': N_('Stainless Steel'),
         'color': (0.55, 0.55, 0.55, 1.0),
         'metallic': 1.0,
         'roughness': 0.25,
     },
     'PEWTER': {
-        'name': 'Pewter',
+        'name': N_('Pewter'),
         'color': (0.4, 0.4, 0.42, 1.0),
         'metallic': 0.9,
         'roughness': 0.4,
     },
     'COPPER': {
-        'name': 'Copper',
+        'name': N_('Copper'),
         'color': (0.72, 0.45, 0.2, 1.0),
         'metallic': 1.0,
         'roughness': 0.2,
     },
     'MATTE_GOLD': {
-        'name': 'Matte Gold',
+        'name': N_('Matte Gold'),
         'color': (0.83, 0.69, 0.22, 1.0),
         'metallic': 1.0,
         'roughness': 0.4,
     },
     'POLISHED_GOLD': {
-        'name': 'Polished Gold',
+        'name': N_('Polished Gold'),
         'color': (1.0, 0.84, 0.0, 1.0),
         'metallic': 1.0,
         'roughness': 0.1,
@@ -247,7 +248,7 @@ def get_pull_finish_enum_items(self, context):
     """Generate enum items for pull finish dropdown"""
     items = []
     for key, data in PULL_FINISHES.items():
-        items.append((key, data['name'], f"Apply {data['name']} finish to pulls"))
+        items.append((key, data['name'], tr("Apply {} finish to pulls").format(tr(data['name']))))
     return items
 
 
@@ -479,7 +480,7 @@ def get_stain_color_enum_items(self, context):
     colors = finish_colors.get_all_stain_colors()
     for i, name in enumerate(colors.keys()):
         is_custom = finish_colors.is_custom_color(name, 'stain')
-        desc = f"Custom: {name}" if is_custom else name
+        desc = tr("Custom: {}").format(name) if is_custom else name
         items.append((name, name, desc, i))
     if not items:
         items.append(('Natural', "Natural", "Natural", 0))
@@ -492,7 +493,7 @@ def get_paint_color_enum_items(self, context):
     colors = finish_colors.get_all_paint_colors()
     for i, name in enumerate(colors.keys()):
         is_custom = finish_colors.is_custom_color(name, 'paint')
-        desc = f"Custom: {name}" if is_custom else name
+        desc = tr("Custom: {}").format(name) if is_custom else name
         items.append((name, name, desc, i))
     if not items:
         items.append(('Arctic White', "Arctic White", "Arctic White", 0))
@@ -1077,7 +1078,7 @@ class Frameless_Door_Style(PropertyGroup):
                 front_height = front.get_input("Length")
                 front_width = front.get_input("Width")
             except Exception:
-                return "Could not read front dimensions"
+                return tr("Could not read front dimensions")
 
             print(f"Front height: {units.meter_to_inch(front_height)}, Front width: {units.meter_to_inch(front_width)}")
             # Calculate minimum dimensions needed
@@ -1091,10 +1092,10 @@ class Frameless_Door_Style(PropertyGroup):
 
             # Check if front is large enough
             if front_width < min_width:
-                return f"Front too narrow ({front_width:.3f}m) for stile widths ({min_width:.3f}m minimum)"
+                return tr("Front too narrow ({:.3f}m) for stile widths ({:.3f}m minimum)").format(front_width, min_width)
 
             if front_height < min_height:
-                return f"Front too short ({front_height:.3f}m) for rail widths ({min_height:.3f}m minimum)"
+                return tr("Front too short ({:.3f}m) for rail widths ({:.3f}m minimum)").format(front_height, min_height)
 
             # Check if door style modifier already exists
             existing_mod = None
@@ -1864,7 +1865,7 @@ class Frameless_Scene_Props(PropertyGroup):
         else:
             # Display library items
             box = layout.box()
-            box.label(text=f"Saved Groups ({len(library_items)})", icon='ASSET_MANAGER')
+            box.label(text=tr("Saved Groups ({})").format(len(library_items)), icon='ASSET_MANAGER')
 
             # Grid layout for items with thumbnails
             flow = box.column_flow(columns=2, align=True)
@@ -1893,17 +1894,17 @@ class Frameless_Scene_Props(PropertyGroup):
     def draw_cabinet_library_ui(self,layout,context):
         # Cabinet definitions: (display_name, cabinet_name, thumbnail_name)
         base_cabinets = [
-            ("Door", "Base Door", "Base Door"),
-            ("Door Drw", "Base Door Drw", "Base Door Drw"),
-            ("Drawer", "Base Drawer", "Base Drw"),
-            ("Lap Drawer", "Lap Drawer", "Lap Drw"),
+            (N_("Door"), "Base Door", "Base Door"),
+            (N_("Door Drw"), "Base Door Drw", "Base Door Drw"),
+            (N_("Drawer"), "Base Drawer", "Base Drw"),
+            (N_("Lap Drawer"), "Lap Drawer", "Lap Drw"),
         ]
 
         upper_and_tall_cabinets = [
-            ("Upper", "Upper", "Upper"),
-            ("Upper Stacked", "Upper Stacked", "Upper Stacked"),
-            ("Tall", "Tall", "Tall"),
-            ("Tall Stacked", "Tall Stacked", "Tall Stacked"),
+            (N_("Upper"), "Upper", "Upper"),
+            (N_("Upper Stacked"), "Upper Stacked", "Upper Stacked"),
+            (N_("Tall"), "Tall", "Tall"),
+            (N_("Tall Stacked"), "Tall Stacked", "Tall Stacked"),
         ]
 
         # Base cabinets
@@ -1971,9 +1972,9 @@ class Frameless_Scene_Props(PropertyGroup):
         # Pie cut corner cabinet definitions
         layout.label(text="Pie Cut Corner")
         piecut_cabinets = [
-            ("Base", "Pie Cut Corner Base", "Frameless Base Corner"),
-            ("Tall", "Pie Cut Corner Tall", "Frameless Tall Corner"),
-            ("Upper", "Pie Cut Corner Upper", "Frameless Upper Corner"),
+            (N_("Base"), "Pie Cut Corner Base", "Frameless Base Corner"),
+            (N_("Tall"), "Pie Cut Corner Tall", "Frameless Tall Corner"),
+            (N_("Upper"), "Pie Cut Corner Upper", "Frameless Upper Corner"),
         ]
 
         flow = layout.grid_flow(row_major=True, columns=3, even_columns=True, even_rows=True, align=True)
@@ -2004,13 +2005,13 @@ class Frameless_Scene_Props(PropertyGroup):
 
         # Appliance cabinets: (display_name, cabinet_name, thumbnail_name)
         appliance_cabinets = [
-            ("Fridge Cabinet", "Refrigerator Cabinet", "Refrigerator Frameless Cabinet"),
+            (N_("Fridge Cabinet"), "Refrigerator Cabinet", "Refrigerator Frameless Cabinet"),
             # ("Base Built-In", "Base Built-In", "Base Built-In"),
             # ("Tall Built-In", "Tall Built-In", "Tall Built-In"),
-            ("Dishwasher", "Dishwasher", "Dishwasher"),
-            ("Refrigerator", "Refrigerator", "Refrigerator"),
-            ("Range", "Range", "Range"),
-            ("Range Hood", "Range Hood", "Range Hood"),
+            (N_("Dishwasher"), "Dishwasher", "Dishwasher"),
+            (N_("Refrigerator"), "Refrigerator", "Refrigerator"),
+            (N_("Range"), "Range", "Range"),
+            (N_("Range Hood"), "Range Hood", "Range Hood"),
         ]
 
         flow = layout.grid_flow(row_major=True, columns=4, even_columns=True, even_rows=True, align=True)
@@ -2030,15 +2031,15 @@ class Frameless_Scene_Props(PropertyGroup):
     def draw_part_library_ui(self,layout,context):
         # Parts definitions: (display_name, cabinet_name, thumbnail_name)
         parts = [
-            ("Floating Shelves", "Floating Shelves", "Floating Shelves"),
-            ("Valance", "Valance", "Valance"),
-            ("Support Frame", "Support Frame", "Support Frame"),
-            ("Half Wall", "Half Wall", "Half Wall"),
-            ("Misc Part", "Misc Part", "Misc Part"),
-            ("Leg", "Leg", "Leg"),
-            ("Tall Leg", "Tall Leg", "Leg"),
-            ("Upper Leg", "Upper Leg", "Leg"),
-            ("Panel", "Panel", "Panel"),
+            (N_("Floating Shelves"), "Floating Shelves", "Floating Shelves"),
+            (N_("Valance"), "Valance", "Valance"),
+            (N_("Support Frame"), "Support Frame", "Support Frame"),
+            (N_("Half Wall"), "Half Wall", "Half Wall"),
+            (N_("Misc Part"), "Misc Part", "Misc Part"),
+            (N_("Leg"), "Leg", "Leg"),
+            (N_("Tall Leg"), "Tall Leg", "Leg"),
+            (N_("Upper Leg"), "Upper Leg", "Leg"),
+            (N_("Panel"), "Panel", "Panel"),
         ]
 
         flow = layout.grid_flow(row_major=True, columns=4, even_columns=True, even_rows=True, align=True)
@@ -2205,7 +2206,7 @@ class Frameless_Scene_Props(PropertyGroup):
                 detail_scene = crown.get_detail_scene()
                 if detail_scene:
                     row = box.row()
-                    row.label(text=f"Profile Scene: {crown.detail_scene_name}", icon='CHECKMARK')
+                    row.label(text=tr("Profile Scene: {}").format(crown.detail_scene_name), icon='CHECKMARK')
                 else:
                     row = box.row()
                     row.label(text="No profile scene", icon='ERROR')
@@ -2271,7 +2272,7 @@ class Frameless_Scene_Props(PropertyGroup):
                 detail_scene = toe_kick.get_detail_scene()
                 if detail_scene:
                     row = box.row()
-                    row.label(text=f"Profile Scene: {toe_kick.detail_scene_name}", icon='CHECKMARK')
+                    row.label(text=tr("Profile Scene: {}").format(toe_kick.detail_scene_name), icon='CHECKMARK')
                 else:
                     row = box.row()
                     row.label(text="No profile scene", icon='ERROR')
@@ -2329,7 +2330,7 @@ class Frameless_Scene_Props(PropertyGroup):
                 detail_scene = upper_bottom.get_detail_scene()
                 if detail_scene:
                     row = box.row()
-                    row.label(text=f"Profile Scene: {upper_bottom.detail_scene_name}", icon='CHECKMARK')
+                    row.label(text=tr("Profile Scene: {}").format(upper_bottom.detail_scene_name), icon='CHECKMARK')
                 else:
                     row = box.row()
                     row.label(text="No profile scene", icon='ERROR')

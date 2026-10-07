@@ -1,4 +1,4 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-07T14:56:05+00:00 a partir de 1 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-07T19:54:45+00:00 a partir de 1 bugs -->
 
 # Grafo · modulos-personalizaveis
 
@@ -15,4 +15,3 @@ graph LR
 
 Heurística de triagem (não substitui priority/severity): só arestas supported/confirmed contam.
 
-- BUG-20261006-OG3P: 0

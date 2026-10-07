@@ -1,6 +1,7 @@
 import bpy
 from mathutils import Vector
 
+from ....data.i18n import tr
 from .. import types_face_frame
 from .. import types_face_frame_corner
 from .. import bay_presets
@@ -106,7 +107,7 @@ class hb_face_frame_OT_delete_cabinet(bpy.types.Operator):
         for root in roots:
             hb_utils.delete_obj_and_children(root)
 
-        self.report({'INFO'}, f"Deleted {len(roots)} cabinet(s)")
+        self.report({'INFO'}, tr("Deleted {} cabinet(s)").format(len(roots)))
         return {'FINISHED'}
 
 
@@ -212,7 +213,7 @@ class hb_face_frame_OT_join_cabinets(bpy.types.Operator):
         active_root.select_set(True)
         context.view_layer.objects.active = active_root
 
-        self.report({'INFO'}, f"Joined {len(roots)} cabinets")
+        self.report({'INFO'}, tr("Joined {} cabinets").format(len(roots)))
         return {'FINISHED'}
 
 
@@ -432,7 +433,7 @@ class hb_face_frame_OT_equalize_bays(bpy.types.Operator):
             p = r.face_frame_cabinet
             n = _bay_count(r)
             if n == 0:
-                self.report({'ERROR'}, f"{r.name} has no bays")
+                self.report({'ERROR'}, tr("{} has no bays").format(r.name))
                 return {'CANCELLED'}
             frames.append(p.left_stile_width + p.right_stile_width
                           + sum(e.width for e in p.mid_stile_widths))
@@ -459,8 +460,7 @@ class hb_face_frame_OT_equalize_bays(bpy.types.Operator):
 
         self.report(
             {'INFO'},
-            f"Equalized {total_bays} bay(s) at "
-            f"{meter_to_inch(bay_width):.2f}\" across {len(roots)} cabinet(s)")
+            tr("Equalized {} bay(s) at {:.2f}\" across {} cabinet(s)").format(total_bays, meter_to_inch(bay_width), len(roots)))
         return {'FINISHED'}
 
 
@@ -1000,7 +1000,7 @@ class hb_face_frame_OT_split_opening(bpy.types.Operator):
             pass
 
         self.report({'INFO'},
-                    f"Split {original.name} into {self.count} along {self.axis}-axis")
+                    tr("Split {} into {} along {}-axis").format(original.name, self.count, self.axis))
         return {'FINISHED'}
 
 
@@ -1175,7 +1175,7 @@ class hb_face_frame_OT_bay_prompts(bpy.types.Operator):
             'caffmob_face_frame.bay_prompts', text="Previous", icon='TRIA_LEFT',
         )
         op.bay_name = siblings[pos - 1].name if pos > 0 else ""
-        nav.label(text=f"Bay {pos + 1} of {len(siblings)}")
+        nav.label(text=tr("Bay {} of {}").format(pos + 1, len(siblings)))
         next_btn = nav.row(align=True)
         next_btn.enabled = pos < len(siblings) - 1
         op = next_btn.operator(
@@ -2280,7 +2280,7 @@ class hb_face_frame_OT_change_opening(bpy.types.Operator):
                 apply_opening_preset(opening_obj, self.config)
                 types_face_frame.recalculate_face_frame_cabinet(opening_obj)
 
-        self.report({'INFO'}, f"Changed {len(openings)} opening(s)")
+        self.report({'INFO'}, tr("Changed {} opening(s)").format(len(openings)))
 
         # A PULLOUT opening prompts for its accessory model + min-width check.
         if self.config == 'PULLOUT' and active is not None \
@@ -2421,16 +2421,16 @@ class hb_face_frame_OT_add_pullout_accessory(bpy.types.Operator):
         if item is None:
             box.label(text="No model selected")
             return
-        box.label(text="Model: %s" % item.get('name', self.product))
+        box.label(text=tr("Model: {}").format(item.get('name', self.product)))
         mw = item.get('min_opening_w')
         if mw is None:
             box.label(text="Minimum opening width: not specified")
         else:
-            box.label(text="Minimum opening width: %g\"" % mw)
+            box.label(text=tr("Minimum opening width: {:g}\"").format(mw))
             ow = meter_to_inch(self.opening_width)
             if ow + 1e-6 < mw:
                 box.label(
-                    text="Opening width %g\" is below the %g\" minimum" % (ow, mw),
+                    text=tr("Opening width {:g}\" is below the {:g}\" minimum").format(ow, mw),
                     icon='ERROR')
 
     def execute(self, context):
@@ -2463,9 +2463,9 @@ class hb_face_frame_OT_add_pullout_accessory(bpy.types.Operator):
                 types_face_frame.recalculate_face_frame_cabinet(opening_obj)
 
         if code:
-            self.report({'INFO'}, "Set pullout model on %d opening(s)" % len(openings))
+            self.report({'INFO'}, tr("Set pullout model on {} opening(s)").format(len(openings)))
         else:
-            self.report({'INFO'}, "Cleared pullout model on %d opening(s)" % len(openings))
+            self.report({'INFO'}, tr("Cleared pullout model on {} opening(s)").format(len(openings)))
         return {'FINISHED'}
 
 
@@ -2523,16 +2523,16 @@ class hb_face_frame_OT_add_interior_accessory(bpy.types.Operator):
         if item is None:
             box.label(text="No accessory selected")
             return
-        box.label(text="Accessory: %s" % item.get('name', self.product))
+        box.label(text=tr("Accessory: {}").format(item.get('name', self.product)))
         mw = item.get('min_opening_w')
         if mw is None:
             box.label(text="Minimum opening width: not specified")
         else:
-            box.label(text="Minimum opening width: %g\"" % mw)
+            box.label(text=tr("Minimum opening width: {:g}\"").format(mw))
             target = _resolve_interior_target(self, context)
             ow = _opening_width_in(target) if target is not None else None
             if ow is not None and ow + 1e-6 < mw:
-                box.label(text="Opening is %g\" wide - below the minimum" % ow,
+                box.label(text=tr("Opening is {:g}\" wide - below the minimum").format(ow),
                           icon='ERROR')
 
     def execute(self, context):
@@ -2557,7 +2557,7 @@ class hb_face_frame_OT_add_interior_accessory(bpy.types.Operator):
         root = types_face_frame.find_cabinet_root(target)
         if root is not None:
             types_face_frame.recalculate_face_frame_cabinet(root)
-        self.report({'INFO'}, "Added %s" % name)
+        self.report({'INFO'}, tr("Added {}").format(name))
         return {'FINISHED'}
 
 
@@ -2759,14 +2759,14 @@ class hb_face_frame_OT_add_accessory(bpy.types.Operator):
         if item is None:
             box.label(text="No accessory selected")
             return
-        box.label(text="Accessory: %s" % item.get('name', self.product))
+        box.label(text=tr("Accessory: {}").format(item.get('name', self.product)))
         if is_pullout:
             box.label(text="Adds a pullout front to the opening", icon='INFO')
         mw = item.get('min_opening_w')
         if mw is None:
             box.label(text="Minimum opening width: not specified")
         else:
-            box.label(text="Minimum opening width: %g\"" % mw)
+            box.label(text=tr("Minimum opening width: {:g}\"").format(mw))
             if is_pullout:
                 ow = meter_to_inch(self.opening_width)
             else:
@@ -2774,7 +2774,7 @@ class hb_face_frame_OT_add_accessory(bpy.types.Operator):
                 ow = _opening_width_in(tgt) if tgt is not None else None
             if ow is not None and ow + 1e-6 < mw:
                 box.label(
-                    text="Opening width %g\" is below the %g\" minimum" % (ow, mw),
+                    text=tr("Opening width {:g}\" is below the {:g}\" minimum").format(ow, mw),
                     icon='ERROR')
 
     def execute(self, context):
@@ -2805,7 +2805,7 @@ class hb_face_frame_OT_add_accessory(bpy.types.Operator):
                         and getattr(bay, 'face_frame_bay', None) is not None:
                     bay.face_frame_bay.width = self.opening_width
                 types_face_frame.recalculate_face_frame_cabinet(target)
-            self.report({'INFO'}, "Set pullout model: %s" % name)
+            self.report({'INFO'}, tr("Set pullout model: {}").format(name))
             return {'FINISHED'}
 
         # Every other host: a data-only ACCESSORY interior item.
@@ -2821,7 +2821,7 @@ class hb_face_frame_OT_add_accessory(bpy.types.Operator):
         root = types_face_frame.find_cabinet_root(target)
         if root is not None:
             types_face_frame.recalculate_face_frame_cabinet(root)
-        self.report({'INFO'}, "Added %s" % name)
+        self.report({'INFO'}, tr("Added {}").format(name))
         return {'FINISHED'}
 
 
@@ -3187,8 +3187,7 @@ class hb_face_frame_OT_toggle_flush_toe_kick(bpy.types.Operator):
             for root, group in by_root.values():
                 self._apply(root, group, enable)
                 types_face_frame.recalculate_face_frame_cabinet(root)
-        self.report({'INFO'}, "Flush toe kick %s" %
-                    ("set" if enable else "removed"))
+        self.report({'INFO'}, tr("Flush toe kick {}").format("set" if enable else "removed"))
         return {'FINISHED'}
 
     def _apply(self, root, group, enable):
@@ -3346,7 +3345,7 @@ class hb_face_frame_OT_change_bay(bpy.types.Operator):
 
         if changed == 0:
             self.report({'WARNING'},
-                        f"No selected bay accepts config {self.config!r}")
+                        tr("No selected bay accepts config {!r}").format(self.config))
             return {'CANCELLED'}
 
         # Re-apply selection mode so the rebuilt cages render correctly
@@ -3359,9 +3358,9 @@ class hb_face_frame_OT_change_bay(bpy.types.Operator):
 
         if skipped:
             self.report({'INFO'},
-                        f"Changed {changed} bay(s), skipped {skipped}")
+                        tr("Changed {} bay(s), skipped {}").format(changed, skipped))
         else:
-            self.report({'INFO'}, f"Changed {changed} bay(s)")
+            self.report({'INFO'}, tr("Changed {} bay(s)").format(changed))
 
         # If the active bay's new layout has exactly one pullout opening,
         # prompt for its accessory model (with the min-width check).
@@ -3470,7 +3469,7 @@ class hb_face_frame_OT_delete_bay(bpy.types.Operator):
                 return {'CANCELLED'}
             name = root.name
             hb_utils.delete_obj_and_children(root)
-            self.report({'INFO'}, f"Deleted cabinet {name}")
+            self.report({'INFO'}, tr("Deleted cabinet {}").format(name))
             return {'FINISHED'}
         ok = cab.delete_bay(self.bay_index)
         if not ok:
@@ -3955,7 +3954,7 @@ class hb_face_frame_OT_ungroup_cabinet(bpy.types.Operator):
         if members:
             context.view_layer.objects.active = members[0]
 
-        self.report({'INFO'}, f"Ungrouped {len(members)} item(s)")
+        self.report({'INFO'}, tr("Ungrouped {} item(s)").format(len(members)))
         return {'FINISHED'}
 
 
@@ -4126,7 +4125,7 @@ class hb_face_frame_OT_duplicate_floating_shelf(bpy.types.Operator):
         if new_objs:
             new_objs[-1].select_set(True)
             context.view_layer.objects.active = new_objs[-1]
-        self.report({'INFO'}, f"Added {self.quantity} floating shelf(s)")
+        self.report({'INFO'}, tr("Added {} floating shelf(s)").format(self.quantity))
         return {'FINISHED'}
 
 
@@ -4399,7 +4398,7 @@ class hb_face_frame_OT_add_appliance_to_bay(bpy.types.Operator):
             if (preset is not None and preset != self.last_preset
                     and not apply_bay_preset(bay, preset)):
                 self.report({'WARNING'},
-                            f"Bay does not accept preset {preset!r}")
+                            tr("Bay does not accept preset {!r}").format(preset))
                 return {'CANCELLED'}
             if preset is not None:
                 self.last_preset = preset
@@ -4453,7 +4452,7 @@ class hb_face_frame_OT_add_appliance_to_bay(bpy.types.Operator):
             pass
 
         self.report({'INFO'},
-                    f"Configured {self.appliance_kind.replace('_', ' ').title()} bay")
+                    tr("Configured {} bay").format(self.appliance_kind.replace('_', ' ').title()))
         return {'FINISHED'}
 
 
@@ -4539,7 +4538,7 @@ class hb_face_frame_OT_refresh_top_drawer_openings(bpy.types.Operator):
             op.unlock_size = True
             op.size = val
             count += 1
-        self.report({'INFO'}, f"Refreshed {count} top drawer opening(s)")
+        self.report({'INFO'}, tr("Refreshed {} top drawer opening(s)").format(count))
         return {'FINISHED'}
 
 

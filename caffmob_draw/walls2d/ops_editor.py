@@ -19,6 +19,7 @@ import bpy  # type: ignore
 from ..canvas2d import draw
 from ..canvas2d.view import View2D, distance_point_point, distance_point_segment, ortho_snap, snap_to_grid
 from ..data import units
+from ..data.i18n import N_, tr
 from . import model, props, window
 
 NODE_HIT_PX = 9
@@ -112,7 +113,7 @@ def draw_plan(context):
 
     if s.drawing is None and s.typed and s.cursor is not None:      # digitação direta (D-27)
         q = view.to_screen(s.cursor)
-        draw.text(q[0] + 12, q[1] + 12, f"Medida: {s.typed}▏  (Enter aplica, Esc limpa)", COLORS['selected'])
+        draw.text(q[0] + 12, q[1] + 12, tr("Medida: {}▏  (Enter aplica, Esc limpa)").format(s.typed), COLORS['selected'])
 
     if s.drawing is not None and s.cursor is not None and s.drawing.nodes:
         start = s.drawing.nodes[-1]
@@ -127,14 +128,14 @@ def draw_plan(context):
             draw.text(b[0] + 14, b[1] - 18, "Fechar", COLORS['selected'])
         length = math.hypot(end[0] - start[0], end[1] - start[1])
         text = f"{s.typed}▏" if s.typed else draw.length_label(length)
-        draw.text(b[0] + 10, b[1] + 10, f"Comprimento: {text}", COLORS['preview'])
+        draw.text(b[0] + 10, b[1] + 10, tr("Comprimento: {}").format(text), COLORS['preview'])
 
-    hint = {'SELECT': "Clique numa face (interna tracejada / externa) ou num vértice e digite a medida + Enter; arraste "
-                      "os vértices. Delete remove o trecho.",
-            'DRAW': "Clique o ponto inicial, digite o comprimento e Enter. Clique no início para fechar. Esc termina.",
-            'INVERT': "Clique numa parede para inverter o sentido.",
-            'ADD_NODE': "Clique num trecho para dividi-lo.",
-            'REMOVE_NODE': "Clique num vértice para unir os trechos."}[state.tool]
+    hint = {'SELECT': N_("Clique numa face (interna tracejada / externa) ou num vértice e digite a medida + Enter; "
+                         "arraste os vértices. Delete remove o trecho."),
+            'DRAW': N_("Clique o ponto inicial, digite o comprimento e Enter. Clique no início para fechar. Esc termina."),
+            'INVERT': N_("Clique numa parede para inverter o sentido."),
+            'ADD_NODE': N_("Clique num trecho para dividi-lo."),
+            'REMOVE_NODE': N_("Clique num vértice para unir os trechos.")}[state.tool]
     draw.text(12, 12, hint, draw.COLORS['muted'])
     if s.error:
         draw.text(12, 32, s.error, draw.COLORS['warning'])
@@ -155,9 +156,9 @@ def _draw_arrow(sh, view, chain, i):
 
 
 PROMPT_W, PROMPT_H = 380, 90
-PROMPTS = {'close': "Deseja fechar a parede e finalizar a sua construção?",
-           'close_existing': "Deseja fechar a parede? O último ponto chegou ao início.",
-           'discard': "Descartar as alterações e fechar o editor?"}
+PROMPTS = {'close': N_("Deseja fechar a parede e finalizar a sua construção?"),
+           'close_existing': N_("Deseja fechar a parede? O último ponto chegou ao início."),
+           'discard': N_("Descartar as alterações e fechar o editor?")}
 
 
 def _prompt_rects(region):
@@ -262,8 +263,8 @@ class BTM_OT_WallEditor(bpy.types.Operator):
 
     def draw(self, context):
         layout = self.layout
-        layout.label(text=f"{len(self._other_layer(context))} parede(s) selecionada(s) foram feitas com o "
-                          "construtor antigo.")
+        layout.label(text=tr("{} parede(s) selecionada(s) foram feitas com o construtor antigo.").format(
+            len(self._other_layer(context))))
         layout.prop(self, "other_walls", expand=True)
 
     def execute(self, context):
@@ -273,7 +274,7 @@ class BTM_OT_WallEditor(bpy.types.Operator):
         if others and self.other_walls == 'CONVERT':
             skipped = scene_io.convert_into(plan, others, context.scene)
             if skipped:
-                self.report({'WARNING'}, "Sem dados de trechos, ficam como referência: " + ", ".join(skipped))
+                self.report({'WARNING'}, tr("Sem dados de trechos, ficam como referência: {}").format(", ".join(skipped)))
         session = props.start(plan, context.scene.name)
         from ..measure import scene_cotas
         session.project_height = scene_cotas.ceiling_height(context.scene)
@@ -345,9 +346,9 @@ class BTM_OT_WallEditorModal(bpy.types.Operator):
             return {'CANCELLED'}
         if s.request == 'ok':
             report = self._end(context, True)
-            closed = f", {report['closed']} sala(s) fechada(s) no OK" if report.get('closed') else ""
-            self.report({'INFO'}, f"Paredes aplicadas: {len(report['created'])} nova(s), {len(report['updated'])} "
-                                  f"atualizada(s), {len(report['removed'])} removida(s){closed}.")
+            closed = tr(", {} sala(s) fechada(s) no OK").format(report['closed']) if report.get('closed') else ""
+            self.report({'INFO'}, tr("Paredes aplicadas: {} nova(s), {} atualizada(s), {} removida(s){}.").format(
+                len(report['created']), len(report['updated']), len(report['removed']), closed))
             return {'FINISHED'}
         if s.request == 'cancel':
             self._end(context, False)
@@ -381,7 +382,7 @@ class BTM_OT_WallEditorModal(bpy.types.Operator):
         redo = event.type == 'Y' or event.shift
         self.dragging = None
         if not (s.redo() if redo else s.undo()):
-            s.error = "Nada para refazer." if redo else "Nada para desfazer."
+            s.error = N_("Nada para refazer.") if redo else N_("Nada para desfazer.")
         else:
             s.error = ""
         s.redraw()
@@ -505,8 +506,8 @@ class BTM_OT_WallEditorModal(bpy.types.Operator):
                     chain = s.plan.chains[ci]
                     i = k - 1 if k > 0 else (chain.segment_count() - 1 if chain.closed else None)
                     if i is None:
-                        raise ValueError("Valor Inválido: o primeiro vértice de uma parede aberta não tem trecho "
-                                         "chegando nele.")
+                        raise ValueError(tr("Valor Inválido: o primeiro vértice de uma parede aberta não tem "
+                                            "trecho chegando nele."))
                     chain.set_length(i, value, model.INNER)
                 else:
                     chain, i = s.segment()
@@ -626,8 +627,8 @@ class BTM_OT_WallEditorOk(bpy.types.Operator):
         modules = apply.modules_of_removed(s.plan)
         mismatched = apply.height_mismatches(s.plan, s.project_height)
         if (missing or modules or mismatched) and not s.confirm_pending:
-            s.warnings = [f"{item} não cabe em {wall}" for wall, item in missing]
-            s.removed_modules = [f"{item} (em {wall})" for wall, item in modules]
+            s.warnings = [tr("{} não cabe em {}").format(item, wall) for wall, item in missing]
+            s.removed_modules = [tr("{} (em {})").format(item, wall) for wall, item in modules]
             s.height_mismatches = mismatched
             s.confirm_pending = True
             self.report({'WARNING'}, "Confira os avisos no painel e clique OK de novo para aplicar.")

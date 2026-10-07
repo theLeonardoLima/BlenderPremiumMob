@@ -17,6 +17,7 @@ import math
 import os
 import bpy
 
+from ...data.i18n import N_
 from ... import hb_utils
 
 
@@ -82,8 +83,8 @@ def match_enum_items(self, context):
     (= the dynamic-enum default), then the explicit materials."""
     global _match_enum_cache
     if _match_enum_cache is None:
-        items = [(MATCH, "Match Closet",
-                  "Follow the closet material selection")]
+        items = [(MATCH, N_("Match Closet"),
+                  N_("Follow the closet material selection"))]
         items += [(n, n, "") for n in get_material_names()]
         _match_enum_cache = items
     return _match_enum_cache

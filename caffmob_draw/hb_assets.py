@@ -1,6 +1,7 @@
 import bpy  # type: ignore
 import os
 import uuid
+from .data.i18n import tr
 
 BUNDLED_LIBRARY_NAME = "CAFFMob Draw"
 USER_LIBRARY_PREFIX = "HB: "
@@ -390,7 +391,7 @@ class HB_OT_assign_asset_catalog(bpy.types.Operator):
                 col.asset_data.catalog_id = catalog_uuid
                 count += 1
 
-        self.report({'INFO'}, f"Assigned {count} assets to catalog: {self.catalog_path}")
+        self.report({'INFO'}, tr("Assigned {} assets to catalog: {}").format(count, self.catalog_path))
         return {'FINISHED'}
 
 

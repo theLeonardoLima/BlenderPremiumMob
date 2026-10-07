@@ -8,6 +8,7 @@ import json
 import os
 import tempfile
 
+from ..data.i18n import tr
 from ..data import dimension_schema as schema
 
 FORMAT = "caffmob_draw.dimension-standard"
@@ -72,20 +73,20 @@ def values_to_document(name, uid, market, source, version, updated_at, values, r
 def document_to_values(document):
     """Valida o documento e devolve (valores planos, avisos). Levanta StandardFileError se algo for inválido."""
     if not isinstance(document, dict) or document.get("schema") not in ACCEPTED_FORMATS:
-        raise StandardFileError("O arquivo não é uma definição de dimensões do CAFFMob Draw.")
+        raise StandardFileError(tr("O arquivo não é uma definição de dimensões do CAFFMob Draw."))
     version = document.get("schema_version")
     if not isinstance(version, int):
-        raise StandardFileError("Versão do formato ausente.")
+        raise StandardFileError(tr("Versão do formato ausente."))
     if version > SCHEMA_VERSION:
-        raise StandardFileError("Arquivo criado por uma versão mais nova da extensão: atualize o CAFFMob Draw.")
+        raise StandardFileError(tr("Arquivo criado por uma versão mais nova da extensão: atualize o CAFFMob Draw."))
     if document.get("unit", "mm") != "mm":
-        raise StandardFileError("Unidade do arquivo deve ser mm.")
+        raise StandardFileError(tr("Unidade do arquivo deve ser mm."))
     values, warnings, errors = {}, [], []
 
     def put(key, value):
         param = schema.get_param(key)
         if param is None:
-            warnings.append(f"Parâmetro desconhecido ignorado: {key}")
+            warnings.append(tr("Parâmetro desconhecido ignorado: {}").format(key))
             return
         ok, message = schema.validate(param, value)
         if ok:
@@ -97,7 +98,7 @@ def document_to_values(document):
         put(schema.max_key(fname), value)
     for line, data in (document.get("lines") or {}).items():
         if line not in schema.LINE_CODES:
-            warnings.append(f"Linha desconhecida ignorada: {line}")
+            warnings.append(tr("Linha desconhecida ignorada: {}").format(line))
             continue
         for fname, value in (data.get("external") or {}).items():
             put(schema.external_key(line, fname), value)
@@ -110,7 +111,7 @@ def document_to_values(document):
                     else:
                         put(schema.sheet_key(line, comp, fname), value)
     if errors:
-        raise StandardFileError("Valores fora do domínio:\n" + "\n".join(errors))
+        raise StandardFileError(tr("Valores fora do domínio:\n{}").format("\n".join(errors)))
     return values, warnings
 
 
@@ -138,9 +139,9 @@ def read_document(path):
         with open(str(path), encoding='utf-8') as handle:
             return json.load(handle)
     except json.JSONDecodeError as exc:
-        raise StandardFileError(f"JSON inválido (linha {exc.lineno}, coluna {exc.colno}).") from None
+        raise StandardFileError(tr("JSON inválido (linha {}, coluna {}).").format(exc.lineno, exc.colno)) from None
     except OSError as exc:
-        raise StandardFileError(f"Não foi possível ler o arquivo: {exc}") from None
+        raise StandardFileError(tr("Não foi possível ler o arquivo: {}").format(exc)) from None
 
 
 # ----------------------------------------------------------------------------------------------------------------

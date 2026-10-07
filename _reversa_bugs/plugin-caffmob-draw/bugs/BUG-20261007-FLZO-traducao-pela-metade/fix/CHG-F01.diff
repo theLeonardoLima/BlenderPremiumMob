@@ -1,0 +1,2044 @@
+diff --git a/caffmob_draw/product_libraries/face_frame/bay_presets.py b/caffmob_draw/product_libraries/face_frame/bay_presets.py
+index 3cb75f5..d62aaf4 100644
+--- a/caffmob_draw/product_libraries/face_frame/bay_presets.py
++++ b/caffmob_draw/product_libraries/face_frame/bay_presets.py
+@@ -23,6 +23,7 @@ operator wipes the bay to one opening and routes to the existing
+ split_opening dialog.
+ """
+ 
++from ...data.i18n import N_
+ from ...units import inch
+ 
+ 
+@@ -289,89 +290,89 @@ FLOOR_STILE_CONFIGS = {'LAP_DRAWER', 'SUPPORT_FRAME'}
+ SEP = ('SEP',)
+ 
+ BASE_MENU_ENTRIES = [
+-    ('LEFT_SWING_DOOR',          "Left Swing Door"),
+-    ('RIGHT_SWING_DOOR',         "Right Swing Door"),
+-    ('DOUBLE_DOOR',              "Double Door"),
+-    ('DOOR_LOOKS_2_DRAWER',      "Door - Looks like 2 Drawers"),
+-    ('DOOR_LOOKS_3_DRAWER',      "Door - Looks like 3 Drawers"),
+-    ('DOOR_LOOKS_4_DRAWER',      "Door - Looks like 4 Drawers"),
++    ('LEFT_SWING_DOOR',          N_("Left Swing Door")),
++    ('RIGHT_SWING_DOOR',         N_("Right Swing Door")),
++    ('DOUBLE_DOOR',              N_("Double Door")),
++    ('DOOR_LOOKS_2_DRAWER',      N_("Door - Looks like 2 Drawers")),
++    ('DOOR_LOOKS_3_DRAWER',      N_("Door - Looks like 3 Drawers")),
++    ('DOOR_LOOKS_4_DRAWER',      N_("Door - Looks like 4 Drawers")),
+     SEP,
+-    ('DRAWER_DOOR',              "1 Drawer 1 Door"),
+-    ('DRAWER_DOUBLE_DOOR',       "1 Drawer 2 Door"),
+-    ('TWO_DRAWERS_DOUBLE_DOOR',  "2 Drawer 2 Door"),
++    ('DRAWER_DOOR',              N_("1 Drawer 1 Door")),
++    ('DRAWER_DOUBLE_DOOR',       N_("1 Drawer 2 Door")),
++    ('TWO_DRAWERS_DOUBLE_DOOR',  N_("2 Drawer 2 Door")),
+     SEP,
+-    ('FOUR_DRAWERS',             "4 Drawers"),
+-    ('THREE_DRAWERS',            "3 Drawers"),
+-    ('TWO_DRAWERS',              "2 Drawers"),
+-    ('ONE_DRAWER',               "1 Drawer"),
+-    ('FALSE_FRONT',              "False Front"),
+-    ('FALSE_FRONT_DOOR',         "False Front 1 Door"),
+-    ('FALSE_FRONT_DOUBLE_DOOR',  "False Front 2 Door"),
++    ('FOUR_DRAWERS',             N_("4 Drawers")),
++    ('THREE_DRAWERS',            N_("3 Drawers")),
++    ('TWO_DRAWERS',              N_("2 Drawers")),
++    ('ONE_DRAWER',               N_("1 Drawer")),
++    ('FALSE_FRONT',              N_("False Front")),
++    ('FALSE_FRONT_DOOR',         N_("False Front 1 Door")),
++    ('FALSE_FRONT_DOUBLE_DOOR',  N_("False Front 2 Door")),
+     SEP,
+-    ('PULLOUT',                  "Pullout"),
+-    ('PULLOUT_WITH_DRAWER',      "Pullout with Drawer"),
+-    ('MICROWAVE_WITH_DRAWER',    "Microwave with Drawer"),
++    ('PULLOUT',                  N_("Pullout")),
++    ('PULLOUT_WITH_DRAWER',      N_("Pullout with Drawer")),
++    ('MICROWAVE_WITH_DRAWER',    N_("Microwave with Drawer")),
+     SEP,
+-    ('OPEN_WITH_SHELVES',        "Open with Shelves"),
+-    ('OPEN',                     "Open"),
++    ('OPEN_WITH_SHELVES',        N_("Open with Shelves")),
++    ('OPEN',                     N_("Open")),
+     SEP,
+-    ('LAP_DRAWER',               "Lap Drawer"),
+-    ('SUPPORT_FRAME',            "Support Frame"),
++    ('LAP_DRAWER',               N_("Lap Drawer")),
++    ('SUPPORT_FRAME',            N_("Support Frame")),
+     SEP,
+-    ('CUSTOM_HORIZONTAL', "Custom Horizontal", 'SNAP_EDGE'),
+-    ('CUSTOM_VERTICAL',   "Custom Vertical",   'PAUSE'),
++    ('CUSTOM_HORIZONTAL', N_("Custom Horizontal"), 'SNAP_EDGE'),
++    ('CUSTOM_VERTICAL',   N_("Custom Vertical"),   'PAUSE'),
+ ]
+ 
+ TALL_MENU_ENTRIES = [
+-    ('LEFT_SWING_DOOR',           "Left Swing Door"),
+-    ('RIGHT_SWING_DOOR',          "Right Swing Door"),
+-    ('DOUBLE_DOOR',               "Double Door"),
++    ('LEFT_SWING_DOOR',           N_("Left Swing Door")),
++    ('RIGHT_SWING_DOOR',          N_("Right Swing Door")),
++    ('DOUBLE_DOOR',               N_("Double Door")),
+     SEP,
+-    ('LEFT_STACKED_DOOR',         "Left Swing Stacked Door"),
+-    ('RIGHT_STACKED_DOOR',        "Right Swing Stacked Door"),
+-    ('DOUBLE_STACKED_DOOR',       "Double Stacked Door"),
++    ('LEFT_STACKED_DOOR',         N_("Left Swing Stacked Door")),
++    ('RIGHT_STACKED_DOOR',        N_("Right Swing Stacked Door")),
++    ('DOUBLE_STACKED_DOOR',       N_("Double Stacked Door")),
+     SEP,
+-    ('LEFT_3_STACKED_DOOR',       "Left Swing 3 Stacked Door"),
+-    ('RIGHT_3_STACKED_DOOR',      "Right Swing 3 Stacked Door"),
+-    ('DOUBLE_3_STACKED_DOOR',     "Double 3 Stacked Door"),
++    ('LEFT_3_STACKED_DOOR',       N_("Left Swing 3 Stacked Door")),
++    ('RIGHT_3_STACKED_DOOR',      N_("Right Swing 3 Stacked Door")),
++    ('DOUBLE_3_STACKED_DOOR',     N_("Double 3 Stacked Door")),
+     SEP,
+-    ('BUILT_IN_APPLIANCE',        "Built In Appliance"),
+-    ('BUILT_IN_DOUBLE_APPLIANCE', "Built In Double Appliance"),
++    ('BUILT_IN_APPLIANCE',        N_("Built In Appliance")),
++    ('BUILT_IN_DOUBLE_APPLIANCE', N_("Built In Double Appliance")),
+     SEP,
+-    ('DOORS_WITH_TALL_PULLOUT',   "Doors with Tall Pullout"),
+-    ('TALL_PULLOUT',              "Tall Pullout"),
++    ('DOORS_WITH_TALL_PULLOUT',   N_("Doors with Tall Pullout")),
++    ('TALL_PULLOUT',              N_("Tall Pullout")),
+     SEP,
+-    ('OPEN_WITH_SHELVES',         "Open with Shelves"),
+-    ('OPEN',                      "Open"),
++    ('OPEN_WITH_SHELVES',         N_("Open with Shelves")),
++    ('OPEN',                      N_("Open")),
+     SEP,
+-    ('CUSTOM_HORIZONTAL', "Custom Horizontal", 'SNAP_EDGE'),
+-    ('CUSTOM_VERTICAL',   "Custom Vertical",   'PAUSE'),
++    ('CUSTOM_HORIZONTAL', N_("Custom Horizontal"), 'SNAP_EDGE'),
++    ('CUSTOM_VERTICAL',   N_("Custom Vertical"),   'PAUSE'),
+ ]
+ 
+ UPPER_MENU_ENTRIES = [
+-    ('LEFT_SWING_DOOR',           "Left Swing Door"),
+-    ('RIGHT_SWING_DOOR',          "Right Swing Door"),
+-    ('DOUBLE_DOOR',               "Double Door"),
+-    ('LIFT_UP_DOOR',              "Lift Up Door"),
++    ('LEFT_SWING_DOOR',           N_("Left Swing Door")),
++    ('RIGHT_SWING_DOOR',          N_("Right Swing Door")),
++    ('DOUBLE_DOOR',               N_("Double Door")),
++    ('LIFT_UP_DOOR',              N_("Lift Up Door")),
+     SEP,
+-    ('LEFT_STACKED_DOOR',         "Left Swing Stacked Door"),
+-    ('RIGHT_STACKED_DOOR',        "Right Swing Stacked Door"),
+-    ('DOUBLE_STACKED_DOOR',       "Double Stacked Door"),
++    ('LEFT_STACKED_DOOR',         N_("Left Swing Stacked Door")),
++    ('RIGHT_STACKED_DOOR',        N_("Right Swing Stacked Door")),
++    ('DOUBLE_STACKED_DOOR',       N_("Double Stacked Door")),
+     SEP,
+-    ('DOORS_WITH_DRAWER',         "Doors with Drawer"),
+-    ('DOORS_WITH_2_DRAWERS',      "Doors with 2 Drawers"),
+-    ('DOORS_WITH_3_DRAWERS',      "Doors with 3 Drawers"),
++    ('DOORS_WITH_DRAWER',         N_("Doors with Drawer")),
++    ('DOORS_WITH_2_DRAWERS',      N_("Doors with 2 Drawers")),
++    ('DOORS_WITH_3_DRAWERS',      N_("Doors with 3 Drawers")),
+     SEP,
+-    ('DOORS_WITH_UPPER_PULLOUT',  "Doors with Upper Pullout"),
+-    ('UPPER_PULLOUT',             "Upper Pullout"),
++    ('DOORS_WITH_UPPER_PULLOUT',  N_("Doors with Upper Pullout")),
++    ('UPPER_PULLOUT',             N_("Upper Pullout")),
+     SEP,
+-    ('FALSE_FRONT',               "False Front"),
++    ('FALSE_FRONT',               N_("False Front")),
+     SEP,
+-    ('OPEN_WITH_SHELVES',         "Open with Shelves"),
+-    ('OPEN',                      "Open"),
++    ('OPEN_WITH_SHELVES',         N_("Open with Shelves")),
++    ('OPEN',                      N_("Open")),
+     SEP,
+-    ('CUSTOM_HORIZONTAL', "Custom Horizontal", 'SNAP_EDGE'),
+-    ('CUSTOM_VERTICAL',   "Custom Vertical",   'PAUSE'),
++    ('CUSTOM_HORIZONTAL', N_("Custom Horizontal"), 'SNAP_EDGE'),
++    ('CUSTOM_VERTICAL',   N_("Custom Vertical"),   'PAUSE'),
+ ]
+ 
+ 
+@@ -396,7 +397,7 @@ def default_bay_config(cabinet_name, bay_width):
+     single-door variant, at or above it use the double / stacked variant.
+     """
+     is_wide = bay_width >= DOUBLE_DOOR_WIDTH_THRESHOLD
+-    if cabinet_name in ('Base', 'Base Cabinet', 'Floating Base Cabinet'):
++    if cabinet_name in ('Base', N_('Base Cabinet'), 'Floating Base Cabinet'):
+         # Generic Base cabinet defaults to drawer-on-top-of-door, the
+         # most common base configuration in residential kitchens. The
+         # floating variant uses the same recipe; only its toe kick
+diff --git a/caffmob_draw/product_libraries/face_frame/dim_edit_overlay.py b/caffmob_draw/product_libraries/face_frame/dim_edit_overlay.py
+index 1efbf0e..0802453 100644
+--- a/caffmob_draw/product_libraries/face_frame/dim_edit_overlay.py
++++ b/caffmob_draw/product_libraries/face_frame/dim_edit_overlay.py
+@@ -47,6 +47,7 @@ import gpu
+ from mathutils import Vector
+ from bpy_extras import view3d_utils
+ 
++from ...data.i18n import tr
+ from ... import units
+ from ... import hb_placement
+ from ...hb_gpu_draw import get_visible_window_bounds
+@@ -727,7 +728,7 @@ class hb_face_frame_OT_edit_dim_label(bpy.types.Operator):
+                 return {'FINISHED'}
+             if obj is None or value is None or value <= 0.0:
+                 self.report({'WARNING'},
+-                            f"Could not read '{typed}' as a size")
++                            tr("Could not read '{}' as a size").format(typed))
+                 self._finish(context)
+                 return {'CANCELLED'}
+             self._finish(context)
+diff --git a/caffmob_draw/product_libraries/face_frame/menus_face_frame.py b/caffmob_draw/product_libraries/face_frame/menus_face_frame.py
+index 64b0538..f10e009 100644
+--- a/caffmob_draw/product_libraries/face_frame/menus_face_frame.py
++++ b/caffmob_draw/product_libraries/face_frame/menus_face_frame.py
+@@ -11,6 +11,7 @@ later pass once those operators are implemented.
+ """
+ import bpy
+ 
++from ...data.i18n import N_, tr
+ from . import bay_presets
+ from . import types_face_frame
+ from . import types_face_frame_corner
+@@ -227,9 +228,9 @@ class HOME_BUILDER_MT_face_frame_part_commands(bpy.types.Menu):
+         if panel_root is not None and (
+                 panel_root.get(types_face_frame.TAG_APPLIED_PANEL_SIDE)
+                 or types_face_frame._is_standalone_panel(panel_root)):
+-            ptext = ("Panel Back Properties..."
++            ptext = (tr("Panel Back Properties...")
+                      if panel_root.get(types_face_frame.TAG_APPLIED_PANEL_SIDE)
+-                     else "Panel Properties...")
++                     else tr("Panel Properties..."))
+             layout.operator("caffmob_face_frame.cabinet_prompts",
+                             text=ptext, icon='WINDOW')
+             layout.separator()
+@@ -247,7 +248,7 @@ class HOME_BUILDER_MT_face_frame_part_commands(bpy.types.Menu):
+             if current_w is None:
+                 width_text = "Set Width"
+             else:
+-                width_text = f"Set Width: {units.unit_to_string(context.scene.unit_settings, current_w)}"
++                width_text = tr("Set Width: {}").format(units.unit_to_string(context.scene.unit_settings, current_w))
+             layout.operator("caffmob_face_frame.set_part_width",
+                             text=width_text, icon='ARROW_LEFTRIGHT')
+ 
+@@ -387,23 +388,23 @@ class HOME_BUILDER_MT_face_frame_change_opening(bpy.types.Menu):
+ 
+     # (config_value, display_text); ('SEP',) inserts a separator.
+     ENTRIES = [
+-        ('OPEN',              "Open"),
+-        ('OPEN_WITH_SHELVES', "Open with Shelves"),
++        ('OPEN',              N_("Open")),
++        ('OPEN_WITH_SHELVES', N_("Open with Shelves")),
+         ('SEP',),
+-        ('LEFT_DOOR',         "Left Door"),
+-        ('RIGHT_DOOR',        "Right Door"),
+-        ('DOUBLE_DOOR',       "Double Door"),
++        ('LEFT_DOOR',         N_("Left Door")),
++        ('RIGHT_DOOR',        N_("Right Door")),
++        ('DOUBLE_DOOR',       N_("Double Door")),
+         ('SEP',),
+-        ('FLIP_UP_DOOR',      "Flip Up Door"),
+-        ('FLIP_DOWN_DOOR',    "Flip Down Door"),
++        ('FLIP_UP_DOOR',      N_("Flip Up Door")),
++        ('FLIP_DOWN_DOOR',    N_("Flip Down Door")),
+         ('SEP',),
+-        ('DRAWER',            "Drawer"),
+-        ('FALSE_FRONT',       "False Front"),
+-        ('TILT_OUT',          "Tilt-Out"),
+-        ('PULLOUT',           "Pullout"),
++        ('DRAWER',            N_("Drawer")),
++        ('FALSE_FRONT',       N_("False Front")),
++        ('TILT_OUT',          N_("Tilt-Out")),
++        ('PULLOUT',           N_("Pullout")),
+         ('SEP',),
+-        ('INSET_PANEL',       "Inset Panel"),
+-        ('APPLIANCE',         "Appliance"),
++        ('INSET_PANEL',       N_("Inset Panel")),
++        ('APPLIANCE',         N_("Appliance")),
+     ]
+ 
+     def draw(self, context):
+@@ -436,7 +437,7 @@ class HOME_BUILDER_MT_face_frame_change_bay(bpy.types.Menu):
+         cabinet_type = cab_root.face_frame_cabinet.cabinet_type
+         entries = bay_presets.MENU_ENTRIES.get(cabinet_type)
+         if not entries:
+-            layout.label(text=f"No presets for {cabinet_type}")
++            layout.label(text=tr("No presets for {}").format(cabinet_type))
+             return
+         for entry in entries:
+             if entry[0] == 'SEP':
+@@ -460,9 +461,9 @@ class HOME_BUILDER_MT_face_frame_add_appliance(bpy.types.Menu):
+     def draw(self, context):
+         layout = self.layout
+         for kind, label, icon in (
+-            ('KITCHEN_SINK', "Add Kitchen Sink", 'MOD_FLUIDSIM'),
+-            ('VANITY_SINK',  "Add Vanity Sink",  'MOD_FLUIDSIM'),
+-            ('COOKTOP',      "Add Cooktop",      'VOLUME_DATA'),
++            ('KITCHEN_SINK', N_("Add Kitchen Sink"), 'MOD_FLUIDSIM'),
++            ('VANITY_SINK',  N_("Add Vanity Sink"),  'MOD_FLUIDSIM'),
++            ('COOKTOP',      N_("Add Cooktop"),      'VOLUME_DATA'),
+         ):
+             op = layout.operator("caffmob_face_frame.add_appliance_to_bay",
+                                  text=label, icon=icon)
+@@ -483,7 +484,7 @@ class HOME_BUILDER_MT_face_frame_add_appliance(bpy.types.Menu):
+         if kind in ('SINK', 'COOKTOP'):
+             layout.separator()
+             layout.operator("caffmob_face_frame.remove_appliance_from_bay",
+-                            text=f"Remove {kind.title()}", icon='X')
++                            text=tr("Remove {}").format(kind.title()), icon='X')
+ 
+ 
+ class HOME_BUILDER_MT_face_frame_leg_product_commands(bpy.types.Menu):
+diff --git a/caffmob_draw/product_libraries/face_frame/operators/op_modify_cabinet.py b/caffmob_draw/product_libraries/face_frame/operators/op_modify_cabinet.py
+index 65a8d7b..c3364f8 100644
+--- a/caffmob_draw/product_libraries/face_frame/operators/op_modify_cabinet.py
++++ b/caffmob_draw/product_libraries/face_frame/operators/op_modify_cabinet.py
+@@ -27,6 +27,7 @@ from mathutils import Vector
+ from gpu_extras.batch import batch_for_shader
+ from bpy_extras import view3d_utils
+ 
++from ....data.i18n import tr
+ from .. import solver_face_frame as solver
+ from .. import types_face_frame
+ from .... import hb_types
+@@ -970,10 +971,7 @@ class _GrabBaseMixin:
+         # convention. Mention click-to-unlock since the lock-icon
+         # affordance is otherwise only discoverable by experiment.
+         context.area.header_text_set(
+-            f"{self.bl_label}  |  LMB: drag boundary or click lock"
+-            f" to unlock  |  Type: numeric  |  Tab: cycle snap"
+-            f"  |  Shift: hold to disable snap  |  Enter: confirm"
+-            f"  |  Esc / RMB: cancel"
++            tr("{}  |  LMB: drag boundary or click lock to unlock  |  Type: numeric  |  Tab: cycle snap  |  Shift: hold to disable snap  |  Enter: confirm  |  Esc / RMB: cancel").format(self.bl_label)
+         )
+         context.window.cursor_modal_set('SCROLL_XY')
+         context.area.tag_redraw()
+@@ -1829,7 +1827,7 @@ class _GrabBaseMixin:
+                 'COARSE': 'FINE',
+                 'FINE': 'OFF',
+             }[self._snap_mode]
+-            self.report({'INFO'}, f"Snap: {self._snap_mode}")
++            self.report({'INFO'}, tr("Snap: {}").format(self._snap_mode))
+             context.area.tag_redraw()
+             return {'RUNNING_MODAL'}
+ 
+diff --git a/caffmob_draw/product_libraries/face_frame/operators/ops_appliance_panels.py b/caffmob_draw/product_libraries/face_frame/operators/ops_appliance_panels.py
+index 54291d9..3996190 100644
+--- a/caffmob_draw/product_libraries/face_frame/operators/ops_appliance_panels.py
++++ b/caffmob_draw/product_libraries/face_frame/operators/ops_appliance_panels.py
+@@ -2,6 +2,7 @@ import bpy
+ import math
+ import json
+ from bpy.props import EnumProperty, FloatProperty, BoolProperty, StringProperty
++from ....data.i18n import N_, tr
+ from .. import types_face_frame
+ from .... import hb_utils, hb_types, units, appliance_spec_registry
+ 
+@@ -25,24 +26,24 @@ _I = units.inch
+ 
+ _CONFIG_ITEMS = {
+     'REFRIGERATOR': [
+-        ('FRENCH_DOOR', "French Door (Side-by-Side)", "Two tall side-by-side panels"),
+-        ('FRENCH_DOOR_BOTTOM_FREEZER', "French Door + Bottom Freezer",
+-         "Two french doors over a full-width freezer drawer"),
+-        ('SINGLE', "Single Door", "One full-height panel"),
+-        ('BOTTOM_FREEZER', "Bottom Freezer (1 Drawer)", "Door over a single freezer drawer"),
+-        ('BOTTOM_FREEZER_2DRAWER', "Bottom Freezer (2 Drawer)", "Door over two freezer drawers"),
+-        ('TOP_FREEZER', "Top Freezer", "Freezer face over a fridge door"),
+-        ('DRAWER_DOOR_DRAWER', "Drawer / Door / Drawer", "Drawer face, tall door, drawer face"),
+-        ('SIDE_BY_SIDE_SPLIT', "Side-by-Side, Split Left", "Tall right door, drawer over door on the left"),
++        ('FRENCH_DOOR', N_("French Door (Side-by-Side)"), N_("Two tall side-by-side panels")),
++        ('FRENCH_DOOR_BOTTOM_FREEZER', N_("French Door + Bottom Freezer"),
++         N_("Two french doors over a full-width freezer drawer")),
++        ('SINGLE', N_("Single Door"), N_("One full-height panel")),
++        ('BOTTOM_FREEZER', N_("Bottom Freezer (1 Drawer)"), N_("Door over a single freezer drawer")),
++        ('BOTTOM_FREEZER_2DRAWER', N_("Bottom Freezer (2 Drawer)"), N_("Door over two freezer drawers")),
++        ('TOP_FREEZER', N_("Top Freezer"), N_("Freezer face over a fridge door")),
++        ('DRAWER_DOOR_DRAWER', N_("Drawer / Door / Drawer"), N_("Drawer face, tall door, drawer face")),
++        ('SIDE_BY_SIDE_SPLIT', N_("Side-by-Side, Split Left"), N_("Tall right door, drawer over door on the left")),
+     ],
+     'DISHWASHER': [
+-        ('SINGLE', "Standard (Single)", "One full-height panel"),
+-        ('DW_DRAWER_DOOR', "Drawer / Door", "Drawer face over a door"),
+-        ('DW_3_DRAWER', "3-Drawer", "Three equal drawer faces"),
+-        ('DW_4_DRAWER', "4-Drawer", "Four equal drawer faces"),
++        ('SINGLE', N_("Standard (Single)"), N_("One full-height panel")),
++        ('DW_DRAWER_DOOR', N_("Drawer / Door"), N_("Drawer face over a door")),
++        ('DW_3_DRAWER', "3-Drawer", N_("Three equal drawer faces")),
++        ('DW_4_DRAWER', "4-Drawer", N_("Four equal drawer faces")),
+     ],
+ }
+-_DEFAULT_CONFIG_ITEMS = [('SINGLE', "Single", "One full-height panel")]
++_DEFAULT_CONFIG_ITEMS = [('SINGLE', N_("Single"), N_("One full-height panel"))]
+ 
+ _PANEL_TYPE_ITEMS = [
+     ('A', "Type A", "Face on 1/4\" backer"),
+@@ -585,7 +586,7 @@ class hb_face_frame_OT_add_appliance_panels(bpy.types.Operator):
+                         sbox = layout.box()
+                         wmax = sp.get('weight_max_lb')
+                         if wmax is not None:
+-                            sbox.label(text="Max panel weight: %g lb" % wmax)
++                            sbox.label(text=tr("Max panel weight: {:g} lb").format(wmax))
+                         for flag in (sp.get('flags') or []):
+                             _draw_wrapped(sbox, flag, icon='ERROR')
+                         url = sp.get('source_url')
+@@ -622,7 +623,7 @@ class hb_face_frame_OT_add_appliance_panels(bpy.types.Operator):
+                 wf = wrow.row(align=True)
+                 wf.enabled = chold[ci]
+                 wf.prop(self, 'col_width_%d' % (ci + 1),
+-                        text="Column %d Width" % (ci + 1))
++                        text=tr("Column {} Width").format(ci + 1))
+                 if not chold[ci] and dim_x:
+                     wrow.label(text="%.2f\"" % units.meter_to_inch(solved_w[ci]))
+                 wrow.prop(self, 'col_hold_%d' % (ci + 1), text="",
+@@ -650,7 +651,7 @@ class hb_face_frame_OT_add_appliance_panels(bpy.types.Operator):
+             cbox = box.column(align=True)
+             for bi, (g, lbl) in enumerate(banner_fronts):
+                 row = cbox.row(align=True)
+-                row.label(text="%s (full width)" % lbl)
++                row.label(text=tr("{} (full width)").format(lbl))
+                 if holds[g]:
+                     row.prop(self, 'size_%d' % (g + 1), text="")
+                 elif dim_z and banner_h:
+diff --git a/caffmob_draw/product_libraries/face_frame/operators/ops_cabinet.py b/caffmob_draw/product_libraries/face_frame/operators/ops_cabinet.py
+index e9bf6df..673529a 100644
+--- a/caffmob_draw/product_libraries/face_frame/operators/ops_cabinet.py
++++ b/caffmob_draw/product_libraries/face_frame/operators/ops_cabinet.py
+@@ -1,6 +1,7 @@
+ import bpy
+ from mathutils import Vector
+ 
++from ....data.i18n import tr
+ from .. import types_face_frame
+ from .. import types_face_frame_corner
+ from .. import bay_presets
+@@ -106,7 +107,7 @@ class hb_face_frame_OT_delete_cabinet(bpy.types.Operator):
+         for root in roots:
+             hb_utils.delete_obj_and_children(root)
+ 
+-        self.report({'INFO'}, f"Deleted {len(roots)} cabinet(s)")
++        self.report({'INFO'}, tr("Deleted {} cabinet(s)").format(len(roots)))
+         return {'FINISHED'}
+ 
+ 
+@@ -212,7 +213,7 @@ class hb_face_frame_OT_join_cabinets(bpy.types.Operator):
+         active_root.select_set(True)
+         context.view_layer.objects.active = active_root
+ 
+-        self.report({'INFO'}, f"Joined {len(roots)} cabinets")
++        self.report({'INFO'}, tr("Joined {} cabinets").format(len(roots)))
+         return {'FINISHED'}
+ 
+ 
+@@ -432,7 +433,7 @@ class hb_face_frame_OT_equalize_bays(bpy.types.Operator):
+             p = r.face_frame_cabinet
+             n = _bay_count(r)
+             if n == 0:
+-                self.report({'ERROR'}, f"{r.name} has no bays")
++                self.report({'ERROR'}, tr("{} has no bays").format(r.name))
+                 return {'CANCELLED'}
+             frames.append(p.left_stile_width + p.right_stile_width
+                           + sum(e.width for e in p.mid_stile_widths))
+@@ -459,8 +460,7 @@ class hb_face_frame_OT_equalize_bays(bpy.types.Operator):
+ 
+         self.report(
+             {'INFO'},
+-            f"Equalized {total_bays} bay(s) at "
+-            f"{meter_to_inch(bay_width):.2f}\" across {len(roots)} cabinet(s)")
++            tr("Equalized {} bay(s) at {:.2f}\" across {} cabinet(s)").format(total_bays, meter_to_inch(bay_width), len(roots)))
+         return {'FINISHED'}
+ 
+ 
+@@ -1000,7 +1000,7 @@ class hb_face_frame_OT_split_opening(bpy.types.Operator):
+             pass
+ 
+         self.report({'INFO'},
+-                    f"Split {original.name} into {self.count} along {self.axis}-axis")
++                    tr("Split {} into {} along {}-axis").format(original.name, self.count, self.axis))
+         return {'FINISHED'}
+ 
+ 
+@@ -1175,7 +1175,7 @@ class hb_face_frame_OT_bay_prompts(bpy.types.Operator):
+             'caffmob_face_frame.bay_prompts', text="Previous", icon='TRIA_LEFT',
+         )
+         op.bay_name = siblings[pos - 1].name if pos > 0 else ""
+-        nav.label(text=f"Bay {pos + 1} of {len(siblings)}")
++        nav.label(text=tr("Bay {} of {}").format(pos + 1, len(siblings)))
+         next_btn = nav.row(align=True)
+         next_btn.enabled = pos < len(siblings) - 1
+         op = next_btn.operator(
+@@ -2280,7 +2280,7 @@ class hb_face_frame_OT_change_opening(bpy.types.Operator):
+                 apply_opening_preset(opening_obj, self.config)
+                 types_face_frame.recalculate_face_frame_cabinet(opening_obj)
+ 
+-        self.report({'INFO'}, f"Changed {len(openings)} opening(s)")
++        self.report({'INFO'}, tr("Changed {} opening(s)").format(len(openings)))
+ 
+         # A PULLOUT opening prompts for its accessory model + min-width check.
+         if self.config == 'PULLOUT' and active is not None \
+@@ -2421,16 +2421,16 @@ class hb_face_frame_OT_add_pullout_accessory(bpy.types.Operator):
+         if item is None:
+             box.label(text="No model selected")
+             return
+-        box.label(text="Model: %s" % item.get('name', self.product))
++        box.label(text=tr("Model: {}").format(item.get('name', self.product)))
+         mw = item.get('min_opening_w')
+         if mw is None:
+             box.label(text="Minimum opening width: not specified")
+         else:
+-            box.label(text="Minimum opening width: %g\"" % mw)
++            box.label(text=tr("Minimum opening width: {:g}\"").format(mw))
+             ow = meter_to_inch(self.opening_width)
+             if ow + 1e-6 < mw:
+                 box.label(
+-                    text="Opening width %g\" is below the %g\" minimum" % (ow, mw),
++                    text=tr("Opening width {:g}\" is below the {:g}\" minimum").format(ow, mw),
+                     icon='ERROR')
+ 
+     def execute(self, context):
+@@ -2463,9 +2463,9 @@ class hb_face_frame_OT_add_pullout_accessory(bpy.types.Operator):
+                 types_face_frame.recalculate_face_frame_cabinet(opening_obj)
+ 
+         if code:
+-            self.report({'INFO'}, "Set pullout model on %d opening(s)" % len(openings))
++            self.report({'INFO'}, tr("Set pullout model on {} opening(s)").format(len(openings)))
+         else:
+-            self.report({'INFO'}, "Cleared pullout model on %d opening(s)" % len(openings))
++            self.report({'INFO'}, tr("Cleared pullout model on {} opening(s)").format(len(openings)))
+         return {'FINISHED'}
+ 
+ 
+@@ -2523,16 +2523,16 @@ class hb_face_frame_OT_add_interior_accessory(bpy.types.Operator):
+         if item is None:
+             box.label(text="No accessory selected")
+             return
+-        box.label(text="Accessory: %s" % item.get('name', self.product))
++        box.label(text=tr("Accessory: {}").format(item.get('name', self.product)))
+         mw = item.get('min_opening_w')
+         if mw is None:
+             box.label(text="Minimum opening width: not specified")
+         else:
+-            box.label(text="Minimum opening width: %g\"" % mw)
++            box.label(text=tr("Minimum opening width: {:g}\"").format(mw))
+             target = _resolve_interior_target(self, context)
+             ow = _opening_width_in(target) if target is not None else None
+             if ow is not None and ow + 1e-6 < mw:
+-                box.label(text="Opening is %g\" wide - below the minimum" % ow,
++                box.label(text=tr("Opening is {:g}\" wide - below the minimum").format(ow),
+                           icon='ERROR')
+ 
+     def execute(self, context):
+@@ -2557,7 +2557,7 @@ class hb_face_frame_OT_add_interior_accessory(bpy.types.Operator):
+         root = types_face_frame.find_cabinet_root(target)
+         if root is not None:
+             types_face_frame.recalculate_face_frame_cabinet(root)
+-        self.report({'INFO'}, "Added %s" % name)
++        self.report({'INFO'}, tr("Added {}").format(name))
+         return {'FINISHED'}
+ 
+ 
+@@ -2759,14 +2759,14 @@ class hb_face_frame_OT_add_accessory(bpy.types.Operator):
+         if item is None:
+             box.label(text="No accessory selected")
+             return
+-        box.label(text="Accessory: %s" % item.get('name', self.product))
++        box.label(text=tr("Accessory: {}").format(item.get('name', self.product)))
+         if is_pullout:
+             box.label(text="Adds a pullout front to the opening", icon='INFO')
+         mw = item.get('min_opening_w')
+         if mw is None:
+             box.label(text="Minimum opening width: not specified")
+         else:
+-            box.label(text="Minimum opening width: %g\"" % mw)
++            box.label(text=tr("Minimum opening width: {:g}\"").format(mw))
+             if is_pullout:
+                 ow = meter_to_inch(self.opening_width)
+             else:
+@@ -2774,7 +2774,7 @@ class hb_face_frame_OT_add_accessory(bpy.types.Operator):
+                 ow = _opening_width_in(tgt) if tgt is not None else None
+             if ow is not None and ow + 1e-6 < mw:
+                 box.label(
+-                    text="Opening width %g\" is below the %g\" minimum" % (ow, mw),
++                    text=tr("Opening width {:g}\" is below the {:g}\" minimum").format(ow, mw),
+                     icon='ERROR')
+ 
+     def execute(self, context):
+@@ -2805,7 +2805,7 @@ class hb_face_frame_OT_add_accessory(bpy.types.Operator):
+                         and getattr(bay, 'face_frame_bay', None) is not None:
+                     bay.face_frame_bay.width = self.opening_width
+                 types_face_frame.recalculate_face_frame_cabinet(target)
+-            self.report({'INFO'}, "Set pullout model: %s" % name)
++            self.report({'INFO'}, tr("Set pullout model: {}").format(name))
+             return {'FINISHED'}
+ 
+         # Every other host: a data-only ACCESSORY interior item.
+@@ -2821,7 +2821,7 @@ class hb_face_frame_OT_add_accessory(bpy.types.Operator):
+         root = types_face_frame.find_cabinet_root(target)
+         if root is not None:
+             types_face_frame.recalculate_face_frame_cabinet(root)
+-        self.report({'INFO'}, "Added %s" % name)
++        self.report({'INFO'}, tr("Added {}").format(name))
+         return {'FINISHED'}
+ 
+ 
+@@ -3187,8 +3187,7 @@ class hb_face_frame_OT_toggle_flush_toe_kick(bpy.types.Operator):
+             for root, group in by_root.values():
+                 self._apply(root, group, enable)
+                 types_face_frame.recalculate_face_frame_cabinet(root)
+-        self.report({'INFO'}, "Flush toe kick %s" %
+-                    ("set" if enable else "removed"))
++        self.report({'INFO'}, tr("Flush toe kick {}").format("set" if enable else "removed"))
+         return {'FINISHED'}
+ 
+     def _apply(self, root, group, enable):
+@@ -3346,7 +3345,7 @@ class hb_face_frame_OT_change_bay(bpy.types.Operator):
+ 
+         if changed == 0:
+             self.report({'WARNING'},
+-                        f"No selected bay accepts config {self.config!r}")
++                        tr("No selected bay accepts config {!r}").format(self.config))
+             return {'CANCELLED'}
+ 
+         # Re-apply selection mode so the rebuilt cages render correctly
+@@ -3359,9 +3358,9 @@ class hb_face_frame_OT_change_bay(bpy.types.Operator):
+ 
+         if skipped:
+             self.report({'INFO'},
+-                        f"Changed {changed} bay(s), skipped {skipped}")
++                        tr("Changed {} bay(s), skipped {}").format(changed, skipped))
+         else:
+-            self.report({'INFO'}, f"Changed {changed} bay(s)")
++            self.report({'INFO'}, tr("Changed {} bay(s)").format(changed))
+ 
+         # If the active bay's new layout has exactly one pullout opening,
+         # prompt for its accessory model (with the min-width check).
+@@ -3470,7 +3469,7 @@ class hb_face_frame_OT_delete_bay(bpy.types.Operator):
+                 return {'CANCELLED'}
+             name = root.name
+             hb_utils.delete_obj_and_children(root)
+-            self.report({'INFO'}, f"Deleted cabinet {name}")
++            self.report({'INFO'}, tr("Deleted cabinet {}").format(name))
+             return {'FINISHED'}
+         ok = cab.delete_bay(self.bay_index)
+         if not ok:
+@@ -3955,7 +3954,7 @@ class hb_face_frame_OT_ungroup_cabinet(bpy.types.Operator):
+         if members:
+             context.view_layer.objects.active = members[0]
+ 
+-        self.report({'INFO'}, f"Ungrouped {len(members)} item(s)")
++        self.report({'INFO'}, tr("Ungrouped {} item(s)").format(len(members)))
+         return {'FINISHED'}
+ 
+ 
+@@ -4126,7 +4125,7 @@ class hb_face_frame_OT_duplicate_floating_shelf(bpy.types.Operator):
+         if new_objs:
+             new_objs[-1].select_set(True)
+             context.view_layer.objects.active = new_objs[-1]
+-        self.report({'INFO'}, f"Added {self.quantity} floating shelf(s)")
++        self.report({'INFO'}, tr("Added {} floating shelf(s)").format(self.quantity))
+         return {'FINISHED'}
+ 
+ 
+@@ -4399,7 +4398,7 @@ class hb_face_frame_OT_add_appliance_to_bay(bpy.types.Operator):
+             if (preset is not None and preset != self.last_preset
+                     and not apply_bay_preset(bay, preset)):
+                 self.report({'WARNING'},
+-                            f"Bay does not accept preset {preset!r}")
++                            tr("Bay does not accept preset {!r}").format(preset))
+                 return {'CANCELLED'}
+             if preset is not None:
+                 self.last_preset = preset
+@@ -4453,7 +4452,7 @@ class hb_face_frame_OT_add_appliance_to_bay(bpy.types.Operator):
+             pass
+ 
+         self.report({'INFO'},
+-                    f"Configured {self.appliance_kind.replace('_', ' ').title()} bay")
++                    tr("Configured {} bay").format(self.appliance_kind.replace('_', ' ').title()))
+         return {'FINISHED'}
+ 
+ 
+@@ -4539,7 +4538,7 @@ class hb_face_frame_OT_refresh_top_drawer_openings(bpy.types.Operator):
+             op.unlock_size = True
+             op.size = val
+             count += 1
+-        self.report({'INFO'}, f"Refreshed {count} top drawer opening(s)")
++        self.report({'INFO'}, tr("Refreshed {} top drawer opening(s)").format(count))
+         return {'FINISHED'}
+ 
+ 
+diff --git a/caffmob_draw/product_libraries/face_frame/operators/ops_countertop.py b/caffmob_draw/product_libraries/face_frame/operators/ops_countertop.py
+index eec40ce..c3e2fcb 100644
+--- a/caffmob_draw/product_libraries/face_frame/operators/ops_countertop.py
++++ b/caffmob_draw/product_libraries/face_frame/operators/ops_countertop.py
+@@ -16,6 +16,7 @@ or modified by either library's tooling.
+ 
+ import bpy
+ import math
++from ....data.i18n import tr
+ from .... import hb_types, hb_project
+ from .. import types_face_frame
+ 
+@@ -544,7 +545,7 @@ class hb_face_frame_OT_add_countertops(bpy.types.Operator):
+             if ct:
+                 ct_count += 1
+ 
+-        self.report({'INFO'}, f"Created {ct_count} countertop(s)")
++        self.report({'INFO'}, tr("Created {} countertop(s)").format(ct_count))
+         return {'FINISHED'}
+ 
+ 
+@@ -560,7 +561,7 @@ class hb_face_frame_OT_remove_countertops(bpy.types.Operator):
+             if obj.get('IS_COUNTERTOP'):
+                 bpy.data.objects.remove(obj, do_unlink=True)
+                 removed += 1
+-        self.report({'INFO'}, f"Removed {removed} countertop(s)")
++        self.report({'INFO'}, tr("Removed {} countertop(s)").format(removed))
+         return {'FINISHED'}
+ 
+ 
+@@ -604,7 +605,7 @@ class hb_face_frame_OT_countertop_boolean_cut(bpy.types.Operator):
+         try:
+             bpy.ops.object.modifier_apply(modifier=mod.name)
+         except RuntimeError as e:
+-            self.report({'WARNING'}, f"Boolean apply failed: {e}")
++            self.report({'WARNING'}, tr("Boolean apply failed: {}").format(e))
+             countertop.modifiers.remove(mod)
+             return {'CANCELLED'}
+         finally:
+diff --git a/caffmob_draw/product_libraries/face_frame/operators/ops_defaults.py b/caffmob_draw/product_libraries/face_frame/operators/ops_defaults.py
+index 4c24239..e3e1158 100644
+--- a/caffmob_draw/product_libraries/face_frame/operators/ops_defaults.py
++++ b/caffmob_draw/product_libraries/face_frame/operators/ops_defaults.py
+@@ -1,5 +1,6 @@
+ import bpy
+ 
++from ....data.i18n import tr
+ from .. import types_face_frame
+ from .... import hb_project
+ 
+@@ -43,7 +44,7 @@ class hb_face_frame_OT_update_cabinet_sizes(bpy.types.Operator):
+                 continue
+             updated += 1
+ 
+-        self.report({'INFO'}, f"Updated {updated} cabinet(s)")
++        self.report({'INFO'}, tr("Updated {} cabinet(s)").format(updated))
+         return {'FINISHED'}
+ 
+ 
+diff --git a/caffmob_draw/product_libraries/face_frame/operators/ops_finished_ends.py b/caffmob_draw/product_libraries/face_frame/operators/ops_finished_ends.py
+index 773e544..e64ea95 100644
+--- a/caffmob_draw/product_libraries/face_frame/operators/ops_finished_ends.py
++++ b/caffmob_draw/product_libraries/face_frame/operators/ops_finished_ends.py
+@@ -11,6 +11,7 @@ Two operators:
+ """
+ import bpy
+ 
++from ....data.i18n import tr
+ from .. import exposure
+ from .. import types_face_frame
+ from ..exposure import _is_face_frame_carcass
+@@ -67,8 +68,7 @@ class HB_FACE_FRAME_OT_apply_finished_ends_to_exposed(bpy.types.Operator):
+         target_type = scene_props.default_finished_end_type
+         self.report(
+             {'INFO'},
+-            f"Updated {updated} exposed side(s); EXPOSED -> {target_type}, "
+-            f"PARTIAL -> FINISHED",
++            tr("Updated {} exposed side(s); EXPOSED -> {}, PARTIAL -> FINISHED").format(updated, target_type),
+         )
+         return {'FINISHED'}
+ 
+diff --git a/caffmob_draw/product_libraries/face_frame/operators/ops_library.py b/caffmob_draw/product_libraries/face_frame/operators/ops_library.py
+index 61db359..8cbff87 100644
+--- a/caffmob_draw/product_libraries/face_frame/operators/ops_library.py
++++ b/caffmob_draw/product_libraries/face_frame/operators/ops_library.py
+@@ -19,6 +19,7 @@ import os
+ import platform
+ import subprocess
+ from mathutils import Vector
++from ....data.i18n import tr
+ from .. import props_hb_face_frame
+ from .... import hb_types, hb_placement, hb_snap, hb_utils
+ 
+@@ -185,7 +186,7 @@ class hb_face_frame_OT_save_cabinet_group_to_user_library(bpy.types.Operator):
+         blend_filepath = os.path.join(actual_save_path, blend_filename)
+ 
+         if os.path.exists(blend_filepath):
+-            self.report({'WARNING'}, f"File already exists: {blend_filename}. Overwriting.")
++            self.report({'WARNING'}, tr("File already exists: {}. Overwriting.").format(blend_filename))
+ 
+         objects_to_save = self._collect_objects_recursive(cabinet_group)
+         data_blocks = self._collect_data_blocks(objects_to_save)
+@@ -200,7 +201,7 @@ class hb_face_frame_OT_save_cabinet_group_to_user_library(bpy.types.Operator):
+         if self.create_thumbnail:
+             self._create_thumbnail(context, cabinet_group, actual_save_path, safe_name)
+ 
+-        self.report({'INFO'}, f"Saved cabinet group to: {blend_filepath}")
++        self.report({'INFO'}, tr("Saved cabinet group to: {}").format(blend_filepath))
+         return {'FINISHED'}
+ 
+     def _collect_objects_recursive(self, obj):
+@@ -395,12 +396,12 @@ class hb_face_frame_OT_load_cabinet_group_from_library(bpy.types.Operator, hb_pl
+                 pass
+ 
+     def update_header(self, context):
+-        text = "Click to place cabinet group | R: rotate 90 | Right-click/Esc: cancel"
++        text = tr("Click to place cabinet group | R: rotate 90 | Right-click/Esc: cancel")
+         hb_placement.draw_header_text(context, text)
+ 
+     def execute(self, context):
+         if not self.filepath or not os.path.exists(self.filepath):
+-            self.report({'ERROR'}, f"File not found: {self.filepath}")
++            self.report({'ERROR'}, tr("File not found: {}").format(self.filepath))
+             return {'CANCELLED'}
+ 
+         self.init_placement(context)
+@@ -443,7 +444,7 @@ class hb_face_frame_OT_load_cabinet_group_from_library(bpy.types.Operator, hb_pl
+         if event.type == 'LEFTMOUSE' and event.value == 'PRESS':
+             hb_placement.clear_header_text(context)
+             context.window.cursor_set('DEFAULT')
+-            self.report({'INFO'}, f"Placed cabinet group from: {os.path.basename(self.filepath)}")
++            self.report({'INFO'}, tr("Placed cabinet group from: {}").format(os.path.basename(self.filepath)))
+             return {'FINISHED'}
+ 
+         if event.type == 'R' and event.value == 'PRESS':
+@@ -514,7 +515,7 @@ class hb_face_frame_OT_delete_library_item(bpy.types.Operator):
+ 
+     def execute(self, context):
+         if not self.filepath or not os.path.exists(self.filepath):
+-            self.report({'ERROR'}, f"File not found: {self.filepath}")
++            self.report({'ERROR'}, tr("File not found: {}").format(self.filepath))
+             return {'CANCELLED'}
+         os.remove(self.filepath)
+         # Remove the matching thumbnail too - leaving it would point at a
+@@ -523,7 +524,7 @@ class hb_face_frame_OT_delete_library_item(bpy.types.Operator):
+         if os.path.exists(thumbnail_path):
+             os.remove(thumbnail_path)
+         props_hb_face_frame.clear_library_previews()
+-        self.report({'INFO'}, f"Deleted: {self.item_name}")
++        self.report({'INFO'}, tr("Deleted: {}").format(self.item_name))
+         for area in context.screen.areas:
+             area.tag_redraw()
+         return {'FINISHED'}
+diff --git a/caffmob_draw/product_libraries/face_frame/operators/ops_part_commands.py b/caffmob_draw/product_libraries/face_frame/operators/ops_part_commands.py
+index a52b0c3..f06e414 100644
+--- a/caffmob_draw/product_libraries/face_frame/operators/ops_part_commands.py
++++ b/caffmob_draw/product_libraries/face_frame/operators/ops_part_commands.py
+@@ -20,6 +20,7 @@ doesn't reset the user's value.
+ import bpy
+ from bpy.props import BoolProperty, FloatProperty, StringProperty
+ 
++from ....data.i18n import N_, tr
+ from .. import types_face_frame
+ from .. import types_face_frame_corner
+ from ....hb_types import GeoNodeCutpart, CabinetPartModifier
+@@ -533,9 +534,9 @@ class hb_face_frame_OT_set_part_scribe(bpy.types.Operator):
+             return
+         cab = root.face_frame_cabinet
+         attr_by_role = {
+-            types_face_frame.PART_ROLE_LEFT_STILE: ('left_scribe', "Left Scribe"),
+-            types_face_frame.PART_ROLE_RIGHT_STILE: ('right_scribe', "Right Scribe"),
+-            types_face_frame.PART_ROLE_TOP_RAIL: ('top_scribe', "Top Scribe"),
++            types_face_frame.PART_ROLE_LEFT_STILE: ('left_scribe', N_("Left Scribe")),
++            types_face_frame.PART_ROLE_RIGHT_STILE: ('right_scribe', N_("Right Scribe")),
++            types_face_frame.PART_ROLE_TOP_RAIL: ('top_scribe', N_("Top Scribe")),
+         }
+         entry = attr_by_role.get(role)
+         if entry is None:
+@@ -1254,8 +1255,8 @@ class hb_face_frame_OT_set_door_frame(bpy.types.Operator):
+         row.enabled = self.mid_rail_mode in _MID_RAIL_VALUE_MODES
+         # The same field carries a from-bottom location (CUSTOM) or an interior
+         # panel height (TOP_PANEL / BOTTOM_PANEL); relabel to match the mode.
+-        loc_label = {'TOP_PANEL': "Top Panel Height",
+-                     'BOTTOM_PANEL': "Bottom Panel Height"}.get(self.mid_rail_mode, "Location")
++        loc_label = {'TOP_PANEL': tr("Top Panel Height"),
++                     'BOTTOM_PANEL': tr("Bottom Panel Height")}.get(self.mid_rail_mode, tr("Location"))
+         row.prop(self, 'mid_rail_location', text=loc_label)
+ 
+         # Read-only readout of the resulting interior-panel heights. Lives in
+@@ -1268,10 +1269,10 @@ class hb_face_frame_OT_set_door_frame(bpy.types.Operator):
+             box = col.box()
+             box.label(text="Panel Heights")
+             if top_opening is None:
+-                box.label(text="Panel:  " + units.unit_to_string(us, bottom_opening))
++                box.label(text=tr("Panel:  {}").format(units.unit_to_string(us, bottom_opening)))
+             else:
+-                box.label(text="Top Panel:  " + units.unit_to_string(us, top_opening))
+-                box.label(text="Bottom Panel:  " + units.unit_to_string(us, bottom_opening))
++                box.label(text=tr("Top Panel:  {}").format(units.unit_to_string(us, top_opening)))
++                box.label(text=tr("Bottom Panel:  {}").format(units.unit_to_string(us, bottom_opening)))
+ 
+     def execute(self, context):
+         # Live-bound via the prop update callbacks; nothing to do on OK.
+@@ -1564,7 +1565,7 @@ class hb_face_frame_OT_make_part_editable(bpy.types.Operator):
+             self._apply_front_one(context, obj)
+         n = len(structural) + len(fronts)
+         self.report({'INFO'},
+-                    f"{n} part(s) editable - parametric updates off")
++                    tr("{} part(s) editable - parametric updates off").format(n))
+         return {'FINISHED'}
+ 
+ 
+@@ -1644,7 +1645,7 @@ class hb_face_frame_OT_revert_part_to_parametric(bpy.types.Operator):
+         for root in roots.values():
+             types_face_frame.recalculate_face_frame_cabinet(root)
+         self.report({'INFO'},
+-                    f"{len(targets)} part(s) restored to parametric")
++                    tr("{} part(s) restored to parametric").format(len(targets)))
+         return {'FINISHED'}
+ 
+ 
+@@ -1752,7 +1753,7 @@ class hb_face_frame_OT_set_finished_end_condition(bpy.types.Operator):
+         key = self.side.lower()
+         fin_type = getattr(cab, f'{key}_finished_end_condition')
+         layout.prop(cab, f'{key}_finished_end_condition',
+-                    text=f"{self.side.title()} Finished End")
++                    text=tr("{} Finished End").format(self.side.title()))
+         # FLUSH_X needs its strip width to be meaningful.
+         if fin_type == 'FLUSH_X':
+             layout.prop(cab, f'{key}_flush_x_amount', text="Flush Amount")
+@@ -2024,7 +2025,7 @@ class hb_face_frame_OT_set_bottom_rail_profile(bpy.types.Operator):
+         try:
+             root.face_frame_cabinet.bottom_rail_profile = self.profile_id
+         except TypeError:
+-            self.report({'WARNING'}, f"Unknown profile: {self.profile_id}")
++            self.report({'WARNING'}, tr("Unknown profile: {}").format(self.profile_id))
+             return {'CANCELLED'}
+         return {'FINISHED'}
+ 
+diff --git a/caffmob_draw/product_libraries/face_frame/operators/ops_placement.py b/caffmob_draw/product_libraries/face_frame/operators/ops_placement.py
+index c44986a..e8146b2 100644
+--- a/caffmob_draw/product_libraries/face_frame/operators/ops_placement.py
++++ b/caffmob_draw/product_libraries/face_frame/operators/ops_placement.py
+@@ -30,6 +30,7 @@ The cage is flagged HB_CURRENT_DRAW_OBJ so hb_snap raycasts skip it
+ """
+ 
+ import bpy
++from ....data.i18n import tr
+ from .... import units
+ import math
+ from mathutils import Vector, Matrix
+@@ -1830,8 +1831,7 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
+             src = bpy.data.objects.get(self.source_cabinet_name)
+             if src is None or not src.get(types_face_frame.TAG_CABINET_CAGE):
+                 self.report({'WARNING'},
+-                            f"Source cabinet not found: "
+-                            f"{self.source_cabinet_name}")
++                            tr("Source cabinet not found: {}").format(self.source_cabinet_name))
+                 return {'CANCELLED'}
+             self._source_obj = src
+             self.cabinet_name = _dispatch_name_for_source(src)
+@@ -1840,7 +1840,7 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
+             return {'CANCELLED'}
+         if types_face_frame.get_cabinet_class(self.cabinet_name) is None:
+             self.report({'WARNING'},
+-                        f"Unknown cabinet name: {self.cabinet_name}")
++                        tr("Unknown cabinet name: {}").format(self.cabinet_name))
+             return {'CANCELLED'}
+ 
+         scene_props = context.scene.hb_face_frame
+@@ -1894,7 +1894,7 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
+         try:
+             self._create_preview_cage(context)
+         except Exception as e:
+-            self.report({'ERROR'}, f"Preview creation failed: {e}")
++            self.report({'ERROR'}, tr("Preview creation failed: {}").format(e))
+             return {'CANCELLED'}
+ 
+         # Initial position: 3D cursor (XY); Z follows cabinet_type
+@@ -2258,13 +2258,12 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
+             self._position_from_hit(bpy.context)
+ 
+     def _update_header(self, context):
+-        title = (self.cabinet_name if self._source_obj is None
+-                 else ("Duplicate Mirror " if self.mirror else "Duplicate ")
+-                 + self._source_obj.name)
+-        bay_label = f"{self.bay_qty} bay" + ("" if self.bay_qty == 1 else "s")
+-        mode = "auto" if self._auto_bay_qty else "manual"
+-        side = ("peninsula" if self._peninsula
+-                else "front" if self._place_on_front else "back")
++        title = (tr(self.cabinet_name) if self._source_obj is None
++                 else tr("Duplicate Mirror {}" if self.mirror else "Duplicate {}").format(self._source_obj.name))
++        bay_label = tr("{} bay(s)").format(self.bay_qty)
++        mode = tr("auto") if self._auto_bay_qty else tr("manual")
++        side = (tr("peninsula") if self._peninsula
++                else tr("front") if self._place_on_front else tr("back"))
+         width_in = self._cabinet_width * 39.37008
+ 
+         # When the user is typing, show the live buffer prominently so
+@@ -2279,9 +2278,7 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
+             }.get(self.typing_target, "Value")
+             hb_placement.draw_header_text(
+                 context,
+-                f"{title}  -  {label}: {typed}  -  "
+-                "Enter: apply   ←/→: switch offset   "
+-                "Esc: cancel typing   Backspace: delete"
++                tr("{}  -  {}: {}  -  Enter: apply   ←/→: switch offset   Esc: cancel typing   Backspace: delete").format(title, label, typed)
+             )
+         else:
+             offset_hint = ""
+@@ -2295,12 +2292,9 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
+                 )
+             hb_placement.draw_header_text(
+                 context,
+-                f"{title}  -  {bay_label} ({mode})  -  "
+-                f"width: {width_in:.1f}\"  -  side: {side}{offset_hint}  -  "
+-                + ("F: fill gap   " if self._source_obj is not None else "")
+-                + "W/numbers: width   Up/Down: bays   "
+-                "←/→: gap offset   R: rotate 90   "
+-                "Click: place   Esc: cancel"
++                tr("{}  -  {} ({})  -  width: {:.1f}\"  -  side: {}{}  -  ").format(title, bay_label, mode, width_in, side, offset_hint)
++                + (tr("F: fill gap   ") if self._source_obj is not None else "")
++                + tr("W/numbers: width   Up/Down: bays   ←/→: gap offset   R: rotate 90   Click: place   Esc: cancel")
+             )
+ 
+     # ---------------- wall detection ----------------
+@@ -3563,7 +3557,7 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
+             cabinet = cls()
+             cabinet.create(self.cabinet_name, bay_qty=captured_bay_qty)
+         except Exception as e:
+-            self.report({'ERROR'}, f"Cabinet creation failed: {e}")
++            self.report({'ERROR'}, tr("Cabinet creation failed: {}").format(e))
+             hb_placement.clear_header_text(context)
+             return {'CANCELLED'}
+ 
+@@ -3604,8 +3598,7 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
+             context.view_layer.objects.active = cab_obj
+             hb_placement.clear_header_text(context)
+             self.report({'INFO'},
+-                        f"Placed {self.cabinet_name} "
+-                        f"({captured_width * 39.37008:.1f}\" wide)")
++                        tr("Placed {} ({:.1f}\" wide)").format(self.cabinet_name, captured_width * 39.37008))
+             return {'FINISHED'}
+ 
+         # Resize to match cage width via the property update callback
+@@ -3742,8 +3735,7 @@ class hb_face_frame_OT_place_cabinet(bpy.types.Operator,
+         hb_placement.clear_header_text(context)
+         bay_label = f"{captured_bay_qty} bay" + ("" if captured_bay_qty == 1 else "s")
+         self.report({'INFO'},
+-                    f"Placed {self.cabinet_name} ({bay_label}, "
+-                    f"{captured_width * 39.37008:.1f}\" wide)")
++                    tr("Placed {} ({}, {:.1f}\" wide)").format(self.cabinet_name, bay_label, captured_width * 39.37008))
+         return {'FINISHED'}
+ 
+     def _finalize_duplicate(self, context, captured_parent, captured_world,
+@@ -3908,7 +3900,7 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
+             return {'CANCELLED'}
+         if self.appliance_name not in types_face_frame.APPLIANCE_NAME_DISPATCH:
+             self.report({'WARNING'},
+-                        f"Unknown appliance: {self.appliance_name}")
++                        tr("Unknown appliance: {}").format(self.appliance_name))
+             return {'CANCELLED'}
+ 
+         scene_props = context.scene.hb_face_frame
+@@ -3926,7 +3918,7 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
+         try:
+             self._create_preview_cage(context)
+         except Exception as e:
+-            self.report({'ERROR'}, f"Preview creation failed: {e}")
++            self.report({'ERROR'}, tr("Preview creation failed: {}").format(e))
+             return {'CANCELLED'}
+ 
+         cage_obj = self._preview_cage.obj
+@@ -4054,9 +4046,7 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
+             }.get(self.typing_target, "Value")
+             hb_placement.draw_header_text(
+                 context,
+-                f"{self.appliance_name}  -  {label}: {typed}  -  "
+-                "Enter: apply   ←/→: switch offset   "
+-                "Esc: cancel typing   Backspace: delete"
++                tr("{}  -  {}: {}  -  Enter: apply   ←/→: switch offset   Esc: cancel typing   Backspace: delete").format(self.appliance_name, label, typed)
+             )
+             return
+ 
+@@ -4072,9 +4062,7 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
+         width_key = "   W: width" if self._variable_width else ""
+         hb_placement.draw_header_text(
+             context,
+-            f"{self.appliance_name}  -  width: {width_in:.1f}\""
+-            f"  -  side: {side}{offset_hint}  -  "
+-            f"←/→: gap offset{width_key}   Click: place   Esc: cancel"
++            tr("{}  -  width: {:.1f}\"  -  side: {}{}  -  ←/→: gap offset{}   Click: place   Esc: cancel").format(self.appliance_name, width_in, side, offset_hint, width_key)
+         )
+ 
+     # ---------------- typed-input handlers ----------------
+@@ -4558,7 +4546,7 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
+ 
+         cls = types_face_frame.APPLIANCE_NAME_DISPATCH.get(self.appliance_name)
+         if cls is None:
+-            self.report({'ERROR'}, f"Unknown appliance: {self.appliance_name}")
++            self.report({'ERROR'}, tr("Unknown appliance: {}").format(self.appliance_name))
+             hb_placement.clear_header_text(context)
+             return {'CANCELLED'}
+         appliance = cls()
+@@ -4570,7 +4558,7 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
+         try:
+             appliance.create(self.appliance_name)
+         except Exception as e:
+-            self.report({'ERROR'}, f"Appliance creation failed: {e}")
++            self.report({'ERROR'}, tr("Appliance creation failed: {}").format(e))
+             hb_placement.clear_header_text(context)
+             return {'CANCELLED'}
+ 
+@@ -4601,7 +4589,7 @@ class hb_face_frame_OT_place_appliance(bpy.types.Operator,
+             pass
+ 
+         hb_placement.clear_header_text(context)
+-        self.report({'INFO'}, f"Placed {self.appliance_name}")
++        self.report({'INFO'}, tr("Placed {}").format(self.appliance_name))
+         return {'FINISHED'}
+ 
+     def _cancel(self, context):
+@@ -4693,7 +4681,7 @@ class hb_face_frame_OT_place_corner_cabinet(bpy.types.Operator,
+         if cls is None or not issubclass(
+                 cls, types_face_frame_corner.CornerFaceFrameCabinet):
+             self.report({'WARNING'},
+-                        f"Not a corner cabinet: {self.cabinet_name}")
++                        tr("Not a corner cabinet: {}").format(self.cabinet_name))
+             return {'CANCELLED'}
+         self._cabinet_class = cls
+ 
+@@ -4714,7 +4702,7 @@ class hb_face_frame_OT_place_corner_cabinet(bpy.types.Operator,
+         try:
+             self._create_preview_cage(context)
+         except Exception as e:
+-            self.report({'ERROR'}, f"Preview creation failed: {e}")
++            self.report({'ERROR'}, tr("Preview creation failed: {}").format(e))
+             return {'CANCELLED'}
+ 
+         cage_obj = self._preview_cage.obj
+@@ -5154,9 +5142,7 @@ class hb_face_frame_OT_place_corner_cabinet(bpy.types.Operator,
+             }.get(self.typing_target, "Value")
+             hb_placement.draw_header_text(
+                 context,
+-                f"{self.cabinet_name}  -  {label}: {typed}  -  "
+-                "Enter: apply   ←/→: switch offset   "
+-                "Esc: cancel typing   Backspace: delete"
++                tr("{}  -  {}: {}  -  Enter: apply   ←/→: switch offset   Esc: cancel typing   Backspace: delete").format(self.cabinet_name, label, typed)
+             )
+             return
+ 
+@@ -5169,9 +5155,7 @@ class hb_face_frame_OT_place_corner_cabinet(bpy.types.Operator,
+             offset_hint += (
+                 f"  R:{units.unit_to_string(context.scene.unit_settings, self._right_offset)}"
+             )
+-        msg = (f"Place {self.cabinet_name} - move cursor near a wall corner."
+-               f"{offset_hint}  -  type a size   ←/→: gap offset   "
+-               f"R: rotate facing   LMB commits, Esc cancels.")
++        msg = (tr("Place {} - move cursor near a wall corner.{}  -  type a size   ←/→: gap offset   R: rotate facing   LMB commits, Esc cancels.").format(self.cabinet_name, offset_hint))
+         hb_placement.draw_header_text(context, msg)
+ 
+     # ---------------- typed-input handlers ----------------
+@@ -5361,7 +5345,7 @@ class hb_face_frame_OT_place_corner_cabinet(bpy.types.Operator,
+             cabinet = cls()
+             cabinet.create(self.cabinet_name)
+         except Exception as e:
+-            self.report({'ERROR'}, f"Cabinet creation failed: {e}")
++            self.report({'ERROR'}, tr("Cabinet creation failed: {}").format(e))
+             hb_placement.clear_header_text(context)
+             return {'CANCELLED'}
+ 
+@@ -5407,7 +5391,7 @@ class hb_face_frame_OT_place_corner_cabinet(bpy.types.Operator,
+ 
+         hb_placement.clear_header_text(context)
+         side = self._corner_side or 'free'
+-        self.report({'INFO'}, f"Placed {self.cabinet_name} ({side})")
++        self.report({'INFO'}, tr("Placed {} ({})").format(self.cabinet_name, side))
+         return {'FINISHED'}
+ 
+     def _cancel(self, context):
+@@ -5513,7 +5497,7 @@ class hb_face_frame_OT_set_blind_corner_void_amount(bpy.types.Operator):
+ 
+         side_label = "left" if self.blind_side == 'LEFT' else "right"
+         layout.label(
+-            text=f"{blind.name}'s {side_label} end will become blind",
++            text=tr("{}'s {} end will become blind").format(blind.name, side_label),
+             icon='INFO',
+         )
+ 
+@@ -5524,7 +5508,7 @@ class hb_face_frame_OT_set_blind_corner_void_amount(bpy.types.Operator):
+         if self.match_cabinet_depth:
+             depth_in = placed.face_frame_cabinet.depth * 39.37008
+             layout.label(
+-                text=f"Void will match the placed cabinet's depth ({depth_in:.2f} in)"
++                text=tr("Void will match the placed cabinet's depth ({:.2f} in)").format(depth_in)
+             )
+         else:
+             row = layout.row(align=True)
+@@ -5742,7 +5726,7 @@ class hb_face_frame_OT_set_angled_corner_void_amount(bpy.types.Operator):
+             layout.label(text="Cabinet reference lost", icon='ERROR')
+             return
+ 
+-        layout.label(text=f"Corner Angle: {self.corner_angle_deg:.1f}°",
++        layout.label(text=tr("Corner Angle: {:.1f}°").format(self.corner_angle_deg),
+                      icon='DRIVER_ROTATIONAL_DIFFERENCE')
+         row = layout.row(align=True)
+         row.label(text="Action:")
+@@ -5753,8 +5737,8 @@ class hb_face_frame_OT_set_angled_corner_void_amount(bpy.types.Operator):
+             box = layout.box()
+             col = box.column(align=True)
+             col.label(text="The cabinets will be notched back from the corner:")
+-            col.label(text=f"  {placed.name}: {vc * 39.37008:.4f} in")
+-            col.label(text=f"  {angled.name}: {va * 39.37008:.4f} in")
++            col.label(text=tr("  {}: {:.4f} in").format(placed.name, vc * 39.37008))
++            col.label(text=tr("  {}: {:.4f} in").format(angled.name, va * 39.37008))
+             col.label(text="Their fronts will meet at the angle bisector.")
+         elif self.action == 'FILL':
+             box = layout.box()
+diff --git a/caffmob_draw/product_libraries/face_frame/operators/ops_styles.py b/caffmob_draw/product_libraries/face_frame/operators/ops_styles.py
+index 706d4b6..c7f49b7 100644
+--- a/caffmob_draw/product_libraries/face_frame/operators/ops_styles.py
++++ b/caffmob_draw/product_libraries/face_frame/operators/ops_styles.py
+@@ -5,6 +5,7 @@ material wiring.
+ import bpy
+ from bpy.types import Operator
+ 
++from ....data.i18n import tr
+ from ..props_hb_face_frame import (get_style_props,
+                                    _reapply_materials_for_door_style)
+ from .. import style_options
+@@ -114,7 +115,7 @@ class hb_face_frame_OT_add_cabinet_style(Operator):
+         if src is not None:
+             _copy_cabinet_style(src, new_style)
+         ff.active_cabinet_style_index = len(ff.cabinet_styles) - 1
+-        self.report({'INFO'}, f"Added cabinet style: {new_style.name}")
++        self.report({'INFO'}, tr("Added cabinet style: {}").format(new_style.name))
+         return {'FINISHED'}
+ 
+ 
+@@ -144,7 +145,7 @@ class hb_face_frame_OT_remove_cabinet_style(Operator):
+         ff.cabinet_styles.remove(idx)
+         if ff.active_cabinet_style_index >= len(ff.cabinet_styles):
+             ff.active_cabinet_style_index = max(0, len(ff.cabinet_styles) - 1)
+-        self.report({'INFO'}, f"Removed cabinet style: {name}")
++        self.report({'INFO'}, tr("Removed cabinet style: {}").format(name))
+         return {'FINISHED'}
+ 
+ 
+@@ -211,7 +212,7 @@ class hb_face_frame_OT_add_door_style(Operator):
+             # rail callouts are a drawer-rail concern.
+             new_style.show_rail_annotation = False
+         ff.active_door_style_index = len(ff.door_styles) - 1
+-        self.report({'INFO'}, f"Added door style: {new_style.name}")
++        self.report({'INFO'}, tr("Added door style: {}").format(new_style.name))
+         return {'FINISHED'}
+ 
+ 
+@@ -239,7 +240,7 @@ class hb_face_frame_OT_remove_door_style(Operator):
+         ff.door_styles.remove(idx)
+         if ff.active_door_style_index >= len(ff.door_styles):
+             ff.active_door_style_index = max(0, len(ff.door_styles) - 1)
+-        self.report({'INFO'}, f"Removed door style: {name}")
++        self.report({'INFO'}, tr("Removed door style: {}").format(name))
+         return {'FINISHED'}
+ 
+ 
+@@ -262,7 +263,7 @@ class hb_face_frame_OT_add_drawer_front_style(Operator):
+         if src is not None:
+             _copy_door_style(src, new_style)
+         ff.active_drawer_front_style_index = len(ff.drawer_front_styles) - 1
+-        self.report({'INFO'}, f"Added drawer front style: {new_style.name}")
++        self.report({'INFO'}, tr("Added drawer front style: {}").format(new_style.name))
+         return {'FINISHED'}
+ 
+ 
+@@ -290,7 +291,7 @@ class hb_face_frame_OT_remove_drawer_front_style(Operator):
+         ff.drawer_front_styles.remove(idx)
+         if ff.active_drawer_front_style_index >= len(ff.drawer_front_styles):
+             ff.active_drawer_front_style_index = max(0, len(ff.drawer_front_styles) - 1)
+-        self.report({'INFO'}, f"Removed drawer front style: {name}")
++        self.report({'INFO'}, tr("Removed drawer front style: {}").format(name))
+         return {'FINISHED'}
+ 
+ 
+@@ -342,7 +343,7 @@ class hb_face_frame_OT_assign_style_to_selected_cabinets(Operator):
+         for hood in hood_roots:
+             style.assign_style_to_hood(hood)
+         n = len(cab_roots) + len(hood_roots)
+-        self.report({'INFO'}, f"Applied '{style.name}' to {n} item(s)")
++        self.report({'INFO'}, tr("Applied '{}' to {} item(s)").format(style.name, n))
+         return {'FINISHED'}
+ 
+ 
+@@ -379,7 +380,7 @@ class hb_face_frame_OT_update_cabinets_from_style(Operator):
+             elif obj.get('APPLIANCE_TYPE') == 'HOOD':
+                 hood_roots.append(obj)
+         if not cab_roots and not hood_roots:
+-            self.report({'INFO'}, f"No cabinets or hoods tagged with '{target_name}'")
++            self.report({'INFO'}, tr("No cabinets or hoods tagged with '{}'").format(target_name))
+             return {'FINISHED'}
+ 
+         for root in cab_roots:
+@@ -387,7 +388,7 @@ class hb_face_frame_OT_update_cabinets_from_style(Operator):
+         for hood in hood_roots:
+             style.assign_style_to_hood(hood)
+         n = len(cab_roots) + len(hood_roots)
+-        self.report({'INFO'}, f"Updated {n} item(s) tagged '{target_name}'")
++        self.report({'INFO'}, tr("Updated {} item(s) tagged '{}'").format(n, target_name))
+         return {'FINISHED'}
+ 
+ 
+@@ -465,7 +466,7 @@ class hb_face_frame_OT_paint_assign_cabinet_style(bpy.types.Operator):
+             self._painted.add(root.name)
+             self._count += 1
+         context.workspace.status_text_set(
+-            f"Applied '{style.name}' to {self._count} item(s)  |  Esc / RMB to finish")
++            tr("Applied '{}' to {} item(s)  |  Esc / RMB to finish").format(style.name, self._count))
+ 
+     def _set_hover(self, context, root):
+         """Highlight the cabinet under the cursor by selecting its root, so it's
+@@ -530,7 +531,7 @@ class hb_face_frame_OT_paint_assign_cabinet_style(bpy.types.Operator):
+         context.workspace.status_text_set(None)
+         if context.area is not None:
+             context.area.tag_redraw()
+-        self.report({'INFO'}, f"Assigned cabinet style to {self._count} cabinet(s)")
++        self.report({'INFO'}, tr("Assigned cabinet style to {} cabinet(s)").format(self._count))
+         return {'FINISHED'}
+ 
+     def invoke(self, context, event):
+@@ -549,7 +550,7 @@ class hb_face_frame_OT_paint_assign_cabinet_style(bpy.types.Operator):
+         self._orig_active = active.name if active else None
+         context.window.cursor_modal_set('PAINT_BRUSH')
+         context.workspace.status_text_set(
+-            "Paint-assign: hover highlights a cabinet, click to assign  |  Esc / RMB to finish")
++            tr("Paint-assign: hover highlights a cabinet, click to assign  |  Esc / RMB to finish"))
+         context.window_manager.modal_handler_add(self)
+         return {'RUNNING_MODAL'}
+ 
+@@ -595,7 +596,7 @@ class hb_face_frame_OT_assign_door_style_to_selected_fronts(Operator):
+             _reapply_materials_for_door_style(ds, context)
+         for err in errors:
+             self.report({'WARNING'}, err)
+-        self.report({'INFO'}, f"Applied '{ds.name}' to {applied} front(s)")
++        self.report({'INFO'}, tr("Applied '{}' to {} front(s)").format(ds.name, applied))
+         return {'FINISHED'}
+ 
+ 
+@@ -636,7 +637,7 @@ class hb_face_frame_OT_update_fronts_from_door_style(Operator):
+             _reapply_materials_for_door_style(ds, context)
+         for err in errors:
+             self.report({'WARNING'}, err)
+-        self.report({'INFO'}, f"Updated {applied} front(s) tagged '{target}'")
++        self.report({'INFO'}, tr("Updated {} front(s) tagged '{}'").format(applied, target))
+         return {'FINISHED'}
+ 
+ 
+@@ -718,7 +719,7 @@ class hb_face_frame_OT_paint_assign_front_style(bpy.types.Operator):
+             return
+         if front.get('hb_part_role') not in self._allowed_roles():
+             context.workspace.status_text_set(
+-                f"Skipped: not a {self.kind.lower()} front  |  Esc / RMB to finish")
++                tr("Skipped: not a {} front  |  Esc / RMB to finish").format(self.kind.lower()))
+             return
+         result = style.assign_style_to_front(front, record_override=True)
+         if result is True:
+@@ -727,9 +728,9 @@ class hb_face_frame_OT_paint_assign_front_style(bpy.types.Operator):
+             # op) -- run it per click so a glass panel shows immediately.
+             _reapply_materials_for_door_style(style, context)
+             context.workspace.status_text_set(
+-                f"Applied '{style.name}' to {self._count} front(s)  |  Esc / RMB to finish")
++                tr("Applied '{}' to {} front(s)  |  Esc / RMB to finish").format(style.name, self._count))
+         elif isinstance(result, str):
+-            context.workspace.status_text_set(result + "  |  Esc / RMB to finish")
++            context.workspace.status_text_set(tr("{}  |  Esc / RMB to finish").format(result))
+ 
+     def _set_hover(self, context, front):
+         """Highlight the assignable front under the cursor by selecting it (and
+@@ -798,7 +799,7 @@ class hb_face_frame_OT_paint_assign_front_style(bpy.types.Operator):
+         context.workspace.status_text_set(None)
+         if context.area is not None:
+             context.area.tag_redraw()
+-        self.report({'INFO'}, f"Assigned {self.kind.lower()} style to {self._count} front(s)")
++        self.report({'INFO'}, tr("Assigned {} style to {} front(s)").format(self.kind.lower(), self._count))
+         return {'FINISHED'}
+ 
+     def invoke(self, context, event):
+@@ -816,7 +817,7 @@ class hb_face_frame_OT_paint_assign_front_style(bpy.types.Operator):
+         self._orig_active = active.name if active else None
+         context.window.cursor_modal_set('PAINT_BRUSH')
+         context.workspace.status_text_set(
+-            "Paint-assign: hover highlights a front, click to assign  |  Esc / RMB to finish")
++            tr("Paint-assign: hover highlights a front, click to assign  |  Esc / RMB to finish"))
+         context.window_manager.modal_handler_add(self)
+         return {'RUNNING_MODAL'}
+ 
+@@ -863,7 +864,7 @@ class hb_face_frame_OT_update_fronts_from_style(bpy.types.Operator):
+         # Surfaces come from the cabinet material walk (see assign op).
+         if applied:
+             _reapply_materials_for_door_style(ds, context)
+-        self.report({'INFO'}, f"Updated {applied} front(s) tagged '{target}'")
++        self.report({'INFO'}, tr("Updated {} front(s) tagged '{}'").format(applied, target))
+         return {'FINISHED'}
+ 
+ 
+@@ -926,7 +927,7 @@ class hb_face_frame_OT_add_special_effects(Operator):
+             if c.is_selected:
+                 style.special_effects.add().name = c.name
+                 added += 1
+-        self.report({'INFO'}, f"Added {added} special effect(s).")
++        self.report({'INFO'}, tr("Added {} special effect(s).").format(added))
+         return {'FINISHED'}
+ 
+ 
+@@ -1195,8 +1196,7 @@ class hb_face_frame_OT_paint_part_material(bpy.types.Operator):
+     def _status(self, context, count=False):
+         tail = (f" - {len(self._painted)} painted" if count else "")
+         context.workspace.status_text_set(
+-            f"Paint Part [{self.brush.title()}]{tail}  |  "
+-            f"1 Finish  2 Interior  3 Reset  |  click parts  |  Esc / RMB to finish")
++            tr("Paint Part [{}]{}  |  1 Finish  2 Interior  3 Reset  |  click parts  |  Esc / RMB to finish").format(self.brush.title(), tail))
+ 
+     def modal(self, context, event):
+         if event.type in {'ESC', 'RIGHTMOUSE'} and event.value == 'PRESS':
+@@ -1225,7 +1225,7 @@ class hb_face_frame_OT_paint_part_material(bpy.types.Operator):
+         context.workspace.status_text_set(None)
+         if context.area is not None:
+             context.area.tag_redraw()
+-        self.report({'INFO'}, f"Painted {len(self._painted)} part(s)")
++        self.report({'INFO'}, tr("Painted {} part(s)").format(len(self._painted)))
+         return {'FINISHED'}
+ 
+     def invoke(self, context, event):
+diff --git a/caffmob_draw/product_libraries/face_frame/operators/ops_thumbnails.py b/caffmob_draw/product_libraries/face_frame/operators/ops_thumbnails.py
+index 6fdfd85..3d73785 100644
+--- a/caffmob_draw/product_libraries/face_frame/operators/ops_thumbnails.py
++++ b/caffmob_draw/product_libraries/face_frame/operators/ops_thumbnails.py
+@@ -11,6 +11,7 @@ explicit allowlist is the safeguard against rendering misleading images.
+ """
+ import os
+ import bpy
++from ....data.i18n import tr
+ from .. import types_face_frame
+ from .. import props_hb_face_frame
+ from .. import thumbnail_render
+@@ -161,9 +162,9 @@ class hb_face_frame_OT_render_library_thumbnails(bpy.types.Operator):
+         for area in context.screen.areas:
+             area.tag_redraw()
+ 
+-        message = f"Rendered {len(rendered)}/{len(RENDERABLE_CATALOG)} thumbnails"
++        message = tr("Rendered {}/{} thumbnails").format(len(rendered), len(RENDERABLE_CATALOG))
+         if failed:
+-            message += f" - failed: {', '.join(failed)}"
++            message += tr(" - failed: {}").format(', '.join(failed))
+         self.report({'INFO'}, message)
+         return {'FINISHED'}
+ 
+diff --git a/caffmob_draw/product_libraries/face_frame/operators/ops_wedge.py b/caffmob_draw/product_libraries/face_frame/operators/ops_wedge.py
+index 24b8dfa..5e7bddb 100644
+--- a/caffmob_draw/product_libraries/face_frame/operators/ops_wedge.py
++++ b/caffmob_draw/product_libraries/face_frame/operators/ops_wedge.py
+@@ -11,6 +11,7 @@ types_face_frame._apply_wedge_cuts.
+ import bpy
+ from bpy.props import FloatProperty
+ 
++from ....data.i18n import tr
+ from .. import solver_face_frame as solver
+ from ....units import inch, meter_to_inch
+ 
+@@ -79,8 +80,8 @@ class HB_FACE_FRAME_OT_add_refrigerator_wedge(bpy.types.Operator):
+         box = layout.box()
+         box.label(text="Cabinet", icon='MESH_CUBE')
+         row = box.row()
+-        row.label(text="Leg Height:  " + _fmt(leg_height))
+-        row.label(text="Leg Depth:  " + _fmt(leg_depth))
++        row.label(text=tr("Leg Height:  {}").format(_fmt(leg_height)))
++        row.label(text=tr("Leg Depth:  {}").format(_fmt(leg_depth)))
+ 
+         box = layout.box()
+         box.label(text="Room & Settings", icon='SETTINGS')
+@@ -96,8 +97,8 @@ class HB_FACE_FRAME_OT_add_refrigerator_wedge(bpy.types.Operator):
+         if needed:
+             box.label(text="Computed Wedge", icon='MOD_BEVEL')
+             row = box.row()
+-            row.label(text="Wedge Length:  " + _fmt(length))
+-            row.label(text="Wedge Height:  " + _fmt(height))
++            row.label(text=tr("Wedge Length:  {}").format(_fmt(length)))
++            row.label(text=tr("Wedge Height:  {}").format(_fmt(height)))
+             if clamped:
+                 row = box.row()
+                 row.alert = True
+diff --git a/caffmob_draw/product_libraries/face_frame/props_hb_face_frame.py b/caffmob_draw/product_libraries/face_frame/props_hb_face_frame.py
+index 19a2f9b..091be2b 100644
+--- a/caffmob_draw/product_libraries/face_frame/props_hb_face_frame.py
++++ b/caffmob_draw/product_libraries/face_frame/props_hb_face_frame.py
+@@ -21,6 +21,7 @@ from bpy.props import (
+     CollectionProperty,
+     EnumProperty,
+ )
++from ...data.i18n import N_, tr
+ from ... import units
+ from ... import hb_utils
+ from . import finish_colors, wood_materials, style_options
+@@ -199,7 +200,7 @@ def get_stain_color_enum_items(self, context):
+     colors = finish_colors.get_all_stain_colors()
+     for i, name in enumerate(colors.keys()):
+         is_custom = finish_colors.is_custom_color(name, 'stain')
+-        desc = f"Custom: {name}" if is_custom else name
++        desc = tr("Custom: {}").format(name) if is_custom else name
+         items.append((name, name, desc, i))
+     if not items:
+         items.append(('Natural', "Natural", "Natural", 0))
+@@ -212,7 +213,7 @@ def get_paint_color_enum_items(self, context):
+     colors = finish_colors.get_all_paint_colors()
+     for i, name in enumerate(colors.keys()):
+         is_custom = finish_colors.is_custom_color(name, 'paint')
+-        desc = f"Custom: {name}" if is_custom else name
++        desc = tr("Custom: {}").format(name) if is_custom else name
+         items.append((name, name, desc, i))
+     if not items:
+         items.append(('Arctic White', "Arctic White", "Arctic White", 0))
+@@ -2509,7 +2510,7 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
+ 
+         box = layout.box()
+         row = box.row()
+-        row.label(text=f"Face Frame Sizes: Overlay = {self.door_overlay_type.replace('_', ' ').title()}")
++        row.label(text=tr("Face Frame Sizes: Overlay = {}").format(self.door_overlay_type.replace('_', ' ').title()))
+ 
+         # Header row
+         row = box.row(align=True)
+@@ -2521,9 +2522,9 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
+ 
+         # Rail rows - each cell has an unlock checkbox + value
+         for row_label, row_key, prop_root in (
+-            ("Top Rail", "top", "ff_top_rail_width"),
+-            ("Bottom Rail", "bottom", "ff_bottom_rail_width"),
+-            ("Mid Rail", "mid", "ff_mid_rail_width"),
++            (N_("Top Rail"), "top", "ff_top_rail_width"),
++            (N_("Bottom Rail"), "bottom", "ff_bottom_rail_width"),
++            (N_("Mid Rail"), "mid", "ff_mid_rail_width"),
+         ):
+             r = box.row(align=True)
+             r.label(text=row_label)
+@@ -2540,13 +2541,13 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
+ 
+         # Stile rows - read-only labels (overlay-driven)
+         for row_label, prop_root in (
+-            ("Wall Stile", "ff_wall_stile_width"),
+-            ("Mid Stile", "ff_mid_stile_width"),
+-            ("End Stile", "ff_end_stile_width"),
+-            ("Blind Stile", "ff_blind_stile_width"),
+-            ("Butt Stile", "ff_butt_stile_width"),
+-            ("Inside 90 Stile", "ff_inside_90_stile_width"),
+-            ("Angle Stile", "ff_angle_stile_width"),
++            (N_("Wall Stile"), "ff_wall_stile_width"),
++            (N_("Mid Stile"), "ff_mid_stile_width"),
++            (N_("End Stile"), "ff_end_stile_width"),
++            (N_("Blind Stile"), "ff_blind_stile_width"),
++            (N_("Butt Stile"), "ff_butt_stile_width"),
++            (N_("Inside 90 Stile"), "ff_inside_90_stile_width"),
++            (N_("Angle Stile"), "ff_angle_stile_width"),
+         ):
+             r = box.row(align=True)
+             r.label(text=row_label)
+@@ -2596,14 +2597,14 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
+         row.alignment = 'CENTER'
+         row.label(text="CABINET")
+         col = box.column(align=True)
+-        self._draw_toggle_field(col, "finish_wood", "Wood", "ss_wood")
+-        self._draw_toggle_field(col, "interior_material_type", "Interior",
++        self._draw_toggle_field(col, "finish_wood", N_("Wood"), "ss_wood")
++        self._draw_toggle_field(col, "interior_material_type", N_("Interior"),
+                                 "ss_interior")
+         if not self.ss_interior_is_custom and self.interior_material_type == 'CUSTOM':
+             col.prop(self, "custom_interior_material", text="")
+-        self._draw_toggle_field(col, "finish_overlay", "Overlay", "ss_overlay")
+-        self._draw_toggle_field(col, "ss_corner_treatment", "Corner Treatment")
+-        self._draw_toggle_field(col, "ss_fin_opening_edge", "Fin Opening Edge")
++        self._draw_toggle_field(col, "finish_overlay", N_("Overlay"), "ss_overlay")
++        self._draw_toggle_field(col, "ss_corner_treatment", N_("Corner Treatment"))
++        self._draw_toggle_field(col, "ss_fin_opening_edge", N_("Fin Opening Edge"))
+         # Face frame size grid is large; collapsed by default.
+         row = box.row()
+         row.alignment = 'LEFT'
+@@ -2630,13 +2631,13 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
+         # NAME (shown on the Style Section page next to the field descriptor)
+         # and a ref IMAGE path (collected into the page's right-side references
+         # box). Gated on the References toggle above.
+-        self._draw_toggle_field(col, "finish_color", "Color", "ss_color")
++        self._draw_toggle_field(col, "finish_color", N_("Color"), "ss_color")
+         if show_refs:
+             self._draw_finish_reference(col, "ss_color_ref_name", "ss_color_ref_image")
+-        self._draw_toggle_field(col, "finish_varnish", "Varnish", "ss_varnish")
++        self._draw_toggle_field(col, "finish_varnish", N_("Varnish"), "ss_varnish")
+         if show_refs:
+             self._draw_finish_reference(col, "ss_varnish_ref_name", "ss_varnish_ref_image")
+-        self._draw_toggle_field(col, "finish_glaze", "Glaze", "ss_glaze")
++        self._draw_toggle_field(col, "finish_glaze", N_("Glaze"), "ss_glaze")
+         if show_refs:
+             self._draw_finish_reference(col, "ss_glaze_ref_name", "ss_glaze_ref_image")
+         # Special effects: catalog finish add-ons gated by this style's
+@@ -2659,7 +2660,7 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
+         row.alignment = 'CENTER'
+         row.label(text="FRONTS")
+         col = box.column(align=True)
+-        self._draw_toggle_field(col, "door_style", "Door", "ss_door")
++        self._draw_toggle_field(col, "door_style", N_("Door"), "ss_door")
+         # Extra door styles: additional front styles listed on the Style
+         # Section page (documentation only; no geometric effect).
+         for i, ex in enumerate(self.extra_door_styles):
+@@ -2673,7 +2674,7 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
+                      text="Add Door Style", icon='ADD').kind = 'DOOR'
+ 
+         col.separator()
+-        self._draw_toggle_field(col, "drawer_front_style", "Drawer Front", "ss_drawer")
++        self._draw_toggle_field(col, "drawer_front_style", N_("Drawer Front"), "ss_drawer")
+         for i, ex in enumerate(self.extra_drawer_front_styles):
+             r = col.row(align=True)
+             r.prop(ex, "style", text="")
+@@ -2689,15 +2690,15 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
+         row.alignment = 'CENTER'
+         row.label(text="DOORS")
+         col = box.column(align=True)
+-        self._draw_toggle_field(col, "finish_hinge", "Hinge", "ss_hinge")
++        self._draw_toggle_field(col, "finish_hinge", N_("Hinge"), "ss_hinge")
+ 
+         box = main.box()
+         row = box.row()
+         row.alignment = 'CENTER'
+         row.label(text="DRAWERS")
+         col = box.column(align=True)
+-        self._draw_toggle_field(col, "ss_drawer_slides", "Drawer Slides")
+-        self._draw_toggle_field(col, "ss_drawer_box_construction", "Box Construction")
++        self._draw_toggle_field(col, "ss_drawer_slides", N_("Drawer Slides"))
++        self._draw_toggle_field(col, "ss_drawer_box_construction", N_("Box Construction"))
+         # Drawer-box brand logo (FILE_PATH image) -- plain file-picker row; the
+         # Style Section page renders the logo in the DRAWERS section when set.
+         col.prop(self, "ss_drawer_box_brand", text="Box Brand Logo")
+@@ -2707,7 +2708,7 @@ class Face_Frame_Cabinet_Style(PropertyGroup):
+         row.alignment = 'CENTER'
+         row.label(text="DOOR & DRAWER EDGE PROFILE")
+         col = box.column(align=True)
+-        self._draw_toggle_field(col, "ss_edge_profile", "Edge Profile")
++        self._draw_toggle_field(col, "ss_edge_profile", N_("Edge Profile"))
+ 
+ 
+ class HB_UL_face_frame_cabinet_styles(UIList):
+@@ -3301,7 +3302,7 @@ class Face_Frame_Door_Style(PropertyGroup):
+             front_length = part.get_input("Length")
+             front_width = part.get_input("Width")
+         except Exception:
+-            return "Could not read front dimensions"
++            return tr("Could not read front dimensions")
+         try:
+             front_thickness = part.get_input("Thickness")
+         except Exception:
+@@ -3414,13 +3415,11 @@ class Face_Frame_Door_Style(PropertyGroup):
+         if front_width < min_width:
+             self._apply_slab_front(front_obj, front_length, front_width,
+                                    front_thickness)
+-            return (f"Front too narrow ({front_width:.3f}m) for stile "
+-                    f"widths (need {min_width:.3f}m)")
++            return (tr("Front too narrow ({:.3f}m) for stile widths (need {:.3f}m)").format(front_width, min_width))
+         if front_length < min_height:
+             self._apply_slab_front(front_obj, front_length, front_width,
+                                    front_thickness)
+-            return (f"Front too short ({front_length:.3f}m) for rail "
+-                    f"widths (need {min_height:.3f}m)")
++            return (tr("Front too short ({:.3f}m) for rail widths (need {:.3f}m)").format(front_length, min_height))
+ 
+         # Per-front mid rail override (durable, set from the Set Door Frame
+         # popup) wins over the style / auto-center. CENTERED centers it; THIRD /
+@@ -4228,18 +4227,18 @@ class Face_Frame_Corner_Section(PropertyGroup):
+ # rebuilt fresh tuples each call would risk them being garbage collected.
+ _EXTERIOR_CONFIG_ITEMS = {
+     'BASE': [
+-        ('DOORS',             "Full Height Doors",      "One full-height door pair"),
+-        ('FALSE_FRONT_DOORS', "False Front with Doors", "False front above a door pair"),
++        ('DOORS',             N_("Full Height Doors"),      N_("One full-height door pair")),
++        ('FALSE_FRONT_DOORS', N_("False Front with Doors"), N_("False front above a door pair")),
+     ],
+     'UPPER': [
+-        ('DOORS',         "Doors",             "One door pair"),
+-        ('STACKED_DOORS', "Stacked Doors",     "Two stacked door pairs"),
+-        ('HUTCH',         "Hutch",             "Doors on top, open below"),
+-        ('OPEN_SHELVES',  "Open with Shelves", "Open shelf section"),
++        ('DOORS',         N_("Doors"),             N_("One door pair")),
++        ('STACKED_DOORS', N_("Stacked Doors"),     N_("Two stacked door pairs")),
++        ('HUTCH',         N_("Hutch"),             N_("Doors on top, open below")),
++        ('OPEN_SHELVES',  N_("Open with Shelves"), N_("Open shelf section")),
+     ],
+     'TALL': [
+-        ('HUTCH',    "Hutch",    "Upper doors, open middle, base doors"),
+-        ('BOOKCASE', "Bookcase", "Open shelves on top, base doors below"),
++        ('HUTCH',    N_("Hutch"),    N_("Upper doors, open middle, base doors")),
++        ('BOOKCASE', N_("Bookcase"), N_("Open shelves on top, base doors below")),
+     ],
+ }
+ 
+@@ -4249,11 +4248,11 @@ _EXTERIOR_CONFIG_ITEMS = {
+ # only; upper pie cut adds a two-section stacked option.
+ _PIE_CUT_CONFIG_ITEMS = {
+     'BASE': [
+-        ('DOORS', "Full Height Doors", "One full-height door per arm"),
++        ('DOORS', N_("Full Height Doors"), N_("One full-height door per arm")),
+     ],
+     'UPPER': [
+-        ('DOORS',         "Full Height Doors", "One full-height door per arm"),
+-        ('STACKED_DOORS', "Stacked Doors",     "Two stacked doors per arm"),
++        ('DOORS',         N_("Full Height Doors"), N_("One full-height door per arm")),
++        ('STACKED_DOORS', N_("Stacked Doors"),     N_("Two stacked doors per arm")),
+     ],
+ }
+ 
+@@ -7188,8 +7187,8 @@ class Face_Frame_Scene_Props(PropertyGroup):
+         # One row, short labels (the section header already says
+         # "Standard Cabinets", so no per-row label is needed).
+         self._draw_catalog_labeled_row(layout, "", [
+-            ("Base", "Base"), ("Tall", "Tall"), ("Upper", "Upper"),
+-            ("Lap", "Lap Drawer"), ("Stacked", "Upper Stacked"),
++            (N_("Base"), "Base"), (N_("Tall"), "Tall"), (N_("Upper"), "Upper"),
++            (N_("Lap"), "Lap Drawer"), (N_("Stacked"), "Upper Stacked"),
+         ])
+ 
+     # =====================================================================
+@@ -7199,13 +7198,13 @@ class Face_Frame_Scene_Props(PropertyGroup):
+         # Sizes moved to Cabinet Sizes. Grouped by corner type, one
+         # labeled row each: Pie Cut (Base/Drawer/Upper), Diagonal
+         # (Base/Tall/Upper).
+-        self._draw_catalog_labeled_row(layout, "Pie Cut", [
+-            ("Base", "Pie Cut Base"), ("Drawer", "Pie Cut Drawer"),
+-            ("Upper", "Pie Cut Upper"),
++        self._draw_catalog_labeled_row(layout, N_("Pie Cut"), [
++            (N_("Base"), "Pie Cut Base"), (N_("Drawer"), "Pie Cut Drawer"),
++            (N_("Upper"), "Pie Cut Upper"),
+         ])
+-        self._draw_catalog_labeled_row(layout, "Diagonal", [
+-            ("Base", "Diagonal Base"), ("Tall", "Diagonal Tall"),
+-            ("Upper", "Diagonal Upper"),
++        self._draw_catalog_labeled_row(layout, N_("Diagonal"), [
++            (N_("Base"), "Diagonal Base"), (N_("Tall"), "Diagonal Tall"),
++            (N_("Upper"), "Diagonal Upper"),
+         ])
+ 
+     # =====================================================================
+@@ -7216,23 +7215,23 @@ class Face_Frame_Scene_Props(PropertyGroup):
+         # two labeled rows: freestanding appliances vs appliance cabinets.
+         # NOTE: there is no dedicated "Oven" product, so the Oven button
+         # maps to "Built in Tall" (the built-in tall oven tower).
+-        self._draw_catalog_labeled_row(layout, "Cabinet", [
+-            ("Sink", "Sink"), ("Refrigerator", "Refrigerator Cabinet"),
+-            ("Oven", "Built in Tall"),
++        self._draw_catalog_labeled_row(layout, N_("Cabinet"), [
++            (N_("Sink"), "Sink"), (N_("Refrigerator"), "Refrigerator Cabinet"),
++            (N_("Oven"), "Built in Tall"),
+         ])
+-        self._draw_catalog_labeled_row(layout, "Standalone", [
+-            ("Dishwasher", "Dishwasher"), ("Range", "Range"),
+-            ("Hood", "Range Hood"),
+-            ("Refrigerator", "Standalone Refrigerator"),
++        self._draw_catalog_labeled_row(layout, N_("Standalone"), [
++            (N_("Dishwasher"), "Dishwasher"), (N_("Range"), "Range"),
++            (N_("Hood"), "Range Hood"),
++            (N_("Refrigerator"), "Standalone Refrigerator"),
+         ])
+ 
+     # =====================================================================
+     # UI: vanities library
+     # =====================================================================
+     def draw_vanity_library_ui(self, layout, context):
+-        self._draw_catalog_labeled_row(layout, "Vanity", [
+-            ("Special", "Special"), ("Combination", "Combination"),
+-            ("Deluxe", "Deluxe"),
++        self._draw_catalog_labeled_row(layout, N_("Vanity"), [
++            (N_("Special"), "Special"), (N_("Combination"), "Combination"),
++            (N_("Deluxe"), "Deluxe"),
+         ])
+ 
+     # =====================================================================
+@@ -7248,25 +7247,25 @@ class Face_Frame_Scene_Props(PropertyGroup):
+         # ])
+         # Split into two rows of three; blank labels keep the rows unlabeled.
+         self._draw_catalog_labeled_row(layout, "", [
+-            ("Panel", "Panel"), ("Leg", "Leg Product"), ("Door", "Door"),
++            (N_("Panel"), "Panel"), (N_("Leg"), "Leg Product"), (N_("Door"), "Door"),
+         ])
+         self._draw_catalog_labeled_row(layout, "", [
+-            ("Misc", "Misc Part"), ("Floating Shelf", "Floating Shelves"),
+-            ("Valance", "Valance"),
++            (N_("Misc"), "Misc Part"), (N_("Floating Shelf"), "Floating Shelves"),
++            (N_("Valance"), "Valance"),
+         ])
+ 
+     # =====================================================================
+     # UI: specialty bath library
+     # =====================================================================
+     def draw_specialty_bath_library_ui(self, layout, context):
+-        self._draw_catalog_labeled_row(layout, "Medicine", [
+-            ("Recessed", "Standard Recessed Medicine Cabinet"),
+-            ("Standard", "Medicine Cabinet"),
+-            ("Tri-View", "Tri-View Medicine Cabinet"),
++        self._draw_catalog_labeled_row(layout, N_("Medicine"), [
++            (N_("Recessed"), "Standard Recessed Medicine Cabinet"),
++            (N_("Standard"), "Medicine Cabinet"),
++            (N_("Tri-View"), "Tri-View Medicine Cabinet"),
+         ])
+-        self._draw_catalog_labeled_row(layout, "Other", [
+-            ("Overstool", "Overstool Cabinet"), ("Mirror", "Mirror Frame"),
+-            ("Tub Skirt", "Tub Skirt"),
++        self._draw_catalog_labeled_row(layout, N_("Other"), [
++            (N_("Overstool"), "Overstool Cabinet"), (N_("Mirror"), "Mirror Frame"),
++            (N_("Tub Skirt"), "Tub Skirt"),
+         ])
+ 
+     # =====================================================================
+@@ -7275,20 +7274,20 @@ class Face_Frame_Scene_Props(PropertyGroup):
+     def draw_bedroom_bookcase_library_ui(self, layout, context):
+         # Bookcase Corner / Bookcase Corner Upper dropped -- not in the
+         # catalog dispatch (dead buttons).
+-        self._draw_catalog_labeled_row(layout, "Bookcase", [
+-            ("Base", "Bookcase"), ("Storage", "Bookcase Storage Unit"),
+-            ("Upper", "Bookcase Upper"),
++        self._draw_catalog_labeled_row(layout, N_("Bookcase"), [
++            (N_("Base"), "Bookcase"), (N_("Storage"), "Bookcase Storage Unit"),
++            (N_("Upper"), "Bookcase Upper"),
+         ])
+-        self._draw_catalog_labeled_row(layout, "Dresser", [
+-            ("5 Drawer", "5 Drawer Dresser"),
+-            ("6 Drawer", "6 Drawer Dresser"),
++        self._draw_catalog_labeled_row(layout, N_("Dresser"), [
++            (N_("5 Drawer"), "5 Drawer Dresser"),
++            (N_("6 Drawer"), "6 Drawer Dresser"),
+         ])
+-        self._draw_catalog_labeled_row(layout, "Night Stand", [
+-            ("Standard", "Night Stand"),
+-            ("3 Drawer", "3 Drawer Night Stand"),
++        self._draw_catalog_labeled_row(layout, N_("Night Stand"), [
++            (N_("Standard"), "Night Stand"),
++            (N_("3 Drawer"), "3 Drawer Night Stand"),
+         ])
+-        self._draw_catalog_labeled_row(layout, "Other", [
+-            ("Hutch", "Hutch Upper"), ("Window Seat", "Window Seat"),
++        self._draw_catalog_labeled_row(layout, N_("Other"), [
++            (N_("Hutch"), "Hutch Upper"), (N_("Window Seat"), "Window Seat"),
+         ])
+ 
+     # =====================================================================
+@@ -7308,8 +7307,8 @@ class Face_Frame_Scene_Props(PropertyGroup):
+         # hidden for now -- re-add when that product has a builder:
+         #     ("X-Frame", "X-Frame Ends"),
+         self._draw_catalog_labeled_row(layout, "", [
+-            ("Half Wall", "Half Wall"), ("Support", "Support Frame"),
+-            ("FF & Doors", "Face Frame and Doors"),
++            (N_("Half Wall"), "Half Wall"), (N_("Support"), "Support Frame"),
++            (N_("FF & Doors"), "Face Frame and Doors"),
+         ])
+ 
+     # =====================================================================
+@@ -7350,7 +7349,7 @@ class Face_Frame_Scene_Props(PropertyGroup):
+             return
+ 
+         box = layout.box()
+-        box.label(text=f"Saved Groups ({len(library_items)})", icon='ASSET_MANAGER')
++        box.label(text=tr("Saved Groups ({})").format(len(library_items)), icon='ASSET_MANAGER')
+ 
+         # Two-column grid of saved items. Each cell shows name + delete +
+         # thumbnail (if rendered) + an Add-to-Scene button that fires the
+@@ -7526,12 +7525,12 @@ class Face_Frame_Scene_Props(PropertyGroup):
+             coll, idx_attr = "drawer_front_styles", "active_drawer_front_style_index"
+             add_op = "caffmob_face_frame.add_drawer_front_style"
+             rem_op = "caffmob_face_frame.remove_drawer_front_style"
+-            empty = "No drawer front styles defined"
++            empty = tr("No drawer front styles defined")
+         else:
+             coll, idx_attr = "door_styles", "active_door_style_index"
+             add_op = "caffmob_face_frame.add_door_style"
+             rem_op = "caffmob_face_frame.remove_door_style"
+-            empty = "No door styles defined"
++            empty = tr("No door styles defined")
+ 
+         row = layout.row()
+         row.template_list(
+@@ -7582,17 +7581,17 @@ class Face_Frame_Scene_Props(PropertyGroup):
+             # catalog. Order mirrors the canonical product-list order so
+             # users can scan top-down.
+             sections = [
+-                ('show_cabinet_library',          "Standard Cabinets",            self.draw_cabinet_library_ui),
+-                ('show_appliance_library',        "Appliance Products",           self.draw_appliance_library_ui),
+-                ('show_corner_cabinet_library',   "Corner Cabinets",              self.draw_corner_cabinet_library_ui),
+-                ('show_vanity_library',           "Vanities",                     self.draw_vanity_library_ui),
+-                ('show_part_library',             "Parts",                        self.draw_part_library_ui),
+-                ('show_specialty_bath_library',   "Specialty Bath",               self.draw_specialty_bath_library_ui),
+-                ('show_bedroom_bookcase_library', "Specialty Bedroom & Bookcases", self.draw_bedroom_bookcase_library_ui),
++                ('show_cabinet_library',          N_("Standard Cabinets"),            self.draw_cabinet_library_ui),
++                ('show_appliance_library',        N_("Appliance Products"),           self.draw_appliance_library_ui),
++                ('show_corner_cabinet_library',   N_("Corner Cabinets"),              self.draw_corner_cabinet_library_ui),
++                ('show_vanity_library',           N_("Vanities"),                     self.draw_vanity_library_ui),
++                ('show_part_library',             N_("Parts"),                        self.draw_part_library_ui),
++                ('show_specialty_bath_library',   N_("Specialty Bath"),               self.draw_specialty_bath_library_ui),
++                ('show_bedroom_bookcase_library', N_("Specialty Bedroom & Bookcases"), self.draw_bedroom_bookcase_library_ui),
+                 # Angled hidden for now -- re-add when Angled products exist:
+                 # ('show_angled_library', "Angled", self.draw_angled_library_ui),
+-                ('show_misc_library',             "Misc",                         self.draw_misc_library_ui),
+-                ('show_user_library',             "User",                         self.draw_user_library_ui),
++                ('show_misc_library',             N_("Misc"),                         self.draw_misc_library_ui),
++                ('show_user_library',             N_("User"),                         self.draw_user_library_ui),
+             ]
+             for prop_name, label, draw_fn in sections:
+                 expanded = getattr(self, prop_name)
+diff --git a/caffmob_draw/product_libraries/face_frame/pulls.py b/caffmob_draw/product_libraries/face_frame/pulls.py
+index e3596bd..81c6aac 100644
+--- a/caffmob_draw/product_libraries/face_frame/pulls.py
++++ b/caffmob_draw/product_libraries/face_frame/pulls.py
+@@ -9,6 +9,7 @@ into pull instances so swapping the source updates every cabinet at once.
+ import os
+ import bpy
+ 
++from ...data.i18n import tr
+ from . import props_hb_face_frame  # for the existing thumbnail preview collection
+ 
+ 
+@@ -32,7 +33,7 @@ def get_pull_categories():
+         for entry in sorted(os.listdir(root)):
+             full = os.path.join(root, entry)
+             if os.path.isdir(full):
+-                items.append((entry.upper(), entry, f"Pulls in {entry}"))
++                items.append((entry.upper(), entry, tr("Pulls in {}").format(entry)))
+     items.append(('NONE', "None", "No pull"))
+     return items
+ 
+diff --git a/caffmob_draw/product_libraries/face_frame/ui_face_frame.py b/caffmob_draw/product_libraries/face_frame/ui_face_frame.py
+index 11e6bc1..3f86976 100644
+--- a/caffmob_draw/product_libraries/face_frame/ui_face_frame.py
++++ b/caffmob_draw/product_libraries/face_frame/ui_face_frame.py
+@@ -17,6 +17,7 @@ sidebar sub-panels and the popups call the same draw_* helper.
+ """
+ import bpy
+ 
++from ...data.i18n import tr
+ from . import types_face_frame
+ from ... import units
+ 
+@@ -648,7 +649,7 @@ def draw_bay_properties(layout, bay_obj):
+     sidebar Selection sub-panel and the bay_prompts popup. Includes a
+     structural-edits row up top (insert before / after, delete)."""
+     bp = bay_obj.face_frame_bay
+-    layout.label(text=f"Bay {bp.bay_index + 1}", icon='MESH_CUBE')
++    layout.label(text=tr("Bay {}").format(bp.bay_index + 1), icon='MESH_CUBE')
+ 
+     # Structural edit strip: insert next to / delete this bay. Operators
+     # take the bay index explicitly so they don't depend on selection.
+@@ -766,7 +767,7 @@ def draw_opening_properties(layout, opening_obj):
+     own value) and an overlay field that's only enabled when unlocked.
+     """
+     op = opening_obj.face_frame_opening
+-    layout.label(text=f"Opening {op.opening_index + 1}", icon='MESH_PLANE')
++    layout.label(text=tr("Opening {}").format(op.opening_index + 1), icon='MESH_PLANE')
+ 
+     # Size + unlock - meaningful only when the opening is a child of a
+     # split node (the redistributor uses it). A bay's ROOT opening fills
+@@ -777,8 +778,8 @@ def draw_opening_properties(layout, opening_obj):
+         size_row = layout.row(align=True)
+         size_row.enabled = False
+         size_row.label(
+-            text="Size:  " + units.unit_to_string(
+-                bpy.context.scene.unit_settings, root_size))
++            text=tr("Size:  {}").format(units.unit_to_string(
++                bpy.context.scene.unit_settings, root_size)))
+     else:
+         size_row = layout.row(align=True)
+         field = size_row.row(align=True)
+@@ -817,7 +818,7 @@ def draw_opening_properties(layout, opening_obj):
+                     hrow = heights_box.row(align=True)
+                     field = hrow.row(align=True)
+                     field.enabled = item.unlock_size
+-                    field.prop(item, 'size', text="Opening " + str(idx + 1))
++                    field.prop(item, 'size', text=tr("Opening {}").format(idx + 1))
+                     hrow.prop(item, 'unlock_size', text="",
+                               icon='UNLOCKED' if item.unlock_size else 'LOCKED')
+ 
+@@ -979,7 +980,7 @@ def _draw_interior_items_section(layout, target_props, target_name=""):
+             # Custom to type one). The box count is the number of rows.
+             for j, box in enumerate(item.rollout_boxes):
+                 brow = sub.row(align=True)
+-                brow.label(text=f"Box {j + 1}")
++                brow.label(text=tr("Box {}").format(j + 1))
+                 brow.prop(box, 'height_preset', text="")
+                 if box.height_preset == 'CUSTOM':
+                     brow.prop(box, 'height', text="")
+@@ -1124,8 +1125,8 @@ def _draw_interior_tree_inline(layout, opening_obj):
+         # it reads naturally for the user (either child of the same
+         # split removes the same divider, so the wording matches the
+         # divider type rather than the side).
+-        remove_label = ("Remove Fixed Shelf" if sp.axis == 'H'
+-                        else "Remove Division")
++        remove_label = (tr("Remove Fixed Shelf") if sp.axis == 'H'
++                        else tr("Remove Division"))
+         remove_op = col.operator(
+             "caffmob_face_frame.remove_interior_split",
+             text=remove_label, icon='X',
+@@ -1168,7 +1169,7 @@ def draw_interior_region_properties(layout, leaf_obj, opening_obj):
+     # is currently advisory until sibling redistribution is wired).
+     col = layout.column(align=True)
+     axis_label = "Fixed Shelf" if sp.axis == 'H' else "Division"
+-    col.label(text=f"Parent Split: {axis_label}")
++    col.label(text=tr("Parent Split: {}").format(axis_label))
+     col.prop(sp, 'divider_thickness', text="Divider Thickness")
+     _draw_split_face_frame_props(col, sp)
+ 
+@@ -1179,8 +1180,8 @@ def draw_interior_region_properties(layout, leaf_obj, opening_obj):
+     lock_icon = 'UNLOCKED' if rp.unlock_size else 'LOCKED'
+     size_row.prop(rp, 'unlock_size', text="", icon=lock_icon)
+ 
+-    remove_label = ("Remove Fixed Shelf" if sp.axis == 'H'
+-                    else "Remove Division")
++    remove_label = (tr("Remove Fixed Shelf") if sp.axis == 'H'
++                    else tr("Remove Division"))
+     remove_op = col.operator(
+         "caffmob_face_frame.remove_interior_split",
+         text=remove_label, icon='X',
+@@ -1203,7 +1204,7 @@ def draw_mid_stile_properties(layout, root, msi):
+         layout.label(text="Mid stile not found", icon='ERROR')
+         return
+     ms = cab_props.mid_stile_widths[msi]
+-    layout.label(text=f"Mid Stile {msi + 1}", icon='SNAP_EDGE')
++    layout.label(text=tr("Mid Stile {}").format(msi + 1), icon='SNAP_EDGE')
+     col = layout.column(align=True)
+     col.prop(ms, 'width', text="Width")
+     col.prop(ms, 'extend_up_amount', text="Extend Up")
+@@ -1219,7 +1220,7 @@ def draw_end_stile_properties(layout, root, role):
+     is_left = role == types_face_frame.PART_ROLE_LEFT_STILE
+     side = "Left" if is_left else "Right"
+     attr = 'left_stile_width' if is_left else 'right_stile_width'
+-    layout.label(text=f"{side} End Stile", icon='SNAP_EDGE')
++    layout.label(text=tr("{} End Stile").format(side), icon='SNAP_EDGE')
+     layout.prop(cab_props, attr, text="Width")
+ 
+ 
+@@ -1238,7 +1239,7 @@ def draw_rail_properties(layout, root, rail_obj, role):
+     is_top = role == types_face_frame.PART_ROLE_TOP_RAIL
+     label = "Top Rail" if is_top else "Bottom Rail"
+     attr = 'top_rail_width' if is_top else 'bottom_rail_width'
+-    layout.label(text=f"{label} (Bay {seg_start + 1})", icon='SNAP_EDGE')
++    layout.label(text=tr("{} (Bay {})").format(label, seg_start + 1), icon='SNAP_EDGE')
+     unlock_attr = 'unlock_top_rail' if is_top else 'unlock_bottom_rail'
+     _draw_locked_rail_row(layout, bp, attr, unlock_attr, "Width")
+     # Bottom rail can be removed outright (drops Remove Bottom across the
+@@ -1341,8 +1342,8 @@ def draw_all_bays_summary(layout, root):
+         w = bp.width * M_TO_IN
+         h = bp.height * M_TO_IN
+         d = bp.depth * M_TO_IN
+-        row.label(text=f"Bay {bp.bay_index + 1}")
+-        row.label(text=f"{w:.0f} x {h:.0f} x {d:.0f} in")
++        row.label(text=tr("Bay {}").format(bp.bay_index + 1))
++        row.label(text=tr("{:.0f} x {:.0f} x {:.0f} in").format(w, h, d))
+ 
+ 
+ def _bay_size_summary(bp):
+@@ -1372,7 +1373,7 @@ def draw_bay_in_prompts(layout, bay_obj):
+         bp, 'prompts_expanded',
+         text="", icon=expand_icon, emboss=False,
+     )
+-    header.label(text=f"Bay {bp.bay_index + 1}", icon='MESH_PLANE')
++    header.label(text=tr("Bay {}").format(bp.bay_index + 1), icon='MESH_PLANE')
+     header.label(text=_bay_size_summary(bp))
+     rm = header.operator(
+         'caffmob_face_frame.delete_bay', text="", icon='X', emboss=False,
+@@ -1451,7 +1452,7 @@ def draw_bays_in_prompts(layout, root):
+     if len(bays) == 1:
+         bp = bays[0].face_frame_bay
+         row = box.row()
+-        row.label(text=f"Bay {bp.bay_index + 1}")
++        row.label(text=tr("Bay {}").format(bp.bay_index + 1))
+         row.label(text=_bay_size_summary(bp))
+     else:
+         for bay_obj in bays:

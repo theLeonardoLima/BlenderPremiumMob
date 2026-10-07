@@ -18,6 +18,7 @@ import math
 import bpy  # type: ignore
 
 from ..data import units
+from ..data.i18n import N_, tr
 from ..measure import cotas as cotas_mod
 from ..measure import scene_cotas
 from ..selection import classify, editing
@@ -133,24 +134,24 @@ def _length(name, getter, setter, description=""):
 
 class BTM_PG_SelectionEdit(bpy.types.PropertyGroup):
     """Campos virtuais da janela de propriedades (não guardam valor: leem e escrevem no objeto ativo)."""
-    width: _length("Largura", _dim_getter('width'), _dim_setter('width'))  # type: ignore
-    height: _length("Altura", _dim_getter('height'), _dim_setter('height'))  # type: ignore
-    depth: _length("Profundidade", _dim_getter('depth'), _dim_setter('depth'))  # type: ignore
-    afastamento: _length("Afastamento da parede", _cota_getter('afastamento'), _cota_setter('afastamento'),
-                         "Do fundo do módulo até a face da parede")  # type: ignore
-    anterior: _length("Cota anterior", _cota_getter('anterior'), _cota_setter('anterior'),
-                      "Da lateral esquerda até o item ou o fim de parede mais próximo")  # type: ignore
-    posterior: _length("Cota posterior", _cota_getter('posterior'), _cota_setter('posterior'),
-                       "Da lateral direita até o item ou o fim de parede mais próximo")  # type: ignore
-    inferior: _length("Cota inferior", _cota_getter('inferior'), _cota_setter('inferior'),
-                      "Do piso até a base do módulo")  # type: ignore
-    superior: _length("Cota superior", _cota_getter('superior'), _cota_setter('superior'),
-                      "Do topo do módulo até o teto")  # type: ignore
-    sill: _length("Peitoril", _get_sill, _set_sill)  # type: ignore
-    wall_length: _length("Comprimento", _wall_getter('length'), _wall_setter('length'))  # type: ignore
-    wall_height: _length("Pé-direito inicial", _wall_getter('height'), _wall_setter('height'))  # type: ignore
-    wall_end_height: _length("Pé-direito final", _wall_getter('end_height'), _wall_setter('end_height'))  # type: ignore
-    wall_thickness: _length("Espessura", _wall_getter('thickness'), _wall_setter('thickness'))  # type: ignore
+    width: _length(N_("Largura"), _dim_getter('width'), _dim_setter('width'))  # type: ignore
+    height: _length(N_("Altura"), _dim_getter('height'), _dim_setter('height'))  # type: ignore
+    depth: _length(N_("Profundidade"), _dim_getter('depth'), _dim_setter('depth'))  # type: ignore
+    afastamento: _length(N_("Afastamento da parede"), _cota_getter('afastamento'), _cota_setter('afastamento'),
+                         N_("Do fundo do módulo até a face da parede"))  # type: ignore
+    anterior: _length(N_("Cota anterior"), _cota_getter('anterior'), _cota_setter('anterior'),
+                      N_("Da lateral esquerda até o item ou o fim de parede mais próximo"))  # type: ignore
+    posterior: _length(N_("Cota posterior"), _cota_getter('posterior'), _cota_setter('posterior'),
+                       N_("Da lateral direita até o item ou o fim de parede mais próximo"))  # type: ignore
+    inferior: _length(N_("Cota inferior"), _cota_getter('inferior'), _cota_setter('inferior'),
+                      N_("Do piso até a base do módulo"))  # type: ignore
+    superior: _length(N_("Cota superior"), _cota_getter('superior'), _cota_setter('superior'),
+                      N_("Do topo do módulo até o teto"))  # type: ignore
+    sill: _length(N_("Peitoril"), _get_sill, _set_sill)  # type: ignore
+    wall_length: _length(N_("Comprimento"), _wall_getter('length'), _wall_setter('length'))  # type: ignore
+    wall_height: _length(N_("Pé-direito inicial"), _wall_getter('height'), _wall_setter('height'))  # type: ignore
+    wall_end_height: _length(N_("Pé-direito final"), _wall_getter('end_height'), _wall_setter('end_height'))  # type: ignore
+    wall_thickness: _length(N_("Espessura"), _wall_getter('thickness'), _wall_setter('thickness'))  # type: ignore
 
 
 # Painel ----------------------------------------------------------------------------------------------------
@@ -167,7 +168,7 @@ def _status_line(info):
         dims = [obj.dimensions.x, obj.dimensions.z, obj.dimensions.y]
     size = " × ".join(units.format_value(d) for d in dims)
     rotation = math.degrees(obj.matrix_world.to_euler().z) % 360.0
-    return f"{classify.KIND_LABELS[info.kind]}: {obj.name} ({size}) — rotação {rotation:.0f}°"
+    return tr("{}: {} ({}) — rotação {:.0f}°").format(tr(classify.KIND_LABELS[info.kind]), obj.name, size, rotation)
 
 
 def _draw_dimensions(layout, edit, info):
@@ -211,7 +212,7 @@ def _draw_open(layout, context, info):
     box = layout.box()
     box.label(text="Abrir", icon='HIDE_OFF')
     if info.kind == classify.FRONT:
-        box.label(text=f"Módulo: {module.name}")
+        box.label(text=tr("Módulo: {}").format(module.name))
         scope = 'SELECTED'
     else:
         scope = 'ACTIVE_MODULE'
@@ -293,8 +294,8 @@ def _draw_other(layout, info):
     col = box.column(align=True)
     library = classify.LIBRARY_LABELS.get(info.library, "")
     if library:
-        col.label(text=f"Linha: {library}")
-    col.label(text=f"Coleção: {', '.join(c.name for c in info.obj.users_collection) or '—'}")
+        col.label(text=tr("Linha: {}").format(library))
+    col.label(text=tr("Coleção: {}").format(', '.join(c.name for c in info.obj.users_collection) or '—'))
 
 
 def _draw_actions(layout, info):
@@ -324,7 +325,7 @@ class BTM_PT_ObjectProperties(bpy.types.Panel):
         status = layout.column(align=True)
         status.label(text=_status_line(info), icon='OBJECT_DATA')
         if selected > 1:
-            status.label(text=f"{selected} objetos selecionados — editando o ativo.")
+            status.label(text=tr("{} objetos selecionados — editando o ativo.").format(selected))
         error = context.window_manager.get(ERROR_KEY)
         if error:
             row = layout.row()
@@ -377,15 +378,15 @@ class BTM_PT_ObjectArrangement(_ChildPanel, bpy.types.Panel):
         info = classify.classify(context.active_object)
         root = info.root if info is not None else context.active_object
         col = layout.column(align=True)
-        col.label(text=f"Objeto: {root.name}", icon='OBJECT_DATA')
-        col.label(text=f"Pai: {root.parent.name if root.parent else '—'}", icon='LINKED')
+        col.label(text=tr("Objeto: {}").format(root.name), icon='OBJECT_DATA')
+        col.label(text=tr("Pai: {}").format(root.parent.name if root.parent else '—'), icon='LINKED')
         children = [c for c in root.children if not c.hide_get()]
-        col.label(text=f"Filhos: {len(children)}", icon='OUTLINER')
+        col.label(text=tr("Filhos: {}").format(len(children)), icon='OUTLINER')
         aggregates = [c for c in root.children_recursive if getattr(c, 'btm_aggregate', None) is not None
                       and c.btm_aggregate.is_aggregate]
         if aggregates:
             box = layout.box()
-            box.label(text=f"Agregados ({len(aggregates)})", icon='LINKED')
+            box.label(text=tr("Agregados ({})").format(len(aggregates)), icon='LINKED')
             for obj in aggregates[:12]:
                 kind = "folha" if obj.btm_aggregate.kind == 'LEAF' else "agregado"
                 box.label(text=f"{obj.name} ({kind})")
@@ -413,7 +414,7 @@ class BTM_PT_ObjectMovement(_ChildPanel, bpy.types.Panel):
         row.operator("caffmob.set_insertion_plane", text="Plano de inserção", icon='SNAP_FACE')
         if plane.active:
             row.operator("caffmob.clear_insertion_plane", text="", icon='X')
-            layout.label(text=f"Plano ativo: face de {plane.source_name}", icon='INFO')
+            layout.label(text=tr("Plano ativo: face de {}").format(plane.source_name), icon='INFO')
 
 
 def _range(owner, name):
@@ -436,8 +437,7 @@ class BTM_PT_ObjectLimits(_ChildPanel, bpy.types.Panel):
         if info is not None and info.library == 'BTM' and cabinet is not None:
             for name, label in (('width', "Largura"), ('height', "Altura"), ('depth', "Profundidade")):
                 lo, hi = _range(cabinet, name)
-                col.label(text=f"{label}: {units.format_value(getattr(cabinet, name), scene)}  "
-                               f"(mín. {units.format_value(lo, scene)}, máx. {units.format_value(hi, scene)})")
+                col.label(text=tr("{}: {}  (mín. {}, máx. {})").format(label, units.format_value(getattr(cabinet, name), scene), units.format_value(lo, scene), units.format_value(hi, scene)))
         else:
             dims = root.dimensions
             col.label(text=f"L × A × P: {units.format_value(dims.x, scene)} × {units.format_value(dims.z, scene)} × "
@@ -449,13 +449,11 @@ class BTM_PT_ObjectLimits(_ChildPanel, bpy.types.Panel):
             box_p = apply.parent_box(obj)
             if box_p is not None:
                 lim = limits.limits(box_p, tuple(agg.size), agg.face)
-                col.label(text=f"Agregado: horizontal até {units.format_value(lim['u'][1], scene)}, vertical até "
-                               f"{units.format_value(lim['v'][1], scene)}, afunda até "
-                               f"{units.format_value(-lim['offset'][0], scene)}")
+                col.label(text=tr("Agregado: horizontal até {}, vertical até {}, afunda até {}").format(units.format_value(lim['u'][1], scene), units.format_value(lim['v'][1], scene), units.format_value(-lim['offset'][0], scene)))
         space = context.space_data
         overlay = getattr(space, 'overlay', None)
         if overlay is not None:
-            col.label(text=f"Grade: {units.format_value(overlay.grid_scale, scene)}")
+            col.label(text=tr("Grade: {}").format(units.format_value(overlay.grid_scale, scene)))
 
 
 classes = (BTM_PG_SelectionEdit, BTM_PT_ObjectProperties, BTM_PT_ObjectArrangement, BTM_PT_ObjectMovement,

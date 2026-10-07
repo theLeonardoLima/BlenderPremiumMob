@@ -2,6 +2,7 @@ import bpy
 import math
 import os
 from mathutils import Vector
+from ....data.i18n import tr
 from .... import hb_project, hb_details, units
 
 
@@ -54,7 +55,7 @@ class hb_frameless_OT_create_upper_bottom_detail(bpy.types.Operator):
         # Switch to the detail scene
         bpy.ops.caffmob_layouts.go_to_layout_view(scene_name=scene.name)
 
-        self.report({'INFO'}, f"Created upper bottom detail: {self.name}")
+        self.report({'INFO'}, tr("Created upper bottom detail: {}").format(self.name))
         return {'FINISHED'}
 
     def _draw_cabinet_side_detail(self, context, scene, props):
@@ -189,7 +190,7 @@ class hb_frameless_OT_delete_upper_bottom_detail(bpy.types.Operator):
         if props.active_upper_bottom_detail_index >= len(props.upper_bottom_details):
             props.active_upper_bottom_detail_index = max(0, len(props.upper_bottom_details) - 1)
 
-        self.report({'INFO'}, f"Deleted upper bottom detail: {upper_bottom_name}")
+        self.report({'INFO'}, tr("Deleted upper bottom detail: {}").format(upper_bottom_name))
         return {'FINISHED'}
 
 
@@ -222,7 +223,7 @@ class hb_frameless_OT_edit_upper_bottom_detail(bpy.types.Operator):
 
         bpy.ops.caffmob_layouts.go_to_layout_view(scene_name=detail_scene.name)
 
-        self.report({'INFO'}, f"Editing upper bottom detail: {upper_bottom.name}")
+        self.report({'INFO'}, tr("Editing upper bottom detail: {}").format(upper_bottom.name))
         return {'FINISHED'}
 
 
@@ -306,7 +307,7 @@ class hb_frameless_OT_assign_upper_bottom_to_cabinets(bpy.types.Operator):
                 self._create_upper_bottom_for_group(context, group, profile, all_walls, all_cabinets, current_scene)
 
         total_cabs = sum(len(g['cabinets']) for g in cabinet_groups)
-        self.report({'INFO'}, f"Created upper bottom molding on {total_cabs} cabinet(s) in {len(cabinet_groups)} group(s)")
+        self.report({'INFO'}, tr("Created upper bottom molding on {} cabinet(s) in {} group(s)").format(total_cabs, len(cabinet_groups)))
         return {'FINISHED'}
 
     def _remove_existing_upper_bottom(self, cabinet):

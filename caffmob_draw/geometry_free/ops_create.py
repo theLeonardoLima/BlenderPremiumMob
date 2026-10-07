@@ -13,6 +13,7 @@ from bpy_extras import view3d_utils  # type: ignore
 from mathutils import Vector  # type: ignore
 from mathutils.geometry import intersect_line_plane  # type: ignore
 
+from ..data.i18n import tr
 from .. import hb_snap
 from ..data import units
 from . import mesh
@@ -158,14 +159,14 @@ class BTM_OT_GeometryCreate(bpy.types.Operator):
         g = self.obj.btm_geometry
         unit = units.get_scene_length_unit()
         fmt = lambda v: units.format_length(v, unit)  # noqa: E731
-        typed = f"  Digitado: {self.typed}" if self.typed else ""
+        typed = tr("  Digitado: {}").format(self.typed) if self.typed else ""
         if self.step == 0:
-            text = "Clique o canto da peça (Ctrl encaixa em vértices e arestas). Esc cancela."
+            text = tr("Clique o canto da peça (Ctrl encaixa em vértices e arestas). Esc cancela.")
         elif self.step == 1:
-            label = "Largura" if self.typed_width is None else "Profundidade"
-            text = f"Largura {fmt(g.width)} × Profundidade {fmt(g.depth)} — digite a {label} e Enter, ou clique.{typed}"
+            label = tr("Largura") if self.typed_width is None else tr("Profundidade")
+            text = tr("Largura {} × Profundidade {} — digite a {} e Enter, ou clique.{}").format(fmt(g.width), fmt(g.depth), label, typed)
         else:
-            text = f"Altura {fmt(g.height)} — digite e Enter, ou clique.{typed}"
+            text = tr("Altura {} — digite e Enter, ou clique.{}").format(fmt(g.height), typed)
         context.area.header_text_set(text)
 
     def _finish(self, context):

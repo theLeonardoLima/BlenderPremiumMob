@@ -1,4 +1,4 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-07T14:56:05+00:00 a partir de 10 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-07T19:54:45+00:00 a partir de 11 bugs -->
 
 # Bugs que atingem as specs
 
@@ -8,24 +8,52 @@
 
 ## `_reversa_forward/001-addon-moveis-planejados/requirements.md`
 
-- BUG-20261006-OG3P (open/—, P0): Módulos instalados não podem ser personalizados nem salvos e não existem agregados — `_reversa_bugs/modulos-personalizaveis/bugs/BUG-20261006-OG3P-modulos-e-agregados-personalizaveis`
+- BUG-20261006-OG3P (resolved/fixed, P0): Módulos instalados não podem ser personalizados nem salvos e não existem agregados — `_reversa_bugs/modulos-personalizaveis/bugs/BUG-20261006-OG3P-modulos-e-agregados-personalizaveis`
 
 ## `_reversa_forward/002-editor-parede-mover-sobre/requirements.md`
 
-- BUG-20261006-KFAR (open/—, P0): Erro ao salvar no Windows com o editor de paredes e o construtor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261006-KFAR-erro-ao-salvar-no-windows`
+- BUG-20261006-KFAR (resolved/fixed, P0): Erro ao salvar no Windows com o editor de paredes e o construtor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261006-KFAR-erro-ao-salvar-no-windows`
 - BUG-20261007-TBY3 (resolved/fixed, P2): Todo objeto é tratado como parede (object_kind padrão WALL) — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-TBY3-todo-objeto-vira-parede`
 - BUG-20261007-TBY3 (resolved/fixed, P2): Todo objeto é tratado como parede (object_kind padrão WALL) — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-TBY3-todo-objeto-vira-parede`
 - BUG-20261007-VQ72 (resolved/fixed, P1): Trecho selecionado não mostra a medida no painel do editor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-VQ72-medida-do-trecho-no-painel`
 - BUG-20261007-VQ72 (resolved/fixed, P1): Trecho selecionado não mostra a medida no painel do editor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-VQ72-medida-do-trecho-no-painel`
 - BUG-20261007-ZZUK (resolved/fixed, P1): Ctrl+Z não desfaz dentro do editor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-ZZUK-ctrl-z-no-editor-de-paredes`
 
+## `_reversa_forward/003-modulos-agregados-reposicionar/requirements.md`
+
+- BUG-20261006-OG3P (resolved/fixed, P0): Módulos instalados não podem ser personalizados nem salvos e não existem agregados — `_reversa_bugs/modulos-personalizaveis/bugs/BUG-20261006-OG3P-modulos-e-agregados-personalizaveis`
+
+## `_reversa_sdd/addenda/bug-BUG-20261006-KFAR-v001.md`
+
+- BUG-20261006-KFAR (resolved/fixed, P0): Erro ao salvar no Windows com o editor de paredes e o construtor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261006-KFAR-erro-ao-salvar-no-windows`
+
+## `_reversa_sdd/addenda/bug-BUG-20261006-OG3P-v001.md`
+
+- BUG-20261006-OG3P (resolved/fixed, P0): Módulos instalados não podem ser personalizados nem salvos e não existem agregados — `_reversa_bugs/modulos-personalizaveis/bugs/BUG-20261006-OG3P-modulos-e-agregados-personalizaveis`
+
+## `_reversa_sdd/addenda/bug-BUG-20261006-QAVK-v001.md`
+
+- BUG-20261007-FLZO (resolved/fixed, P2): Interface metade em português e metade em inglês — `_reversa_bugs/plugin-caffmob-draw/bugs/BUG-20261007-FLZO-traducao-pela-metade`
+
 ## `_reversa_sdd/addenda/bug-BUG-20261007-A2G7-v001.md`
 
 - BUG-20261007-A2G7 (resolved/fixed, P1): Ajustar Piso ignora as paredes do editor e do construtor — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-A2G7-ajustar-piso-ignora-paredes`
 
+## `_reversa_sdd/addenda/bug-BUG-20261007-FLZO-v001.md`
+
+- BUG-20261007-FLZO (resolved/fixed, P2): Interface metade em português e metade em inglês — `_reversa_bugs/plugin-caffmob-draw/bugs/BUG-20261007-FLZO-traducao-pela-metade`
+
+## `_reversa_sdd/addenda/bug-BUG-20261007-FLZO-v002.md`
+
+- BUG-20261007-FLZO (resolved/fixed, P2): Interface metade em português e metade em inglês — `_reversa_bugs/plugin-caffmob-draw/bugs/BUG-20261007-FLZO-traducao-pela-metade`
+
 ## `_reversa_sdd/addenda/bug-BUG-20261007-VQ72-v001.md`
 
 - BUG-20261007-VQ72 (resolved/fixed, P1): Trecho selecionado não mostra a medida no painel do editor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-VQ72-medida-do-trecho-no-painel`
+
+## `_reversa_sdd/addenda/bug-BUG-20261007-YIMY-v001.md`
+
+- BUG-20261007-YIMY (resolved/fixed, P1): Porta e janela inseridas viram bloco liso com a espessura fora da parede — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-YIMY-porta-bloco-fora-da-parede`
 
 ## `_reversa_sdd/addenda/bug-BUG-20261007-ZZUK-v001.md`
 
@@ -47,7 +75,7 @@
 ## `_reversa_sdd/domain.md`
 
 - BUG-20261007-A2G7 (resolved/fixed, P1): Ajustar Piso ignora as paredes do editor e do construtor — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-A2G7-ajustar-piso-ignora-paredes`
-- BUG-20261007-YIMY (open/—, P1): Porta e janela inseridas viram bloco liso com a espessura fora da parede — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-YIMY-porta-bloco-fora-da-parede`
+- BUG-20261007-YIMY (resolved/fixed, P1): Porta e janela inseridas viram bloco liso com a espessura fora da parede — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-YIMY-porta-bloco-fora-da-parede`
 
 ## `_reversa_sdd/geometry/requirements.md`
 
@@ -55,7 +83,7 @@
 
 ## `_reversa_sdd/hb_core/design.md`
 
-- BUG-20261007-YIMY (open/—, P1): Porta e janela inseridas viram bloco liso com a espessura fora da parede — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-YIMY-porta-bloco-fora-da-parede`
+- BUG-20261007-YIMY (resolved/fixed, P1): Porta e janela inseridas viram bloco liso com a espessura fora da parede — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-YIMY-porta-bloco-fora-da-parede`
 
 ## `_reversa_sdd/hb_core/requirements.md`
 
@@ -67,7 +95,7 @@
 
 ## `_reversa_sdd/product_common/requirements.md`
 
-- BUG-20261006-OG3P (open/—, P0): Módulos instalados não podem ser personalizados nem salvos e não existem agregados — `_reversa_bugs/modulos-personalizaveis/bugs/BUG-20261006-OG3P-modulos-e-agregados-personalizaveis`
+- BUG-20261006-OG3P (resolved/fixed, P0): Módulos instalados não podem ser personalizados nem salvos e não existem agregados — `_reversa_bugs/modulos-personalizaveis/bugs/BUG-20261006-OG3P-modulos-e-agregados-personalizaveis`
 
 ## `_reversa_sdd/soul.md`
 
@@ -76,11 +104,12 @@
 ## `_reversa_sdd/ui/requirements.md`
 
 - BUG-20261006-NO4Q (resolved/fixed, P0): Interface legada Home Builder aparece separada do plugin — `_reversa_bugs/plugin-caffmob-draw/bugs/BUG-20261006-NO4Q-interface-home-builder-separada`
+- BUG-20261007-FLZO (resolved/fixed, P2): Interface metade em português e metade em inglês — `_reversa_bugs/plugin-caffmob-draw/bugs/BUG-20261007-FLZO-traducao-pela-metade`
 
 ## `_reversa_sdd/wall_editor/requirements.md`
 
-- BUG-20261006-KFAR (open/—, P0): Erro ao salvar no Windows com o editor de paredes e o construtor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261006-KFAR-erro-ao-salvar-no-windows`
+- BUG-20261006-KFAR (resolved/fixed, P0): Erro ao salvar no Windows com o editor de paredes e o construtor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261006-KFAR-erro-ao-salvar-no-windows`
 - BUG-20261007-VQ72 (resolved/fixed, P1): Trecho selecionado não mostra a medida no painel do editor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-VQ72-medida-do-trecho-no-painel`
-- BUG-20261007-YIMY (open/—, P1): Porta e janela inseridas viram bloco liso com a espessura fora da parede — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-YIMY-porta-bloco-fora-da-parede`
+- BUG-20261007-YIMY (resolved/fixed, P1): Porta e janela inseridas viram bloco liso com a espessura fora da parede — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-YIMY-porta-bloco-fora-da-parede`
 - BUG-20261007-ZZUK (resolved/fixed, P1): Ctrl+Z não desfaz dentro do editor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-ZZUK-ctrl-z-no-editor-de-paredes`
 

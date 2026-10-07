@@ -1,4 +1,4 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-07T14:56:05+00:00 a partir de 6 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-07T19:54:45+00:00 a partir de 6 bugs -->
 
 # Grafo · editor-de-paredes
 
@@ -24,5 +24,3 @@ graph LR
 
 Heurística de triagem (não substitui priority/severity): só arestas supported/confirmed contam.
 
-- BUG-20261006-KFAR: 0
-- BUG-20261007-YIMY: 0

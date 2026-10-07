@@ -2,6 +2,7 @@ import bpy
 import math
 import bmesh
 from mathutils import Vector, Matrix
+from ..data.i18n import tr
 from .. import hb_snap, units
 
 
@@ -442,9 +443,7 @@ class home_builder_stairs_OT_place_stairs(bpy.types.Operator):
         types = {'STRAIGHT': "Straight", 'L_SHAPE': "L-Shaped", 'U_SHAPE': "U-Shaped"}
         label = types.get(self.stair_type, "Straight")
         num_steps = max(1, round(units.inch(96) / units.inch(7.5)))
-        text = (f"{label} Stairs: {num_steps} steps | "
-                "Click to place | R rotate | "
-                "T toggle type | D toggle direction | ESC cancel")
+        text = (tr("{} Stairs: {} steps | Click to place | R rotate | T toggle type | D toggle direction | ESC cancel").format(label, num_steps))
         context.area.header_text_set(text)
 
     def confirm_placement(self, context):
@@ -453,7 +452,7 @@ class home_builder_stairs_OT_place_stairs(bpy.types.Operator):
         num_steps = max(1, round(
             self.preview_obj['STAIR_TOTAL_RISE'] / self.preview_obj['STAIR_RISER_HEIGHT']
         ))
-        self.report({'INFO'}, f"Placed staircase: {num_steps} steps")
+        self.report({'INFO'}, tr("Placed staircase: {} steps").format(num_steps))
         bpy.ops.object.select_all(action='DESELECT')
         self.preview_obj.select_set(True)
         context.view_layer.objects.active = self.preview_obj
@@ -537,7 +536,7 @@ class home_builder_stairs_OT_place_stairs(bpy.types.Operator):
         self.region = context.region
         self.preview_obj = None
         self.create_preview(context)
-        context.area.header_text_set("Click to place | R rotate | T type | D direction | ESC cancel")
+        context.area.header_text_set(tr("Click to place | R rotate | T type | D direction | ESC cancel"))
         context.window_manager.modal_handler_add(self)
         return {'RUNNING_MODAL'}
 
@@ -674,15 +673,15 @@ class home_builder_stairs_OT_stair_prompts(bpy.types.Operator):
             flight2_rise = self.total_rise - landing_h
             steps1 = max(1, round(landing_h / self.riser_height))
             steps2 = max(1, round(flight2_rise / self.riser_height))
-            box.label(text=f"Flight 1: {steps1} steps", icon='MOD_ARRAY')
-            box.label(text=f"Flight 2: {steps2} steps")
+            box.label(text=tr("Flight 1: {} steps").format(steps1), icon='MOD_ARRAY')
+            box.label(text=tr("Flight 2: {} steps").format(steps2))
             row = box.row()
             row.label(text="Total Steps:")
             row.label(text=str(steps1 + steps2))
         else:
             num_steps = max(1, round(self.total_rise / self.riser_height))
             total_run = num_steps * self.tread_depth
-            box.label(text=f"Steps: {num_steps}", icon='MOD_ARRAY')
+            box.label(text=tr("Steps: {}").format(num_steps), icon='MOD_ARRAY')
             row = box.row()
             row.label(text="Total Run:")
             row.label(text=units.unit_to_string(unit_settings, total_run))

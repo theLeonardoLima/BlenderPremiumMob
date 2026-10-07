@@ -1,4 +1,5 @@
 import bpy
+from ..data.i18n import tr
 
 # Custom properties that mark objects we should DELETE during export prep
 DELETE_FLAGS = {
@@ -176,9 +177,7 @@ class HOME_BUILDER_OT_prepare_for_export(bpy.types.Operator):
         context.window.scene = original_scene
 
         self.report({'INFO'},
-            f"Export prep complete: {converted_count} objects converted, "
-            f"{deleted_count} helper objects removed, {driver_count} drivers removed. "
-            f"You can now export using File > Export > FBX or glTF.")
+            tr("Export prep complete: {} objects converted, {} helper objects removed, {} drivers removed. You can now export using File > Export > FBX or glTF.").format(converted_count, deleted_count, driver_count))
 
         return {'FINISHED'}
 

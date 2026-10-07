@@ -8,6 +8,7 @@ import subprocess
 import bpy  # type: ignore
 from mathutils import Vector  # type: ignore
 
+from ..data.i18n import tr
 from .. import hb_placement, hb_snap
 from . import adapters, library_io
 
@@ -62,14 +63,14 @@ class BTM_OT_ModuleSave(bpy.types.Operator):
             self.report({'ERROR'}, "Digite um nome para o módulo")
             return {'CANCELLED'}
         if library_io.exists(name, self.category) and not self.overwrite:
-            self.report({'WARNING'}, f"O módulo '{name}' já existe; marque \"Substituir\" para gravar por cima")
+            self.report({'WARNING'}, tr("O módulo '{}' já existe; marque \"Substituir\" para gravar por cima").format(name))
             return {'CANCELLED'}
         root = adapters.module_root(context.active_object)
         paths, errors = library_io.save(context, root, name, self.category.strip(), self.thumbnail)
         if errors:
             self.report({'ERROR'}, " | ".join(errors))
             return {'CANCELLED'}
-        self.report({'INFO'}, f"Módulo salvo: {paths['blend']}")
+        self.report({'INFO'}, tr("Módulo salvo: {}").format(paths['blend']))
         _redraw(context)
         return {'FINISHED'}
 
@@ -86,7 +87,7 @@ class BTM_OT_ModuleInsert(bpy.types.Operator, hb_placement.PlacementMixin):
     def execute(self, context):
         entry = _entry(self.filepath)
         if entry is None or not os.path.exists(self.filepath):
-            self.report({'ERROR'}, f"Módulo não encontrado: {self.filepath}")
+            self.report({'ERROR'}, tr("Módulo não encontrado: {}").format(self.filepath))
             return {'CANCELLED'}
         self.init_placement(context)
         self.root, loaded, warnings = library_io.load(context, entry)
@@ -170,7 +171,7 @@ class BTM_OT_ModuleDelete(bpy.types.Operator):
             self.report({'ERROR'}, "Módulo não encontrado")
             return {'CANCELLED'}
         library_io.delete(entry)
-        self.report({'INFO'}, f"Módulo apagado: {entry['name']}")
+        self.report({'INFO'}, tr("Módulo apagado: {}").format(entry['name']))
         _redraw(context)
         return {'FINISHED'}
 

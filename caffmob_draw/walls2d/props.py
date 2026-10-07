@@ -10,6 +10,7 @@ import math
 import bpy  # type: ignore
 
 from ..data import units
+from ..data.i18n import N_
 from . import history, model
 
 
@@ -172,8 +173,8 @@ def _side_set(_self, value):
         return
     chain.side = model.SIDES[value]
     if any(seg.source for seg in chain.segments):
-        s.error = ("Direção trocada em paredes existentes: no OK elas mudam de sentido e os itens presos ficam onde "
-                   "estão.")
+        s.error = N_("Direção trocada em paredes existentes: no OK elas mudam de sentido; portas e janelas acompanham "
+                     "e os módulos ficam onde estão.")
     s.redraw()
 
 
@@ -286,20 +287,20 @@ class BTM_PG_WallEditorState(bpy.types.PropertyGroup):
     line: bpy.props.EnumProperty(name="Linha", items=[('INNER', "Interna", "Face interna (medida real, tracejada)"),
                                                       ('OUTER', "Externa", "Face externa (interna + espessuras)")],
                                  get=_line_get, set=_line_set)  # type: ignore
-    length: _length("Comprimento", 'length', "Comprimento na linha selecionada (interna ou externa)")  # type: ignore
-    angle_abs: _angle("Ângulo Absoluto", 'angle_abs')  # type: ignore
-    angle_rel: _angle("Ângulo Relativo", 'angle_rel')  # type: ignore
+    length: _length(N_("Comprimento"), 'length', N_("Comprimento na linha selecionada (interna ou externa)"))  # type: ignore
+    angle_abs: _angle(N_("Ângulo Absoluto"), 'angle_abs')  # type: ignore
+    angle_rel: _angle(N_("Ângulo Relativo"), 'angle_rel')  # type: ignore
     lock_angle: bpy.props.BoolProperty(name="Bloquear Ângulo", get=_seg_get('lock_angle', False),
                                        set=_seg_set('lock_angle'))  # type: ignore
-    thickness: _length("Espessura", 'thickness')  # type: ignore
-    height: _length("Pé-direito Inicial", 'height')  # type: ignore
-    end_height: _length("Pé-direito Final", 'end_height')  # type: ignore
+    thickness: _length(N_("Espessura"), 'thickness')  # type: ignore
+    height: _length(N_("Pé-direito Inicial"), 'height')  # type: ignore
+    end_height: _length(N_("Pé-direito Final"), 'end_height')  # type: ignore
     # O painel usa estes: a unidade do projeto, a mesma da planta (BUG-20261007-VQ72).
-    length_text: _length_text("Comprimento", 'length',
-                              "Comprimento na linha selecionada; sem unidade, vale a do projeto")  # type: ignore
-    thickness_text: _length_text("Espessura", 'thickness')  # type: ignore
-    height_text: _length_text("Pé-direito Inicial", 'height')  # type: ignore
-    end_height_text: _length_text("Pé-direito Final", 'end_height')  # type: ignore
+    length_text: _length_text(N_("Comprimento"), 'length',
+                              N_("Comprimento na linha selecionada; sem unidade, vale a do projeto"))  # type: ignore
+    thickness_text: _length_text(N_("Espessura"), 'thickness')  # type: ignore
+    height_text: _length_text(N_("Pé-direito Inicial"), 'height')  # type: ignore
+    end_height_text: _length_text(N_("Pé-direito Final"), 'end_height')  # type: ignore
     direction: bpy.props.EnumProperty(name="Direção", items=SIDE_ITEMS, get=_side_get, set=_side_set,
                                       description="Lado para onde a espessura cresce; a medida interna não muda")  # type: ignore
     wall_type: bpy.props.EnumProperty(name="Tipo de Parede", items=TYPE_ITEMS, get=_type_get,

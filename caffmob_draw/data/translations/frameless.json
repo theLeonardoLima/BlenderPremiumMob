@@ -1,0 +1,4610 @@
+{
+ "1 Drawer 1 Door": {
+  "pt_BR": "1 Gaveta 1 Porta",
+  "en_US": "1 Drawer 1 Door"
+ },
+ "1 Drawer 2 Door": {
+  "pt_BR": "1 Gaveta 2 Portas",
+  "en_US": "1 Drawer 2 Door"
+ },
+ "2 Drawer 2 Door": {
+  "pt_BR": "2 Gavetas 2 Portas",
+  "en_US": "2 Drawer 2 Door"
+ },
+ "2 Drawer Stack": {
+  "pt_BR": "2 Gavetas",
+  "en_US": "2 Drawer Stack"
+ },
+ "2 Drawers": {
+  "pt_BR": "2 Gavetas",
+  "en_US": "2 Drawers"
+ },
+ "3 Drawer Stack": {
+  "pt_BR": "3 Gavetas",
+  "en_US": "3 Drawer Stack"
+ },
+ "3 Drawers": {
+  "pt_BR": "3 Gavetas",
+  "en_US": "3 Drawers"
+ },
+ "4 Drawer Stack": {
+  "pt_BR": "4 Gavetas",
+  "en_US": "4 Drawer Stack"
+ },
+ "4 Drawers": {
+  "pt_BR": "4 Gavetas",
+  "en_US": "4 Drawers"
+ },
+ "5 Piece": {
+  "pt_BR": "5 Peças",
+  "en_US": "5 Piece"
+ },
+ "5-Piece Panel": {
+  "pt_BR": "Painel de 5 Peças",
+  "en_US": "5-Piece Panel"
+ },
+ "5-Piece Panel Dimensions": {
+  "pt_BR": "Medidas do Painel de 5 Peças",
+  "en_US": "5-Piece Panel Dimensions"
+ },
+ "5-Piece Panels:": {
+  "pt_BR": "Painéis de 5 Peças:",
+  "en_US": "5-Piece Panels:"
+ },
+ "5-piece frame and panel door": {
+  "pt_BR": "Porta de 5 peças, quadro e almofada",
+  "en_US": "5-piece frame and panel door"
+ },
+ "5-piece panel matching door style": {
+  "pt_BR": "Painel de 5 peças igual ao estilo da porta",
+  "en_US": "5-piece panel matching door style"
+ },
+ "Above Range:": {
+  "pt_BR": "Acima do Fogão:",
+  "en_US": "Above Range:"
+ },
+ "Active Cabinet Style Index": {
+  "pt_BR": "Índice do Estilo de Módulo Ativo",
+  "en_US": "Active Cabinet Style Index"
+ },
+ "Active Crown Detail Index": {
+  "pt_BR": "Índice do Detalhe de Moldura Ativo",
+  "en_US": "Active Crown Detail Index"
+ },
+ "Active Door Style Index": {
+  "pt_BR": "Índice do Estilo de Porta Ativo",
+  "en_US": "Active Door Style Index"
+ },
+ "Active Toe Kick Detail Index": {
+  "pt_BR": "Índice do Detalhe de Rodapé Ativo",
+  "en_US": "Active Toe Kick Detail Index"
+ },
+ "Active Upper Bottom Detail Index": {
+  "pt_BR": "Índice do Detalhe da Base do Aéreo Ativo",
+  "en_US": "Active Upper Bottom Detail Index"
+ },
+ "Add Applied End": {
+  "pt_BR": "Adicionar Lateral Aplicada",
+  "en_US": "Add Applied End"
+ },
+ "Add Back Slab": {
+  "pt_BR": "Adicionar Painel Liso Atrás",
+  "en_US": "Add Back Slab"
+ },
+ "Add Both Sides Slab": {
+  "pt_BR": "Adicionar Painel Liso dos Dois Lados",
+  "en_US": "Add Both Sides Slab"
+ },
+ "Add Cabinet Style": {
+  "pt_BR": "Adicionar Estilo de Módulo",
+  "en_US": "Add Cabinet Style"
+ },
+ "Add Countertops": {
+  "pt_BR": "Adicionar Tampos",
+  "en_US": "Add Countertops"
+ },
+ "Add Custom Finish Color": {
+  "pt_BR": "Adicionar Cor Personalizada",
+  "en_US": "Add Custom Finish Color"
+ },
+ "Add Door Style": {
+  "pt_BR": "Adicionar Estilo de Porta",
+  "en_US": "Add Door Style"
+ },
+ "Add Left Slab": {
+  "pt_BR": "Adicionar Painel Liso à Esquerda",
+  "en_US": "Add Left Slab"
+ },
+ "Add Mid Rail": {
+  "pt_BR": "Adicionar Travessa Central",
+  "en_US": "Add Mid Rail"
+ },
+ "Add Right Slab": {
+  "pt_BR": "Adicionar Painel Liso à Direita",
+  "en_US": "Add Right Slab"
+ },
+ "Add a 5-piece door style modifier to this misc part": {
+  "pt_BR": "Adiciona o estilo de porta de 5 peças a esta peça avulsa",
+  "en_US": "Add a 5-piece door style modifier to this misc part"
+ },
+ "Add a boolean cut to the countertop using the selected cutting object (sink, cooktop, etc.)": {
+  "pt_BR": "Faz um recorte no tampo com o objeto de corte selecionado (cuba, cooktop etc.)",
+  "en_US": "Add a boolean cut to the countertop using the selected cutting object (sink, cooktop, etc.)"
+ },
+ "Add a custom solid lumber rectangle profile to the current detail": {
+  "pt_BR": "Adiciona um perfil retangular de madeira maciça ao detalhe atual",
+  "en_US": "Add a custom solid lumber rectangle profile to the current detail"
+ },
+ "Add a horizontal mid rail": {
+  "pt_BR": "Adiciona uma travessa central horizontal",
+  "en_US": "Add a horizontal mid rail"
+ },
+ "Add a molding profile from the library to the current crown detail": {
+  "pt_BR": "Adiciona um perfil de moldura da biblioteca ao detalhe atual",
+  "en_US": "Add a molding profile from the library to the current crown detail"
+ },
+ "Add a new cabinet style": {
+  "pt_BR": "Adiciona um novo estilo de módulo",
+  "en_US": "Add a new cabinet style"
+ },
+ "Add a new door style": {
+  "pt_BR": "Adiciona um novo estilo de porta",
+  "en_US": "Add a new door style"
+ },
+ "Add an applied finished end panel to the cabinet": {
+  "pt_BR": "Adiciona um painel de acabamento aplicado na lateral do módulo",
+  "en_US": "Add an applied finished end panel to the cabinet"
+ },
+ "Add countertops to all base cabinets": {
+  "pt_BR": "Adiciona tampos em todos os balcões",
+  "en_US": "Add countertops to all base cabinets"
+ },
+ "Add lumber as a horizontal part": {
+  "pt_BR": "Adiciona a madeira como peça horizontal",
+  "en_US": "Add lumber as a horizontal part"
+ },
+ "Add lumber as a vertical part": {
+  "pt_BR": "Adiciona a madeira como peça vertical",
+  "en_US": "Add lumber as a vertical part"
+ },
+ "Add to Scene": {
+  "pt_BR": "Adicionar à Cena",
+  "en_US": "Add to Scene"
+ },
+ "Add to Selected": {
+  "pt_BR": "Adicionar aos Selecionados",
+  "en_US": "Add to Selected"
+ },
+ "Add to back": {
+  "pt_BR": "Adiciona atrás",
+  "en_US": "Add to back"
+ },
+ "Add to both left and right sides": {
+  "pt_BR": "Adiciona dos dois lados",
+  "en_US": "Add to both left and right sides"
+ },
+ "Add to left side": {
+  "pt_BR": "Adiciona do lado esquerdo",
+  "en_US": "Add to left side"
+ },
+ "Add to right side": {
+  "pt_BR": "Adiciona do lado direito",
+  "en_US": "Add to right side"
+ },
+ "Added boolean cut using {}": {
+  "pt_BR": "Recorte feito com {}",
+  "en_US": "Added boolean cut using {}"
+ },
+ "Added cabinet style: {}": {
+  "pt_BR": "Estilo de módulo adicionado: {}",
+  "en_US": "Added cabinet style: {}"
+ },
+ "Added door style: {}": {
+  "pt_BR": "Estilo de porta adicionado: {}",
+  "en_US": "Added door style: {}"
+ },
+ "Added molding profile: {}": {
+  "pt_BR": "Perfil de moldura adicionado: {}",
+  "en_US": "Added molding profile: {}"
+ },
+ "Added {:.2f}\" x {:.2f}\" solid lumber ({})": {
+  "pt_BR": "Madeira maciça de {:.2f}\" x {:.2f}\" adicionada ({})",
+  "en_US": "Added {:.2f}\" x {:.2f}\" solid lumber ({})"
+ },
+ "Adjust Cabinet Sizes": {
+  "pt_BR": "Ajustar Medidas dos Módulos",
+  "en_US": "Adjust Cabinet Sizes"
+ },
+ "Adjust Floating Shelves": {
+  "pt_BR": "Ajustar Prateleiras Flutuantes",
+  "en_US": "Adjust Floating Shelves"
+ },
+ "Adjust Spacing & Heights...": {
+  "pt_BR": "Ajustar Espaçamento e Alturas...",
+  "en_US": "Adjust Spacing & Heights..."
+ },
+ "Adjust widths, positions, and quantity of selected cabinets": {
+  "pt_BR": "Ajusta larguras, posições e quantidade dos módulos selecionados",
+  "en_US": "Adjust widths, positions, and quantity of selected cabinets"
+ },
+ "Alder": {
+  "pt_BR": "Amieiro",
+  "en_US": "Alder"
+ },
+ "Alder wood": {
+  "pt_BR": "Madeira de amieiro",
+  "en_US": "Alder wood"
+ },
+ "All": {
+  "pt_BR": "Todos",
+  "en_US": "All"
+ },
+ "All Fronts": {
+  "pt_BR": "Todas as Frentes",
+  "en_US": "All Fronts"
+ },
+ "All Pulls": {
+  "pt_BR": "Todos os Puxadores",
+  "en_US": "All Pulls"
+ },
+ "Altura da gaveta superior atualizada em {} vão(s)": {
+  "pt_BR": "Altura da gaveta superior atualizada em {} vão(s)",
+  "en_US": "Top drawer height updated on {} opening(s)"
+ },
+ "Antique Brass": {
+  "pt_BR": "Latão Antigo",
+  "en_US": "Antique Brass"
+ },
+ "Appliance": {
+  "pt_BR": "Eletro",
+  "en_US": "Appliance"
+ },
+ "Appliance Commands": {
+  "pt_BR": "Comandos do Eletro",
+  "en_US": "Appliance Commands"
+ },
+ "Appliance Name": {
+  "pt_BR": "Nome do Eletro",
+  "en_US": "Appliance Name"
+ },
+ "Appliance Panels": {
+  "pt_BR": "Painéis do Eletro",
+  "en_US": "Appliance Panels"
+ },
+ "Appliance Prompts": {
+  "pt_BR": "Opções do Eletro",
+  "en_US": "Appliance Prompts"
+ },
+ "Appliance Type": {
+  "pt_BR": "Tipo de Eletro",
+  "en_US": "Appliance Type"
+ },
+ "Appliances": {
+  "pt_BR": "Eletros",
+  "en_US": "Appliances"
+ },
+ "Applied End Commands": {
+  "pt_BR": "Comandos da Lateral Aplicada",
+  "en_US": "Applied End Commands"
+ },
+ "Applied Ends": {
+  "pt_BR": "Laterais Aplicadas",
+  "en_US": "Applied Ends"
+ },
+ "Applied Panel Prompts": {
+  "pt_BR": "Opções do Painel Aplicado",
+  "en_US": "Applied Panel Prompts"
+ },
+ "Applied finish to {} pull type(s) ({} total pulls)": {
+  "pt_BR": "Acabamento aplicado em {} tipo(s) de puxador ({} puxadores no total)",
+  "en_US": "Applied finish to {} pull type(s) ({} total pulls)"
+ },
+ "Apply the selected finish to all cabinet pulls": {
+  "pt_BR": "Aplica o acabamento escolhido a todos os puxadores",
+  "en_US": "Apply the selected finish to all cabinet pulls"
+ },
+ "Apply {} finish to pulls": {
+  "pt_BR": "Aplica o acabamento {} nos puxadores",
+  "en_US": "Apply {} finish to pulls"
+ },
+ "Arctic White": {
+  "pt_BR": "Branco Ártico",
+  "en_US": "Arctic White"
+ },
+ "Assign Crown to Cabinets": {
+  "pt_BR": "Aplicar Moldura aos Módulos",
+  "en_US": "Assign Crown to Cabinets"
+ },
+ "Assign Crown to Room": {
+  "pt_BR": "Aplicar Moldura ao Ambiente",
+  "en_US": "Assign Crown to Room"
+ },
+ "Assign Style": {
+  "pt_BR": "Aplicar Estilo",
+  "en_US": "Assign Style"
+ },
+ "Assign Style to Cabinet": {
+  "pt_BR": "Aplicar Estilo ao Módulo",
+  "en_US": "Assign Style to Cabinet"
+ },
+ "Assign Toe Kick to Cabinets": {
+  "pt_BR": "Aplicar Rodapé aos Módulos",
+  "en_US": "Assign Toe Kick to Cabinets"
+ },
+ "Assign Upper Bottom to Cabinets": {
+  "pt_BR": "Aplicar Base do Aéreo aos Módulos",
+  "en_US": "Assign Upper Bottom to Cabinets"
+ },
+ "Assign the active cabinet style to a cabinet": {
+  "pt_BR": "Aplica o estilo de módulo ativo a um módulo",
+  "en_US": "Assign the active cabinet style to a cabinet"
+ },
+ "Assign to Room": {
+  "pt_BR": "Aplicar ao Ambiente",
+  "en_US": "Assign to Room"
+ },
+ "Assign to Selected Cabinets": {
+  "pt_BR": "Aplicar aos Módulos Selecionados",
+  "en_US": "Assign to Selected Cabinets"
+ },
+ "Assigned '{}' to {} cabinet(s)": {
+  "pt_BR": "'{}' aplicado em {} módulo(s)",
+  "en_US": "Assigned '{}' to {} cabinet(s)"
+ },
+ "Assigned '{}' to {} front(s)": {
+  "pt_BR": "'{}' aplicado em {} frente(s)",
+  "en_US": "Assigned '{}' to {} front(s)"
+ },
+ "Available Gap:": {
+  "pt_BR": "Vão Disponível:",
+  "en_US": "Available Gap:"
+ },
+ "Back": {
+  "pt_BR": "Fundo",
+  "en_US": "Back"
+ },
+ "Back 5-Piece...": {
+  "pt_BR": "5 Peças Atrás...",
+  "en_US": "Back 5-Piece..."
+ },
+ "Back Left": {
+  "pt_BR": "Fundo Esquerdo",
+  "en_US": "Back Left"
+ },
+ "Back Overhang": {
+  "pt_BR": "Avanço Traseiro",
+  "en_US": "Back Overhang"
+ },
+ "Back Right": {
+  "pt_BR": "Fundo Direito",
+  "en_US": "Back Right"
+ },
+ "Back panel": {
+  "pt_BR": "Fundo",
+  "en_US": "Back panel"
+ },
+ "Base Cabinet Depth": {
+  "pt_BR": "Profundidade do Balcão",
+  "en_US": "Base Cabinet Depth"
+ },
+ "Base Cabinet Height": {
+  "pt_BR": "Altura do Balcão",
+  "en_US": "Base Cabinet Height"
+ },
+ "Base Cabinets:": {
+  "pt_BR": "Balcões:",
+  "en_US": "Base Cabinets:"
+ },
+ "Base Corner Type": {
+  "pt_BR": "Tipo de Canto do Balcão",
+  "en_US": "Base Corner Type"
+ },
+ "Base Exterior": {
+  "pt_BR": "Exterior do Balcão",
+  "en_US": "Base Exterior"
+ },
+ "Base Inside Corner Size": {
+  "pt_BR": "Medida do Canto Interno do Balcão",
+  "en_US": "Base Inside Corner Size"
+ },
+ "Base Top Construction": {
+  "pt_BR": "Construção do Topo do Balcão",
+  "en_US": "Base Top Construction"
+ },
+ "Base Top Construction:": {
+  "pt_BR": "Construção do Topo do Balcão:",
+  "en_US": "Base Top Construction:"
+ },
+ "Base Width Blind": {
+  "pt_BR": "Largura do Balcão de Canto Cego",
+  "en_US": "Base Width Blind"
+ },
+ "Base cabinet": {
+  "pt_BR": "Balcão",
+  "en_US": "Base cabinet"
+ },
+ "Base:": {
+  "pt_BR": "Balcão:",
+  "en_US": "Base:"
+ },
+ "Bay Commands": {
+  "pt_BR": "Comandos do Compartimento",
+  "en_US": "Bay Commands"
+ },
+ "Bevel": {
+  "pt_BR": "Chanfro",
+  "en_US": "Bevel"
+ },
+ "Beveled edge": {
+  "pt_BR": "Borda chanfrada",
+  "en_US": "Beveled edge"
+ },
+ "Birch": {
+  "pt_BR": "Bétula",
+  "en_US": "Birch"
+ },
+ "Birch wood": {
+  "pt_BR": "Madeira de bétula",
+  "en_US": "Birch wood"
+ },
+ "Both": {
+  "pt_BR": "Ambos",
+  "en_US": "Both"
+ },
+ "Bottom Height": {
+  "pt_BR": "Altura da Base",
+  "en_US": "Bottom Height"
+ },
+ "Bottom Height:": {
+  "pt_BR": "Altura da Base:",
+  "en_US": "Bottom Height:"
+ },
+ "Bottom Rail": {
+  "pt_BR": "Travessa Inferior",
+  "en_US": "Bottom Rail"
+ },
+ "Browse molding profiles and add them to the current detail": {
+  "pt_BR": "Navega pelos perfis de moldura e adiciona ao detalhe atual",
+  "en_US": "Browse molding profiles and add them to the current detail"
+ },
+ "Brushed Nickel": {
+  "pt_BR": "Níquel Escovado",
+  "en_US": "Brushed Nickel"
+ },
+ "Built In Appliance": {
+  "pt_BR": "Eletro Embutido",
+  "en_US": "Built In Appliance"
+ },
+ "Built In Double Appliance": {
+  "pt_BR": "Eletro Embutido Duplo",
+  "en_US": "Built In Double Appliance"
+ },
+ "Built-in appliance opening": {
+  "pt_BR": "Vão de eletro embutido",
+  "en_US": "Built-in appliance opening"
+ },
+ "Cabinet Commands": {
+  "pt_BR": "Comandos do Módulo",
+  "en_US": "Cabinet Commands"
+ },
+ "Cabinet Group Name": {
+  "pt_BR": "Nome do Grupo de Módulos",
+  "en_US": "Cabinet Group Name"
+ },
+ "Cabinet Name": {
+  "pt_BR": "Nome do Módulo",
+  "en_US": "Cabinet Name"
+ },
+ "Cabinet Object": {
+  "pt_BR": "Objeto do Módulo",
+  "en_US": "Cabinet Object"
+ },
+ "Cabinet Prompts": {
+  "pt_BR": "Opções do Módulo",
+  "en_US": "Cabinet Prompts"
+ },
+ "Cabinet Quantities": {
+  "pt_BR": "Quantidades de Módulos",
+  "en_US": "Cabinet Quantities"
+ },
+ "Cabinet Sizes": {
+  "pt_BR": "Medidas dos Módulos",
+  "en_US": "Cabinet Sizes"
+ },
+ "Cabinet Style: '{}' | LMB: Assign style | RMB/ESC: Finish | Assigned: {}": {
+  "pt_BR": "Estilo de Módulo: '{}' | Botão esquerdo: aplicar | Botão direito/Esc: concluir | Aplicados: {}",
+  "en_US": "Cabinet Style: '{}' | LMB: Assign style | RMB/ESC: Finish | Assigned: {}"
+ },
+ "Cabinet Styles": {
+  "pt_BR": "Estilos de Módulo",
+  "en_US": "Cabinet Styles"
+ },
+ "Cabinet Type": {
+  "pt_BR": "Tipo de Módulo",
+  "en_US": "Cabinet Type"
+ },
+ "Cabinet has been flattened (modifier applied) and can no longer be edited parametrically.": {
+  "pt_BR": "O módulo foi achatado (modificador aplicado) e não pode mais ser editado de forma paramétrica.",
+  "en_US": "Cabinet has been flattened (modifier applied) and can no longer be edited parametrically."
+ },
+ "Cabinet interior finished": {
+  "pt_BR": "Interior do módulo acabado",
+  "en_US": "Cabinet interior finished"
+ },
+ "Cabinet interior reverted to standard materials": {
+  "pt_BR": "Interior do módulo voltou aos materiais padrão",
+  "en_US": "Cabinet interior reverted to standard materials"
+ },
+ "Cabinet style name": {
+  "pt_BR": "Nome do estilo de módulo",
+  "en_US": "Cabinet style name"
+ },
+ "Cabinet {}": {
+  "pt_BR": "Módulo {}",
+  "en_US": "Cabinet {}"
+ },
+ "Cabinets": {
+  "pt_BR": "Módulos",
+  "en_US": "Cabinets"
+ },
+ "Cabinets:": {
+  "pt_BR": "Módulos:",
+  "en_US": "Cabinets:"
+ },
+ "Calculate Shelf Quantity": {
+  "pt_BR": "Calcular Quantidade de Prateleiras",
+  "en_US": "Calculate Shelf Quantity"
+ },
+ "Calculator Cabinets": {
+  "pt_BR": "Módulos da Calculadora",
+  "en_US": "Calculator Cabinets"
+ },
+ "Cancel": {
+  "pt_BR": "Cancelar",
+  "en_US": "Cancel"
+ },
+ "Cancelled. Updated {} of {} cabinets.": {
+  "pt_BR": "Cancelado. {} de {} módulos atualizados.",
+  "en_US": "Cancelled. Updated {} of {} cabinets."
+ },
+ "Cannot delete built-in color: {}": {
+  "pt_BR": "Não dá para apagar uma cor embutida: {}",
+  "en_US": "Cannot delete built-in color: {}"
+ },
+ "Cannot remove the last cabinet style": {
+  "pt_BR": "Não dá para remover o último estilo de módulo",
+  "en_US": "Cannot remove the last cabinet style"
+ },
+ "Cannot remove the last door style": {
+  "pt_BR": "Não dá para remover o último estilo de porta",
+  "en_US": "Cannot remove the last door style"
+ },
+ "Carcass:": {
+  "pt_BR": "Caixa:",
+  "en_US": "Carcass:"
+ },
+ "Category subfolder to save into (leave empty for root)": {
+  "pt_BR": "Subpasta de categoria onde salvar (vazio = raiz)",
+  "en_US": "Category subfolder to save into (leave empty for root)"
+ },
+ "Ceiling Height:": {
+  "pt_BR": "Pé-direito:",
+  "en_US": "Ceiling Height:"
+ },
+ "Center": {
+  "pt_BR": "Centro",
+  "en_US": "Center"
+ },
+ "Center Drawer Pulls": {
+  "pt_BR": "Centralizar Puxadores das Gavetas",
+  "en_US": "Center Drawer Pulls"
+ },
+ "Center Mid Rail": {
+  "pt_BR": "Centralizar Travessa Central",
+  "en_US": "Center Mid Rail"
+ },
+ "Center Pulls on Drawer Front": {
+  "pt_BR": "Centralizar Puxadores na Gaveta",
+  "en_US": "Center Pulls on Drawer Front"
+ },
+ "Center the mid rail vertically": {
+  "pt_BR": "Centraliza a travessa central na vertical",
+  "en_US": "Center the mid rail vertically"
+ },
+ "Change Bay Configuration": {
+  "pt_BR": "Trocar Configuração do Compartimento",
+  "en_US": "Change Bay Configuration"
+ },
+ "Change Bay Opening": {
+  "pt_BR": "Trocar Vão do Compartimento",
+  "en_US": "Change Bay Opening"
+ },
+ "Change Configuration": {
+  "pt_BR": "Trocar Configuração",
+  "en_US": "Change Configuration"
+ },
+ "Change Finished End Type": {
+  "pt_BR": "Trocar Tipo de Acabamento da Lateral",
+  "en_US": "Change Finished End Type"
+ },
+ "Change Interior": {
+  "pt_BR": "Trocar Interior",
+  "en_US": "Change Interior"
+ },
+ "Change Interior Type": {
+  "pt_BR": "Trocar Tipo de Interior",
+  "en_US": "Change Interior Type"
+ },
+ "Change Opening Type": {
+  "pt_BR": "Trocar Tipo de Vão",
+  "en_US": "Change Opening Type"
+ },
+ "Change all interior surfaces of the cabinet to use the finish material": {
+  "pt_BR": "Troca todas as superfícies internas do módulo pelo material de acabamento",
+  "en_US": "Change all interior surfaces of the cabinet to use the finish material"
+ },
+ "Change the interior configuration": {
+  "pt_BR": "Troca a configuração do interior",
+  "en_US": "Change the interior configuration"
+ },
+ "Change the type of opening in this bay": {
+  "pt_BR": "Troca o tipo de vão deste compartimento",
+  "en_US": "Change the type of opening in this bay"
+ },
+ "Change this opening to a different type": {
+  "pt_BR": "Troca este vão por outro tipo",
+  "en_US": "Change this opening to a different type"
+ },
+ "Check this make all drawer stack heights equal. Otherwise the Top Drawer Height will be set.": {
+  "pt_BR": "Marque para deixar todas as gavetas com a mesma altura. Senão vale a Altura da Gaveta Superior.",
+  "en_US": "Check this make all drawer stack heights equal. Otherwise the Top Drawer Height will be set."
+ },
+ "Check this to center pulls on drawer fronts. Otherwise vertical location will be used.": {
+  "pt_BR": "Marque para centralizar os puxadores nas gavetas. Senão vale a posição vertical.",
+  "en_US": "Check this to center pulls on drawer fronts. Otherwise vertical location will be used."
+ },
+ "Cherry": {
+  "pt_BR": "Cerejeira",
+  "en_US": "Cherry"
+ },
+ "Cherry wood": {
+  "pt_BR": "Madeira de cerejeira",
+  "en_US": "Cherry wood"
+ },
+ "Chrome": {
+  "pt_BR": "Cromado",
+  "en_US": "Chrome"
+ },
+ "Clean Up Mesh": {
+  "pt_BR": "Limpar Malha",
+  "en_US": "Clean Up Mesh"
+ },
+ "Cleaned: {} → {} faces, {} → {} verts": {
+  "pt_BR": "Limpo: {} → {} faces, {} → {} vértices",
+  "en_US": "Cleaned: {} → {} faces, {} → {} verts"
+ },
+ "Clear Template Preview": {
+  "pt_BR": "Limpar Prévia do Modelo",
+  "en_US": "Clear Template Preview"
+ },
+ "Clear the current template preview": {
+  "pt_BR": "Limpa a prévia do modelo atual",
+  "en_US": "Clear the current template preview"
+ },
+ "Clearance to Hold Top Cabinets from Ceiling": {
+  "pt_BR": "Folga entre os aéreos e o teto",
+  "en_US": "Clearance to Hold Top Cabinets from Ceiling"
+ },
+ "Cleared {} pull(s)": {
+  "pt_BR": "{} puxador(es) removido(s)",
+  "en_US": "Cleared {} pull(s)"
+ },
+ "Click on a wall to place a snap line boundary": {
+  "pt_BR": "Clique numa parede para inserir uma linha de limite",
+  "en_US": "Click on a wall to place a snap line boundary"
+ },
+ "Click on a wall to place snap line | ESC to cancel": {
+  "pt_BR": "Clique numa parede para inserir a linha de encaixe | Esc cancela",
+  "en_US": "Click on a wall to place snap line | ESC to cancel"
+ },
+ "Click on cabinets to assign the active cabinet style. Right-click or ESC to finish": {
+  "pt_BR": "Clique nos módulos para aplicar o estilo ativo. Botão direito ou Esc conclui",
+  "en_US": "Click on cabinets to assign the active cabinet style. Right-click or ESC to finish"
+ },
+ "Click on door or drawer fronts to assign the active door style. Right-click or ESC to finish": {
+  "pt_BR": "Clique em portas ou frentes para aplicar o estilo ativo. Botão direito ou Esc conclui",
+  "en_US": "Click on door or drawer fronts to assign the active door style. Right-click or ESC to finish"
+ },
+ "Click to place cabinet group | R: rotate 90° | Right-click/Esc: cancel": {
+  "pt_BR": "Clique para inserir o grupo de módulos | R: girar 90° | Botão direito/Esc: cancelar",
+  "en_US": "Click to place cabinet group | R: rotate 90° | Right-click/Esc: cancel"
+ },
+ "Color 1": {
+  "pt_BR": "Cor 1",
+  "en_US": "Color 1"
+ },
+ "Color 2": {
+  "pt_BR": "Cor 2",
+  "en_US": "Color 2"
+ },
+ "Color Name": {
+  "pt_BR": "Nome da Cor",
+  "en_US": "Color Name"
+ },
+ "Color Type": {
+  "pt_BR": "Tipo de Cor",
+  "en_US": "Color Type"
+ },
+ "Color name cannot be empty": {
+  "pt_BR": "O nome da cor não pode ficar vazio",
+  "en_US": "Color name cannot be empty"
+ },
+ "Construction": {
+  "pt_BR": "Construção",
+  "en_US": "Construction"
+ },
+ "Construction:": {
+  "pt_BR": "Construção:",
+  "en_US": "Construction:"
+ },
+ "Convert to Door Panel": {
+  "pt_BR": "Converter em Painel de Porta",
+  "en_US": "Convert to Door Panel"
+ },
+ "Convert triangles to quads and dissolve coplanar faces to simplify mesh topology": {
+  "pt_BR": "Converte triângulos em quadriláteros e dissolve faces coplanares para simplificar a malha",
+  "en_US": "Convert triangles to quads and dissolve coplanar faces to simplify mesh topology"
+ },
+ "Converted to door panel": {
+  "pt_BR": "Convertido em painel de porta",
+  "en_US": "Converted to door panel"
+ },
+ "Copper": {
+  "pt_BR": "Cobre",
+  "en_US": "Copper"
+ },
+ "Corner Cabinet Sizes": {
+  "pt_BR": "Medidas dos Módulos de Canto",
+  "en_US": "Corner Cabinet Sizes"
+ },
+ "Corner Cabinets": {
+  "pt_BR": "Módulos de Canto",
+  "en_US": "Corner Cabinets"
+ },
+ "Could not create face: {}": {
+  "pt_BR": "Não foi possível criar a face: {}",
+  "en_US": "Could not create face: {}"
+ },
+ "Could not create finish material": {
+  "pt_BR": "Não foi possível criar o material de acabamento",
+  "en_US": "Could not create finish material"
+ },
+ "Could not find any bays in selection": {
+  "pt_BR": "Nenhum compartimento na seleção",
+  "en_US": "Could not find any bays in selection"
+ },
+ "Could not find bay or opening": {
+  "pt_BR": "Compartimento ou vão não encontrado",
+  "en_US": "Could not find bay or opening"
+ },
+ "Could not find cabinet": {
+  "pt_BR": "Módulo não encontrado",
+  "en_US": "Could not find cabinet"
+ },
+ "Could not find interior": {
+  "pt_BR": "Interior não encontrado",
+  "en_US": "Could not find interior"
+ },
+ "Could not find objects": {
+  "pt_BR": "Objetos não encontrados",
+  "en_US": "Could not find objects"
+ },
+ "Could not find opening": {
+  "pt_BR": "Vão não encontrado",
+  "en_US": "Could not find opening"
+ },
+ "Could not find parent opening": {
+  "pt_BR": "Vão pai não encontrado",
+  "en_US": "Could not find parent opening"
+ },
+ "Could not find splitter": {
+  "pt_BR": "Divisor não encontrado",
+  "en_US": "Could not find splitter"
+ },
+ "Could not read front dimensions": {
+  "pt_BR": "Não foi possível ler as medidas da frente",
+  "en_US": "Could not read front dimensions"
+ },
+ "Countertop Back Overhang": {
+  "pt_BR": "Avanço Traseiro do Tampo",
+  "en_US": "Countertop Back Overhang"
+ },
+ "Countertop Front Overhang": {
+  "pt_BR": "Avanço Frontal do Tampo",
+  "en_US": "Countertop Front Overhang"
+ },
+ "Countertop Side Overhang": {
+  "pt_BR": "Avanço Lateral do Tampo",
+  "en_US": "Countertop Side Overhang"
+ },
+ "Countertops": {
+  "pt_BR": "Tampos",
+  "en_US": "Countertops"
+ },
+ "Create Cabinet Group": {
+  "pt_BR": "Criar Grupo de Módulos",
+  "en_US": "Create Cabinet Group"
+ },
+ "Create Crown Detail": {
+  "pt_BR": "Criar Detalhe de Moldura",
+  "en_US": "Create Crown Detail"
+ },
+ "Create Thumbnail": {
+  "pt_BR": "Criar Miniatura",
+  "en_US": "Create Thumbnail"
+ },
+ "Create Toe Kick Detail": {
+  "pt_BR": "Criar Detalhe de Rodapé",
+  "en_US": "Create Toe Kick Detail"
+ },
+ "Create Upper Bottom Detail": {
+  "pt_BR": "Criar Detalhe da Base do Aéreo",
+  "en_US": "Create Upper Bottom Detail"
+ },
+ "Create a copy of the selected cabinet style": {
+  "pt_BR": "Cria uma cópia do estilo de módulo selecionado",
+  "en_US": "Create a copy of the selected cabinet style"
+ },
+ "Create a copy of the selected door style": {
+  "pt_BR": "Cria uma cópia do estilo de porta selecionado",
+  "en_US": "Create a copy of the selected door style"
+ },
+ "Create a crown detail to define crown molding profiles": {
+  "pt_BR": "Crie um detalhe de moldura para definir os perfis",
+  "en_US": "Create a crown detail to define crown molding profiles"
+ },
+ "Create a new crown molding detail with a 2D profile scene": {
+  "pt_BR": "Cria um novo detalhe de moldura superior com uma cena de perfil 2D",
+  "en_US": "Create a new crown molding detail with a 2D profile scene"
+ },
+ "Create a new custom color and save it to your user library": {
+  "pt_BR": "Cria uma cor personalizada e salva na sua biblioteca",
+  "en_US": "Create a new custom color and save it to your user library"
+ },
+ "Create a new toe kick detail with a 2D profile scene": {
+  "pt_BR": "Cria um novo detalhe de rodapé com uma cena de perfil 2D",
+  "en_US": "Create a new toe kick detail with a 2D profile scene"
+ },
+ "Create a new upper cabinet bottom detail with a 2D profile scene": {
+  "pt_BR": "Cria um novo detalhe da base do aéreo com uma cena de perfil 2D",
+  "en_US": "Create a new upper cabinet bottom detail with a 2D profile scene"
+ },
+ "Create a toe kick detail to define toe kick profiles": {
+  "pt_BR": "Crie um detalhe de rodapé para definir os perfis",
+  "en_US": "Create a toe kick detail to define toe kick profiles"
+ },
+ "Create an upper bottom detail to define profiles": {
+  "pt_BR": "Crie um detalhe da base do aéreo para definir os perfis",
+  "en_US": "Create an upper bottom detail to define profiles"
+ },
+ "Create crown molding extrusions on selected cabinets using the active crown detail": {
+  "pt_BR": "Cria molduras superiores nos módulos selecionados com o detalhe de moldura ativo",
+  "en_US": "Create crown molding extrusions on selected cabinets using the active crown detail"
+ },
+ "Create crown molding on every upper and tall cabinet in this room using the active crown detail, wrapping runs and corners automatically": {
+  "pt_BR": "Cria moldura superior em todos os aéreos e paneleiros do ambiente com o detalhe ativo, contornando trechos e cantos sozinha",
+  "en_US": "Create crown molding on every upper and tall cabinet in this room using the active crown detail, wrapping runs and corners automatically"
+ },
+ "Create custom horizontal interior divisions with adjustable sizes": {
+  "pt_BR": "Cria divisões internas horizontais com medidas ajustáveis",
+  "en_US": "Create custom horizontal interior divisions with adjustable sizes"
+ },
+ "Create custom horizontal openings with adjustable sizes": {
+  "pt_BR": "Cria vãos horizontais com medidas ajustáveis",
+  "en_US": "Create custom horizontal openings with adjustable sizes"
+ },
+ "Create custom vertical interior divisions with adjustable sizes": {
+  "pt_BR": "Cria divisões internas verticais com medidas ajustáveis",
+  "en_US": "Create custom vertical interior divisions with adjustable sizes"
+ },
+ "Create custom vertical openings with adjustable sizes": {
+  "pt_BR": "Cria vãos verticais com medidas ajustáveis",
+  "en_US": "Create custom vertical openings with adjustable sizes"
+ },
+ "Create toe kick molding extrusions on selected base and tall cabinets using the active toe kick detail": {
+  "pt_BR": "Cria rodapés nos balcões e paneleiros selecionados com o detalhe de rodapé ativo",
+  "en_US": "Create toe kick molding extrusions on selected base and tall cabinets using the active toe kick detail"
+ },
+ "Create upper bottom molding extrusions on selected upper cabinets using the active upper bottom detail": {
+  "pt_BR": "Cria a moldura da base nos aéreos selecionados com o detalhe ativo",
+  "en_US": "Create upper bottom molding extrusions on selected upper cabinets using the active upper bottom detail"
+ },
+ "Created crown detail: {}": {
+  "pt_BR": "Detalhe de moldura criado: {}",
+  "en_US": "Created crown detail: {}"
+ },
+ "Created crown molding on {} cabinet(s) in {} group(s)": {
+  "pt_BR": "Moldura superior criada em {} módulo(s) em {} grupo(s)",
+  "en_US": "Created crown molding on {} cabinet(s) in {} group(s)"
+ },
+ "Created toe kick detail: {}": {
+  "pt_BR": "Detalhe de rodapé criado: {}",
+  "en_US": "Created toe kick detail: {}"
+ },
+ "Created toe kick molding on {} cabinet(s) in {} group(s)": {
+  "pt_BR": "Rodapé criado em {} módulo(s) em {} grupo(s)",
+  "en_US": "Created toe kick molding on {} cabinet(s) in {} group(s)"
+ },
+ "Created upper bottom detail: {}": {
+  "pt_BR": "Detalhe da base do aéreo criado: {}",
+  "en_US": "Created upper bottom detail: {}"
+ },
+ "Created upper bottom molding on {} cabinet(s) in {} group(s)": {
+  "pt_BR": "Moldura da base criada em {} módulo(s) em {} grupo(s)",
+  "en_US": "Created upper bottom molding on {} cabinet(s) in {} group(s)"
+ },
+ "Created {} cabinet(s)": {
+  "pt_BR": "{} módulo(s) criado(s)",
+  "en_US": "Created {} cabinet(s)"
+ },
+ "Created {} countertop(s)": {
+  "pt_BR": "{} tampo(s) criado(s)",
+  "en_US": "Created {} countertop(s)"
+ },
+ "Crown Detail Library": {
+  "pt_BR": "Biblioteca de Detalhes de Moldura",
+  "en_US": "Crown Detail Library"
+ },
+ "Crown Details": {
+  "pt_BR": "Detalhes de Moldura",
+  "en_US": "Crown Details"
+ },
+ "Crown detail scene not found": {
+  "pt_BR": "Cena do detalhe de moldura não encontrada",
+  "en_US": "Crown detail scene not found"
+ },
+ "Currently selected elevation template": {
+  "pt_BR": "Modelo de elevação escolhido",
+  "en_US": "Currently selected elevation template"
+ },
+ "Custom Dimensions": {
+  "pt_BR": "Medidas Personalizadas",
+  "en_US": "Custom Dimensions"
+ },
+ "Custom Edge Material": {
+  "pt_BR": "Material de Borda Personalizado",
+  "en_US": "Custom Edge Material"
+ },
+ "Custom Exterior Material": {
+  "pt_BR": "Material Externo Personalizado",
+  "en_US": "Custom Exterior Material"
+ },
+ "Custom Horizontal Interior Division": {
+  "pt_BR": "Divisão Interna Horizontal Personalizada",
+  "en_US": "Custom Horizontal Interior Division"
+ },
+ "Custom Horizontal Openings": {
+  "pt_BR": "Vãos Horizontais Personalizados",
+  "en_US": "Custom Horizontal Openings"
+ },
+ "Custom Horizontal...": {
+  "pt_BR": "Horizontal Personalizado...",
+  "en_US": "Custom Horizontal..."
+ },
+ "Custom Interior Material": {
+  "pt_BR": "Material Interno Personalizado",
+  "en_US": "Custom Interior Material"
+ },
+ "Custom Material": {
+  "pt_BR": "Material Personalizado",
+  "en_US": "Custom Material"
+ },
+ "Custom Procedural": {
+  "pt_BR": "Procedural Personalizado",
+  "en_US": "Custom Procedural"
+ },
+ "Custom Vertical Interior Division": {
+  "pt_BR": "Divisão Interna Vertical Personalizada",
+  "en_US": "Custom Vertical Interior Division"
+ },
+ "Custom Vertical Openings": {
+  "pt_BR": "Vãos Verticais Personalizados",
+  "en_US": "Custom Vertical Openings"
+ },
+ "Custom Vertical...": {
+  "pt_BR": "Vertical Personalizado...",
+  "en_US": "Custom Vertical..."
+ },
+ "Custom: {}": {
+  "pt_BR": "Personalizada: {}",
+  "en_US": "Custom: {}"
+ },
+ "Cut Countertop": {
+  "pt_BR": "Recortar Tampo",
+  "en_US": "Cut Countertop"
+ },
+ "Cut Hole (Select 2)": {
+  "pt_BR": "Recortar (Selecione 2)",
+  "en_US": "Cut Hole (Select 2)"
+ },
+ "Decorative panel with no hardware": {
+  "pt_BR": "Painel decorativo sem ferragem",
+  "en_US": "Decorative panel with no hardware"
+ },
+ "Default Cabinet Width": {
+  "pt_BR": "Largura Padrão do Módulo",
+  "en_US": "Default Cabinet Width"
+ },
+ "Default Carcass Part Thickness": {
+  "pt_BR": "Espessura Padrão da Caixa",
+  "en_US": "Default Carcass Part Thickness"
+ },
+ "Default Dishwasher Width": {
+  "pt_BR": "Largura Padrão da Lava-louças",
+  "en_US": "Default Dishwasher Width"
+ },
+ "Default Leg Leveler Inset": {
+  "pt_BR": "Recuo Padrão do Pé Nivelador",
+  "en_US": "Default Leg Leveler Inset"
+ },
+ "Default Refrigerator cabinet width": {
+  "pt_BR": "Largura padrão do módulo da geladeira",
+  "en_US": "Default Refrigerator cabinet width"
+ },
+ "Default Refrigerator height": {
+  "pt_BR": "Altura padrão da geladeira",
+  "en_US": "Default Refrigerator height"
+ },
+ "Default Toe Kick Height": {
+  "pt_BR": "Altura Padrão do Rodapé",
+  "en_US": "Default Toe Kick Height"
+ },
+ "Default Toe Kick Setback": {
+  "pt_BR": "Recuo Padrão do Rodapé",
+  "en_US": "Default Toe Kick Setback"
+ },
+ "Default Top Cabinet Clearance": {
+  "pt_BR": "Folga Padrão dos Aéreos ao Teto",
+  "en_US": "Default Top Cabinet Clearance"
+ },
+ "Default Wall Cabinet Location": {
+  "pt_BR": "Altura Padrão dos Aéreos",
+  "en_US": "Default Wall Cabinet Location"
+ },
+ "Default depth for base cabinets": {
+  "pt_BR": "Profundidade padrão dos balcões",
+  "en_US": "Default depth for base cabinets"
+ },
+ "Default depth for tall cabinets": {
+  "pt_BR": "Profundidade padrão dos paneleiros",
+  "en_US": "Default depth for tall cabinets"
+ },
+ "Default depth for upper cabinets": {
+  "pt_BR": "Profundidade padrão dos aéreos",
+  "en_US": "Default depth for upper cabinets"
+ },
+ "Default height for base cabinets": {
+  "pt_BR": "Altura padrão dos balcões",
+  "en_US": "Default height for base cabinets"
+ },
+ "Default height for tall cabinets": {
+  "pt_BR": "Altura padrão dos paneleiros",
+  "en_US": "Default height for tall cabinets"
+ },
+ "Default height for the bottom opening of the tall split cabinet": {
+  "pt_BR": "Altura padrão do vão inferior do paneleiro dividido",
+  "en_US": "Default height for the bottom opening of the tall split cabinet"
+ },
+ "Default height for the top opening of the upper cabinet stacked": {
+  "pt_BR": "Altura padrão do vão superior do aéreo sobreposto",
+  "en_US": "Default height for the top opening of the upper cabinet stacked"
+ },
+ "Default height for upper cabinets": {
+  "pt_BR": "Altura padrão dos aéreos",
+  "en_US": "Default height for upper cabinets"
+ },
+ "Default top drawer front height.": {
+  "pt_BR": "Altura padrão da frente da gaveta superior.",
+  "en_US": "Default top drawer front height."
+ },
+ "Default width and depth for the inside base corner cabinets": {
+  "pt_BR": "Largura e profundidade padrão dos balcões de canto interno",
+  "en_US": "Default width and depth for the inside base corner cabinets"
+ },
+ "Default width and depth for the inside tall corner cabinets": {
+  "pt_BR": "Largura e profundidade padrão dos paneleiros de canto interno",
+  "en_US": "Default width and depth for the inside tall corner cabinets"
+ },
+ "Default width and depth for the inside upper corner cabinets": {
+  "pt_BR": "Largura e profundidade padrão dos aéreos de canto interno",
+  "en_US": "Default width and depth for the inside upper corner cabinets"
+ },
+ "Default width for base blind corner cabinets": {
+  "pt_BR": "Largura padrão dos balcões de canto cego",
+  "en_US": "Default width for base blind corner cabinets"
+ },
+ "Default width for cabinets": {
+  "pt_BR": "Largura padrão dos módulos",
+  "en_US": "Default width for cabinets"
+ },
+ "Default width for tall blind corner cabinets": {
+  "pt_BR": "Largura padrão dos paneleiros de canto cego",
+  "en_US": "Default width for tall blind corner cabinets"
+ },
+ "Default width for upper blind corner cabinets": {
+  "pt_BR": "Largura padrão dos aéreos de canto cego",
+  "en_US": "Default width for upper blind corner cabinets"
+ },
+ "Delete Appliance": {
+  "pt_BR": "Apagar Eletro",
+  "en_US": "Delete Appliance"
+ },
+ "Delete Cabinet": {
+  "pt_BR": "Apagar Módulo",
+  "en_US": "Delete Cabinet"
+ },
+ "Delete Crown Detail": {
+  "pt_BR": "Apagar Detalhe de Moldura",
+  "en_US": "Delete Crown Detail"
+ },
+ "Delete Custom Color": {
+  "pt_BR": "Apagar Cor Personalizada",
+  "en_US": "Delete Custom Color"
+ },
+ "Delete Floating Faces": {
+  "pt_BR": "Apagar Faces Soltas",
+  "en_US": "Delete Floating Faces"
+ },
+ "Delete Floating Shelf": {
+  "pt_BR": "Apagar Prateleira Flutuante",
+  "en_US": "Delete Floating Shelf"
+ },
+ "Delete Front": {
+  "pt_BR": "Apagar Frente",
+  "en_US": "Delete Front"
+ },
+ "Delete Half Wall": {
+  "pt_BR": "Apagar Meia-parede",
+  "en_US": "Delete Half Wall"
+ },
+ "Delete Interior Part": {
+  "pt_BR": "Apagar Peça Interna",
+  "en_US": "Delete Interior Part"
+ },
+ "Delete Leg": {
+  "pt_BR": "Apagar Pé",
+  "en_US": "Delete Leg"
+ },
+ "Delete Library Item": {
+  "pt_BR": "Apagar Item da Biblioteca",
+  "en_US": "Delete Library Item"
+ },
+ "Delete Product": {
+  "pt_BR": "Apagar Produto",
+  "en_US": "Delete Product"
+ },
+ "Delete Snap Line": {
+  "pt_BR": "Apagar Linha de Encaixe",
+  "en_US": "Delete Snap Line"
+ },
+ "Delete Support Frame": {
+  "pt_BR": "Apagar Estrutura de Apoio",
+  "en_US": "Delete Support Frame"
+ },
+ "Delete Toe Kick Detail": {
+  "pt_BR": "Apagar Detalhe de Rodapé",
+  "en_US": "Delete Toe Kick Detail"
+ },
+ "Delete Upper Bottom Detail": {
+  "pt_BR": "Apagar Detalhe da Base do Aéreo",
+  "en_US": "Delete Upper Bottom Detail"
+ },
+ "Delete Valance": {
+  "pt_BR": "Apagar Sanefa",
+  "en_US": "Delete Valance"
+ },
+ "Delete a cabinet group from the user library": {
+  "pt_BR": "Apaga um grupo de módulos da biblioteca do usuário",
+  "en_US": "Delete a cabinet group from the user library"
+ },
+ "Delete all snap lines from the scene": {
+  "pt_BR": "Apaga todas as linhas de encaixe da cena",
+  "en_US": "Delete all snap lines from the scene"
+ },
+ "Delete selected faces and replace with a single clean face using the outer boundary vertices": {
+  "pt_BR": "Apaga as faces selecionadas e põe uma única face limpa usando os vértices do contorno",
+  "en_US": "Delete selected faces and replace with a single clean face using the outer boundary vertices"
+ },
+ "Delete selected faces that are disconnected from the rest of the mesh (duplicate overlapping geometry)": {
+  "pt_BR": "Apaga as faces selecionadas que estão desligadas do resto da malha (geometria duplicada sobreposta)",
+  "en_US": "Delete selected faces that are disconnected from the rest of the mesh (duplicate overlapping geometry)"
+ },
+ "Delete the selected appliance": {
+  "pt_BR": "Apaga o eletro selecionado",
+  "en_US": "Delete the selected appliance"
+ },
+ "Delete the selected cabinet and all its parts": {
+  "pt_BR": "Apaga o módulo selecionado e todas as peças dele",
+  "en_US": "Delete the selected cabinet and all its parts"
+ },
+ "Delete the selected crown molding detail and its profile scene": {
+  "pt_BR": "Apaga o detalhe de moldura selecionado e a cena de perfil dele",
+  "en_US": "Delete the selected crown molding detail and its profile scene"
+ },
+ "Delete the selected snap line": {
+  "pt_BR": "Apaga a linha de encaixe selecionada",
+  "en_US": "Delete the selected snap line"
+ },
+ "Delete the selected toe kick detail and its profile scene": {
+  "pt_BR": "Apaga o detalhe de rodapé selecionado e a cena de perfil dele",
+  "en_US": "Delete the selected toe kick detail and its profile scene"
+ },
+ "Delete the selected upper bottom detail and its profile scene": {
+  "pt_BR": "Apaga o detalhe da base do aéreo selecionado e a cena de perfil dele",
+  "en_US": "Delete the selected upper bottom detail and its profile scene"
+ },
+ "Delete this custom color from your user library": {
+  "pt_BR": "Apaga esta cor personalizada da sua biblioteca",
+  "en_US": "Delete this custom color from your user library"
+ },
+ "Delete this door or drawer front": {
+  "pt_BR": "Apaga esta porta ou frente",
+  "en_US": "Delete this door or drawer front"
+ },
+ "Delete this interior part": {
+  "pt_BR": "Apaga esta peça interna",
+  "en_US": "Delete this interior part"
+ },
+ "Delete this product": {
+  "pt_BR": "Apaga este produto",
+  "en_US": "Delete this product"
+ },
+ "Deleted crown detail: {}": {
+  "pt_BR": "Detalhe de moldura apagado: {}",
+  "en_US": "Deleted crown detail: {}"
+ },
+ "Deleted custom color: {}": {
+  "pt_BR": "Cor personalizada apagada: {}",
+  "en_US": "Deleted custom color: {}"
+ },
+ "Deleted toe kick detail: {}": {
+  "pt_BR": "Detalhe de rodapé apagado: {}",
+  "en_US": "Deleted toe kick detail: {}"
+ },
+ "Deleted upper bottom detail: {}": {
+  "pt_BR": "Detalhe da base do aéreo apagado: {}",
+  "en_US": "Deleted upper bottom detail: {}"
+ },
+ "Deleted {} faces": {
+  "pt_BR": "{} faces apagadas",
+  "en_US": "Deleted {} faces"
+ },
+ "Depth:": {
+  "pt_BR": "Profundidade:",
+  "en_US": "Depth:"
+ },
+ "Description of this crown molding detail": {
+  "pt_BR": "Descrição deste detalhe de moldura superior",
+  "en_US": "Description of this crown molding detail"
+ },
+ "Description of this toe kick detail": {
+  "pt_BR": "Descrição deste detalhe de rodapé",
+  "en_US": "Description of this toe kick detail"
+ },
+ "Description of this upper bottom detail": {
+  "pt_BR": "Descrição deste detalhe da base do aéreo",
+  "en_US": "Description of this upper bottom detail"
+ },
+ "Diagonal Corner": {
+  "pt_BR": "Canto Diagonal",
+  "en_US": "Diagonal Corner"
+ },
+ "Diagonal Stacked": {
+  "pt_BR": "Diagonal Sobreposto",
+  "en_US": "Diagonal Stacked"
+ },
+ "Diagonal Stacked Corner": {
+  "pt_BR": "Canto Diagonal Sobreposto",
+  "en_US": "Diagonal Stacked Corner"
+ },
+ "Dishwasher Cage": {
+  "pt_BR": "Gaiola Lava-louças",
+  "en_US": "Dishwasher Cage"
+ },
+ "Dishwasher Location": {
+  "pt_BR": "Posição da Lava-louças",
+  "en_US": "Dishwasher Location"
+ },
+ "Dishwasher Rect": {
+  "pt_BR": "Retângulo Lava-louças",
+  "en_US": "Dishwasher Rect"
+ },
+ "Dishwasher Rect Top": {
+  "pt_BR": "Retângulo Superior Lava-louças",
+  "en_US": "Dishwasher Rect Top"
+ },
+ "Dishwasher Width": {
+  "pt_BR": "Largura da Lava-louças",
+  "en_US": "Dishwasher Width"
+ },
+ "Dishwasher Width:": {
+  "pt_BR": "Largura da Lava-louças:",
+  "en_US": "Dishwasher Width:"
+ },
+ "Dishwasher left of sink": {
+  "pt_BR": "Lava-louças à esquerda da cuba",
+  "en_US": "Dishwasher left of sink"
+ },
+ "Dishwasher right of sink": {
+  "pt_BR": "Lava-louças à direita da cuba",
+  "en_US": "Dishwasher right of sink"
+ },
+ "Dishwasher:": {
+  "pt_BR": "Lava-louças:",
+  "en_US": "Dishwasher:"
+ },
+ "Dissolve Angle": {
+  "pt_BR": "Ângulo de Dissolução",
+  "en_US": "Dissolve Angle"
+ },
+ "Dissolve Selected Faces": {
+  "pt_BR": "Dissolver Faces Selecionadas",
+  "en_US": "Dissolve Selected Faces"
+ },
+ "Dissolve interior edges of selected faces to merge coplanar triangles into clean quads/ngons": {
+  "pt_BR": "Dissolve as arestas internas das faces selecionadas para unir triângulos coplanares em quadriláteros/n-gonos",
+  "en_US": "Dissolve interior edges of selected faces to merge coplanar triangles into clean quads/ngons"
+ },
+ "Dissolved: {} → {} faces": {
+  "pt_BR": "Dissolvido: {} → {} faces",
+  "en_US": "Dissolved: {} → {} faces"
+ },
+ "Distance from Bottom of Tall Door to Center of Pull": {
+  "pt_BR": "Distância da base da porta do paneleiro ao centro do puxador",
+  "en_US": "Distance from Bottom of Tall Door to Center of Pull"
+ },
+ "Distance from Bottom of Upper Door to Bottom of Pull": {
+  "pt_BR": "Distância da base da porta do aéreo à base do puxador",
+  "en_US": "Distance from Bottom of Upper Door to Bottom of Pull"
+ },
+ "Distance from Edge of Door to center of pull": {
+  "pt_BR": "Distância da borda da porta ao centro do puxador",
+  "en_US": "Distance from Edge of Door to center of pull"
+ },
+ "Distance from Floor to Bottom of Wall Cabinet": {
+  "pt_BR": "Distância do piso à base do aéreo",
+  "en_US": "Distance from Floor to Bottom of Wall Cabinet"
+ },
+ "Distance from Top of Base Door to Top of Pull": {
+  "pt_BR": "Distância do topo da porta do balcão ao topo do puxador",
+  "en_US": "Distance from Top of Base Door to Top of Pull"
+ },
+ "Distance from Top of Drawer Front to Center of Pull": {
+  "pt_BR": "Distância do topo da frente da gaveta ao centro do puxador",
+  "en_US": "Distance from Top of Drawer Front to Center of Pull"
+ },
+ "Distance from bottom of door to mid rail (if not centered)": {
+  "pt_BR": "Distância da base da porta à travessa central (se não centralizada)",
+  "en_US": "Distance from bottom of door to mid rail (if not centered)"
+ },
+ "Distance from edge of cabinet to leg leveler": {
+  "pt_BR": "Distância da borda do módulo ao pé nivelador",
+  "en_US": "Distance from edge of cabinet to leg leveler"
+ },
+ "Distribution": {
+  "pt_BR": "Distribuição",
+  "en_US": "Distribution"
+ },
+ "Don't add pulls to cabinets": {
+  "pt_BR": "Não põe puxadores nos módulos",
+  "en_US": "Don't add pulls to cabinets"
+ },
+ "Door": {
+  "pt_BR": "Porta",
+  "en_US": "Door"
+ },
+ "Door Drawer": {
+  "pt_BR": "Porta e Gaveta",
+  "en_US": "Door Drawer"
+ },
+ "Door Drw": {
+  "pt_BR": "Porta e Gaveta",
+  "en_US": "Door Drw"
+ },
+ "Door Fronts": {
+  "pt_BR": "Frentes de Porta",
+  "en_US": "Door Fronts"
+ },
+ "Door Overlay": {
+  "pt_BR": "Sobreposição da Porta",
+  "en_US": "Door Overlay"
+ },
+ "Door Pull": {
+  "pt_BR": "Puxador de Porta",
+  "en_US": "Door Pull"
+ },
+ "Door Pull:": {
+  "pt_BR": "Puxador de Porta:",
+  "en_US": "Door Pull:"
+ },
+ "Door Pulls": {
+  "pt_BR": "Puxadores de Porta",
+  "en_US": "Door Pulls"
+ },
+ "Door Style Dimensions (Read Only):": {
+  "pt_BR": "Medidas do Estilo da Porta (Só Leitura):",
+  "en_US": "Door Style Dimensions (Read Only):"
+ },
+ "Door Style: '{}' | LMB: Assign style | RMB/ESC: Finish | Assigned: {}": {
+  "pt_BR": "Estilo de Porta: '{}' | Botão esquerdo: aplicar | Botão direito/Esc: concluir | Aplicados: {}",
+  "en_US": "Door Style: '{}' | LMB: Assign style | RMB/ESC: Finish | Assigned: {}"
+ },
+ "Door Styles": {
+  "pt_BR": "Estilos de Porta",
+  "en_US": "Door Styles"
+ },
+ "Door Swing": {
+  "pt_BR": "Abertura da Porta",
+  "en_US": "Door Swing"
+ },
+ "Door Swing:": {
+  "pt_BR": "Abertura da Porta:",
+  "en_US": "Door Swing:"
+ },
+ "Door Type": {
+  "pt_BR": "Tipo de Porta",
+  "en_US": "Door Type"
+ },
+ "Door and Drawer Front Styles": {
+  "pt_BR": "Estilos de Porta e Frente",
+  "en_US": "Door and Drawer Front Styles"
+ },
+ "Door construction type": {
+  "pt_BR": "Tipo de construção da porta",
+  "en_US": "Door construction type"
+ },
+ "Door hinged at top, swings up": {
+  "pt_BR": "Porta com dobradiça em cima, abre para cima",
+  "en_US": "Door hinged at top, swings up"
+ },
+ "Door overlay style": {
+  "pt_BR": "Tipo de sobreposição da porta",
+  "en_US": "Door overlay style"
+ },
+ "Door/Drawer Front Commands": {
+  "pt_BR": "Comandos da Porta/Frente",
+  "en_US": "Door/Drawer Front Commands"
+ },
+ "Doors": {
+  "pt_BR": "Portas",
+  "en_US": "Doors"
+ },
+ "Doors above one drawer": {
+  "pt_BR": "Portas sobre uma gaveta",
+  "en_US": "Doors above one drawer"
+ },
+ "Doors above pullout": {
+  "pt_BR": "Portas sobre gaveteiro",
+  "en_US": "Doors above pullout"
+ },
+ "Doors above tall pullout": {
+  "pt_BR": "Portas sobre gaveteiro alto",
+  "en_US": "Doors above tall pullout"
+ },
+ "Doors above three drawers": {
+  "pt_BR": "Portas sobre três gavetas",
+  "en_US": "Doors above three drawers"
+ },
+ "Doors above two drawers": {
+  "pt_BR": "Portas sobre duas gavetas",
+  "en_US": "Doors above two drawers"
+ },
+ "Doors with 1 Drawer": {
+  "pt_BR": "Portas com 1 Gaveta",
+  "en_US": "Doors with 1 Drawer"
+ },
+ "Doors with 2 Drawers": {
+  "pt_BR": "Portas com 2 Gavetas",
+  "en_US": "Doors with 2 Drawers"
+ },
+ "Doors with 3 Drawers": {
+  "pt_BR": "Portas com 3 Gavetas",
+  "en_US": "Doors with 3 Drawers"
+ },
+ "Doors with Pullout": {
+  "pt_BR": "Portas com Gaveteiro",
+  "en_US": "Doors with Pullout"
+ },
+ "Doors with Tall Pullout": {
+  "pt_BR": "Portas com Gaveteiro Alto",
+  "en_US": "Doors with Tall Pullout"
+ },
+ "Double 3 Stacked Door": {
+  "pt_BR": "3 Portas Duplas Sobrepostas",
+  "en_US": "Double 3 Stacked Door"
+ },
+ "Double Appliance": {
+  "pt_BR": "Eletro Duplo",
+  "en_US": "Double Appliance"
+ },
+ "Double Doors": {
+  "pt_BR": "Portas Duplas",
+  "en_US": "Double Doors"
+ },
+ "Double Stacked Door": {
+  "pt_BR": "Porta Dupla Sobreposta",
+  "en_US": "Double Stacked Door"
+ },
+ "Double doors": {
+  "pt_BR": "Portas duplas",
+  "en_US": "Double doors"
+ },
+ "Double swing doors": {
+  "pt_BR": "Portas duplas",
+  "en_US": "Double swing doors"
+ },
+ "Draw Cabinet": {
+  "pt_BR": "Desenhar Módulo",
+  "en_US": "Draw Cabinet"
+ },
+ "Draw Cabinets": {
+  "pt_BR": "Desenhar Módulos",
+  "en_US": "Draw Cabinets"
+ },
+ "Draw Elevation Template": {
+  "pt_BR": "Desenhar Modelo de Elevação",
+  "en_US": "Draw Elevation Template"
+ },
+ "Draw the cabinets from the current template": {
+  "pt_BR": "Desenha os módulos do modelo atual",
+  "en_US": "Draw the cabinets from the current template"
+ },
+ "Drawer": {
+  "pt_BR": "Gaveta",
+  "en_US": "Drawer"
+ },
+ "Drawer Boxes": {
+  "pt_BR": "Caixas de Gaveta",
+  "en_US": "Drawer Boxes"
+ },
+ "Drawer Fronts": {
+  "pt_BR": "Frentes de Gaveta",
+  "en_US": "Drawer Fronts"
+ },
+ "Drawer Pull": {
+  "pt_BR": "Puxador de Gaveta",
+  "en_US": "Drawer Pull"
+ },
+ "Drawer Pull Height": {
+  "pt_BR": "Altura do Puxador da Gaveta",
+  "en_US": "Drawer Pull Height"
+ },
+ "Drawer Pull:": {
+  "pt_BR": "Puxador de Gaveta:",
+  "en_US": "Drawer Pull:"
+ },
+ "Drawer Pulls": {
+  "pt_BR": "Puxadores de Gaveta",
+  "en_US": "Drawer Pulls"
+ },
+ "Drawers:": {
+  "pt_BR": "Gavetas:",
+  "en_US": "Drawers:"
+ },
+ "Drop the bottom of an upper cabinet to the countertop surface": {
+  "pt_BR": "Desce a base de um aéreo até a superfície do tampo",
+  "en_US": "Drop the bottom of an upper cabinet to the countertop surface"
+ },
+ "Drop to Countertop": {
+  "pt_BR": "Descer até o Tampo",
+  "en_US": "Drop to Countertop"
+ },
+ "Duplicate Cabinet Style": {
+  "pt_BR": "Duplicar Estilo de Módulo",
+  "en_US": "Duplicate Cabinet Style"
+ },
+ "Duplicate Door Style": {
+  "pt_BR": "Duplicar Estilo de Porta",
+  "en_US": "Duplicate Door Style"
+ },
+ "Duplicated cabinet style: {}": {
+  "pt_BR": "Estilo de módulo duplicado: {}",
+  "en_US": "Duplicated cabinet style: {}"
+ },
+ "Duplicated door style: {}": {
+  "pt_BR": "Estilo de porta duplicado: {}",
+  "en_US": "Duplicated door style: {}"
+ },
+ "Eased": {
+  "pt_BR": "Suavizado",
+  "en_US": "Eased"
+ },
+ "Edge Banding": {
+  "pt_BR": "Fita de Borda",
+  "en_US": "Edge Banding"
+ },
+ "Edge Distance": {
+  "pt_BR": "Distância da Borda",
+  "en_US": "Edge Distance"
+ },
+ "Edge Profile": {
+  "pt_BR": "Perfil da Borda",
+  "en_US": "Edge Profile"
+ },
+ "Edge Profile:": {
+  "pt_BR": "Perfil da Borda:",
+  "en_US": "Edge Profile:"
+ },
+ "Edge banding type": {
+  "pt_BR": "Tipo de fita de borda",
+  "en_US": "Edge banding type"
+ },
+ "Edge profile for slab doors": {
+  "pt_BR": "Perfil da borda das portas lisas",
+  "en_US": "Edge profile for slab doors"
+ },
+ "Edit Crown Detail": {
+  "pt_BR": "Editar Detalhe de Moldura",
+  "en_US": "Edit Crown Detail"
+ },
+ "Edit Finish Color": {
+  "pt_BR": "Editar Cor de Acabamento",
+  "en_US": "Edit Finish Color"
+ },
+ "Edit Opening Sizes": {
+  "pt_BR": "Editar Medidas dos Vãos",
+  "en_US": "Edit Opening Sizes"
+ },
+ "Edit Toe Kick Detail": {
+  "pt_BR": "Editar Detalhe de Rodapé",
+  "en_US": "Edit Toe Kick Detail"
+ },
+ "Edit Upper Bottom Detail": {
+  "pt_BR": "Editar Detalhe da Base do Aéreo",
+  "en_US": "Edit Upper Bottom Detail"
+ },
+ "Edit appliance properties": {
+  "pt_BR": "Edita as propriedades do eletro",
+  "en_US": "Edit appliance properties"
+ },
+ "Edit applied panel properties": {
+  "pt_BR": "Edita as propriedades do painel aplicado",
+  "en_US": "Edit applied panel properties"
+ },
+ "Edit cabinet properties": {
+  "pt_BR": "Edita as propriedades do módulo",
+  "en_US": "Edit cabinet properties"
+ },
+ "Edit door/drawer front properties": {
+  "pt_BR": "Edita as propriedades da porta/frente",
+  "en_US": "Edit door/drawer front properties"
+ },
+ "Edit interior part properties": {
+  "pt_BR": "Edita as propriedades da peça interna",
+  "en_US": "Edit interior part properties"
+ },
+ "Edit interior properties": {
+  "pt_BR": "Edita as propriedades do interior",
+  "en_US": "Edit interior properties"
+ },
+ "Edit opening properties": {
+  "pt_BR": "Edita as propriedades do vão",
+  "en_US": "Edit opening properties"
+ },
+ "Edit product properties": {
+  "pt_BR": "Edita as propriedades do produto",
+  "en_US": "Edit product properties"
+ },
+ "Edit the color and shader parameters, then save as a new custom color": {
+  "pt_BR": "Edita a cor e os parâmetros do shader e salva como nova cor personalizada",
+  "en_US": "Edit the color and shader parameters, then save as a new custom color"
+ },
+ "Edit the sizes of openings in a vertical or horizontal splitter": {
+  "pt_BR": "Edita as medidas dos vãos de um divisor vertical ou horizontal",
+  "en_US": "Edit the sizes of openings in a vertical or horizontal splitter"
+ },
+ "Editing a built-in color will save as a custom override": {
+  "pt_BR": "Editar uma cor embutida salva uma versão personalizada",
+  "en_US": "Editing a built-in color will save as a custom override"
+ },
+ "Editing crown detail: {}": {
+  "pt_BR": "Editando detalhe de moldura: {}",
+  "en_US": "Editing crown detail: {}"
+ },
+ "Editing toe kick detail: {}": {
+  "pt_BR": "Editando detalhe de rodapé: {}",
+  "en_US": "Editing toe kick detail: {}"
+ },
+ "Editing upper bottom detail: {}": {
+  "pt_BR": "Editando detalhe da base do aéreo: {}",
+  "en_US": "Editing upper bottom detail: {}"
+ },
+ "Elev": {
+  "pt_BR": "Elev.",
+  "en_US": "Elev"
+ },
+ "Elevation": {
+  "pt_BR": "Elevação",
+  "en_US": "Elevation"
+ },
+ "Elevation Templates": {
+  "pt_BR": "Modelos de Elevação",
+  "en_US": "Elevation Templates"
+ },
+ "Empty": {
+  "pt_BR": "Vazio",
+  "en_US": "Empty"
+ },
+ "Empty (No Interior)": {
+  "pt_BR": "Vazio (Sem Interior)",
+  "en_US": "Empty (No Interior)"
+ },
+ "End Caps": {
+  "pt_BR": "Arremates",
+  "en_US": "End Caps"
+ },
+ "End Stud From Edge:": {
+  "pt_BR": "Montante da Ponta à Borda:",
+  "en_US": "End Stud From Edge:"
+ },
+ "Equal Drawer Stack Heights": {
+  "pt_BR": "Gavetas com Alturas Iguais",
+  "en_US": "Equal Drawer Stack Heights"
+ },
+ "Equal Width": {
+  "pt_BR": "Largura Igual",
+  "en_US": "Equal Width"
+ },
+ "Espessura atualizada em {} objeto(s)": {
+  "pt_BR": "Espessura atualizada em {} objeto(s)",
+  "en_US": "Thickness updated on {} object(s)"
+ },
+ "Extend panel to floor (below toe kick)": {
+  "pt_BR": "Estende o painel até o piso (abaixo do rodapé)",
+  "en_US": "Extend panel to floor (below toe kick)"
+ },
+ "Face Angle": {
+  "pt_BR": "Ângulo das Faces",
+  "en_US": "Face Angle"
+ },
+ "Failed to save color": {
+  "pt_BR": "Falha ao salvar a cor",
+  "en_US": "Failed to save color"
+ },
+ "Failed to save custom color": {
+  "pt_BR": "Falha ao salvar a cor personalizada",
+  "en_US": "Failed to save custom color"
+ },
+ "False Front": {
+  "pt_BR": "Frente Falsa",
+  "en_US": "False Front"
+ },
+ "File already exists: {}. Overwriting.": {
+  "pt_BR": "O arquivo já existe: {}. Gravando por cima.",
+  "en_US": "File already exists: {}. Overwriting."
+ },
+ "File not found: {}": {
+  "pt_BR": "Arquivo não encontrado: {}",
+  "en_US": "File not found: {}"
+ },
+ "Fill Available Space": {
+  "pt_BR": "Preencher o Espaço Livre",
+  "en_US": "Fill Available Space"
+ },
+ "Fill Cabinets": {
+  "pt_BR": "Preencher com Módulos",
+  "en_US": "Fill Cabinets"
+ },
+ "Fill Gap": {
+  "pt_BR": "Preencher Vão",
+  "en_US": "Fill Gap"
+ },
+ "Finish Back:": {
+  "pt_BR": "Acabamento Traseiro:",
+  "en_US": "Finish Back:"
+ },
+ "Finish Front:": {
+  "pt_BR": "Acabamento Frontal:",
+  "en_US": "Finish Front:"
+ },
+ "Finish Interior": {
+  "pt_BR": "Acabamento Interno",
+  "en_US": "Finish Interior"
+ },
+ "Finish Left:": {
+  "pt_BR": "Acabamento Esquerdo:",
+  "en_US": "Finish Left:"
+ },
+ "Finish Right:": {
+  "pt_BR": "Acabamento Direito:",
+  "en_US": "Finish Right:"
+ },
+ "Finish Type:": {
+  "pt_BR": "Tipo de Acabamento:",
+  "en_US": "Finish Type:"
+ },
+ "Finish:": {
+  "pt_BR": "Acabamento:",
+  "en_US": "Finish:"
+ },
+ "Finished End Setback:": {
+  "pt_BR": "Recuo da Lateral Acabada:",
+  "en_US": "Finished End Setback:"
+ },
+ "Finished End Type": {
+  "pt_BR": "Tipo de Lateral Acabada",
+  "en_US": "Finished End Type"
+ },
+ "Finished Interior": {
+  "pt_BR": "Interior Acabado",
+  "en_US": "Finished Interior"
+ },
+ "Flip Up Door": {
+  "pt_BR": "Porta Basculante",
+  "en_US": "Flip Up Door"
+ },
+ "Floating": {
+  "pt_BR": "Suspenso",
+  "en_US": "Floating"
+ },
+ "Floating Shelf Commands": {
+  "pt_BR": "Comandos da Prateleira Flutuante",
+  "en_US": "Floating Shelf Commands"
+ },
+ "Floating Shelf Prompts": {
+  "pt_BR": "Opções da Prateleira Flutuante",
+  "en_US": "Floating Shelf Prompts"
+ },
+ "Floor | {} | {} × {} = {} | ↑/↓ qty | Click place | Esc cancel": {
+  "pt_BR": "Piso | {} | {} × {} = {} | ↑/↓ qtd | Clique insere | Esc cancela",
+  "en_US": "Floor | {} | {} × {} = {} | ↑/↓ qty | Click place | Esc cancel"
+ },
+ "Floor | {} × {} = {} | ↑/↓ qty | Click place | Esc cancel": {
+  "pt_BR": "Piso | {} × {} = {} | ↑/↓ qtd | Clique insere | Esc cancela",
+  "en_US": "Floor | {} × {} = {} | ↑/↓ qty | Click place | Esc cancel"
+ },
+ "Flush Bottom:": {
+  "pt_BR": "Base Rente:",
+  "en_US": "Flush Bottom:"
+ },
+ "Four equal drawers": {
+  "pt_BR": "Quatro gavetas iguais",
+  "en_US": "Four equal drawers"
+ },
+ "Frame Dimensions:": {
+  "pt_BR": "Medidas do Quadro:",
+  "en_US": "Frame Dimensions:"
+ },
+ "Frame Sizes": {
+  "pt_BR": "Medidas do Quadro",
+  "en_US": "Frame Sizes"
+ },
+ "Frameless Props": {
+  "pt_BR": "Propriedades do Frameless",
+  "en_US": "Frameless Props"
+ },
+ "Frameless Tabs": {
+  "pt_BR": "Abas do Frameless",
+  "en_US": "Frameless Tabs"
+ },
+ "Fridge Cabinet": {
+  "pt_BR": "Módulo de Geladeira",
+  "en_US": "Fridge Cabinet"
+ },
+ "Front Left": {
+  "pt_BR": "Frente Esquerda",
+  "en_US": "Front Left"
+ },
+ "Front Overhang": {
+  "pt_BR": "Avanço Frontal",
+  "en_US": "Front Overhang"
+ },
+ "Front Prompts": {
+  "pt_BR": "Opções da Frente",
+  "en_US": "Front Prompts"
+ },
+ "Front Right": {
+  "pt_BR": "Frente Direita",
+  "en_US": "Front Right"
+ },
+ "Front too narrow ({:.3f}m) for stile widths ({:.3f}m minimum)": {
+  "pt_BR": "Frente estreita demais ({:.3f} m) para a largura dos montantes (mínimo {:.3f} m)",
+  "en_US": "Front too narrow ({:.3f}m) for stile widths ({:.3f}m minimum)"
+ },
+ "Front too short ({:.3f}m) for rail widths ({:.3f}m minimum)": {
+  "pt_BR": "Frente baixa demais ({:.3f} m) para a largura das travessas (mínimo {:.3f} m)",
+  "en_US": "Front too short ({:.3f}m) for rail widths ({:.3f}m minimum)"
+ },
+ "Full Overlay": {
+  "pt_BR": "Sobreposição Total",
+  "en_US": "Full Overlay"
+ },
+ "Full Top": {
+  "pt_BR": "Tampo Inteiro",
+  "en_US": "Full Top"
+ },
+ "Full height pullout": {
+  "pt_BR": "Gaveteiro de altura total",
+  "en_US": "Full height pullout"
+ },
+ "Full overlay - doors cover frame completely": {
+  "pt_BR": "Sobreposição total - as portas cobrem o quadro inteiro",
+  "en_US": "Full overlay - doors cover frame completely"
+ },
+ "Gap Offset (←)": {
+  "pt_BR": "Afastamento do Vão (←)",
+  "en_US": "Gap Offset (←)"
+ },
+ "Gap Offset (→)": {
+  "pt_BR": "Afastamento do Vão (→)",
+  "en_US": "Gap Offset (→)"
+ },
+ "Gap: {}": {
+  "pt_BR": "Vão: {}",
+  "en_US": "Gap: {}"
+ },
+ "General": {
+  "pt_BR": "Geral",
+  "en_US": "General"
+ },
+ "General Construction": {
+  "pt_BR": "Construção Geral",
+  "en_US": "General Construction"
+ },
+ "Generate a thumbnail image for the library": {
+  "pt_BR": "Gera uma miniatura para a biblioteca",
+  "en_US": "Generate a thumbnail image for the library"
+ },
+ "Glass": {
+  "pt_BR": "Vidro",
+  "en_US": "Glass"
+ },
+ "Glass panel": {
+  "pt_BR": "Almofada de vidro",
+  "en_US": "Glass panel"
+ },
+ "Grain Options": {
+  "pt_BR": "Opções de Veio",
+  "en_US": "Grain Options"
+ },
+ "Group Category": {
+  "pt_BR": "Categoria do Grupo",
+  "en_US": "Group Category"
+ },
+ "Half Overlay": {
+  "pt_BR": "Meia Sobreposição",
+  "en_US": "Half Overlay"
+ },
+ "Half Overlay Bottom": {
+  "pt_BR": "Meia Sobreposição Embaixo",
+  "en_US": "Half Overlay Bottom"
+ },
+ "Half Overlay Left": {
+  "pt_BR": "Meia Sobreposição à Esquerda",
+  "en_US": "Half Overlay Left"
+ },
+ "Half Overlay Right": {
+  "pt_BR": "Meia Sobreposição à Direita",
+  "en_US": "Half Overlay Right"
+ },
+ "Half Overlay Top": {
+  "pt_BR": "Meia Sobreposição em Cima",
+  "en_US": "Half Overlay Top"
+ },
+ "Half Wall Commands": {
+  "pt_BR": "Comandos da Meia-parede",
+  "en_US": "Half Wall Commands"
+ },
+ "Half Wall Prompts": {
+  "pt_BR": "Opções da Meia-parede",
+  "en_US": "Half Wall Prompts"
+ },
+ "Half overlay - partial frame reveal": {
+  "pt_BR": "Meia sobreposição - parte do quadro aparece",
+  "en_US": "Half overlay - partial frame reveal"
+ },
+ "Handle Location:": {
+  "pt_BR": "Posição do Puxador:",
+  "en_US": "Handle Location:"
+ },
+ "Handles": {
+  "pt_BR": "Puxadores",
+  "en_US": "Handles"
+ },
+ "Hickory": {
+  "pt_BR": "Nogueira-pecã",
+  "en_US": "Hickory"
+ },
+ "Hickory wood": {
+  "pt_BR": "Madeira de nogueira-pecã",
+  "en_US": "Hickory wood"
+ },
+ "Hood Height:": {
+  "pt_BR": "Altura da Coifa:",
+  "en_US": "Hood Height:"
+ },
+ "Horizontal Location": {
+  "pt_BR": "Posição Horizontal",
+  "en_US": "Horizontal Location"
+ },
+ "Horizontal Openings:": {
+  "pt_BR": "Vãos Horizontais:",
+  "en_US": "Horizontal Openings:"
+ },
+ "How far panel is inset from frame face": {
+  "pt_BR": "Quanto a almofada fica recuada da face do quadro",
+  "en_US": "How far panel is inset from frame face"
+ },
+ "How square the resulting quads should be (higher = more square)": {
+  "pt_BR": "Quão quadrados devem ficar os quadriláteros (maior = mais quadrado)",
+  "en_US": "How square the resulting quads should be (higher = more square)"
+ },
+ "Include Drawer Boxes": {
+  "pt_BR": "Incluir Caixas de Gaveta",
+  "en_US": "Include Drawer Boxes"
+ },
+ "Include Drawer Boxes in New Cabinets": {
+  "pt_BR": "Incluir Caixas de Gaveta nos Módulos Novos",
+  "en_US": "Include Drawer Boxes in New Cabinets"
+ },
+ "Inset": {
+  "pt_BR": "Embutida",
+  "en_US": "Inset"
+ },
+ "Inset - doors sit inside frame": {
+  "pt_BR": "Embutida - as portas ficam dentro do quadro",
+  "en_US": "Inset - doors sit inside frame"
+ },
+ "Inset Front": {
+  "pt_BR": "Frente Embutida",
+  "en_US": "Inset Front"
+ },
+ "Inside Profile": {
+  "pt_BR": "Perfil Interno",
+  "en_US": "Inside Profile"
+ },
+ "Interior Commands": {
+  "pt_BR": "Comandos do Interior",
+  "en_US": "Interior Commands"
+ },
+ "Interior Material": {
+  "pt_BR": "Material Interno",
+  "en_US": "Interior Material"
+ },
+ "Interior Material Rotated": {
+  "pt_BR": "Material Interno Girado",
+  "en_US": "Interior Material Rotated"
+ },
+ "Interior Options...": {
+  "pt_BR": "Opções do Interior...",
+  "en_US": "Interior Options..."
+ },
+ "Interior Part Commands": {
+  "pt_BR": "Comandos da Peça Interna",
+  "en_US": "Interior Part Commands"
+ },
+ "Interior Part Prompts": {
+  "pt_BR": "Opções da Peça Interna",
+  "en_US": "Interior Part Prompts"
+ },
+ "Interior Prompts": {
+  "pt_BR": "Opções do Interior",
+  "en_US": "Interior Prompts"
+ },
+ "Interior Type": {
+  "pt_BR": "Tipo de Interior",
+  "en_US": "Interior Type"
+ },
+ "Interiors": {
+  "pt_BR": "Interiores",
+  "en_US": "Interiors"
+ },
+ "Invalid door style index": {
+  "pt_BR": "Índice de estilo de porta inválido",
+  "en_US": "Invalid door style index"
+ },
+ "Is Active": {
+  "pt_BR": "Ativo",
+  "en_US": "Is Active"
+ },
+ "Is Appliance": {
+  "pt_BR": "É Eletro",
+  "en_US": "Is Appliance"
+ },
+ "Island Depth": {
+  "pt_BR": "Profundidade da Ilha",
+  "en_US": "Island Depth"
+ },
+ "Island Depth:": {
+  "pt_BR": "Profundidade da Ilha:",
+  "en_US": "Island Depth:"
+ },
+ "Island Dimensions": {
+  "pt_BR": "Medidas da Ilha",
+  "en_US": "Island Dimensions"
+ },
+ "Island Template": {
+  "pt_BR": "Modelo de Ilha",
+  "en_US": "Island Template"
+ },
+ "Item Name": {
+  "pt_BR": "Nome do Item",
+  "en_US": "Item Name"
+ },
+ "Knots Bump": {
+  "pt_BR": "Relevo dos Nós",
+  "en_US": "Knots Bump"
+ },
+ "Knots Bump Strength": {
+  "pt_BR": "Intensidade do Relevo dos Nós",
+  "en_US": "Knots Bump Strength"
+ },
+ "Knots Darkness": {
+  "pt_BR": "Escurecimento dos Nós",
+  "en_US": "Knots Darkness"
+ },
+ "Knots Scale": {
+  "pt_BR": "Escala dos Nós",
+  "en_US": "Knots Scale"
+ },
+ "LED Inset Bottom:": {
+  "pt_BR": "Recuo do LED Embaixo:",
+  "en_US": "LED Inset Bottom:"
+ },
+ "LED Inset Top:": {
+  "pt_BR": "Recuo do LED em Cima:",
+  "en_US": "LED Inset Top:"
+ },
+ "LED Route Bottom:": {
+  "pt_BR": "Canal de LED Embaixo:",
+  "en_US": "LED Route Bottom:"
+ },
+ "LED Route Depth:": {
+  "pt_BR": "Profundidade do Canal de LED:",
+  "en_US": "LED Route Depth:"
+ },
+ "LED Route Top:": {
+  "pt_BR": "Canal de LED em Cima:",
+  "en_US": "LED Route Top:"
+ },
+ "LED Routing": {
+  "pt_BR": "Canal de LED",
+  "en_US": "LED Routing"
+ },
+ "LED Width Bottom:": {
+  "pt_BR": "Largura do LED Embaixo:",
+  "en_US": "LED Width Bottom:"
+ },
+ "LED Width Top:": {
+  "pt_BR": "Largura do LED em Cima:",
+  "en_US": "LED Width Top:"
+ },
+ "Ladder Style": {
+  "pt_BR": "Tipo Escada",
+  "en_US": "Ladder Style"
+ },
+ "Leave space above range empty for hood": {
+  "pt_BR": "Deixa o espaço acima do fogão livre para a coifa",
+  "en_US": "Leave space above range empty for hood"
+ },
+ "Left 3 Stacked Door": {
+  "pt_BR": "3 Portas Sobrepostas à Esquerda",
+  "en_US": "Left 3 Stacked Door"
+ },
+ "Left 5-Piece...": {
+  "pt_BR": "5 Peças à Esquerda...",
+  "en_US": "Left 5-Piece..."
+ },
+ "Left Base Cabinet Qty": {
+  "pt_BR": "Qtd. de Balcões à Esquerda",
+  "en_US": "Left Base Cabinet Qty"
+ },
+ "Left Base Cage": {
+  "pt_BR": "Gaiola Balcão Esquerdo",
+  "en_US": "Left Base Cage"
+ },
+ "Left Base Rect": {
+  "pt_BR": "Retângulo Balcão Esquerdo",
+  "en_US": "Left Base Rect"
+ },
+ "Left Base Rect Top": {
+  "pt_BR": "Retângulo Superior Balcão Esquerdo",
+  "en_US": "Left Base Rect Top"
+ },
+ "Left Cabinet Qty": {
+  "pt_BR": "Qtd. de Módulos à Esquerda",
+  "en_US": "Left Cabinet Qty"
+ },
+ "Left Door": {
+  "pt_BR": "Porta Esquerda",
+  "en_US": "Left Door"
+ },
+ "Left End Cap:": {
+  "pt_BR": "Arremate Esquerdo:",
+  "en_US": "Left End Cap:"
+ },
+ "Left Finished Revel:": {
+  "pt_BR": "Recuo Acabado Esquerdo:",
+  "en_US": "Left Finished Revel:"
+ },
+ "Left Offset": {
+  "pt_BR": "Afastamento Esquerdo",
+  "en_US": "Left Offset"
+ },
+ "Left Offset:": {
+  "pt_BR": "Afastamento Esquerdo:",
+  "en_US": "Left Offset:"
+ },
+ "Left Stacked Door": {
+  "pt_BR": "Porta Sobreposta à Esquerda",
+  "en_US": "Left Stacked Door"
+ },
+ "Left Stile": {
+  "pt_BR": "Montante Esquerdo",
+  "en_US": "Left Stile"
+ },
+ "Left Stile Width": {
+  "pt_BR": "Largura do Montante Esquerdo",
+  "en_US": "Left Stile Width"
+ },
+ "Left Swing 3 Stacked Door": {
+  "pt_BR": "3 Portas Sobrepostas Abrindo à Esquerda",
+  "en_US": "Left Swing 3 Stacked Door"
+ },
+ "Left Swing Stacked Door": {
+  "pt_BR": "Porta Sobreposta Abrindo à Esquerda",
+  "en_US": "Left Swing Stacked Door"
+ },
+ "Left Upper Cabinet Qty": {
+  "pt_BR": "Qtd. de Aéreos à Esquerda",
+  "en_US": "Left Upper Cabinet Qty"
+ },
+ "Left Upper Cage": {
+  "pt_BR": "Gaiola Aéreo Esquerdo",
+  "en_US": "Left Upper Cage"
+ },
+ "Left Upper Rect": {
+  "pt_BR": "Retângulo Aéreo Esquerdo",
+  "en_US": "Left Upper Rect"
+ },
+ "Left Upper Rect Top": {
+  "pt_BR": "Retângulo Superior Aéreo Esquerdo",
+  "en_US": "Left Upper Rect Top"
+ },
+ "Left of Sink": {
+  "pt_BR": "À Esquerda da Cuba",
+  "en_US": "Left of Sink"
+ },
+ "Left side": {
+  "pt_BR": "Lado esquerdo",
+  "en_US": "Left side"
+ },
+ "Left swing": {
+  "pt_BR": "Abre à esquerda",
+  "en_US": "Left swing"
+ },
+ "Leg": {
+  "pt_BR": "Pé",
+  "en_US": "Leg"
+ },
+ "Leg Commands": {
+  "pt_BR": "Comandos do Pé",
+  "en_US": "Leg Commands"
+ },
+ "Leg Depth:": {
+  "pt_BR": "Profundidade do Pé:",
+  "en_US": "Leg Depth:"
+ },
+ "Leg Height:": {
+  "pt_BR": "Altura do Pé:",
+  "en_US": "Leg Height:"
+ },
+ "Leg Levelers": {
+  "pt_BR": "Pés Niveladores",
+  "en_US": "Leg Levelers"
+ },
+ "Leg Prompts": {
+  "pt_BR": "Opções do Pé",
+  "en_US": "Leg Prompts"
+ },
+ "Leg Width:": {
+  "pt_BR": "Largura do Pé:",
+  "en_US": "Leg Width:"
+ },
+ "Legacy operator - redirects to place_cabinet": {
+  "pt_BR": "Operador antigo - redireciona para place_cabinet",
+  "en_US": "Legacy operator - redirects to place_cabinet"
+ },
+ "Legs": {
+  "pt_BR": "Pés",
+  "en_US": "Legs"
+ },
+ "Leveler Inset": {
+  "pt_BR": "Recuo do Nivelador",
+  "en_US": "Leveler Inset"
+ },
+ "Library": {
+  "pt_BR": "Biblioteca",
+  "en_US": "Library"
+ },
+ "Lift Up Door": {
+  "pt_BR": "Porta Basculante",
+  "en_US": "Lift Up Door"
+ },
+ "Load Cabinet Group from Library": {
+  "pt_BR": "Carregar Grupo de Módulos da Biblioteca",
+  "en_US": "Load Cabinet Group from Library"
+ },
+ "Load a cabinet group from the user library. Click to place, Right-click or ESC to cancel": {
+  "pt_BR": "Carrega um grupo de módulos da biblioteca. Clique para inserir, botão direito ou Esc cancela",
+  "en_US": "Load a cabinet group from the user library. Click to place, Right-click or ESC to cancel"
+ },
+ "Load from Library:": {
+  "pt_BR": "Carregar da biblioteca:",
+  "en_US": "Load from Library:"
+ },
+ "Location": {
+  "pt_BR": "Posição",
+  "en_US": "Location"
+ },
+ "Maple": {
+  "pt_BR": "Bordo",
+  "en_US": "Maple"
+ },
+ "Maple wood": {
+  "pt_BR": "Madeira de bordo",
+  "en_US": "Maple wood"
+ },
+ "Match Cabinet": {
+  "pt_BR": "Igual ao Módulo",
+  "en_US": "Match Cabinet"
+ },
+ "Match Door Style": {
+  "pt_BR": "Igual ao Estilo da Porta",
+  "en_US": "Match Door Style"
+ },
+ "Match cabinet style material": {
+  "pt_BR": "Usa o material do estilo do módulo",
+  "en_US": "Match cabinet style material"
+ },
+ "Match rail/stile dimensions from cabinet door": {
+  "pt_BR": "Usa as medidas de travessas e montantes da porta do módulo",
+  "en_US": "Match rail/stile dimensions from cabinet door"
+ },
+ "Matching Exterior": {
+  "pt_BR": "Igual ao Externo",
+  "en_US": "Matching Exterior"
+ },
+ "Matching Wood": {
+  "pt_BR": "Madeira Igual",
+  "en_US": "Matching Wood"
+ },
+ "Matching wood edge banding": {
+  "pt_BR": "Fita de borda da mesma madeira",
+  "en_US": "Matching wood edge banding"
+ },
+ "Material Rotated": {
+  "pt_BR": "Material Girado",
+  "en_US": "Material Rotated"
+ },
+ "Material Thickness": {
+  "pt_BR": "Espessura do Material",
+  "en_US": "Material Thickness"
+ },
+ "Material for cabinet interior": {
+  "pt_BR": "Material do interior do módulo",
+  "en_US": "Material for cabinet interior"
+ },
+ "Material for door panel center": {
+  "pt_BR": "Material do centro da almofada",
+  "en_US": "Material for door panel center"
+ },
+ "Matte Black": {
+  "pt_BR": "Preto Fosco",
+  "en_US": "Matte Black"
+ },
+ "Maximum angle between faces to merge": {
+  "pt_BR": "Ângulo máximo entre faces para unir",
+  "en_US": "Maximum angle between faces to merge"
+ },
+ "Maximum angle between faces to merge with Limited Dissolve": {
+  "pt_BR": "Ângulo máximo entre faces para unir com Dissolução Limitada",
+  "en_US": "Maximum angle between faces to merge with Limited Dissolve"
+ },
+ "Maximum angle between faces to merge with Tris to Quads": {
+  "pt_BR": "Ângulo máximo entre faces para unir com Triângulos em Quadriláteros",
+  "en_US": "Maximum angle between faces to merge with Tris to Quads"
+ },
+ "Microwave opening with drawer below": {
+  "pt_BR": "Vão de micro-ondas com gaveta embaixo",
+  "en_US": "Microwave opening with drawer below"
+ },
+ "Microwave with Drawer": {
+  "pt_BR": "Micro-ondas com Gaveta",
+  "en_US": "Microwave with Drawer"
+ },
+ "Mid Rail": {
+  "pt_BR": "Travessa Central",
+  "en_US": "Mid Rail"
+ },
+ "Mid Rail Location": {
+  "pt_BR": "Posição da Travessa Central",
+  "en_US": "Mid Rail Location"
+ },
+ "Mid Rail Width": {
+  "pt_BR": "Largura da Travessa Central",
+  "en_US": "Mid Rail Width"
+ },
+ "Misc Part": {
+  "pt_BR": "Peça Avulsa",
+  "en_US": "Misc Part"
+ },
+ "Molding category": {
+  "pt_BR": "Categoria de moldura",
+  "en_US": "Molding category"
+ },
+ "Molding file not found: {}": {
+  "pt_BR": "Arquivo da moldura não encontrado: {}",
+  "en_US": "Molding file not found: {}"
+ },
+ "Move cursor over a wall | ← set left | → set right | ESC to cancel": {
+  "pt_BR": "Passe o cursor sobre uma parede | ← define esquerda | → define direita | Esc cancela",
+  "en_US": "Move cursor over a wall | ← set left | → set right | ESC to cancel"
+ },
+ "Name for the crown detail": {
+  "pt_BR": "Nome do detalhe de moldura",
+  "en_US": "Name for the crown detail"
+ },
+ "Name for the toe kick detail": {
+  "pt_BR": "Nome do detalhe de rodapé",
+  "en_US": "Name for the toe kick detail"
+ },
+ "Name for the upper bottom detail": {
+  "pt_BR": "Nome do detalhe da base do aéreo",
+  "en_US": "Name for the upper bottom detail"
+ },
+ "Name of the detail scene containing the crown profile": {
+  "pt_BR": "Nome da cena de detalhe com o perfil da moldura superior",
+  "en_US": "Name of the detail scene containing the crown profile"
+ },
+ "Name of the detail scene containing the toe kick profile": {
+  "pt_BR": "Nome da cena de detalhe com o perfil do rodapé",
+  "en_US": "Name of the detail scene containing the toe kick profile"
+ },
+ "Name of the detail scene containing the upper bottom profile": {
+  "pt_BR": "Nome da cena de detalhe com o perfil da base do aéreo",
+  "en_US": "Name of the detail scene containing the upper bottom profile"
+ },
+ "Name of the molding": {
+  "pt_BR": "Nome da moldura",
+  "en_US": "Name of the molding"
+ },
+ "Natural": {
+  "pt_BR": "Natural",
+  "en_US": "Natural"
+ },
+ "Nenhum gabinete a atualizar": {
+  "pt_BR": "Nenhum gabinete a atualizar",
+  "en_US": "No cabinet to update"
+ },
+ "No Categories": {
+  "pt_BR": "Nenhuma Categoria",
+  "en_US": "No Categories"
+ },
+ "No Pulls": {
+  "pt_BR": "Sem Puxadores",
+  "en_US": "No Pulls"
+ },
+ "No active template": {
+  "pt_BR": "Nenhum modelo ativo",
+  "en_US": "No active template"
+ },
+ "No base cabinets found": {
+  "pt_BR": "Nenhum balcão encontrado",
+  "en_US": "No base cabinets found"
+ },
+ "No base cabinets selected": {
+  "pt_BR": "Nenhum balcão selecionado",
+  "en_US": "No base cabinets selected"
+ },
+ "No cabinet found": {
+  "pt_BR": "Nenhum módulo encontrado",
+  "en_US": "No cabinet found"
+ },
+ "No cabinet groups found in file": {
+  "pt_BR": "Nenhum grupo de módulos no arquivo",
+  "en_US": "No cabinet groups found in file"
+ },
+ "No cabinet styles defined": {
+  "pt_BR": "Nenhum estilo de módulo definido",
+  "en_US": "No cabinet styles defined"
+ },
+ "No cabinets found using style '{}'": {
+  "pt_BR": "Nenhum módulo usa o estilo '{}'",
+  "en_US": "No cabinets found using style '{}'"
+ },
+ "No cabinets, products, or appliances selected": {
+  "pt_BR": "Nenhum módulo, produto ou eletro selecionado",
+  "en_US": "No cabinets, products, or appliances selected"
+ },
+ "No countertop found in selection": {
+  "pt_BR": "Nenhum tampo na seleção",
+  "en_US": "No countertop found in selection"
+ },
+ "No crown details defined": {
+  "pt_BR": "Nenhum detalhe de moldura definido",
+  "en_US": "No crown details defined"
+ },
+ "No crown details to delete": {
+  "pt_BR": "Nenhum detalhe de moldura para apagar",
+  "en_US": "No crown details to delete"
+ },
+ "No cutting object found in selection": {
+  "pt_BR": "Nenhum objeto de corte na seleção",
+  "en_US": "No cutting object found in selection"
+ },
+ "No dishwasher": {
+  "pt_BR": "Sem lava-louças",
+  "en_US": "No dishwasher"
+ },
+ "No door found - using defaults": {
+  "pt_BR": "Nenhuma porta encontrada - usando o padrão",
+  "en_US": "No door found - using defaults"
+ },
+ "No door styles defined": {
+  "pt_BR": "Nenhum estilo de porta definido",
+  "en_US": "No door styles defined"
+ },
+ "No faces selected": {
+  "pt_BR": "Nenhuma face selecionada",
+  "en_US": "No faces selected"
+ },
+ "No interior edges found — faces may be floating duplicates. Try Delete Selected.": {
+  "pt_BR": "Nenhuma aresta interna — as faces podem ser duplicadas soltas. Tente Apagar Selecionadas.",
+  "en_US": "No interior edges found — faces may be floating duplicates. Try Delete Selected."
+ },
+ "No interior parts": {
+  "pt_BR": "Sem peças internas",
+  "en_US": "No interior parts"
+ },
+ "No molding categories found": {
+  "pt_BR": "Nenhuma categoria de moldura encontrada",
+  "en_US": "No molding categories found"
+ },
+ "No molding profiles or solid lumber found in crown detail": {
+  "pt_BR": "Nenhum perfil de moldura ou madeira maciça no detalhe",
+  "en_US": "No molding profiles or solid lumber found in crown detail"
+ },
+ "No molding profiles or solid lumber found in toe kick detail": {
+  "pt_BR": "Nenhum perfil de moldura ou madeira maciça no detalhe de rodapé",
+  "en_US": "No molding profiles or solid lumber found in toe kick detail"
+ },
+ "No molding profiles or solid lumber found in upper bottom detail": {
+  "pt_BR": "Nenhum perfil de moldura ou madeira maciça no detalhe da base do aéreo",
+  "en_US": "No molding profiles or solid lumber found in upper bottom detail"
+ },
+ "No moldings in this category": {
+  "pt_BR": "Nenhuma moldura nesta categoria",
+  "en_US": "No moldings in this category"
+ },
+ "No pantry": {
+  "pt_BR": "Sem despensa",
+  "en_US": "No pantry"
+ },
+ "No profile scene": {
+  "pt_BR": "Sem cena de perfil",
+  "en_US": "No profile scene"
+ },
+ "No range": {
+  "pt_BR": "Sem fogão",
+  "en_US": "No range"
+ },
+ "No refrigerator": {
+  "pt_BR": "Sem geladeira",
+  "en_US": "No refrigerator"
+ },
+ "No saved cabinet groups": {
+  "pt_BR": "Nenhum grupo de módulos salvo",
+  "en_US": "No saved cabinet groups"
+ },
+ "No saved crown details": {
+  "pt_BR": "Nenhum detalhe de moldura salvo",
+  "en_US": "No saved crown details"
+ },
+ "No sink": {
+  "pt_BR": "Sem cuba",
+  "en_US": "No sink"
+ },
+ "No splitter found": {
+  "pt_BR": "Nenhum divisor encontrado",
+  "en_US": "No splitter found"
+ },
+ "No toe kick details defined": {
+  "pt_BR": "Nenhum detalhe de rodapé definido",
+  "en_US": "No toe kick details defined"
+ },
+ "No toe kick details to delete": {
+  "pt_BR": "Nenhum detalhe de rodapé para apagar",
+  "en_US": "No toe kick details to delete"
+ },
+ "No upper bottom details defined": {
+  "pt_BR": "Nenhum detalhe da base do aéreo definido",
+  "en_US": "No upper bottom details defined"
+ },
+ "No upper bottom details to delete": {
+  "pt_BR": "Nenhum detalhe da base do aéreo para apagar",
+  "en_US": "No upper bottom details to delete"
+ },
+ "No upper or tall cabinets in this room": {
+  "pt_BR": "Nenhum aéreo ou paneleiro neste ambiente",
+  "en_US": "No upper or tall cabinets in this room"
+ },
+ "No valid base or tall cabinets selected": {
+  "pt_BR": "Nenhum balcão ou paneleiro válido selecionado",
+  "en_US": "No valid base or tall cabinets selected"
+ },
+ "No valid upper cabinets selected": {
+  "pt_BR": "Nenhum aéreo válido selecionado",
+  "en_US": "No valid upper cabinets selected"
+ },
+ "No valid upper or tall cabinets selected": {
+  "pt_BR": "Nenhum aéreo ou paneleiro válido selecionado",
+  "en_US": "No valid upper or tall cabinets selected"
+ },
+ "Noise Bump": {
+  "pt_BR": "Relevo de Ruído",
+  "en_US": "Noise Bump"
+ },
+ "Noise Bump Strength": {
+  "pt_BR": "Intensidade do Relevo de Ruído",
+  "en_US": "Noise Bump Strength"
+ },
+ "Noise Detail": {
+  "pt_BR": "Detalhe do Ruído",
+  "en_US": "Noise Detail"
+ },
+ "Noise Scale 1": {
+  "pt_BR": "Escala de Ruído 1",
+  "en_US": "Noise Scale 1"
+ },
+ "Noise Scale 2": {
+  "pt_BR": "Escala de Ruído 2",
+  "en_US": "Noise Scale 2"
+ },
+ "None (Remove)": {
+  "pt_BR": "Nenhum (Remover)",
+  "en_US": "None (Remove)"
+ },
+ "Not enough unique vertices": {
+  "pt_BR": "Vértices distintos insuficientes",
+  "en_US": "Not enough unique vertices"
+ },
+ "Notch Ends to Floor": {
+  "pt_BR": "Laterais Entalhadas até o Piso",
+  "en_US": "Notch Ends to Floor"
+ },
+ "Number of Openings": {
+  "pt_BR": "Número de Vãos",
+  "en_US": "Number of Openings"
+ },
+ "Number of Sections": {
+  "pt_BR": "Número de Seções",
+  "en_US": "Number of Sections"
+ },
+ "Number of cabinets": {
+  "pt_BR": "Número de módulos",
+  "en_US": "Number of cabinets"
+ },
+ "Não foi possível atualizar os gabinetes: {}": {
+  "pt_BR": "Não foi possível atualizar os gabinetes: {}",
+  "en_US": "Could not update the cabinets: {}"
+ },
+ "Oak": {
+  "pt_BR": "Carvalho",
+  "en_US": "Oak"
+ },
+ "Oak wood": {
+  "pt_BR": "Madeira de carvalho",
+  "en_US": "Oak wood"
+ },
+ "Offset From Wall": {
+  "pt_BR": "Afastamento da Parede",
+  "en_US": "Offset From Wall"
+ },
+ "Offset From Wall:": {
+  "pt_BR": "Afastamento da Parede:",
+  "en_US": "Offset From Wall:"
+ },
+ "Offset from right gap boundary": {
+  "pt_BR": "Afastamento do limite direito do vão",
+  "en_US": "Offset from right gap boundary"
+ },
+ "Offsets": {
+  "pt_BR": "Afastamentos",
+  "en_US": "Offsets"
+ },
+ "Ogee": {
+  "pt_BR": "Ogee",
+  "en_US": "Ogee"
+ },
+ "Ogee profile": {
+  "pt_BR": "Perfil ogee",
+  "en_US": "Ogee profile"
+ },
+ "Oil Rubbed Bronze": {
+  "pt_BR": "Bronze Envelhecido",
+  "en_US": "Oil Rubbed Bronze"
+ },
+ "One drawer over double doors": {
+  "pt_BR": "Uma gaveta sobre portas duplas",
+  "en_US": "One drawer over double doors"
+ },
+ "One drawer over one door": {
+  "pt_BR": "Uma gaveta sobre uma porta",
+  "en_US": "One drawer over one door"
+ },
+ "Only Include Filler:": {
+  "pt_BR": "Só o Enchimento:",
+  "en_US": "Only Include Filler:"
+ },
+ "Only add countertops to selected cabinets": {
+  "pt_BR": "Adiciona tampos só nos módulos selecionados",
+  "en_US": "Only add countertops to selected cabinets"
+ },
+ "Open": {
+  "pt_BR": "Aberto",
+  "en_US": "Open"
+ },
+ "Open (No Front)": {
+  "pt_BR": "Aberto (Sem Frente)",
+  "en_US": "Open (No Front)"
+ },
+ "Open (no front)": {
+  "pt_BR": "Aberto (sem frente)",
+  "en_US": "Open (no front)"
+ },
+ "Open User Library Folder": {
+  "pt_BR": "Abrir Pasta da Biblioteca do Usuário",
+  "en_US": "Open User Library Folder"
+ },
+ "Open With Shelves": {
+  "pt_BR": "Aberto com Prateleiras",
+  "en_US": "Open With Shelves"
+ },
+ "Open the crown detail profile scene for editing": {
+  "pt_BR": "Abre a cena de perfil do detalhe de moldura para editar",
+  "en_US": "Open the crown detail profile scene for editing"
+ },
+ "Open the toe kick detail profile scene for editing": {
+  "pt_BR": "Abre a cena de perfil do detalhe de rodapé para editar",
+  "en_US": "Open the toe kick detail profile scene for editing"
+ },
+ "Open the upper bottom detail profile scene for editing": {
+  "pt_BR": "Abre a cena de perfil do detalhe da base do aéreo para editar",
+  "en_US": "Open the upper bottom detail profile scene for editing"
+ },
+ "Open the user library folder in file explorer": {
+  "pt_BR": "Abre a pasta da biblioteca do usuário no gerenciador de arquivos",
+  "en_US": "Open the user library folder in file explorer"
+ },
+ "Open with Shelves": {
+  "pt_BR": "Aberto com Prateleiras",
+  "en_US": "Open with Shelves"
+ },
+ "Open with adjustable shelves": {
+  "pt_BR": "Aberto com prateleiras reguláveis",
+  "en_US": "Open with adjustable shelves"
+ },
+ "Open with no front": {
+  "pt_BR": "Aberto, sem frente",
+  "en_US": "Open with no front"
+ },
+ "Opening 1": {
+  "pt_BR": "Vão 1",
+  "en_US": "Opening 1"
+ },
+ "Opening 10": {
+  "pt_BR": "Vão 10",
+  "en_US": "Opening 10"
+ },
+ "Opening 2": {
+  "pt_BR": "Vão 2",
+  "en_US": "Opening 2"
+ },
+ "Opening 3": {
+  "pt_BR": "Vão 3",
+  "en_US": "Opening 3"
+ },
+ "Opening 4": {
+  "pt_BR": "Vão 4",
+  "en_US": "Opening 4"
+ },
+ "Opening 5": {
+  "pt_BR": "Vão 5",
+  "en_US": "Opening 5"
+ },
+ "Opening 6": {
+  "pt_BR": "Vão 6",
+  "en_US": "Opening 6"
+ },
+ "Opening 7": {
+  "pt_BR": "Vão 7",
+  "en_US": "Opening 7"
+ },
+ "Opening 8": {
+  "pt_BR": "Vão 8",
+  "en_US": "Opening 8"
+ },
+ "Opening 9": {
+  "pt_BR": "Vão 9",
+  "en_US": "Opening 9"
+ },
+ "Opening Commands": {
+  "pt_BR": "Comandos do Vão",
+  "en_US": "Opening Commands"
+ },
+ "Opening Heights:": {
+  "pt_BR": "Alturas dos Vãos:",
+  "en_US": "Opening Heights:"
+ },
+ "Opening Prompts": {
+  "pt_BR": "Opções do Vão",
+  "en_US": "Opening Prompts"
+ },
+ "Opening Type": {
+  "pt_BR": "Tipo de Vão",
+  "en_US": "Opening Type"
+ },
+ "Opening Types:": {
+  "pt_BR": "Tipos dos Vãos:",
+  "en_US": "Opening Types:"
+ },
+ "Opening Widths:": {
+  "pt_BR": "Larguras dos Vãos:",
+  "en_US": "Opening Widths:"
+ },
+ "Opening {}:": {
+  "pt_BR": "Vão {}:",
+  "en_US": "Opening {}:"
+ },
+ "Options": {
+  "pt_BR": "Opções",
+  "en_US": "Options"
+ },
+ "Orientation": {
+  "pt_BR": "Orientação",
+  "en_US": "Orientation"
+ },
+ "Orientation of the lumber profile": {
+  "pt_BR": "Orientação do perfil de madeira",
+  "en_US": "Orientation of the lumber profile"
+ },
+ "Orientation:": {
+  "pt_BR": "Orientação:",
+  "en_US": "Orientation:"
+ },
+ "Outside Profile": {
+  "pt_BR": "Perfil Externo",
+  "en_US": "Outside Profile"
+ },
+ "Overhang past exposed ends of cabinets": {
+  "pt_BR": "Avanço além das laterais aparentes",
+  "en_US": "Overhang past exposed ends of cabinets"
+ },
+ "Overhang past the back of cabinets toward wall": {
+  "pt_BR": "Avanço além do fundo dos módulos, em direção à parede",
+  "en_US": "Overhang past the back of cabinets toward wall"
+ },
+ "Overhang past the front of cabinets": {
+  "pt_BR": "Avanço além da frente dos módulos",
+  "en_US": "Overhang past the front of cabinets"
+ },
+ "Override Left Panel Depth:": {
+  "pt_BR": "Substituir Profundidade da Lateral Esquerda:",
+  "en_US": "Override Left Panel Depth:"
+ },
+ "Override Right Panel Depth:": {
+  "pt_BR": "Substituir Profundidade da Lateral Direita:",
+  "en_US": "Override Right Panel Depth:"
+ },
+ "Paint Cabinet Style": {
+  "pt_BR": "Pintar Estilo de Módulo",
+  "en_US": "Paint Cabinet Style"
+ },
+ "Paint Color": {
+  "pt_BR": "Cor da Pintura",
+  "en_US": "Paint Color"
+ },
+ "Paint Door Style": {
+  "pt_BR": "Pintar Estilo de Porta",
+  "en_US": "Paint Door Style"
+ },
+ "Paint Grade": {
+  "pt_BR": "Para Pintura",
+  "en_US": "Paint Grade"
+ },
+ "Paint color for cabinet finish": {
+  "pt_BR": "Cor da pintura do acabamento",
+  "en_US": "Paint color for cabinet finish"
+ },
+ "Panel": {
+  "pt_BR": "Painel",
+  "en_US": "Panel"
+ },
+ "Panel Inset": {
+  "pt_BR": "Recuo da Almofada",
+  "en_US": "Panel Inset"
+ },
+ "Panel Material": {
+  "pt_BR": "Material da Almofada",
+  "en_US": "Panel Material"
+ },
+ "Panel Prompts": {
+  "pt_BR": "Opções do Painel",
+  "en_US": "Panel Prompts"
+ },
+ "Panel to Floor": {
+  "pt_BR": "Painel até o Piso",
+  "en_US": "Panel to Floor"
+ },
+ "Panel:": {
+  "pt_BR": "Almofada:",
+  "en_US": "Panel:"
+ },
+ "Pantry Cage": {
+  "pt_BR": "Gaiola Despensa",
+  "en_US": "Pantry Cage"
+ },
+ "Pantry Location": {
+  "pt_BR": "Posição da Despensa",
+  "en_US": "Pantry Location"
+ },
+ "Pantry Rect": {
+  "pt_BR": "Retângulo Despensa",
+  "en_US": "Pantry Rect"
+ },
+ "Pantry Rect Top": {
+  "pt_BR": "Retângulo Superior Despensa",
+  "en_US": "Pantry Rect Top"
+ },
+ "Pantry Width": {
+  "pt_BR": "Largura da Despensa",
+  "en_US": "Pantry Width"
+ },
+ "Pantry Width:": {
+  "pt_BR": "Largura da Despensa:",
+  "en_US": "Pantry Width:"
+ },
+ "Pantry on left": {
+  "pt_BR": "Despensa à esquerda",
+  "en_US": "Pantry on left"
+ },
+ "Pantry on right": {
+  "pt_BR": "Despensa à direita",
+  "en_US": "Pantry on right"
+ },
+ "Pantry:": {
+  "pt_BR": "Despensa:",
+  "en_US": "Pantry:"
+ },
+ "Parent Object": {
+  "pt_BR": "Objeto Pai",
+  "en_US": "Parent Object"
+ },
+ "Part Commands": {
+  "pt_BR": "Comandos da Peça",
+  "en_US": "Part Commands"
+ },
+ "Part Prompts": {
+  "pt_BR": "Opções da Peça",
+  "en_US": "Part Prompts"
+ },
+ "Part: {}": {
+  "pt_BR": "Peça: {}",
+  "en_US": "Part: {}"
+ },
+ "Parts & Miscellaneous": {
+  "pt_BR": "Peças e Diversos",
+  "en_US": "Parts & Miscellaneous"
+ },
+ "Path to the molding blend file": {
+  "pt_BR": "Caminho do arquivo .blend da moldura",
+  "en_US": "Path to the molding blend file"
+ },
+ "Pewter": {
+  "pt_BR": "Estanho",
+  "en_US": "Pewter"
+ },
+ "Pie Cut": {
+  "pt_BR": "Canto em L",
+  "en_US": "Pie Cut"
+ },
+ "Pie Cut 2 Drawer Base": {
+  "pt_BR": "Balcão de Canto em L com 2 Gavetas",
+  "en_US": "Pie Cut 2 Drawer Base"
+ },
+ "Pie Cut 3 Drawer Base": {
+  "pt_BR": "Balcão de Canto em L com 3 Gavetas",
+  "en_US": "Pie Cut 3 Drawer Base"
+ },
+ "Pie Cut 4 Drawer Base": {
+  "pt_BR": "Balcão de Canto em L com 4 Gavetas",
+  "en_US": "Pie Cut 4 Drawer Base"
+ },
+ "Pie Cut Corner": {
+  "pt_BR": "Canto em L",
+  "en_US": "Pie Cut Corner"
+ },
+ "Pie Cut Stacked": {
+  "pt_BR": "Canto em L Sobreposto",
+  "en_US": "Pie Cut Stacked"
+ },
+ "Pie Cut Stacked Corner": {
+  "pt_BR": "Canto em L Sobreposto",
+  "en_US": "Pie Cut Stacked Corner"
+ },
+ "Place Cabinet": {
+  "pt_BR": "Inserir Módulo",
+  "en_US": "Place Cabinet"
+ },
+ "Place a cabinet on a wall. Arrow keys for offset, W for width, F to fill gap, Escape to cancel": {
+  "pt_BR": "Insere um módulo na parede. Setas para o afastamento, W a largura, F preenche o vão, Esc cancela",
+  "en_US": "Place a cabinet on a wall. Arrow keys for offset, W for width, F to fill gap, Escape to cancel"
+ },
+ "Placed cabinet group from: {}": {
+  "pt_BR": "Grupo de módulos inserido de: {}",
+  "en_US": "Placed cabinet group from: {}"
+ },
+ "Please enter a name for the cabinet group": {
+  "pt_BR": "Digite um nome para o grupo de módulos",
+  "en_US": "Please enter a name for the cabinet group"
+ },
+ "Please select a save location": {
+  "pt_BR": "Escolha onde salvar",
+  "en_US": "Please select a save location"
+ },
+ "Polished Brass": {
+  "pt_BR": "Latão Polido",
+  "en_US": "Polished Brass"
+ },
+ "Polished Gold": {
+  "pt_BR": "Dourado Polido",
+  "en_US": "Polished Gold"
+ },
+ "Primary Color": {
+  "pt_BR": "Cor Principal",
+  "en_US": "Primary Color"
+ },
+ "Primary Color:": {
+  "pt_BR": "Cor Principal:",
+  "en_US": "Primary Color:"
+ },
+ "Procedural wood material with custom parameters": {
+  "pt_BR": "Material de madeira procedural com parâmetros personalizados",
+  "en_US": "Procedural wood material with custom parameters"
+ },
+ "Product Prompts": {
+  "pt_BR": "Opções do Produto",
+  "en_US": "Product Prompts"
+ },
+ "Profile Scene: {}": {
+  "pt_BR": "Cena do Perfil: {}",
+  "en_US": "Profile Scene: {}"
+ },
+ "Profiles:": {
+  "pt_BR": "Perfis:",
+  "en_US": "Profiles:"
+ },
+ "Pull Category": {
+  "pt_BR": "Categoria do Puxador",
+  "en_US": "Pull Category"
+ },
+ "Pull Distance From Edge": {
+  "pt_BR": "Distância do Puxador à Borda",
+  "en_US": "Pull Distance From Edge"
+ },
+ "Pull Location": {
+  "pt_BR": "Posição do Puxador",
+  "en_US": "Pull Location"
+ },
+ "Pull Type": {
+  "pt_BR": "Tipo de Puxador",
+  "en_US": "Pull Type"
+ },
+ "Pull Vertical Location Base": {
+  "pt_BR": "Posição Vertical do Puxador no Balcão",
+  "en_US": "Pull Vertical Location Base"
+ },
+ "Pull Vertical Location Drawers": {
+  "pt_BR": "Posição Vertical do Puxador nas Gavetas",
+  "en_US": "Pull Vertical Location Drawers"
+ },
+ "Pullout with Drawer": {
+  "pt_BR": "Basculante com Gaveta",
+  "en_US": "Pullout with Drawer"
+ },
+ "Pullout with drawer above": {
+  "pt_BR": "Gaveteiro com gaveta em cima",
+  "en_US": "Pullout with drawer above"
+ },
+ "Pullout with pull at top": {
+  "pt_BR": "Gaveteiro com puxador em cima",
+  "en_US": "Pullout with pull at top"
+ },
+ "Quantity": {
+  "pt_BR": "Quantidade",
+  "en_US": "Quantity"
+ },
+ "Quickly update materials on all cabinets using the active cabinet style without recalculating geometry": {
+  "pt_BR": "Atualiza rápido os materiais dos módulos com o estilo ativo, sem recalcular a geometria",
+  "en_US": "Quickly update materials on all cabinets using the active cabinet style without recalculating geometry"
+ },
+ "Rail Width": {
+  "pt_BR": "Largura da Travessa",
+  "en_US": "Rail Width"
+ },
+ "Raise Upper": {
+  "pt_BR": "Subir Aéreo",
+  "en_US": "Raise Upper"
+ },
+ "Raise upper cabinet above range": {
+  "pt_BR": "Sobe o aéreo acima do fogão",
+  "en_US": "Raise upper cabinet above range"
+ },
+ "Range Cage": {
+  "pt_BR": "Gaiola Fogão",
+  "en_US": "Range Cage"
+ },
+ "Range Hood": {
+  "pt_BR": "Coifa",
+  "en_US": "Range Hood"
+ },
+ "Range Hood Height": {
+  "pt_BR": "Altura da Coifa",
+  "en_US": "Range Hood Height"
+ },
+ "Range Hood Type": {
+  "pt_BR": "Tipo de Coifa",
+  "en_US": "Range Hood Type"
+ },
+ "Range Location": {
+  "pt_BR": "Posição do Fogão",
+  "en_US": "Range Location"
+ },
+ "Range Rect": {
+  "pt_BR": "Retângulo Fogão",
+  "en_US": "Range Rect"
+ },
+ "Range Rect Top": {
+  "pt_BR": "Retângulo Superior Fogão",
+  "en_US": "Range Rect Top"
+ },
+ "Range Width": {
+  "pt_BR": "Largura do Fogão",
+  "en_US": "Range Width"
+ },
+ "Range Width:": {
+  "pt_BR": "Largura do Fogão:",
+  "en_US": "Range Width:"
+ },
+ "Range in center": {
+  "pt_BR": "Fogão no centro",
+  "en_US": "Range in center"
+ },
+ "Range:": {
+  "pt_BR": "Fogão:",
+  "en_US": "Range:"
+ },
+ "Rebuild Selected Faces": {
+  "pt_BR": "Refazer Faces Selecionadas",
+  "en_US": "Rebuild Selected Faces"
+ },
+ "Rebuilt {} faces → 1 clean face ({} verts)": {
+  "pt_BR": "{} faces refeitas → 1 face limpa ({} vértices)",
+  "en_US": "Rebuilt {} faces → 1 clean face ({} verts)"
+ },
+ "Redistribute cabinet widths to fill available space after offsets": {
+  "pt_BR": "Redistribui as larguras para preencher o espaço livre depois dos afastamentos",
+  "en_US": "Redistribute cabinet widths to fill available space after offsets"
+ },
+ "Refresh User Library": {
+  "pt_BR": "Atualizar Biblioteca do Usuário",
+  "en_US": "Refresh User Library"
+ },
+ "Refresh the list of items in the user library": {
+  "pt_BR": "Atualiza a lista de itens da biblioteca do usuário",
+  "en_US": "Refresh the list of items in the user library"
+ },
+ "Refrigerator": {
+  "pt_BR": "Geladeira",
+  "en_US": "Refrigerator"
+ },
+ "Refrigerator Cabinet Width": {
+  "pt_BR": "Largura do Módulo da Geladeira",
+  "en_US": "Refrigerator Cabinet Width"
+ },
+ "Refrigerator Cage": {
+  "pt_BR": "Gaiola Geladeira",
+  "en_US": "Refrigerator Cage"
+ },
+ "Refrigerator Height": {
+  "pt_BR": "Altura da Geladeira",
+  "en_US": "Refrigerator Height"
+ },
+ "Refrigerator Location": {
+  "pt_BR": "Posição da Geladeira",
+  "en_US": "Refrigerator Location"
+ },
+ "Refrigerator Range Template": {
+  "pt_BR": "Modelo Geladeira e Fogão",
+  "en_US": "Refrigerator Range Template"
+ },
+ "Refrigerator Rect": {
+  "pt_BR": "Retângulo Geladeira",
+  "en_US": "Refrigerator Rect"
+ },
+ "Refrigerator Rect Top": {
+  "pt_BR": "Retângulo Superior Geladeira",
+  "en_US": "Refrigerator Rect Top"
+ },
+ "Refrigerator Width": {
+  "pt_BR": "Largura da Geladeira",
+  "en_US": "Refrigerator Width"
+ },
+ "Refrigerator Width:": {
+  "pt_BR": "Largura da Geladeira:",
+  "en_US": "Refrigerator Width:"
+ },
+ "Refrigerator on left": {
+  "pt_BR": "Geladeira à esquerda",
+  "en_US": "Refrigerator on left"
+ },
+ "Refrigerator on right": {
+  "pt_BR": "Geladeira à direita",
+  "en_US": "Refrigerator on right"
+ },
+ "Refrigerator:": {
+  "pt_BR": "Geladeira:",
+  "en_US": "Refrigerator:"
+ },
+ "Remove Applied End": {
+  "pt_BR": "Remover Lateral Aplicada",
+  "en_US": "Remove Applied End"
+ },
+ "Remove Back": {
+  "pt_BR": "Remover Fundo",
+  "en_US": "Remove Back"
+ },
+ "Remove Both Sides": {
+  "pt_BR": "Remover dos Dois Lados",
+  "en_US": "Remove Both Sides"
+ },
+ "Remove Cabinet Style": {
+  "pt_BR": "Remover Estilo de Módulo",
+  "en_US": "Remove Cabinet Style"
+ },
+ "Remove Countertops": {
+  "pt_BR": "Remover Tampos",
+  "en_US": "Remove Countertops"
+ },
+ "Remove Cover:": {
+  "pt_BR": "Remover Tampa:",
+  "en_US": "Remove Cover:"
+ },
+ "Remove Door Style": {
+  "pt_BR": "Remover Estilo de Porta",
+  "en_US": "Remove Door Style"
+ },
+ "Remove Left": {
+  "pt_BR": "Remover Esquerda",
+  "en_US": "Remove Left"
+ },
+ "Remove Right": {
+  "pt_BR": "Remover Direita",
+  "en_US": "Remove Right"
+ },
+ "Remove all countertops from the scene": {
+  "pt_BR": "Remove todos os tampos da cena",
+  "en_US": "Remove all countertops from the scene"
+ },
+ "Remove an applied finished end panel from the cabinet": {
+  "pt_BR": "Remove um painel de acabamento aplicado do módulo",
+  "en_US": "Remove an applied finished end panel from the cabinet"
+ },
+ "Remove finished end": {
+  "pt_BR": "Remove o acabamento da lateral",
+  "en_US": "Remove finished end"
+ },
+ "Remove from back": {
+  "pt_BR": "Remove de trás",
+  "en_US": "Remove from back"
+ },
+ "Remove from both left and right sides": {
+  "pt_BR": "Remove dos dois lados",
+  "en_US": "Remove from both left and right sides"
+ },
+ "Remove from left side": {
+  "pt_BR": "Remove do lado esquerdo",
+  "en_US": "Remove from left side"
+ },
+ "Remove from right side": {
+  "pt_BR": "Remove do lado direito",
+  "en_US": "Remove from right side"
+ },
+ "Remove the selected cabinet style (at least one style must remain)": {
+  "pt_BR": "Remove o estilo de módulo selecionado (ao menos um precisa ficar)",
+  "en_US": "Remove the selected cabinet style (at least one style must remain)"
+ },
+ "Remove the selected door style (at least one style must remain)": {
+  "pt_BR": "Remove o estilo de porta selecionado (ao menos um precisa ficar)",
+  "en_US": "Remove the selected door style (at least one style must remain)"
+ },
+ "Remove:": {
+  "pt_BR": "Remover:",
+  "en_US": "Remove:"
+ },
+ "Removed cabinet style: {}": {
+  "pt_BR": "Estilo de módulo removido: {}",
+  "en_US": "Removed cabinet style: {}"
+ },
+ "Removed door style: {}": {
+  "pt_BR": "Estilo de porta removido: {}",
+  "en_US": "Removed door style: {}"
+ },
+ "Removed {} countertop(s)": {
+  "pt_BR": "{} tampo(s) removido(s)",
+  "en_US": "Removed {} countertop(s)"
+ },
+ "Removed {} snap line(s)": {
+  "pt_BR": "{} linha(s) de encaixe removida(s)",
+  "en_US": "Removed {} snap line(s)"
+ },
+ "Right 3 Stacked Door": {
+  "pt_BR": "3 Portas Sobrepostas à Direita",
+  "en_US": "Right 3 Stacked Door"
+ },
+ "Right 5-Piece...": {
+  "pt_BR": "5 Peças à Direita...",
+  "en_US": "Right 5-Piece..."
+ },
+ "Right Base Cabinet Qty": {
+  "pt_BR": "Qtd. de Balcões à Direita",
+  "en_US": "Right Base Cabinet Qty"
+ },
+ "Right Base Cage": {
+  "pt_BR": "Gaiola Balcão Direito",
+  "en_US": "Right Base Cage"
+ },
+ "Right Base Rect": {
+  "pt_BR": "Retângulo Balcão Direito",
+  "en_US": "Right Base Rect"
+ },
+ "Right Base Rect Top": {
+  "pt_BR": "Retângulo Superior Balcão Direito",
+  "en_US": "Right Base Rect Top"
+ },
+ "Right Cabinet Qty": {
+  "pt_BR": "Qtd. de Módulos à Direita",
+  "en_US": "Right Cabinet Qty"
+ },
+ "Right Door": {
+  "pt_BR": "Porta Direita",
+  "en_US": "Right Door"
+ },
+ "Right End Cap:": {
+  "pt_BR": "Arremate Direito:",
+  "en_US": "Right End Cap:"
+ },
+ "Right Finished Revel:": {
+  "pt_BR": "Recuo Acabado Direito:",
+  "en_US": "Right Finished Revel:"
+ },
+ "Right Offset": {
+  "pt_BR": "Afastamento Direito",
+  "en_US": "Right Offset"
+ },
+ "Right Offset:": {
+  "pt_BR": "Afastamento Direito:",
+  "en_US": "Right Offset:"
+ },
+ "Right Stacked Door": {
+  "pt_BR": "Porta Sobreposta à Direita",
+  "en_US": "Right Stacked Door"
+ },
+ "Right Stile": {
+  "pt_BR": "Montante Direito",
+  "en_US": "Right Stile"
+ },
+ "Right Stile Width": {
+  "pt_BR": "Largura do Montante Direito",
+  "en_US": "Right Stile Width"
+ },
+ "Right Swing 3 Stacked Door": {
+  "pt_BR": "3 Portas Sobrepostas Abrindo à Direita",
+  "en_US": "Right Swing 3 Stacked Door"
+ },
+ "Right Swing Stacked Door": {
+  "pt_BR": "Porta Sobreposta Abrindo à Direita",
+  "en_US": "Right Swing Stacked Door"
+ },
+ "Right Upper Cabinet Qty": {
+  "pt_BR": "Qtd. de Aéreos à Direita",
+  "en_US": "Right Upper Cabinet Qty"
+ },
+ "Right Upper Cage": {
+  "pt_BR": "Gaiola Aéreo Direito",
+  "en_US": "Right Upper Cage"
+ },
+ "Right Upper Rect": {
+  "pt_BR": "Retângulo Aéreo Direito",
+  "en_US": "Right Upper Rect"
+ },
+ "Right Upper Rect Top": {
+  "pt_BR": "Retângulo Superior Aéreo Direito",
+  "en_US": "Right Upper Rect Top"
+ },
+ "Right of Sink": {
+  "pt_BR": "À Direita da Cuba",
+  "en_US": "Right of Sink"
+ },
+ "Right side": {
+  "pt_BR": "Lado direito",
+  "en_US": "Right side"
+ },
+ "Right swing": {
+  "pt_BR": "Abre à direita",
+  "en_US": "Right swing"
+ },
+ "Rodapé atualizado em {} objeto(s)": {
+  "pt_BR": "Rodapé atualizado em {} objeto(s)",
+  "en_US": "Toe kick updated on {} object(s)"
+ },
+ "Room Dimensions": {
+  "pt_BR": "Medidas do Ambiente",
+  "en_US": "Room Dimensions"
+ },
+ "Roughness": {
+  "pt_BR": "Rugosidade",
+  "en_US": "Roughness"
+ },
+ "Rounded edge": {
+  "pt_BR": "Borda boleada",
+  "en_US": "Rounded edge"
+ },
+ "Roundover": {
+  "pt_BR": "Boleado",
+  "en_US": "Roundover"
+ },
+ "Satin Brass": {
+  "pt_BR": "Latão Acetinado",
+  "en_US": "Satin Brass"
+ },
+ "Save Cabinet Group to User Library": {
+  "pt_BR": "Salvar Grupo de Módulos na Biblioteca",
+  "en_US": "Save Cabinet Group to User Library"
+ },
+ "Save Current Crown Detail": {
+  "pt_BR": "Salvar Detalhe de Moldura Atual",
+  "en_US": "Save Current Crown Detail"
+ },
+ "Save Location": {
+  "pt_BR": "Local de Gravação",
+  "en_US": "Save Location"
+ },
+ "Save a cabinet group to see it here": {
+  "pt_BR": "Salve um grupo de módulos para ele aparecer aqui",
+  "en_US": "Save a cabinet group to see it here"
+ },
+ "Save to Library": {
+  "pt_BR": "Salvar na Biblioteca",
+  "en_US": "Save to Library"
+ },
+ "Saved Groups ({})": {
+  "pt_BR": "Grupos Salvos ({})",
+  "en_US": "Saved Groups ({})"
+ },
+ "Saved cabinet group to: {}": {
+  "pt_BR": "Grupo de módulos salvo em: {}",
+  "en_US": "Saved cabinet group to: {}"
+ },
+ "Saved color: {}": {
+  "pt_BR": "Cor salva: {}",
+  "en_US": "Saved color: {}"
+ },
+ "Saved custom {} color: {}": {
+  "pt_BR": "Cor personalizada de {} salva: {}",
+  "en_US": "Saved custom {} color: {}"
+ },
+ "Secondary Color": {
+  "pt_BR": "Cor Secundária",
+  "en_US": "Secondary Color"
+ },
+ "Secondary Color:": {
+  "pt_BR": "Cor Secundária:",
+  "en_US": "Secondary Color:"
+ },
+ "Section 1": {
+  "pt_BR": "Seção 1",
+  "en_US": "Section 1"
+ },
+ "Section 10": {
+  "pt_BR": "Seção 10",
+  "en_US": "Section 10"
+ },
+ "Section 2": {
+  "pt_BR": "Seção 2",
+  "en_US": "Section 2"
+ },
+ "Section 3": {
+  "pt_BR": "Seção 3",
+  "en_US": "Section 3"
+ },
+ "Section 4": {
+  "pt_BR": "Seção 4",
+  "en_US": "Section 4"
+ },
+ "Section 5": {
+  "pt_BR": "Seção 5",
+  "en_US": "Section 5"
+ },
+ "Section 6": {
+  "pt_BR": "Seção 6",
+  "en_US": "Section 6"
+ },
+ "Section 7": {
+  "pt_BR": "Seção 7",
+  "en_US": "Section 7"
+ },
+ "Section 8": {
+  "pt_BR": "Seção 8",
+  "en_US": "Section 8"
+ },
+ "Section 9": {
+  "pt_BR": "Seção 9",
+  "en_US": "Section 9"
+ },
+ "Section Heights:": {
+  "pt_BR": "Alturas das Seções:",
+  "en_US": "Section Heights:"
+ },
+ "Section Types:": {
+  "pt_BR": "Tipos das Seções:",
+  "en_US": "Section Types:"
+ },
+ "Section Widths:": {
+  "pt_BR": "Larguras das Seções:",
+  "en_US": "Section Widths:"
+ },
+ "Section {}:": {
+  "pt_BR": "Seção {}:",
+  "en_US": "Section {}:"
+ },
+ "Select Cabinet Group": {
+  "pt_BR": "Selecionar Grupo de Módulos",
+  "en_US": "Select Cabinet Group"
+ },
+ "Select Elevation Template": {
+  "pt_BR": "Escolher Modelo de Elevação",
+  "en_US": "Select Elevation Template"
+ },
+ "Select Elevation Template...": {
+  "pt_BR": "Escolher Modelo de Elevação...",
+  "en_US": "Select Elevation Template..."
+ },
+ "Select a wall to use templates": {
+  "pt_BR": "Selecione uma parede para usar os modelos",
+  "en_US": "Select a wall to use templates"
+ },
+ "Select an elevation template for the current wall": {
+  "pt_BR": "Escolhe um modelo de elevação para a parede atual",
+  "en_US": "Select an elevation template for the current wall"
+ },
+ "Select at least 1 cabinet to adjust sizes": {
+  "pt_BR": "Selecione ao menos 1 módulo para ajustar as medidas",
+  "en_US": "Select at least 1 cabinet to adjust sizes"
+ },
+ "Select at least 2 faces": {
+  "pt_BR": "Selecione ao menos 2 faces",
+  "en_US": "Select at least 2 faces"
+ },
+ "Select cabinet group category": {
+  "pt_BR": "Escolhe a categoria do grupo de módulos",
+  "en_US": "Select cabinet group category"
+ },
+ "Select finish for cabinet pulls": {
+  "pt_BR": "Escolhe o acabamento dos puxadores",
+  "en_US": "Select finish for cabinet pulls"
+ },
+ "Select pull category": {
+  "pt_BR": "Escolhe a categoria do puxador",
+  "en_US": "Select pull category"
+ },
+ "Select pull style for doors": {
+  "pt_BR": "Escolhe o puxador das portas",
+  "en_US": "Select pull style for doors"
+ },
+ "Select pull style for drawers": {
+  "pt_BR": "Escolhe o puxador das gavetas",
+  "en_US": "Select pull style for drawers"
+ },
+ "Selected Index": {
+  "pt_BR": "Índice Selecionado",
+  "en_US": "Selected Index"
+ },
+ "Selected Only": {
+  "pt_BR": "Só Selecionados",
+  "en_US": "Selected Only"
+ },
+ "Selected Template": {
+  "pt_BR": "Modelo Escolhido",
+  "en_US": "Selected Template"
+ },
+ "Set shelf quantities based on opening heights": {
+  "pt_BR": "Define a quantidade de prateleiras pela altura dos vãos",
+  "en_US": "Set shelf quantities based on opening heights"
+ },
+ "Set the floor height, spacing, and size of the selected floating shelves": {
+  "pt_BR": "Define a altura do piso, o espaçamento e o tamanho das prateleiras flutuantes selecionadas",
+  "en_US": "Set the floor height, spacing, and size of the selected floating shelves"
+ },
+ "Setback": {
+  "pt_BR": "Recuo",
+  "en_US": "Setback"
+ },
+ "Setback:": {
+  "pt_BR": "Recuo:",
+  "en_US": "Setback:"
+ },
+ "Shader Parameters:": {
+  "pt_BR": "Parâmetros do Shader:",
+  "en_US": "Shader Parameters:"
+ },
+ "Shape Threshold": {
+  "pt_BR": "Limite de Forma",
+  "en_US": "Shape Threshold"
+ },
+ "Shelf Clip Gap": {
+  "pt_BR": "Folga do Suporte da Prateleira",
+  "en_US": "Shelf Clip Gap"
+ },
+ "Shelf Clip Gap:": {
+  "pt_BR": "Folga do Suporte:",
+  "en_US": "Shelf Clip Gap:"
+ },
+ "Shelf Quantity:": {
+  "pt_BR": "Quantidade de Prateleiras:",
+  "en_US": "Shelf Quantity:"
+ },
+ "Shelf Setback": {
+  "pt_BR": "Recuo da Prateleira",
+  "en_US": "Shelf Setback"
+ },
+ "Shelf Setback:": {
+  "pt_BR": "Recuo da Prateleira:",
+  "en_US": "Shelf Setback:"
+ },
+ "Shelves": {
+  "pt_BR": "Prateleiras",
+  "en_US": "Shelves"
+ },
+ "Shelves (bottom to top)": {
+  "pt_BR": "Prateleiras (de baixo para cima)",
+  "en_US": "Shelves (bottom to top)"
+ },
+ "Show Advanced Color Options": {
+  "pt_BR": "Mostrar Opções Avançadas de Cor",
+  "en_US": "Show Advanced Color Options"
+ },
+ "Show Appliance Library": {
+  "pt_BR": "Mostrar Biblioteca de Eletros",
+  "en_US": "Show Appliance Library"
+ },
+ "Show Appliance Library.": {
+  "pt_BR": "Mostra biblioteca de eletros.",
+  "en_US": "Show Appliance Library."
+ },
+ "Show Cabinet Library": {
+  "pt_BR": "Mostrar Biblioteca de Módulos",
+  "en_US": "Show Cabinet Library"
+ },
+ "Show Cabinet Library.": {
+  "pt_BR": "Mostra biblioteca de módulos.",
+  "en_US": "Show Cabinet Library."
+ },
+ "Show Cabinet Sizes": {
+  "pt_BR": "Mostrar Medidas dos Módulos",
+  "en_US": "Show Cabinet Sizes"
+ },
+ "Show Cabinet Sizes.": {
+  "pt_BR": "Mostra medidas dos módulos.",
+  "en_US": "Show Cabinet Sizes."
+ },
+ "Show Cabinet Styles": {
+  "pt_BR": "Mostrar Estilos de Módulo",
+  "en_US": "Show Cabinet Styles"
+ },
+ "Show Cabinet Styles.": {
+  "pt_BR": "Mostra estilos de módulo.",
+  "en_US": "Show Cabinet Styles."
+ },
+ "Show Corner Cabinet Library": {
+  "pt_BR": "Mostrar Biblioteca de Módulos de Canto",
+  "en_US": "Show Corner Cabinet Library"
+ },
+ "Show Corner Cabinet Library.": {
+  "pt_BR": "Mostra biblioteca de módulos de canto.",
+  "en_US": "Show Corner Cabinet Library."
+ },
+ "Show Countertop Options": {
+  "pt_BR": "Mostrar Opções de Tampo",
+  "en_US": "Show Countertop Options"
+ },
+ "Show Countertop Options.": {
+  "pt_BR": "Mostra opções de tampo.",
+  "en_US": "Show Countertop Options."
+ },
+ "Show Crown Details": {
+  "pt_BR": "Mostrar Detalhes de Moldura",
+  "en_US": "Show Crown Details"
+ },
+ "Show Crown Details.": {
+  "pt_BR": "Mostra detalhes de moldura.",
+  "en_US": "Show Crown Details."
+ },
+ "Show Drawer Options": {
+  "pt_BR": "Mostrar Opções de Gaveta",
+  "en_US": "Show Drawer Options"
+ },
+ "Show Drawer Options.": {
+  "pt_BR": "Mostra opções de gaveta.",
+  "en_US": "Show Drawer Options."
+ },
+ "Show Elevation Templates": {
+  "pt_BR": "Mostrar Modelos de Elevação",
+  "en_US": "Show Elevation Templates"
+ },
+ "Show Elevation Templates.": {
+  "pt_BR": "Mostra modelos de elevação.",
+  "en_US": "Show Elevation Templates."
+ },
+ "Show Expanded": {
+  "pt_BR": "Mostrar Expandido",
+  "en_US": "Show Expanded"
+ },
+ "Show Front Options": {
+  "pt_BR": "Mostrar Opções de Frente",
+  "en_US": "Show Front Options"
+ },
+ "Show Front Options.": {
+  "pt_BR": "Mostra opções de frente.",
+  "en_US": "Show Front Options."
+ },
+ "Show General Options": {
+  "pt_BR": "Mostrar Opções Gerais",
+  "en_US": "Show General Options"
+ },
+ "Show General Options.": {
+  "pt_BR": "Mostra opções gerais.",
+  "en_US": "Show General Options."
+ },
+ "Show Grain Options": {
+  "pt_BR": "Mostrar Opções de Veio",
+  "en_US": "Show Grain Options"
+ },
+ "Show Handle Options": {
+  "pt_BR": "Mostrar Opções de Puxador",
+  "en_US": "Show Handle Options"
+ },
+ "Show Handle Options.": {
+  "pt_BR": "Mostra opções de puxador.",
+  "en_US": "Show Handle Options."
+ },
+ "Show Machining": {
+  "pt_BR": "Mostrar Usinagem",
+  "en_US": "Show Machining"
+ },
+ "Show Part Library": {
+  "pt_BR": "Mostrar Biblioteca de Peças",
+  "en_US": "Show Part Library"
+ },
+ "Show Part Library.": {
+  "pt_BR": "Mostra biblioteca de peças.",
+  "en_US": "Show Part Library."
+ },
+ "Show Toe Kick Details": {
+  "pt_BR": "Mostrar Detalhes de Rodapé",
+  "en_US": "Show Toe Kick Details"
+ },
+ "Show Toe Kick Details.": {
+  "pt_BR": "Mostra detalhes de rodapé.",
+  "en_US": "Show Toe Kick Details."
+ },
+ "Show Upper Bottom Details": {
+  "pt_BR": "Mostrar Detalhes da Base do Aéreo",
+  "en_US": "Show Upper Bottom Details"
+ },
+ "Show Upper Bottom Details.": {
+  "pt_BR": "Mostra detalhes da base do aéreo.",
+  "en_US": "Show Upper Bottom Details."
+ },
+ "Show User Library": {
+  "pt_BR": "Mostrar Biblioteca do Usuário",
+  "en_US": "Show User Library"
+ },
+ "Show User Library.": {
+  "pt_BR": "Mostra biblioteca do usuário.",
+  "en_US": "Show User Library."
+ },
+ "Show advanced shader parameters for color editing": {
+  "pt_BR": "Mostra os parâmetros avançados do shader para editar a cor",
+  "en_US": "Show advanced shader parameters for color editing"
+ },
+ "Show all cabinet groups": {
+  "pt_BR": "Mostra todos os grupos de módulos",
+  "en_US": "Show all cabinet groups"
+ },
+ "Show all pulls": {
+  "pt_BR": "Mostra todos os puxadores",
+  "en_US": "Show all pulls"
+ },
+ "Show expanded style options": {
+  "pt_BR": "Mostra as opções completas do estilo",
+  "en_US": "Show expanded style options"
+ },
+ "Side Overhang": {
+  "pt_BR": "Avanço Lateral",
+  "en_US": "Side Overhang"
+ },
+ "Simple slab panel": {
+  "pt_BR": "Painel liso simples",
+  "en_US": "Simple slab panel"
+ },
+ "Single Drawer": {
+  "pt_BR": "Gaveta Simples",
+  "en_US": "Single Drawer"
+ },
+ "Single drawer": {
+  "pt_BR": "Gaveta simples",
+  "en_US": "Single drawer"
+ },
+ "Single left swing door": {
+  "pt_BR": "Porta simples abrindo à esquerda",
+  "en_US": "Single left swing door"
+ },
+ "Single right swing door": {
+  "pt_BR": "Porta simples abrindo à direita",
+  "en_US": "Single right swing door"
+ },
+ "Sink Cage": {
+  "pt_BR": "Gaiola Cuba",
+  "en_US": "Sink Cage"
+ },
+ "Sink Location": {
+  "pt_BR": "Posição da Cuba",
+  "en_US": "Sink Location"
+ },
+ "Sink Rect": {
+  "pt_BR": "Retângulo Cuba",
+  "en_US": "Sink Rect"
+ },
+ "Sink Rect Top": {
+  "pt_BR": "Retângulo Superior Cuba",
+  "en_US": "Sink Rect Top"
+ },
+ "Sink Width": {
+  "pt_BR": "Largura da Cuba",
+  "en_US": "Sink Width"
+ },
+ "Sink Width:": {
+  "pt_BR": "Largura da Cuba:",
+  "en_US": "Sink Width:"
+ },
+ "Sink in center": {
+  "pt_BR": "Cuba no centro",
+  "en_US": "Sink in center"
+ },
+ "Sink:": {
+  "pt_BR": "Cuba:",
+  "en_US": "Sink:"
+ },
+ "Sizes": {
+  "pt_BR": "Medidas",
+  "en_US": "Sizes"
+ },
+ "Skin Thickness:": {
+  "pt_BR": "Espessura do Revestimento:",
+  "en_US": "Skin Thickness:"
+ },
+ "Slab Panel": {
+  "pt_BR": "Painel Liso",
+  "en_US": "Slab Panel"
+ },
+ "Slab Panels:": {
+  "pt_BR": "Painéis Lisos:",
+  "en_US": "Slab Panels:"
+ },
+ "Slightly rounded edge": {
+  "pt_BR": "Borda levemente arredondada",
+  "en_US": "Slightly rounded edge"
+ },
+ "Snap Line Commands": {
+  "pt_BR": "Comandos da Linha de Encaixe",
+  "en_US": "Snap Line Commands"
+ },
+ "Snap line deleted": {
+  "pt_BR": "Linha de encaixe apagada",
+  "en_US": "Snap line deleted"
+ },
+ "Snap line placed at {}": {
+  "pt_BR": "Linha de encaixe inserida em {}",
+  "en_US": "Snap line placed at {}"
+ },
+ "Snap {}": {
+  "pt_BR": "Encaixe {}",
+  "en_US": "Snap {}"
+ },
+ "Solid slab door": {
+  "pt_BR": "Porta lisa maciça",
+  "en_US": "Solid slab door"
+ },
+ "Spacing": {
+  "pt_BR": "Espaçamento",
+  "en_US": "Spacing"
+ },
+ "Spacing (clear gap):": {
+  "pt_BR": "Espaçamento (vão livre):",
+  "en_US": "Spacing (clear gap):"
+ },
+ "Splitter Object": {
+  "pt_BR": "Objeto Divisor",
+  "en_US": "Splitter Object"
+ },
+ "Square": {
+  "pt_BR": "Reto",
+  "en_US": "Square"
+ },
+ "Square edge": {
+  "pt_BR": "Borda reta",
+  "en_US": "Square edge"
+ },
+ "Stacked Top Cabinet Height:": {
+  "pt_BR": "Altura do Aéreo Sobreposto:",
+  "en_US": "Stacked Top Cabinet Height:"
+ },
+ "Stain Color": {
+  "pt_BR": "Cor do Tingimento",
+  "en_US": "Stain Color"
+ },
+ "Stain color for cabinet finish": {
+  "pt_BR": "Cor do tingimento do acabamento",
+  "en_US": "Stain color for cabinet finish"
+ },
+ "Stainless Steel": {
+  "pt_BR": "Aço Inox",
+  "en_US": "Stainless Steel"
+ },
+ "Standard adjustable shelves": {
+  "pt_BR": "Prateleiras reguláveis padrão",
+  "en_US": "Standard adjustable shelves"
+ },
+ "Stretchers": {
+  "pt_BR": "Travessas",
+  "en_US": "Stretchers"
+ },
+ "Stud Spacing:": {
+  "pt_BR": "Espaçamento dos Montantes:",
+  "en_US": "Stud Spacing:"
+ },
+ "Stud Thickness:": {
+  "pt_BR": "Espessura do Montante:",
+  "en_US": "Stud Thickness:"
+ },
+ "Style Name": {
+  "pt_BR": "Nome do Estilo",
+  "en_US": "Style Name"
+ },
+ "Style painting cancelled": {
+  "pt_BR": "Pintura de estilo cancelada",
+  "en_US": "Style painting cancelled"
+ },
+ "Support Frame Commands": {
+  "pt_BR": "Comandos da Estrutura de Apoio",
+  "en_US": "Support Frame Commands"
+ },
+ "Support Frame Prompts": {
+  "pt_BR": "Opções da Estrutura de Apoio",
+  "en_US": "Support Frame Prompts"
+ },
+ "Support Spacing:": {
+  "pt_BR": "Espaçamento dos Apoios:",
+  "en_US": "Support Spacing:"
+ },
+ "Tall Cabinet Depth": {
+  "pt_BR": "Profundidade do Paneleiro",
+  "en_US": "Tall Cabinet Depth"
+ },
+ "Tall Cabinet Height": {
+  "pt_BR": "Altura do Paneleiro",
+  "en_US": "Tall Cabinet Height"
+ },
+ "Tall Cabinet Split Height": {
+  "pt_BR": "Altura da Divisão do Paneleiro",
+  "en_US": "Tall Cabinet Split Height"
+ },
+ "Tall Inside Corner Size": {
+  "pt_BR": "Medida do Canto Interno do Paneleiro",
+  "en_US": "Tall Inside Corner Size"
+ },
+ "Tall Leg": {
+  "pt_BR": "Pé Alto",
+  "en_US": "Tall Leg"
+ },
+ "Tall Pullout": {
+  "pt_BR": "Gaveteiro Alto",
+  "en_US": "Tall Pullout"
+ },
+ "Tall Split Height:": {
+  "pt_BR": "Altura da Divisão do Paneleiro:",
+  "en_US": "Tall Split Height:"
+ },
+ "Tall Stacked": {
+  "pt_BR": "Paneleiro Sobreposto",
+  "en_US": "Tall Stacked"
+ },
+ "Tall Width Blind": {
+  "pt_BR": "Largura do Paneleiro de Canto Cego",
+  "en_US": "Tall Width Blind"
+ },
+ "Tall cabinet": {
+  "pt_BR": "Paneleiro",
+  "en_US": "Tall cabinet"
+ },
+ "Template '{}' not found": {
+  "pt_BR": "Modelo '{}' não encontrado",
+  "en_US": "Template '{}' not found"
+ },
+ "Template Name": {
+  "pt_BR": "Nome do Modelo",
+  "en_US": "Template Name"
+ },
+ "Texture Variation 1": {
+  "pt_BR": "Variação de Textura 1",
+  "en_US": "Texture Variation 1"
+ },
+ "Texture Variation 2": {
+  "pt_BR": "Variação de Textura 2",
+  "en_US": "Texture Variation 2"
+ },
+ "Thick": {
+  "pt_BR": "Esp.",
+  "en_US": "Thick"
+ },
+ "Thickness of the center panel": {
+  "pt_BR": "Espessura da almofada central",
+  "en_US": "Thickness of the center panel"
+ },
+ "Thickness of the countertop slab": {
+  "pt_BR": "Espessura do tampo",
+  "en_US": "Thickness of the countertop slab"
+ },
+ "Thickness of the lumber": {
+  "pt_BR": "Espessura da madeira",
+  "en_US": "Thickness of the lumber"
+ },
+ "This will create a cabinet group for all of the selected cabinets": {
+  "pt_BR": "Cria um grupo com todos os módulos selecionados",
+  "en_US": "This will create a cabinet group for all of the selected cabinets"
+ },
+ "This will save the cabinet group to the user library": {
+  "pt_BR": "Salva o grupo de módulos na biblioteca do usuário",
+  "en_US": "This will save the cabinet group to the user library"
+ },
+ "This will select the cabinet group": {
+  "pt_BR": "Seleciona o grupo de módulos",
+  "en_US": "This will select the cabinet group"
+ },
+ "This will toggle the cabinet mode": {
+  "pt_BR": "Alterna o modo de módulo",
+  "en_US": "This will toggle the cabinet mode"
+ },
+ "Three double doors stacked": {
+  "pt_BR": "Três portas duplas sobrepostas",
+  "en_US": "Three double doors stacked"
+ },
+ "Three equal drawers": {
+  "pt_BR": "Três gavetas iguais",
+  "en_US": "Three equal drawers"
+ },
+ "Three left swing doors stacked": {
+  "pt_BR": "Três portas sobrepostas abrindo à esquerda",
+  "en_US": "Three left swing doors stacked"
+ },
+ "Three right swing doors stacked": {
+  "pt_BR": "Três portas sobrepostas abrindo à direita",
+  "en_US": "Three right swing doors stacked"
+ },
+ "Toe Kick": {
+  "pt_BR": "Rodapé",
+  "en_US": "Toe Kick"
+ },
+ "Toe Kick Details": {
+  "pt_BR": "Detalhes de Rodapé",
+  "en_US": "Toe Kick Details"
+ },
+ "Toe Kick Height:": {
+  "pt_BR": "Altura do Rodapé:",
+  "en_US": "Toe Kick Height:"
+ },
+ "Toe Kick Setback:": {
+  "pt_BR": "Recuo do Rodapé:",
+  "en_US": "Toe Kick Setback:"
+ },
+ "Toe Kick Type": {
+  "pt_BR": "Tipo de Rodapé",
+  "en_US": "Toe Kick Type"
+ },
+ "Toe Kick:": {
+  "pt_BR": "Rodapé:",
+  "en_US": "Toe Kick:"
+ },
+ "Toe kick detail scene not found": {
+  "pt_BR": "Cena do detalhe de rodapé não encontrada",
+  "en_US": "Toe kick detail scene not found"
+ },
+ "Toggle Mode": {
+  "pt_BR": "Alternar Modo",
+  "en_US": "Toggle Mode"
+ },
+ "Toggle On": {
+  "pt_BR": "Ligar",
+  "en_US": "Toggle On"
+ },
+ "Toggle Type": {
+  "pt_BR": "Alternar Tipo",
+  "en_US": "Toggle Type"
+ },
+ "Top Cabinet Clearance:": {
+  "pt_BR": "Folga dos Aéreos ao Teto:",
+  "en_US": "Top Cabinet Clearance:"
+ },
+ "Top Drawer Front Height": {
+  "pt_BR": "Altura da Frente da Gaveta Superior",
+  "en_US": "Top Drawer Front Height"
+ },
+ "Top Rail": {
+  "pt_BR": "Travessa Superior",
+  "en_US": "Top Rail"
+ },
+ "Top Scribe Amount:": {
+  "pt_BR": "Ajuste Superior:",
+  "en_US": "Top Scribe Amount:"
+ },
+ "Topo atualizado em {} gabinete(s)": {
+  "pt_BR": "Topo atualizado em {} gabinete(s)",
+  "en_US": "Top updated on {} cabinet(s)"
+ },
+ "Total Width:": {
+  "pt_BR": "Largura Total:",
+  "en_US": "Total Width:"
+ },
+ "Two appliance openings stacked": {
+  "pt_BR": "Dois vãos de eletro sobrepostos",
+  "en_US": "Two appliance openings stacked"
+ },
+ "Two double doors stacked": {
+  "pt_BR": "Duas portas duplas sobrepostas",
+  "en_US": "Two double doors stacked"
+ },
+ "Two drawers over double doors": {
+  "pt_BR": "Duas gavetas sobre portas duplas",
+  "en_US": "Two drawers over double doors"
+ },
+ "Two equal drawers": {
+  "pt_BR": "Duas gavetas iguais",
+  "en_US": "Two equal drawers"
+ },
+ "Two left swing doors stacked": {
+  "pt_BR": "Duas portas sobrepostas abrindo à esquerda",
+  "en_US": "Two left swing doors stacked"
+ },
+ "Two right swing doors stacked": {
+  "pt_BR": "Duas portas sobrepostas abrindo à direita",
+  "en_US": "Two right swing doors stacked"
+ },
+ "UV Plywood": {
+  "pt_BR": "Compensado UV",
+  "en_US": "UV Plywood"
+ },
+ "UV plywood": {
+  "pt_BR": "Compensado UV",
+  "en_US": "UV plywood"
+ },
+ "Uncategorized cabinet groups": {
+  "pt_BR": "Grupos de módulos sem categoria",
+  "en_US": "Uncategorized cabinet groups"
+ },
+ "Uncategorized pulls": {
+  "pt_BR": "Puxadores sem categoria",
+  "en_US": "Uncategorized pulls"
+ },
+ "Update All Pulls": {
+  "pt_BR": "Atualizar Todos os Puxadores",
+  "en_US": "Update All Pulls"
+ },
+ "Update Base Top Construction Prompts": {
+  "pt_BR": "Atualizar Opções do Topo do Balcão",
+  "en_US": "Update Base Top Construction Prompts"
+ },
+ "Update Cabinet Materials": {
+  "pt_BR": "Atualizar Materiais dos Módulos",
+  "en_US": "Update Cabinet Materials"
+ },
+ "Update Cabinet Pulls": {
+  "pt_BR": "Atualizar Puxadores dos Módulos",
+  "en_US": "Update Cabinet Pulls"
+ },
+ "Update Cabinet Sizes": {
+  "pt_BR": "Atualizar Medidas dos Módulos",
+  "en_US": "Update Cabinet Sizes"
+ },
+ "Update Cabinets": {
+  "pt_BR": "Atualizar Módulos",
+  "en_US": "Update Cabinets"
+ },
+ "Update Cabinets from Style": {
+  "pt_BR": "Atualizar Módulos pelo Estilo",
+  "en_US": "Update Cabinets from Style"
+ },
+ "Update Door and Drawer Front Style": {
+  "pt_BR": "Atualizar Estilo de Portas e Frentes",
+  "en_US": "Update Door and Drawer Front Style"
+ },
+ "Update Drawer Front Height Prompts": {
+  "pt_BR": "Atualizar Opções de Altura da Gaveta",
+  "en_US": "Update Drawer Front Height Prompts"
+ },
+ "Update Finished End": {
+  "pt_BR": "Atualizar Lateral Acabada",
+  "en_US": "Update Finished End"
+ },
+ "Update Fronts": {
+  "pt_BR": "Atualizar Frentes",
+  "en_US": "Update Fronts"
+ },
+ "Update Fronts from Style": {
+  "pt_BR": "Atualizar Frentes pelo Estilo",
+  "en_US": "Update Fronts from Style"
+ },
+ "Update Material Thickness Prompts": {
+  "pt_BR": "Atualizar Opções de Espessura",
+  "en_US": "Update Material Thickness Prompts"
+ },
+ "Update Pull Finish": {
+  "pt_BR": "Atualizar Acabamento dos Puxadores",
+  "en_US": "Update Pull Finish"
+ },
+ "Update Pull Locations": {
+  "pt_BR": "Atualizar Posição dos Puxadores",
+  "en_US": "Update Pull Locations"
+ },
+ "Update Pulls": {
+  "pt_BR": "Atualizar Puxadores",
+  "en_US": "Update Pulls"
+ },
+ "Update Toe Kick Prompts": {
+  "pt_BR": "Atualizar Opções do Rodapé",
+  "en_US": "Update Toe Kick Prompts"
+ },
+ "Update Type": {
+  "pt_BR": "Tipo de Atualização",
+  "en_US": "Update Type"
+ },
+ "Update all cabinet depths and heights to match the current size settings": {
+  "pt_BR": "Atualiza profundidade e altura de todos os módulos conforme as medidas atuais",
+  "en_US": "Update all cabinet depths and heights to match the current size settings"
+ },
+ "Update all cabinets in the project with the current material thickness": {
+  "pt_BR": "Atualiza todos os módulos do projeto com a espessura atual",
+  "en_US": "Update all cabinets in the project with the current material thickness"
+ },
+ "Update all cabinets in the scene that use the active cabinet style with current style settings": {
+  "pt_BR": "Atualiza todos os módulos da cena que usam o estilo ativo com as configurações atuais dele",
+  "en_US": "Update all cabinets in the scene that use the active cabinet style with current style settings"
+ },
+ "Update all door and drawer fronts that use the active door style": {
+  "pt_BR": "Atualiza todas as portas e frentes que usam o estilo ativo",
+  "en_US": "Update all door and drawer fronts that use the active door style"
+ },
+ "Update all door and drawer fronts with the selected door style": {
+  "pt_BR": "Atualiza todas as portas e frentes com o estilo escolhido",
+  "en_US": "Update all door and drawer fronts with the selected door style"
+ },
+ "Update all pull locations": {
+  "pt_BR": "Atualiza a posição de todos os puxadores",
+  "en_US": "Update all pull locations"
+ },
+ "Update all pulls": {
+  "pt_BR": "Atualiza todos os puxadores",
+  "en_US": "Update all pulls"
+ },
+ "Update door pull locations": {
+  "pt_BR": "Atualiza a posição dos puxadores das portas",
+  "en_US": "Update door pull locations"
+ },
+ "Update door pulls": {
+  "pt_BR": "Atualiza os puxadores de porta",
+  "en_US": "Update door pulls"
+ },
+ "Update drawer pull locations": {
+  "pt_BR": "Atualiza a posição dos puxadores das gavetas",
+  "en_US": "Update drawer pull locations"
+ },
+ "Update drawer pulls": {
+  "pt_BR": "Atualiza os puxadores de gaveta",
+  "en_US": "Update drawer pulls"
+ },
+ "Update pull locations on all fronts to match current global settings": {
+  "pt_BR": "Atualiza a posição dos puxadores em todas as frentes conforme as configurações gerais",
+  "en_US": "Update pull locations on all fronts to match current global settings"
+ },
+ "Update pull selection, locations, and finish on all cabinets": {
+  "pt_BR": "Atualiza modelo, posição e acabamento dos puxadores em todos os módulos",
+  "en_US": "Update pull selection, locations, and finish on all cabinets"
+ },
+ "Update pulls on all cabinets to match current selection": {
+  "pt_BR": "Atualiza os puxadores de todos os módulos conforme a escolha atual",
+  "en_US": "Update pulls on all cabinets to match current selection"
+ },
+ "Update the finished end condition for the selected cabinet": {
+  "pt_BR": "Atualiza o acabamento da lateral do módulo selecionado",
+  "en_US": "Update the finished end condition for the selected cabinet"
+ },
+ "Update {} Finished End": {
+  "pt_BR": "Atualizar Lateral Acabada {}",
+  "en_US": "Update {} Finished End"
+ },
+ "Updated all pulls": {
+  "pt_BR": "Todos os puxadores atualizados",
+  "en_US": "Updated all pulls"
+ },
+ "Updated materials on {} cabinet(s) with style '{}'": {
+  "pt_BR": "Materiais atualizados em {} módulo(s) com o estilo '{}'",
+  "en_US": "Updated materials on {} cabinet(s) with style '{}'"
+ },
+ "Updated {} cabinet(s) with style '{}'": {
+  "pt_BR": "{} módulo(s) atualizado(s) com o estilo '{}'",
+  "en_US": "Updated {} cabinet(s) with style '{}'"
+ },
+ "Updated {} door front(s)": {
+  "pt_BR": "{} porta(s) atualizada(s)",
+  "en_US": "Updated {} door front(s)"
+ },
+ "Updated {} door(s) and {} drawer(s)": {
+  "pt_BR": "{} porta(s) e {} gaveta(s) atualizadas",
+  "en_US": "Updated {} door(s) and {} drawer(s)"
+ },
+ "Updated {} drawer front(s)": {
+  "pt_BR": "{} gaveta(s) atualizada(s)",
+  "en_US": "Updated {} drawer front(s)"
+ },
+ "Updated {} front(s) with style '{}'": {
+  "pt_BR": "{} frente(s) atualizada(s) com o estilo '{}'",
+  "en_US": "Updated {} front(s) with style '{}'"
+ },
+ "Updated {} front(s), skipped {} (too small for style)": {
+  "pt_BR": "{} frente(s) atualizada(s), {} ignorada(s) (pequenas demais para o estilo)",
+  "en_US": "Updated {} front(s), skipped {} (too small for style)"
+ },
+ "Updated {} pull(s)": {
+  "pt_BR": "{} puxador(es) atualizado(s)",
+  "en_US": "Updated {} pull(s)"
+ },
+ "Upper & Tall Cabinets:": {
+  "pt_BR": "Aéreos e Paneleiros:",
+  "en_US": "Upper & Tall Cabinets:"
+ },
+ "Upper Bottom Details": {
+  "pt_BR": "Detalhes da Base do Aéreo",
+  "en_US": "Upper Bottom Details"
+ },
+ "Upper Cabinet Depth": {
+  "pt_BR": "Profundidade do Aéreo",
+  "en_US": "Upper Cabinet Depth"
+ },
+ "Upper Cabinet Dim to Floor:": {
+  "pt_BR": "Altura do Aéreo ao Piso:",
+  "en_US": "Upper Cabinet Dim to Floor:"
+ },
+ "Upper Cabinet Height": {
+  "pt_BR": "Altura do Aéreo",
+  "en_US": "Upper Cabinet Height"
+ },
+ "Upper Cabinet Top Stacked Height": {
+  "pt_BR": "Altura do Aéreo Sobreposto",
+  "en_US": "Upper Cabinet Top Stacked Height"
+ },
+ "Upper Corner Type": {
+  "pt_BR": "Tipo de Canto do Aéreo",
+  "en_US": "Upper Corner Type"
+ },
+ "Upper Inside Corner Size": {
+  "pt_BR": "Medida do Canto Interno do Aéreo",
+  "en_US": "Upper Inside Corner Size"
+ },
+ "Upper Leg": {
+  "pt_BR": "Pé do Aéreo",
+  "en_US": "Upper Leg"
+ },
+ "Upper Width Blind": {
+  "pt_BR": "Largura do Aéreo de Canto Cego",
+  "en_US": "Upper Width Blind"
+ },
+ "Upper bottom detail scene not found": {
+  "pt_BR": "Cena do detalhe da base do aéreo não encontrada",
+  "en_US": "Upper bottom detail scene not found"
+ },
+ "Upper cabinet": {
+  "pt_BR": "Aéreo",
+  "en_US": "Upper cabinet"
+ },
+ "Upper:": {
+  "pt_BR": "Aéreo:",
+  "en_US": "Upper:"
+ },
+ "Use a custom material from the file": {
+  "pt_BR": "Usa um material do arquivo",
+  "en_US": "Use a custom material from the file"
+ },
+ "Use a custom pull object from the scene": {
+  "pt_BR": "Usa um objeto da cena como puxador",
+  "en_US": "Use a custom pull object from the scene"
+ },
+ "Use the same material as the exterior": {
+  "pt_BR": "Usa o mesmo material da parte externa",
+  "en_US": "Use the same material as the exterior"
+ },
+ "Use {}": {
+  "pt_BR": "Usar {}",
+  "en_US": "Use {}"
+ },
+ "User": {
+  "pt_BR": "Usuário",
+  "en_US": "User"
+ },
+ "User Library": {
+  "pt_BR": "Biblioteca do Usuário",
+  "en_US": "User Library"
+ },
+ "User library refreshed": {
+  "pt_BR": "Biblioteca do usuário atualizada",
+  "en_US": "User library refreshed"
+ },
+ "Valance": {
+  "pt_BR": "Sanefa",
+  "en_US": "Valance"
+ },
+ "Valance Commands": {
+  "pt_BR": "Comandos da Sanefa",
+  "en_US": "Valance Commands"
+ },
+ "Valance Prompts": {
+  "pt_BR": "Opções da Sanefa",
+  "en_US": "Valance Prompts"
+ },
+ "Vertical Location": {
+  "pt_BR": "Posição Vertical",
+  "en_US": "Vertical Location"
+ },
+ "Vertical Openings:": {
+  "pt_BR": "Vãos Verticais:",
+  "en_US": "Vertical Openings:"
+ },
+ "Voronoi Detail 1": {
+  "pt_BR": "Detalhe Voronoi 1",
+  "en_US": "Voronoi Detail 1"
+ },
+ "Voronoi Detail 2": {
+  "pt_BR": "Detalhe Voronoi 2",
+  "en_US": "Voronoi Detail 2"
+ },
+ "Wall": {
+  "pt_BR": "Parede",
+  "en_US": "Wall"
+ },
+ "Wall Width": {
+  "pt_BR": "Largura da Parede",
+  "en_US": "Wall Width"
+ },
+ "Wall Width:": {
+  "pt_BR": "Largura da Parede:",
+  "en_US": "Wall Width:"
+ },
+ "Walnut": {
+  "pt_BR": "Nogueira",
+  "en_US": "Walnut"
+ },
+ "Walnut wood": {
+  "pt_BR": "Madeira de nogueira",
+  "en_US": "Walnut wood"
+ },
+ "Width of left and right stiles": {
+  "pt_BR": "Largura dos montantes esquerdo e direito",
+  "en_US": "Width of left and right stiles"
+ },
+ "Width of the lumber": {
+  "pt_BR": "Largura da madeira",
+  "en_US": "Width of the lumber"
+ },
+ "Width of the mid rail": {
+  "pt_BR": "Largura da travessa central",
+  "en_US": "Width of the mid rail"
+ },
+ "Width of top and bottom rails": {
+  "pt_BR": "Largura das travessas superior e inferior",
+  "en_US": "Width of top and bottom rails"
+ },
+ "Width: {}": {
+  "pt_BR": "Largura: {}",
+  "en_US": "Width: {}"
+ },
+ "Widths": {
+  "pt_BR": "Larguras",
+  "en_US": "Widths"
+ },
+ "Wood Bump": {
+  "pt_BR": "Relevo da Madeira",
+  "en_US": "Wood Bump"
+ },
+ "Wood Bump Strength": {
+  "pt_BR": "Intensidade do Relevo da Madeira",
+  "en_US": "Wood Bump Strength"
+ },
+ "Wood Color 1": {
+  "pt_BR": "Cor da Madeira 1",
+  "en_US": "Wood Color 1"
+ },
+ "Wood Color 2": {
+  "pt_BR": "Cor da Madeira 2",
+  "en_US": "Wood Color 2"
+ },
+ "Wood Species": {
+  "pt_BR": "Espécie de Madeira",
+  "en_US": "Wood Species"
+ },
+ "Wood species for cabinet exterior": {
+  "pt_BR": "Espécie de madeira da parte externa do módulo",
+  "en_US": "Wood species for cabinet exterior"
+ },
+ "X Location": {
+  "pt_BR": "Posição X",
+  "en_US": "X Location"
+ },
+ "X Location or offset from left gap boundary": {
+  "pt_BR": "Posição X ou afastamento do limite esquerdo do vão",
+  "en_US": "X Location or offset from left gap boundary"
+ },
+ "{} Distance: {}_ | Enter to confirm | ESC to cancel typing": {
+  "pt_BR": "Distância {}: {}_ | Enter confirma | Esc cancela a digitação",
+  "en_US": "{} Distance: {}_ | Enter to confirm | ESC to cancel typing"
+ },
+ "{} Leg:": {
+  "pt_BR": "Pé {}:",
+  "en_US": "{} Leg:"
+ },
+ "{} gabinete(s) atualizado(s)": {
+  "pt_BR": "{} gabinete(s) atualizado(s)",
+  "en_US": "{} cabinet(s) updated"
+ },
+ "{} | {} | {} | {} × {} = {}{} | ↑/↓ qty | ←/→ offset | Enter place | Esc cancel": {
+  "pt_BR": "{} | {} | {} | {} × {} = {}{} | ↑/↓ qtd | ←/→ afastamento | Enter insere | Esc cancela",
+  "en_US": "{} | {} | {} | {} × {} = {}{} | ↑/↓ qty | ←/→ offset | Enter place | Esc cancel"
+ },
+ "{}: {}_ | ↑/↓ qty | ←/→ offset | Enter place | Esc cancel": {
+  "pt_BR": "{}: {}_ | ↑/↓ qtd | ←/→ afastamento | Enter insere | Esc cancela",
+  "en_US": "{}: {}_ | ↑/↓ qty | ←/→ offset | Enter place | Esc cancel"
+ },
+ "← {} | {} → | ← set left | → set right | Click place | ESC cancel": {
+  "pt_BR": "← {} | {} → | ← define esquerda | → define direita | Clique insere | Esc cancela",
+  "en_US": "← {} | {} → | ← set left | → set right | Click place | ESC cancel"
+ }
+}

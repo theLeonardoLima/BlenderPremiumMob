@@ -20,6 +20,7 @@ doesn't reset the user's value.
 import bpy
 from bpy.props import BoolProperty, FloatProperty, StringProperty
 
+from ....data.i18n import N_, tr
 from .. import types_face_frame
 from .. import types_face_frame_corner
 from ....hb_types import GeoNodeCutpart, CabinetPartModifier
@@ -533,9 +534,9 @@ class hb_face_frame_OT_set_part_scribe(bpy.types.Operator):
             return
         cab = root.face_frame_cabinet
         attr_by_role = {
-            types_face_frame.PART_ROLE_LEFT_STILE: ('left_scribe', "Left Scribe"),
-            types_face_frame.PART_ROLE_RIGHT_STILE: ('right_scribe', "Right Scribe"),
-            types_face_frame.PART_ROLE_TOP_RAIL: ('top_scribe', "Top Scribe"),
+            types_face_frame.PART_ROLE_LEFT_STILE: ('left_scribe', N_("Left Scribe")),
+            types_face_frame.PART_ROLE_RIGHT_STILE: ('right_scribe', N_("Right Scribe")),
+            types_face_frame.PART_ROLE_TOP_RAIL: ('top_scribe', N_("Top Scribe")),
         }
         entry = attr_by_role.get(role)
         if entry is None:
@@ -1254,8 +1255,8 @@ class hb_face_frame_OT_set_door_frame(bpy.types.Operator):
         row.enabled = self.mid_rail_mode in _MID_RAIL_VALUE_MODES
         # The same field carries a from-bottom location (CUSTOM) or an interior
         # panel height (TOP_PANEL / BOTTOM_PANEL); relabel to match the mode.
-        loc_label = {'TOP_PANEL': "Top Panel Height",
-                     'BOTTOM_PANEL': "Bottom Panel Height"}.get(self.mid_rail_mode, "Location")
+        loc_label = {'TOP_PANEL': tr("Top Panel Height"),
+                     'BOTTOM_PANEL': tr("Bottom Panel Height")}.get(self.mid_rail_mode, tr("Location"))
         row.prop(self, 'mid_rail_location', text=loc_label)
 
         # Read-only readout of the resulting interior-panel heights. Lives in
@@ -1268,10 +1269,10 @@ class hb_face_frame_OT_set_door_frame(bpy.types.Operator):
             box = col.box()
             box.label(text="Panel Heights")
             if top_opening is None:
-                box.label(text="Panel:  " + units.unit_to_string(us, bottom_opening))
+                box.label(text=tr("Panel:  {}").format(units.unit_to_string(us, bottom_opening)))
             else:
-                box.label(text="Top Panel:  " + units.unit_to_string(us, top_opening))
-                box.label(text="Bottom Panel:  " + units.unit_to_string(us, bottom_opening))
+                box.label(text=tr("Top Panel:  {}").format(units.unit_to_string(us, top_opening)))
+                box.label(text=tr("Bottom Panel:  {}").format(units.unit_to_string(us, bottom_opening)))
 
     def execute(self, context):
         # Live-bound via the prop update callbacks; nothing to do on OK.
@@ -1564,7 +1565,7 @@ class hb_face_frame_OT_make_part_editable(bpy.types.Operator):
             self._apply_front_one(context, obj)
         n = len(structural) + len(fronts)
         self.report({'INFO'},
-                    f"{n} part(s) editable - parametric updates off")
+                    tr("{} part(s) editable - parametric updates off").format(n))
         return {'FINISHED'}
 
 
@@ -1644,7 +1645,7 @@ class hb_face_frame_OT_revert_part_to_parametric(bpy.types.Operator):
         for root in roots.values():
             types_face_frame.recalculate_face_frame_cabinet(root)
         self.report({'INFO'},
-                    f"{len(targets)} part(s) restored to parametric")
+                    tr("{} part(s) restored to parametric").format(len(targets)))
         return {'FINISHED'}
 
 
@@ -1752,7 +1753,7 @@ class hb_face_frame_OT_set_finished_end_condition(bpy.types.Operator):
         key = self.side.lower()
         fin_type = getattr(cab, f'{key}_finished_end_condition')
         layout.prop(cab, f'{key}_finished_end_condition',
-                    text=f"{self.side.title()} Finished End")
+                    text=tr("{} Finished End").format(self.side.title()))
         # FLUSH_X needs its strip width to be meaningful.
         if fin_type == 'FLUSH_X':
             layout.prop(cab, f'{key}_flush_x_amount', text="Flush Amount")
@@ -2024,7 +2025,7 @@ class hb_face_frame_OT_set_bottom_rail_profile(bpy.types.Operator):
         try:
             root.face_frame_cabinet.bottom_rail_profile = self.profile_id
         except TypeError:
-            self.report({'WARNING'}, f"Unknown profile: {self.profile_id}")
+            self.report({'WARNING'}, tr("Unknown profile: {}").format(self.profile_id))
             return {'CANCELLED'}
         return {'FINISHED'}
 

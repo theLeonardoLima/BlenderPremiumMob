@@ -4,6 +4,7 @@ import os
 import platform
 import subprocess
 from mathutils import Vector
+from ....data.i18n import tr
 from .. import types_frameless
 from .. import props_hb_frameless
 from .... import hb_utils, hb_placement, hb_snap
@@ -177,7 +178,7 @@ class hb_frameless_OT_save_cabinet_group_to_user_library(bpy.types.Operator):
 
         # Check if file already exists
         if os.path.exists(blend_filepath):
-            self.report({'WARNING'}, f"File already exists: {blend_filename}. Overwriting.")
+            self.report({'WARNING'}, tr("File already exists: {}. Overwriting.").format(blend_filename))
 
         # Collect all objects to save (cabinet group and all descendants)
         objects_to_save = self._collect_objects_recursive(cabinet_group)
@@ -197,7 +198,7 @@ class hb_frameless_OT_save_cabinet_group_to_user_library(bpy.types.Operator):
         if self.create_thumbnail:
             self._create_thumbnail(context, cabinet_group, actual_save_path, safe_name)
 
-        self.report({'INFO'}, f"Saved cabinet group to: {blend_filepath}")
+        self.report({'INFO'}, tr("Saved cabinet group to: {}").format(blend_filepath))
         return {'FINISHED'}
 
     def _collect_objects_recursive(self, obj):
@@ -402,12 +403,12 @@ class hb_frameless_OT_load_cabinet_group_from_library(bpy.types.Operator, hb_pla
 
     def update_header(self, context):
         """Update header text with instructions."""
-        text = "Click to place cabinet group | R: rotate 90° | Right-click/Esc: cancel"
+        text = tr("Click to place cabinet group | R: rotate 90° | Right-click/Esc: cancel")
         hb_placement.draw_header_text(context, text)
 
     def execute(self, context):
         if not self.filepath or not os.path.exists(self.filepath):
-            self.report({'ERROR'}, f"File not found: {self.filepath}")
+            self.report({'ERROR'}, tr("File not found: {}").format(self.filepath))
             return {'CANCELLED'}
 
         self.init_placement(context)
@@ -452,7 +453,7 @@ class hb_frameless_OT_load_cabinet_group_from_library(bpy.types.Operator, hb_pla
         if event.type == 'LEFTMOUSE' and event.value == 'PRESS':
             hb_placement.clear_header_text(context)
             context.window.cursor_set('DEFAULT')
-            self.report({'INFO'}, f"Placed cabinet group from: {os.path.basename(self.filepath)}")
+            self.report({'INFO'}, tr("Placed cabinet group from: {}").format(os.path.basename(self.filepath)))
             return {'FINISHED'}
 
         # R key - rotate 90 degrees
@@ -537,7 +538,7 @@ class hb_frameless_OT_delete_library_item(bpy.types.Operator):
     def execute(self, context):
 
         if not self.filepath or not os.path.exists(self.filepath):
-            self.report({'ERROR'}, f"File not found: {self.filepath}")
+            self.report({'ERROR'}, tr("File not found: {}").format(self.filepath))
             return {'CANCELLED'}
 
         # Delete the blend file
@@ -551,7 +552,7 @@ class hb_frameless_OT_delete_library_item(bpy.types.Operator):
         # Clear preview cache so it doesn't show deleted item
         props_hb_frameless.clear_library_previews()
 
-        self.report({'INFO'}, f"Deleted: {self.item_name}")
+        self.report({'INFO'}, tr("Deleted: {}").format(self.item_name))
 
         # Force UI redraw
         for area in context.screen.areas:

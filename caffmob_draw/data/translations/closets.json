@@ -1,0 +1,1410 @@
+{
+ "1 Drawer": {
+  "pt_BR": "1 Gaveta",
+  "en_US": "1 Drawer"
+ },
+ "2 Drawer": {
+  "pt_BR": "2 Gavetas",
+  "en_US": "2 Drawer"
+ },
+ "3 Drawer": {
+  "pt_BR": "3 Gavetas",
+  "en_US": "3 Drawer"
+ },
+ "4 Drawer": {
+  "pt_BR": "4 Gavetas",
+  "en_US": "4 Drawer"
+ },
+ "5 Drawer": {
+  "pt_BR": "5 Gavetas",
+  "en_US": "5 Drawer"
+ },
+ "6 Drawer": {
+  "pt_BR": "6 Gavetas",
+  "en_US": "6 Drawer"
+ },
+ "7 Drawer": {
+  "pt_BR": "7 Gavetas",
+  "en_US": "7 Drawer"
+ },
+ "8 Drawer": {
+  "pt_BR": "8 Gavetas",
+  "en_US": "8 Drawer"
+ },
+ "A starter needs at least one bay": {
+  "pt_BR": "Um módulo inicial precisa de ao menos um compartimento",
+  "en_US": "A starter needs at least one bay"
+ },
+ "Abre o modo de inspeção: clique em uma porta ou gaveta para abrir ou fechar. Esc ou botão direito sai": {
+  "pt_BR": "Abre o modo de inspeção: clique em uma porta ou gaveta para abrir ou fechar. Esc ou botão direito sai",
+  "en_US": "Opens inspection mode: click a door or drawer to open or close it. Esc or right button exits"
+ },
+ "Add Closet Part": {
+  "pt_BR": "Adicionar Peça",
+  "en_US": "Add Closet Part"
+ },
+ "Add Closet Rod": {
+  "pt_BR": "Adicionar Cabideiro",
+  "en_US": "Add Closet Rod"
+ },
+ "Add Crown Molding": {
+  "pt_BR": "Adicionar Moldura Superior",
+  "en_US": "Add Crown Molding"
+ },
+ "Add Door": {
+  "pt_BR": "Adicionar Porta",
+  "en_US": "Add Door"
+ },
+ "Add Doors & Drawers": {
+  "pt_BR": "Adicionar Portas e Gavetas",
+  "en_US": "Add Doors & Drawers"
+ },
+ "Add Fixed Shelf": {
+  "pt_BR": "Adicionar Prateleira Fixa",
+  "en_US": "Add Fixed Shelf"
+ },
+ "Add Rod": {
+  "pt_BR": "Adicionar Cabideiro",
+  "en_US": "Add Rod"
+ },
+ "Add Shelf": {
+  "pt_BR": "Adicionar Prateleira",
+  "en_US": "Add Shelf"
+ },
+ "Add {}: hover an opening, click to place (keeps adding), Right-click/Esc to finish": {
+  "pt_BR": "Adicionar {}: passe sobre um vão, clique para inserir (continua adicionando), Botão direito/Esc conclui",
+  "en_US": "Add {}: hover an opening, click to place (keeps adding), Right-click/Esc to finish"
+ },
+ "Added crown to {} runs": {
+  "pt_BR": "Moldura superior adicionada em {} trechos",
+  "en_US": "Added crown to {} runs"
+ },
+ "Adjustable Shelf": {
+  "pt_BR": "Prateleira Regulável",
+  "en_US": "Adjustable Shelf"
+ },
+ "Adjustable Shelves": {
+  "pt_BR": "Prateleiras Reguláveis",
+  "en_US": "Adjustable Shelves"
+ },
+ "Adjustable Shelves...": {
+  "pt_BR": "Prateleiras Reguláveis...",
+  "en_US": "Adjustable Shelves..."
+ },
+ "Also bridge the gap at the bottom shelf height (adds a kick strip on floor-mounted bays)": {
+  "pt_BR": "Liga também a folga na altura da prateleira inferior (põe rodapé nos compartimentos de piso)",
+  "en_US": "Also bridge the gap at the bottom shelf height (adds a kick strip on floor-mounted bays)"
+ },
+ "Avantech": {
+  "pt_BR": "Avantech",
+  "en_US": "Avantech"
+ },
+ "Avantech Illumination": {
+  "pt_BR": "Avantech com Iluminação",
+  "en_US": "Avantech Illumination"
+ },
+ "Avantech with lighting; reserves battery depth": {
+  "pt_BR": "Avantech com iluminação; reserva profundidade para a bateria",
+  "en_US": "Avantech with lighting; reserves battery depth"
+ },
+ "Base Doors": {
+  "pt_BR": "Portas Baixas",
+  "en_US": "Base Doors"
+ },
+ "Base Panel Height": {
+  "pt_BR": "Altura da Lateral Baixa",
+  "en_US": "Base Panel Height"
+ },
+ "Bay Configuration": {
+  "pt_BR": "Configuração do Compartimento",
+  "en_US": "Bay Configuration"
+ },
+ "Bay Depth": {
+  "pt_BR": "Profundidade do Compartimento",
+  "en_US": "Bay Depth"
+ },
+ "Bay Height": {
+  "pt_BR": "Altura do Compartimento",
+  "en_US": "Bay Height"
+ },
+ "Bay Index": {
+  "pt_BR": "Índice do Compartimento",
+  "en_US": "Bay Index"
+ },
+ "Bay Properties...": {
+  "pt_BR": "Propriedades do Compartimento...",
+  "en_US": "Bay Properties..."
+ },
+ "Bay Quantity": {
+  "pt_BR": "Quantidade de Compartimentos",
+  "en_US": "Bay Quantity"
+ },
+ "Bay Width": {
+  "pt_BR": "Largura do Compartimento",
+  "en_US": "Bay Width"
+ },
+ "Bay contents copied": {
+  "pt_BR": "Conteúdo do compartimento copiado",
+  "en_US": "Bay contents copied"
+ },
+ "Bay depth": {
+  "pt_BR": "Profundidade do compartimento",
+  "en_US": "Bay depth"
+ },
+ "Bay height (envelope, floor to top shelf)": {
+  "pt_BR": "Altura do compartimento (do piso à prateleira superior)",
+  "en_US": "Bay height (envelope, floor to top shelf)"
+ },
+ "Bay opening width": {
+  "pt_BR": "Largura do vão do compartimento",
+  "en_US": "Bay opening width"
+ },
+ "Bay sits on the floor with a toe kick; off = the bay hangs from its top height (top and bottom fixed shelves)": {
+  "pt_BR": "O compartimento fica no piso com rodapé; desligado = fica suspenso pela altura do topo (prateleiras fixas em cima e embaixo)",
+  "en_US": "Bay sits on the floor with a toe kick; off = the bay hangs from its top height (top and bottom fixed shelves)"
+ },
+ "Bays": {
+  "pt_BR": "Compartimentos",
+  "en_US": "Bays"
+ },
+ "Bays (width / height / depth)": {
+  "pt_BR": "Compartimentos (largura / altura / profundidade)",
+  "en_US": "Bays (width / height / depth)"
+ },
+ "Black": {
+  "pt_BR": "Preto",
+  "en_US": "Black"
+ },
+ "Bottom of upper door to bottom of pull": {
+  "pt_BR": "Da base da porta superior à base do puxador",
+  "en_US": "Bottom of upper door to bottom of pull"
+ },
+ "Bottoms": {
+  "pt_BR": "Bases",
+  "en_US": "Bottoms"
+ },
+ "Cannot duplicate: unknown starter class": {
+  "pt_BR": "Não dá para duplicar: tipo de módulo inicial desconhecido",
+  "en_US": "Cannot duplicate: unknown starter class"
+ },
+ "Carcass material (panels, shelves, kicks, tops)": {
+  "pt_BR": "Material da caixa (laterais, prateleiras, rodapés, tampos)",
+  "en_US": "Carcass material (panels, shelves, kicks, tops)"
+ },
+ "Center Pulls on Drawer Fronts": {
+  "pt_BR": "Centralizar Puxadores nas Gavetas",
+  "en_US": "Center Pulls on Drawer Fronts"
+ },
+ "Center panel on 5-piece doors: wood or glass": {
+  "pt_BR": "Almofada central das portas de 5 peças: madeira ou vidro",
+  "en_US": "Center panel on 5-piece doors: wood or glass"
+ },
+ "Change Hanger": {
+  "pt_BR": "Trocar Cabide",
+  "en_US": "Change Hanger"
+ },
+ "Change Hanger...": {
+  "pt_BR": "Trocar Cabide...",
+  "en_US": "Change Hanger..."
+ },
+ "Change Opening": {
+  "pt_BR": "Trocar Vão",
+  "en_US": "Change Opening"
+ },
+ "Changed {} bays": {
+  "pt_BR": "{} compartimentos alterados",
+  "en_US": "Changed {} bays"
+ },
+ "Changed {} openings": {
+  "pt_BR": "{} vãos alterados",
+  "en_US": "Changed {} openings"
+ },
+ "Clear Bay": {
+  "pt_BR": "Esvaziar Compartimento",
+  "en_US": "Clear Bay"
+ },
+ "Clear Closet Molding": {
+  "pt_BR": "Limpar Molduras do Closet",
+  "en_US": "Clear Closet Molding"
+ },
+ "Clear Glass": {
+  "pt_BR": "Vidro Incolor",
+  "en_US": "Clear Glass"
+ },
+ "Clear Opening": {
+  "pt_BR": "Esvaziar Vão",
+  "en_US": "Clear Opening"
+ },
+ "Clearance": {
+  "pt_BR": "Folga",
+  "en_US": "Clearance"
+ },
+ "Clearance ({})": {
+  "pt_BR": "Folga ({})",
+  "en_US": "Clearance ({})"
+ },
+ "Closet Bay Commands": {
+  "pt_BR": "Comandos do Compartimento",
+  "en_US": "Closet Bay Commands"
+ },
+ "Closet Bay Properties": {
+  "pt_BR": "Propriedades do Compartimento",
+  "en_US": "Closet Bay Properties"
+ },
+ "Closet Bay Props": {
+  "pt_BR": "Propriedades do Compartimento",
+  "en_US": "Closet Bay Props"
+ },
+ "Closet Dimension Label Click": {
+  "pt_BR": "Clique na Medida do Closet",
+  "en_US": "Closet Dimension Label Click"
+ },
+ "Closet Edge": {
+  "pt_BR": "Borda do Closet",
+  "en_US": "Closet Edge"
+ },
+ "Closet Edgebanding": {
+  "pt_BR": "Fita de Borda do Closet",
+  "en_US": "Closet Edgebanding"
+ },
+ "Closet Material": {
+  "pt_BR": "Material do Closet",
+  "en_US": "Closet Material"
+ },
+ "Closet Name": {
+  "pt_BR": "Nome do Closet",
+  "en_US": "Closet Name"
+ },
+ "Closet Opening Commands": {
+  "pt_BR": "Comandos do Vão",
+  "en_US": "Closet Opening Commands"
+ },
+ "Closet Options": {
+  "pt_BR": "Opções do Closet",
+  "en_US": "Closet Options"
+ },
+ "Closet Part Commands": {
+  "pt_BR": "Comandos da Peça",
+  "en_US": "Closet Part Commands"
+ },
+ "Closet Rod": {
+  "pt_BR": "Cabideiro",
+  "en_US": "Closet Rod"
+ },
+ "Closet Sizes": {
+  "pt_BR": "Medidas do Closet",
+  "en_US": "Closet Sizes"
+ },
+ "Closet Starter Commands": {
+  "pt_BR": "Comandos do Módulo Inicial",
+  "en_US": "Closet Starter Commands"
+ },
+ "Closet Starter Properties": {
+  "pt_BR": "Propriedades do Módulo Inicial",
+  "en_US": "Closet Starter Properties"
+ },
+ "Closet Starter Props": {
+  "pt_BR": "Propriedades do Módulo Inicial",
+  "en_US": "Closet Starter Props"
+ },
+ "Closet Starters": {
+  "pt_BR": "Módulos Iniciais do Closet",
+  "en_US": "Closet Starters"
+ },
+ "Closet Type": {
+  "pt_BR": "Tipo de Closet",
+  "en_US": "Closet Type"
+ },
+ "Closet missing; aborting": {
+  "pt_BR": "Closet ausente; cancelado",
+  "en_US": "Closet missing; aborting"
+ },
+ "Closet rod at a set height": {
+  "pt_BR": "Cabideiro numa altura definida",
+  "en_US": "Closet rod at a set height"
+ },
+ "Closets Props": {
+  "pt_BR": "Propriedades do Closet",
+  "en_US": "Closets Props"
+ },
+ "Columns": {
+  "pt_BR": "Colunas",
+  "en_US": "Columns"
+ },
+ "Combination": {
+  "pt_BR": "Combinada",
+  "en_US": "Combination"
+ },
+ "Configuration": {
+  "pt_BR": "Configuração",
+  "en_US": "Configuration"
+ },
+ "Contemporary Miter": {
+  "pt_BR": "Meia-esquadria Contemporânea",
+  "en_US": "Contemporary Miter"
+ },
+ "Contemporary Shaker": {
+  "pt_BR": "Shaker Contemporânea",
+  "en_US": "Contemporary Shaker"
+ },
+ "Copy Bay": {
+  "pt_BR": "Copiar Compartimento",
+  "en_US": "Copy Bay"
+ },
+ "Copy Opening": {
+  "pt_BR": "Copiar Vão",
+  "en_US": "Copy Opening"
+ },
+ "Copy the active opening's contents to the clipboard.": {
+  "pt_BR": "Copia o conteúdo do vão ativo.",
+  "en_US": "Copy the active opening's contents to the clipboard."
+ },
+ "Corner Clearance": {
+  "pt_BR": "Folga de Canto",
+  "en_US": "Corner Clearance"
+ },
+ "Corner Clearance...": {
+  "pt_BR": "Folga de Canto...",
+  "en_US": "Corner Clearance..."
+ },
+ "Could not read '{}' as a size": {
+  "pt_BR": "Não foi possível ler '{}' como medida",
+  "en_US": "Could not read '{}' as a size"
+ },
+ "Countertop Thickness": {
+  "pt_BR": "Espessura do Tampo",
+  "en_US": "Countertop Thickness"
+ },
+ "Crown profile not found": {
+  "pt_BR": "Perfil de moldura superior não encontrado",
+  "en_US": "Crown profile not found"
+ },
+ "Cubbies": {
+  "pt_BR": "Nichos",
+  "en_US": "Cubbies"
+ },
+ "Cubbies...": {
+  "pt_BR": "Nichos...",
+  "en_US": "Cubbies..."
+ },
+ "Default Width": {
+  "pt_BR": "Largura Padrão",
+  "en_US": "Default Width"
+ },
+ "Delete Bay": {
+  "pt_BR": "Apagar Compartimento",
+  "en_US": "Delete Bay"
+ },
+ "Delete Closet Bay": {
+  "pt_BR": "Apagar Compartimento",
+  "en_US": "Delete Closet Bay"
+ },
+ "Delete Closet Part": {
+  "pt_BR": "Apagar Peça do Closet",
+  "en_US": "Delete Closet Part"
+ },
+ "Delete Closet Starter": {
+  "pt_BR": "Apagar Módulo Inicial",
+  "en_US": "Delete Closet Starter"
+ },
+ "Delete Part": {
+  "pt_BR": "Apagar Peça",
+  "en_US": "Delete Part"
+ },
+ "Delete Starter": {
+  "pt_BR": "Apagar Módulo Inicial",
+  "en_US": "Delete Starter"
+ },
+ "Delete every closet starter currently selected.": {
+  "pt_BR": "Apaga todos os módulos iniciais selecionados.",
+  "en_US": "Delete every closet starter currently selected."
+ },
+ "Delete the active bay (the remaining bays absorb its width).": {
+  "pt_BR": "Apaga o compartimento ativo (os outros absorvem a largura dele).",
+  "en_US": "Delete the active bay (the remaining bays absorb its width)."
+ },
+ "Deleted starter {}": {
+  "pt_BR": "Módulo inicial {} apagado",
+  "en_US": "Deleted starter {}"
+ },
+ "Dims": {
+  "pt_BR": "Medidas",
+  "en_US": "Dims"
+ },
+ "Display hanger model shown on closet rods": {
+  "pt_BR": "Modelo de cabide mostrado nos cabideiros",
+  "en_US": "Display hanger model shown on closet rods"
+ },
+ "Door Grain": {
+  "pt_BR": "Veio da Porta",
+  "en_US": "Door Grain"
+ },
+ "Door Panel": {
+  "pt_BR": "Almofada da Porta",
+  "en_US": "Door Panel"
+ },
+ "Door and drawer front material (Match Closet follows the closet material)": {
+  "pt_BR": "Material de portas e frentes de gaveta (Igual ao Closet segue o material do closet)",
+  "en_US": "Door and drawer front material (Match Closet follows the closet material)"
+ },
+ "Door and drawer front style for every closet front": {
+  "pt_BR": "Estilo de porta e frente de gaveta para todas as frentes do closet",
+  "en_US": "Door and drawer front style for every closet front"
+ },
+ "Door edge to pull center": {
+  "pt_BR": "Da borda da porta ao centro do puxador",
+  "en_US": "Door edge to pull center"
+ },
+ "Doors Open 3 Drawers": {
+  "pt_BR": "Vão Aberto sobre 3 Gavetas",
+  "en_US": "Doors Open 3 Drawers"
+ },
+ "Doors Open 4 Drawers": {
+  "pt_BR": "Vão Aberto sobre 4 Gavetas",
+  "en_US": "Doors Open 4 Drawers"
+ },
+ "Doors Open 5 Drawers": {
+  "pt_BR": "Vão Aberto sobre 5 Gavetas",
+  "en_US": "Doors Open 5 Drawers"
+ },
+ "Doors Open 6 Drawers": {
+  "pt_BR": "Vão Aberto sobre 6 Gavetas",
+  "en_US": "Doors Open 6 Drawers"
+ },
+ "Doors Over 3 Drawers": {
+  "pt_BR": "Portas sobre 3 Gavetas",
+  "en_US": "Doors Over 3 Drawers"
+ },
+ "Doors Over 4 Drawers": {
+  "pt_BR": "Portas sobre 4 Gavetas",
+  "en_US": "Doors Over 4 Drawers"
+ },
+ "Doors Over 5 Drawers": {
+  "pt_BR": "Portas sobre 5 Gavetas",
+  "en_US": "Doors Over 5 Drawers"
+ },
+ "Doors Over 6 Drawers": {
+  "pt_BR": "Portas sobre 6 Gavetas",
+  "en_US": "Doors Over 6 Drawers"
+ },
+ "Double": {
+  "pt_BR": "Dupla",
+  "en_US": "Double"
+ },
+ "Double Hang": {
+  "pt_BR": "Cabideiro Duplo",
+  "en_US": "Double Hang"
+ },
+ "Double Hang with Mid Shelf": {
+  "pt_BR": "Cabideiro Duplo com Prateleira no Meio",
+  "en_US": "Double Hang with Mid Shelf"
+ },
+ "Double Hang with Top Shelf": {
+  "pt_BR": "Cabideiro Duplo com Prateleira Superior",
+  "en_US": "Double Hang with Top Shelf"
+ },
+ "Double-sided island with center back": {
+  "pt_BR": "Ilha com dois lados e fundo central",
+  "en_US": "Double-sided island with center back"
+ },
+ "Drawer Box": {
+  "pt_BR": "Caixa de Gaveta",
+  "en_US": "Drawer Box"
+ },
+ "Drawer Front Grain": {
+  "pt_BR": "Veio da Frente de Gaveta",
+  "en_US": "Drawer Front Grain"
+ },
+ "Drawer Front Height": {
+  "pt_BR": "Altura da Frente da Gaveta",
+  "en_US": "Drawer Front Height"
+ },
+ "Drawer Grain": {
+  "pt_BR": "Veio da Gaveta",
+  "en_US": "Drawer Grain"
+ },
+ "Drawer Quantity": {
+  "pt_BR": "Quantidade de Gavetas",
+  "en_US": "Drawer Quantity"
+ },
+ "Drawer box system used by every closet drawer": {
+  "pt_BR": "Sistema de caixa usado em todas as gavetas do closet",
+  "en_US": "Drawer box system used by every closet drawer"
+ },
+ "Drawers": {
+  "pt_BR": "Gavetas",
+  "en_US": "Drawers"
+ },
+ "Drawers...": {
+  "pt_BR": "Gavetas...",
+  "en_US": "Drawers..."
+ },
+ "Duplicate Mirror": {
+  "pt_BR": "Duplicar Espelhado",
+  "en_US": "Duplicate Mirror"
+ },
+ "Duplicate Mirror {}": {
+  "pt_BR": "Duplicar Espelhado {}",
+  "en_US": "Duplicate Mirror {}"
+ },
+ "Duplicate failed": {
+  "pt_BR": "Falha ao duplicar",
+  "en_US": "Duplicate failed"
+ },
+ "Duplicate mode only: flip the copy left-to-right (bay order and door swings)": {
+  "pt_BR": "Só ao duplicar: espelha a cópia da esquerda para a direita (ordem dos compartimentos e abertura das portas)",
+  "en_US": "Duplicate mode only: flip the copy left-to-right (bay order and door swings)"
+ },
+ "Duplicate {}": {
+  "pt_BR": "Duplicar {}",
+  "en_US": "Duplicate {}"
+ },
+ "Edgebanding on closet parts (Match = the closet material)": {
+  "pt_BR": "Fita de borda nas peças do closet (Igual = o material do closet)",
+  "en_US": "Edgebanding on closet parts (Match = the closet material)"
+ },
+ "Edgebanding on doors and drawer fronts (Match = the fronts material)": {
+  "pt_BR": "Fita de borda em portas e frentes de gaveta (Igual = o material das frentes)",
+  "en_US": "Edgebanding on doors and drawer fronts (Match = the fronts material)"
+ },
+ "Edit Closet Dimension Label": {
+  "pt_BR": "Editar Medida do Closet",
+  "en_US": "Edit Closet Dimension Label"
+ },
+ "Edit the active bay's overrides (width/height/depth/mounting).": {
+  "pt_BR": "Edita as substituições do compartimento ativo (largura/altura/profundidade/fixação).",
+  "en_US": "Edit the active bay's overrides (width/height/depth/mounting)."
+ },
+ "Edit the active starter's dimensions and options.": {
+  "pt_BR": "Edita as medidas e opções do módulo inicial ativo.",
+  "en_US": "Edit the active starter's dimensions and options."
+ },
+ "Enable Closet Selection Mode": {
+  "pt_BR": "Ligar Modo de Seleção do Closet",
+  "en_US": "Enable Closet Selection Mode"
+ },
+ "F: fill gap   ": {
+  "pt_BR": "F: preencher o vão   ",
+  "en_US": "F: fill gap   "
+ },
+ "Finish": {
+  "pt_BR": "Acabamento",
+  "en_US": "Finish"
+ },
+ "Fixed Shelf": {
+  "pt_BR": "Prateleira Fixa",
+  "en_US": "Fixed Shelf"
+ },
+ "Fixed shelf at a set height": {
+  "pt_BR": "Prateleira fixa numa altura definida",
+  "en_US": "Fixed shelf at a set height"
+ },
+ "Flat fronts": {
+  "pt_BR": "Frentes lisas",
+  "en_US": "Flat fronts"
+ },
+ "Floor Mounted": {
+  "pt_BR": "Apoiado no Piso",
+  "en_US": "Floor Mounted"
+ },
+ "Floor to the top of wall-mounted hanging starters": {
+  "pt_BR": "Do piso ao topo dos módulos iniciais suspensos",
+  "en_US": "Floor to the top of wall-mounted hanging starters"
+ },
+ "Floor-mounted base closet starter": {
+  "pt_BR": "Módulo inicial baixo de closet apoiado no piso",
+  "en_US": "Floor-mounted base closet starter"
+ },
+ "Floor-mounted base starter": {
+  "pt_BR": "Módulo inicial baixo apoiado no piso",
+  "en_US": "Floor-mounted base starter"
+ },
+ "Floor-mounted corner L-shelf unit": {
+  "pt_BR": "Canto com prateleiras em L apoiado no piso",
+  "en_US": "Floor-mounted corner L-shelf unit"
+ },
+ "Floor-mounted full-height closet starter": {
+  "pt_BR": "Módulo inicial alto de closet apoiado no piso",
+  "en_US": "Floor-mounted full-height closet starter"
+ },
+ "Floor-mounted full-height corner L-shelf unit": {
+  "pt_BR": "Canto alto com prateleiras em L apoiado no piso",
+  "en_US": "Floor-mounted full-height corner L-shelf unit"
+ },
+ "Floor-mounted full-height starter": {
+  "pt_BR": "Módulo inicial alto apoiado no piso",
+  "en_US": "Floor-mounted full-height starter"
+ },
+ "Follow the Hangers option in the sidebar": {
+  "pt_BR": "Segue a opção Cabides da barra lateral",
+  "en_US": "Follow the Hangers option in the sidebar"
+ },
+ "Follow the closet material selection": {
+  "pt_BR": "Segue o material escolhido para o closet",
+  "en_US": "Follow the closet material selection"
+ },
+ "From Edge": {
+  "pt_BR": "Da Borda",
+  "en_US": "From Edge"
+ },
+ "Front Edge": {
+  "pt_BR": "Borda da Frente",
+  "en_US": "Front Edge"
+ },
+ "Front Edgebanding": {
+  "pt_BR": "Fita de Borda das Frentes",
+  "en_US": "Front Edgebanding"
+ },
+ "Front Height": {
+  "pt_BR": "Altura da Frente",
+  "en_US": "Front Height"
+ },
+ "Front Material": {
+  "pt_BR": "Material das Frentes",
+  "en_US": "Front Material"
+ },
+ "Front Style": {
+  "pt_BR": "Estilo das Frentes",
+  "en_US": "Front Style"
+ },
+ "Fronts": {
+  "pt_BR": "Frentes",
+  "en_US": "Fronts"
+ },
+ "Frosted Matte Glass": {
+  "pt_BR": "Vidro Jateado",
+  "en_US": "Frosted Matte Glass"
+ },
+ "Full Height Doors": {
+  "pt_BR": "Portas na Altura Toda",
+  "en_US": "Full Height Doors"
+ },
+ "Gap between this closet's left end panel and the adjacent closet's body": {
+  "pt_BR": "Folga entre a lateral esquerda deste closet e o corpo do closet vizinho",
+  "en_US": "Gap between this closet's left end panel and the adjacent closet's body"
+ },
+ "Gap between this closet's right end panel and the adjacent closet's body": {
+  "pt_BR": "Folga entre a lateral direita deste closet e o corpo do closet vizinho",
+  "en_US": "Gap between this closet's right end panel and the adjacent closet's body"
+ },
+ "Grab": {
+  "pt_BR": "Pegar",
+  "en_US": "Grab"
+ },
+ "Grab Closet": {
+  "pt_BR": "Pegar Closet",
+  "en_US": "Grab Closet"
+ },
+ "Grab Drag": {
+  "pt_BR": "Pegar e Arrastar",
+  "en_US": "Grab Drag"
+ },
+ "Grab Hover": {
+  "pt_BR": "Pegar ao Passar",
+  "en_US": "Grab Hover"
+ },
+ "Grain direction on closet doors": {
+  "pt_BR": "Direção do veio nas portas do closet",
+  "en_US": "Grain direction on closet doors"
+ },
+ "Grain direction on closet drawer fronts": {
+  "pt_BR": "Direção do veio nas frentes de gaveta do closet",
+  "en_US": "Grain direction on closet drawer fronts"
+ },
+ "Hamper": {
+  "pt_BR": "Cesto",
+  "en_US": "Hamper"
+ },
+ "Hamper (tilt-out)": {
+  "pt_BR": "Cesto (basculante)",
+  "en_US": "Hamper (tilt-out)"
+ },
+ "Handle used on every closet front": {
+  "pt_BR": "Puxador usado em todas as frentes do closet",
+  "en_US": "Handle used on every closet front"
+ },
+ "Hanger": {
+  "pt_BR": "Cabide",
+  "en_US": "Hanger"
+ },
+ "Hanger Commands": {
+  "pt_BR": "Comandos do Cabide",
+  "en_US": "Hanger Commands"
+ },
+ "Hangers": {
+  "pt_BR": "Cabides",
+  "en_US": "Hangers"
+ },
+ "Hanging": {
+  "pt_BR": "Suspenso",
+  "en_US": "Hanging"
+ },
+ "Hanging Panel Height": {
+  "pt_BR": "Altura da Lateral Suspensa",
+  "en_US": "Hanging Panel Height"
+ },
+ "Hanging Top Height": {
+  "pt_BR": "Altura do Topo Suspenso",
+  "en_US": "Hanging Top Height"
+ },
+ "Has Left": {
+  "pt_BR": "Tem à Esquerda",
+  "en_US": "Has Left"
+ },
+ "Has Right": {
+  "pt_BR": "Tem à Direita",
+  "en_US": "Has Right"
+ },
+ "Highlight objects matching the active selection mode": {
+  "pt_BR": "Destaca os objetos do modo de seleção ativo",
+  "en_US": "Highlight objects matching the active selection mode"
+ },
+ "Highlight objects matching the current closet selection mode": {
+  "pt_BR": "Destaca os objetos do modo de seleção atual do closet",
+  "en_US": "Highlight objects matching the current closet selection mode"
+ },
+ "Hold this bay's width during redistribution": {
+  "pt_BR": "Mantém a largura deste compartimento ao redistribuir",
+  "en_US": "Hold this bay's width during redistribution"
+ },
+ "Include Bottom Bridge": {
+  "pt_BR": "Incluir Ligação Inferior",
+  "en_US": "Include Bottom Bridge"
+ },
+ "Include Countertop": {
+  "pt_BR": "Incluir Tampo",
+  "en_US": "Include Countertop"
+ },
+ "Include Top Bridge Shelf": {
+  "pt_BR": "Incluir Prateleira de Ligação Superior",
+  "en_US": "Include Top Bridge Shelf"
+ },
+ "Insert Bay Left": {
+  "pt_BR": "Inserir Compartimento à Esquerda",
+  "en_US": "Insert Bay Left"
+ },
+ "Insert Bay Right": {
+  "pt_BR": "Inserir Compartimento à Direita",
+  "en_US": "Insert Bay Right"
+ },
+ "Insert Closet Bay": {
+  "pt_BR": "Inserir Compartimento",
+  "en_US": "Insert Closet Bay"
+ },
+ "Insert a bay next to the active bay.": {
+  "pt_BR": "Insere um compartimento ao lado do ativo.",
+  "en_US": "Insert a bay next to the active bay."
+ },
+ "Insert to the left of this bay": {
+  "pt_BR": "Insere à esquerda deste compartimento",
+  "en_US": "Insert to the left of this bay"
+ },
+ "Insert to the right of this bay": {
+  "pt_BR": "Insere à direita deste compartimento",
+  "en_US": "Insert to the right of this bay"
+ },
+ "Install Model Pack": {
+  "pt_BR": "Instalar Pacote de Modelos",
+  "en_US": "Install Model Pack"
+ },
+ "Install the model pack to get more hangers": {
+  "pt_BR": "Instale o pacote de modelos para ter mais cabides",
+  "en_US": "Install the model pack to get more hangers"
+ },
+ "Installed {} models": {
+  "pt_BR": "{} modelos instalados",
+  "en_US": "Installed {} models"
+ },
+ "Island": {
+  "pt_BR": "Ilha",
+  "en_US": "Island"
+ },
+ "Islands": {
+  "pt_BR": "Ilhas",
+  "en_US": "Islands"
+ },
+ "L Shelves": {
+  "pt_BR": "Prateleiras em L",
+  "en_US": "L Shelves"
+ },
+ "Left Gap": {
+  "pt_BR": "Folga Esquerda",
+  "en_US": "Left Gap"
+ },
+ "Left Neighbor": {
+  "pt_BR": "Vizinho à Esquerda",
+  "en_US": "Left Neighbor"
+ },
+ "Left Swing": {
+  "pt_BR": "Abre à Esquerda",
+  "en_US": "Left Swing"
+ },
+ "Left Swing Door": {
+  "pt_BR": "Porta Abrindo à Esquerda",
+  "en_US": "Left Swing Door"
+ },
+ "Lock Width": {
+  "pt_BR": "Travar Largura",
+  "en_US": "Lock Width"
+ },
+ "Match Closet": {
+  "pt_BR": "Igual ao Closet",
+  "en_US": "Match Closet"
+ },
+ "Materials": {
+  "pt_BR": "Materiais",
+  "en_US": "Materials"
+ },
+ "Matte Aluminum": {
+  "pt_BR": "Alumínio Fosco",
+  "en_US": "Matte Aluminum"
+ },
+ "Matte Gold": {
+  "pt_BR": "Dourado Fosco",
+  "en_US": "Matte Gold"
+ },
+ "Matte Nickel": {
+  "pt_BR": "Níquel Fosco",
+  "en_US": "Matte Nickel"
+ },
+ "Metabox": {
+  "pt_BR": "Metabox",
+  "en_US": "Metabox"
+ },
+ "Mirror": {
+  "pt_BR": "Espelhar",
+  "en_US": "Mirror"
+ },
+ "Mirror Glass": {
+  "pt_BR": "Espelho",
+  "en_US": "Mirror Glass"
+ },
+ "More Material Options": {
+  "pt_BR": "Mais Opções de Material",
+  "en_US": "More Material Options"
+ },
+ "More Pull Options": {
+  "pt_BR": "Mais Opções de Puxador",
+  "en_US": "More Pull Options"
+ },
+ "Narrow Miter": {
+  "pt_BR": "Meia-esquadria Estreita",
+  "en_US": "Narrow Miter"
+ },
+ "Narrow Shaker": {
+  "pt_BR": "Shaker Estreita",
+  "en_US": "Narrow Shaker"
+ },
+ "No 3D viewport available": {
+  "pt_BR": "Nenhuma viewport 3D disponível",
+  "en_US": "No 3D viewport available"
+ },
+ "No adjacent closet at a wall corner": {
+  "pt_BR": "Nenhum closet vizinho num canto de parede",
+  "en_US": "No adjacent closet at a wall corner"
+ },
+ "No closet starter selected": {
+  "pt_BR": "Nenhum módulo inicial selecionado",
+  "en_US": "No closet starter selected"
+ },
+ "No drawer boxes": {
+  "pt_BR": "Nenhuma caixa de gaveta",
+  "en_US": "No drawer boxes"
+ },
+ "No hangers": {
+  "pt_BR": "Sem cabides",
+  "en_US": "No hangers"
+ },
+ "No hangers in the room": {
+  "pt_BR": "Nenhum cabide no ambiente",
+  "en_US": "No hangers in the room"
+ },
+ "No materials library": {
+  "pt_BR": "Nenhuma biblioteca de materiais",
+  "en_US": "No materials library"
+ },
+ "No models found in the pack": {
+  "pt_BR": "Nenhum modelo no pacote",
+  "en_US": "No models found in the pack"
+ },
+ "No profiles found": {
+  "pt_BR": "Nenhum perfil encontrado",
+  "en_US": "No profiles found"
+ },
+ "No pulls": {
+  "pt_BR": "Sem puxadores",
+  "en_US": "No pulls"
+ },
+ "No qualifying runs (bays under 60\" are skipped)": {
+  "pt_BR": "Nenhum trecho válido (compartimentos com menos de 60\" ficam de fora)",
+  "en_US": "No qualifying runs (bays under 60\" are skipped)"
+ },
+ "Not a valid .zip file": {
+  "pt_BR": "Não é um .zip válido",
+  "en_US": "Not a valid .zip file"
+ },
+ "Offset (left)": {
+  "pt_BR": "Afastamento (esquerda)",
+  "en_US": "Offset (left)"
+ },
+ "Offset (right)": {
+  "pt_BR": "Afastamento (direita)",
+  "en_US": "Offset (right)"
+ },
+ "Open Door": {
+  "pt_BR": "Abrir Porta",
+  "en_US": "Open Door"
+ },
+ "Opening Height": {
+  "pt_BR": "Altura do Vão",
+  "en_US": "Opening Height"
+ },
+ "Opening contents copied": {
+  "pt_BR": "Conteúdo do vão copiado",
+  "en_US": "Opening contents copied"
+ },
+ "Openings": {
+  "pt_BR": "Vãos",
+  "en_US": "Openings"
+ },
+ "Oval profile": {
+  "pt_BR": "Perfil oval",
+  "en_US": "Oval profile"
+ },
+ "Pair of doors": {
+  "pt_BR": "Par de portas",
+  "en_US": "Pair of doors"
+ },
+ "Panel Depth": {
+  "pt_BR": "Profundidade da Lateral",
+  "en_US": "Panel Depth"
+ },
+ "Panel Thickness": {
+  "pt_BR": "Espessura da Lateral",
+  "en_US": "Panel Thickness"
+ },
+ "Panel depth (Y)": {
+  "pt_BR": "Profundidade da lateral (Y)",
+  "en_US": "Panel depth (Y)"
+ },
+ "Panel height (Z)": {
+  "pt_BR": "Altura da lateral (Z)",
+  "en_US": "Panel height (Z)"
+ },
+ "Parametric wood drawer box": {
+  "pt_BR": "Caixa de gaveta de madeira paramétrica",
+  "en_US": "Parametric wood drawer box"
+ },
+ "Part Height": {
+  "pt_BR": "Altura da Peça",
+  "en_US": "Part Height"
+ },
+ "Part Type": {
+  "pt_BR": "Tipo de Peça",
+  "en_US": "Part Type"
+ },
+ "Parts": {
+  "pt_BR": "Peças",
+  "en_US": "Parts"
+ },
+ "Paste Bay": {
+  "pt_BR": "Colar Compartimento",
+  "en_US": "Paste Bay"
+ },
+ "Paste Opening": {
+  "pt_BR": "Colar Vão",
+  "en_US": "Paste Opening"
+ },
+ "Place Closet Starter": {
+  "pt_BR": "Inserir Módulo Inicial",
+  "en_US": "Place Closet Starter"
+ },
+ "Placed {} starter ({})": {
+  "pt_BR": "Módulo inicial {} inserido ({})",
+  "en_US": "Placed {} starter ({})"
+ },
+ "Polished Chrome": {
+  "pt_BR": "Cromado Polido",
+  "en_US": "Polished Chrome"
+ },
+ "Profile used by Add Crown Molding": {
+  "pt_BR": "Perfil usado por Adicionar Moldura Superior",
+  "en_US": "Profile used by Add Crown Molding"
+ },
+ "Pull": {
+  "pt_BR": "Puxador",
+  "en_US": "Pull"
+ },
+ "Pull Finish": {
+  "pt_BR": "Acabamento do Puxador",
+  "en_US": "Pull Finish"
+ },
+ "Pull height off the floor on tall doors": {
+  "pt_BR": "Altura do puxador ao piso nas portas altas",
+  "en_US": "Pull height off the floor on tall doors"
+ },
+ "Pulls": {
+  "pt_BR": "Puxadores",
+  "en_US": "Pulls"
+ },
+ "Randomize Hangers": {
+  "pt_BR": "Variar Cabides",
+  "en_US": "Randomize Hangers"
+ },
+ "Randomized {} hangers": {
+  "pt_BR": "{} cabides variados",
+  "en_US": "Randomized {} hangers"
+ },
+ "Remove Bottom": {
+  "pt_BR": "Remover Base",
+  "en_US": "Remove Bottom"
+ },
+ "Remove Cleat": {
+  "pt_BR": "Remover Travessa",
+  "en_US": "Remove Cleat"
+ },
+ "Remove Shelf": {
+  "pt_BR": "Remover Prateleira",
+  "en_US": "Remove Shelf"
+ },
+ "Remove all closet molding from the room": {
+  "pt_BR": "Remove todas as molduras de closet do ambiente",
+  "en_US": "Remove all closet molding from the room"
+ },
+ "Remove doors": {
+  "pt_BR": "Remove as portas",
+  "en_US": "Remove doors"
+ },
+ "Removed {} molding runs": {
+  "pt_BR": "{} trechos de moldura removidos",
+  "en_US": "Removed {} molding runs"
+ },
+ "Replace the active bay's contents with the copied bay.": {
+  "pt_BR": "Troca o conteúdo do compartimento ativo pelo copiado.",
+  "en_US": "Replace the active bay's contents with the copied bay."
+ },
+ "Replace the active opening's contents with the copied opening.": {
+  "pt_BR": "Troca o conteúdo do vão ativo pelo copiado.",
+  "en_US": "Replace the active opening's contents with the copied opening."
+ },
+ "Reset Closet Dimension Label": {
+  "pt_BR": "Restaurar Medida do Closet",
+  "en_US": "Reset Closet Dimension Label"
+ },
+ "Right Gap": {
+  "pt_BR": "Folga Direita",
+  "en_US": "Right Gap"
+ },
+ "Right Neighbor": {
+  "pt_BR": "Vizinho à Direita",
+  "en_US": "Right Neighbor"
+ },
+ "Right Swing": {
+  "pt_BR": "Abre à Direita",
+  "en_US": "Right Swing"
+ },
+ "Right Swing Door": {
+  "pt_BR": "Porta Abrindo à Direita",
+  "en_US": "Right Swing Door"
+ },
+ "Right-click on a pinned (•) bay width resets it to auto.": {
+  "pt_BR": "Botão direito numa largura fixada (•) volta ela para automática.",
+  "en_US": "Right-click on a pinned (•) bay width resets it to auto."
+ },
+ "Rod Finish": {
+  "pt_BR": "Acabamento do Cabideiro",
+  "en_US": "Rod Finish"
+ },
+ "Rod Type": {
+  "pt_BR": "Tipo de Cabideiro",
+  "en_US": "Rod Type"
+ },
+ "Rods": {
+  "pt_BR": "Cabideiros",
+  "en_US": "Rods"
+ },
+ "Room Default": {
+  "pt_BR": "Padrão do Ambiente",
+  "en_US": "Room Default"
+ },
+ "Round": {
+  "pt_BR": "Redondo",
+  "en_US": "Round"
+ },
+ "Round profile": {
+  "pt_BR": "Perfil redondo",
+  "en_US": "Round profile"
+ },
+ "Rows": {
+  "pt_BR": "Linhas",
+  "en_US": "Rows"
+ },
+ "Search Object Name": {
+  "pt_BR": "Nome do Objeto Procurado",
+  "en_US": "Search Object Name"
+ },
+ "Select a model pack .zip": {
+  "pt_BR": "Escolha um pacote de modelos .zip",
+  "en_US": "Select a model pack .zip"
+ },
+ "Select bay cages": {
+  "pt_BR": "Seleciona as gaiolas dos compartimentos",
+  "en_US": "Select bay cages"
+ },
+ "Select individual parts": {
+  "pt_BR": "Seleciona peças individuais",
+  "en_US": "Select individual parts"
+ },
+ "Select opening cages": {
+  "pt_BR": "Seleciona as gaiolas dos vãos",
+  "en_US": "Select opening cages"
+ },
+ "Select whole closet starters": {
+  "pt_BR": "Seleciona módulos iniciais inteiros",
+  "en_US": "Select whole closet starters"
+ },
+ "Set the cubby grid for the active opening (1x1 removes it).": {
+  "pt_BR": "Define a grade de nichos do vão ativo (1x1 remove).",
+  "en_US": "Set the cubby grid for the active opening (1x1 removes it)."
+ },
+ "Shelf Quantity": {
+  "pt_BR": "Quantidade de Prateleiras",
+  "en_US": "Shelf Quantity"
+ },
+ "Shelf Thickness": {
+  "pt_BR": "Espessura da Prateleira",
+  "en_US": "Shelf Thickness"
+ },
+ "Show Closet Options": {
+  "pt_BR": "Mostrar Opções do Closet",
+  "en_US": "Show Closet Options"
+ },
+ "Show Closet Sizes": {
+  "pt_BR": "Mostrar Medidas do Closet",
+  "en_US": "Show Closet Sizes"
+ },
+ "Show Closet Starters": {
+  "pt_BR": "Mostrar Módulos Iniciais",
+  "en_US": "Show Closet Starters"
+ },
+ "Show Sizes": {
+  "pt_BR": "Mostrar Medidas",
+  "en_US": "Show Sizes"
+ },
+ "Show editable dimension labels in selection modes": {
+  "pt_BR": "Mostra as medidas editáveis nos modos de seleção",
+  "en_US": "Show editable dimension labels in selection modes"
+ },
+ "Signature": {
+  "pt_BR": "Signature",
+  "en_US": "Signature"
+ },
+ "Single": {
+  "pt_BR": "Simples",
+  "en_US": "Single"
+ },
+ "Single door hinged left": {
+  "pt_BR": "Porta simples com dobradiça à esquerda",
+  "en_US": "Single door hinged left"
+ },
+ "Single door hinged right": {
+  "pt_BR": "Porta simples com dobradiça à direita",
+  "en_US": "Single door hinged right"
+ },
+ "Single-sided island starter": {
+  "pt_BR": "Módulo inicial de ilha com um lado",
+  "en_US": "Single-sided island starter"
+ },
+ "Single-sided island with countertop and applied back": {
+  "pt_BR": "Ilha com um lado, tampo e fundo aplicado",
+  "en_US": "Single-sided island with countertop and applied back"
+ },
+ "Slab": {
+  "pt_BR": "Lisa",
+  "en_US": "Slab"
+ },
+ "Slate": {
+  "pt_BR": "Ardósia",
+  "en_US": "Slate"
+ },
+ "Slate Graphite": {
+  "pt_BR": "Grafite",
+  "en_US": "Slate Graphite"
+ },
+ "Snap: {}": {
+  "pt_BR": "Encaixe: {}",
+  "en_US": "Snap: {}"
+ },
+ "Source Starter Name": {
+  "pt_BR": "Módulo Inicial de Origem",
+  "en_US": "Source Starter Name"
+ },
+ "Source starter no longer exists": {
+  "pt_BR": "O módulo inicial de origem não existe mais",
+  "en_US": "Source starter no longer exists"
+ },
+ "Source starter not found: {}": {
+  "pt_BR": "Módulo inicial de origem não encontrado: {}",
+  "en_US": "Source starter not found: {}"
+ },
+ "Span the clearance gap with a shelf at the corner bay's top shelf height": {
+  "pt_BR": "Cobre a folga com uma prateleira na altura da prateleira superior do compartimento de canto",
+  "en_US": "Span the clearance gap with a shelf at the corner bay's top shelf height"
+ },
+ "Standard box heights 101-251 mm": {
+  "pt_BR": "Alturas de caixa padrão de 101 a 251 mm",
+  "en_US": "Standard box heights 101-251 mm"
+ },
+ "Starter Depth": {
+  "pt_BR": "Profundidade do Módulo Inicial",
+  "en_US": "Starter Depth"
+ },
+ "Starter Height": {
+  "pt_BR": "Altura do Módulo Inicial",
+  "en_US": "Starter Height"
+ },
+ "Starter Name": {
+  "pt_BR": "Nome do Módulo Inicial",
+  "en_US": "Starter Name"
+ },
+ "Starter Properties...": {
+  "pt_BR": "Propriedades do Módulo Inicial...",
+  "en_US": "Starter Properties..."
+ },
+ "Starter Width": {
+  "pt_BR": "Largura do Módulo Inicial",
+  "en_US": "Starter Width"
+ },
+ "Starter creation failed: {}": {
+  "pt_BR": "Falha ao criar o módulo inicial: {}",
+  "en_US": "Starter creation failed: {}"
+ },
+ "Starter width (X)": {
+  "pt_BR": "Largura do módulo inicial (X)",
+  "en_US": "Starter width (X)"
+ },
+ "Starters": {
+  "pt_BR": "Módulos Iniciais",
+  "en_US": "Starters"
+ },
+ "Steel sides N/M/K/H": {
+  "pt_BR": "Laterais de aço N/M/K/H",
+  "en_US": "Steel sides N/M/K/H"
+ },
+ "Swing": {
+  "pt_BR": "Abertura",
+  "en_US": "Swing"
+ },
+ "Tall Panel Height": {
+  "pt_BR": "Altura da Lateral Alta",
+  "en_US": "Tall Panel Height"
+ },
+ "Toe Kick Height": {
+  "pt_BR": "Altura do Rodapé",
+  "en_US": "Toe Kick Height"
+ },
+ "Toe Kick Setback": {
+  "pt_BR": "Recuo do Rodapé",
+  "en_US": "Toe Kick Setback"
+ },
+ "Toggle Closet Selection Mode": {
+  "pt_BR": "Alternar Modo de Seleção do Closet",
+  "en_US": "Toggle Closet Selection Mode"
+ },
+ "Top of base door to top of pull": {
+  "pt_BR": "Do topo da porta baixa ao topo do puxador",
+  "en_US": "Top of base door to top of pull"
+ },
+ "Unknown starter: {}": {
+  "pt_BR": "Módulo inicial desconhecido: {}",
+  "en_US": "Unknown starter: {}"
+ },
+ "Upper Doors": {
+  "pt_BR": "Portas Superiores",
+  "en_US": "Upper Doors"
+ },
+ "Value": {
+  "pt_BR": "Valor",
+  "en_US": "Value"
+ },
+ "Vertical Grain": {
+  "pt_BR": "Veio Vertical",
+  "en_US": "Vertical Grain"
+ },
+ "Vertical Location:": {
+  "pt_BR": "Posição Vertical:",
+  "en_US": "Vertical Location:"
+ },
+ "W/numbers: width   Up/Down: bays   Left/Right: gap offset   R: rotate   Click: place   Esc: cancel": {
+  "pt_BR": "W/números: largura   Cima/Baixo: compartimentos   Esquerda/Direita: afastamento   R: girar   Clique: inserir   Esc: cancelar",
+  "en_US": "W/numbers: width   Up/Down: bays   Left/Right: gap offset   R: rotate   Click: place   Esc: cancel"
+ },
+ "Wall-mounted corner L-shelf unit": {
+  "pt_BR": "Canto com prateleiras em L suspenso na parede",
+  "en_US": "Wall-mounted corner L-shelf unit"
+ },
+ "Wall-mounted hanging closet starter": {
+  "pt_BR": "Módulo inicial de closet suspenso na parede",
+  "en_US": "Wall-mounted hanging closet starter"
+ },
+ "Wall-mounted hanging starter": {
+  "pt_BR": "Módulo inicial suspenso na parede",
+  "en_US": "Wall-mounted hanging starter"
+ },
+ "When set, duplicate this existing starter root instead of building a new starter from defaults": {
+  "pt_BR": "Quando preenchido, duplica este módulo inicial em vez de criar um novo a partir do padrão",
+  "en_US": "When set, duplicate this existing starter root instead of building a new starter from defaults"
+ },
+ "Wide Miter": {
+  "pt_BR": "Meia-esquadria Larga",
+  "en_US": "Wide Miter"
+ },
+ "Wide Shaker": {
+  "pt_BR": "Shaker Larga",
+  "en_US": "Wide Shaker"
+ },
+ "Wood Box": {
+  "pt_BR": "Caixa de Madeira",
+  "en_US": "Wood Box"
+ },
+ "Wood panel": {
+  "pt_BR": "Painel de madeira",
+  "en_US": "Wood panel"
+ },
+ "auto": {
+  "pt_BR": "automático",
+  "en_US": "auto"
+ },
+ "closet rod": {
+  "pt_BR": "cabideiro",
+  "en_US": "closet rod"
+ },
+ "fixed shelf": {
+  "pt_BR": "prateleira fixa",
+  "en_US": "fixed shelf"
+ },
+ "manual": {
+  "pt_BR": "manual",
+  "en_US": "manual"
+ },
+ "{}  -  {} ({})  -  width: {}  -  ": {
+  "pt_BR": "{}  -  {} ({})  -  largura: {}  -  ",
+  "en_US": "{}  -  {} ({})  -  width: {}  -  "
+ },
+ "{}  -  {}: {}  -  Enter: apply   Esc: cancel typing   Backspace: delete": {
+  "pt_BR": "{}  -  {}: {}  -  Enter: aplicar   Esc: cancelar digitação   Backspace: apagar",
+  "en_US": "{}  -  {}: {}  -  Enter: apply   Esc: cancel typing   Backspace: delete"
+ },
+ "{} Starter": {
+  "pt_BR": "Módulo Inicial {}",
+  "en_US": "{} Starter"
+ },
+ "{} bay(s)": {
+  "pt_BR": "{} compartimento(s)",
+  "en_US": "{} bay(s)"
+ },
+ "{} occupies the corner on the {}.": {
+  "pt_BR": "{} ocupa o canto do lado {}.",
+  "en_US": "{} occupies the corner on the {}."
+ }
+}

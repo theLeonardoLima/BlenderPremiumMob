@@ -1,0 +1,78 @@
+{
+ "Add Asset Library": {
+  "pt_BR": "Adicionar Biblioteca de Ativos",
+  "en_US": "Add Asset Library"
+ },
+ "Add a new asset library entry": {
+  "pt_BR": "Adiciona uma nova biblioteca de ativos",
+  "en_US": "Add a new asset library entry"
+ },
+ "Asset libraries updated": {
+  "pt_BR": "Bibliotecas de ativos atualizadas",
+  "en_US": "Asset libraries updated"
+ },
+ "Assign Asset Catalog": {
+  "pt_BR": "Atribuir Catálogo de Ativos",
+  "en_US": "Assign Asset Catalog"
+ },
+ "Assign a catalog category to all marked assets in the current file": {
+  "pt_BR": "Atribui uma categoria de catálogo a todos os ativos marcados no arquivo atual",
+  "en_US": "Assign a catalog category to all marked assets in the current file"
+ },
+ "Assigned {} assets to catalog: {}": {
+  "pt_BR": "{} ativos atribuídos ao catálogo: {}",
+  "en_US": "Assigned {} assets to catalog: {}"
+ },
+ "Catalog not found": {
+  "pt_BR": "Catálogo não encontrado",
+  "en_US": "Catalog not found"
+ },
+ "Delete Selected": {
+  "pt_BR": "Apagar Selecionados",
+  "en_US": "Delete Selected"
+ },
+ "Display name for this library": {
+  "pt_BR": "Nome exibido desta biblioteca",
+  "en_US": "Display name for this library"
+ },
+ "Internal ID": {
+  "pt_BR": "ID Interno",
+  "en_US": "Internal ID"
+ },
+ "No catalogs found": {
+  "pt_BR": "Nenhum catálogo encontrado",
+  "en_US": "No catalogs found"
+ },
+ "Path": {
+  "pt_BR": "Caminho",
+  "en_US": "Path"
+ },
+ "Path to the asset library folder": {
+  "pt_BR": "Caminho da pasta da biblioteca de ativos",
+  "en_US": "Path to the asset library folder"
+ },
+ "Refresh Asset Libraries": {
+  "pt_BR": "Atualizar Bibliotecas de Ativos",
+  "en_US": "Refresh Asset Libraries"
+ },
+ "Refresh all user asset libraries": {
+  "pt_BR": "Atualiza todas as bibliotecas de ativos do usuário",
+  "en_US": "Refresh all user asset libraries"
+ },
+ "Remove Asset Library": {
+  "pt_BR": "Remover Biblioteca de Ativos",
+  "en_US": "Remove Asset Library"
+ },
+ "Remove the selected asset library entry": {
+  "pt_BR": "Remove a biblioteca de ativos selecionada",
+  "en_US": "Remove the selected asset library entry"
+ },
+ "Select the catalog to assign": {
+  "pt_BR": "Escolha o catálogo a atribuir",
+  "en_US": "Select the catalog to assign"
+ },
+ "Stable identifier used to track the Blender asset library registration across renames": {
+  "pt_BR": "Identificador estável que acompanha o registro da biblioteca de ativos do Blender mesmo após renomear",
+  "en_US": "Stable identifier used to track the Blender asset library registration across renames"
+ }
+}

@@ -3,6 +3,7 @@ import gpu
 import json
 from gpu_extras.batch import batch_for_shader
 from mathutils import Vector, Matrix
+from ..data.i18n import tr
 from ..geometry.mesh_gen import generate_opening_tool_mesh
 from ..data import units
 
@@ -396,7 +397,7 @@ class BTM_OT_InsertOpening(bpy.types.Operator):
         cut_obj.select_set(True)
 
         type_name = "Porta" if self.opening_type == 'DOOR' else "Janela"
-        self.report({'INFO'}, f"{type_name} inserida na parede {self.target_wall.name}.")
+        self.report({'INFO'}, tr("{} inserida na parede {}.").format(type_name, self.target_wall.name))
 
         self._cleanup(context)
 
@@ -421,8 +422,8 @@ class BTM_OT_InsertOpening(bpy.types.Operator):
             return
 
         field_labels = {
-            'POSITION': 'Afastamento Inicial',
-            'SILL_HEIGHT': 'Peitoril',
+            'POSITION': tr('Afastamento Inicial'),
+            'SILL_HEIGHT': tr('Peitoril'),
         }
 
         active_unit = units.get_scene_length_unit(context.scene)
@@ -444,10 +445,7 @@ class BTM_OT_InsertOpening(bpy.types.Operator):
 
         active = field_labels.get(self.active_field, '?')
         context.area.header_text_set(
-            f"Adicionar Abertura ({self.opening_type})  |  "
-            f"Parede: {self.target_wall.name} (Seg: {self.target_seg_idx + 1})  |  "
-            f"[{active}]: {display_val}  |  "
-            f"TAB: alternar campo  |  ENTER: confirmar  |  ESC/RMB: cancelar"
+            tr("Adicionar Abertura ({})  |  Parede: {} (Seg: {})  |  [{}]: {}  |  TAB: alternar campo  |  ENTER: confirmar  |  ESC/RMB: cancelar").format(self.opening_type, self.target_wall.name, self.target_seg_idx + 1, active, display_val)
         )
 
     # -------------------------------------------------------------------
@@ -543,7 +541,7 @@ class BTM_OT_InsertOpening(bpy.types.Operator):
             m_sill = P_door + Vector((0.0, 0.0, self.sill / 2.0))
             co_2d_sill = location_3d_to_region_2d(region, rv3d, m_sill)
             if co_2d_sill:
-                sill_formatted = f"Peitoril: {units.format_value(self.sill, context.scene)}"
+                sill_formatted = tr("Peitoril: {}").format(units.format_value(self.sill, context.scene))
                 blf.color(font_id, 0.0, 0.0, 0.0, 0.9)
                 blf.position(font_id, co_2d_sill.x + 1, co_2d_sill.y - 1, 0)
                 blf.draw(font_id, sill_formatted)

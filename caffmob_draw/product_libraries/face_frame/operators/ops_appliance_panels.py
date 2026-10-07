@@ -2,6 +2,7 @@ import bpy
 import math
 import json
 from bpy.props import EnumProperty, FloatProperty, BoolProperty, StringProperty
+from ....data.i18n import N_, tr
 from .. import types_face_frame
 from .... import hb_utils, hb_types, units, appliance_spec_registry
 
@@ -25,24 +26,24 @@ _I = units.inch
 
 _CONFIG_ITEMS = {
     'REFRIGERATOR': [
-        ('FRENCH_DOOR', "French Door (Side-by-Side)", "Two tall side-by-side panels"),
-        ('FRENCH_DOOR_BOTTOM_FREEZER', "French Door + Bottom Freezer",
-         "Two french doors over a full-width freezer drawer"),
-        ('SINGLE', "Single Door", "One full-height panel"),
-        ('BOTTOM_FREEZER', "Bottom Freezer (1 Drawer)", "Door over a single freezer drawer"),
-        ('BOTTOM_FREEZER_2DRAWER', "Bottom Freezer (2 Drawer)", "Door over two freezer drawers"),
-        ('TOP_FREEZER', "Top Freezer", "Freezer face over a fridge door"),
-        ('DRAWER_DOOR_DRAWER', "Drawer / Door / Drawer", "Drawer face, tall door, drawer face"),
-        ('SIDE_BY_SIDE_SPLIT', "Side-by-Side, Split Left", "Tall right door, drawer over door on the left"),
+        ('FRENCH_DOOR', N_("French Door (Side-by-Side)"), N_("Two tall side-by-side panels")),
+        ('FRENCH_DOOR_BOTTOM_FREEZER', N_("French Door + Bottom Freezer"),
+         N_("Two french doors over a full-width freezer drawer")),
+        ('SINGLE', N_("Single Door"), N_("One full-height panel")),
+        ('BOTTOM_FREEZER', N_("Bottom Freezer (1 Drawer)"), N_("Door over a single freezer drawer")),
+        ('BOTTOM_FREEZER_2DRAWER', N_("Bottom Freezer (2 Drawer)"), N_("Door over two freezer drawers")),
+        ('TOP_FREEZER', N_("Top Freezer"), N_("Freezer face over a fridge door")),
+        ('DRAWER_DOOR_DRAWER', N_("Drawer / Door / Drawer"), N_("Drawer face, tall door, drawer face")),
+        ('SIDE_BY_SIDE_SPLIT', N_("Side-by-Side, Split Left"), N_("Tall right door, drawer over door on the left")),
     ],
     'DISHWASHER': [
-        ('SINGLE', "Standard (Single)", "One full-height panel"),
-        ('DW_DRAWER_DOOR', "Drawer / Door", "Drawer face over a door"),
-        ('DW_3_DRAWER', "3-Drawer", "Three equal drawer faces"),
-        ('DW_4_DRAWER', "4-Drawer", "Four equal drawer faces"),
+        ('SINGLE', N_("Standard (Single)"), N_("One full-height panel")),
+        ('DW_DRAWER_DOOR', N_("Drawer / Door"), N_("Drawer face over a door")),
+        ('DW_3_DRAWER', "3-Drawer", N_("Three equal drawer faces")),
+        ('DW_4_DRAWER', "4-Drawer", N_("Four equal drawer faces")),
     ],
 }
-_DEFAULT_CONFIG_ITEMS = [('SINGLE', "Single", "One full-height panel")]
+_DEFAULT_CONFIG_ITEMS = [('SINGLE', N_("Single"), N_("One full-height panel"))]
 
 _PANEL_TYPE_ITEMS = [
     ('A', "Type A", "Face on 1/4\" backer"),
@@ -585,7 +586,7 @@ class hb_face_frame_OT_add_appliance_panels(bpy.types.Operator):
                         sbox = layout.box()
                         wmax = sp.get('weight_max_lb')
                         if wmax is not None:
-                            sbox.label(text="Max panel weight: %g lb" % wmax)
+                            sbox.label(text=tr("Max panel weight: {:g} lb").format(wmax))
                         for flag in (sp.get('flags') or []):
                             _draw_wrapped(sbox, flag, icon='ERROR')
                         url = sp.get('source_url')
@@ -622,7 +623,7 @@ class hb_face_frame_OT_add_appliance_panels(bpy.types.Operator):
                 wf = wrow.row(align=True)
                 wf.enabled = chold[ci]
                 wf.prop(self, 'col_width_%d' % (ci + 1),
-                        text="Column %d Width" % (ci + 1))
+                        text=tr("Column {} Width").format(ci + 1))
                 if not chold[ci] and dim_x:
                     wrow.label(text="%.2f\"" % units.meter_to_inch(solved_w[ci]))
                 wrow.prop(self, 'col_hold_%d' % (ci + 1), text="",
@@ -650,7 +651,7 @@ class hb_face_frame_OT_add_appliance_panels(bpy.types.Operator):
             cbox = box.column(align=True)
             for bi, (g, lbl) in enumerate(banner_fronts):
                 row = cbox.row(align=True)
-                row.label(text="%s (full width)" % lbl)
+                row.label(text=tr("{} (full width)").format(lbl))
                 if holds[g]:
                     row.prop(self, 'size_%d' % (g + 1), text="")
                 elif dim_z and banner_h:

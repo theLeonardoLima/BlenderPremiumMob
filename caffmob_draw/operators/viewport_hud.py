@@ -21,6 +21,7 @@ import gpu
 import blf
 from collections import namedtuple
 
+from ..data.i18n import N_, tr
 from ..hb_gpu_draw import (
     get_visible_window_bounds,
     draw_rect,
@@ -291,8 +292,8 @@ class _ModalToggleButton:
         return active_modal_idname() == self.op_idname
 
     def _label(self):
-        return (self.disable_label if self._is_my_modal_active()
-                else self.enable_label)
+        return tr(self.disable_label if self._is_my_modal_active()
+                  else self.enable_label)
 
     # ---- widget protocol ----
 
@@ -302,8 +303,8 @@ class _ModalToggleButton:
         # doesn't shift width when state flips.
         s = _s()
         blf.size(0, FONT_SIZE * s)
-        w_enable = blf.dimensions(0, self.enable_label)[0]
-        w_disable = blf.dimensions(0, self.disable_label)[0]
+        w_enable = blf.dimensions(0, tr(self.enable_label))[0]
+        w_disable = blf.dimensions(0, tr(self.disable_label))[0]
         return int(max(w_enable, w_disable) + 24 * s)  # text + horizontal pad
 
     def visible(self, context):
@@ -372,23 +373,23 @@ _MODE_BUTTONS = [
 
 _GRAB_CABINET_BUTTON = _ModalToggleButton(
     'caffmob_face_frame.grab_cabinet', 'Cabinets',
-    enable_label="Enable Grab Cabinet",
-    disable_label="Disable Grab Cabinet",
+    enable_label=N_("Enable Grab Cabinet"),
+    disable_label=N_("Disable Grab Cabinet"),
 )
 _GRAB_FACE_FRAME_BUTTON = _ModalToggleButton(
     'caffmob_face_frame.grab_face_frame', 'Face Frame',
-    enable_label="Enable Grab Face Frame",
-    disable_label="Disable Grab Face Frame",
+    enable_label=N_("Enable Grab Face Frame"),
+    disable_label=N_("Disable Grab Face Frame"),
 )
 _GRAB_BAY_BUTTON = _ModalToggleButton(
     'caffmob_face_frame.grab_bay', 'Bays',
-    enable_label="Enable Grab Bays",
-    disable_label="Disable Grab Bays",
+    enable_label=N_("Enable Grab Bays"),
+    disable_label=N_("Disable Grab Bays"),
 )
 _GRAB_OPENING_BUTTON = _ModalToggleButton(
     'caffmob_face_frame.grab_opening', 'Openings',
-    enable_label="Enable Grab Openings",
-    disable_label="Disable Grab Openings",
+    enable_label=N_("Enable Grab Openings"),
+    disable_label=N_("Disable Grab Openings"),
 )
 class _InspectButton(_ModalToggleButton):
     """Modo de inspeção (`caffmob.inspect_fronts`): visível no modo Parts de qualquer linha de produto (T067)."""
@@ -411,8 +412,8 @@ class _InspectButton(_ModalToggleButton):
 
 _OPEN_DOOR_BUTTON = _InspectButton(
     'caffmob.inspect_fronts', 'Parts',
-    enable_label="Abrir Portas e Gavetas",
-    disable_label="Sair do Modo de Abrir",
+    enable_label=N_("Abrir Portas e Gavetas"),
+    disable_label=N_("Sair do Modo de Abrir"),
 )
 class _MoveOverButton(_ModalToggleButton):
     """Modo "Mover Sobre" (feature 002): liga/desliga `WindowManager.btm_move_over.enabled`. Não é um modal — o
@@ -437,8 +438,8 @@ class _MoveOverButton(_ModalToggleButton):
 
 _MOVE_OVER_BUTTON = _MoveOverButton(
     'caffmob.move_over_toggle', None,
-    enable_label="Mover Sobre",
-    disable_label="Sair do Mover Sobre",
+    enable_label=N_("Mover Sobre"),
+    disable_label=N_("Sair do Mover Sobre"),
 )
 _MODAL_TOGGLE_BUTTONS = [
     _GRAB_CABINET_BUTTON, _GRAB_FACE_FRAME_BUTTON, _GRAB_BAY_BUTTON,

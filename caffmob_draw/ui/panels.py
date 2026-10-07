@@ -6,6 +6,8 @@ com suporte integral a Português do Brasil (pt_BR) e unidades dinâmicas (mm, c
 
 import bpy  # type: ignore
 
+from ..data.i18n import N_, tr
+
 
 # ==========================================================================
 # Helpers de cena
@@ -21,12 +23,12 @@ def _scene_has_walls(context):
 # ==========================================================================
 
 SUMMARY_KEYS = (
-    ('COZ.sheets.LAT.thickness', "Lateral"),
-    ('COZ.sheets.FUN_INF.thickness', "Fundo"),
-    ('COZ.sheets.POR.thickness', "Portas"),
-    ('COZ.sheets.PRAT.thickness', "Prateleiras"),
-    ('COZ.external.base_height', "Altura balcão"),
-    ('COZ.external.base_depth', "Prof. balcão"),
+    ('COZ.sheets.LAT.thickness', N_("Lateral")),
+    ('COZ.sheets.FUN_INF.thickness', N_("Fundo")),
+    ('COZ.sheets.POR.thickness', N_("Portas")),
+    ('COZ.sheets.PRAT.thickness', N_("Prateleiras")),
+    ('COZ.external.base_height', N_("Altura balcão")),
+    ('COZ.external.base_depth', N_("Prof. balcão")),
 )
 
 
@@ -56,7 +58,7 @@ def draw_standards_box(layout, context):
         for key, title in SUMMARY_KEYS:
             param = schema.get_param(key)
             value = api.get_definition_value(definition, key)
-            grid.label(text=f"{title}: {api.format_param_value(param, value, unit)}")
+            grid.label(text=f"{tr(title)}: {api.format_param_value(param, value, unit)}")
 
     sub = box.column(align=True)
     row = sub.row(align=True)
@@ -105,18 +107,18 @@ def draw_inspection_box(layout, context):
     elif state.checked_fronts == 0:
         sub.label(text="Nenhuma frente verificada.", icon='INFO')
     elif not state.interferences:
-        sub.label(text=f"Sem interferência em {state.checked_fronts} frente(s).", icon='CHECKMARK')
+        sub.label(text=tr("Sem interferência em {} frente(s).").format(state.checked_fronts), icon='CHECKMARK')
     else:
         warn = sub.column(align=True)
         warn.alert = True
-        warn.label(text=f"{len(state.interferences)} interferência(s) em {state.checked_fronts} frente(s):",
+        warn.label(text=tr("{} interferência(s) em {} frente(s):").format(len(state.interferences), state.checked_fronts),
                    icon='ERROR')
         for index, item in enumerate(state.interferences[:8]):
             row = sub.row(align=True)
             row.label(text=f"{item.module_name} › {item.front_name} × {item.hit_name}")
             row.operator("caffmob.interference_goto", text="", icon='VIEWZOOM').index = index
         if len(state.interferences) > 8:
-            sub.label(text=f"… e mais {len(state.interferences) - 8}")
+            sub.label(text=tr("… e mais {}").format(len(state.interferences) - 8))
 
 
 def draw_cut_plan(layout, context, compact=False):
@@ -144,29 +146,29 @@ def draw_cut_plan(layout, context, compact=False):
         col.prop(settings, "cut_include_client")
 
     box = layout.box()
-    box.label(text=scene.get("btm_nesting_result", "Nenhuma otimização calculada."), icon='INFO')
+    box.label(text=scene.get("btm_nesting_result", N_("Nenhuma otimização calculada.")), icon='INFO')
     if compact:
         return
 
     if "btm_nesting_sheets_count" in scene:
         col = box.column(align=True)
-        col.label(text=f"Total de peças: {scene.get('btm_nesting_parts_count', 0)}")
-        col.label(text=f"Chapas necessárias: {scene.get('btm_nesting_sheets_count', 0)}")
-        col.label(text=f"Aproveitamento: {scene.get('btm_nesting_utilization', 0.0)}%")
+        col.label(text=tr("Total de peças: {}").format(scene.get('btm_nesting_parts_count', 0)))
+        col.label(text=tr("Chapas necessárias: {}").format(scene.get('btm_nesting_sheets_count', 0)))
+        col.label(text=tr("Aproveitamento: {}%").format(scene.get('btm_nesting_utilization', 0.0)))
 
     incompatible = ops_cutting.incompatible_parts(scene)
     if incompatible:
         bad = layout.box()
         bad.alert = True
-        bad.label(text=f"Peças maiores que o limite de chapa: {len(incompatible)}", icon='ERROR')
+        bad.label(text=tr("Peças maiores que o limite de chapa: {}").format(len(incompatible)), icon='ERROR')
         col = bad.column(align=True)
         for item in incompatible[:10]:
             size = (f"{btm_units.format_value(item['length'] / 1000.0, scene)} × "
                     f"{btm_units.format_value(item['width'] / 1000.0, scene)}")
             reason = "comprimento" if item['status'] == 'EXCEEDS_LENGTH' else "largura"
-            col.label(text=f"{item['module']} › {item['name']}: {size} (excede {reason})")
+            col.label(text=tr("{} › {}: {} (excede {})").format(item['module'], item['name'], size, reason))
         if len(incompatible) > 10:
-            col.label(text=f"… e mais {len(incompatible) - 10}")
+            col.label(text=tr("… e mais {}").format(len(incompatible) - 10))
 
 
 # ==========================================================================

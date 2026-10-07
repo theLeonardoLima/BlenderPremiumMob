@@ -8,6 +8,7 @@ import bpy  # type: ignore
 from bpy_extras import view3d_utils  # type: ignore
 from mathutils import Vector, geometry  # type: ignore
 
+from ..data.i18n import tr
 from . import apply, convert, limits, props
 
 _addon_keymaps = []
@@ -54,7 +55,7 @@ class BTM_OT_AggregateConvert(bpy.types.Operator):
             obj.select_set(False)
         meshes[0].select_set(True)
         context.view_layer.objects.active = meshes[0]
-        self.report({'INFO'}, f"Agregado(s) de {parent.name}: " + ", ".join(done))
+        self.report({'INFO'}, tr("Agregado(s) de {}: ").format(parent.name) + ", ".join(done))
         return {'FINISHED'}
 
 
@@ -106,7 +107,7 @@ class BTM_OT_LeafConvert(bpy.types.Operator):
             other.select_set(False)
         obj.select_set(True)
         context.view_layer.objects.active = obj
-        self.report({'INFO'}, f"{obj.name} virou folha de porta de {parent.name}; use a barra Abertura")
+        self.report({'INFO'}, tr("{} virou folha de porta de {}; use a barra Abertura").format(obj.name, parent.name))
         return {'FINISHED'}
 
 
@@ -122,7 +123,7 @@ class BTM_OT_AggregateUnconvert(bpy.types.Operator):
 
     def execute(self, context):
         count = sum(1 for obj in _aggregates(context) if convert.unconvert(obj))
-        self.report({'INFO'}, f"{count} objeto(s) desconvertido(s)")
+        self.report({'INFO'}, tr("{} objeto(s) desconvertido(s)").format(count))
         return {'FINISHED'}
 
 
@@ -167,7 +168,7 @@ class BTM_OT_AggregateMove(bpy.types.Operator):
             self.report({'WARNING'}, "Gire a vista para enxergar a face do pai")
             return {'CANCELLED'}
         context.window_manager.modal_handler_add(self)
-        context.workspace.status_text_set("Mover agregado  |  Clique: confirmar  |  Botão direito/Esc: cancelar")
+        context.workspace.status_text_set(tr("Mover agregado  |  Clique: confirmar  |  Botão direito/Esc: cancelar"))
         return {'RUNNING_MODAL'}
 
     def _finish(self, context):
@@ -214,7 +215,7 @@ class BTM_OT_DeleteWithAggregates(bpy.types.Operator):
 
     def draw(self, context):
         count = sum(len(_children_aggregates(o)) for o in context.selected_objects)
-        self.layout.label(text=f"{count} agregado(s) presos aos objetos selecionados.")
+        self.layout.label(text=tr("{} agregado(s) presos aos objetos selecionados.").format(count))
         self.layout.prop(self, "with_aggregates")
 
     def execute(self, context):

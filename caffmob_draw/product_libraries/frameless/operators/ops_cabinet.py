@@ -1,5 +1,6 @@
 import bpy
 import math
+from ....data.i18n import tr
 from .. import types_frameless
 from . import ops_placement
 from mathutils import Vector
@@ -992,10 +993,10 @@ class hb_frameless_OT_adjust_multiple_cabinet_widths(bpy.types.Operator):
         box = layout.box()
         for index, cabinet in enumerate(props.calculator_cabinets):
             row = box.row()
-            row.label(text='Cabinet ' + str(index + 1))
+            row.label(text=tr("Cabinet {}").format(index + 1))
             row.prop(cabinet, 'is_equal', text="")
             if cabinet.is_equal:
-                row.label(text="Width: " + units.unit_to_string(unit_settings, cabinet.cabinet_width))
+                row.label(text=tr("Width: {}").format(units.unit_to_string(unit_settings, cabinet.cabinet_width)))
             else:
                 row.prop(cabinet, 'cabinet_width', text="Width:")
 

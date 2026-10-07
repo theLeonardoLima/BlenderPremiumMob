@@ -12,6 +12,7 @@ import os
 import bpy  # type: ignore
 from bpy_extras.io_utils import ExportHelper, ImportHelper  # type: ignore
 
+from ..data.i18n import tr
 from ..data import dimension_schema as schema
 from ..standards import api, io_json, io_promob, sync
 
@@ -32,29 +33,27 @@ def _show_report(context):
 
 
 def _apply_report_lines(report):
-    lines = [f"Definição: {report.get('definition', '')}",
-             f"Módulos atualizados: {report.get('modules_updated', 0)} "
-             f"(cozinha {report.get('frameless', 0)}, dormitório {report.get('closets', 0)})"]
+    lines = [tr("Definição: {}").format(report.get('definition', '')),
+             tr("Módulos atualizados: {} (cozinha {}, dormitório {})").format(report.get('modules_updated', 0), report.get('frameless', 0), report.get('closets', 0))]
     changes = report.get('changes') or []
     if changes:
-        lines.append(f"Parâmetros alterados: {len(changes)}")
+        lines.append(tr("Parâmetros alterados: {}").format(len(changes)))
         lines += [f"  {c['label']}: {c['old']} → {c['new']}" for c in changes[:20]]
         if len(changes) > 20:
-            lines.append(f"  … e mais {len(changes) - 20}")
+            lines.append(tr("  … e mais {}").format(len(changes) - 20))
     skipped = report.get('skipped_manual') or []
     if skipped:
-        lines.append(f"Medidas manuais preservadas: {len(skipped)}")
+        lines.append(tr("Medidas manuais preservadas: {}").format(len(skipped)))
         lines += [f"  {module}: {name}" for module, name in skipped[:10]]
     without = report.get('without_target') or []
     if without:
-        lines.append(f"Sem destino nas bibliotecas atuais (valem para a lista de peças): {len(without)}")
+        lines.append(tr("Sem destino nas bibliotecas atuais (valem para a lista de peças): {}").format(len(without)))
         lines += [f"  {schema.label(k)}" for k in without[:10]]
     return lines
 
 
 def _sync_report_message(report):
-    return (f"Padrão aplicado: {report.get('modules_updated', 0)} módulo(s) atualizado(s); "
-            f"{len(report.get('skipped_manual') or [])} medida(s) manual(is) preservada(s).")
+    return (tr("Padrão aplicado: {} módulo(s) atualizado(s); {} medida(s) manual(is) preservada(s).").format(report.get('modules_updated', 0), len(report.get('skipped_manual') or [])))
 
 
 # ----------------------------------------------------------------------------------------------------------------
@@ -67,12 +66,12 @@ def draw_pending(layout, scene, draft):
     if not changes:
         box.label(text="Nenhuma alteração pendente.", icon='CHECKMARK')
         return changes
-    box.label(text=f"Alterações pendentes: {len(changes)}", icon='MODIFIER')
+    box.label(text=tr("Alterações pendentes: {}").format(len(changes)), icon='MODIFIER')
     col = box.column(align=True)
     for change in changes[:PENDING_ROWS]:
         col.label(text=f"{change['label']}: {change['old']} → {change['new']}")
     if len(changes) > PENDING_ROWS:
-        col.label(text=f"… e mais {len(changes) - PENDING_ROWS}")
+        col.label(text=tr("… e mais {}").format(len(changes) - PENDING_ROWS))
     return changes
 
 
@@ -89,7 +88,7 @@ def draw_editor(layout, context, draft):
     if param is None:
         col.label(text="Selecione um parâmetro na árvore.", icon='INFO')
         return
-    title = schema.line_label(param.line) if param.line != 'GLOBAL' else "Medidas Máximas"
+    title = schema.line_label(param.line) if param.line != 'GLOBAL' else tr("Medidas Máximas")
     if param.component:
         title += f" › {schema.COMPONENTS_BY_CODE[param.component].label_pt}"
     col.label(text=title)
@@ -101,7 +100,7 @@ def draw_editor(layout, context, draft):
         unit = api.user_unit(context.scene)
         low = api.format_param_value(param, param.min, unit) if param.min is not None else "—"
         high = api.format_param_value(param, param.max, unit) if param.max is not None else "—"
-        col.label(text=f"Faixa: {low} a {high}", icon='INFO')
+        col.label(text=tr("Faixa: {} a {}").format(low, high), icon='INFO')
     if draft.error:
         row = col.row()
         row.alert = True
@@ -132,7 +131,7 @@ class BTM_OT_StandardsConfigurator(bpy.types.Operator):
         layout = self.layout
         row = layout.row()
         if definition is not None and definition.builtin:
-            row.label(text=f"{definition.name} (somente leitura)", icon='LOCKED')
+            row.label(text=tr("{} (somente leitura)").format(definition.name), icon='LOCKED')
             row.operator("caffmob.standards_duplicate", text="Duplicar para editar", icon='DUPLICATE')
         else:
             row.prop(draft, "definition_name", text="Definição")
@@ -146,7 +145,7 @@ class BTM_OT_StandardsConfigurator(bpy.types.Operator):
         if changes and definition is not None and not definition.builtin:
             count = len(sync.affected_modules(scene))
             row = layout.row()
-            row.label(text=f"Ao aplicar, {count} módulo(s) do projeto serão atualizados.", icon='MOD_BUILD')
+            row.label(text=tr("Ao aplicar, {} módulo(s) do projeto serão atualizados.").format(count), icon='MOD_BUILD')
             row.prop(draft, "include_manual")
 
     def execute(self, context):
@@ -163,7 +162,7 @@ class BTM_OT_StandardsConfigurator(bpy.types.Operator):
         except api.StandardsError as exc:
             self.report({'ERROR'}, str(exc))
             return {'CANCELLED'}
-        _set_report("Padrão de Dimensões aplicado", _apply_report_lines(report))
+        _set_report(tr("Padrão de Dimensões aplicado"), _apply_report_lines(report))
         self.report({'INFO'}, _sync_report_message(report))
         _show_report(context)
         return {'FINISHED'}
@@ -184,7 +183,7 @@ class BTM_OT_StandardsApply(bpy.types.Operator):
         count = len(sync.affected_modules(context.scene))
         return context.window_manager.invoke_confirm(
             self, event, title="Aplicar Padrão de Dimensões",
-            message=f"{count} módulo(s) serão atualizados.", confirm_text="Aplicar")
+            message=tr("{} módulo(s) serão atualizados.").format(count), confirm_text="Aplicar")
 
     def execute(self, context):
         draft = context.window_manager.btm_standards_draft
@@ -193,7 +192,7 @@ class BTM_OT_StandardsApply(bpy.types.Operator):
         except api.StandardsError as exc:
             self.report({'ERROR'}, str(exc))
             return {'CANCELLED'}
-        _set_report("Padrão de Dimensões aplicado", _apply_report_lines(report))
+        _set_report(tr("Padrão de Dimensões aplicado"), _apply_report_lines(report))
         self.report({'INFO'}, _sync_report_message(report))
         return {'FINISHED'}
 
@@ -230,7 +229,7 @@ class BTM_OT_StandardsSetActive(bpy.types.Operator):
     def draw(self, context):
         layout = self.layout
         layout.prop(self, "definition")
-        layout.label(text=f"{len(sync.affected_modules(context.scene))} módulo(s) serão atualizados.",
+        layout.label(text=tr("{} módulo(s) serão atualizados.").format(len(sync.affected_modules(context.scene))),
                      icon='MOD_BUILD')
         layout.prop(self, "include_manual")
 
@@ -242,7 +241,7 @@ class BTM_OT_StandardsSetActive(bpy.types.Operator):
             return {'CANCELLED'}
         api.set_active(scene, definition)
         report = sync.apply_definition(scene, definition, include_manual=self.include_manual)
-        _set_report("Definição ativa alterada", _apply_report_lines(report))
+        _set_report(tr("Definição ativa alterada"), _apply_report_lines(report))
         self.report({'INFO'}, _sync_report_message(report))
         return {'FINISHED'}
 
@@ -266,7 +265,7 @@ class BTM_OT_StandardsDuplicate(bpy.types.Operator):
             # Configurador aberto sobre a embutida: o rascunho passa a editar a cópia.
             draft.definition_uid = new.uid
             draft.definition_name = new.name
-        self.report({'INFO'}, f"Definição \"{new.name}\" criada e ativa.")
+        self.report({'INFO'}, tr("Definição \"{}\" criada e ativa.").format(new.name))
         return {'FINISHED'}
 
 
@@ -312,7 +311,7 @@ class BTM_OT_StandardsDelete(bpy.types.Operator):
     def invoke(self, context, event):
         definition = api.active_definition(context.scene)
         return context.window_manager.invoke_confirm(
-            self, event, title="Excluir Definição", message=f"Excluir \"{definition.name}\"?",
+            self, event, title="Excluir Definição", message=tr("Excluir \"{}\"?").format(definition.name),
             confirm_text="Excluir", icon='WARNING')
 
     def execute(self, context):
@@ -358,9 +357,9 @@ class BTM_OT_StandardsExportJSON(bpy.types.Operator, ExportHelper):
         try:
             io_json.export_definition(self.filepath, definition)
         except OSError as exc:
-            self.report({'ERROR'}, f"Não foi possível gravar: {exc}")
+            self.report({'ERROR'}, tr("Não foi possível gravar: {}").format(exc))
             return {'CANCELLED'}
-        self.report({'INFO'}, f"Definição exportada: {self.filepath}")
+        self.report({'INFO'}, tr("Definição exportada: {}").format(self.filepath))
         return {'FINISHED'}
 
 
@@ -379,8 +378,8 @@ class BTM_OT_StandardsImportJSON(bpy.types.Operator, ImportHelper):
         except (io_json.StandardFileError, api.StandardsError) as exc:
             self.report({'ERROR'}, str(exc))
             return {'CANCELLED'}
-        _set_report("Definição importada", [f"Definição: {definition.name}"] + [f"  {w}" for w in warnings])
-        self.report({'INFO'}, f"Definição \"{definition.name}\" importada ({len(warnings)} aviso(s)).")
+        _set_report("Definição importada", [tr("Definição: {}").format(definition.name)] + [tr("  {}").format(w) for w in warnings])
+        self.report({'INFO'}, tr("Definição \"{}\" importada ({} aviso(s)).").format(definition.name, len(warnings)))
         _show_report(context)
         return {'FINISHED'}
 
@@ -418,18 +417,17 @@ class BTM_OT_StandardsImportPromob(bpy.types.Operator, ImportHelper):
             item = definition.raw_attributes.add()
             item.attr_id, item.value, item.key = raw['id'], raw['value'], raw['key']
         rep = data['report']
-        lines = [f"Definição: {name}",
-                 f"Atributos no arquivo: {rep['total']}; reconhecidos: {rep['mapped']}",
-                 f"Não reconhecidos (mantidos para reexportação): {len(rep['unrecognized'])}",
-                 f"  dos quais de família conhecida sem componente equivalente: "
-                 f"{len(rep['confirmed_without_equivalent'])}"]
+        lines = [tr("Definição: {}").format(name),
+                 tr("Atributos no arquivo: {}; reconhecidos: {}").format(rep['total'], rep['mapped']),
+                 tr("Não reconhecidos (mantidos para reexportação): {}").format(len(rep['unrecognized'])),
+                 tr("  dos quais de família conhecida sem componente equivalente: {}").format(len(rep['confirmed_without_equivalent']))]
         if rep['invalid']:
-            lines.append(f"Valores inválidos ignorados: {', '.join(rep['invalid'][:10])}")
+            lines.append(tr("Valores inválidos ignorados: {}").format(', '.join(rep['invalid'][:10])))
         if rep['duplicates']:
-            lines.append(f"IDs duplicados (vale o último): {', '.join(rep['duplicates'][:10])}")
-        lines.append("Use \"Definir ativa\" para aplicar esta definição ao projeto.")
-        _set_report("Importação do Promob", lines)
-        self.report({'INFO'}, f"\"{name}\": {rep['mapped']} de {rep['total']} atributos reconhecidos.")
+            lines.append(tr("IDs duplicados (vale o último): {}").format(', '.join(rep['duplicates'][:10])))
+        lines.append(tr("Use \"Definir ativa\" para aplicar esta definição ao projeto."))
+        _set_report(tr("Importação do Promob"), lines)
+        self.report({'INFO'}, tr("\"{}\": {} de {} atributos reconhecidos.").format(name, rep['mapped'], rep['total']))
         _show_report(context)
         return {'FINISHED'}
 
@@ -455,9 +453,9 @@ class BTM_OT_StandardsExportPromob(bpy.types.Operator, ExportHelper):
         try:
             io_promob.write_dimensionexport(self.filepath, definition.name, values, raw)
         except OSError as exc:
-            self.report({'ERROR'}, f"Não foi possível gravar: {exc}")
+            self.report({'ERROR'}, tr("Não foi possível gravar: {}").format(exc))
             return {'CANCELLED'}
-        self.report({'INFO'}, f"Exportado para o Promob: {self.filepath}")
+        self.report({'INFO'}, tr("Exportado para o Promob: {}").format(self.filepath))
         return {'FINISHED'}
 
 
@@ -476,7 +474,7 @@ class BTM_OT_StandardsReport(bpy.types.Operator):
 
     def draw(self, context):
         layout = self.layout
-        layout.label(text=_LAST_REPORT['title'] or "Sem relatório.", icon='INFO')
+        layout.label(text=_LAST_REPORT['title'] or tr("Sem relatório."), icon='INFO')
         col = layout.column(align=True)
         for line in _LAST_REPORT['lines']:
             col.label(text=line)

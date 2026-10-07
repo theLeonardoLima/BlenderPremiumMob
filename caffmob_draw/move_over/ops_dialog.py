@@ -19,6 +19,7 @@ Fora do painel, a navegação da viewport (botão do meio, roda) continua funcio
 
 import bpy  # type: ignore
 
+from ..data.i18n import N_, tr
 from ..canvas2d import draw
 from ..canvas2d.view import View2D
 from ..data import units
@@ -28,7 +29,7 @@ from .scene import MoveOver
 
 NAV_EVENTS = {'MIDDLEMOUSE', 'WHEELUPMOUSE', 'WHEELDOWNMOUSE', 'TRACKPADPAN', 'TRACKPADZOOM', 'MOUSEROTATE',
               'NDOF_MOTION'}
-FIELD_LABELS = ("X", "Profundidade", "Altura")
+FIELD_LABELS = ("X", N_("Profundidade"), N_("Altura"))
 ABS_LABELS = ("X", "Y", "Z")
 ROTATION, STEP = 3, 4             # campos da segunda linha
 FIELD_COUNT = 5
@@ -85,8 +86,8 @@ class BTM_OT_MoveOverDialog(bpy.types.Operator):
         self._handle = bpy.types.SpaceView3D.draw_handler_add(self._draw, (), 'WINDOW', 'POST_PIXEL')
         context.window_manager.modal_handler_add(self)
         context.workspace.status_text_set(
-            "Mover Sobre  |  Clique perto de um lado ou de uma linha  |  Tab: digitar  |  Setas/PgUp/PgDn: passo  |  "
-            "Enter: confirmar  |  Esc: cancelar")
+            tr("Mover Sobre  |  Clique perto de um lado ou de uma linha  |  Tab: digitar  |  Setas/PgUp/PgDn: passo  |  "
+            "Enter: confirmar  |  Esc: cancelar"))
         context.area.tag_redraw()
         return {'RUNNING_MODAL'}
 
@@ -196,9 +197,9 @@ class BTM_OT_MoveOverDialog(bpy.types.Operator):
         draw.rect(sh, self.panel, draw.COLORS['panel'])
         draw.outline(sh, self.panel, draw.COLORS['border'])
         draw.text(self.title_pos[0], self.title_pos[1],
-                  f"Mover Sobre — {self.mo.a.name} sobre {self.mo.b.name} (referência)", size=13)
+                  tr("Mover Sobre — {} sobre {} (referência)").format(self.mo.a.name, self.mo.b.name), size=13)
         a, b = self.mo.box_a(), self.mo.box_b
-        self._draw_pane(sh, self.pane_top, self.view_top, "Superior (frente embaixo)", self._top_lines(),
+        self._draw_pane(sh, self.pane_top, self.view_top, N_("Superior (frente embaixo)"), self._top_lines(),
                         self.hot['top'], ((b[0][0], b[0][1]), (b[1][0], b[1][1])),
                         ((a[0][0], a[0][1]), (a[1][0], a[1][1])), align.DEPTH)
         self._draw_pane(sh, self.pane_front, self.view_front, "Frontal", self._front_lines(),
@@ -212,13 +213,13 @@ class BTM_OT_MoveOverDialog(bpy.types.Operator):
             draw.rect(sh, rect, draw.COLORS['button_hot'] if active else draw.COLORS['button'])
             draw.outline(sh, rect, draw.COLORS['target_hot'] if active else draw.COLORS['border'])
             if i == ROTATION:
-                label, shown = "Rotação", f"{self.mo.rotation:.1f}°".replace(".", ",")
+                label, shown = N_("Rotação"), f"{self.mo.rotation:.1f}°".replace(".", ",")
             elif i == STEP:
-                label, shown = "Passo", draw.length_label(self.state.step)
+                label, shown = N_("Passo"), draw.length_label(self.state.step)
             else:
                 label, shown = labels[i], draw.length_label(values[i])
             value = (self.buffer + "▏") if active else shown
-            draw.text(rect[0] + 8, rect[1] + 8, f"{label}: {value}")
+            draw.text(rect[0] + 8, rect[1] + 8, f"{tr(label)}: {value}")
         draw.button(sh, self.button_mode, "Posição relativa" if relative else "Posição absoluta",
                     hot=point_in_rect(*self.mouse, self.button_mode))
         draw.button(sh, self.button_save, "Salvar posição", hot=point_in_rect(*self.mouse, self.button_save))
@@ -250,13 +251,13 @@ class BTM_OT_MoveOverDialog(bpy.types.Operator):
         saved = self.mo.saved()
         items = context.scene.btm_saved_positions
         item = items.add()
-        item.name = f"Posição {len(items)}"
+        item.name = tr("Posição {}").format(len(items))
         item.delta, item.rotation, item.b_side = saved['delta'], saved['rotation'], saved['b_side']
-        self.warning = f"{item.name} salva ({self.mo.a.name} em relação a {self.mo.b.name})."
+        self.warning = tr("{} salva ({} em relação a {}).").format(item.name, self.mo.a.name, self.mo.b.name)
 
     def _apply_saved(self, item):
         self.mo.apply_saved({'delta': tuple(item.delta), 'rotation': item.rotation, 'b_side': item.b_side})
-        self.warned, self.warning = False, f"{item.name} aplicada."
+        self.warned, self.warning = False, tr("{} aplicada.").format(item.name)
         self._fit_views()
 
     def _commit_typing(self):
@@ -267,7 +268,7 @@ class BTM_OT_MoveOverDialog(bpy.types.Operator):
                 value = units.parse_length(self.buffer, units.get_scene_length_unit(),
                                            allow_negative=self.typing != STEP, allow_zero=self.typing != STEP)
         except ValueError as exc:
-            self.warning = str(exc) if str(exc) else "Valor inválido"
+            self.warning = str(exc) if str(exc) else N_("Valor inválido")
             return False
         if self.typing == ROTATION:
             self.mo.set_rotation(value)
@@ -288,11 +289,11 @@ class BTM_OT_MoveOverDialog(bpy.types.Operator):
             overlapping = self.mo.overlapping()
             if overlapping:
                 names = ", ".join(o.name for o in overlapping[:4])
-                self.warning = f"Sobrepõe: {names}. Confirme de novo para gravar mesmo assim."
+                self.warning = tr("Sobrepõe: {}. Confirme de novo para gravar mesmo assim.").format(names)
                 self.warned = True
                 return {'RUNNING_MODAL'}
         self._finish(context)
-        self.report({'INFO'}, f"{self.mo.a.name} alinhado a {self.mo.b.name}.")
+        self.report({'INFO'}, tr("{} alinhado a {}.").format(self.mo.a.name, self.mo.b.name))
         return {'FINISHED'}
 
     def modal(self, context, event):

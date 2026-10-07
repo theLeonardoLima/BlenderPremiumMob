@@ -1,0 +1,282 @@
+{
+ "0 = fechada; 1 = abertura máxima. Para ao encostar em parede ou objeto": {
+  "pt_BR": "0 = fechada; 1 = abertura máxima. Para ao encostar em parede ou objeto",
+  "en_US": "0 = closed; 1 = fully open. Stops on touching a wall or object"
+ },
+ "A folha desliza num trilho": {
+  "pt_BR": "A folha desliza num trilho",
+  "en_US": "The leaf slides on a track"
+ },
+ "A folha gira em torno de um eixo": {
+  "pt_BR": "A folha gira em torno de um eixo",
+  "en_US": "The leaf turns around an axis"
+ },
+ "Abre para o lado da frente": {
+  "pt_BR": "Abre para o lado da frente",
+  "en_US": "Opens to the front side"
+ },
+ "Abre para o lado de trás": {
+  "pt_BR": "Abre para o lado de trás",
+  "en_US": "Opens to the back side"
+ },
+ "Agregado": {
+  "pt_BR": "Agregado",
+  "en_US": "Aggregate"
+ },
+ "Agregado(s) de {}: ": {
+  "pt_BR": "Agregado(s) de {}: ",
+  "en_US": "Aggregate(s) of {}: "
+ },
+ "Agregados e folhas": {
+  "pt_BR": "Agregados e folhas",
+  "en_US": "Aggregates and leaves"
+ },
+ "Apaga os objetos selecionados; se tiverem agregados, pergunta se eles vão junto": {
+  "pt_BR": "Apaga os objetos selecionados; se tiverem agregados, pergunta se eles vão junto",
+  "en_US": "Deletes the selected objects; if they have aggregates, asks whether they go too"
+ },
+ "Apagar também os agregados": {
+  "pt_BR": "Apagar também os agregados",
+  "en_US": "Also delete the aggregates"
+ },
+ "Arrasta o agregado no plano da face do pai; ele para na borda (Esc ou botão direito cancela)": {
+  "pt_BR": "Arrasta o agregado no plano da face do pai; ele para na borda (Esc ou botão direito cancela)",
+  "en_US": "Drags the aggregate on the parent face plane; it stops at the edge (Esc or right button cancels)"
+ },
+ "Converte as malhas selecionadas em agregados do objeto ativo (selecione o pai por último)": {
+  "pt_BR": "Converte as malhas selecionadas em agregados do objeto ativo (selecione o pai por último)",
+  "en_US": "Converts the selected meshes into aggregates of the active object (select the parent last)"
+ },
+ "Converter em agregado": {
+  "pt_BR": "Converter em agregado",
+  "en_US": "Convert to aggregate"
+ },
+ "Converter em folha de porta": {
+  "pt_BR": "Converter em folha de porta",
+  "en_US": "Convert to door leaf"
+ },
+ "Correr": {
+  "pt_BR": "Correr",
+  "en_US": "Slide"
+ },
+ "Curso": {
+  "pt_BR": "Curso",
+  "en_US": "Travel"
+ },
+ "Desconverter": {
+  "pt_BR": "Desconverter",
+  "en_US": "Unconvert"
+ },
+ "Desfaz a conversão: tira recortes e folha e devolve o objeto como estava": {
+  "pt_BR": "Desfaz a conversão: tira recortes e folha e devolve o objeto como estava",
+  "en_US": "Undoes the conversion: removes cutouts and leaf and returns the object as it was"
+ },
+ "Desligado: os agregados ficam soltos na mesma posição": {
+  "pt_BR": "Desligado: os agregados ficam soltos na mesma posição",
+  "en_US": "Off: the aggregates stay loose in the same position"
+ },
+ "Eixo": {
+  "pt_BR": "Eixo",
+  "en_US": "Axis"
+ },
+ "Encostou em": {
+  "pt_BR": "Encostou em",
+  "en_US": "Touched"
+ },
+ "Face": {
+  "pt_BR": "Face",
+  "en_US": "Face"
+ },
+ "Folha bateu em {}": {
+  "pt_BR": "Folha bateu em {}",
+  "en_US": "Leaf hit {}"
+ },
+ "Folha de porta": {
+  "pt_BR": "Folha de porta",
+  "en_US": "Door leaf"
+ },
+ "Folha que abre e fecha": {
+  "pt_BR": "Folha que abre e fecha",
+  "en_US": "Leaf that opens and closes"
+ },
+ "Formato não suportado: {} (use OBJ, FBX, glTF ou GLB)": {
+  "pt_BR": "Formato não suportado: {} (use OBJ, FBX, glTF ou GLB)",
+  "en_US": "Unsupported format: {} (use OBJ, FBX, glTF or GLB)"
+ },
+ "Furo real no plano de corte": {
+  "pt_BR": "Furo real no plano de corte",
+  "en_US": "Real hole in the cut plan"
+ },
+ "Gire a vista para enxergar a face do pai": {
+  "pt_BR": "Gire a vista para enxergar a face do pai",
+  "en_US": "Rotate the view to see the parent face"
+ },
+ "Giro": {
+  "pt_BR": "Giro",
+  "en_US": "Swing"
+ },
+ "Horizontal": {
+  "pt_BR": "Horizontal",
+  "en_US": "Horizontal"
+ },
+ "Importa um modelo 3D (OBJ, FBX, glTF/GLB) para converter em agregado ou folha de porta": {
+  "pt_BR": "Importa um modelo 3D (OBJ, FBX, glTF/GLB) para converter em agregado ou folha de porta",
+  "en_US": "Imports a 3D model (OBJ, FBX, glTF/GLB) to convert into an aggregate or door leaf"
+ },
+ "Importar modelo 3D": {
+  "pt_BR": "Importar modelo 3D",
+  "en_US": "Import 3D model"
+ },
+ "Importação cancelada: {}": {
+  "pt_BR": "Importação cancelada: {}",
+  "en_US": "Import cancelled: {}"
+ },
+ "Leva o recorte para a usinagem da peça pai no plano de corte e na exportação de produção": {
+  "pt_BR": "Leva o recorte para a usinagem da peça pai no plano de corte e na exportação de produção",
+  "en_US": "Sends the cutout to the parent part machining in the cut plan and the production export"
+ },
+ "Mais próxima": {
+  "pt_BR": "Mais próxima",
+  "en_US": "Nearest"
+ },
+ "Mover agregado": {
+  "pt_BR": "Mover agregado",
+  "en_US": "Move aggregate"
+ },
+ "Mover agregado  |  Clique: confirmar  |  Botão direito/Esc: cancelar": {
+  "pt_BR": "Mover agregado  |  Clique: confirmar  |  Botão direito/Esc: cancelar",
+  "en_US": "Move aggregate  |  Click: confirm  |  Right button/Esc: cancel"
+ },
+ "Movimento": {
+  "pt_BR": "Movimento",
+  "en_US": "Motion"
+ },
+ "O Blender não conseguiu importar {}: {}": {
+  "pt_BR": "O Blender não conseguiu importar {}: {}",
+  "en_US": "Blender could not import {}: {}"
+ },
+ "O agregado entra na lista de peças do plano de corte": {
+  "pt_BR": "O agregado entra na lista de peças do plano de corte",
+  "en_US": "The aggregate goes into the cut plan part list"
+ },
+ "O furo real só vale quando o agregado entra pela face da chapa (topo ou base da peça)": {
+  "pt_BR": "O furo real só vale quando o agregado entra pela face da chapa (topo ou base da peça)",
+  "en_US": "A real hole only applies when the aggregate enters through the sheet face (top or bottom of the part)"
+ },
+ "O objeto tem agregados": {
+  "pt_BR": "O objeto tem agregados",
+  "en_US": "The object has aggregates"
+ },
+ "O pai não pode ser o próprio objeto nem um filho dele": {
+  "pt_BR": "O pai não pode ser o próprio objeto nem um filho dele",
+  "en_US": "The parent cannot be the object itself or one of its children"
+ },
+ "O pai não é uma peça do plano de corte": {
+  "pt_BR": "O pai não é uma peça do plano de corte",
+  "en_US": "The parent is not a cut plan part"
+ },
+ "Pai": {
+  "pt_BR": "Pai",
+  "en_US": "Parent"
+ },
+ "Para a direita": {
+  "pt_BR": "Para a direita",
+  "en_US": "To the right"
+ },
+ "Para a esquerda": {
+  "pt_BR": "Para a esquerda",
+  "en_US": "To the left"
+ },
+ "Para dentro": {
+  "pt_BR": "Para dentro",
+  "en_US": "Inward"
+ },
+ "Para fora": {
+  "pt_BR": "Para fora",
+  "en_US": "Outward"
+ },
+ "Perfurar": {
+  "pt_BR": "Perfurar",
+  "en_US": "Perforate"
+ },
+ "Peça de produção": {
+  "pt_BR": "Peça de produção",
+  "en_US": "Production part"
+ },
+ "Peça presa ao pai": {
+  "pt_BR": "Peça presa ao pai",
+  "en_US": "Part attached to the parent"
+ },
+ "Pivô ausente; desconverta e converta de novo": {
+  "pt_BR": "Pivô ausente; desconverta e converta de novo",
+  "en_US": "Pivot missing; unconvert and convert again"
+ },
+ "Positivo afasta do pai; negativo afunda no pai até a espessura dele": {
+  "pt_BR": "Positivo afasta do pai; negativo afunda no pai até a espessura dele",
+  "en_US": "Positive moves away from the parent; negative sinks into the parent up to its thickness"
+ },
+ "Recorta o pai no volume em que o agregado afunda (só no 3D)": {
+  "pt_BR": "Recorta o pai no volume em que o agregado afunda (só no 3D)",
+  "en_US": "Cuts the parent where the aggregate sinks in (3D only)"
+ },
+ "Selecione a malha e, por último, o elemento pai.": {
+  "pt_BR": "Selecione a malha e, por último, o elemento pai.",
+  "en_US": "Select the mesh and, last, the parent element."
+ },
+ "Selecione também o elemento pai (por último, como ativo)": {
+  "pt_BR": "Selecione também o elemento pai (por último, como ativo)",
+  "en_US": "Also select the parent element (last, as active)"
+ },
+ "Selecione um objeto de malha para converter": {
+  "pt_BR": "Selecione um objeto de malha para converter",
+  "en_US": "Select a mesh object to convert"
+ },
+ "Sentido": {
+  "pt_BR": "Sentido",
+  "en_US": "Direction"
+ },
+ "Tipo": {
+  "pt_BR": "Tipo",
+  "en_US": "Type"
+ },
+ "Uma folha de porta não pode receber agregados": {
+  "pt_BR": "Uma folha de porta não pode receber agregados",
+  "en_US": "A door leaf cannot receive aggregates"
+ },
+ "Vertical": {
+  "pt_BR": "Vertical",
+  "en_US": "Vertical"
+ },
+ "mín. {}": {
+  "pt_BR": "mín. {}",
+  "en_US": "min. {}"
+ },
+ "sem extensão": {
+  "pt_BR": "sem extensão",
+  "en_US": "no extension"
+ },
+ "{} agregado(s) presos aos objetos selecionados.": {
+  "pt_BR": "{} agregado(s) presos aos objetos selecionados.",
+  "en_US": "{} aggregate(s) attached to the selected objects."
+ },
+ "{} malha(s) importada(s). Selecione o pai por último e use \"Converter em agregado\"": {
+  "pt_BR": "{} malha(s) importada(s). Selecione o pai por último e use \"Converter em agregado\"",
+  "en_US": "{} mesh(es) imported. Select the parent last and use \"Convert to aggregate\""
+ },
+ "{} objeto(s) desconvertido(s)": {
+  "pt_BR": "{} objeto(s) desconvertido(s)",
+  "en_US": "{} object(s) unconverted"
+ },
+ "{} virou folha de porta de {}; use a barra Abertura": {
+  "pt_BR": "{} virou folha de porta de {}; use a barra Abertura",
+  "en_US": "{} became a door leaf of {}; use the Opening slider"
+ },
+ "{} — pai: {}": {
+  "pt_BR": "{} — pai: {}",
+  "en_US": "{} — parent: {}"
+ },
+ "Ângulo máximo": {
+  "pt_BR": "Ângulo máximo",
+  "en_US": "Maximum angle"
+ }
+}

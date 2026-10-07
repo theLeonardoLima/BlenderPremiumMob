@@ -1,0 +1,62 @@
+{
+ "  Digitado: {}": {
+  "pt_BR": "  Digitado: {}",
+  "en_US": "  Typed: {}"
+ },
+ "Altura {} — digite e Enter, ou clique.{}": {
+  "pt_BR": "Altura {} — digite e Enter, ou clique.{}",
+  "en_US": "Height {} — type and press Enter, or click.{}"
+ },
+ "Clique o canto da peça (Ctrl encaixa em vértices e arestas). Esc cancela.": {
+  "pt_BR": "Clique o canto da peça (Ctrl encaixa em vértices e arestas). Esc cancela.",
+  "en_US": "Click the part corner (Ctrl snaps to vertices and edges). Esc cancels."
+ },
+ "Cria uma placa ou caixa por pontos de referência no ambiente": {
+  "pt_BR": "Cria uma placa ou caixa por pontos de referência no ambiente",
+  "en_US": "Creates a panel or box from reference points in the room"
+ },
+ "Duplica a geometria ao lado da original": {
+  "pt_BR": "Duplica a geometria ao lado da original",
+  "en_US": "Duplicates the geometry next to the original"
+ },
+ "Entra na lista de peças e no orçamento; sem a marca é só visual": {
+  "pt_BR": "Entra na lista de peças e no orçamento; sem a marca é só visual",
+  "en_US": "Goes into the part list and the quote; without it, it is visual only"
+ },
+ "Espessura da placa; numa caixa, das seis placas": {
+  "pt_BR": "Espessura da placa; numa caixa, das seis placas",
+  "en_US": "Panel thickness; in a box, of the six panels"
+ },
+ "Espessura na largura (X)": {
+  "pt_BR": "Espessura na largura (X)",
+  "en_US": "Thickness on the width (X)"
+ },
+ "Espessura na profundidade (Y)": {
+  "pt_BR": "Espessura na profundidade (Y)",
+  "en_US": "Thickness on the depth (Y)"
+ },
+ "Espessura na vertical (Z)": {
+  "pt_BR": "Espessura na vertical (Z)",
+  "en_US": "Thickness on the vertical (Z)"
+ },
+ "Exclui a geometria": {
+  "pt_BR": "Exclui a geometria",
+  "en_US": "Deletes the geometry"
+ },
+ "Largura {} × Profundidade {} — digite a {} e Enter, ou clique.{}": {
+  "pt_BR": "Largura {} × Profundidade {} — digite a {} e Enter, ou clique.{}",
+  "en_US": "Width {} × Depth {} — type the {} and press Enter, or click.{}"
+ },
+ "Passa a geometria para o outro lado do ponto de origem (X local)": {
+  "pt_BR": "Passa a geometria para o outro lado do ponto de origem (X local)",
+  "en_US": "Moves the geometry to the other side of the origin (local X)"
+ },
+ "Uma caixa fechada de seis chapas": {
+  "pt_BR": "Uma caixa fechada de seis chapas",
+  "en_US": "A closed box of six sheets"
+ },
+ "Uma chapa": {
+  "pt_BR": "Uma chapa",
+  "en_US": "A single sheet"
+ }
+}
