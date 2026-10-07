@@ -1,0 +1,47 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Plano de correção · #8 ZZUK</title><style>
+body{background:#0d1117;color:#e6edf3;font:14px system-ui,sans-serif;margin:0;padding:16px;max-width:1100px}
+.meta{color:#8b949e;font-size:12px}.cards{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}
+.card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px 16px;min-width:120px}
+.card b{font-size:18px;display:block}svg{max-width:100%;height:auto}
+table{border-collapse:collapse;width:100%;margin-top:8px}td,th{border-bottom:1px solid #30363d;padding:6px;text-align:left;font-size:13px;vertical-align:top}
+a{color:#58a6ff}.wrap{overflow-x:auto}code{background:#161b22;padding:1px 4px;border-radius:4px}.ok{color:#3fb950}.bad{color:#e5484d}h2{margin-top:28px}</style></head><body>
+<h1>Plano de correção · #8 BUG-20261007-ZZUK</h1>
+<p class="meta">Contexto <b>editor-de-paredes</b> · 2026-10-07 · /reversa-debugger-fix · <a href="../bug.md">bug.md</a></p>
+<div class="cards"><div class="card"><b class="bad">high</b>severidade</div><div class="card"><b>P1</b>prioridade</div>
+<div class="card"><b>1/1</b>reprodução (determinístico)</div><div class="card"><b class="ok">confirmed</b>causa raiz</div>
+<div class="card"><b class="ok">baixa</b>risco da mudança</div></div>
+<h2>Defeito e causa raiz</h2>
+<p>Dentro do editor de paredes, Ctrl+Z não desfaz nada. O modal <code>caffmob.wall_editor_modal</code> (<code>walls2d/ops_editor.py</code>)
+não trata Ctrl+Z e a sessão (<code>walls2d/props.py</code> <code>Session</code>) não guarda histórico do rascunho; o desfazer do
+Blender não alcança o rascunho em memória. Evidência: <a href="../evidence/reproduction.md">evidence/reproduction.md</a>.</p>
+<h2>Estratégia escolhida: correção direta</h2>
+<p>Histórico do rascunho, Python puro: um instantâneo do plano a cada ação concluída (o arraste conta como um passo, gravado ao
+soltar); Ctrl+Z desfaz, Ctrl+Shift+Z (ou Ctrl+Y) refaz; o atalho é consumido pela janela do editor (não vai para o desfazer do 3D).
+Edição pelo painel também vira um passo. Até 100 passos.</p>
+<h2>Correction Change Set proposto</h2>
+<table><tr><th>CHG</th><th>tipo</th><th>artefato</th><th>propósito</th></tr>
+<tr><td>CHG-001</td><td>code</td><td><code>caffmob_draw/walls2d/history.py</code> (novo, puro)</td><td>Pilha de desfazer/refazer de <code>WallPlan</code> por assinatura (<code>model.plan_signature</code>), limite 100</td></tr>
+<tr><td>CHG-002</td><td>code</td><td><code>caffmob_draw/walls2d/props.py</code></td><td>A sessão cria o histórico na abertura; edição pelo painel grava um passo; <code>undo()</code>/<code>redo()</code> trocam o plano e limpam seleção, lápis e digitação</td></tr>
+<tr><td>CHG-003</td><td>code</td><td><code>caffmob_draw/walls2d/ops_editor.py</code></td><td>Ctrl+Z / Ctrl+Shift+Z / Ctrl+Y tratados antes de qualquer outro evento da janela do editor; passo gravado depois de cada evento tratado (fora de arraste)</td></tr>
+<tr><td>CHG-004</td><td>specification</td><td><code>_reversa_sdd/addenda/bug-BUG-20261007-ZZUK-v001.md</code></td><td>Adendo aditivo (veredito provável <i>spec-gap</i>)</td></tr>
+</table>
+<h2>Testes planejados</h2>
+<table><tr><th>teste</th><th>tipo</th><th>prova</th></tr>
+<tr><td><code>tests/test_walls2d_history.py</code></td><td>regressão (puro)</td><td>3 passos desfeitos e refeitos; nova ação apaga o refazer; limite de 100; sem mudança não grava passo</td></tr>
+<tr><td><code>tests/blender_bug_ZZUK_undo.py</code> (com janela)</td><td>reprodução</td><td>Mudar o comprimento pelo painel e teclar Ctrl+Z na janela do editor volta a medida; Ctrl+Shift+Z refaz; desenhar 2 trechos e 2× Ctrl+Z apaga os dois</td></tr>
+</table>
+<h2>Riscos e o que fica de fora</h2>
+<ul><li><b>Risco baixo:</b> só o rascunho em memória; OK e Cancelar continuam iguais (OK = um passo de desfazer no 3D).</li>
+<li>Fora: Ctrl+Z na janela principal do 3D com o editor aberto continua sendo o desfazer do Blender.</li>
+<li>Fora: o #9 (painel), que não reproduziu e aguarda o ambiente do titular.</li></ul>
+<h2>Mini-grafo</h2>
+<div class="wrap"><svg viewBox="0 0 640 170" width="640" height="170"><defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#8aa"/></marker></defs>
+<line x1="290" y1="85" x2="360" y2="85" stroke="#8aa" stroke-dasharray="6 4" marker-end="url(#a)"/><text x="325" y="76" fill="#9bb" font-size="11" text-anchor="middle">related-to</text>
+<a href="../bug.md"><rect x="30" y="35" width="260" height="100" rx="10" fill="#1c2128" stroke="#58a6ff" stroke-width="3"/><text x="42" y="60" fill="#e6edf3" font-size="13" font-weight="600">#8 ZZUK (este)</text><text x="42" y="82" fill="#c9d1d9" font-size="12">Ctrl+Z não desfaz no editor</text><text x="42" y="102" fill="#8b949e" font-size="11">high · paredes</text><text x="42" y="122" fill="#d29922" font-size="11">open · planning</text></a>
+<a href="../../BUG-20261007-VQ72-medida-do-trecho-no-painel/bug.md"><rect x="360" y="35" width="260" height="100" rx="10" fill="#1c2128" stroke="#e5484d" stroke-width="2"/><text x="372" y="60" fill="#e6edf3" font-size="13" font-weight="600">#9 VQ72</text><text x="372" y="82" fill="#c9d1d9" font-size="12">Medida do trecho no painel</text><text x="372" y="102" fill="#8b949e" font-size="11">high · paredes</text><text x="372" y="122" fill="#e5484d" font-size="11">open · reproducing</text></a></svg></div>
+<h2>Relações</h2>
+<table><tr><th>origem</th><th>tipo</th><th>destino</th><th>estado</th></tr>
+<tr><td><a href="../bug.md">#8 BUG-20261007-ZZUK</a></td><td>related-to</td><td><a href="../../BUG-20261007-VQ72-medida-do-trecho-no-painel/bug.md">#9 BUG-20261007-VQ72</a></td><td>proposed</td></tr></table>
+<h2>Ordem sugerida</h2><p>#8 agora (reproduzido, causa confirmada); #9 depois da observação no Blender do titular.</p>
+</body></html>

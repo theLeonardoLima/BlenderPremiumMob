@@ -9,7 +9,7 @@ import math
 
 import bpy  # type: ignore
 
-from . import model
+from . import history, model
 
 
 class Session:
@@ -41,6 +41,7 @@ class Session:
         self.project_height = 2.6         # pé-direito do projeto lido na abertura (D-36)
         self.equalize_height = True       # "Igualar ao pé-direito do projeto" (D-37)
         self.height_mismatches = []
+        self.history = history.History(plan)   # Ctrl+Z / Ctrl+Shift+Z no rascunho (BUG-20261007-ZZUK)
 
     def dirty(self):
         return model.plan_signature(self.plan) != self.signature
@@ -53,6 +54,25 @@ class Session:
             self.selected = None
             return None, None
         return self.plan.chains[ci], si
+
+    def checkpoint(self):
+        """Grava um passo de desfazer se o rascunho mudou."""
+        return self.history.checkpoint(self.plan)
+
+    def _restore(self, plan):
+        if plan is None:
+            return False
+        self.plan = plan
+        self.drawing, self.selected_node, self.typed = None, None, ""
+        self.prompt, self.prompt_chain, self.pending_point = None, None, None
+        self.segment()                    # descarta a seleção que não existe mais
+        return True
+
+    def undo(self):
+        return self._restore(self.history.undo())
+
+    def redo(self):
+        return self._restore(self.history.redo())
 
     def redraw(self):
         for window in bpy.context.window_manager.windows:
@@ -88,6 +108,7 @@ def _guard(apply):
         s.error = ""
     except ValueError as exc:
         s.error = str(exc)
+    s.checkpoint()                        # edição pelo painel também é um passo de desfazer
     s.redraw()
 
 

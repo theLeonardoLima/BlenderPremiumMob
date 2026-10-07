@@ -357,6 +357,8 @@ class BTM_OT_WallEditorModal(bpy.types.Operator):
                 _win, area, _region = window.editor_area(context)
                 self.tab_ready = window.focus_editor_tab(area)
             return {'PASS_THROUGH'}
+        if self._handle_undo(event, s):
+            return {'RUNNING_MODAL'}          # Ctrl+Z fica com o rascunho: não vai para o desfazer do 3D
         region, pixel = self._local(context, event)
         if region is None:
             return {'PASS_THROUGH'}
@@ -367,8 +369,23 @@ class BTM_OT_WallEditorModal(bpy.types.Operator):
         view = ensure_view(region, area)
         s.cursor = view.to_world(pixel)
         handled = self._handle(context, event, s, view, pixel)
+        if handled and self.dragging is None:
+            s.checkpoint()                    # um passo por ação concluída; o arraste grava ao soltar
         s.redraw()
         return {'RUNNING_MODAL'} if handled else {'PASS_THROUGH'}
+
+    def _handle_undo(self, event, s):
+        """Ctrl+Z desfaz e Ctrl+Shift+Z / Ctrl+Y refaz no rascunho (BUG-20261007-ZZUK)."""
+        if event.value != 'PRESS' or event.type not in {'Z', 'Y'} or not (event.ctrl or event.oskey):
+            return False
+        redo = event.type == 'Y' or event.shift
+        self.dragging = None
+        if not (s.redo() if redo else s.undo()):
+            s.error = "Nada para refazer." if redo else "Nada para desfazer."
+        else:
+            s.error = ""
+        s.redraw()
+        return True
 
     # Eventos ------------------------------------------------------------------------------------------------
     def _handle(self, context, event, s, view, pixel):

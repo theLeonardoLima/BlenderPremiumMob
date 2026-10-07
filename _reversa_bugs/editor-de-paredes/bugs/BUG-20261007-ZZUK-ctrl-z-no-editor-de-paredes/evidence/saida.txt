@@ -1,0 +1,7 @@
+ABERTO sel (0, 0) tool SELECT ui 280 552 show_ui True
+PAINEL ao abrir: ['line', 'length', 'angle_abs', 'angle_rel', 'lock_angle', 'thickness', 'height', 'end_height', 'direction', 'wall_type']
+CLIQUE no trecho 1 -> sel (0, 1) linha INNER
+PAINEL depois do clique: ['line', 'length', 'angle_abs', 'angle_rel', 'lock_angle', 'thickness', 'height', 'end_height', 'direction', 'wall_type']
+campo length 4.0 trecho 4.0
+medida mudou True
+CTRL+Z -> sessão viva True desfez False
