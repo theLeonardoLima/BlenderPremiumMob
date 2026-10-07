@@ -1,4 +1,4 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-07T14:21:19+00:00 a partir de 9 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-07T14:33:37+00:00 a partir de 9 bugs -->
 
 # Bugs que atingem as specs
 
@@ -13,13 +13,17 @@
 ## `_reversa_forward/002-editor-parede-mover-sobre/requirements.md`
 
 - BUG-20261006-KFAR (open/—, P0): Erro ao salvar no Windows com o editor de paredes e o construtor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261006-KFAR-erro-ao-salvar-no-windows`
-- BUG-20261007-VQ72 (open/—, P1): Trecho selecionado não mostra a medida no painel do editor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-VQ72-medida-do-trecho-no-painel`
-- BUG-20261007-VQ72 (open/—, P1): Trecho selecionado não mostra a medida no painel do editor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-VQ72-medida-do-trecho-no-painel`
+- BUG-20261007-VQ72 (resolved/fixed, P1): Trecho selecionado não mostra a medida no painel do editor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-VQ72-medida-do-trecho-no-painel`
+- BUG-20261007-VQ72 (resolved/fixed, P1): Trecho selecionado não mostra a medida no painel do editor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-VQ72-medida-do-trecho-no-painel`
 - BUG-20261007-ZZUK (resolved/fixed, P1): Ctrl+Z não desfaz dentro do editor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-ZZUK-ctrl-z-no-editor-de-paredes`
 
 ## `_reversa_sdd/addenda/bug-BUG-20261007-A2G7-v001.md`
 
 - BUG-20261007-A2G7 (resolved/fixed, P1): Ajustar Piso ignora as paredes do editor e do construtor — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-A2G7-ajustar-piso-ignora-paredes`
+
+## `_reversa_sdd/addenda/bug-BUG-20261007-VQ72-v001.md`
+
+- BUG-20261007-VQ72 (resolved/fixed, P1): Trecho selecionado não mostra a medida no painel do editor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-VQ72-medida-do-trecho-no-painel`
 
 ## `_reversa_sdd/addenda/bug-BUG-20261007-ZZUK-v001.md`
 
@@ -70,7 +74,7 @@
 ## `_reversa_sdd/wall_editor/requirements.md`
 
 - BUG-20261006-KFAR (open/—, P0): Erro ao salvar no Windows com o editor de paredes e o construtor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261006-KFAR-erro-ao-salvar-no-windows`
-- BUG-20261007-VQ72 (open/—, P1): Trecho selecionado não mostra a medida no painel do editor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-VQ72-medida-do-trecho-no-painel`
+- BUG-20261007-VQ72 (resolved/fixed, P1): Trecho selecionado não mostra a medida no painel do editor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-VQ72-medida-do-trecho-no-painel`
 - BUG-20261007-YIMY (open/—, P1): Porta e janela inseridas viram bloco liso com a espessura fora da parede — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-YIMY-porta-bloco-fora-da-parede`
 - BUG-20261007-ZZUK (resolved/fixed, P1): Ctrl+Z não desfaz dentro do editor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-ZZUK-ctrl-z-no-editor-de-paredes`
 

@@ -1,0 +1,66 @@
+--- caffmob_draw/walls2d/props.py	2026-10-07 11:19:05.479430823 -0300
++++ caffmob_draw/walls2d/props.py	2026-10-07 11:31:31.754008368 -0300
+@@ -9,6 +9,7 @@
+ 
+ import bpy  # type: ignore
+ 
++from ..data import units
+ from . import history, model
+ 
+ 
+@@ -215,6 +216,42 @@
+                                    precision=1, get=_seg_get(field), set=_seg_set(field))
+ 
+ 
++def _project_unit():
++    return units.get_scene_length_unit(bpy.context.scene)
++
++
++def _text_get(field):
++    """Medida do trecho na unidade do projeto, a mesma da planta ("4000 mm"), sem arredondar (BUG-20261007-VQ72)."""
++    get = _seg_get(field, None)
++
++    def text(_self):
++        value = get(_self)
++        return "" if value is None else units.format_length(value, unit=_project_unit())
++    return text
++
++
++def _text_set(field):
++    """Lê a medida digitada (sem sufixo = unidade do projeto; aceita mm, cm e m) e grava como o campo numérico."""
++    set_value = _seg_set(field)
++
++    def text(_self, value):
++        s = session()
++        if s is None or s.segment()[0] is None:
++            return
++        try:
++            meters = units.parse_length(value, default_unit=_project_unit(), allow_zero=False)
++        except ValueError as exc:
++            s.error = str(exc)
++            s.redraw()
++            return
++        set_value(_self, meters)
++    return text
++
++
++def _length_text(name, field, description=""):
++    return bpy.props.StringProperty(name=name, description=description, get=_text_get(field), set=_text_set(field))
++
++
+ def _angle(name, field):
+     return bpy.props.FloatProperty(name=name, subtype='ANGLE', unit='ROTATION', precision=2,
+                                    get=_seg_get(field), set=_seg_set(field))
+@@ -257,6 +294,12 @@
+     thickness: _length("Espessura", 'thickness')  # type: ignore
+     height: _length("Pé-direito Inicial", 'height')  # type: ignore
+     end_height: _length("Pé-direito Final", 'end_height')  # type: ignore
++    # O painel usa estes: a unidade do projeto, a mesma da planta (BUG-20261007-VQ72).
++    length_text: _length_text("Comprimento", 'length',
++                              "Comprimento na linha selecionada; sem unidade, vale a do projeto")  # type: ignore
++    thickness_text: _length_text("Espessura", 'thickness')  # type: ignore
++    height_text: _length_text("Pé-direito Inicial", 'height')  # type: ignore
++    end_height_text: _length_text("Pé-direito Final", 'end_height')  # type: ignore
+     direction: bpy.props.EnumProperty(name="Direção", items=SIDE_ITEMS, get=_side_get, set=_side_set,
+                                       description="Lado para onde a espessura cresce; a medida interna não muda")  # type: ignore
+     wall_type: bpy.props.EnumProperty(name="Tipo de Parede", items=TYPE_ITEMS, get=_type_get,

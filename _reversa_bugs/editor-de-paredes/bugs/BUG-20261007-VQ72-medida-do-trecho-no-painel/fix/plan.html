@@ -1,0 +1,38 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Plano de correção · #9 VQ72</title><style>
+body{background:#0d1117;color:#e6edf3;font:14px system-ui,sans-serif;margin:0;padding:16px;max-width:1100px}
+.meta{color:#8b949e;font-size:12px}.cards{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}
+.card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px 16px;min-width:120px}
+.card b{font-size:18px;display:block}table{border-collapse:collapse;width:100%;margin-top:8px}
+td,th{border-bottom:1px solid #30363d;padding:6px;text-align:left;font-size:13px;vertical-align:top}
+a{color:#58a6ff}code{background:#161b22;padding:1px 4px;border-radius:4px}.ok{color:#3fb950}.bad{color:#e5484d}h2{margin-top:28px}</style></head><body>
+<h1>Plano de correção · #9 BUG-20261007-VQ72</h1>
+<p class="meta">Contexto <b>editor-de-paredes</b> · 2026-10-07 · /reversa-debugger-fix · <a href="../bug.md">bug.md</a></p>
+<div class="cards"><div class="card"><b class="bad">high</b>severidade</div><div class="card"><b>P1</b>prioridade</div>
+<div class="card"><b>1/1</b>no Blender do titular</div><div class="card"><b class="ok">confirmed</b>causa raiz</div><div class="card"><b class="ok">baixa</b>risco</div></div>
+<h2>Defeito e causa raiz</h2>
+<p>O painel do trecho aparece, mas as medidas saem arredondadas e em metros: espessura 0,15 m → "0.2 m", pé-direito 2,6 m → "3 m",
+enquanto a planta mostra "4000 mm". Os campos são <code>FloatProperty</code> com <code>precision=1</code> na unidade da cena do Blender
+(METERS num arquivo novo), e o projeto está em mm (<code>btm_unit = MILLIMETERS</code>). Digitar 4100 no campo vale 4100 m.
+Evidência: <a href="../evidence/reproduction.md">reproduction.md</a>, <a href="../evidence/blender-do-titular-painel.png">print do Blender do titular</a>.</p>
+<h2>Estratégia escolhida</h2>
+<p>Painel na unidade da planta: os campos de medida do trecho (Comprimento, Espessura, Pé-direito inicial e final) passam a ser
+campos de texto na unidade do projeto ("4000 mm", "150 mm", "2600 mm"); digitar "4100" vale 4100 mm, e "4,1 m" ou "410 cm" também
+funcionam. Valor inválido mostra o erro no painel e não muda a parede. Os campos numéricos antigos continuam para scripts e testes.</p>
+<h2>Correction Change Set proposto</h2>
+<table><tr><th>CHG</th><th>tipo</th><th>artefato</th><th>propósito</th></tr>
+<tr><td>CHG-001</td><td>code</td><td><code>caffmob_draw/walls2d/props.py</code></td><td>Campos de texto <code>length_text</code>, <code>thickness_text</code>, <code>height_text</code>, <code>end_height_text</code> (get formata na unidade do projeto com <code>units.format_length</code>; set lê com <code>units.parse_length</code>, grava pelo mesmo caminho dos campos numéricos e um passo de desfazer)</td></tr>
+<tr><td>CHG-002</td><td>code</td><td><code>caffmob_draw/walls2d/panels.py</code></td><td>O painel "Painel" mostra os campos de texto no lugar dos numéricos</td></tr>
+<tr><td>CHG-003</td><td>specification</td><td><code>_reversa_sdd/addenda/bug-BUG-20261007-VQ72-v001.md</code></td><td>Se o veredito pedir (a RF-05 da 002 não falava de unidade)</td></tr></table>
+<h2>Testes planejados</h2>
+<table><tr><th>teste</th><th>tipo</th><th>prova</th></tr>
+<tr><td><code>tests/blender_bug_VQ72_panel.py</code> casos 1-2</td><td>reprodução</td><td>Cena em metros e projeto em mm: o painel mostra "4000 mm", "150 mm", "2600 mm" (não "0.2 m"/"3 m") e desenha os campos de texto</td></tr>
+<tr><td>casos 3-5</td><td>regressão</td><td>"4100" → 4,1 m; "4,2 m" → 4,2 m; "abc" mostra erro e não muda; espessura "100" → 0,1 m; mudar pelo painel é um passo de Ctrl+Z (#8)</td></tr></table>
+<h2>Riscos e o que fica de fora</h2>
+<ul><li><b>Risco baixo:</b> só o painel; os campos numéricos antigos continuam.</li>
+<li>Fora: os padrões do lápis (Espessura/Pé-direito no painel Grid) continuam na unidade da cena.</li>
+<li>Fora: o cubo padrão tratado como "parede da outra camada" ao abrir o editor (achado A012, correção própria).</li></ul>
+<h2>Relações</h2>
+<table><tr><th>origem</th><th>tipo</th><th>destino</th><th>estado</th></tr>
+<tr><td><a href="../../BUG-20261007-ZZUK-ctrl-z-no-editor-de-paredes/bug.md">#8 BUG-20261007-ZZUK</a> (resolvido)</td><td>related-to</td><td><a href="../bug.md">#9 BUG-20261007-VQ72</a></td><td>proposed</td></tr></table>
+</body></html>

@@ -51,16 +51,16 @@ class BTM_PT_WallEditorSegment(_EditorPanel, bpy.types.Panel):
         layout.use_property_split = True
         layout.use_property_decorate = False
         layout.prop(state, "line")
-        layout.prop(state, "length")
+        layout.prop(state, "length_text")
         layout.prop(state, "angle_abs")
         layout.prop(state, "angle_rel")
         row = layout.row()
         row.enabled = False
         row.label(text="Ângulo do Arco: paredes curvas não são suportadas")
         layout.prop(state, "lock_angle")
-        layout.prop(state, "thickness")
-        layout.prop(state, "height")
-        layout.prop(state, "end_height")
+        layout.prop(state, "thickness_text")
+        layout.prop(state, "height_text")
+        layout.prop(state, "end_height_text")
         layout.prop(state, "direction", expand=True)
         layout.prop(state, "wall_type")
 

@@ -16,3 +16,20 @@ Resultado:
 Não foi possível olhar o Blender do titular: a ponte MCP (porta 9876) recusou a conexão em 2026-10-07.
 Diferenças possíveis do ambiente do titular: extensão instalada (não o pacote do repositório), interface em pt_BR,
 outro arquivo/paredes, outra aba na região lateral ("Tool"/"View"), painel recolhido.
+
+## Reprodução no Blender do titular (2026-10-07, MCP 9876, autorizado: "use o MCP e manipule o blender")
+
+- Extensão instalada `bl_ext.user_default.caffmob_draw` (pacote de `9cd1d21`), arquivo novo, interface en_US.
+- Sala 4 x 3 m aplicada; editor aberto por `caffmob.wall_editor(other_walls='REFERENCE')`; trecho (0, 1) selecionado.
+- Print: `blender-do-titular-painel.png`. O painel aparece, mas os valores estão arredondados e em metros:
+
+| campo | valor real | painel |
+|---|---|---|
+| Thickness | 0,15 m | 0.2 m |
+| Start/End Height | 2,6 m | 3 m |
+| Length | 4,0 m | 4 m (a planta mostra 4000 mm) |
+
+- Unidade do projeto (planta): `MM` (`btm_settings.btm_unit = MILLIMETERS`); unidade da cena (painel): `METRIC / METERS`.
+- Taxa: 1/1 · Classificação: determinístico (ambiente com cena em metros e projeto em mm, o padrão de um arquivo novo).
+- Achado lateral: o cubo padrão da cena é tomado por "parede da outra camada" (`scene_io.is_other_layer_wall`, padrão
+  `object_kind = 'WALL'`, achado A012), e o editor pergunta "Converter / Só referência" ao abrir.
