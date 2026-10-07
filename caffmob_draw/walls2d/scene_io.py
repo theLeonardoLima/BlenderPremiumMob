@@ -99,9 +99,8 @@ def _chain_from(walls):
 
 def is_other_layer_wall(obj):
     """Parede da camada nova (`caffmob.wall_builder`), fora do Home Builder 5."""
-    plane = getattr(obj, 'btm_plane', None)
-    return obj is not None and obj.type == 'MESH' and not obj.get('IS_WALL_BP') and plane is not None \
-        and plane.object_kind == 'WALL'
+    from ..selection import classify
+    return obj is not None and obj.type == 'MESH' and not obj.get('IS_WALL_BP') and classify.btm_kind(obj) == 'WALL'
 
 
 def convert_into(plan, objects, scene):

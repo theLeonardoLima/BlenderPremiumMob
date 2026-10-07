@@ -40,9 +40,22 @@ FRONT_ROLES = frozenset({'DOOR', 'DRAWER_FRONT', 'PULLOUT_FRONT', 'TILT_OUT', 'F
 BTM_FRONT_SUFFIXES = ('_Door_L', '_Door_R', '_Door_Flip')
 
 
-def _btm_kind(obj):
+def btm_kind(obj):
+    """Tipo da camada nova (`btm_plane.object_kind`) só quando foi gravado de propósito; senão "".
+
+    O enum tem padrão 'WALL' em todo objeto: sem esta checagem, qualquer objeto sem marcação passava por parede
+    (BUG-20261007-TBY3).
+    """
     plane = getattr(obj, 'btm_plane', None)
-    return getattr(plane, 'object_kind', '') if plane is not None else ''
+    if plane is None:
+        return ''
+    is_set = getattr(plane, 'is_property_set', None)
+    if is_set is not None and not is_set('object_kind'):
+        return ''
+    return getattr(plane, 'object_kind', '')
+
+
+_btm_kind = btm_kind
 
 
 def module_library(obj):

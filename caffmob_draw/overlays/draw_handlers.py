@@ -179,7 +179,8 @@ def draw_insertion_plane_highlight():
     if obj is None or not hasattr(obj, 'btm_plane'):
         return
 
-    kind = obj.btm_plane.object_kind
+    from ..selection import classify
+    kind = classify.btm_kind(obj)            # só tipo gravado: o padrão 'WALL' não conta (BUG-20261007-TBY3)
     if kind not in ('WALL', 'FLOOR', 'MODULE', 'GEOMETRY'):
         return
 
@@ -229,8 +230,9 @@ def draw_dimension_labels():
         return
 
     # Draw dimension indicators for wall objects
+    from ..selection import classify
     for obj in scene.objects:
-        if not hasattr(obj, 'btm_plane') or obj.btm_plane.object_kind != 'WALL':
+        if classify.btm_kind(obj) != 'WALL':          # só paredes da camada nova (BUG-20261007-TBY3)
             continue
         if obj.type != 'MESH' or not obj.data.vertices:
             continue

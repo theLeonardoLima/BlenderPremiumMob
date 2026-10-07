@@ -12,10 +12,8 @@ import bpy  # type: ignore
 # ==========================================================================
 
 def _scene_has_walls(context):
-    for obj in context.scene.objects:
-        if hasattr(obj, 'btm_plane') and obj.btm_plane.object_kind == 'WALL':
-            return True
-    return False
+    from ..selection import classify
+    return any(classify.btm_kind(obj) == 'WALL' for obj in context.scene.objects)
 
 
 # ==========================================================================

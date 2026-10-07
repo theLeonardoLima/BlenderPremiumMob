@@ -1,0 +1,23 @@
+--- caffmob_draw/overlays/draw_handlers.py	2026-08-07 05:26:54.626019651 -0300
++++ caffmob_draw/overlays/draw_handlers.py	2026-10-07 11:53:58.145944639 -0300
+@@ -179,7 +179,8 @@
+     if obj is None or not hasattr(obj, 'btm_plane'):
+         return
+ 
+-    kind = obj.btm_plane.object_kind
++    from ..selection import classify
++    kind = classify.btm_kind(obj)            # só tipo gravado: o padrão 'WALL' não conta (BUG-20261007-TBY3)
+     if kind not in ('WALL', 'FLOOR', 'MODULE', 'GEOMETRY'):
+         return
+ 
+@@ -229,8 +230,9 @@
+         return
+ 
+     # Draw dimension indicators for wall objects
++    from ..selection import classify
+     for obj in scene.objects:
+-        if not hasattr(obj, 'btm_plane') or obj.btm_plane.object_kind != 'WALL':
++        if classify.btm_kind(obj) != 'WALL':          # só paredes da camada nova (BUG-20261007-TBY3)
+             continue
+         if obj.type != 'MESH' or not obj.data.vertices:
+             continue

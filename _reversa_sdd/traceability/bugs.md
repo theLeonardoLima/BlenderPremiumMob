@@ -1,4 +1,4 @@
-<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-07T14:33:37+00:00 a partir de 9 bugs -->
+<!-- GENERATED, DO NOT EDIT: regenerado por /reversa-debugger-graph em 2026-10-07T14:56:05+00:00 a partir de 10 bugs -->
 
 # Bugs que atingem as specs
 
@@ -13,6 +13,8 @@
 ## `_reversa_forward/002-editor-parede-mover-sobre/requirements.md`
 
 - BUG-20261006-KFAR (open/—, P0): Erro ao salvar no Windows com o editor de paredes e o construtor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261006-KFAR-erro-ao-salvar-no-windows`
+- BUG-20261007-TBY3 (resolved/fixed, P2): Todo objeto é tratado como parede (object_kind padrão WALL) — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-TBY3-todo-objeto-vira-parede`
+- BUG-20261007-TBY3 (resolved/fixed, P2): Todo objeto é tratado como parede (object_kind padrão WALL) — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-TBY3-todo-objeto-vira-parede`
 - BUG-20261007-VQ72 (resolved/fixed, P1): Trecho selecionado não mostra a medida no painel do editor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-VQ72-medida-do-trecho-no-painel`
 - BUG-20261007-VQ72 (resolved/fixed, P1): Trecho selecionado não mostra a medida no painel do editor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-VQ72-medida-do-trecho-no-painel`
 - BUG-20261007-ZZUK (resolved/fixed, P1): Ctrl+Z não desfaz dentro do editor de paredes — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-ZZUK-ctrl-z-no-editor-de-paredes`
@@ -33,6 +35,10 @@
 
 - BUG-20261006-NO4Q (resolved/fixed, P0): Interface legada Home Builder aparece separada do plugin — `_reversa_bugs/plugin-caffmob-draw/bugs/BUG-20261006-NO4Q-interface-home-builder-separada`
 - BUG-20261006-QAVK (resolved/fixed, P0): Nome e identificador do plugin devem ser CAFFMob Draw — `_reversa_bugs/plugin-caffmob-draw/bugs/BUG-20261006-QAVK-nome-e-identificador-caffmob-draw`
+
+## `_reversa_sdd/data/requirements.md`
+
+- BUG-20261007-TBY3 (resolved/fixed, P2): Todo objeto é tratado como parede (object_kind padrão WALL) — `_reversa_bugs/editor-de-paredes/bugs/BUG-20261007-TBY3-todo-objeto-vira-parede`
 
 ## `_reversa_sdd/deployment.md`
 

@@ -1,0 +1,25 @@
+--- caffmob_draw/operators/opening_builder.py	2026-10-06 23:57:27.886523213 -0300
++++ caffmob_draw/operators/opening_builder.py	2026-10-07 11:53:58.145944639 -0300
+@@ -46,18 +46,13 @@
+ 
+     @classmethod
+     def poll(cls, context):
+-        return any(
+-            obj.btm_plane.object_kind == 'WALL'
+-            for obj in context.scene.objects
+-            if hasattr(obj, 'btm_plane')
+-        )
++        from ..selection import classify
++        return any(classify.btm_kind(obj) == 'WALL' for obj in context.scene.objects)
+ 
+     def execute(self, context):
+         # 1. Busca todas as paredes na cena
+-        self.wall_objs = [
+-            obj for obj in context.scene.objects
+-            if hasattr(obj, 'btm_plane') and obj.btm_plane.object_kind == 'WALL'
+-        ]
++        from ..selection import classify
++        self.wall_objs = [obj for obj in context.scene.objects if classify.btm_kind(obj) == 'WALL']
+         if not self.wall_objs:
+             self.report({'WARNING'}, "Nenhuma parede encontrada na cena para inserir a abertura.")
+             return {'CANCELLED'}

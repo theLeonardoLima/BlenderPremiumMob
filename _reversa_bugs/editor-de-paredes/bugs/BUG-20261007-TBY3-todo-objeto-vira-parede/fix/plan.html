@@ -1,0 +1,40 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Plano de correção · #10 TBY3</title><style>
+body{background:#0d1117;color:#e6edf3;font:14px system-ui,sans-serif;margin:0;padding:16px;max-width:1100px}
+.meta{color:#8b949e;font-size:12px}.cards{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}
+.card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px 16px;min-width:120px}
+.card b{font-size:18px;display:block}table{border-collapse:collapse;width:100%;margin-top:8px}
+td,th{border-bottom:1px solid #30363d;padding:6px;text-align:left;font-size:13px;vertical-align:top}
+a{color:#58a6ff}code{background:#161b22;padding:1px 4px;border-radius:4px}.ok{color:#3fb950}.warn{color:#d29922}h2{margin-top:28px}</style></head><body>
+<h1>Plano de correção · #10 BUG-20261007-TBY3</h1>
+<p class="meta">Contexto <b>editor-de-paredes</b> · 2026-10-07 · /reversa-debugger-fix · <a href="../bug.md">bug.md</a></p>
+<div class="cards"><div class="card"><b class="warn">medium</b>severidade</div><div class="card"><b>P2</b>prioridade</div>
+<div class="card"><b>1/1</b>reprodução</div><div class="card"><b class="ok">confirmed</b>causa raiz</div><div class="card"><b class="warn">média</b>risco</div></div>
+<h2>Defeito e causa raiz</h2>
+<p><code>btm_plane.object_kind</code> tem padrão <code>'WALL'</code> em todo objeto, e o código compara o valor sem distinguir o padrão de um valor
+gravado. O cubo padrão vira "Parede" no classificador (painel de Propriedades, Mover Sobre), "parede da outra camada" no editor 2D,
+habilita "inserir abertura" e entra nos overlays de parede. O Blender distingue: <code>is_property_set('object_kind')</code> é falso no cubo e
+verdadeiro numa parede do construtor. Evidência: <a href="../evidence/reproduction.md">reproduction.md</a>.</p>
+<h2>Estratégia: correção direta</h2>
+<p>Um ponto só para ler o tipo: <code>classify.btm_kind(obj)</code> devolve o tipo só quando ele foi gravado (<code>is_property_set</code>); sem
+gravação, "". Todos os testes de parede da camada nova passam a usar essa leitura. Sem mudar o padrão do enum nem migrar arquivos.</p>
+<h2>Correction Change Set proposto</h2>
+<table><tr><th>CHG</th><th>tipo</th><th>artefato</th><th>propósito</th></tr>
+<tr><td>CHG-001</td><td>code</td><td><code>caffmob_draw/selection/classify.py</code></td><td><code>btm_kind(obj)</code> público, só com tipo gravado; <code>_btm_kind</code> passa a usá-lo (classificador)</td></tr>
+<tr><td>CHG-002</td><td>code</td><td><code>caffmob_draw/walls2d/scene_io.py</code></td><td><code>is_other_layer_wall</code> usa <code>btm_kind</code></td></tr>
+<tr><td>CHG-003</td><td>code</td><td><code>caffmob_draw/operators/opening_builder.py</code></td><td>poll e lista de paredes usam <code>btm_kind</code></td></tr>
+<tr><td>CHG-004</td><td>code</td><td><code>caffmob_draw/overlays/draw_handlers.py</code></td><td>destaque do plano e cotas de parede usam <code>btm_kind</code></td></tr>
+<tr><td>CHG-005</td><td>code</td><td><code>caffmob_draw/ui/panels.py</code></td><td><code>_scene_has_walls</code> usa <code>btm_kind</code> (hoje sem chamador; consistência)</td></tr>
+<tr><td>CHG-006</td><td>specification</td><td>adendo</td><td>conforme o veredito</td></tr></table>
+<h2>Testes planejados</h2>
+<table><tr><th>teste</th><th>tipo</th><th>prova</th></tr>
+<tr><td><code>tests/blender_bug_TBY3_walls.py</code> caso 1</td><td>reprodução</td><td>Cubo comum: não é Parede no classificador, não é parede da outra camada, não habilita inserir abertura</td></tr>
+<tr><td>caso 2</td><td>regressão</td><td>Parede da camada nova (tipo gravado) continua Parede BTM, aparece no editor e habilita inserir abertura</td></tr>
+<tr><td>caso 3</td><td>regressão</td><td>Salvar e abrir o arquivo mantém a parede como parede e o cubo como não parede (sem migração)</td></tr></table>
+<h2>Riscos e o que fica de fora</h2>
+<ul><li><b>Risco médio:</b> objetos sem marcação passam de "Parede" para "Outro" no painel de Propriedades, no Mover Sobre e nos overlays (é o comportamento pedido); paredes, pisos, módulos e geometrias com tipo gravado não mudam.</li>
+<li>Fora: mudar o padrão do enum (afetaria arquivos salvos).</li></ul>
+<h2>Relações</h2>
+<table><tr><th>origem</th><th>tipo</th><th>destino</th><th>estado</th></tr>
+<tr><td><a href="../bug.md">#10 BUG-20261007-TBY3</a></td><td>related-to</td><td><a href="../../BUG-20261007-A2G7-ajustar-piso-ignora-paredes/bug.md">#6 BUG-20261007-A2G7</a> (resolvido)</td><td>supported</td></tr></table>
+</body></html>
