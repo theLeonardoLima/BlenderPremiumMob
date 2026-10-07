@@ -4,6 +4,7 @@
   extensão com o mesmo id).
 - Regressão: o manifesto do pacote existe e tem o id da extensão; o zip gerado pelo `build.py` leva o manifesto na raiz
   do arquivo (instalável por Edit › Preferences › Get Extensions › Install from Disk).
+- BUG-20261006-KFAR: os .blend do pacote estão no git, e o build recusa um pacote sem os .blend que o código usa.
 """
 
 import os
@@ -56,6 +57,26 @@ class EmpacotamentoTest(unittest.TestCase):
             self.assertIn("blender_manifest.toml", names)
             self.assertIn("__init__.py", names)
             self.assertFalse(any("__pycache__" in n for n in names))
+
+    def test_blends_do_pacote_estao_no_git(self):
+        """Reprodução (BUG-20261006-KFAR): todo .blend do pacote está no git; um clone do GitHub gera o plugin completo."""
+        on_disk = sorted(str(p.relative_to(ROOT)).replace(os.sep, "/") for p in PACKAGE.rglob("*.blend"))
+        self.assertTrue(on_disk, "o pacote deveria ter arquivos .blend (geometry_nodes etc.)")
+        tracked = set(subprocess.run(["git", "ls-files", "caffmob_draw"], cwd=ROOT, capture_output=True, text=True,
+                                     check=True).stdout.split("\n"))
+        missing = [p for p in on_disk if p not in tracked]
+        self.assertEqual(missing, [], f"{len(missing)} .blend do pacote fora do git (o clone gera um plugin quebrado)")
+
+    def test_build_recusa_pacote_sem_blend(self):
+        """Regressão (BUG-20261006-KFAR): sem um .blend que o código usa, o build.py falha e diz qual falta."""
+        with tempfile.TemporaryDirectory() as tmp:
+            shutil.copytree(PACKAGE, os.path.join(tmp, "caffmob_draw"), ignore=shutil.ignore_patterns("__pycache__"))
+            shutil.copy(ROOT / "build.py", tmp)
+            os.remove(os.path.join(tmp, "caffmob_draw", "geometry_nodes", "GeoNodeWall.blend"))
+            result = subprocess.run([sys.executable, "build.py"], cwd=tmp, capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0, "o build não pode gerar pacote sem GeoNodeWall.blend")
+            self.assertIn("GeoNodeWall.blend", result.stdout + result.stderr)
+            self.assertFalse(os.path.exists(os.path.join(tmp, "caffmob_draw.zip")))
 
 
 if __name__ == "__main__":

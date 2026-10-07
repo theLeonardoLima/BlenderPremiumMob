@@ -1,0 +1,12 @@
+--- .gitignore	2026-10-06 23:57:30.537517751 -0300
++++ ./.gitignore	2026-10-07 14:06:28.936353619 -0300
+@@ -159,6 +159,9 @@
+ *.blend
+ *.blend1
+ *.blend2
++# ...exceto os do pacote: nós de Geometry Nodes, modificadores, puxadores, perfis e materiais que o plugin carrega
++# (BUG-20261006-KFAR: sem eles, um clone do GitHub gera um plugin que não cria paredes)
++!caffmob_draw/**/*.blend
+ 
+ # Tool & Agent folders
+ .agent/

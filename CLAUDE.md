@@ -338,7 +338,9 @@ Este arquivo vale para Claude Code, Codex, Kilo e demais agentes (`AGENTS.md` é
 - **`caffmob_draw/` é o pacote da extensão** — é o que `build.py` empacota. Edite sempre aqui.
 - Os `*.py`, `operators/`, `product_libraries/` etc. na **raiz** são uma cópia antiga espelhada: não edite, não empacotam.
 - `_reversa_sdd/` contém specs de domínio/arquitetura (geradas pelo Reversa); consulte para regras de negócio.
-- Não versionar: `*.blend`, `caffmob_draw.zip`, `blender_python_reference_*.zip`, `manual-treinamento-promob.pdf`.
+- Não versionar: `*.blend` de projeto, `caffmob_draw.zip`, `blender_python_reference_*.zip`, `manual-treinamento-promob.pdf`.
+  Os `.blend` do pacote (`caffmob_draw/**/*.blend`: nós, modificadores, puxadores, perfis, materiais) **são versionados**:
+  sem eles o plugin gerado de um clone não cria paredes nem módulos (`build.py` recusa empacotar se faltar algum).
 
 ## API do Blender: consulte o RAG, não a memória
 

@@ -1,6 +1,29 @@
 #!/usr/bin/env python3
 import os
+import re
+import sys
 import zipfile
+
+# Arquivos de nós que o código carrega por nome (hb_types: GeoNodeObject.create, CabinetPartModifier.add_node).
+NODE_PATTERNS = (
+    (re.compile(r"create\(\s*['\"](GeoNode\w+)['\"]"), "geometry_nodes"),
+    (re.compile(r"add_part_modifier\(\s*['\"](CPM_\w+)['\"]"), os.path.join("geometry_nodes", "CabinetPartModifiers")),
+)
+
+
+def missing_node_files(source_dir):
+    """`.blend` de nós usados no código e ausentes no pacote (BUG-20261006-KFAR: pacote gerado de um clone sem eles)."""
+    wanted = set()
+    for root, dirs, files in os.walk(source_dir):
+        dirs[:] = [d for d in dirs if d != "__pycache__"]
+        for file in files:
+            if file.endswith(".py"):
+                with open(os.path.join(root, file), encoding="utf-8", errors="ignore") as handle:
+                    text = handle.read()
+                for pattern, folder in NODE_PATTERNS:
+                    wanted |= {os.path.join(folder, name + ".blend") for name in pattern.findall(text)}
+    return sorted(path for path in wanted if not os.path.exists(os.path.join(source_dir, path)))
+
 
 def build_zip():
     zip_filename = "caffmob_draw.zip"
@@ -9,6 +32,15 @@ def build_zip():
     if not os.path.exists(source_dir):
         print(f"Error: Source directory '{source_dir}' does not exist.")
         return
+
+    missing = missing_node_files(source_dir)
+    if missing:
+        print("Error: arquivos .blend que o plugin usa estão faltando no pacote (o plugin não criaria paredes nem "
+              "módulos):")
+        for path in missing:
+            print(f"  - {source_dir}/{path}")
+        print("Atualize o repositório (git pull) ou copie os arquivos antes de empacotar.")
+        sys.exit(1)
 
     print(f"Packaging {source_dir}/ into {zip_filename}...")
 

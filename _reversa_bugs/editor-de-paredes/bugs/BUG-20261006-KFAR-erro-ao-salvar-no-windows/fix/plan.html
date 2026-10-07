@@ -1,0 +1,40 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Plano de correção · #4 KFAR</title><style>
+body{background:#0d1117;color:#e6edf3;font:14px system-ui,sans-serif;margin:0;padding:16px;max-width:1100px}
+.meta{color:#8b949e;font-size:12px}.cards{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}
+.card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px 16px;min-width:120px}
+.card b{font-size:18px;display:block}table{border-collapse:collapse;width:100%;margin-top:8px}
+td,th{border-bottom:1px solid #30363d;padding:6px;text-align:left;font-size:13px;vertical-align:top}
+a{color:#58a6ff}code{background:#161b22;padding:1px 4px;border-radius:4px}.ok{color:#3fb950}.bad{color:#e5484d}h2{margin-top:28px}</style></head><body>
+<h1>Plano de correção · #4 BUG-20261006-KFAR</h1>
+<p class="meta">Contexto <b>editor-de-paredes</b> · 2026-10-07 · /reversa-debugger-fix · <a href="../bug.md">bug.md</a></p>
+<div class="cards"><div class="card"><b class="bad">critical</b>severidade</div><div class="card"><b>P0</b>prioridade</div>
+<div class="card"><b>1/1</b>reprodução (clone limpo)</div><div class="card"><b class="ok">confirmed</b>causa raiz</div><div class="card"><b class="ok">baixa</b>risco</div></div>
+<h2>Defeito e causa raiz</h2>
+<p>No Windows, o OK do editor de paredes (e o construtor) falha: <code>GeoNodeWall.blend failed to open blend file</code>. O
+<code>.gitignore</code> ignora <code>*.blend</code>; os 107 <code>.blend</code> do pacote <code>caffmob_draw/</code> nunca foram para o GitHub (só os da cópia
+antiga na raiz). O titular gera o plugin a partir de um clone: o zip sai com 0 de 107 arquivos. Reproduzido com um clone limpo do
+<code>master</code>. Evidência: <a href="../evidence/reproduction.md">reproduction.md</a>.</p>
+<h2>Estratégia: correção direta</h2>
+<p>Versionar os <code>.blend</code> do pacote (exceção só para <code>caffmob_draw/</code>; os <code>.blend</code> de projeto continuam fora do git) e fazer o
+<code>build.py</code> recusar um pacote sem os arquivos que o código usa, em vez de gerar um plugin quebrado.</p>
+<h2>Correction Change Set proposto</h2>
+<table><tr><th>CHG</th><th>tipo</th><th>artefato</th><th>propósito</th></tr>
+<tr><td>CHG-001</td><td>configuration</td><td><code>.gitignore</code></td><td><code>!caffmob_draw/**/*.blend</code> depois de <code>*.blend</code> (os <code>.blend1</code>/<code>.blend2</code> continuam ignorados)</td></tr>
+<tr><td>CHG-002</td><td>code</td><td><code>build.py</code></td><td>Antes de empacotar, procura no código os nós (<code>GeoNode*</code>) e modificadores (<code>CPM_*</code>) usados e falha (código de saída 1) listando os <code>.blend</code> que faltam</td></tr>
+<tr><td>CHG-003</td><td>other</td><td>107 arquivos <code>caffmob_draw/**/*.blend</code></td><td>Passam a ser rastreados pelo git (entram no próximo commit); idênticos aos da raiz, o repositório quase não cresce</td></tr>
+<tr><td>CHG-004</td><td>documentation</td><td><code>CLAUDE.md</code></td><td>"Não versionar *.blend" passa a dizer: exceto os do pacote <code>caffmob_draw/</code></td></tr>
+</table>
+<h2>Testes planejados (<code>tests/test_packaging.py</code>)</h2>
+<table><tr><th>teste</th><th>tipo</th><th>prova</th></tr>
+<tr><td><code>test_blends_do_pacote_estao_no_git</code></td><td>reprodução</td><td>Todo <code>.blend</code> de <code>caffmob_draw/</code> no disco está rastreado pelo git (hoje: 0 de 107)</td></tr>
+<tr><td><code>test_build_recusa_pacote_sem_blend</code></td><td>regressão</td><td>Sem <code>geometry_nodes/GeoNodeWall.blend</code>, o <code>build.py</code> sai com erro e cita o arquivo</td></tr>
+<tr><td><code>test_zip_tem_manifesto_na_raiz</code> (existente)</td><td>regressão</td><td>O pacote completo continua gerando o zip</td></tr></table>
+<h2>Riscos e o que fica de fora</h2>
+<ul><li><b>Risco baixo:</b> o código do plugin não muda.</li>
+<li>Fora: o branch padrão do GitHub é o <code>main</code> (antigo, <code>4b87c21</code>, ainda "blendertomob"); quem clonar sem escolher o branch pega a versão velha. Sugestão: trocar o branch padrão para <code>master</code> nas configurações do GitHub (ação sua) ou alinhar o <code>main</code>.</li>
+<li>No Windows, depois do push: <code>git pull</code> no <code>master</code> e gerar o zip de novo.</li></ul>
+<h2>Relações</h2>
+<table><tr><th>origem</th><th>tipo</th><th>destino</th><th>estado</th></tr>
+<tr><td><a href="../bug.md">#4 BUG-20261006-KFAR</a></td><td>caused-by</td><td><a href="../../../../plugin-caffmob-draw/bugs/BUG-20261006-SCVF-copia-antiga-na-raiz-e-addon-legado/bug.md">#3 BUG-20261006-SCVF</a></td><td>rejected</td></tr></table>
+</body></html>

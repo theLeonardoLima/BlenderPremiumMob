@@ -159,6 +159,9 @@ __marimo__/
 *.blend
 *.blend1
 *.blend2
+# ...exceto os do pacote: nós de Geometry Nodes, modificadores, puxadores, perfis e materiais que o plugin carrega
+# (BUG-20261006-KFAR: sem eles, um clone do GitHub gera um plugin que não cria paredes)
+!caffmob_draw/**/*.blend
 
 # Tool & Agent folders
 .agent/
