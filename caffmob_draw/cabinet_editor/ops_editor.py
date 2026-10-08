@@ -7,13 +7,17 @@ RN-04, D-21, D-22, D-26).
   desfazer só quando ele termina com Confirmar (`FINISHED`). Cancelar reaplica o instantâneo inicial e devolve
   `CANCELLED`. Se a janela do sistema for fechada, o módulo volta ao inicial e a barra de status avisa.
 - `caffmob.cabinet_editor_confirm` / `_cancel` / `_close`: botões do painel.
+
+Feature 006 (T023): o `refresh` calcula os subvãos (vista e lista), valida divisões (`DIV-*`) e espessuras (`STR-*`) e
+espelha as listas de componentes externos e de divisões; na aba Divisão, o clique na vista escolhe o subvão (D-13).
 """
 
 import bpy  # type: ignore
 
 from ..data import units
 from ..data.i18n import N_, tr
-from . import bridge, elevation, props, state, validate, window
+from . import bridge, divisions as dv, elevation, props, state, structure as st, validate, window
+from .scene_divisions import configured as division_material
 
 TIMER_STEP = 0.1
 
@@ -43,6 +47,81 @@ def _sync_ui(context, s):
     for name, change in s.adjustments:
         row = ui.adjustments.add()
         row.component, row.change = name, change
+    _sync_006(context, s, ui, flagged)
+
+
+def _fmt(context, value):
+    return units.format_length(value, _unit(context))
+
+
+def _sync_006(context, s, ui, flagged):
+    """Espelhos das abas Estrutura e Divisão (feature 006)."""
+    root = s.root()
+    ui.structure.clear()
+    ui.divisions.clear()
+    if root is None:
+        return
+    for role, info, caps, rstate in bridge.structure_rows(context, root):
+        row = ui.structure.add()
+        row.role, row.label = role, tr(st.ROLE_LABELS[role])
+        length, width = info['size']
+        row.size = "{} × {}".format(_fmt(context, length), _fmt(context, width))
+        material, _thickness = bridge.configured_part(context, root, role)
+        row.material = rstate.material or material
+        row.thickness = _fmt(context, rstate.thickness or info['thickness'])
+        row.removed, row.mode, row.changed = rstate.removed, rstate.mode, rstate.changed
+        row.reason_remove = caps.get('remove') or ""
+        row.reason_edit = caps.get('thickness') or ""
+    material, thickness = division_material(context.scene, root)
+    for obj in sorted(bridge.scene_divisions.objects(root), key=lambda o: o.name):
+        d = obj.btm_division
+        row = ui.divisions.add()
+        row.uid, row.label, row.flagged = d.uid, obj.name, obj.name in flagged
+        parts = [tr("Vertical") if d.orientation == dv.VERTICAL else tr("Horizontal"), _fmt(context, d.offset)]
+        if d.use_front:
+            parts.append(tr("frente {}").format(_fmt(context, d.front)))
+        if d.use_back:
+            parts.append(tr("trás {}").format(_fmt(context, d.back)))
+        parts.append("{} {}".format(d.material or material, _fmt(context, d.thickness or thickness)))
+        row.detail = " · ".join(parts)
+
+
+_TOKEN_LABELS = {'LEFT': "esquerdo", 'RIGHT': "direito", 'BOTTOM': "de baixo", 'TOP': "de cima"}
+
+
+def space_label(path, core):
+    words = []
+    for token in dv.space_tokens(path, core):
+        if token[0] == 'ROOT':
+            words.append(tr("Vão {}").format(token[1]))
+        else:
+            words.append(tr(_TOKEN_LABELS[token[0]]))
+    return " › ".join(words)
+
+
+def _divisions_refresh(context, s, root):
+    """Subvãos (no referencial da vista), rótulos, peças removidas e mensagens `DIV-*`/`STR-*`."""
+    roots, core, _raw, names = bridge.division_context(context, root)
+    leaves, _cuts, _orphans = dv.resolve(roots, core)
+    shift = bridge.view_shift(context, root)
+    s.spaces = {path: dv.Box(tuple(box.lo[i] - shift[i] for i in range(3)),
+                             tuple(box.hi[i] - shift[i] for i in range(3))) for path, box in leaves.items()}
+    s.space_labels = {path: space_label(path, core) for path in s.spaces}
+    if s.space not in s.spaces:
+        s.space = min(s.spaces) if s.spaces else ""
+    messages = dv.validate(roots, core, _unit(context), names)
+    for role, values in root.btm_structure.to_dict().items():
+        messages += st.check_thickness(role, values.get('thickness', 0.0), _unit(context))
+    removed = set()
+    adapter = bridge.adapter_of(root)
+    if adapter is not None:
+        from ..customize.adapters import common
+        parts = common.call(adapter, 'structure_parts', root)
+        for role in common.removed_roles(root):
+            removed.update(o.name for o in parts.get(role, ()))
+            removed.add(tr(st.ROLE_LABELS[role]))
+    s.removed_parts = [p for p in s.initial_parts if p.name in removed]
+    return messages
 
 
 def refresh(context, s, library_messages=(), checkpoint=True):
@@ -64,6 +143,7 @@ def refresh(context, s, library_messages=(), checkpoint=True):
     msgs = [m for group in msgs for m in group]
     msgs += validate.outside_volume((size[0], size[1], size[2]), s.parts)
     msgs += validate.internal_overlaps(s.parts)
+    msgs += _divisions_refresh(context, s, root)
     msgs += [validate.Message('LIB-001', validate.WARNING, '', '', '', '', text) for text in library_messages]
     s.messages = msgs
     _sync_ui(context, s)
@@ -126,6 +206,9 @@ def start_session(context, root):
     s.view_key = None
     s.parts = bridge.parts(context, root)
     s.initial_parts = list(s.parts)
+    s.space, s.spaces, s.space_labels, s.removed_parts = "", {}, {}, []
+    context.window_manager.btm_cabinet_editor.tab = 'STRUCTURE'       # abre sempre na Estrutura (RF-01)
+    _divisions_refresh(context, s, root)
     _sync_ui(context, s)
     return s
 
@@ -198,6 +281,8 @@ class BTM_OT_CabinetEditorModal(bpy.types.Operator):
             ui.components.clear()
             ui.messages.clear()
             ui.adjustments.clear()
+            ui.structure.clear()
+            ui.divisions.clear()
 
     def cancel(self, context):
         self._end(context, False)
@@ -256,7 +341,10 @@ class BTM_OT_CabinetEditorModal(bpy.types.Operator):
             view.zoom(1 / 1.15, pixel)
         elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
             x, z = view.to_world(pixel)
-            s.selected = elevation.hit(s.parts, x, z)
+            if context.window_manager.btm_cabinet_editor.tab == 'DIVISIONS':
+                s.space = dv.space_at(s.spaces, x, z) or s.space          # escolhe o subvão (D-13)
+            else:
+                s.selected = elevation.hit(s.parts, x, z)
             _sync_ui(context, s)
         elif event.type == 'ESC' and event.value == 'PRESS':
             bpy.ops.caffmob.cabinet_editor_close('INVOKE_DEFAULT')

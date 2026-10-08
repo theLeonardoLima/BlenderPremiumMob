@@ -92,8 +92,13 @@ def base_name(name):
     return _SUFFIX.sub("", name or "").strip()
 
 
-def classify(name, role=None, cabinet_type=None):
-    """Componente da peça. Devolve o código, `UNCLASSIFIED` ou `SKIP` (None) para o que não é peça de chapa."""
+def classify(name, role=None, cabinet_type=None, component=None):
+    """Componente da peça. Devolve o código, `UNCLASSIFIED` ou `SKIP` (None) para o que não é peça de chapa.
+
+    `component` explícito (`btm_component` da peça, feature 006: divisões do editor) vence o papel e o nome.
+    """
+    if component:
+        return component
     if role:
         if role in CLOSET_ROLES:
             return CLOSET_ROLES[role]

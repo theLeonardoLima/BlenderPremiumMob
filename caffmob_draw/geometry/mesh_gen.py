@@ -243,12 +243,17 @@ SHELF_SETBACK = 0.02      # recuo frontal das prateleiras (m)
 MAT_CARCASS, MAT_SHELF, MAT_BACK = 0, 1, 2
 
 
-def generate_cabinet_mesh(obj, w, h, d, t, shelves=0):
+def generate_cabinet_mesh(obj, w, h, d, t, shelves=0, structure=None):
     """Gera uma caixa de armário paramétrico (laterais, base, tampo, fundo e prateleiras) em metros.
 
     `shelves` prateleiras com vãos iguais entre a base e o tampo (feature 003, D-09). As faces recebem índices de
     material por grupo: caixa (0), prateleiras (1), fundo (2).
+
+    `structure` (feature 006, D-08) = {PAPEL: (presente, modo, espessura)} para TOP, BOTTOM, BACK, LEFT, RIGHT; sem
+    ele (ou com tudo presente e espessura `t`), a malha é a de sempre. As contas ficam em
+    `cabinet_editor/structure.layout`.
     """
+    from ..cabinet_editor import structure as st
     clear_mesh(obj)
 
     bm = bmesh.new()
@@ -275,30 +280,33 @@ def generate_cabinet_mesh(obj, w, h, d, t, shelves=0):
         ]
         return faces
 
-    # Lateral Esquerda
-    add_box(bm, -w / 2, -w / 2 + t, -d, 0.0, 0.0, h)
+    structure = structure or {}
+    thick = {role: float(structure.get(role, (True, 'KEEP', t))[2] or t) for role in st.ROLES}
+    states = {role: st.RoleState(removed=not present, mode=mode)
+              for role, (present, mode, _th) in structure.items() if not present}
+    panels, inner = st.layout(w, h, d, thick, states)
 
-    # Lateral Direita
-    add_box(bm, w / 2 - t, w / 2, -d, 0.0, 0.0, h)
+    # Laterais, base, tampo e fundo (na ordem de sempre)
+    for role in ('LEFT', 'RIGHT', 'BOTTOM', 'TOP', 'BACK'):
+        box = panels.get(role)
+        if box is None:
+            continue
+        (x0, y0, z0), (x1, y1, z1) = box
+        faces = add_box(bm, x0, x1, y0, y1, z0, z1)
+        if role == 'BACK':
+            for face in faces:
+                face.material_index = MAT_BACK
 
-    # Base (painel inferior)
-    add_box(bm, -w / 2 + t, w / 2 - t, -d, 0.0, 0.0, t)
-
-    # Tampo (painel superior)
-    add_box(bm, -w / 2 + t, w / 2 - t, -d, 0.0, h - t, h)
-
-    # Fundo (painel traseiro)
-    for face in add_box(bm, -w / 2 + t, w / 2 - t, -t, 0.0, t, h - t):
-        face.material_index = MAT_BACK
-
-    # Prateleiras: vãos livres iguais entre a base e o tampo
-    inner = h - 2 * t
+    # Prateleiras: vãos livres iguais dentro do vão interno
+    (ix0, iy0, iz0), (ix1, iy1, iz1) = inner
+    shelf_t = thick['BOTTOM']
+    span = iz1 - iz0
     count = int(shelves)
-    if count > 0 and inner > count * t:
-        gap = (inner - count * t) / (count + 1)
+    if count > 0 and span > count * shelf_t:
+        gap = (span - count * shelf_t) / (count + 1)
         for i in range(count):
-            z0 = t + gap * (i + 1) + t * i
-            for face in add_box(bm, -w / 2 + t, w / 2 - t, -d + SHELF_SETBACK, -t, z0, z0 + t):
+            z0 = iz0 + gap * (i + 1) + shelf_t * i
+            for face in add_box(bm, ix0, ix1, iy0 + SHELF_SETBACK, iy1, z0, z0 + shelf_t):
                 face.material_index = MAT_SHELF
 
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)

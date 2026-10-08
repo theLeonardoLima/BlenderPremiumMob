@@ -28,11 +28,22 @@ def update_wall_geom(self, context):
         generate_wall_mesh(obj, self.length, self.thickness, self.height_start)
 
 
+STRUCTURE_ROLES = ('top', 'bottom', 'back', 'left', 'right')
+
+
+def structure_of(cab):
+    """Estrutura do módulo `btm` para `generate_cabinet_mesh`: {PAPEL: (presente, modo, espessura)} (feature 006)."""
+    return {role.upper(): (bool(getattr(cab, 'has_' + role)), getattr(cab, 'mode_' + role),
+                           float(getattr(cab, 'thickness_' + role)) or float(cab.thickness))
+            for role in STRUCTURE_ROLES}
+
+
 def update_cabinet_geom(self, context):
     obj = self.id_data
     if obj and obj.type == 'MESH':
         from ..geometry.mesh_gen import generate_cabinet_mesh
-        generate_cabinet_mesh(obj, self.width, self.height, self.depth, self.thickness, self.shelves)
+        generate_cabinet_mesh(obj, self.width, self.height, self.depth, self.thickness, self.shelves,
+                              structure=structure_of(self))
 
         # Atualiza a geometria da porta e o controlador vazio
         from ..geometry import door_controller
@@ -259,6 +270,13 @@ class BTM_PG_OpeningProperties(bpy.types.PropertyGroup):
 # Cabinet Properties
 # ---------------------------------------------------------------------------
 
+_REMOVE_MODE_ITEMS = [
+    ('KEEP', "Manter tudo", ""),
+    ('EXTEND', "Estender as vizinhas", ""),
+    ('SHRINK', "Reduzir o armário", ""),
+]
+
+
 class BTM_PG_CabinetProperties(bpy.types.PropertyGroup):
     width: bpy.props.FloatProperty(
         name="Largura",
@@ -333,6 +351,38 @@ class BTM_PG_CabinetProperties(bpy.types.PropertyGroup):
         max=20,
         update=update_cabinet_geom
     )  # type: ignore
+    # Estrutura (feature 006, D-08, D-09): chapas presentes, modo da remoção e espessura por componente
+    # (0 = `thickness`). O modo 'SHRINK' gera a mesma malha do 'EXTEND'; quem reduz as medidas é o adaptador.
+    has_top: bpy.props.BoolProperty(name="Tampo", default=True, update=update_cabinet_geom)  # type: ignore
+    mode_top: bpy.props.EnumProperty(
+        name="Tampo: ao remover", items=_REMOVE_MODE_ITEMS, default='KEEP', update=update_cabinet_geom)  # type: ignore
+    thickness_top: bpy.props.FloatProperty(
+        name="Tampo: espessura", default=0.0, min=0.0, max=0.06, subtype='DISTANCE',
+        update=update_cabinet_geom)  # type: ignore
+    has_bottom: bpy.props.BoolProperty(name="Base", default=True, update=update_cabinet_geom)  # type: ignore
+    mode_bottom: bpy.props.EnumProperty(
+        name="Base: ao remover", items=_REMOVE_MODE_ITEMS, default='KEEP', update=update_cabinet_geom)  # type: ignore
+    thickness_bottom: bpy.props.FloatProperty(
+        name="Base: espessura", default=0.0, min=0.0, max=0.06, subtype='DISTANCE',
+        update=update_cabinet_geom)  # type: ignore
+    has_back: bpy.props.BoolProperty(name="Fundo", default=True, update=update_cabinet_geom)  # type: ignore
+    mode_back: bpy.props.EnumProperty(
+        name="Fundo: ao remover", items=_REMOVE_MODE_ITEMS, default='KEEP', update=update_cabinet_geom)  # type: ignore
+    thickness_back: bpy.props.FloatProperty(
+        name="Fundo: espessura", default=0.0, min=0.0, max=0.06, subtype='DISTANCE',
+        update=update_cabinet_geom)  # type: ignore
+    has_left: bpy.props.BoolProperty(name="Lateral esquerda", default=True, update=update_cabinet_geom)  # type: ignore
+    mode_left: bpy.props.EnumProperty(
+        name="Lateral esquerda: ao remover", items=_REMOVE_MODE_ITEMS, default='KEEP', update=update_cabinet_geom)  # type: ignore
+    thickness_left: bpy.props.FloatProperty(
+        name="Lateral esquerda: espessura", default=0.0, min=0.0, max=0.06, subtype='DISTANCE',
+        update=update_cabinet_geom)  # type: ignore
+    has_right: bpy.props.BoolProperty(name="Lateral direita", default=True, update=update_cabinet_geom)  # type: ignore
+    mode_right: bpy.props.EnumProperty(
+        name="Lateral direita: ao remover", items=_REMOVE_MODE_ITEMS, default='KEEP', update=update_cabinet_geom)  # type: ignore
+    thickness_right: bpy.props.FloatProperty(
+        name="Lateral direita: espessura", default=0.0, min=0.0, max=0.06, subtype='DISTANCE',
+        update=update_cabinet_geom)  # type: ignore
 
 
 # ---------------------------------------------------------------------------

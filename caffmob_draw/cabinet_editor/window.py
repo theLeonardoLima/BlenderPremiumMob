@@ -5,6 +5,9 @@ imagem, os painéis na aba "Editor de Armário" e um handler `POST_PIXEL` global
 
 O desenho mostra o módulo de frente (x, z): estrutura, vãos tracejados, prateleiras e divisórias, frentes por cima, o
 componente selecionado destacado, os componentes com mensagem marcados em vermelho e as medidas do módulo.
+
+Feature 006 (T024): na aba Divisão, os subvãos livres aparecem tracejados e o escolhido em destaque, com o nome em
+texto; as chapas removidas aparecem tracejadas com "removido" (o estado nunca só na cor).
 """
 
 import bpy  # type: ignore
@@ -31,6 +34,9 @@ OPENING_EDGE = (0.6, 0.6, 0.65, 0.7)
 SELECTED = (1.0, 0.75, 0.2, 1.0)
 FLAGGED = (1.0, 0.3, 0.25, 1.0)
 BACKGROUND = (0.13, 0.13, 0.14, 1.0)
+SPACE_EDGE = (0.45, 0.75, 1.0, 0.55)
+SPACE_FILL = (0.45, 0.75, 1.0, 0.18)
+REMOVED_EDGE = (0.85, 0.55, 0.45, 0.8)
 
 
 def session():
@@ -82,6 +88,38 @@ def ensure_view(region, area):
     return s.view
 
 
+def _dashed_rect(sh, view, x0, z0, x1, z1, color):
+    a, b = view.to_screen((x0, z0)), view.to_screen((x1, z1))
+    pts = []
+    for p, q in (((a[0], a[1]), (b[0], a[1])), ((b[0], a[1]), (b[0], b[1])),
+                 ((b[0], b[1]), (a[0], b[1])), ((a[0], b[1]), (a[0], a[1]))):
+        pts += draw.dashed(p, q)
+    draw.lines(sh, pts, color)
+    return a, b
+
+
+def _draw_006(sh, view, s, divisions_tab):
+    """Chapas removidas e, na aba Divisão, os subvãos; devolve os textos a escrever depois do `draw.end()`."""
+    labels = []
+    for part in s.removed_parts:
+        x0, z0, x1, z1 = part.rect
+        a, b = _dashed_rect(sh, view, x0, z0, x1, z1, REMOVED_EDGE)
+        labels.append(((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0, tr("removido"), REMOVED_EDGE))
+    if not divisions_tab:
+        return labels
+    for path, box in s.spaces.items():
+        x0, z0, x1, z1 = box.lo[0], box.lo[2], box.hi[0], box.hi[2]
+        if path == s.space:
+            r = draw.box(sh, view, (x0, z0), (x1, z1), SELECTED, fill=SPACE_FILL)
+            draw.outline(sh, (r[0] - 2, r[1] - 2, r[2] + 4, r[3] + 4), SELECTED)
+            a, b = view.to_screen((x0, z0)), view.to_screen((x1, z1))
+            label = s.space_labels.get(path, path)
+            labels.append(((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0, label, SELECTED))
+        else:
+            _dashed_rect(sh, view, x0, z0, x1, z1, SPACE_EDGE)
+    return labels
+
+
 def draw_editor(context):
     s = session()
     region = context.region
@@ -103,13 +141,17 @@ def draw_editor(context):
             continue
         color = FLAGGED if part.name in flagged else EDGE
         draw.box(sh, view, (x0, z0), (x1, z1), color, fill=FILL.get(part.kind, FILL[elevation.PART]))
-    if s.selected:
+    divisions_tab = context.window_manager.btm_cabinet_editor.tab == 'DIVISIONS'
+    labels = _draw_006(sh, view, s, divisions_tab)
+    if s.selected and not divisions_tab:
         part = next((p for p in s.parts if p.name == s.selected), None)
         if part is not None:
             x0, z0, x1, z1 = part.rect
             r = draw.box(sh, view, (x0, z0), (x1, z1), SELECTED)
             draw.outline(sh, (r[0] - 2, r[1] - 2, r[2] + 4, r[3] + 4), SELECTED)
     draw.end()
+    for x, y, text, color in labels:
+        draw.text(x - draw.text_width(text) / 2.0, y, text, color=color)
     _labels(view, s)
 
 

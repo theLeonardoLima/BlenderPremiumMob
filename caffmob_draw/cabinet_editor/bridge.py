@@ -8,14 +8,21 @@
 - `edit(context, root, action, data)`: as edições do editor (frente, estilo, puxador, material, interior), as mesmas
   dos operadores de `customize/ops_customize.py`, sem passar por operador.
 - `parts(root)`: caixas das peças no referencial da raiz, para a vista frontal (`elevation.Part`).
+- Feature 006 (T021; D-11): o instantâneo leva também a estrutura (`root.btm_structure`) e as divisões; `edit` ganha
+  `ADD_DIVISION`, `EDIT_DIVISION`, `REMOVE_DIVISION`, `EDIT_PART`, `REMOVE_PART` e `RESTORE_PART`. A ordem importa:
+  o registro em `btm_structure` muda **antes** do adaptador, porque o recálculo das bibliotecas reafirma o que estiver
+  gravado.
 """
 
 from mathutils import Vector  # type: ignore
 
 from ..customize import adapters, reapply, spec
+from ..customize.adapters import common
 from ..cutting import part_roles
 from ..selection import classify, editing
-from . import elevation, state as _state
+from . import divisions as dv
+from . import elevation, scene_divisions, state as _state
+from . import structure as st
 
 CUSTOM_FIELDS = ('door_style', 'drawer_style', 'pull_model', 'pull_position', 'front_material', 'interior')
 _LIBRARY_HOLDER = {'FACE_FRAME': 'face_frame_cabinet', 'CLOSETS': 'hb_closet_starter', 'BTM': 'btm_cabinet'}
@@ -51,7 +58,8 @@ def read_state(root):
     data = spec.to_dict(adapter.read(root)) if adapter is not None else {}
     if adapter is not None:
         data["_raw"] = _raw(root, adapter)
-    return _state.EditorState(dims, data)
+    structure = root.btm_structure.to_dict() if getattr(root, 'btm_structure', None) is not None else {}
+    return _state.EditorState(dims, data, structure, scene_divisions.read(root))
 
 
 def library_limits(root, library):
@@ -120,11 +128,18 @@ def apply_state(context, root, target):
         if getattr(obj, 'btm_custom', None) is not None and obj.btm_custom.material != parts.get(obj.name, ""):
             obj.btm_custom.material = parts.get(obj.name, "")
     messages += reapply.reapply(context, root)
+    messages += _apply_structure(context, root, current.structure, target.structure)
+    if target.divisions != scene_divisions.read(root):
+        scene_divisions.apply(context, root, target.divisions)
+    else:
+        scene_divisions.reflow(context, root, force=True)
     return messages
 
 
 def edit(context, root, action, data):
     """Uma edição do editor sobre o vão `data['path']`; devolve os avisos da biblioteca."""
+    if action in EDIT_006:
+        return EDIT_006[action](context, root, data)
     adapter = adapter_of(root)
     if adapter is None:
         return []
@@ -187,7 +202,7 @@ def _kind(obj, opening_names):
         return elevation.AGGREGATE
     if classify.classify(obj).kind == classify.FRONT or obj.get('IS_CABINET_FRONT'):
         return elevation.FRONT
-    code = part_roles.classify(obj.name, obj.get('hb_part_role'))
+    code = part_roles.classify(obj.name, obj.get('hb_part_role'), component=obj.get(scene_divisions.COMPONENT_PROP))
     return elevation.kind_from_role(code)
 
 
@@ -215,7 +230,17 @@ def parts(context, root):
         lo = tuple(min(c[i] for c in corners) - shift[i] for i in range(3))
         hi = tuple(max(c[i] for c in corners) - shift[i] for i in range(3))
         out.append(elevation.Part(obj.name, _kind(obj, opening_names), lo, hi))
+    if adapter is not None:              # chapas que não são objetos (malha única do `btm`, feature 006)
+        for name, _role, lo, hi in common.call(adapter, 'elevation_parts', context, root):
+            out.append(elevation.Part(name, elevation.STRUCTURE, tuple(lo[i] - shift[i] for i in range(3)),
+                                      tuple(hi[i] - shift[i] for i in range(3))))
     return out
+
+
+def view_shift(context, root):
+    """Origem da vista frontal no referencial da raiz (canto mínimo da caixa do módulo)."""
+    lo, _hi = root_box(root, context.evaluated_depsgraph_get())
+    return tuple(lo)
 
 
 def root_size(context, root):
@@ -240,3 +265,145 @@ def opening_of(root, name):
                 break
             node = node.parent
     return best[0] if best else None
+
+
+# Estrutura e divisões (feature 006, T021) -----------------------------------------------------------------------
+def structure_rows(context, root):
+    """[(papel, info, capacidades, estado)] na ordem de `structure.ROLES`, só dos papéis que o módulo tem."""
+    adapter = adapter_of(root)
+    if adapter is None:
+        return []
+    info = common.call(adapter, 'structure_info', context, root)
+    caps = common.call(adapter, 'structure_caps', root)
+    states = st.state_from_dict(root.btm_structure.to_dict())
+    return [(role, info[role], caps.get(role, {}), states.get(role, st.RoleState()))
+            for role in st.ROLES if role in info]
+
+
+def configured_part(context, root, role):
+    """(material, espessura em m) do componente do Configurador para o papel, na linha do módulo."""
+    from ..data import dimension_schema as schema
+    from ..standards import api
+    line = scene_divisions.line_of(root)
+    component = st.ROLE_COMPONENT[role]
+    material = api.get_value(context.scene, schema.sheet_key(line, component, 'material')) or 'MDF'
+    thickness = api.get_value_m(context.scene, schema.sheet_key(line, component, 'thickness')) or 0.0
+    return str(material), float(thickness)
+
+
+def _item(root, role):
+    return root.btm_structure.item(role, create=True)
+
+
+def _tidy(root, role):
+    """Tira o registro do papel quando ele voltou ao padrão (nada removido nem sobrescrito)."""
+    components = root.btm_structure.components
+    for index, entry in enumerate(components):
+        if entry.role == role and not entry.removed and not entry.thickness and not entry.material:
+            components.remove(index)
+            return
+
+
+def remove_part(context, root, data):
+    role, mode = data['role'], data.get('mode', st.KEEP)
+    adapter = adapter_of(root)
+    caps = common.call(adapter, 'structure_caps', root).get(role)
+    if not caps or caps.get('remove'):
+        return [caps.get('remove') if caps else common.tr(common.NO_LIBRARY_REASON)]
+    mode, reason = st.allowed_mode(mode, caps.get('modes', {}))
+    entry = _item(root, role)
+    if entry.removed:
+        return []
+    entry.removed, entry.mode = True, mode
+    messages = [reason] if reason else []
+    messages += common.call(adapter, 'remove_part', context, root, role, mode)
+    scene_divisions.reflow(context, root, force=True)
+    return messages
+
+
+def restore_part(context, root, data):
+    role = data['role']
+    entry = root.btm_structure.item(role)
+    if entry is None or not entry.removed:
+        return []
+    mode = entry.mode
+    entry.removed, entry.mode = False, st.KEEP
+    messages = common.call(adapter_of(root), 'restore_part', context, root, role, mode)
+    _tidy(root, role)
+    scene_divisions.reflow(context, root, force=True)
+    return messages
+
+
+def edit_part(context, root, data):
+    role = data['role']
+    adapter = adapter_of(root)
+    entry = _item(root, role)
+    messages = []
+    if 'thickness' in data:
+        value = float(data['thickness'] or 0.0)
+        caps = common.call(adapter, 'structure_caps', root).get(role, {})
+        if caps.get('thickness'):
+            return [caps['thickness']]
+        if abs(entry.thickness - value) > 1e-9:
+            entry.thickness = value
+            messages += common.call(adapter, 'set_part_thickness', context, root, role, value)
+    if 'material' in data:
+        entry.material = data['material'] or ""
+    messages += common.call(adapter, 'reaffirm', context, root)
+    _tidy(root, role)
+    scene_divisions.reflow(context, root, force=True)
+    return messages
+
+
+def _apply_structure(context, root, current, target):
+    """Leva a estrutura do módulo de `current` a `target` (dicionários de `BTM_PG_Structure.to_dict`)."""
+    messages = []
+    now = st.state_from_dict(current)
+    wanted = st.state_from_dict(target)
+    for role in st.ROLES:
+        a, b = now.get(role, st.RoleState()), wanted.get(role, st.RoleState())
+        if a == b:
+            continue
+        if a.removed and (not b.removed or a.mode != b.mode):
+            messages += restore_part(context, root, {'role': role})
+        if (a.thickness, a.material) != (b.thickness, b.material):
+            messages += edit_part(context, root, {'role': role, 'thickness': b.thickness, 'material': b.material})
+        if b.removed and not (a.removed and a.mode == b.mode):
+            messages += remove_part(context, root, {'role': role, 'mode': b.mode})
+    return messages
+
+
+def division_context(context, root):
+    """(vãos-raiz, divisões como `divisions.Division`, dicionários crus, nomes {uid: objeto})."""
+    raw = scene_divisions.read(root)
+    return (scene_divisions.roots(context, root), scene_divisions.core(context.scene, root, raw), raw,
+            scene_divisions.names(root))
+
+
+def add_division(context, root, data):
+    roots, core, raw, _names = division_context(context, root)
+    _material, thickness = scene_divisions.configured(context.scene, root)
+    added = dv.add(roots, core, data['space'], data['orientation'], thickness,
+                   use_front=data.get('use_front', False), front=data.get('front', dv.DEFAULT_SETBACK),
+                   use_back=data.get('use_back', False), back=data.get('back', dv.DEFAULT_SETBACK))[-1]
+    entry = dict(dv.to_dict(added), thickness=0.0, material="")
+    scene_divisions.apply(context, root, raw + [entry])
+    return []
+
+
+def edit_division(context, root, data):
+    raw = scene_divisions.read(root)
+    changes = {k: v for k, v in data.items() if k != 'uid'}
+    scene_divisions.apply(context, root, [dict(d, **changes) if d['uid'] == data['uid'] else d for d in raw])
+    return []
+
+
+def remove_division(context, root, data):
+    _roots, core, raw, _names = division_context(context, root)
+    _rest, removed = dv.remove(core, data['uid'])
+    scene_divisions.apply(context, root, [d for d in raw if d['uid'] not in removed])
+    return []
+
+
+EDIT_006 = {'ADD_DIVISION': add_division, 'EDIT_DIVISION': edit_division, 'REMOVE_DIVISION': remove_division,
+            'EDIT_PART': edit_part, 'REMOVE_PART': remove_part, 'RESTORE_PART': restore_part}

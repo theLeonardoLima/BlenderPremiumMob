@@ -36,6 +36,18 @@ class StateTest(unittest.TestCase):
         draft.undo()
         self.assertFalse(draft.dirty())
 
+    def test_estrutura_e_divisoes_entram_na_assinatura(self):
+        base = make(0.8)
+        with_structure = make(0.8)
+        with_structure.structure = {"RIGHT": {"removed": True, "mode": "KEEP", "thickness": 0.0, "material": ""}}
+        with_division = make(0.8)
+        with_division.divisions = [{"uid": "a1", "space": "s0", "orientation": "VERTICAL", "offset": 0.4}]
+        sigs = {st.signature(s) for s in (base, with_structure, with_division)}
+        self.assertEqual(len(sigs), 3)
+        nudged = make(0.8)
+        nudged.divisions = [{"uid": "a1", "space": "s0", "orientation": "VERTICAL", "offset": 0.4 + 1e-8}]
+        self.assertEqual(st.signature(nudged), st.signature(with_division))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -162,7 +162,23 @@ def build_manifest(root, name, category):
         name, category or GENERAL, classify.module_library(root), root.name, current,
         created=datetime.datetime.now().astimezone().isoformat(timespec="seconds"), addon_version=_addon_version(),
         dimensions_mm={"width": round(size.x * 1000), "height": round(size.z * 1000), "depth": round(size.y * 1000)},
-        styles={"door_styles": door_styles}, materials=materials, pulls=pulls)
+        styles={"door_styles": door_styles}, materials=materials, pulls=pulls,
+        structure=root.btm_structure.to_dict() if getattr(root, 'btm_structure', None) is not None else None,
+        divisions=_divisions(root))
+
+
+def _divisions(root):
+    """Divisões do módulo para o manifesto 1.1.0 (feature 006, T034); a geometria viaja no `.blend`."""
+    from ..cabinet_editor import scene_divisions
+    return scene_divisions.read(root)
+
+
+def _renew_divisions(context, root):
+    """Módulo inserido: uids novos nas divisões (cada inserção é independente) e chapas no vão atual."""
+    from ..cabinet_editor import divisions, scene_divisions
+    for obj in scene_divisions.objects(root):
+        obj.btm_division.uid = divisions.new_uid()
+    scene_divisions.reflow(context, root, force=True)
 
 
 def save(context, root, name, category, thumbnail=True):
@@ -256,6 +272,8 @@ def load(context, entry):
             warnings.append(tr("Estilos ausentes neste arquivo (mantida a geometria salva): {}").format(", ".join(missing)))
     if root is not None and data is not None:
         warnings += reapply.reapply(context, root)
+    if root is not None:
+        _renew_divisions(context, root)
     elif root is None:
         warnings.append(tr("Nenhum módulo encontrado no arquivo"))
     if missing:

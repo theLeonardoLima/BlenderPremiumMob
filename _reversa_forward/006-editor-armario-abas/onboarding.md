@@ -6,14 +6,16 @@ Pré-requisito: `python3 build.py`, instalar `caffmob_draw.zip` no Blender 5.2 e
 
 1. Insira um balcão frameless (Inserir › Frameless).
 2. Selecione-o e use botão direito › Abrir editor de armário.
-3. Confira as abas **Estrutura**, **Divisão** e **Acabamento**, com Estrutura aberta e Confirmar/Cancelar visíveis.
+3. Confira o cabeçalho com o nome do módulo e as abas **Estrutura**, **Divisão** e **Acabamento**, com Estrutura aberta
+   e Confirmar/Cancelar visíveis.
 4. Troque de aba e confira que Confirmar, Cancelar e as mensagens continuam na tela.
 
 ## 2. Estrutura
 
 1. Na Estrutura, digite uma largura nova e veja a prévia mudar.
-2. Na lista, mude a espessura do **Tampo** para 18 mm. Deve aparecer "alterado neste armário".
-3. Remova a **Lateral direita** com o modo "Manter tudo": ela some e fica marcada como removida. Clique em Restaurar.
+2. Na lista, mude a espessura do **Tampo** para 18 mm. A linha passa a mostrar "alterado".
+3. Clique no ✕ da **Lateral direita**: abre a janela com os três modos. Escolha "Manter tudo" e Remover. Ela some e
+   fica marcada como removida. Clique em Restaurar.
 4. Num módulo frameless, os modos "Estender as vizinhas" e "Reduzir o armário" da lateral aparecem desabilitados com
    o motivo. Na **Base**, "Estender as vizinhas" funciona.
 5. Repita com um módulo `btm`: os três modos funcionam em todas as peças.
@@ -39,7 +41,9 @@ Pré-requisito: `python3 build.py`, instalar `caffmob_draw.zip` no Blender 5.2 e
 ## 5. Testes automáticos
 
 ```bash
-python3 -m pytest tests/test_cabinet_editor_divisions.py tests/test_cabinet_editor_structure.py
+cd tests && python3 -m unittest test_cabinet_editor_divisions test_cabinet_editor_structure test_cabinet_editor_state \
+    test_module_manifest test_i18n_coverage && cd ..
 ruff check caffmob_draw/ && python3 docs/rag/tools/check_api.py
-blender --background --factory-startup --python-exit-code 1 --python tests/blender_006_cabinet_editor_tabs_smoke.py
+# precisa de janela; sem tela, use xvfb-run
+xvfb-run -a blender --factory-startup --enable-event-simulate --python tests/blender_006_cabinet_editor_tabs_smoke.py
 ```

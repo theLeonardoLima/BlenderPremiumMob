@@ -252,3 +252,62 @@ def reapply(context, root):
             if mat is not None and not front.btm_custom.material:
                 common.set_cutpart_material(front, mat)
     return common.unique(warnings)
+
+
+# Estrutura e divisões (feature 006, T018) -----------------------------------------------------------------------
+# O face frame reescreve as peças em todo `recalculate()`: remoção e espessura ficam em `root.btm_structure` e são
+# reafirmadas em `after_rebuild` (D-07, D-09). Só Manter tudo (D-08). O face frame ainda não entra no plano de corte
+# (lacuna herdada, D-12): a interface avisa.
+_ROLE_BY_PART = {'LEFT_SIDE': 'LEFT', 'RIGHT_SIDE': 'RIGHT', 'TOP': 'TOP', 'BOTTOM': 'BOTTOM', 'BACK': 'BACK'}
+
+
+def _self():
+    import sys
+    return sys.modules[__name__]
+
+
+def inner_spaces(context, root):
+    return common.cage_spaces(context, root, _self(), _tff().TAG_BAY_CAGE)
+
+
+def structure_parts(root):
+    out = {}
+    for obj in root.children:
+        role = _ROLE_BY_PART.get(obj.get('hb_part_role'))
+        if role is not None and common.is_cutpart(obj):
+            out.setdefault(role, []).append(obj)
+    return out
+
+
+def structure_caps(root):
+    return common.keep_only_caps(structure_parts(root))
+
+
+def _recalc(root):
+    _tff().recalculate_face_frame_cabinet(root)
+
+
+def remove_part(context, root, role, mode):
+    for obj in structure_parts(root).get(role, ()):
+        common.set_removed(obj, True)
+    return []
+
+
+def restore_part(context, root, role, mode):
+    for obj in structure_parts(root).get(role, ()):
+        common.set_removed(obj, False)
+    _recalc(root)
+    return []
+
+
+def set_part_thickness(context, root, role, value):
+    if value > 0.0:
+        for obj in structure_parts(root).get(role, ()):
+            common.set_cutpart_thickness(obj, value)
+    else:
+        _recalc(root)
+    return []
+
+
+def reaffirm(context, root):
+    return common.reaffirm_parts(context, root, _self())

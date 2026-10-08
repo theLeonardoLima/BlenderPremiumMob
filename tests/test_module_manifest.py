@@ -39,6 +39,37 @@ class ManifestTest(unittest.TestCase):
     def test_json_invalido(self):
         self.assertTrue(mf.loads("{")[2][0].startswith("JSON inválido"))
 
+    # Feature 006 (T008): estrutura e divisões, campos opcionais da 1.1.0 --------------------------------------
+    def test_1_0_0_continua_valido(self):
+        data = mf.build("A", "B", 'BTM', "A", sp.Spec())
+        data["schema_version"] = "1.0.0"
+        _d, spec, errors = mf.loads(json.dumps(data))
+        self.assertEqual(errors, [])
+        self.assertEqual(mf.structure_of(data), {})
+        self.assertEqual(mf.divisions_of(data), [])
+
+    def test_estrutura_e_divisoes_ida_e_volta(self):
+        structure = {"RIGHT": {"removed": True, "mode": "KEEP", "thickness": 0.0, "material": ""},
+                     "TOP": {"removed": False, "mode": "KEEP", "thickness": 0.018, "material": "MDP"}}
+        divisions = [{"uid": "a1", "space": "s0.a", "orientation": "HORIZONTAL", "offset": 0.36, "use_front": True,
+                      "front": 0.02, "use_back": False, "back": 0.02, "thickness": 0.0, "material": ""}]
+        data = mf.build("A", "B", 'FRAMELESS', "A", sp.Spec(), structure=structure, divisions=divisions)
+        self.assertEqual(data["schema_version"], "1.1.0")
+        self.assertEqual(data["structure"]["TOP"]["thickness_mm"], 18.0)
+        self.assertEqual(data["divisions"][0]["offset_mm"], 360.0)
+        loaded, _spec, errors = mf.loads(mf.dumps(data))
+        self.assertEqual(errors, [])
+        self.assertAlmostEqual(mf.structure_of(loaded)["TOP"]["thickness"], 0.018)
+        self.assertAlmostEqual(mf.divisions_of(loaded)[0]["offset"], 0.36)
+        self.assertEqual(mf.divisions_of(loaded)[0]["space"], "s0.a")
+
+    def test_erros_de_estrutura_e_divisao(self):
+        data = mf.build("A", "B", 'BTM', "A", sp.Spec())
+        data["structure"] = {"MEIO": {"mode": "KEEP"}, "TOP": {"mode": "VOAR", "thickness_mm": -1}}
+        data["divisions"] = [{"space": "x9", "orientation": "DIAGONAL", "offset_mm": -5}]
+        errors = mf.validate(data)
+        self.assertEqual(len(errors), 6)
+
     def test_nome_de_arquivo(self):
         self.assertEqual(mf.file_stem('Aéreo 80/60: "vidro"?'), "Aéreo 80_60_ _vidro__")
         self.assertEqual(mf.file_stem(" ... "), "modulo")

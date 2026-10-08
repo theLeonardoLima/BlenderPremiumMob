@@ -1,0 +1,39 @@
+{"ts": "2026-10-08T16:39:55Z", "action": "T001", "status": "done", "files": ["caffmob_draw/cabinet_editor/data_props.py"]}
+{"ts": "2026-10-08T16:39:55Z", "action": "T002", "status": "done", "files": ["caffmob_draw/cabinet_editor/props.py"]}
+{"ts": "2026-10-08T16:39:55Z", "action": "T003", "status": "done", "files": ["caffmob_draw/data/properties.py"]}
+{"ts": "2026-10-08T16:39:55Z", "action": "T004", "status": "done", "files": ["caffmob_draw/cabinet_editor/state.py"]}
+{"ts": "2026-10-08T16:42:20Z", "action": "T005", "status": "done", "files": ["tests/test_cabinet_editor_divisions.py"]}
+{"ts": "2026-10-08T16:42:20Z", "action": "T006", "status": "done", "files": ["tests/test_cabinet_editor_structure.py"]}
+{"ts": "2026-10-08T16:42:20Z", "action": "T007", "status": "done", "files": ["tests/test_cabinet_editor_state.py"]}
+{"ts": "2026-10-08T16:42:20Z", "action": "T008", "status": "done", "files": ["tests/test_module_manifest.py"]}
+{"ts": "2026-10-08T16:42:20Z", "action": "T009", "status": "done", "files": ["caffmob_draw/cabinet_editor/divisions.py"]}
+{"ts": "2026-10-08T16:42:20Z", "action": "T010", "status": "done", "files": ["caffmob_draw/cabinet_editor/structure.py"]}
+{"ts": "2026-10-08T16:42:20Z", "action": "T033", "status": "done", "files": ["caffmob_draw/customize/manifest.py"]}
+{"ts": "2026-10-08T16:45:13Z", "action": "T011", "status": "done", "files": ["caffmob_draw/customize/adapters/common.py"]}
+{"ts": "2026-10-08T16:45:13Z", "action": "T012", "status": "done", "files": ["caffmob_draw/geometry/mesh_gen.py"]}
+{"ts": "2026-10-08T16:45:13Z", "action": "T013", "status": "done", "files": ["caffmob_draw/customize/adapters/btm.py"]}
+{"ts": "2026-10-08T16:45:13Z", "action": "T014", "status": "done", "files": ["caffmob_draw/customize/adapters/frameless.py"]}
+{"ts": "2026-10-08T16:45:13Z", "action": "T015", "status": "done", "files": ["caffmob_draw/customize/adapters/frameless.py"]}
+{"ts": "2026-10-08T16:45:13Z", "action": "T016", "status": "done", "files": ["caffmob_draw/customize/adapters/frameless.py"]}
+{"ts": "2026-10-08T16:45:13Z", "action": "T017", "status": "done", "files": ["caffmob_draw/customize/adapters/closets.py"]}
+{"ts": "2026-10-08T16:45:13Z", "action": "T018", "status": "done", "files": ["caffmob_draw/customize/adapters/face_frame.py"]}
+{"ts": "2026-10-08T16:46:39Z", "action": "T019", "status": "done", "files": ["caffmob_draw/cabinet_editor/scene_divisions.py"]}
+{"ts": "2026-10-08T16:46:39Z", "action": "T020", "status": "done", "files": ["caffmob_draw/cabinet_editor/scene_divisions.py"]}
+{"ts": "2026-10-08T16:47:29Z", "action": "T021", "status": "done", "files": ["caffmob_draw/cabinet_editor/bridge.py"]}
+{"ts": "2026-10-08T16:47:30Z", "action": "T031", "status": "done", "files": ["caffmob_draw/cutting/part_roles.py", "caffmob_draw/cutting/part_sources.py", "caffmob_draw/customize/adapters/common.py"]}
+{"ts": "2026-10-08T16:48:48Z", "action": "T022", "status": "done", "files": ["caffmob_draw/cabinet_editor/ops_actions.py"]}
+{"ts": "2026-10-08T16:48:48Z", "action": "T023", "status": "done", "files": ["caffmob_draw/cabinet_editor/ops_editor.py", "caffmob_draw/cabinet_editor/bridge.py"]}
+{"ts": "2026-10-08T16:49:04Z", "action": "T024", "status": "done", "files": ["caffmob_draw/cabinet_editor/window.py"]}
+{"ts": "2026-10-08T17:01:54Z", "action": "T025", "status": "done", "files": ["_reversa_forward/006-editor-armario-abas/design/editor-abas.md", "caffmob_draw/cabinet_editor/ops_actions.py"]}
+{"ts": "2026-10-08T17:01:54Z", "action": "T026", "status": "done", "files": ["caffmob_draw/cabinet_editor/panels.py"]}
+{"ts": "2026-10-08T17:01:55Z", "action": "T027", "status": "done", "files": ["caffmob_draw/cabinet_editor/panels_structure.py"]}
+{"ts": "2026-10-08T17:01:55Z", "action": "T028", "status": "done", "files": ["caffmob_draw/cabinet_editor/panels_divisions.py"]}
+{"ts": "2026-10-08T17:02:15Z", "action": "T030", "status": "done", "files": ["caffmob_draw/cabinet_editor/reflow_handler.py"]}
+{"ts": "2026-10-08T17:02:15Z", "action": "T035", "status": "done", "files": ["caffmob_draw/cabinet_editor/__init__.py"]}
+{"ts": "2026-10-08T17:02:30Z", "action": "T029", "status": "done", "files": ["caffmob_draw/customize/reapply.py"]}
+{"ts": "2026-10-08T17:03:13Z", "action": "T032", "status": "done", "files": ["caffmob_draw/cutting/part_sources.py", "caffmob_draw/cutting/part_extractor.py"]}
+{"ts": "2026-10-08T17:03:28Z", "action": "T034", "status": "done", "files": ["caffmob_draw/customize/library_io.py"]}
+{"ts": "2026-10-08T17:05:21Z", "action": "T036", "status": "done", "files": ["caffmob_draw/data/translations/cabinet_editor.json", "caffmob_draw/cutting/part_sources.py"]}
+{"ts": "2026-10-08T17:06:16Z", "action": "T037", "status": "done", "files": ["tests/blender_004_cabinet_editor_smoke.py"]}
+{"ts": "2026-10-08T17:23:17Z", "action": "T038", "status": "done", "files": ["tests/blender_006_cabinet_editor_tabs_smoke.py", "caffmob_draw/cabinet_editor/reflow_handler.py", "caffmob_draw/cabinet_editor/ops_editor.py"]}
+{"ts": "2026-10-08T17:23:17Z", "action": "T039", "status": "done", "files": ["docs/usuario/editor-de-armario.md"]}

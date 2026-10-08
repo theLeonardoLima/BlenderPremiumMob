@@ -19,6 +19,7 @@ CLOSET_TAG = 'IS_CLOSET_STARTER_CAGE'
 UID_PROP = 'btm_uid'
 LINE_PROP = 'btm_line'
 CUTPART_GROUP = 'GeoNodeCutpart'
+RAW_MATERIAL_PROP = 'btm_raw_material'     # material da chapa sobrescrito no armário (feature 006)
 
 
 @dataclass
@@ -138,7 +139,8 @@ def cutpart_records(module):
         mod = _cutpart_modifier(obj)
         if mod is None:
             continue
-        component = part_roles.classify(obj.name, obj.get('hb_part_role'), module.type)
+        component = part_roles.classify(obj.name, obj.get('hb_part_role'), module.type,
+                                        component=obj.get('btm_component'))
         if component is part_roles.SKIP:
             continue
         length = abs(float(compat.try_get_gn_input(mod, 'Length', 0.0) or 0.0)) * 1000.0
@@ -155,7 +157,7 @@ def cutpart_records(module):
             uid="", module_uid=module.uid, module_name=module.name, line=module.line,
             name=part_roles.base_name(obj.name), component=component,
             length=length, width=width, thickness=thickness, finish=finish, edges_present=edges,
-            machining=cuts, machining_clipped=clipped)))
+            machining=cuts, machining_clipped=clipped, material=str(obj.get(RAW_MATERIAL_PROP, "") or ""))))
     return _assign_uids(module, found)
 
 
@@ -175,45 +177,71 @@ def _assign_uids(module, found):
 # Adaptador sintético (módulos btm_* sem peças reais)
 # ----------------------------------------------------------------------------------------------------------------
 
+def _structure(obj, carcass, back):
+    """{papel: (presente, espessura mm, espessura para as vizinhas mm, material)} do módulo `btm` (feature 006)."""
+    cab = obj.btm_cabinet
+    items = getattr(obj, 'btm_structure', None)
+    raw = {e.role: e.material for e in items.components} if items is not None else {}
+    out = {}
+    for role in ('LEFT', 'RIGHT', 'BOTTOM', 'TOP', 'BACK'):
+        key = role.lower()
+        present = bool(getattr(cab, 'has_' + key, True))
+        own = float(getattr(cab, 'thickness_' + key, 0.0) or 0.0) * 1000.0 or (back if role == 'BACK' else carcass)
+        neighbor = 0.0 if not present and getattr(cab, 'mode_' + key, 'KEEP') != 'KEEP' else own
+        out[role] = (present, own, neighbor, raw.get(role, ""))
+    return out
+
+
 def synthetic_records(module, thickness_for):
-    """Peças deduzidas das medidas do módulo. `thickness_for(componente)` dá a espessura em mm."""
+    """Peças deduzidas das medidas do módulo. `thickness_for(componente)` dá a espessura em mm.
+
+    Feature 006 (T032): chapas removidas saem, a espessura por componente vale e as divisões filhas entram como
+    peças reais (`cutpart_records`). Sem estrutura editada, as peças são as de sempre.
+    """
     obj = module.obj
     cab = getattr(obj, 'btm_cabinet', None)
+    back = thickness_for("FUN_INF")
     if cab is not None and cab.width > 0:
         width, height, depth = cab.width * 1000.0, cab.height * 1000.0, cab.depth * 1000.0
         door_swing = cab.door_swing
         carcass = cab.thickness * 1000.0 if cab.thickness > 0 else thickness_for("LAT")
+        structure = _structure(obj, carcass, back)
     else:
         dims = obj.dimensions
         width, height, depth = dims.x * 1000.0, dims.z * 1000.0, dims.y * 1000.0
         door_swing = 'LEFT'
         carcass = thickness_for("LAT")
-    inner = max(50.0, width - 2.0 * carcass)
-    back = thickness_for("FUN_INF")
-    spec = [
-        ("LAT", "Lateral esquerda", height, depth, carcass, [True, False, False, False]),
-        ("LAT", "Lateral direita", height, depth, carcass, [True, False, False, False]),
-        ("BAS", "Base inferior", inner, depth, carcass, [True, False, False, False]),
-        ("BAS", "Base superior", inner, depth, carcass, [True, False, False, False]),
-        ("FUN_INF", "Fundo", max(50.0, height - 2.0 * carcass + 16.0), max(50.0, inner + 16.0), back,
-         [False, False, False, False]),
-        ("PRAT", "Prateleira", max(50.0, inner - 2.0), max(50.0, depth - 20.0), thickness_for("PRAT"),
-         [True, False, False, False]),
+        structure = {role: (True, back if role == 'BACK' else carcass, back if role == 'BACK' else carcass, "")
+                     for role in ('LEFT', 'RIGHT', 'BOTTOM', 'TOP', 'BACK')}
+    inner = max(50.0, width - structure['LEFT'][2] - structure['RIGHT'][2])
+    vertical = height - structure['BOTTOM'][2] - structure['TOP'][2]
+    edge = [True, False, False, False]
+    candidates = [          # (papel, comprimento, largura, componente, nome da peça, fitas)
+        ('LEFT', height, depth, "LAT", "Lateral esquerda", edge),
+        ('RIGHT', height, depth, "LAT", "Lateral direita", edge),
+        ('BOTTOM', inner, depth, "BAS", "Base inferior", edge),
+        ('TOP', inner, depth, "BAS", "Base superior", edge),
+        ('BACK', max(50.0, vertical + 16.0), max(50.0, inner + 16.0), "FUN_INF", "Fundo", [False] * 4),
     ]
+    spec = [(component, name, length, part_width, structure[role][1], edges, structure[role][3])
+            for role, length, part_width, component, name, edges in candidates if structure[role][0]]
+    spec.append(("PRAT", "Prateleira", max(50.0, inner - 2.0), max(50.0, depth - 20.0), thickness_for("PRAT"),
+                 edge, ""))
     door = thickness_for("POR")
     if door_swing == 'DOUBLE':
         for side in ("esquerda", "direita"):
             spec.append(("POR", f"Porta {side}", max(50.0, height - 4.0), max(50.0, width / 2.0 - 3.0), door,
-                         [True, True, True, True]))
+                         [True, True, True, True], ""))
     elif door_swing != 'NONE':
-        spec.append(("POR", "Porta", max(50.0, height - 4.0), max(50.0, width - 4.0), door, [True, True, True, True]))
+        spec.append(("POR", "Porta", max(50.0, height - 4.0), max(50.0, width - 4.0), door, [True, True, True, True],
+                     ""))
     found = []
-    for i, (component, name, length, part_width, thickness, edges) in enumerate(spec):
+    for i, (component, name, length, part_width, thickness, edges, material) in enumerate(spec):
         found.append((component, f"{i:02d}", PartRecord(
             uid="", module_uid=module.uid, module_name=module.name, line=module.line, name=name,
             component=component, length=length, width=part_width, thickness=thickness,
-            edges_present=edges, source="SYNTHETIC")))
-    return _assign_uids(module, found)
+            edges_present=edges, source="SYNTHETIC", material=material)))
+    return _assign_uids(module, found) + cutpart_records(module)
 
 
 def module_has_cutparts(module):

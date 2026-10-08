@@ -1,8 +1,14 @@
 """Painéis do Editor de Armário (feature 004, T048; RF-02, RF-03, RF-04, RF-06, RF-07, RF-09, RF-10).
 
-Na região lateral do Image Editor, aba "Editor de Armário": Medidas (com a faixa permitida), Componentes, Personalizar
-(as seções da 003 para o vão do componente selecionado; as que a biblioteca não tem aparecem desabilitadas com o motivo),
-Mensagens, Ajustes automáticos e, por último, Confirmar / Cancelar / Fechar e Salvar como módulo.
+Na região lateral do Image Editor, aba "Editor de Armário". Feature 006 (T026; D-01, D-02, brief
+`_reversa_forward/006-editor-armario-abas/design/editor-abas.md`): um cabeçalho com o módulo, o estado do rascunho e as
+abas **Estrutura · Divisão · Acabamento**; os painéis aparecem conforme a aba:
+- Estrutura: Medidas (com a faixa permitida) e Componentes externos (`panels_structure.py`);
+- Divisão: Nova divisão e Divisões (`panels_divisions.py`);
+- Acabamento: Componentes (lista da 004) e Personalizar (seções da 003 para o vão selecionado; as que a biblioteca
+  não tem aparecem desabilitadas com o motivo).
+O rodapé é igual em todas as abas: Mensagens, Ajustes automáticos, Desfazer/Refazer, Confirmar / Cancelar / Fechar e
+Salvar como módulo.
 """
 
 import bpy  # type: ignore
@@ -10,6 +16,7 @@ import bpy  # type: ignore
 from ..customize import spec
 from ..data import units
 from ..data.i18n import tr
+from ..selection import classify
 from . import bridge, props, window
 from .ops_actions import selected_path
 
@@ -27,16 +34,48 @@ class _EditorPanel:
         return window.is_editor_area(context)
 
 
-class BTM_PT_CabinetEditorDimensions(_EditorPanel, bpy.types.Panel):
-    bl_label = "Medidas"
-    bl_idname = "BTM_PT_cabinet_editor_dimensions"
-    bl_order = 1
+class _TabPanel(_EditorPanel):
+    """Painel que só aparece numa aba (`TAB`)."""
+    TAB = 'STRUCTURE'
+
+    @classmethod
+    def poll(cls, context):
+        return window.is_editor_area(context) and context.window_manager.btm_cabinet_editor.tab == cls.TAB
+
+
+class BTM_PT_CabinetEditorTabs(_EditorPanel, bpy.types.Panel):
+    bl_label = "Editor de Armário"
+    bl_idname = "BTM_PT_cabinet_editor_tabs"
+    bl_order = 0
+    bl_options = {'HIDE_HEADER'}
 
     def draw(self, context):
         s = props.session()
         ui = context.window_manager.btm_cabinet_editor
         layout = self.layout
-        layout.label(text=s.root_name, icon='MOD_BUILD')
+        col = layout.column(align=True)
+        library = tr(classify.LIBRARY_LABELS.get(s.library, s.library or ""))
+        col.label(text="{}  ·  {}".format(s.root_name, library) if library else s.root_name, icon='MOD_BUILD')
+        status = col.row()
+        status.active = False
+        status.label(text=tr("Rascunho alterado") if s.draft.dirty() else tr("Sem alterações"))
+        layout.row().prop_tabs_enum(ui, "tab")
+        if s.error:
+            box = layout.box()
+            box.alert = True
+            box.label(text=tr(s.error), icon='ERROR')
+
+
+class BTM_PT_CabinetEditorDimensions(_TabPanel, bpy.types.Panel):
+    bl_label = "Medidas"
+    bl_idname = "BTM_PT_cabinet_editor_dimensions"
+    bl_order = 1
+    TAB = 'STRUCTURE'
+
+    def draw(self, context):
+        s = props.session()
+        ui = context.window_manager.btm_cabinet_editor
+        layout = self.layout
         unit = units.get_scene_length_unit(context.scene)
         col = layout.column(align=True)
         for field in ('width', 'height', 'depth'):
@@ -44,14 +83,9 @@ class BTM_PT_CabinetEditorDimensions(_EditorPanel, bpy.types.Panel):
             row.alert = bool(s.dim_messages.get(field))
             row.prop(ui, field)
             lo, hi = s.limits[field]
-            col.label(text=tr("faixa: {} – {}").format(units.format_length(lo, unit), units.format_length(hi, unit)))
-        row = layout.row(align=True)
-        row.operator("caffmob.cabinet_editor_history", text=tr("Desfazer"), icon='LOOP_BACK').redo = False
-        row.operator("caffmob.cabinet_editor_history", text=tr("Refazer"), icon='LOOP_FORWARDS').redo = True
-        if s.error:
-            box = layout.box()
-            box.alert = True
-            box.label(text=tr(s.error), icon='ERROR')
+            hint = col.row()
+            hint.active = False
+            hint.label(text=tr("faixa: {} – {}").format(units.format_length(lo, unit), units.format_length(hi, unit)))
 
 
 class BTM_UL_CabinetEditorComponents(bpy.types.UIList):
@@ -60,10 +94,11 @@ class BTM_UL_CabinetEditorComponents(bpy.types.UIList):
         layout.label(text=item.label, icon=icon)
 
 
-class BTM_PT_CabinetEditorComponents(_EditorPanel, bpy.types.Panel):
+class BTM_PT_CabinetEditorComponents(_TabPanel, bpy.types.Panel):
     bl_label = "Componentes"
     bl_idname = "BTM_PT_cabinet_editor_components"
     bl_order = 2
+    TAB = 'FINISH'
 
     def draw(self, context):
         ui = context.window_manager.btm_cabinet_editor
@@ -79,10 +114,11 @@ def _edit(layout, action, text, icon, **values):
     return op
 
 
-class BTM_PT_CabinetEditorCustomize(_EditorPanel, bpy.types.Panel):
+class BTM_PT_CabinetEditorCustomize(_TabPanel, bpy.types.Panel):
     bl_label = "Personalizar"
     bl_idname = "BTM_PT_cabinet_editor_customize"
     bl_order = 3
+    TAB = 'FINISH'
 
     def draw(self, context):
         s = props.session()
@@ -127,7 +163,7 @@ class BTM_PT_CabinetEditorCustomize(_EditorPanel, bpy.types.Panel):
 class BTM_PT_CabinetEditorMessages(_EditorPanel, bpy.types.Panel):
     bl_label = "Mensagens"
     bl_idname = "BTM_PT_cabinet_editor_messages"
-    bl_order = 4
+    bl_order = 90
 
     def draw(self, context):
         ui = context.window_manager.btm_cabinet_editor
@@ -153,7 +189,7 @@ class BTM_PT_CabinetEditorMessages(_EditorPanel, bpy.types.Panel):
 class BTM_PT_CabinetEditorAdjustments(_EditorPanel, bpy.types.Panel):
     bl_label = "Ajustes automáticos"
     bl_idname = "BTM_PT_cabinet_editor_adjustments"
-    bl_order = 5
+    bl_order = 91
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
@@ -178,6 +214,9 @@ class BTM_PT_CabinetEditorConfirm(_EditorPanel, bpy.types.Panel):
     def draw(self, context):
         s = props.session()
         layout = self.layout
+        row = layout.row(align=True)
+        row.operator("caffmob.cabinet_editor_history", text=tr("Desfazer"), icon='LOOP_BACK').redo = False
+        row.operator("caffmob.cabinet_editor_history", text=tr("Refazer"), icon='LOOP_FORWARDS').redo = True
         if s.blocking():
             box = layout.box()
             box.alert = True
@@ -191,7 +230,7 @@ class BTM_PT_CabinetEditorConfirm(_EditorPanel, bpy.types.Panel):
         row.operator("caffmob.cabinet_editor_save_module", text=tr("Salvar como módulo"), icon='FILE_TICK')
 
 
-classes = (BTM_PT_CabinetEditorDimensions, BTM_UL_CabinetEditorComponents, BTM_PT_CabinetEditorComponents,
+classes = (BTM_PT_CabinetEditorTabs, BTM_PT_CabinetEditorDimensions, BTM_UL_CabinetEditorComponents, BTM_PT_CabinetEditorComponents,
            BTM_PT_CabinetEditorCustomize, BTM_PT_CabinetEditorMessages, BTM_PT_CabinetEditorAdjustments,
            BTM_PT_CabinetEditorConfirm)
 

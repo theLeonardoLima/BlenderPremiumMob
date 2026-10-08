@@ -46,7 +46,8 @@ def record_to_part(record, values):
     component = record.component
     known = component in schema.COMPONENTS_BY_CODE and record.line in schema.LINE_CODES
     if known:
-        material = str(_value(values, schema.sheet_key(record.line, component, 'material'), DEFAULT_MATERIAL))
+        material = record.material or str(       # sobrescrita no armário vence o Configurador (feature 006)
+            _value(values, schema.sheet_key(record.line, component, 'material'), DEFAULT_MATERIAL))
         edges = []
         for side in range(1, 5):
             if record.edge_thickness is not None:

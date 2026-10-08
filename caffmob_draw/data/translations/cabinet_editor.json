@@ -1,0 +1,382 @@
+{
+ "0 = a espessura da Divisória no Configurador de Dimensões": {
+  "en_US": "0 = the Divider thickness in the Dimension Configurator",
+  "pt_BR": "0 = a espessura da Divisória no Configurador de Dimensões"
+ },
+ "0 = segue o Configurador": {
+  "en_US": "0 = follows the Configurator",
+  "pt_BR": "0 = segue o Configurador"
+ },
+ "0 = volta ao valor do Configurador de Dimensões": {
+  "en_US": "0 = back to the Dimension Configurator value",
+  "pt_BR": "0 = volta ao valor do Configurador de Dimensões"
+ },
+ "Aba": {
+  "en_US": "Tab",
+  "pt_BR": "Aba"
+ },
+ "Adiciona uma chapa de divisão no vão escolhido, com a orientação e os recuos marcados": {
+  "en_US": "Adds a division panel in the chosen space, with the selected orientation and setbacks",
+  "pt_BR": "Adiciona uma chapa de divisão no vão escolhido, com a orientação e os recuos marcados"
+ },
+ "Adicionar": {
+  "en_US": "Add",
+  "pt_BR": "Adicionar"
+ },
+ "Adicionar divisão": {
+  "en_US": "Add division",
+  "pt_BR": "Adicionar divisão"
+ },
+ "Adicionar em {}": {
+  "en_US": "Add in {}",
+  "pt_BR": "Adicionar em {}"
+ },
+ "Ao remover": {
+  "en_US": "When removing",
+  "pt_BR": "Ao remover"
+ },
+ "As chapas vizinhas avançam até a borda; o vão interno cresce": {
+  "en_US": "The neighbouring panels reach the edge; the inner space grows",
+  "pt_BR": "As chapas vizinhas avançam até a borda; o vão interno cresce"
+ },
+ "As medidas externas diminuem pela espessura da chapa; o vão interno fica igual": {
+  "en_US": "The outer size shrinks by the panel thickness; the inner space stays the same",
+  "pt_BR": "As medidas externas diminuem pela espessura da chapa; o vão interno fica igual"
+ },
+ "Base": {
+  "en_US": "Bottom",
+  "pt_BR": "Base"
+ },
+ "Base: ao remover": {
+  "en_US": "Bottom: when removing",
+  "pt_BR": "Base: ao remover"
+ },
+ "Base: espessura": {
+  "en_US": "Bottom: thickness",
+  "pt_BR": "Base: espessura"
+ },
+ "Chapa de baixo": {
+  "en_US": "Bottom panel",
+  "pt_BR": "Chapa de baixo"
+ },
+ "Chapa de cima": {
+  "en_US": "Top panel",
+  "pt_BR": "Chapa de cima"
+ },
+ "Chapa de trás": {
+  "en_US": "Back panel",
+  "pt_BR": "Chapa de trás"
+ },
+ "Chapa deitada: separa cima e baixo": {
+  "en_US": "Lying panel: splits top and bottom",
+  "pt_BR": "Chapa deitada: separa cima e baixo"
+ },
+ "Chapa em pé: separa esquerda e direita": {
+  "en_US": "Upright panel: splits left and right",
+  "pt_BR": "Chapa em pé: separa esquerda e direita"
+ },
+ "Chapa: {} {} (Configurador › {})": {
+  "en_US": "Sheet: {} {} (Configurator › {})",
+  "pt_BR": "Chapa: {} {} (Configurador › {})"
+ },
+ "Chapas de divisão vertical e horizontal": {
+  "en_US": "Vertical and horizontal division panels",
+  "pt_BR": "Chapas de divisão vertical e horizontal"
+ },
+ "Componentes externos": {
+  "en_US": "External parts",
+  "pt_BR": "Componentes externos"
+ },
+ "Deixe pelo menos {} de cada lado": {
+  "en_US": "Leave at least {} on each side",
+  "pt_BR": "Deixe pelo menos {} de cada lado"
+ },
+ "Devolve o componente removido (e desfaz o ajuste de medidas do modo usado)": {
+  "en_US": "Brings the removed part back (and undoes the size change of the mode used)",
+  "pt_BR": "Devolve o componente removido (e desfaz o ajuste de medidas do modo usado)"
+ },
+ "Diminua os recuos": {
+  "en_US": "Reduce the setbacks",
+  "pt_BR": "Diminua os recuos"
+ },
+ "Distância da face esquerda (vertical) ou de baixo (horizontal) do vão até a chapa": {
+  "en_US": "Distance from the left face (vertical) or the bottom face (horizontal) of the space to the panel",
+  "pt_BR": "Distância da face esquerda (vertical) ou de baixo (horizontal) do vão até a chapa"
+ },
+ "Divisão": {
+  "en_US": "Divisions",
+  "pt_BR": "Divisão"
+ },
+ "Divisões": {
+  "en_US": "Divisions",
+  "pt_BR": "Divisões"
+ },
+ "Do Configurador": {
+  "en_US": "From the Configurator",
+  "pt_BR": "Do Configurador"
+ },
+ "Edita a posição, os recuos, o material e a espessura da divisão": {
+  "en_US": "Edits the position, setbacks, material and thickness of the division",
+  "pt_BR": "Edita a posição, os recuos, o material e a espessura da divisão"
+ },
+ "Edita o material e a espessura do componente neste armário": {
+  "en_US": "Edits the material and thickness of the part in this cabinet",
+  "pt_BR": "Edita o material e a espessura do componente neste armário"
+ },
+ "Editar divisão": {
+  "en_US": "Edit division",
+  "pt_BR": "Editar divisão"
+ },
+ "Escolha um vão livre para a divisão": {
+  "en_US": "Choose a free space for the division",
+  "pt_BR": "Escolha um vão livre para a divisão"
+ },
+ "Escolha um vão livre: clique nele na vista ou escolha na lista": {
+  "en_US": "Choose a free space: click it in the view or pick it from the list",
+  "pt_BR": "Escolha um vão livre: clique nele na vista ou escolha na lista"
+ },
+ "Esta biblioteca não ajusta as chapas vizinhas; use Manter tudo": {
+  "en_US": "This library does not adjust neighbouring panels; use Keep everything",
+  "pt_BR": "Esta biblioteca não ajusta as chapas vizinhas; use Manter tudo"
+ },
+ "Esta biblioteca não tem estrutura editável": {
+  "en_US": "This library has no editable structure",
+  "pt_BR": "Esta biblioteca não tem estrutura editável"
+ },
+ "Estender as vizinhas": {
+  "en_US": "Extend the neighbours",
+  "pt_BR": "Estender as vizinhas"
+ },
+ "Estrutura": {
+  "en_US": "Structure",
+  "pt_BR": "Estrutura"
+ },
+ "Face frame ainda não entra no plano de corte": {
+  "en_US": "Face frame is not in the cut plan yet",
+  "pt_BR": "Face frame ainda não entra no plano de corte"
+ },
+ "Frentes, puxadores e materiais": {
+  "en_US": "Fronts, pulls and materials",
+  "pt_BR": "Frentes, puxadores e materiais"
+ },
+ "Fundo: ao remover": {
+  "en_US": "Back: when removing",
+  "pt_BR": "Fundo: ao remover"
+ },
+ "Fundo: espessura": {
+  "en_US": "Back: thickness",
+  "pt_BR": "Fundo: espessura"
+ },
+ "Indisponível": {
+  "en_US": "Unavailable",
+  "pt_BR": "Indisponível"
+ },
+ "Lateral direita": {
+  "en_US": "Right side",
+  "pt_BR": "Lateral direita"
+ },
+ "Lateral direita: ao remover": {
+  "en_US": "Right side: when removing",
+  "pt_BR": "Lateral direita: ao remover"
+ },
+ "Lateral direita: espessura": {
+  "en_US": "Right side: thickness",
+  "pt_BR": "Lateral direita: espessura"
+ },
+ "Lateral esquerda": {
+  "en_US": "Left side",
+  "pt_BR": "Lateral esquerda"
+ },
+ "Lateral esquerda: ao remover": {
+  "en_US": "Left side: when removing",
+  "pt_BR": "Lateral esquerda: ao remover"
+ },
+ "Lateral esquerda: espessura": {
+  "en_US": "Left side: thickness",
+  "pt_BR": "Lateral esquerda: espessura"
+ },
+ "Manter tudo": {
+  "en_US": "Keep everything",
+  "pt_BR": "Manter tudo"
+ },
+ "Material da chapa": {
+  "en_US": "Sheet material",
+  "pt_BR": "Material da chapa"
+ },
+ "Medidas e demais chapas ficam onde estão; só a chapa sai": {
+  "en_US": "Sizes and the other panels stay where they are; only this panel is removed",
+  "pt_BR": "Medidas e demais chapas ficam onde estão; só a chapa sai"
+ },
+ "Medidas externas e componentes externos": {
+  "en_US": "Outer sizes and external parts",
+  "pt_BR": "Medidas externas e componentes externos"
+ },
+ "Modo desconhecido": {
+  "en_US": "Unknown mode",
+  "pt_BR": "Modo desconhecido"
+ },
+ "Nenhuma divisão. Escolha um vão e clique em Adicionar.": {
+  "en_US": "No divisions. Choose a space and click Add.",
+  "pt_BR": "Nenhuma divisão. Escolha um vão e clique em Adicionar."
+ },
+ "Nova divisão": {
+  "en_US": "New division",
+  "pt_BR": "Nova divisão"
+ },
+ "Recuo atrás": {
+  "en_US": "Back setback",
+  "pt_BR": "Recuo atrás"
+ },
+ "Recuo da frente": {
+  "en_US": "Front setback size",
+  "pt_BR": "Recuo da frente"
+ },
+ "Recuo de trás": {
+  "en_US": "Back setback size",
+  "pt_BR": "Recuo de trás"
+ },
+ "Recuo na frente": {
+  "en_US": "Front setback",
+  "pt_BR": "Recuo na frente"
+ },
+ "Reduzir o armário": {
+  "en_US": "Shrink the cabinet",
+  "pt_BR": "Reduzir o armário"
+ },
+ "Remova a divisão ou escolha outro vão": {
+  "en_US": "Remove the division or choose another space",
+  "pt_BR": "Remova a divisão ou escolha outro vão"
+ },
+ "Remove a divisão (e as que estão dentro dos vãos dela)": {
+  "en_US": "Removes the division (and the ones inside its spaces)",
+  "pt_BR": "Remove a divisão (e as que estão dentro dos vãos dela)"
+ },
+ "Remove o componente externo do armário": {
+  "en_US": "Removes the external part from the cabinet",
+  "pt_BR": "Remove o componente externo do armário"
+ },
+ "Remover componente": {
+  "en_US": "Remove part",
+  "pt_BR": "Remover componente"
+ },
+ "Remover divisão": {
+  "en_US": "Remove division",
+  "pt_BR": "Remover divisão"
+ },
+ "Remover {}": {
+  "en_US": "Remove {}",
+  "pt_BR": "Remover {}"
+ },
+ "Removido": {
+  "en_US": "Removed",
+  "pt_BR": "Removido"
+ },
+ "Restaurar": {
+  "en_US": "Restore",
+  "pt_BR": "Restaurar"
+ },
+ "Restaurar componente": {
+  "en_US": "Restore part",
+  "pt_BR": "Restaurar componente"
+ },
+ "Segue o Configurador de Dimensões": {
+  "en_US": "Follows the Dimension Configurator",
+  "pt_BR": "Segue o Configurador de Dimensões"
+ },
+ "Sem vão interno": {
+  "en_US": "No inner space",
+  "pt_BR": "Sem vão interno"
+ },
+ "Subvão": {
+  "en_US": "Sub-space",
+  "pt_BR": "Subvão"
+ },
+ "Tampo": {
+  "en_US": "Top",
+  "pt_BR": "Tampo"
+ },
+ "Tampo: ao remover": {
+  "en_US": "Top: when removing",
+  "pt_BR": "Tampo: ao remover"
+ },
+ "Tampo: espessura": {
+  "en_US": "Top: thickness",
+  "pt_BR": "Tampo: espessura"
+ },
+ "Use uma espessura dentro da faixa": {
+  "en_US": "Use a thickness within the range",
+  "pt_BR": "Use uma espessura dentro da faixa"
+ },
+ "Vazio = segue o Configurador": {
+  "en_US": "Empty = follows the Configurator",
+  "pt_BR": "Vazio = segue o Configurador"
+ },
+ "Vão": {
+  "en_US": "Space",
+  "pt_BR": "Vão"
+ },
+ "Vão {}": {
+  "en_US": "Space {}",
+  "pt_BR": "Vão {}"
+ },
+ "alterado": {
+  "en_US": "changed",
+  "pt_BR": "alterado"
+ },
+ "componente desconhecido: {!r}": {
+  "en_US": "unknown part: {!r}",
+  "pt_BR": "componente desconhecido: {!r}"
+ },
+ "de baixo": {
+  "en_US": "bottom",
+  "pt_BR": "de baixo"
+ },
+ "de cima": {
+  "en_US": "top",
+  "pt_BR": "de cima"
+ },
+ "direito": {
+  "en_US": "right",
+  "pt_BR": "direito"
+ },
+ "esquerdo": {
+  "en_US": "left",
+  "pt_BR": "esquerdo"
+ },
+ "frente {}": {
+  "en_US": "front {}",
+  "pt_BR": "frente {}"
+ },
+ "medida negativa em {}": {
+  "en_US": "negative size in {}",
+  "pt_BR": "medida negativa em {}"
+ },
+ "medida negativa numa divisão": {
+  "en_US": "negative size in a division",
+  "pt_BR": "medida negativa numa divisão"
+ },
+ "modo desconhecido: {!r}": {
+  "en_US": "unknown mode: {!r}",
+  "pt_BR": "modo desconhecido: {!r}"
+ },
+ "orientação desconhecida: {!r}": {
+  "en_US": "unknown orientation: {!r}",
+  "pt_BR": "orientação desconhecida: {!r}"
+ },
+ "ou clique no vão na vista": {
+  "en_US": "or click the space in the view",
+  "pt_BR": "ou clique no vão na vista"
+ },
+ "removido": {
+  "en_US": "removed",
+  "pt_BR": "removido"
+ },
+ "trás {}": {
+  "en_US": "back {}",
+  "pt_BR": "trás {}"
+ },
+ "vão mal formado: {!r}": {
+  "en_US": "malformed space: {!r}",
+  "pt_BR": "vão mal formado: {!r}"
+ }
+}

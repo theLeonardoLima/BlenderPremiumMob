@@ -20,7 +20,7 @@
 | `removed` | Bool | False | RN-04 |
 | `mode` | Enum `KEEP`, `EXTEND`, `SHRINK` | `KEEP` | RN-06 (Manter tudo, Estender as vizinhas, Reduzir o armário) |
 | `thickness` | Float (m), 0 = segue | 0.0 | RN-05, sobrescrita por armário |
-| `material` | String (nome do material) | "" | RN-05; a peça também recebe `btm_custom.material` (003) |
+| `material` | String (material da chapa: MDF, MDP…) | "" | RN-05; gravado na peça como `btm_raw_material`, que o plano de corte usa no lugar do Configurador. O acabamento visual continua na aba Acabamento (`btm_custom.material`, 003) |
 
 ### 1.2 `Object.btm_division` (`BTM_PG_Division`, em cada objeto de divisão)
 
@@ -49,14 +49,17 @@ Os objetos de divisão também carregam `btm_component = 'DIV'` (string), lido p
 | `space` | Enum dinâmico (subvãos-folha) | o único, ou o último escolhido |
 | `divisions`, `division_index` | Collection de espelho + índice | — |
 | `structure`, `structure_index` | Collection de espelho + índice | — |
-| `remove_mode` | Enum `KEEP`, `EXTEND`, `SHRINK` | `KEEP` |
+| ~~`remove_mode`~~ | — | — |
+
+> Na codificação, o modo deixou de ser campo do painel: o ✕ abre uma janela com os três modos (decisão do brief de
+> desenho, T025). Os espelhos ficaram `structure` e `divisions` (sem índice em uso).
 
 ### 1.4 `BTM_PG_CabinetProperties` (módulo `btm`, `data/properties.py`)
 
 | Campo | Tipo | Padrão | Uso |
 |-------|------|--------|-----|
 | `has_top`, `has_bottom`, `has_back`, `has_left`, `has_right` | Bool | True | Painéis gerados por `generate_cabinet_mesh` |
-| `extend_mode_*` | Enum `KEEP`/`EXTEND`/`SHRINK` (por painel) | `KEEP` | Conta da vizinhança no `btm` (D-08) |
+| `mode_*` | Enum `KEEP`/`EXTEND`/`SHRINK` (por painel) | `KEEP` | Conta da vizinhança no `btm` (D-08); `SHRINK` gera a mesma malha do `EXTEND` e o adaptador reduz a medida |
 | `thickness_top`, `thickness_bottom`, `thickness_back`, `thickness_left`, `thickness_right` | Float (m), 0 = `thickness` | 0.0 | Espessura por componente |
 
 ### 1.5 Rascunho do editor (`cabinet_editor/state.EditorState`, em memória)

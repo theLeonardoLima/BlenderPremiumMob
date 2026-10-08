@@ -323,3 +323,72 @@ def reapply(context, root):
 
 def describe(root):
     return json.dumps(spec.to_dict(read(root)), ensure_ascii=False)
+
+
+# Estrutura e divisões (feature 006, T014-T016) ------------------------------------------------------------------
+# Peças da caixa por nome (filhos diretos da raiz). Uma espessura só para a caixa (`Material Thickness`, por driver):
+# a sobrescrita tira o driver da peça e voltar ao padrão o recria (D-09). Estender as vizinhas só na base, pelo
+# `Remove Bottom` nativo, que baixa o bay e alonga o fundo (D-08).
+STRUCTURE_NAMES = {'Left Side': 'LEFT', 'Right Side': 'RIGHT', 'Bottom': 'BOTTOM', 'Top': 'TOP', 'Back': 'BACK'}
+REMOVE_BOTTOM = 'Remove Bottom'
+MATERIAL_THICKNESS = 'Material Thickness'
+
+
+def inner_spaces(context, root):
+    return common.cage_spaces(context, root, _self(), BAY_TAG)
+
+
+def _self():
+    import sys
+    return sys.modules[__name__]
+
+
+def structure_parts(root):
+    return common.parts_by_name(root, STRUCTURE_NAMES)
+
+
+def structure_caps(root):
+    caps = common.keep_only_caps(structure_parts(root))
+    if 'BOTTOM' in caps and REMOVE_BOTTOM in root:
+        caps['BOTTOM']['modes']['EXTEND'] = None
+    return caps
+
+
+def _calc(context, root):
+    hb_utils.run_calc_fix(context, root)
+
+
+def remove_part(context, root, role, mode):
+    if role == 'BOTTOM' and mode == 'EXTEND':
+        root[REMOVE_BOTTOM] = True
+        _calc(context, root)
+        return []
+    for obj in structure_parts(root).get(role, ()):
+        common.set_removed(obj, True)
+    _calc(context, root)
+    return []
+
+
+def restore_part(context, root, role, mode):
+    if role == 'BOTTOM' and mode == 'EXTEND' and root.get(REMOVE_BOTTOM):
+        root[REMOVE_BOTTOM] = False
+    for obj in structure_parts(root).get(role, ()):
+        common.set_removed(obj, False)
+    _calc(context, root)
+    return []
+
+
+def set_part_thickness(context, root, role, value):
+    for obj in structure_parts(root).get(role, ()):
+        if value > 0.0:
+            common.set_cutpart_thickness(obj, value, drop_driver=True)
+        elif MATERIAL_THICKNESS in root:
+            part = hb_types.GeoNodeObject(obj)
+            mt = hb_types.GeoNodeObject(root).var_prop(MATERIAL_THICKNESS, 'mt')
+            part.driver_input('Thickness', 'mt', [mt])
+    _calc(context, root)
+    return []
+
+
+def reaffirm(context, root):
+    return common.reaffirm_parts(context, root, _self(), drop_driver=True)

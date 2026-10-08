@@ -2,6 +2,9 @@
 
 O módulo é uma malha única (`geometry/mesh_gen.py`) com portas filhas (`geometry/door_controller.py`). Um só vão:
 o próprio módulo. Gavetas, divisórias e estilos de porta não existem nessa linha e aparecem com o motivo.
+
+Estrutura (feature 006, T013): as cinco chapas são faces da malha, controladas por `btm_cabinet.has_*`, `mode_*` e
+`thickness_*`; os três modos de remoção valem em todas (D-08). O vão interno sai de `cabinet_editor/structure.layout`.
 """
 
 from ...data.i18n import N_, tr
@@ -104,3 +107,90 @@ def reapply(context, root):
             door_controller.set_door_pull(root, door, pull_source, custom.pull_position, length)
         door_controller.set_door_material(door, front_mat)
     return common.unique(warnings)
+
+
+# Estrutura e divisões (feature 006) ---------------------------------------------------------------------------
+def _layout(cab, full=False):
+    from ...cabinet_editor import structure as st
+    from ...data.properties import structure_of
+    data = structure_of(cab)
+    thick = {role: data[role][2] for role in st.ROLES}
+    states = {} if full else {role: st.RoleState(removed=not present, mode=mode)
+                              for role, (present, mode, _t) in data.items() if not present}
+    return st.layout(cab.width, cab.height, cab.depth, thick, states), thick
+
+
+def inner_spaces(context, root):
+    from ...cabinet_editor.divisions import Box
+    (_panels, inner), _thick = _layout(root.btm_cabinet)
+    return {"s0": Box(*inner)}
+
+
+def structure_parts(root):
+    return {}                   # as chapas não são objetos: `structure_info` e `elevation_parts` cobrem a malha
+
+
+def structure_info(context, root):
+    (panels, _inner), thick = _layout(root.btm_cabinet, full=True)
+    out = {}
+    for role, (lo, hi) in panels.items():
+        sizes = sorted((hi[i] - lo[i] for i in range(3)), reverse=True)
+        out[role] = {'size': (sizes[0], sizes[1]), 'thickness': thick[role],
+                     'removed': not getattr(root.btm_cabinet, 'has_' + role.lower())}
+    return out
+
+
+def elevation_parts(context, root):
+    """Chapas presentes da malha como peças da vista frontal: [(nome, papel, lo, hi)] no referencial da raiz."""
+    from ...cabinet_editor import structure as st
+    (panels, _inner), _thick = _layout(root.btm_cabinet)
+    return [(tr(st.ROLE_LABELS[role]), role, lo, hi) for role, (lo, hi) in panels.items()]
+
+
+def structure_caps(root):
+    modes = {'KEEP': None, 'EXTEND': None, 'SHRINK': None}
+    return {role: {'remove': None, 'thickness': None, 'modes': dict(modes)}
+            for role in ('TOP', 'BOTTOM', 'BACK', 'LEFT', 'RIGHT')}
+
+
+def _shrink(root, role, sign):
+    from mathutils import Vector  # type: ignore
+    from ...cabinet_editor import structure as st
+    cab = root.btm_cabinet
+    thickness = float(getattr(cab, 'thickness_' + role.lower())) or float(cab.thickness)
+    delta, shift = st.shrink_change(role, thickness)
+    for field, value in delta.items():
+        setattr(cab, field, getattr(cab, field) + sign * value)
+    root.location += root.matrix_basis.to_3x3() @ (Vector(shift) * sign)
+
+
+def remove_part(context, root, role, mode):
+    cab = root.btm_cabinet
+    if not getattr(cab, 'has_' + role.lower()):
+        return []
+    setattr(cab, 'mode_' + role.lower(), mode)
+    setattr(cab, 'has_' + role.lower(), False)
+    if mode == 'SHRINK':
+        _shrink(root, role, +1)
+    return []
+
+
+def restore_part(context, root, role, mode):
+    cab = root.btm_cabinet
+    if getattr(cab, 'has_' + role.lower()):
+        return []
+    if getattr(cab, 'mode_' + role.lower()) == 'SHRINK':
+        _shrink(root, role, -1)
+    setattr(cab, 'has_' + role.lower(), True)
+    setattr(cab, 'mode_' + role.lower(), 'KEEP')
+    return []
+
+
+def set_part_thickness(context, root, role, value):
+    setattr(root.btm_cabinet, 'thickness_' + role.lower(), float(value))
+    return []
+
+
+def reaffirm(context, root):
+    return []                   # tudo vive em `btm_cabinet`: a malha refeita já sai certa
+

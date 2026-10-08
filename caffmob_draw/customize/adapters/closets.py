@@ -189,3 +189,69 @@ def reapply(context, root):
             if mat is not None and not front.btm_custom.material:
                 common.set_cutpart_material(front, mat)
     return common.unique(warnings)
+
+
+# Estrutura e divisões (feature 006, T017) -----------------------------------------------------------------------
+# O closets refaz posições e medidas a cada recálculo: remoção e espessura ficam em `root.btm_structure` e são
+# reafirmadas em `after_rebuild` (D-07, D-09). Laterais = primeiro e último painel; base e tampo = prateleiras
+# fixas de baixo e de cima de cada bay; fundo = fundo aplicado (só ilhas). Só Manter tudo (D-08).
+_ROLE_BY_PART = {'CLOSET_BOTTOM_SHELF': 'BOTTOM', 'CLOSET_TOP_SHELF': 'TOP', 'CLOSET_APPLIED_BACK': 'BACK',
+                 'CLOSET_CENTER_BACK': 'BACK'}
+
+
+def _self():
+    import sys
+    return sys.modules[__name__]
+
+
+def inner_spaces(context, root):
+    return common.cage_spaces(context, root, _self(), _tc().TAG_OPENING_CAGE)
+
+
+def structure_parts(root):
+    out = {}
+    panels = [o for o in root.children_recursive if o.get('hb_part_role') == 'CLOSET_PANEL']
+    if panels:
+        panels.sort(key=lambda o: o.get('hb_panel_index', 0))
+        out['LEFT'] = [panels[0]]
+        if len(panels) > 1:
+            out['RIGHT'] = [panels[-1]]
+    for obj in root.children_recursive:
+        role = _ROLE_BY_PART.get(obj.get('hb_part_role'))
+        if role is not None and common.is_cutpart(obj):
+            out.setdefault(role, []).append(obj)
+    return out
+
+
+def structure_caps(root):
+    return common.keep_only_caps(structure_parts(root))
+
+
+def _recalc(root):
+    _tc().recalculate_closet_starter(root)
+
+
+def remove_part(context, root, role, mode):
+    for obj in structure_parts(root).get(role, ()):
+        common.set_removed(obj, True)
+    return []
+
+
+def restore_part(context, root, role, mode):
+    for obj in structure_parts(root).get(role, ()):
+        common.set_removed(obj, False)
+    _recalc(root)                       # a biblioteca volta a decidir o que fica escondido (base removida etc.)
+    return []
+
+
+def set_part_thickness(context, root, role, value):
+    if value > 0.0:
+        for obj in structure_parts(root).get(role, ()):
+            common.set_cutpart_thickness(obj, value)
+    else:
+        _recalc(root)
+    return []
+
+
+def reaffirm(context, root):
+    return common.reaffirm_parts(context, root, _self())

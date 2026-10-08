@@ -3,6 +3,9 @@
 Não têm `UNDO`: só registram um pedido na sessão (`props.Session.push`); quem edita o módulo é o modal do editor, para
 que o Blender crie um passo de desfazer só no Confirmar. As edições são as da 003 sobre o vão do componente
 selecionado (frente, estilo, puxador, material, divisões internas) e o desfazer/refazer do rascunho.
+
+Feature 006 (T022): abas Estrutura e Divisão — adicionar, editar e remover divisão; editar, remover (com o modo) e
+restaurar componente externo. Também só registram o pedido.
 """
 
 import bpy  # type: ignore
@@ -12,6 +15,9 @@ from ..customize.props import PULL_POSITION_ITEMS
 from ..data import units
 from ..data.i18n import N_, tr
 from . import bridge, props
+from .data_props import MATERIAL_ITEMS, MODE_ITEMS as REMOVE_MODE_ITEMS
+from .structure import ROLE_LABELS
+
 
 _ENUM_CACHE = {}
 
@@ -187,7 +193,198 @@ class BTM_OT_CabinetEditorSaveModule(bpy.types.Operator):
         return bpy.ops.caffmob.module_save('INVOKE_DEFAULT')
 
 
-classes = (BTM_OT_CabinetEditorEdit, BTM_OT_CabinetEditorHistory, BTM_OT_CabinetEditorSaveModule)
+# Feature 006 --------------------------------------------------------------------------------------------------
+def _push(action, data, targets=()):
+    s = props.session()
+    s.push('edit', (action, dict(data, targets=list(targets))))
+
+
+def _division(uid):
+    _s, root = _session_root()
+    if root is None:
+        return None
+    return next((o for o in root.children if getattr(o, 'btm_division', None) is not None
+                 and o.btm_division.is_division and o.btm_division.uid == uid), None)
+
+
+class _SessionOperator:
+    bl_options = {'REGISTER', 'INTERNAL'}
+
+    @classmethod
+    def poll(cls, context):
+        return props.session() is not None and props.session().root() is not None
+
+
+class BTM_OT_CabinetEditorDivisionAdd(_SessionOperator, bpy.types.Operator):
+    """Adiciona uma chapa de divisão no vão escolhido, com a orientação e os recuos marcados"""
+    bl_idname = "caffmob.cabinet_editor_division_add"
+    bl_label = "Adicionar divisão"
+
+    def execute(self, context):
+        s = props.session()
+        ui = context.window_manager.btm_cabinet_editor
+        if not s.space or s.space not in s.spaces:
+            self.report({'WARNING'}, tr("Escolha um vão livre: clique nele na vista ou escolha na lista"))
+            return {'CANCELLED'}
+        _push('ADD_DIVISION', {'space': s.space, 'orientation': ui.new_orientation,
+                               'use_front': ui.new_use_front, 'front': ui.new_front,
+                               'use_back': ui.new_use_back, 'back': ui.new_back})
+        return {'FINISHED'}
+
+
+class BTM_OT_CabinetEditorDivisionEdit(_SessionOperator, bpy.types.Operator):
+    """Edita a posição, os recuos, o material e a espessura da divisão"""
+    bl_idname = "caffmob.cabinet_editor_division_edit"
+    bl_label = "Editar divisão"
+
+    uid: bpy.props.StringProperty(options={'HIDDEN'})  # type: ignore
+    offset: bpy.props.FloatProperty(
+        name="Posição", subtype='DISTANCE', unit='LENGTH', min=0.0,
+        description="Distância da face esquerda (vertical) ou de baixo (horizontal) do vão até a chapa")  # type: ignore
+    use_front: bpy.props.BoolProperty(name="Recuo na frente")  # type: ignore
+    front: bpy.props.FloatProperty(name="Recuo da frente", subtype='DISTANCE', unit='LENGTH', min=0.0)  # type: ignore
+    use_back: bpy.props.BoolProperty(name="Recuo atrás")  # type: ignore
+    back: bpy.props.FloatProperty(name="Recuo de trás", subtype='DISTANCE', unit='LENGTH', min=0.0)  # type: ignore
+    thickness: bpy.props.FloatProperty(
+        name="Espessura", subtype='DISTANCE', unit='LENGTH', min=0.0,
+        description="0 = a espessura da Divisória no Configurador de Dimensões")  # type: ignore
+    material: bpy.props.EnumProperty(name="Material da chapa", items=MATERIAL_ITEMS)  # type: ignore
+
+    def invoke(self, context, event):
+        obj = _division(self.uid)
+        if obj is None:
+            return {'CANCELLED'}
+        d = obj.btm_division
+        self.offset, self.use_front, self.front = d.offset, d.use_front, d.front
+        self.use_back, self.back, self.thickness = d.use_back, d.back, d.thickness
+        self.material = d.material if d.material in {i[0] for i in MATERIAL_ITEMS} else ''
+        return context.window_manager.invoke_props_dialog(self, title=obj.name)
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.prop(self, "offset")
+        row = layout.row(heading=tr("Recuo na frente"))
+        row.prop(self, "use_front", text="")
+        sub = row.row()
+        sub.active = self.use_front
+        sub.prop(self, "front", text="")
+        row = layout.row(heading=tr("Recuo atrás"))
+        row.prop(self, "use_back", text="")
+        sub = row.row()
+        sub.active = self.use_back
+        sub.prop(self, "back", text="")
+        layout.prop(self, "thickness")
+        layout.prop(self, "material")
+
+    def execute(self, context):
+        obj = _division(self.uid)
+        _push('EDIT_DIVISION', {'uid': self.uid, 'offset': self.offset, 'use_front': self.use_front,
+                                'front': self.front, 'use_back': self.use_back, 'back': self.back,
+                                'thickness': self.thickness, 'material': self.material},
+              [obj.name] if obj is not None else ())
+        return {'FINISHED'}
+
+
+class BTM_OT_CabinetEditorDivisionRemove(_SessionOperator, bpy.types.Operator):
+    """Remove a divisão (e as que estão dentro dos vãos dela)"""
+    bl_idname = "caffmob.cabinet_editor_division_remove"
+    bl_label = "Remover divisão"
+
+    uid: bpy.props.StringProperty(options={'HIDDEN'})  # type: ignore
+
+    def execute(self, context):
+        _push('REMOVE_DIVISION', {'uid': self.uid})
+        return {'FINISHED'}
+
+
+class BTM_OT_CabinetEditorPartRemove(_SessionOperator, bpy.types.Operator):
+    """Remove o componente externo do armário"""
+    bl_idname = "caffmob.cabinet_editor_part_remove"
+    bl_label = "Remover componente"
+
+    role: bpy.props.StringProperty(options={'HIDDEN'})  # type: ignore
+    mode: bpy.props.EnumProperty(name="Ao remover", items=REMOVE_MODE_ITEMS, default='KEEP')  # type: ignore
+
+    def _caps(self):
+        _s, root = _session_root()
+        if root is None:
+            return {}
+        from ..customize.adapters import common
+        return common.call(bridge.adapter_of(root), 'structure_caps', root).get(self.role, {}).get('modes', {})
+
+    def invoke(self, context, event):
+        self.mode = 'KEEP'
+        title = tr("Remover {}").format(tr(ROLE_LABELS.get(self.role, self.role)).lower())
+        return context.window_manager.invoke_props_dialog(self, title=title, confirm_text=tr("Remover"))
+
+    def draw(self, context):
+        caps = self._caps()
+        col = self.layout.column()
+        for key, label, help_text in REMOVE_MODE_ITEMS:
+            reason = caps.get(key, tr("Indisponível"))
+            row = col.row()
+            row.enabled = reason is None
+            row.prop_enum(self, "mode", key, text=tr(label))
+            sub = col.row()
+            sub.enabled = False
+            sub.label(text=reason if reason else tr(help_text))
+            col.separator(factor=0.5)
+
+    def execute(self, context):
+        reason = self._caps().get(self.mode, tr("Indisponível"))
+        if reason is not None:
+            self.report({'WARNING'}, reason)
+            return {'CANCELLED'}
+        _push('REMOVE_PART', {'role': self.role, 'mode': self.mode})
+        return {'FINISHED'}
+
+
+class BTM_OT_CabinetEditorPartRestore(_SessionOperator, bpy.types.Operator):
+    """Devolve o componente removido (e desfaz o ajuste de medidas do modo usado)"""
+    bl_idname = "caffmob.cabinet_editor_part_restore"
+    bl_label = "Restaurar componente"
+
+    role: bpy.props.StringProperty(options={'HIDDEN'})  # type: ignore
+
+    def execute(self, context):
+        _push('RESTORE_PART', {'role': self.role})
+        return {'FINISHED'}
+
+
+class BTM_OT_CabinetEditorPartEdit(_SessionOperator, bpy.types.Operator):
+    """Edita o material e a espessura do componente neste armário"""
+    bl_idname = "caffmob.cabinet_editor_part_edit"
+    bl_label = "Editar componente"
+
+    role: bpy.props.StringProperty(options={'HIDDEN'})  # type: ignore
+    thickness: bpy.props.FloatProperty(
+        name="Espessura", subtype='DISTANCE', unit='LENGTH', min=0.0, max=0.06,
+        description="0 = volta ao valor do Configurador de Dimensões")  # type: ignore
+    material: bpy.props.EnumProperty(name="Material da chapa", items=MATERIAL_ITEMS)  # type: ignore
+
+    def invoke(self, context, event):
+        _s, root = _session_root()
+        entry = root.btm_structure.item(self.role) if root is not None else None
+        self.thickness = entry.thickness if entry is not None else 0.0
+        material = entry.material if entry is not None else ''
+        self.material = material if material in {i[0] for i in MATERIAL_ITEMS} else ''
+        return context.window_manager.invoke_props_dialog(self, title=tr(ROLE_LABELS.get(self.role, self.role)))
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.prop(self, "thickness")
+        layout.prop(self, "material")
+
+    def execute(self, context):
+        _push('EDIT_PART', {'role': self.role, 'thickness': self.thickness, 'material': self.material})
+        return {'FINISHED'}
+
+
+classes = (BTM_OT_CabinetEditorEdit, BTM_OT_CabinetEditorHistory, BTM_OT_CabinetEditorSaveModule,
+           BTM_OT_CabinetEditorDivisionAdd, BTM_OT_CabinetEditorDivisionEdit, BTM_OT_CabinetEditorDivisionRemove,
+           BTM_OT_CabinetEditorPartRemove, BTM_OT_CabinetEditorPartRestore, BTM_OT_CabinetEditorPartEdit)
 
 
 def register():
