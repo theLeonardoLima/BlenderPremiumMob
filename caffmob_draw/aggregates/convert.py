@@ -2,6 +2,9 @@
 
 O objeto vira filho Blender do pai (mover, girar e apagar o pai o levam junto), preso à face do pai mais próxima.
 O pai e a matriz originais ficam guardados para desconverter sem perda.
+
+Feature 007 (T016): um grupo de peças (Empty com `btm_group`) também pode virar agregado ou folha, e uma esquadria
+(grupo FRAME) pode ser o pai.
 """
 
 import bpy  # type: ignore
@@ -12,7 +15,8 @@ from . import apply, limits
 
 
 def can_convert(obj, parent):
-    if obj is None or obj.type != 'MESH':
+    from . import group
+    if obj is None or (obj.type != 'MESH' and not group.is_group(obj)):      # grupo de peças: feature 007, D-05
         return tr("Selecione um objeto de malha para converter")
     if parent is None:
         return tr("Selecione também o elemento pai (por último, como ativo)")

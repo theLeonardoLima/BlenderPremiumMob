@@ -1,5 +1,8 @@
 """Dados do agregado e da folha de porta convertida (feature 003, T008; data-delta §1, D-12 a D-19).
 
+Feature 007 (T003): `contact_kind` (abrir ou fechar), `free_travel` (curso livre até a esquadria, teto do `travel`)
+e `rest_overlap` (sobreposição dos montantes no arquivo, para o batente de fechar).
+
 Os `update` delegam para os módulos de aplicação (import tardio). `_guard` evita recursão quando a aplicação
 grava de volta o valor ajustado ao limite (RN-08).
 """
@@ -53,6 +56,14 @@ def _open(obj, context):
     leaf.update_open(obj, context)
 
 
+def _travel(obj, context):
+    agg = obj.btm_aggregate
+    if agg.free_travel > 0.0 and agg.travel > agg.free_travel + 1e-6:
+        from . import apply
+        apply._write(obj, 'travel', agg.free_travel)          # não passa da esquadria (RN-07)
+    _open(obj, context)
+
+
 def _leaf_setup(obj, context):
     from . import leaf
     leaf.rebuild_pivot(obj)
@@ -99,12 +110,17 @@ class BTM_PG_Aggregate(bpy.types.PropertyGroup):
     slide_dir: bpy.props.EnumProperty(name="Sentido", items=SLIDE_ITEMS, default='POS_X',
                                       update=_guarded('slide_dir', _leaf_setup))  # type: ignore
     travel: bpy.props.FloatProperty(name="Curso", default=0.5, min=0.001, subtype='DISTANCE', unit='LENGTH',
-                                    update=_guarded('travel', _open))  # type: ignore
+                                    update=_guarded('travel', _travel))  # type: ignore
     open_value: bpy.props.FloatProperty(
         name="Abertura", min=0.0, max=1.0, subtype='FACTOR',
         description="0 = fechada; 1 = abertura máxima. Para ao encostar em parede ou objeto",
         update=_guarded('open_value', _open))  # type: ignore
     contact_name: bpy.props.StringProperty(name="Encostou em")  # type: ignore
+    contact_kind: bpy.props.EnumProperty(
+        items=[('NONE', "Nenhum", ""), ('OPEN', "Abrindo", ""), ('CLOSE', "Fechando", "")],
+        default='NONE')  # type: ignore
+    free_travel: bpy.props.FloatProperty(subtype='DISTANCE', unit='LENGTH', min=0.0)  # type: ignore
+    rest_overlap: bpy.props.FloatProperty(subtype='DISTANCE', unit='LENGTH')  # type: ignore
     pivot: bpy.props.PointerProperty(type=bpy.types.Object)  # type: ignore
 
 

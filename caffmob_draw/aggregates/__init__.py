@@ -6,13 +6,17 @@
 - `perforate`, `production`: recorte 3D, furo real e peça de produção
 - `leaf`, `collision`, `overlay`: folha de porta, parada na batida e simulação gráfica
 - `ops_import`, `ops_aggregate`, `panels`: importação, operadores e painel
+- Feature 007: `import_units`, `grouping`, `slide_limits` (núcleos puros); `group_props`, `group`, `ops_group` (grupo
+  de peças e Montar esquadria); `window_props`, `install`, `ops_install` (janela na parede)
 """
 
 
 def _modules():
     # Import tardio: `limits` e `sweep` são usados nos testes fora do Blender sem carregar `bpy`.
-    from . import apply, collision, ops_aggregate, ops_import, overlay, panels, props
-    return (props, apply, collision, ops_import, ops_aggregate, overlay, panels)
+    from . import (apply, collision, group_props, ops_aggregate, ops_group, ops_import, ops_install, overlay, panels,
+                   props, window_props)
+    return (props, group_props, window_props, apply, collision, ops_import, ops_aggregate, ops_group, ops_install,
+            overlay, panels)
 
 
 def register():

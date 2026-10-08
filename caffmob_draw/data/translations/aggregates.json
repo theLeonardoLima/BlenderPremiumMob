@@ -278,5 +278,197 @@
  "Ângulo máximo": {
   "pt_BR": "Ângulo máximo",
   "en_US": "Maximum angle"
+ },
+ "A janela já está instalada": {
+  "pt_BR": "A janela já está instalada",
+  "en_US": "The window is already installed"
+ },
+ "Abrindo": {
+  "pt_BR": "Abrindo",
+  "en_US": "Opening"
+ },
+ "Automática": {
+  "pt_BR": "Automática",
+  "en_US": "Automatic"
+ },
+ "Converta a parede pelo editor de paredes antes de instalar": {
+  "pt_BR": "Converta a parede pelo editor de paredes antes de instalar",
+  "en_US": "Convert the wall with the wall editor before installing"
+ },
+ "Criar grupo": {
+  "pt_BR": "Criar grupo",
+  "en_US": "Create group"
+ },
+ "Desfaz o grupo: as peças voltam soltas, com nome e material intactos": {
+  "pt_BR": "Desfaz o grupo: as peças voltam soltas, com nome e material intactos",
+  "en_US": "Ungroups: the parts come back loose, with name and material intact"
+ },
+ "Desfazer grupo": {
+  "pt_BR": "Desfazer grupo",
+  "en_US": "Ungroup"
+ },
+ "Desinstalar": {
+  "pt_BR": "Desinstalar",
+  "en_US": "Uninstall"
+ },
+ "Desliza no trilho": {
+  "pt_BR": "Desliza no trilho",
+  "en_US": "Slides on the track"
+ },
+ "Eixo vertical": {
+  "pt_BR": "Eixo vertical",
+  "en_US": "Up axis"
+ },
+ "Escolha ao menos um grupo como esquadria": {
+  "pt_BR": "Escolha ao menos um grupo como esquadria",
+  "en_US": "Choose at least one group as the frame"
+ },
+ "Esquadria": {
+  "pt_BR": "Esquadria",
+  "en_US": "Frame"
+ },
+ "Esquadria: {}": {
+  "pt_BR": "Esquadria: {}",
+  "en_US": "Frame: {}"
+ },
+ "Fechando": {
+  "pt_BR": "Fechando",
+  "en_US": "Closing"
+ },
+ "Fica solta": {
+  "pt_BR": "Fica solta",
+  "en_US": "Stays loose"
+ },
+ "Folha": {
+  "pt_BR": "Folha",
+  "en_US": "Sash"
+ },
+ "Folha de correr": {
+  "pt_BR": "Folha de correr",
+  "en_US": "Sliding sash"
+ },
+ "Folha de giro": {
+  "pt_BR": "Folha de giro",
+  "en_US": "Swing sash"
+ },
+ "Folha encostou em {}": {
+  "pt_BR": "Folha encostou em {}",
+  "en_US": "Sash stopped against {}"
+ },
+ "Gira num eixo": {
+  "pt_BR": "Gira num eixo",
+  "en_US": "Turns on a hinge"
+ },
+ "Grupo {} com {} peça(s)": {
+  "pt_BR": "Grupo {} com {} peça(s)",
+  "en_US": "Group {} with {} part(s)"
+ },
+ "Grupo {} desfeito: {} peça(s)": {
+  "pt_BR": "Grupo {} desfeito: {} peça(s)",
+  "en_US": "Group {} ungrouped: {} part(s)"
+ },
+ "Ignorar": {
+  "pt_BR": "Ignorar",
+  "en_US": "Ignore"
+ },
+ "Instala a janela importada na parede selecionada, cortando o vão": {
+  "pt_BR": "Instala a janela importada na parede selecionada, cortando o vão",
+  "en_US": "Installs the imported window on the selected wall, cutting the opening"
+ },
+ "Instalar na parede": {
+  "pt_BR": "Instalar na parede",
+  "en_US": "Install on wall"
+ },
+ "Janela desinstalada": {
+  "pt_BR": "Janela desinstalada",
+  "en_US": "Window uninstalled"
+ },
+ "Junta as peças selecionadas num grupo que se move como uma coisa só (as peças continuam separadas)": {
+  "pt_BR": "Junta as peças selecionadas num grupo que se move como uma coisa só (as peças continuam separadas)",
+  "en_US": "Joins the selected parts into a group that moves as one (the parts stay separate)"
+ },
+ "Mede o modelo: mais de 50 unidades numa medida = milímetros": {
+  "pt_BR": "Mede o modelo: mais de 50 unidades numa medida = milímetros",
+  "en_US": "Measures the model: more than 50 units in a dimension = millimeters"
+ },
+ "Monta a janela ou porta a partir das peças selecionadas: sugere a esquadria e as folhas pelo nome das peças": {
+  "pt_BR": "Monta a janela ou porta a partir das peças selecionadas: sugere a esquadria e as folhas pelo nome das peças",
+  "en_US": "Assembles the window or door from the selected parts: suggests the frame and the sashes from the part names"
+ },
+ "Montar esquadria": {
+  "pt_BR": "Montar esquadria",
+  "en_US": "Assemble frame"
+ },
+ "Nenhum": {
+  "pt_BR": "Nenhum",
+  "en_US": "None"
+ },
+ "O arquivo usa Y para cima (padrão do OBJ do Blender, glTF)": {
+  "pt_BR": "O arquivo usa Y para cima (padrão do OBJ do Blender, glTF)",
+  "en_US": "The file uses Y up (Blender OBJ default, glTF)"
+ },
+ "O arquivo usa Z para cima (SketchUp, Promob, a maioria dos CAD)": {
+  "pt_BR": "O arquivo usa Z para cima (SketchUp, Promob, a maioria dos CAD)",
+  "en_US": "The file uses Z up (SketchUp, Promob, most CAD tools)"
+ },
+ "Papel": {
+  "pt_BR": "Papel",
+  "en_US": "Role"
+ },
+ "Parte fixa": {
+  "pt_BR": "Parte fixa",
+  "en_US": "Fixed part"
+ },
+ "Parte fixa da janela ou porta: marco, bordas, trilhos e guias": {
+  "pt_BR": "Parte fixa da janela ou porta: marco, bordas, trilhos e guias",
+  "en_US": "Fixed part of the window or door: jamb, trims, tracks and guides"
+ },
+ "Parte móvel: abre e fecha": {
+  "pt_BR": "Parte móvel: abre e fecha",
+  "en_US": "Moving part: opens and closes"
+ },
+ "Peças que se movem juntas": {
+  "pt_BR": "Peças que se movem juntas",
+  "en_US": "Parts that move together"
+ },
+ "Pouco curso para este lado: inverta o sentido": {
+  "pt_BR": "Pouco curso para este lado: inverta o sentido",
+  "en_US": "Little travel on this side: reverse the direction"
+ },
+ "Selecione a esquadria (Montar esquadria) e a parede": {
+  "pt_BR": "Selecione a esquadria (Montar esquadria) e a parede",
+  "en_US": "Select the frame (Assemble frame) and the wall"
+ },
+ "Selecione as peças do grupo": {
+  "pt_BR": "Selecione as peças do grupo",
+  "en_US": "Select the parts of the group"
+ },
+ "Selecione também a parede": {
+  "pt_BR": "Selecione também a parede",
+  "en_US": "Also select the wall"
+ },
+ "Tira a janela da parede: ela fica solta no mesmo lugar e o vão fecha": {
+  "pt_BR": "Tira a janela da parede: ela fica solta no mesmo lugar e o vão fecha",
+  "en_US": "Takes the window off the wall: it stays loose in place and the opening closes"
+ },
+ "Unidade do arquivo": {
+  "pt_BR": "Unidade do arquivo",
+  "en_US": "File unit"
+ },
+ "{} ({} peças)": {
+  "pt_BR": "{} ({} peças)",
+  "en_US": "{} ({} parts)"
+ },
+ "{} instalada em {}": {
+  "pt_BR": "{} instalada em {}",
+  "en_US": "{} installed on {}"
+ },
+ "{} malha(s) importada(s), unidade: {}. Selecione o pai por último e use \"Converter em agregado\" ou \"Montar esquadria\"": {
+  "pt_BR": "{} malha(s) importada(s), unidade: {}. Selecione o pai por último e use \"Converter em agregado\" ou \"Montar esquadria\"",
+  "en_US": "{} mesh(es) imported, unit: {}. Select the parent last and use \"Convert to aggregate\" or \"Assemble frame\""
+ },
+ "{}: esquadria com {} peça(s) e {} folha(s)": {
+  "pt_BR": "{}: esquadria com {} peça(s) e {} folha(s)",
+  "en_US": "{}: frame with {} part(s) and {} sash(es)"
  }
 }

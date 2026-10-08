@@ -4,6 +4,10 @@ Reaproveita a ideia da verificação de interferência da 001 (`inspection/inter
 `BVHTree.overlap`. A folha numa pose é a caixa dela (8 cantos, encolhida 1 mm para não acusar o encosto de fechada).
 Os alvos (BVH dos objetos visíveis, fora a folha, o pivô e o módulo do pai) ficam em cache por folha e são descartados
 quando qualquer outro objeto muda (`depsgraph_update_post`).
+
+Feature 007 (T017; D-05, D-07): a folha pode ser um grupo de peças (a caixa é a união delas). Quando o pai é uma
+esquadria (grupo FRAME), as peças da esquadria **contam** como obstáculo; saem do teste só a própria folha (pivô e
+peças) e as outras folhas da mesma esquadria, cujo batente é o dos montantes (`slide_limits`).
 """
 
 import bpy  # type: ignore
@@ -29,14 +33,32 @@ def _overlap(a, b):
     return all(a[0][i] <= b[1][i] and b[0][i] <= a[1][i] for i in range(3))
 
 
-def _excluded(obj):
-    agg = obj.btm_aggregate
-    parent = agg.parent_ref
+def _own(obj):
     names = {obj.name}
     pivot = leaf.pivot_of(obj)
     if pivot is not None:
         names.add(pivot.name)
     names.update(c.name for c in obj.children_recursive)
+    return names
+
+
+def invalidate(obj=None):
+    """Descarta o cache de alvos (de uma folha ou de todas)."""
+    if obj is None:
+        _cache.clear()
+    else:
+        _cache.pop(obj.name, None)
+
+
+def _excluded(obj):
+    agg = obj.btm_aggregate
+    parent = agg.parent_ref
+    names = _own(obj)
+    if leaf.frame_of(obj) is not None:            # esquadria: só a folha e as irmãs saem (D-07)
+        for other in leaf.sibling_leaves(obj):
+            names |= _own(other)
+        names.add(parent.name)
+        return names
     if parent is not None:
         root = fronts.module_root_of(parent) or parent
         names.add(root.name)
@@ -87,8 +109,7 @@ class Tester:
         self.parent_world = self.agg.parent_ref.matrix_world.copy()
         self.base = leaf._base(obj)
         self.local = obj.matrix_basis.copy()          # folha no espaço do pivô (fixo)
-        depsgraph = bpy.context.evaluated_depsgraph_get()
-        corners = [Vector(c) for c in obj.evaluated_get(depsgraph).bound_box]
+        corners = leaf.local_corners(obj)
         center = sum(corners, Vector()) / 8.0
         self.corners = [c + (center - c).normalized() * SHRINK if (center - c).length > SHRINK else c
                         for c in corners]

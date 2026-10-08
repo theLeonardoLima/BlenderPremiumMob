@@ -15,8 +15,10 @@ _addon_keymaps = []
 
 
 def _selected_meshes(context):
+    from . import group
     parent = context.active_object
-    return parent, [o for o in context.selected_objects if o is not parent and o.type == 'MESH']
+    return parent, [o for o in context.selected_objects if o is not parent
+                    and (o.type == 'MESH' or group.is_group(o))]      # grupo de peças (feature 007)
 
 
 def _aggregates(context):

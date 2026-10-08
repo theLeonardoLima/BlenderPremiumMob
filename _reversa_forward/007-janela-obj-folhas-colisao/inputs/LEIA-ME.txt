@@ -1,0 +1,13 @@
+JANELA PRETA DE CORRER — DUAS FOLHAS
+
+Largura externa: 1400 mm, conforme solicitado.
+Altura: 850 mm, estimada pela proporção da imagem gerada.
+Profundidade: 80 mm, estimada.
+Perfis e ferragens são aproximações visuais, sem levantamento técnico.
+
+Importação: unidades em MILÍMETROS. Eixo Z vertical.
+No Blender, se trabalhar em metros, importe com escala 0,001.
+Mantenha janela_preta_1400mm.obj e janela_preta_1400mm.mtl na mesma pasta.
+O MTL contém o acabamento preto e o vidro transparente; a aparência do vidro depende do programa usado.
+Cada perfil, folha, vidro, trilho e puxador tem nome próprio no OBJ.
+As folhas estão fechadas em trilhos distintos e podem ser movidas horizontalmente pelo programa 3D.

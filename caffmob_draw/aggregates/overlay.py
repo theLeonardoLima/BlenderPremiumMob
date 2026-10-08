@@ -3,6 +3,9 @@
 Com uma folha convertida ativa (a própria malha ou o pivô), desenha na viewport: o eixo de giro (ou o trilho do
 correr), o caminho da borda livre do fechado até o máximo, a folha na posição atual e, se ela bateu, a caixa da folha
 em vermelho com o nome do objeto. O handler fica registrado com o add-on e só desenha quando há folha ativa.
+
+Feature 007 (T024; D-11): a folha ativa pode ser uma peça de um grupo-folha; a **peça de contato** também é
+destacada, e o texto diz "Folha bateu em" (abrindo) ou "Folha encostou em" (fechando).
 """
 
 import blf  # type: ignore
@@ -29,6 +32,11 @@ def _active_leaf(context):
         return None
     if obj.get('btm_leaf'):
         obj = bpy.data.objects.get(obj['btm_leaf'])
+    node = obj
+    while node is not None and not (getattr(node, 'btm_aggregate', None) is not None
+                                    and node.btm_aggregate.is_aggregate and node.btm_aggregate.kind == 'LEAF'):
+        node = node.parent                         # peça de um grupo-folha (feature 007)
+    obj = node or obj
     agg = getattr(obj, 'btm_aggregate', None) if obj is not None else None
     if agg is None or not agg.is_aggregate or agg.kind != 'LEAF' or leaf.pivot_of(obj) is None:
         return None
@@ -82,7 +90,21 @@ def _draw_3d():
     _lines(shader, axis_lines, AXIS_COLOR, 3.0, region)
     _lines(shader, _box_lines(current), HIT_COLOR if agg.contact_name else LEAF_COLOR,
            3.0 if agg.contact_name else 1.5, region)
+    contact = bpy.data.objects.get(agg.contact_name) if agg.contact_name else None
+    if contact is not None:
+        _lines(shader, _box_lines(_world_box(contact)), HIT_COLOR, 2.5, region)
     gpu.state.blend_set('NONE')
+
+
+def _world_box(obj):
+    """Cantos da caixa da peça de contato no mundo (de um grupo: da união das peças)."""
+    from mathutils import Vector  # type: ignore
+    from . import group
+    if group.is_group(obj):
+        local = group.box_corners(*group.group_box(obj, obj.matrix_world))
+    else:
+        local = [Vector(c) for c in obj.bound_box]
+    return [obj.matrix_world @ c for c in local]
 
 
 def _draw_2d():
@@ -94,7 +116,8 @@ def _draw_2d():
     co = location_3d_to_region_2d(region, rv3d, obj.matrix_world.translation)
     if co is None:
         return
-    text = tr("Folha bateu em {}").format(obj.btm_aggregate.contact_name)
+    message = "Folha encostou em {}" if obj.btm_aggregate.contact_kind == 'CLOSE' else "Folha bateu em {}"
+    text = tr(message).format(obj.btm_aggregate.contact_name)
     blf.size(0, 14)
     blf.color(0, 0.0, 0.0, 0.0, 0.85)
     blf.position(0, co.x + 11, co.y + 9, 0)

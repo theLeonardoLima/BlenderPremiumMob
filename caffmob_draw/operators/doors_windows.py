@@ -188,6 +188,22 @@ def _draw_placement_dimensions(op):
     gpu.state.blend_set('NONE')
 
 
+def cut_wall(wall_obj, cutting_obj):
+    """Corta o vão na parede com um boolean DIFFERENCE (EXACT) pelo objeto cortador; devolve o modificador.
+
+    Função de módulo desde a feature 007 (T004), para a janela importada instalada fora do modal.
+    """
+    mod_name = f"Boolean_{cutting_obj.name}"
+    if mod_name in wall_obj.modifiers:
+        return wall_obj.modifiers[mod_name]
+    mod = wall_obj.modifiers.new(name=mod_name, type='BOOLEAN')
+    mod.operation = 'DIFFERENCE'
+    mod.object = cutting_obj
+    mod.solver = 'EXACT'
+    cutting_obj.hide_render = True
+    return mod
+
+
 class WallObjectPlacementMixin(hb_placement.PlacementMixin):
     """
     Extended placement mixin for objects placed on walls (doors, windows, cabinets).
@@ -429,23 +445,7 @@ class WallObjectPlacementMixin(hb_placement.PlacementMixin):
 
     def cut_wall(self, wall_obj, cutting_obj):
         """Add a boolean modifier to the wall to cut a hole for the door/window."""
-        # Create a unique modifier name based on the cutting object
-        mod_name = f"Boolean_{cutting_obj.name}"
-
-        # Check if modifier already exists
-        if mod_name in wall_obj.modifiers:
-            return wall_obj.modifiers[mod_name]
-
-        # Add boolean modifier
-        mod = wall_obj.modifiers.new(name=mod_name, type='BOOLEAN')
-        mod.operation = 'DIFFERENCE'
-        mod.object = cutting_obj
-        mod.solver = 'EXACT'
-
-        # Hide the cutting object from render
-        cutting_obj.hide_render = True
-
-        return mod
+        return cut_wall(wall_obj, cutting_obj)
 
     def find_nearest_wall_to_cursor(self, threshold=0.3):
         """Find the closest wall to the current hit location in 2D plan-view

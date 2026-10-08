@@ -3,21 +3,45 @@
 Subpainel de "Propriedades" (`BTM_PT_object_properties`, feature 002): importar, converter e, para o objeto ativo
 convertido, pai, face, posição com mínimo/máximo, afastamento, Perfurar, Furo real, Peça de produção; para a folha,
 movimento, eixo, sentido, máximo ou curso, a barra de abertura e o aviso de batida.
+
+Feature 007 (T025): Criar grupo, Desfazer grupo e Montar esquadria junto de Converter; a folha ativa pode ser uma peça
+de um grupo-folha; aviso de pouco curso; contato "bateu em"/"encostou em"; Instalar/Desinstalar para a esquadria.
 """
 
 import bpy  # type: ignore
 
 from ..data.i18n import tr
 from ..data import units
-from . import apply, leaf, limits, perforate
+from . import apply, install, leaf, limits, perforate
 
 
 def _active_aggregate(context):
     obj = context.active_object
     if obj is not None and obj.get('btm_leaf'):
         obj = bpy.data.objects.get(obj['btm_leaf'])
-    agg = getattr(obj, 'btm_aggregate', None) if obj is not None else None
-    return obj if agg is not None and agg.is_aggregate else None
+    node = obj
+    while node is not None:                       # peça de um grupo: sobe até o grupo convertido (feature 007)
+        agg = getattr(node, 'btm_aggregate', None)
+        if agg is not None and agg.is_aggregate:
+            return node
+        node = node.parent
+    return None
+
+
+def _draw_frame(layout, context):
+    """Esquadria (grupo FRAME) ativa ou instalada: Instalar / Desinstalar (feature 007, RN-03)."""
+    obj = context.active_object
+    frame = install.frame_of(obj) if obj is not None else None
+    if obj is not None and obj.get(install.WINDOW_FLAG) and obj.btm_window.frame is not None:
+        frame = obj.btm_window.frame
+    if frame is None:
+        return
+    box = layout.box()
+    box.label(text=tr("Esquadria: {}").format(frame.name), icon='MOD_WIREFRAME')
+    if install.cage_of(frame) is not None:
+        box.operator("caffmob.window_uninstall", icon='UNLINKED')
+    else:
+        box.operator("caffmob.window_install", icon='MOD_BOOLEAN')
 
 
 def _fmt(context, value):
@@ -31,6 +55,11 @@ def draw_aggregate(layout, context, include_import=True):
     col = layout.column(align=True)
     col.operator("caffmob.aggregate_convert", icon='LINKED')
     col.operator("caffmob.leaf_convert", icon='MOD_SIMPLEDEFORM')
+    col.operator("caffmob.window_assemble", icon='MOD_BUILD')
+    row = col.row(align=True)
+    row.operator("caffmob.group_create", icon='GROUP')
+    row.operator("caffmob.group_dissolve", text=tr("Desfazer grupo"), icon='X')
+    _draw_frame(layout, context)
     obj = _active_aggregate(context)
     if obj is None:
         layout.label(text="Selecione a malha e, por último, o elemento pai.", icon='INFO')
@@ -74,11 +103,16 @@ def draw_aggregate(layout, context, include_import=True):
         else:
             box.prop(agg, "slide_dir")
             box.prop(agg, "travel")
+            if leaf.low_travel(obj):
+                row = box.row()
+                row.alert = True
+                row.label(text=tr("Pouco curso para este lado: inverta o sentido"), icon='INFO')
         box.prop(agg, "open_value", slider=True)
         if agg.contact_name:
             row = box.row()
             row.alert = True
-            row.label(text=tr("Folha bateu em {}").format(agg.contact_name), icon='ERROR')
+            message = "Folha encostou em {}" if agg.contact_kind == 'CLOSE' else "Folha bateu em {}"
+            row.label(text=tr(message).format(agg.contact_name), icon='ERROR')
         if leaf.pivot_of(obj) is None:
             box.label(text="Pivô ausente; desconverta e converta de novo", icon='ERROR')
     layout.operator("caffmob.aggregate_unconvert", icon='UNLINKED')
