@@ -447,6 +447,78 @@ _MODAL_TOGGLE_BUTTONS = [
 ]
 
 
+# Ações do item ativo (feature 005, T027; RF-12, D-14): a terceira linha do HUD mostra até 4 ações do objeto
+# selecionado, com o mesmo rótulo do menu do botão direito e da barra lateral (`ui/sidebar_vocab.py`). Mover Sobre já
+# está na linha dos modos, então não se repete aqui.
+_HUD_ITEM_KEYS = ('STICK', 'RELEASE', 'STICK_MOVE', 'CABINET_EDITOR', 'CHECK_ITEM')
+_HUD_ITEM_MAX = 4
+
+
+def item_actions(context):
+    try:
+        from ..ui import context_menu
+        actions = context_menu.item_actions(context)
+    except (AttributeError, ReferenceError):
+        return []
+    return [a for a in actions if a[0] in _HUD_ITEM_KEYS][:_HUD_ITEM_MAX]
+
+
+class _ItemActionButton:
+    """Botão da linha de ações do item: a ação de número `slot` de `item_actions`."""
+
+    def __init__(self, slot):
+        self.slot = slot
+
+    def _action(self, context):
+        actions = item_actions(context)
+        return actions[self.slot] if self.slot < len(actions) else None
+
+    def _label(self, context):
+        from ..ui import sidebar_vocab
+        action = self._action(context)
+        return tr(sidebar_vocab.action(action[0])[1]) if action else ""
+
+    @property
+    def width(self):
+        s = _s()
+        blf.size(0, FONT_SIZE * s)
+        return int(blf.dimensions(0, self._label(bpy.context))[0] + 24 * s)
+
+    def visible(self, context):
+        return self._action(context) is not None
+
+    def draw(self, shader, font_id, rect, context, mouse):
+        rx, ry, rw, rh = rect
+        hovered = point_in_rect(mouse[0], mouse[1], rect)
+        draw_rect(shader, rx, ry, rw, rh, BTN_HOVER_BG if hovered else BTN_BG)
+        draw_rect_outline(shader, rx, ry, rw, rh, BTN_BORDER)
+        _draw_centered_text(font_id, rect, FONT_SIZE * _s(), TEXT_NORMAL, self._label(context))
+
+    def on_click(self, context, area, region):
+        from ..ui import sidebar_vocab
+        action = self._action(context)
+        if action is None:
+            return
+        idname = sidebar_vocab.action(action[0])[0]
+        ns, name = idname.split('.')
+        try:
+            with context.temp_override(area=area, region=region):
+                getattr(getattr(bpy.ops, ns), name)('INVOKE_DEFAULT', **action[1])
+        except Exception:
+            pass
+
+
+_ITEM_BUTTONS = [_ItemActionButton(i) for i in range(_HUD_ITEM_MAX)]
+
+
+def inventory_operators():
+    """Operadores alcançáveis pelo HUD (inventário da barra lateral, feature 005)."""
+    from ..ui import sidebar_vocab
+    ops = [b.op_idname for b in _MODAL_TOGGLE_BUTTONS]
+    ops += [sidebar_vocab.action(k)[0] for k in _HUD_ITEM_KEYS]
+    return sorted(set(ops))
+
+
 def _rows():
     """Centered HUD rows, top to bottom. Each row is a list of widget groups;
     groups are separated by GROUP_GAP, widgets within a group by BTN_GAP, and
@@ -462,6 +534,7 @@ def _rows():
     return [
         [_MODE_BUTTONS],
         [_MODAL_TOGGLE_BUTTONS],
+        [_ITEM_BUTTONS],
     ]
 
 

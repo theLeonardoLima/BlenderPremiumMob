@@ -51,7 +51,7 @@ A fita só entra na peça quando o módulo tem fita naquela borda. A espessura v
 
 ## 3. Lista de peças e plano de corte
 
-Na aba **PLANO DE CORTE**:
+Em **Produção/Projeto** › **Plano de corte**:
 
 1. **Calcular Plano de Corte** lê as peças reais dos módulos e monta a lista. Cada peça traz componente, medidas de corte, espessura, matéria-prima, acabamento e fitas. O cálculo distribui as peças em chapas, separadas por matéria-prima, espessura e acabamento.
 2. **Peças maiores que o limite de chapa** do componente aparecem em vermelho, com a medida e o lado que excede.

@@ -1,0 +1,150 @@
+{
+ "Aberturas": {
+  "pt_BR": "Aberturas",
+  "en_US": "Openings"
+ },
+ "Abrir frentes": {
+  "pt_BR": "Abrir frentes",
+  "en_US": "Open fronts"
+ },
+ "Ambientes": {
+  "pt_BR": "Ambientes",
+  "en_US": "Rooms"
+ },
+ "Construir": {
+  "pt_BR": "Construir",
+  "en_US": "Build"
+ },
+ "Desenhar na Viewport 3D os atalhos de navegação, os modos de seleção e as ações do item selecionado": {
+  "pt_BR": "Desenhar na Viewport 3D os atalhos de navegação, os modos de seleção e as ações do item selecionado",
+  "en_US": "Draw navigation shortcuts, selection modes and the selected item's actions in the 3D Viewport"
+ },
+ "Desenhe uma parede primeiro": {
+  "pt_BR": "Desenhe uma parede primeiro",
+  "en_US": "Draw a wall first"
+ },
+ "Desenhos 2D": {
+  "pt_BR": "Desenhos 2D",
+  "en_US": "2D drawings"
+ },
+ "Em vistas de layout e de detalhe, volte a um ambiente para construir": {
+  "pt_BR": "Em vistas de layout e de detalhe, volte a um ambiente para construir",
+  "en_US": "In layout and detail views, go back to a room to build"
+ },
+ "Escadas": {
+  "pt_BR": "Escadas",
+  "en_US": "Stairs"
+ },
+ "Fechar frentes": {
+  "pt_BR": "Fechar frentes",
+  "en_US": "Close fronts"
+ },
+ "Geometrias": {
+  "pt_BR": "Geometrias",
+  "en_US": "Geometries"
+ },
+ "Grudar em: {}": {
+  "pt_BR": "Grudar em: {}",
+  "en_US": "Stick to: {}"
+ },
+ "Grupos de gabinetes face frame do usuário": {
+  "pt_BR": "Grupos de gabinetes face frame do usuário",
+  "en_US": "User's face frame cabinet groups"
+ },
+ "Grupos de gabinetes frameless do usuário": {
+  "pt_BR": "Grupos de gabinetes frameless do usuário",
+  "en_US": "User's frameless cabinet groups"
+ },
+ "Grupos face frame": {
+  "pt_BR": "Grupos face frame",
+  "en_US": "Face frame groups"
+ },
+ "Grupos frameless": {
+  "pt_BR": "Grupos frameless",
+  "en_US": "Frameless groups"
+ },
+ "Imagem de referência": {
+  "pt_BR": "Imagem de referência",
+  "en_US": "Reference image"
+ },
+ "Inserir": {
+  "pt_BR": "Inserir",
+  "en_US": "Insert"
+ },
+ "Ligue em Produção/Projeto › Configurações": {
+  "pt_BR": "Ligue em Produção/Projeto › Configurações",
+  "en_US": "Turn it on in Production/Project › Settings"
+ },
+ "Luzes": {
+  "pt_BR": "Luzes",
+  "en_US": "Lights"
+ },
+ "Medidas e cotas": {
+  "pt_BR": "Medidas e cotas",
+  "en_US": "Dimensions and offsets"
+ },
+ "Meus módulos": {
+  "pt_BR": "Meus módulos",
+  "en_US": "My modules"
+ },
+ "Módulos salvos": {
+  "pt_BR": "Módulos salvos",
+  "en_US": "Saved modules"
+ },
+ "Módulos salvos pelo Personalizar módulo": {
+  "pt_BR": "Módulos salvos pelo Personalizar módulo",
+  "en_US": "Modules saved with Customize module"
+ },
+ "Obstáculos": {
+  "pt_BR": "Obstáculos",
+  "en_US": "Obstacles"
+ },
+ "Opções do face frame": {
+  "pt_BR": "Opções do face frame",
+  "en_US": "Face frame options"
+ },
+ "Outras e ações": {
+  "pt_BR": "Outras e ações",
+  "en_US": "Other and actions"
+ },
+ "Paredes": {
+  "pt_BR": "Paredes",
+  "en_US": "Walls"
+ },
+ "Piso e teto": {
+  "pt_BR": "Piso e teto",
+  "en_US": "Floor and ceiling"
+ },
+ "Plano de corte": {
+  "pt_BR": "Plano de corte",
+  "en_US": "Cut plan"
+ },
+ "Portas e gavetas": {
+  "pt_BR": "Portas e gavetas",
+  "en_US": "Doors and drawers"
+ },
+ "Posição e vínculo": {
+  "pt_BR": "Posição e vínculo",
+  "en_US": "Position and link"
+ },
+ "Produção/Projeto": {
+  "pt_BR": "Produção/Projeto",
+  "en_US": "Production/Project"
+ },
+ "Selecione um objeto na viewport": {
+  "pt_BR": "Selecione um objeto na viewport",
+  "en_US": "Select an object in the viewport"
+ },
+ "Todas": {
+  "pt_BR": "Todas",
+  "en_US": "All"
+ },
+ "Todos os módulos do usuário": {
+  "pt_BR": "Todos os módulos do usuário",
+  "en_US": "All user modules"
+ },
+ "Verificar": {
+  "pt_BR": "Verificar",
+  "en_US": "Check"
+ }
+}

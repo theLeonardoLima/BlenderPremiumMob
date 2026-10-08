@@ -1,0 +1,68 @@
+"""Seção Produção/Projeto (feature 005, T019; RF-06, RF-07, RN-06, D-09).
+
+Plano de corte, Ambientes, Configurações, Projeto e, recolhido, Desenhos 2D (vistas de layout, detalhes e anotações,
+que somem com a preferência "Ocultar Painéis 2D"). Os conteúdos legados vêm pelo proxy; cada um aparece uma vez.
+"""
+
+from ..data.i18n import N_
+from . import sidebar_proxy, view3d_sidebar
+from .sidebar import group_scope
+
+_DRAWINGS = (
+    ('HOME_BUILDER_PT_layout_views', ('HOME_BUILDER_PT_layout_views_create', 'HOME_BUILDER_PT_layout_views_settings',
+                                      'HOME_BUILDER_PT_layout_views_details')),
+    ('HOME_BUILDER_PT_2d_details', ()),
+    ('HOME_BUILDER_PT_annotations', ('HOME_BUILDER_PT_annotations_drawing', 'HOME_BUILDER_PT_molding_library',
+                                     'HOME_BUILDER_PT_annotations_edit', 'HOME_BUILDER_PT_annotations_plan_view_tools',
+                                     'HOME_BUILDER_PT_annotations_settings')),
+)
+
+
+def _cls(name):
+    return getattr(view3d_sidebar, name)
+
+
+def _hide_2d(context):
+    addon = context.preferences.addons.get(__package__.rsplit('.', 1)[0])
+    prefs = getattr(addon, 'preferences', None)
+    return bool(getattr(prefs, 'hide_2d_drawing_panels', False))
+
+
+def draw_drawings(layout, context):
+    for parent_name, children in _DRAWINGS:
+        parent = _cls(parent_name)
+        if not sidebar_proxy.visible(parent, context):
+            continue
+        box = layout.box()
+        box.label(text=sidebar_proxy.label_of(parent))
+        sidebar_proxy.draw_panel(parent, box, context)
+        for child_name in children:
+            child = _cls(child_name)
+            if not sidebar_proxy.visible(child, context):
+                continue
+            sub = box.box()
+            sub.label(text=sidebar_proxy.label_of(child))
+            sidebar_proxy.draw_panel(child, sub, context)
+
+
+def draw(layout, context):
+    from . import panels
+    with group_scope(layout, context, 'cut_plan', N_("Plano de corte"), 'ALIGN_JUSTIFY') as body:
+        if body is not None:
+            panels.draw_cut_plan(body, context)
+    project_panel = view3d_sidebar.HOME_BUILDER_PT_project
+    in_room = sidebar_proxy.visible(project_panel, context)     # fora de vistas de layout e de detalhe
+    with group_scope(layout, context, 'rooms', N_("Ambientes"), 'HOME') as body:
+        if body is not None and in_room:
+            sidebar_proxy.draw_panel(view3d_sidebar.HOME_BUILDER_PT_project_rooms, body, context)
+    with group_scope(layout, context, 'settings', N_("Configurações"), 'PREFERENCES') as body:
+        if body is not None:
+            panels.draw_settings(body, context)
+    with group_scope(layout, context, 'project_info', N_("Projeto"), 'INFO') as body:
+        if body is not None and in_room:
+            sidebar_proxy.draw_panel(project_panel, body, context)
+            sidebar_proxy.draw_panel(view3d_sidebar.HOME_BUILDER_PT_project_info, body, context)
+    if not _hide_2d(context):
+        with group_scope(layout, context, 'drawings_2d', N_("Desenhos 2D"), 'VIEW_ORTHO') as body:
+            if body is not None:
+                draw_drawings(body, context)

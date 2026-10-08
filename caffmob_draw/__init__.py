@@ -7,7 +7,8 @@ from bpy.app.handlers import persistent  # type: ignore
 
 # Hot-reload submodules during active development
 _submodule_names = [
-    "compat", "data", "standards", "geometry", "cutting", "inspection", "move_over", "walls2d", "geometry_free", "customize", "aggregates", "compat_identity",
+    "compat", "data", "standards", "geometry", "cutting", "inspection", "move_over", "walls2d", "geometry_free", "customize", "aggregates", "stick", "collision", "cabinet_editor",
+    "compat_identity",
     "ui", "overlays",
     "hb_props", "hb_project", "hb_props_obstacles", "ops",
     "view3d_sidebar", "menu_apend", "menus",
@@ -33,6 +34,10 @@ from . import walls2d
 from . import geometry_free
 from . import customize
 from . import aggregates
+from . import stick
+from .stick import migrate as _stick_migrate  # noqa: F401
+from . import collision
+from . import cabinet_editor
 from . import compat_identity
 from . import ui
 from . import overlays
@@ -88,6 +93,9 @@ def load_file_post(scene):
     # Padrão de Dimensões: definições embutidas e migrações M-01/M-02 (uma vez por arquivo).
     standards.migration.run(main_scene)
 
+    # Módulos já postos na parede viram elementos filhos dela (feature 004, D-08); nada se move.
+    stick.migrate.run(bpy.context.scene)
+
     # Modal operators do not survive a .blend load -- re-arm the HUD listener.
     from .operators import viewport_hud
     viewport_hud.ensure_listener()
@@ -108,8 +116,9 @@ class BTM_AddonPreferences(bpy.types.AddonPreferences):
 
     use_viewport_hud: bpy.props.BoolProperty(
         name="Controles na Viewport",
-        description="Desenhar os atalhos de navegação e modos de seleção diretamente na Viewport 3D",
-        default=False,
+        description=("Desenhar na Viewport 3D os atalhos de navegação, os modos de seleção e as ações do item "
+                     "selecionado"),
+        default=True,     # feature 005 (RF-11): ligado em instalações novas; o valor salvo pelo usuário prevalece
         update=_update_use_viewport_hud,
     )  # type: ignore
 
@@ -172,6 +181,18 @@ class BTM_AddonPreferences(bpy.types.AddonPreferences):
         default=True
     )  # type: ignore
 
+    stick_magnet: bpy.props.BoolProperty(
+        name="Ímã",
+        description=("Ao inserir ou mover pelo plugin, perto de uma face plana o item encosta nela e fica grudado "
+                     "(elemento filho). Desligado, só o comando Grudar gruda"),
+        default=True,
+    )  # type: ignore
+    stick_magnet_distance: bpy.props.FloatProperty(
+        name="Distância do ímã",
+        description="Distância até a face em que o ímã puxa o item",
+        default=0.05, min=0.001, max=0.5, subtype='DISTANCE', unit='LENGTH',
+    )  # type: ignore
+
     asset_libraries: bpy.props.CollectionProperty(type=hb_assets.BTM_AssetLibraryEntry)  # type: ignore
     asset_libraries_index: bpy.props.IntProperty(name="Biblioteca Ativa", default=0)  # type: ignore
 
@@ -187,6 +208,14 @@ class BTM_AddonPreferences(bpy.types.AddonPreferences):
         col.prop(self, "default_paper_size")
         col.prop(self, "default_layout_scale")
         col.prop(self, "default_paper_landscape")
+
+        box = layout.box()
+        box.label(text="Grudar em superfície", icon='SNAP_FACE')
+        row = box.row(align=True)
+        row.prop(self, "stick_magnet")
+        sub = row.row(align=True)
+        sub.active = self.stick_magnet
+        sub.prop(self, "stick_magnet_distance")
 
         layout.separator()
 
@@ -251,6 +280,9 @@ def register():
     overlays.register()
     customize.register()
     aggregates.register()
+    stick.register()
+    collision.register()
+    cabinet_editor.register()
 
     # Register legacy UI
     view3d_sidebar.register()
@@ -299,6 +331,9 @@ def unregister():
     view3d_sidebar.unregister()
 
     # Unregister modern UI, operators & draw handlers
+    cabinet_editor.unregister()
+    collision.unregister()
+    stick.unregister()
     aggregates.unregister()
     customize.unregister()
     overlays.unregister()

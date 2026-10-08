@@ -2,7 +2,7 @@
 
 Guia rápido para conferir um projeto abrindo portas, basculantes e gavetas, antes de mostrar ao cliente ou mandar para a produção.
 Funciona nos móveis de cozinha (frameless), face frame, dormitório (closets) e no Módulo Rápido.
-O painel fica na barra lateral da Viewport 3D (tecla **N**), aba **CAFFMob Draw** › **CONSTRUTOR** › **Inspeção de Portas e Gavetas**.
+O painel fica na barra lateral da Viewport 3D (tecla **N**), aba **CAFFMob Draw** › **Verificar** › **Portas e gavetas**.
 
 ## 1. Abrir com um clique
 

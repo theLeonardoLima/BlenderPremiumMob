@@ -1,7 +1,8 @@
 # Agregados e folhas de porta
 
 Guia rápido para usar modelos 3D de fora no projeto, por exemplo uma porta baixada do SketchUp.
-Tudo fica na barra lateral da Viewport 3D (tecla **N**), aba **CAFFMob Draw**, painel **Propriedades** › **Agregados e folhas**.
+Tudo fica na barra lateral da Viewport 3D (tecla **N**), aba **CAFFMob Draw**: importar fica em **Inserir** › **Importar modelo 3D**; converter e ajustar, em **Selecionado** ›
+**Agregados e folhas**.
 
 ## 1. Trazer o modelo
 

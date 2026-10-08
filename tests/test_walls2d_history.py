@@ -71,6 +71,14 @@ class HistoryTest(unittest.TestCase):
             steps += 1
         self.assertEqual(steps, 3)
 
+    def test_assinatura_propria(self):
+        """O histórico serve a outro rascunho com a assinatura dele (feature 004, T021)."""
+        h = history.History({"w": 0.8}, signature=lambda d: round(d["w"], 3))
+        self.assertFalse(h.checkpoint({"w": 0.8001}))
+        self.assertTrue(h.checkpoint({"w": 0.7}))
+        self.assertEqual(h.undo(), {"w": 0.8})
+        self.assertEqual(h.redo(), {"w": 0.7})
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -405,7 +405,7 @@ class Closets_Scene_Props(PropertyGroup):
     show_material_options: BoolProperty(name="More Material Options", default=False)  # type: ignore
     show_pull_options: BoolProperty(name="More Pull Options", default=False)  # type: ignore
 
-    def draw_library_ui(self, layout, context):
+    def draw_library_ui(self, layout, context, include_user=True):  # closets não tem biblioteca do usuário
         col = layout.column(align=True)
 
         box = col.box()

@@ -1,6 +1,7 @@
 """Janela de propriedades por tipo de objeto (T023; D-10, RN-01 a RN-04, M-08).
 
-O painel `BTM_PT_ObjectProperties` (barra lateral "Blender to Mob") mostra o objeto ATIVO e só os grupos do tipo dele:
+A seção Selecionado da barra lateral (`draw_selected`, feature 005; antes o painel `BTM_PT_ObjectProperties`) mostra o
+objeto ATIVO e só os grupos do tipo dele, no máximo 4 abertos:
 - linha de estado: tipo, nome, L × A × P e rotação;
 - Dimensões: largura, altura, profundidade (módulos; largura e altura de portas e janelas de ambiente);
 - Cotas: afastamento da parede, anterior, posterior, inferior e superior (módulos), editáveis;
@@ -184,6 +185,9 @@ def _draw_dimensions(layout, edit, info):
         col.label(text=f"{units.format_value(d.x)} × {units.format_value(d.z)} × {units.format_value(d.y)}")
     if info.kind == classify.WINDOW and info.library == 'HB':
         col.prop(edit, 'sill')
+    if (info.kind in (classify.MODULE, classify.FRONT, classify.PART)
+            and bpy.types.Operator.bl_rna_get_subclass_py('CAFFMOB_OT_cabinet_editor') is not None):
+        box.operator("caffmob.cabinet_editor", text="Abrir editor de armário", icon='MOD_BUILD')   # feature 004
 
 
 def _draw_cotas(layout, edit, context):
@@ -233,8 +237,6 @@ def _draw_wall(layout, edit, info):
         wall = info.obj.btm_wall
         for field in ('length', 'thickness', 'height_start', 'height_end', 'offset'):
             col.prop(wall, field)
-    if bpy.types.Operator.bl_rna_get_subclass_py('CAFFMOB_OT_wall_editor') is not None:
-        box.operator("caffmob.wall_editor", text="Abrir editor de paredes", icon='GREASEPENCIL')
     if info.library == 'HB':
         row = box.row(align=True)
         lowered = bool(info.obj.get('btm_wall_lowered'))
@@ -307,51 +309,114 @@ def _draw_actions(layout, info):
     box.menu_contents(menu_id)
 
 
-class BTM_PT_ObjectProperties(bpy.types.Panel):
-    bl_label = "Propriedades"
-    bl_idname = "BTM_PT_object_properties"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_category = "CAFFMob Draw"
-    bl_order = 1
+def _status(layout, context, info):
+    selected = len(context.selected_objects)
+    status = layout.column(align=True)
+    status.label(text=_status_line(info), icon='OBJECT_DATA')
+    if selected > 1:
+        status.label(text=tr("{} objetos selecionados — editando o ativo.").format(selected))
+    error = context.window_manager.get(ERROR_KEY)
+    if error:
+        row = layout.row()
+        row.alert = True
+        row.label(text=error, icon='ERROR')
 
-    def draw(self, context):
-        layout = self.layout
-        info = classify.classify(context.active_object)
-        if info is None:
-            layout.label(text="Nenhum objeto selecionado.", icon='INFO')
-            return
-        selected = len(context.selected_objects)
-        status = layout.column(align=True)
-        status.label(text=_status_line(info), icon='OBJECT_DATA')
-        if selected > 1:
-            status.label(text=tr("{} objetos selecionados — editando o ativo.").format(selected))
-        error = context.window_manager.get(ERROR_KEY)
-        if error:
-            row = layout.row()
-            row.alert = True
-            row.label(text=error, icon='ERROR')
-        edit = context.scene.btm_selection
-        if info.kind in (classify.MODULE, classify.FRONT, classify.PART):
-            module = classify.classify(info.root)
-            _draw_dimensions(layout, edit, module)
-            _draw_cotas(layout, edit, context)
-            _draw_open(layout, context, info)
-        elif info.kind in (classify.ROOM_DOOR, classify.WINDOW):
-            if info.library == 'BTM':
-                _draw_btm_opening(layout, info)
+
+def _main_groups(layout, context, info, edit):
+    """Os grupos abertos por padrão (no máximo 4, RN-05 da feature 005)."""
+    from . import sidebar_proxy
+    from .sidebar import group_scope
+    kind = info.kind
+    if kind in (classify.MODULE, classify.FRONT, classify.PART):
+        module = classify.classify(info.root)
+        with group_scope(layout, context, 'sel_dimensions', N_("Medidas e cotas"), 'FIXED_SIZE') as body:
+            if body is not None:
+                _draw_dimensions(body, edit, module)
+                _draw_cotas(body, edit, context)
+                sidebar_proxy.draw_panel(BTM_PT_ObjectLimits, body, context)
+        from ..customize import panels as customize_panels
+        if sidebar_proxy.visible(customize_panels.BTM_PT_CustomizeModule, context):
+            with group_scope(layout, context, 'sel_customize', N_("Personalizar"), 'MODIFIER') as body:
+                if body is not None:
+                    sidebar_proxy.draw_panel(customize_panels.BTM_PT_CustomizeModule, body, context)
+        _position_group(layout, context)
+        with group_scope(layout, context, 'sel_open', N_("Abrir"), 'HIDE_OFF') as body:
+            if body is not None:
+                _draw_open(body, context, info)
+        return
+    with group_scope(layout, context, 'sel_dimensions', _GROUP_TITLE.get(kind, N_("Medidas")), 'FIXED_SIZE') as body:
+        if body is not None:
+            if kind in (classify.ROOM_DOOR, classify.WINDOW):
+                if info.library == 'BTM':
+                    _draw_btm_opening(body, info)
+                else:
+                    _draw_dimensions(body, edit, info)
+            elif kind == classify.WALL:
+                _draw_wall(body, edit, info)
+            elif kind == classify.GEOMETRY:
+                _draw_geometry(body, info)
+            elif kind in (classify.OBSTACLE, classify.FLOOR, classify.CEILING):
+                _draw_dimensions(body, edit, info)
             else:
-                _draw_dimensions(layout, edit, info)
-            if info.kind == classify.ROOM_DOOR:
-                _draw_open(layout, context, info)       # folha 3D criada no primeiro "Abrir" (D-20)
-        elif info.kind == classify.WALL:
-            _draw_wall(layout, edit, info)
-        elif info.kind == classify.GEOMETRY:
-            _draw_geometry(layout, info)
-        elif info.kind in (classify.OBSTACLE, classify.FLOOR, classify.CEILING):
-            _draw_dimensions(layout, edit, info)
-        _draw_other(layout, info)
-        _draw_actions(layout, info)
+                d = info.obj.dimensions
+                body.label(text=f"{units.format_value(d.x)} × {units.format_value(d.z)} × {units.format_value(d.y)}")
+            sidebar_proxy.draw_panel(BTM_PT_ObjectLimits, body, context)
+    if kind not in (classify.WALL, classify.FLOOR, classify.CEILING):
+        _position_group(layout, context)
+    if kind == classify.ROOM_DOOR:
+        with group_scope(layout, context, 'sel_open', N_("Abrir"), 'HIDE_OFF') as body:
+            if body is not None:
+                _draw_open(body, context, info)       # folha 3D criada no primeiro "Abrir" (D-20 da 002)
+
+
+_GROUP_TITLE = {classify.WALL: N_("Parede"), classify.GEOMETRY: N_("Geometria"), classify.ROOM_DOOR: N_("Abertura"),
+                classify.WINDOW: N_("Abertura"), classify.OBSTACLE: N_("Obstáculo"), classify.FLOOR: N_("Piso"),
+                classify.CEILING: N_("Teto")}
+
+
+def _position_group(layout, context):
+    from . import sidebar_proxy
+    from .sidebar import group_scope
+    from ..stick import panels as stick_panels
+    with group_scope(layout, context, 'sel_position', N_("Posição e vínculo"), 'ORIENTATION_GLOBAL') as body:
+        if body is not None:
+            sidebar_proxy.draw_panel(BTM_PT_ObjectMovement, body, context)
+            sidebar_proxy.draw_panel(stick_panels.BTM_PT_Stick, body, context)
+
+
+def _folded_groups(layout, context, info):
+    """Grupos recolhidos por padrão: agregados, colisão do item, arranjo, outras e ações, opções do face frame."""
+    from . import sidebar_proxy
+    from .sidebar import group_scope
+    from ..aggregates import panels as aggregate_panels
+    from ..collision import panels as collision_panels
+    with group_scope(layout, context, 'sel_aggregates', N_("Agregados e folhas"), 'LINKED') as body:
+        if body is not None:
+            aggregate_panels.draw_aggregate(body, context, include_import=False)
+    if sidebar_proxy.visible(collision_panels.BTM_PT_ItemCollision, context):
+        with group_scope(layout, context, 'sel_collision', N_("Colisão"), 'MOD_PHYSICS') as body:
+            if body is not None:
+                sidebar_proxy.draw_panel(collision_panels.BTM_PT_ItemCollision, body, context)
+    with group_scope(layout, context, 'sel_arrangement', N_("Arranjo"), 'OUTLINER') as body:
+        if body is not None:
+            sidebar_proxy.draw_panel(BTM_PT_ObjectArrangement, body, context)
+    with group_scope(layout, context, 'sel_actions', N_("Outras e ações"), 'TOOL_SETTINGS') as body:
+        if body is not None:
+            _draw_other(body, info)
+            _draw_actions(body, info)
+
+
+def draw_selected(layout, context):
+    """Seção Selecionado da barra lateral (feature 005, T016; RN-05, D-07): só o que vale para o tipo do objeto ativo,
+    com no máximo 4 grupos abertos; o resto fica recolhido."""
+    info = classify.classify(context.active_object)
+    if info is None:
+        layout.label(text=tr("Selecione um objeto na viewport"), icon='INFO')
+        return
+    _status(layout, context, info)
+    edit = context.scene.btm_selection
+    _main_groups(layout, context, info, edit)
+    _folded_groups(layout, context, info)
 
 
 # Seções Arranjo / Movimentação / Limites (feature 003, T061; RF-29, RF-30, D-25). "Modelos" é o painel
@@ -456,8 +521,8 @@ class BTM_PT_ObjectLimits(_ChildPanel, bpy.types.Panel):
             col.label(text=tr("Grade: {}").format(units.format_value(overlay.grid_scale, scene)))
 
 
-classes = (BTM_PG_SelectionEdit, BTM_PT_ObjectProperties, BTM_PT_ObjectArrangement, BTM_PT_ObjectMovement,
-           BTM_PT_ObjectLimits)
+# Os painéis `_ChildPanel` são desenhados como grupos de Selecionado (feature 005, `ui/sidebar_selected.py`).
+classes = (BTM_PG_SelectionEdit,)
 
 
 def register():

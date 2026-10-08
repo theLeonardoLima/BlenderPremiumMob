@@ -1,11 +1,11 @@
 # Personalizar módulos e salvar na biblioteca
 
 Guia rápido da personalização por módulo.
-Tudo fica na barra lateral da Viewport 3D (tecla **N**), aba **CAFFMob Draw**, painel **Propriedades**.
+Tudo fica na barra lateral da Viewport 3D (tecla **N**), aba **CAFFMob Draw**, seção **Selecionado** (e **Inserir** › **Meus módulos** para a biblioteca).
 
 ## 1. O que dá para mudar
 
-Selecione um módulo inserido (qualquer peça dele serve) e abra **Modelos — Personalizar módulo**.
+Selecione um módulo inserido (qualquer peça dele serve) e abra **Personalizar**.
 A mudança vale só para esse módulo. Os outros módulos do mesmo tipo e o catálogo não mudam.
 
 Cada vão do módulo aparece numa caixa (**Vão 1**, **Vão 2**…), com:
@@ -47,7 +47,7 @@ O módulo vai para a pasta de dados do CAFFMob Draw (`modules/<categoria>/`), co
 
 ## 4. Usar a biblioteca de módulos
 
-Abra **Biblioteca de módulos** no painel **Propriedades**:
+Abra **Inserir** › **Meus módulos** (origem **Módulos salvos**):
 - Clique no nome do módulo e depois no lugar onde ele vai ficar. **R** gira 90°; botão direito ou **Esc** cancela.
 - Inserido em outro projeto, o módulo vem com frentes, puxadores, materiais e divisões iguais e continua paramétrico.
 - Se o projeto não tiver um estilo usado pelo módulo, o aviso lista os estilos ausentes. O módulo mantém a aparência com que foi salvo.

@@ -1,0 +1,546 @@
+{
+ "A face não é plana": {
+  "pt_BR": "A face não é plana",
+  "en_US": "The face is not flat"
+ },
+ "Abrir editor de armário": {
+  "pt_BR": "Abrir editor de armário",
+  "en_US": "Open cabinet editor"
+ },
+ "Afasta o item pelo menor caminho até ele só encostar no outro (item grudado anda só no plano da face)": {
+  "pt_BR": "Afasta o item pelo menor caminho até ele só encostar no outro (item grudado anda só no plano da face)",
+  "en_US": "Moves the item by the shortest path until it only touches the other (a stuck item moves only in the plane of its face)"
+ },
+ "Afastar": {
+  "pt_BR": "Afastar",
+  "en_US": "Push out"
+ },
+ "Afastar até encostar": {
+  "pt_BR": "Afastar até encostar",
+  "en_US": "Push out until touching"
+ },
+ "Ajustes automáticos": {
+  "pt_BR": "Ajustes automáticos",
+  "en_US": "Automatic adjustments"
+ },
+ "Alterações pendentes": {
+  "pt_BR": "Alterações pendentes",
+  "en_US": "Pending changes"
+ },
+ "Alturas das prateleiras a partir da base do vão, separadas por ';'. Vazio = espaçamento igual": {
+  "pt_BR": "Alturas das prateleiras a partir da base do vão, separadas por ';'. Vazio = espaçamento igual",
+  "en_US": "Shelf heights from the bottom of the opening, separated by ';'. Empty = equal spacing"
+ },
+ "Ao inserir ou mover pelo plugin, perto de uma face plana o item encosta nela e fica grudado (elemento filho). Desligado, só o comando Grudar gruda": {
+  "pt_BR": "Ao inserir ou mover pelo plugin, perto de uma face plana o item encosta nela e fica grudado (elemento filho). Desligado, só o comando Grudar gruda",
+  "en_US": "When inserting or moving with the add-on, near a flat face the item rests against it and sticks (child element). Off: only the Stick command sticks items"
+ },
+ "Aplica as alterações do editor ao armário (um passo de desfazer)": {
+  "pt_BR": "Aplica as alterações do editor ao armário (um passo de desfazer)",
+  "en_US": "Applies the editor's changes to the cabinet (one undo step)"
+ },
+ "Aplica as alterações e fecha": {
+  "pt_BR": "Aplica as alterações e fecha",
+  "en_US": "Applies the changes and closes"
+ },
+ "Aplicar em": {
+  "pt_BR": "Aplicar em",
+  "en_US": "Apply to"
+ },
+ "Armário atualizado: {}": {
+  "pt_BR": "Armário atualizado: {}",
+  "en_US": "Cabinet updated: {}"
+ },
+ "Arrasta o item no plano da face; com Ctrl, sobre a face de outro objeto ele troca de hospedeiro": {
+  "pt_BR": "Arrasta o item no plano da face; com Ctrl, sobre a face de outro objeto ele troca de hospedeiro",
+  "en_US": "Drags the item on the face's plane; with Ctrl, over another object's face it changes host"
+ },
+ "Cena": {
+  "pt_BR": "Cena",
+  "en_US": "Scene"
+ },
+ "Clique numa face plana de outro objeto": {
+  "pt_BR": "Clique numa face plana de outro objeto",
+  "en_US": "Click a flat face of another object"
+ },
+ "Clique numa face plana de outro objeto: o item encosta nela e vira elemento filho dela": {
+  "pt_BR": "Clique numa face plana de outro objeto: o item encosta nela e vira elemento filho dela",
+  "en_US": "Click a flat face of another object: the item rests against it and becomes its child element"
+ },
+ "Colide com {}": {
+  "pt_BR": "Colide com {}",
+  "en_US": "Collides with {}"
+ },
+ "Colisão desligada (Evitar Sobreposição)": {
+  "pt_BR": "Colisão desligada (Evitar Sobreposição)",
+  "en_US": "Collision off (Avoid Overlap)"
+ },
+ "Colisão entre itens": {
+  "pt_BR": "Colisão entre itens",
+  "en_US": "Collision between items"
+ },
+ "Colisões": {
+  "pt_BR": "Colisões",
+  "en_US": "Collisions"
+ },
+ "Colisões não verificadas desde a última mudança": {
+  "pt_BR": "Colisões não verificadas desde a última mudança",
+  "en_US": "Collisions not checked since the last change"
+ },
+ "Continuar editando": {
+  "pt_BR": "Continuar editando",
+  "en_US": "Keep editing"
+ },
+ "Corrija os erros para confirmar": {
+  "pt_BR": "Corrija os erros para confirmar",
+  "en_US": "Fix the errors to confirm"
+ },
+ "Desatualizado": {
+  "pt_BR": "Desatualizado",
+  "en_US": "Out of date"
+ },
+ "Desatualizado, verifique de novo": {
+  "pt_BR": "Desatualizado, verifique de novo",
+  "en_US": "Out of date, check again"
+ },
+ "Desfaz ou refaz no rascunho do editor (Ctrl+Z / Ctrl+Shift+Z)": {
+  "pt_BR": "Desfaz ou refaz no rascunho do editor (Ctrl+Z / Ctrl+Shift+Z)",
+  "en_US": "Undoes or redoes in the editor draft (Ctrl+Z / Ctrl+Shift+Z)"
+ },
+ "Desfazer": {
+  "pt_BR": "Desfazer",
+  "en_US": "Undo"
+ },
+ "Desfazer no editor": {
+  "pt_BR": "Desfazer no editor",
+  "en_US": "Undo in the editor"
+ },
+ "Desgrudar": {
+  "pt_BR": "Desgrudar",
+  "en_US": "Release"
+ },
+ "Digite uma medida": {
+  "pt_BR": "Digite uma medida",
+  "en_US": "Type a measurement"
+ },
+ "Distância": {
+  "pt_BR": "Distância",
+  "en_US": "Distance"
+ },
+ "Distância até a face em que o ímã puxa o item": {
+  "pt_BR": "Distância até a face em que o ímã puxa o item",
+  "en_US": "Distance to the face at which the magnet pulls the item"
+ },
+ "Distância do ímã": {
+  "pt_BR": "Distância do ímã",
+  "en_US": "Magnet distance"
+ },
+ "Distância à face; negativo = entra no hospedeiro": {
+  "pt_BR": "Distância à face; negativo = entra no hospedeiro",
+  "en_US": "Distance to the face; negative = goes into the host"
+ },
+ "Divisões internas…": {
+  "pt_BR": "Divisões internas…",
+  "en_US": "Interior divisions…"
+ },
+ "Dois itens ocupam o mesmo espaço": {
+  "pt_BR": "Dois itens ocupam o mesmo espaço",
+  "en_US": "Two items take up the same space"
+ },
+ "Edita o vão do componente selecionado no Editor de Armário": {
+  "pt_BR": "Edita o vão do componente selecionado no Editor de Armário",
+  "en_US": "Edits the opening of the selected component in the Cabinet Editor"
+ },
+ "Editar componente": {
+  "pt_BR": "Editar componente",
+  "en_US": "Edit component"
+ },
+ "Editor de Armário": {
+  "pt_BR": "Editor de Armário",
+  "en_US": "Cabinet Editor"
+ },
+ "Editor fechado: alterações descartadas": {
+  "pt_BR": "Editor fechado: alterações descartadas",
+  "en_US": "Editor closed: changes discarded"
+ },
+ "Elemento filho": {
+  "pt_BR": "Elemento filho",
+  "en_US": "Child element"
+ },
+ "Elemento filho de: {}": {
+  "pt_BR": "Elemento filho de: {}",
+  "en_US": "Child element of: {}"
+ },
+ "Elementos filhos: {}": {
+  "pt_BR": "Elementos filhos: {}",
+  "en_US": "Child elements: {}"
+ },
+ "Erro": {
+  "pt_BR": "Erro",
+  "en_US": "Error"
+ },
+ "Esta biblioteca não tem personalização": {
+  "pt_BR": "Esta biblioteca não tem personalização",
+  "en_US": "This library has no customization"
+ },
+ "Estilo da frente…": {
+  "pt_BR": "Estilo da frente…",
+  "en_US": "Front style…"
+ },
+ "Fecha e devolve o armário como estava": {
+  "pt_BR": "Fecha e devolve o armário como estava",
+  "en_US": "Closes and returns the cabinet to how it was"
+ },
+ "Fecha o editor e devolve o armário como estava ao abrir": {
+  "pt_BR": "Fecha o editor e devolve o armário como estava ao abrir",
+  "en_US": "Closes the editor and returns the cabinet to how it was when opened"
+ },
+ "Fecha o editor; com alterações pendentes, pergunta o que fazer": {
+  "pt_BR": "Fecha o editor; com alterações pendentes, pergunta o que fazer",
+  "en_US": "Closes the editor; with pending changes, asks what to do"
+ },
+ "Fora da face": {
+  "pt_BR": "Fora da face",
+  "en_US": "Off the face"
+ },
+ "Gire a vista para enxergar a face": {
+  "pt_BR": "Gire a vista para enxergar a face",
+  "en_US": "Rotate the view to see the face"
+ },
+ "Giro do item em torno da normal da face": {
+  "pt_BR": "Giro do item em torno da normal da face",
+  "en_US": "Item rotation around the face's normal"
+ },
+ "Grudado": {
+  "pt_BR": "Grudado",
+  "en_US": "Stuck"
+ },
+ "Grudados migrados": {
+  "pt_BR": "Grudados migrados",
+  "en_US": "Stuck items migrated"
+ },
+ "Grudar": {
+  "pt_BR": "Grudar",
+  "en_US": "Stick"
+ },
+ "Grudar em superfície": {
+  "pt_BR": "Grudar em superfície",
+  "en_US": "Stick to surface"
+ },
+ "Grudar {}  |  Clique numa face plana  |  Botão direito/Esc: cancelar": {
+  "pt_BR": "Grudar {}  |  Clique numa face plana  |  Botão direito/Esc: cancelar",
+  "en_US": "Stick {}  |  Click a flat face  |  Right click/Esc: cancel"
+ },
+ "Grupo de peças": {
+  "pt_BR": "Grupo de peças",
+  "en_US": "Part group"
+ },
+ "Hospedeiro": {
+  "pt_BR": "Hospedeiro",
+  "en_US": "Host"
+ },
+ "Interação do Editor de Armário": {
+  "pt_BR": "Interação do Editor de Armário",
+  "en_US": "Cabinet Editor interaction"
+ },
+ "Ir para a colisão": {
+  "pt_BR": "Ir para a colisão",
+  "en_US": "Go to collision"
+ },
+ "Item entra no piso ou no teto": {
+  "pt_BR": "Item entra no piso ou no teto",
+  "en_US": "Item goes into the floor or the ceiling"
+ },
+ "Item entra numa parede ou obstáculo": {
+  "pt_BR": "Item entra numa parede ou obstáculo",
+  "en_US": "Item goes into a wall or obstacle"
+ },
+ "Item fora da face: {}": {
+  "pt_BR": "Item fora da face: {}",
+  "en_US": "Item off the face: {}"
+ },
+ "Itens verificados": {
+  "pt_BR": "Itens verificados",
+  "en_US": "Checked items"
+ },
+ "Itens verificados na última checagem (-1 = nunca)": {
+  "pt_BR": "Itens verificados na última checagem (-1 = nunca)",
+  "en_US": "Items checked in the last check (-1 = never)"
+ },
+ "Lado da caixa": {
+  "pt_BR": "Lado da caixa",
+  "en_US": "Box side"
+ },
+ "Limpa a lista de colisões e o destaque na viewport": {
+  "pt_BR": "Limpa a lista de colisões e o destaque na viewport",
+  "en_US": "Clears the collision list and the viewport highlight"
+ },
+ "Limpar colisões": {
+  "pt_BR": "Limpar colisões",
+  "en_US": "Clear collisions"
+ },
+ "Material das frentes do vão…": {
+  "pt_BR": "Material das frentes do vão…",
+  "en_US": "Opening's front material…"
+ },
+ "Material de um grupo…": {
+  "pt_BR": "Material de um grupo…",
+  "en_US": "Material of a group…"
+ },
+ "Medidas": {
+  "pt_BR": "Medidas",
+  "en_US": "Dimensions"
+ },
+ "Mensagens": {
+  "pt_BR": "Mensagens",
+  "en_US": "Messages"
+ },
+ "Mova ou reduza o componente para dentro do módulo": {
+  "pt_BR": "Mova ou reduza o componente para dentro do módulo",
+  "en_US": "Move or shrink the component to fit inside the module"
+ },
+ "Mover no plano": {
+  "pt_BR": "Mover no plano",
+  "en_US": "Move on plane"
+ },
+ "Mover no plano  |  Ctrl: trocar de face  |  Clique: confirmar  |  Botão direito/Esc: cancelar": {
+  "pt_BR": "Mover no plano  |  Ctrl: trocar de face  |  Clique: confirmar  |  Botão direito/Esc: cancelar",
+  "en_US": "Move on plane  |  Ctrl: change face  |  Click: confirm  |  Right click/Esc: cancel"
+ },
+ "Mude a posição ou a quantidade das divisões": {
+  "pt_BR": "Mude a posição ou a quantidade das divisões",
+  "en_US": "Change the position or the number of divisions"
+ },
+ "Nenhum ajuste automático": {
+  "pt_BR": "Nenhum ajuste automático",
+  "en_US": "No automatic adjustments"
+ },
+ "Não foi possível calcular a colisão: {}": {
+  "pt_BR": "Não foi possível calcular a colisão: {}",
+  "en_US": "Could not compute the collision: {}"
+ },
+ "O Editor de Armário precisa de uma janela do Blender aberta.": {
+  "pt_BR": "O Editor de Armário precisa de uma janela do Blender aberta.",
+  "en_US": "The Cabinet Editor needs an open Blender window."
+ },
+ "O armário tem alterações": {
+  "pt_BR": "O armário tem alterações",
+  "en_US": "The cabinet has changes"
+ },
+ "O item grudado não pode sair da face; mova o outro item": {
+  "pt_BR": "O item grudado não pode sair da face; mova o outro item",
+  "en_US": "The stuck item cannot leave its face; move the other item"
+ },
+ "O item não pode ser grudado nele mesmo nem num filho dele": {
+  "pt_BR": "O item não pode ser grudado nele mesmo nem num filho dele",
+  "en_US": "The item cannot be stuck to itself or to one of its children"
+ },
+ "O item é um agregado: desconverta antes de grudar": {
+  "pt_BR": "O item é um agregado: desconverta antes de grudar",
+  "en_US": "The item is an aggregate: unconvert it before sticking"
+ },
+ "O módulo não existe mais; o editor foi fechado": {
+  "pt_BR": "O módulo não existe mais; o editor foi fechado",
+  "en_US": "The module no longer exists; the editor was closed"
+ },
+ "O objeto está grudado numa face: desgrude antes": {
+  "pt_BR": "O objeto está grudado numa face: desgrude antes",
+  "en_US": "The object is stuck to a face: release it first"
+ },
+ "Os itens da colisão não estão visíveis": {
+  "pt_BR": "Os itens da colisão não estão visíveis",
+  "en_US": "The items of the collision are not visible"
+ },
+ "Os módulos já postos na parede viraram elementos filhos dela": {
+  "pt_BR": "Os módulos já postos na parede viraram elementos filhos dela",
+  "en_US": "Modules already placed on the wall became its child elements"
+ },
+ "Outro": {
+  "pt_BR": "Outro",
+  "en_US": "Other item"
+ },
+ "Penetração em parede": {
+  "pt_BR": "Penetração em parede",
+  "en_US": "Wall penetration"
+ },
+ "Personalizar": {
+  "pt_BR": "Personalizar",
+  "en_US": "Customize"
+ },
+ "Piso ou teto": {
+  "pt_BR": "Piso ou teto",
+  "en_US": "Floor or ceiling"
+ },
+ "Plano": {
+  "pt_BR": "Plano",
+  "en_US": "Plane"
+ },
+ "Plano fixo no hospedeiro (face inclinada)": {
+  "pt_BR": "Plano fixo no hospedeiro (face inclinada)",
+  "en_US": "Plane fixed on the host (slanted face)"
+ },
+ "Posição U": {
+  "pt_BR": "Posição U",
+  "en_US": "U position"
+ },
+ "Posição V": {
+  "pt_BR": "Posição V",
+  "en_US": "V position"
+ },
+ "Procura itens que ocupam o mesmo espaço e itens que entram em parede, piso ou teto (encostar não conta)": {
+  "pt_BR": "Procura itens que ocupam o mesmo espaço e itens que entram em parede, piso ou teto (encostar não conta)",
+  "en_US": "Finds items that take up the same space and items that go into a wall, floor or ceiling (touching does not count)"
+ },
+ "Puxador…": {
+  "pt_BR": "Puxador…",
+  "en_US": "Pull…"
+ },
+ "Rascunho alterado": {
+  "pt_BR": "Rascunho alterado",
+  "en_US": "Draft changed"
+ },
+ "Refazer": {
+  "pt_BR": "Refazer",
+  "en_US": "Redo"
+ },
+ "Salva o armário como está no editor na biblioteca do usuário (Salvar como módulo da 003)": {
+  "pt_BR": "Salva o armário como está no editor na biblioteca do usuário (Salvar como módulo da 003)",
+  "en_US": "Saves the cabinet as it is in the editor to the user library (Save as module)"
+ },
+ "Seleciona os dois itens da colisão e enquadra a vista neles": {
+  "pt_BR": "Seleciona os dois itens da colisão e enquadra a vista neles",
+  "en_US": "Selects both items of the collision and frames the view on them"
+ },
+ "Selecionado": {
+  "pt_BR": "Selecionado",
+  "en_US": "Selected"
+ },
+ "Selecione o item a grudar": {
+  "pt_BR": "Selecione o item a grudar",
+  "en_US": "Select the item to stick"
+ },
+ "Selecione um item": {
+  "pt_BR": "Selecione um item",
+  "en_US": "Select an item"
+ },
+ "Selecione um vão ou uma frente na vista": {
+  "pt_BR": "Selecione um vão ou uma frente na vista",
+  "en_US": "Select an opening or a front in the view"
+ },
+ "Sem alterações": {
+  "pt_BR": "Sem alterações",
+  "en_US": "No changes"
+ },
+ "Sem colisões em {} item(ns)": {
+  "pt_BR": "Sem colisões em {} item(ns)",
+  "en_US": "No collisions in {} item(s)"
+ },
+ "Sem colisões em {} item(ns).": {
+  "pt_BR": "Sem colisões em {} item(ns).",
+  "en_US": "No collisions in {} item(s)."
+ },
+ "Sem erros nem avisos": {
+  "pt_BR": "Sem erros nem avisos",
+  "en_US": "No errors or warnings"
+ },
+ "Solta o item da face: ele fica onde está e deixa de acompanhar o hospedeiro": {
+  "pt_BR": "Solta o item da face: ele fica onde está e deixa de acompanhar o hospedeiro",
+  "en_US": "Releases the item from the face: it stays where it is and no longer follows the host"
+ },
+ "Só o item selecionado e o que ele toca": {
+  "pt_BR": "Só o item selecionado e o que ele toca",
+  "en_US": "Only the selected item and what it touches"
+ },
+ "Tipo de face": {
+  "pt_BR": "Tipo de face",
+  "en_US": "Face type"
+ },
+ "Todos os itens da cena": {
+  "pt_BR": "Todos os itens da cena",
+  "en_US": "All items in the scene"
+ },
+ "Um dos seis lados do hospedeiro; acompanha a medida dele": {
+  "pt_BR": "Um dos seis lados do hospedeiro; acompanha a medida dele",
+  "en_US": "One of the host's six sides; follows its size"
+ },
+ "Use números com mm, cm ou m": {
+  "pt_BR": "Use números com mm, cm ou m",
+  "en_US": "Use numbers with mm, cm or m"
+ },
+ "Use um valor dentro da faixa": {
+  "pt_BR": "Use um valor dentro da faixa",
+  "en_US": "Use a value within the range"
+ },
+ "Verificar colisões": {
+  "pt_BR": "Verificar colisões",
+  "en_US": "Check collisions"
+ },
+ "Volta ao editor": {
+  "pt_BR": "Volta ao editor",
+  "en_US": "Back to the editor"
+ },
+ "Vão: {}": {
+  "pt_BR": "Vão: {}",
+  "en_US": "Opening: {}"
+ },
+ "Vínculo perdido: {}": {
+  "pt_BR": "Vínculo perdido: {}",
+  "en_US": "Link lost: {}"
+ },
+ "faixa: {} – {}": {
+  "pt_BR": "faixa: {} – {}",
+  "en_US": "range: {} – {}"
+ },
+ "frente": {
+  "pt_BR": "frente",
+  "en_US": "front"
+ },
+ "plano": {
+  "pt_BR": "plano",
+  "en_US": "plane"
+ },
+ "trás": {
+  "pt_BR": "trás",
+  "en_US": "back"
+ },
+ "valor: {}  faixa: {}": {
+  "pt_BR": "valor: {}  faixa: {}",
+  "en_US": "value: {}  range: {}"
+ },
+ "{} (desatualizado)": {
+  "pt_BR": "{} (desatualizado)",
+  "en_US": "{} (out of date)"
+ },
+ "{} afastado {:.1f} mm": {
+  "pt_BR": "{} afastado {:.1f} mm",
+  "en_US": "{} moved {:.1f} mm"
+ },
+ "{} colide com {}": {
+  "pt_BR": "{} colide com {}",
+  "en_US": "{} collides with {}"
+ },
+ "{} colisão(ões) em {} item(ns)": {
+  "pt_BR": "{} colisão(ões) em {} item(ns)",
+  "en_US": "{} collision(s) in {} item(s)"
+ },
+ "{} colisão(ões):": {
+  "pt_BR": "{} colisão(ões):",
+  "en_US": "{} collision(s):"
+ },
+ "{} colisões pendentes": {
+  "pt_BR": "{} colisões pendentes",
+  "en_US": "{} pending collisions"
+ },
+ "{} item(ns) desgrudado(s)": {
+  "pt_BR": "{} item(ns) desgrudado(s)",
+  "en_US": "{} item(s) released"
+ },
+ "{} — corrija os erros para confirmar": {
+  "pt_BR": "{} — corrija os erros para confirmar",
+  "en_US": "{} — fix the errors to confirm"
+ },
+ "Ímã": {
+  "pt_BR": "Ímã",
+  "en_US": "Magnet"
+ }
+}

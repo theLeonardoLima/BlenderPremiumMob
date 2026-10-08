@@ -18,6 +18,9 @@ def can_convert(obj, parent):
         return tr("Selecione também o elemento pai (por último, como ativo)")
     if parent == obj or obj in parent.children_recursive:
         return tr("O pai não pode ser o próprio objeto nem um filho dele")
+    stick = getattr(obj, 'btm_stick', None)
+    if stick is not None and stick.is_stuck:
+        return tr("O objeto está grudado numa face: desgrude antes")       # feature 004, data-delta §5
     if getattr(parent, 'btm_aggregate', None) is not None and parent.btm_aggregate.kind == 'LEAF':
         return tr("Uma folha de porta não pode receber agregados")
     return None

@@ -84,26 +84,15 @@ class BTM_OT_ClearInsertionPlane(bpy.types.Operator):
         return {'FINISHED'}
 
 
-def _menu(self, context):
-    layout = self.layout
-    layout.separator()
-    layout.operator_context = 'INVOKE_DEFAULT'
-    layout.operator(BTM_OT_SetInsertionPlane.bl_idname, icon='SNAP_FACE')
-    if context.window_manager.btm_insertion_plane.active:
-        layout.operator(BTM_OT_ClearInsertionPlane.bl_idname, icon='X')
-
-
 classes = (BTM_OT_SetInsertionPlane, BTM_OT_ClearInsertionPlane)
 
 
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
-    bpy.types.VIEW3D_MT_object_context_menu.append(_menu)
 
 
 def unregister():
-    bpy.types.VIEW3D_MT_object_context_menu.remove(_menu)
     for cls in reversed(classes):
         if cls.is_registered:
             bpy.utils.unregister_class(cls)

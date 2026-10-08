@@ -53,6 +53,9 @@ def build_zip():
             # Skip python cache directories
             if "__pycache__" in dirs:
                 dirs.remove("__pycache__")
+            # `catalog/` não é registrado pela extensão (código morto; feature 005, D-16): fica fora do pacote
+            if os.path.abspath(root) == os.path.abspath(source_dir) and "catalog" in dirs:
+                dirs.remove("catalog")
 
             for file in files:
                 file_path = os.path.join(root, file)

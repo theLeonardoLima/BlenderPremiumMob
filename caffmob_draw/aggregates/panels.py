@@ -24,9 +24,10 @@ def _fmt(context, value):
     return units.format_value(value, context.scene)
 
 
-def draw_aggregate(layout, context):
-    row = layout.row(align=True)
-    row.operator("caffmob.import_model", icon='IMPORT')
+def draw_aggregate(layout, context, include_import=True):
+    if include_import:        # na barra lateral da 005, importar fica em Inserir
+        row = layout.row(align=True)
+        row.operator("caffmob.import_model", icon='IMPORT')
     col = layout.column(align=True)
     col.operator("caffmob.aggregate_convert", icon='LINKED')
     col.operator("caffmob.leaf_convert", icon='MOD_SIMPLEDEFORM')
@@ -96,7 +97,8 @@ class BTM_PT_Aggregate(bpy.types.Panel):
         draw_aggregate(self.layout, context)
 
 
-classes = (BTM_PT_Aggregate,)
+# Desenhados na barra lateral única (feature 005) pelas funções de desenho e pelo proxy; não registrados.
+classes = ()
 
 
 def register():

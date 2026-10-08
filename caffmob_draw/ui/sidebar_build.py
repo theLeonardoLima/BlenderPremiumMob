@@ -1,0 +1,67 @@
+"""Seção Construir (feature 005, T012; RF-02, RN-07, D-05).
+
+Primeiro a ação principal (Editor de Paredes); depois grupos recolhidos com o conteúdo dos painéis do Room Layout
+(desenhados pelo proxy, sem reescrever a lógica): Paredes, Aberturas, Piso e teto, Obstáculos, Luzes, Escadas, Imagem
+de referência e Geometrias. Sem nenhuma parede, Aberturas e Piso e teto ficam desabilitados com o motivo (R-01 da UI).
+"""
+
+from ..data.i18n import N_
+from . import sidebar_proxy, view3d_sidebar
+from .sidebar import empty_state, group_scope
+
+NO_WALL = N_("Desenhe uma parede primeiro")
+
+
+def has_walls(scene):
+    from ..operators.floor_builder import scene_walls
+    hb, layer = scene_walls(scene)
+    return bool(hb or layer)
+
+
+def draw(layout, context):
+    walls = has_walls(context.scene)
+    row = layout.row(align=True)
+    row.scale_y = 1.3
+    row.operator("caffmob.wall_editor", text=N_("Editor de Paredes"), icon='MESH_GRID')
+
+    vs = view3d_sidebar
+    if not sidebar_proxy.visible(vs.HOME_BUILDER_PT_room_layout, context):
+        empty_state(layout, N_("Em vistas de layout e de detalhe, volte a um ambiente para construir"))
+        return
+    with group_scope(layout, context, 'walls', N_("Paredes"), 'GREASEPENCIL') as body:
+        if body is not None:
+            sidebar_proxy.draw_panel(vs.HOME_BUILDER_PT_room_layout_walls, body, context)
+    with group_scope(layout, context, 'openings', N_("Aberturas"), 'MOD_BOOLEAN') as body:
+        if body is not None:
+            if not walls:
+                empty_state(body, NO_WALL)
+            col = body.column()
+            col.enabled = walls
+            sidebar_proxy.draw_panel(vs.HOME_BUILDER_PT_room_layout_doors_windows, col, context)
+    with group_scope(layout, context, 'floor', N_("Piso e teto"), 'MESH_PLANE') as body:
+        if body is not None:
+            if not walls:
+                empty_state(body, NO_WALL)
+            col = body.column()
+            col.enabled = walls
+            row = col.row(align=True)
+            row.operator("caffmob.adjust_floor", text=N_("Ajustar Piso"), icon='MESH_GRID')
+            row.operator("caffmob.floor_builder", text=N_("Piso Manual"), icon='MESH_PLANE')
+            sidebar_proxy.draw_panel(vs.HOME_BUILDER_PT_room_layout_floor, col, context)
+    with group_scope(layout, context, 'obstacles', N_("Obstáculos"), 'ERROR') as body:
+        if body is not None:
+            sidebar_proxy.draw_panel(vs.HOME_BUILDER_PT_room_layout_obstacles, body, context)
+    with group_scope(layout, context, 'lights', N_("Luzes"), 'LIGHT') as body:
+        if body is not None:
+            sidebar_proxy.draw_panel(vs.HOME_BUILDER_PT_room_layout_lighting, body, context)
+    with group_scope(layout, context, 'stairs', N_("Escadas"), 'IPO_CONSTANT') as body:
+        if body is not None:
+            sidebar_proxy.draw_panel(vs.HOME_BUILDER_PT_room_layout_stairs, body, context)
+    with group_scope(layout, context, 'reference', N_("Imagem de referência"), 'IMAGE_REFERENCE') as body:
+        if body is not None:
+            sidebar_proxy.draw_panel(vs.HOME_BUILDER_PT_room_layout_reference_image, body, context)
+    with group_scope(layout, context, 'geometry', N_("Geometrias"), 'MESH_CUBE') as body:
+        if body is not None:
+            row = body.row(align=True)
+            row.operator("caffmob.geometry_create", text=N_("Placa"), icon='MESH_PLANE').kind = 'PLACA'
+            row.operator("caffmob.geometry_create", text=N_("Caixa"), icon='MESH_CUBE').kind = 'CAIXA'

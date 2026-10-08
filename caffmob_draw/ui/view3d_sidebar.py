@@ -45,7 +45,8 @@ class HOME_BUILDER_PT_hidden_header(bpy.types.Panel):
             box.operator("caffmob.set_recommended_settings",
                         text="Open Recommended Settings", icon='PREFERENCES')
 
-        prefs = context.preferences.addons[__package__.rsplit('.', 1)[0]].preferences
+        addon = context.preferences.addons.get(__package__.rsplit('.', 1)[0])
+        prefs = getattr(addon, 'preferences', None)
         use_hud = getattr(prefs, 'use_viewport_hud', False)
 
         in_layout_view = context.scene.get('IS_LAYOUT_VIEW')
@@ -1383,7 +1384,9 @@ class HOME_BUILDER_PT_room_layout_stairs(bpy.types.Panel):
         row.operator('caffmob_stairs.place_stairs', text="Place Stairs", icon='MOD_ARRAY')
 
 
-classes = (
+# Painéis desenhados dentro da barra lateral única (feature 005, `ui/sidebar*.py`) pelo proxy; não são mais
+# registrados na aba. Só os menus continuam registrados.
+PANELS = (
     HOME_BUILDER_PT_hidden_header,
     HOME_BUILDER_PT_project,
     HOME_BUILDER_PT_project_info,
@@ -1398,9 +1401,6 @@ classes = (
     HOME_BUILDER_PT_room_layout_stairs,
     HOME_BUILDER_PT_product_library,
     HOME_BUILDER_PT_layout_views,
-    HOME_BUILDER_MT_layout_views_create,
-    HOME_BUILDER_MT_room_list,
-    HOME_BUILDER_MT_detail_library,
     HOME_BUILDER_PT_layout_views_settings,
     HOME_BUILDER_PT_layout_views_details,
     HOME_BUILDER_PT_2d_details,
@@ -1410,6 +1410,12 @@ classes = (
     HOME_BUILDER_PT_annotations_edit,
     HOME_BUILDER_PT_annotations_plan_view_tools,
     HOME_BUILDER_PT_annotations_settings,
+)
+
+classes = (
+    HOME_BUILDER_MT_layout_views_create,
+    HOME_BUILDER_MT_room_list,
+    HOME_BUILDER_MT_detail_library,
 )
 
 def register():

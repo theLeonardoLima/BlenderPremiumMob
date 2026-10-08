@@ -5,7 +5,7 @@ Tudo fica na barra lateral da Viewport 3D (tecla **N**), aba **CAFFMob Draw**.
 
 ## 1. Editor de Paredes (planta 2D)
 
-Abra por **CONSTRUTOR** › **Editor de Paredes**, pelo menu do botão direito de uma parede (**Editar Paredes…**) ou
+Abra por **Construir** › **Editor de Paredes**, pelo menu do botão direito de uma parede (**Editar Paredes…**) ou
 pelo grupo **Parede** da janela de propriedades.
 O editor abre numa janela própria, com a planta vista de cima. Ele só mostra paredes.
 Paredes feitas com o construtor antigo (camada nova) aparecem tracejadas, só como referência. Se elas estiverem
@@ -47,13 +47,13 @@ O ângulo do arco aparece desabilitado: as paredes são sempre retas.
 
 **Grid:** **Tamanho** da grade e **Linhas Magnéticas** (os vértices encaixam nos cruzamentos). Os campos de **Novas paredes** valem para o lápis.
 
-**Pé-direito:** as paredes novas nascem com o **pé-direito do projeto** (definido nas Configurações). Mureta fica com 1.100 mm.
+**Pé-direito:** as paredes novas nascem com o **pé-direito do projeto** (definido em **Construir** › **Paredes**). Mureta fica com 1.100 mm.
 
 **OK:** se algum módulo, porta ou janela não couber numa parede encurtada, o editor lista os itens. Paredes com altura diferente do projeto aparecem com a caixa **Igualar ao pé-direito do projeto** (marcada; Mureta, meia-parede e parede falsa ficam de fora). Se você apagou um trecho que tinha módulos, ele lista os módulos e mostra a caixa **Remover os módulos junto?** (desmarcada: os módulos ficam soltos no lugar). Clique **OK** de novo para aplicar.
 O OK é um único passo de desfazer (Ctrl+Z).
 Pisos e tetos que já existem são refeitos com o contorno novo. Uma sala cujo último ponto ficou em cima do primeiro é sempre fechada no OK — nenhuma parede fica solta no canto.
 
-**Mudar o pé-direito nas Configurações** atualiza sozinho todas as paredes de altura cheia do projeto (Mureta, meia-parede e parede falsa ficam como estão). Ctrl+Z desfaz.
+**Mudar o pé-direito em Construir › Paredes** atualiza sozinho todas as paredes de altura cheia do projeto (Mureta, meia-parede e parede falsa ficam como estão). Ctrl+Z desfaz.
 
 **"Desenhar Paredes" (3D)** tem o mesmo ímã: perto do ponto inicial o cursor gruda e aparece "Deseja fechar a parede?"; **Enter** ou clique fecha, **Esc** continua desenhando. Digitar a medida que termina no início também pergunta. A tecla **C** fecha direto.
 
@@ -73,7 +73,7 @@ No menu do botão direito da parede, ou no grupo **Parede** da janela de proprie
 
 ## 3. Janela de propriedades
 
-O painel **Propriedades** muda conforme o objeto selecionado:
+A seção **Selecionado** muda conforme o objeto selecionado:
 - **Módulo**, ou uma porta ou peça dele:
   - **Dimensões**, sempre do módulo inteiro;
   - **Cotas:** anterior e posterior até o vizinho ou o fim da parede, inferior até o piso, superior até o teto e afastamento da parede.
@@ -91,7 +91,7 @@ Com um módulo selecionado, as cotas também aparecem desenhadas no 3D.
 ## 4. Mover Sobre e Mover na Parede
 
 **Mover Sobre** (funciona com o botão direito em qualquer modo da viewport, inclusive em Edição):
-1. Ligue **Mover Sobre** no HUD da viewport ou na caixa de inspeção do **CONSTRUTOR**.
+1. Ligue **Mover Sobre** no HUD da viewport, no menu do botão direito do módulo ou em **Selecionado** › **Posição e vínculo**.
 2. Com o botão direito, arraste o módulo A até o módulo B (ou até uma parede) e solte.
 3. Abre uma janela com as vistas **superior** e **frontal**, só com A e B:
    - **Vista superior:** clique perto de um lado de B para encostar A nele. Clique perto de uma profundidade (0, 30, 50, 75 ou 100%) para alinhar a frente de A.
@@ -108,7 +108,7 @@ Na mesma janela (recursos do Reposicionar do Promob):
 
 **Plano de inserção:** no menu de contexto do objeto, escolha **Usar como plano de inserção** e clique numa face.
 As inserções e os movimentos que não acertam nenhum objeto passam a usar essa face no lugar do piso. Para desfazer,
-use **Limpar plano de inserção**, que fica no mesmo menu e em **Propriedades** › **Movimentação**.
+use **Limpar plano de inserção**, que fica no mesmo menu e em **Selecionado** › **Posição e vínculo**.
 
 **Mover na Parede:** use o botão no grupo **Cotas**. O módulo segue o mouse ao longo da parede, sem se afastar dela; com **Shift**, ele sobe e desce.
 Com **Evitar Sobreposição** ligado, o módulo para no vizinho e nas pontas da parede. As cotas mudam ao vivo no cabeçalho e no 3D.
@@ -116,7 +116,7 @@ Clique para confirmar ou tecle **Esc** para voltar.
 
 ## 5. Geometria livre: placa e caixa
 
-**Criar:** **CONSTRUTOR** › **Placa** ou **Caixa**.
+**Criar:** **Construir** › **Geometrias** › **Placa** ou **Caixa**.
 1. Clique no canto da peça (com **Ctrl**, ela encaixa em vértices e arestas).
 2. Mova o mouse para definir largura e profundidade. Para digitar, escreva a largura e tecle **Enter**, depois a profundidade e **Enter**.
 3. Na caixa, defina também a altura.

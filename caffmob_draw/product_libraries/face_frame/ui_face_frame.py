@@ -1684,7 +1684,8 @@ class HB_FACE_FRAME_PT_leg_product(bpy.types.Panel):
         draw_leg_product(self.layout, root)
 
 
-classes = (
+# Desenhados em Selecionado › Opções do face frame (feature 005, `ui/sidebar_selected.py`); não registrados na aba.
+PANELS = (
     HB_FACE_FRAME_PT_active_cabinet,
     HB_FACE_FRAME_PT_leg_product,
     HB_FACE_FRAME_PT_floating_shelf,
@@ -1694,6 +1695,7 @@ classes = (
     HB_FACE_FRAME_PT_selection,
     HB_FACE_FRAME_PT_all_bays,
 )
+classes = ()
 
 
 def register():

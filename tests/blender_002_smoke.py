@@ -58,7 +58,7 @@ for idname in ('CAFFMOB_OT_wall_editor', 'CAFFMOB_OT_wall_editor_modal', 'CAFFMO
                'CAFFMOB_OT_move_on_wall', 'CAFFMOB_OT_move_over_drag'):
     assert bpy.types.Operator.bl_rna_get_subclass_py(idname) is not None, idname
 for idname in ('BTM_PT_wall_editor_tools', 'BTM_PT_wall_editor_segment', 'BTM_PT_wall_editor_grid',
-               'BTM_PT_object_properties'):
+               'BTM_PT_sidebar'):   # feature 005: Propriedades virou a seção Selecionado do painel único
     assert bpy.types.Panel.bl_rna_get_subclass_py(idname) is not None, idname
 assert hasattr(ctx.window_manager, 'btm_wall_editor') and hasattr(bpy.types.Object, 'btm_geometry')
 

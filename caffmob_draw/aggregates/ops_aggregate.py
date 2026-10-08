@@ -208,9 +208,12 @@ class BTM_OT_DeleteWithAggregates(bpy.types.Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.mode == 'OBJECT' and any(_children_aggregates(o) for o in context.selected_objects)
+        return context.mode == 'OBJECT' and any(_children_aggregates(o) or _stuck_children(o)
+                                                for o in context.selected_objects)
 
     def invoke(self, context, event):
+        if not any(_children_aggregates(o) for o in context.selected_objects):
+            return self.execute(context)        # só elementos filhos grudados: soltam no lugar, sem pergunta
         return context.window_manager.invoke_props_dialog(self, title="O objeto tem agregados")
 
     def draw(self, context):
@@ -220,6 +223,7 @@ class BTM_OT_DeleteWithAggregates(bpy.types.Operator):
 
     def execute(self, context):
         targets = list(context.selected_objects)
+        _release_stuck_children(targets)
         for obj in targets:
             for child in _children_aggregates(obj):
                 if self.with_aggregates:
@@ -236,6 +240,31 @@ class BTM_OT_DeleteWithAggregates(bpy.types.Operator):
                         bpy.data.objects.remove(cutter, do_unlink=True)
                 bpy.data.objects.remove(obj, do_unlink=True)
         return {'FINISHED'}
+
+
+def _stuck_children(obj):
+    """Itens grudados neste objeto (feature 004, D-07)."""
+    from ..stick import apply as stick_apply
+    try:
+        return stick_apply.stuck_items(obj)
+    except ReferenceError:
+        return []
+
+
+def _release_stuck_children(targets):
+    """Antes de apagar um hospedeiro, solta cada elemento filho no lugar e avisa (RF-15, RN-08)."""
+    from ..stick import link
+    from ..ui import save_feedback
+    names = {o.name for o in targets}
+    for host in targets:
+        for item in _stuck_children(host):
+            if item.name in names:
+                continue
+            st = item.btm_stick
+            if st.orig_parent is not None and st.orig_parent.name in names:
+                st.orig_parent = None
+            link.release(item)
+            save_feedback.show(tr("Vínculo perdido: {}").format(item.name))
 
 
 def _children_aggregates(obj):

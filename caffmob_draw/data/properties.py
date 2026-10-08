@@ -644,6 +644,11 @@ class BTM_PG_SceneSettings(bpy.types.PropertyGroup):
                      "desligado, sobrepor é permitido (RN-13)"),
         default=True
     )  # type: ignore
+    stick_migrated: bpy.props.BoolProperty(
+        name="Grudados migrados",
+        description="Os módulos já postos na parede viraram elementos filhos dela",  # feature 004, D-08
+        default=False
+    )  # type: ignore
     save_fronts_open: bpy.props.BoolProperty(
         name="Salvar com Frentes Abertas",
         description=("Desligado (padrão), portas e gavetas abertas para inspeção são salvas fechadas e continuam "

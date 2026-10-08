@@ -7553,7 +7553,7 @@ class Face_Frame_Scene_Props(PropertyGroup):
     # =====================================================================
     # UI: master draw entry point (called by view3d_sidebar)
     # =====================================================================
-    def draw_library_ui(self, layout, context):
+    def draw_library_ui(self, layout, context, include_user=True):
         col = layout.column(align=True)
 
         # Tab selector. On the LIBRARY tab an icon-only Thumbnail/List
@@ -7593,6 +7593,8 @@ class Face_Frame_Scene_Props(PropertyGroup):
                 ('show_misc_library',             N_("Misc"),                         self.draw_misc_library_ui),
                 ('show_user_library',             N_("User"),                         self.draw_user_library_ui),
             ]
+            if not include_user:  # a biblioteca do usuário aparece em Inserir › Meus módulos (feature 005)
+                sections = [s for s in sections if s[0] != 'show_user_library']
             for prop_name, label, draw_fn in sections:
                 expanded = getattr(self, prop_name)
                 box = col.box()

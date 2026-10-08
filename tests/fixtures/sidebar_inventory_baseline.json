@@ -1,0 +1,7612 @@
+{
+ "sidebar": {
+  "nada": [
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_walls",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Desenhar Paredes"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.wall_editor",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Editor de Paredes"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.adjust_floor",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Ajustar Piso"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.floor_builder",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Piso Manual"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_ceiling",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Criar Teto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Porta Simples"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_double_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Porta Dupla"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_window",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Janela"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_open_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Vão Livre"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.cabinet_builder",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Módulo Rápido"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.standards_configurator",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Config. Dimensões"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_room_lights",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Luzes do Quarto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_obstacles.place_obstacle",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Inserir Obstáculo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_create",
+    "section": "CAFFMob Draw",
+    "args": {
+     "kind": "PLACA"
+    },
+    "text": "Placa"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_create",
+    "section": "CAFFMob Draw",
+    "args": {
+     "kind": "CAIXA"
+    },
+    "text": "Caixa"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.inspect_fronts",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Abrir Portas e Gavetas"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "OPEN_90"
+    },
+    "text": "Abrir tudo 90°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "OPEN_45"
+    },
+    "text": "45°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "CLOSE"
+    },
+    "text": "Fechar tudo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_front_interference",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Verificar Interferência"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.calculate_nesting",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Calcular Plano de Corte"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.export_cut_plan_json",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Exportar JSON Global"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.export_parts_csv",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Exportar Peças (CSV)"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.set_recommended_settings",
+    "section": "Project",
+    "args": {},
+    "text": "Open Recommended Settings"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.scene_navigator",
+    "section": "Project",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.switch_room",
+    "section": "Project › Rooms",
+    "args": {
+     "scene_name": "Scene"
+    },
+    "text": "Scene"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.create_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Add"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.rename_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Rename"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.duplicate_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Duplicate"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_walls",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": "Draw Walls"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.update_wall_height",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.update_wall_thickness",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.apply_wall_material",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Single Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_double_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Double Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_open_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Open Passage"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_window",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Window"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_floor",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_floor_cutter",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_ceiling",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_room_lights",
+    "section": "Room Layout › Lighting",
+    "args": {},
+    "text": "Add Room Lights"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.setup_world_lighting",
+    "section": "Room Layout › Lighting",
+    "args": {},
+    "text": "Setup World Lighting"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.update_cabinet_sizes",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Door"
+    },
+    "text": "Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Door Drw"
+    },
+    "text": "Door Drw"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Drawer"
+    },
+    "text": "Drawer"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Lap Drawer"
+    },
+    "text": "Lap Drawer"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper"
+    },
+    "text": "Upper"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper Stacked"
+    },
+    "text": "Upper Stacked"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall"
+    },
+    "text": "Tall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall Stacked"
+    },
+    "text": "Tall Stacked"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Base"
+    },
+    "text": "Base"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Tall"
+    },
+    "text": "Tall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Upper"
+    },
+    "text": "Upper"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Refrigerator Cabinet"
+    },
+    "text": "Fridge Cabinet"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Dishwasher"
+    },
+    "text": "Dishwasher"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Refrigerator"
+    },
+    "text": "Refrigerator"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Range"
+    },
+    "text": "Range"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Range Hood"
+    },
+    "text": "Range Hood"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Floating Shelves"
+    },
+    "text": "Floating Shelves"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Valance"
+    },
+    "text": "Valance"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Support Frame"
+    },
+    "text": "Support Frame"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Half Wall"
+    },
+    "text": "Half Wall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Misc Part"
+    },
+    "text": "Misc Part"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Leg"
+    },
+    "text": "Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall Leg"
+    },
+    "text": "Tall Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper Leg"
+    },
+    "text": "Upper Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Panel"
+    },
+    "text": "Panel"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.refresh_user_library",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.open_user_library_folder",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.create_cabinet_group",
+    "section": "Product Library",
+    "args": {},
+    "text": "Create Cabinet Group"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.save_cabinet_group_to_user_library",
+    "section": "Product Library",
+    "args": {},
+    "text": "Save to Library"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_details.create_detail",
+    "section": "2D Details",
+    "args": {},
+    "text": "New Detail"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_line",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Line"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_rectangle",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Rectangle"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_circle",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Circle"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.add_text",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Add Text"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.add_dimension_3d",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Add Dimension"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_annotations.apply_settings_to_all",
+    "section": "Annotations › Annotation Settings",
+    "args": {},
+    "text": "Apply to All Annotations"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_stairs.place_stairs",
+    "section": "Room Layout › Stairs",
+    "args": {},
+    "text": "Place Stairs"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.module_open_folder",
+    "section": "Propriedades › Biblioteca de módulos",
+    "args": {},
+    "text": "Abrir pasta"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.import_model",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.aggregate_convert",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.leaf_convert",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_collisions",
+    "section": "Colisões",
+    "args": {
+     "scope": "ALL"
+    },
+    "text": "Verificar colisões"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_collisions",
+    "section": "Colisões",
+    "args": {
+     "scope": "SELECTED"
+    },
+    "text": "Selecionado"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_walls",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Desenhar Paredes"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.wall_editor",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Editor de Paredes"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.adjust_floor",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Ajustar Piso"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.floor_builder",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Piso Manual"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_ceiling",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Criar Teto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Porta Simples"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_double_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Porta Dupla"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_window",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Janela"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_open_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Vão Livre"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.cabinet_builder",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Módulo Rápido"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.standards_configurator",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Config. Dimensões"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_room_lights",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Luzes do Quarto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_obstacles.place_obstacle",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Inserir Obstáculo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_create",
+    "section": "CAFFMob Draw",
+    "args": {
+     "kind": "PLACA"
+    },
+    "text": "Placa"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_create",
+    "section": "CAFFMob Draw",
+    "args": {
+     "kind": "CAIXA"
+    },
+    "text": "Caixa"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.inspect_fronts",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Abrir Portas e Gavetas"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "OPEN_90"
+    },
+    "text": "Abrir tudo 90°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "OPEN_45"
+    },
+    "text": "45°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "CLOSE"
+    },
+    "text": "Fechar tudo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_front_interference",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Verificar Interferência"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.calculate_nesting",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Calcular Plano de Corte"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.export_cut_plan_json",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Exportar JSON Global"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.export_parts_csv",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Exportar Peças (CSV)"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.set_recommended_settings",
+    "section": "Project",
+    "args": {},
+    "text": "Open Recommended Settings"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.scene_navigator",
+    "section": "Project",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.switch_room",
+    "section": "Project › Rooms",
+    "args": {
+     "scene_name": "Scene"
+    },
+    "text": "Scene"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.create_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Add"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.rename_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Rename"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.duplicate_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Duplicate"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_walls",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": "Draw Walls"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.update_wall_height",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.update_wall_thickness",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.apply_wall_material",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Single Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_double_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Double Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_open_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Open Passage"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_window",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Window"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_floor",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_floor_cutter",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_ceiling",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_room_lights",
+    "section": "Room Layout › Lighting",
+    "args": {},
+    "text": "Add Room Lights"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.setup_world_lighting",
+    "section": "Room Layout › Lighting",
+    "args": {},
+    "text": "Setup World Lighting"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.update_cabinet_sizes",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.refresh_top_drawer_openings",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base"
+    },
+    "text": "Base"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall"
+    },
+    "text": "Tall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper"
+    },
+    "text": "Upper"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Lap Drawer"
+    },
+    "text": "Lap"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper Stacked"
+    },
+    "text": "Stacked"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Sink"
+    },
+    "text": "Sink"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Refrigerator Cabinet"
+    },
+    "text": "Refrigerator"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Built in Tall"
+    },
+    "text": "Oven"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Dishwasher"
+    },
+    "text": "Dishwasher"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Range"
+    },
+    "text": "Range"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Range Hood"
+    },
+    "text": "Hood"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Standalone Refrigerator"
+    },
+    "text": "Refrigerator"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Base"
+    },
+    "text": "Base"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Drawer"
+    },
+    "text": "Drawer"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Upper"
+    },
+    "text": "Upper"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Diagonal Base"
+    },
+    "text": "Base"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Diagonal Tall"
+    },
+    "text": "Tall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Diagonal Upper"
+    },
+    "text": "Upper"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Special"
+    },
+    "text": "Special"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Combination"
+    },
+    "text": "Combination"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Deluxe"
+    },
+    "text": "Deluxe"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Panel"
+    },
+    "text": "Panel"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Leg Product"
+    },
+    "text": "Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Door"
+    },
+    "text": "Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Misc Part"
+    },
+    "text": "Misc"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Floating Shelves"
+    },
+    "text": "Floating Shelf"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Valance"
+    },
+    "text": "Valance"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Standard Recessed Medicine Cabinet"
+    },
+    "text": "Recessed"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Medicine Cabinet"
+    },
+    "text": "Standard"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tri-View Medicine Cabinet"
+    },
+    "text": "Tri-View"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Overstool Cabinet"
+    },
+    "text": "Overstool"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Mirror Frame"
+    },
+    "text": "Mirror"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tub Skirt"
+    },
+    "text": "Tub Skirt"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Bookcase"
+    },
+    "text": "Base"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Bookcase Storage Unit"
+    },
+    "text": "Storage"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Bookcase Upper"
+    },
+    "text": "Upper"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "5 Drawer Dresser"
+    },
+    "text": "5 Drawer"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "6 Drawer Dresser"
+    },
+    "text": "6 Drawer"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Night Stand"
+    },
+    "text": "Standard"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "3 Drawer Night Stand"
+    },
+    "text": "3 Drawer"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Hutch Upper"
+    },
+    "text": "Hutch"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Window Seat"
+    },
+    "text": "Window Seat"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Half Wall"
+    },
+    "text": "Half Wall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Support Frame"
+    },
+    "text": "Support"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Face Frame and Doors"
+    },
+    "text": "FF & Doors"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.refresh_user_library",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.open_user_library_folder",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.create_cabinet_group",
+    "section": "Product Library",
+    "args": {},
+    "text": "Create Cabinet Group"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_face_frame.save_cabinet_group_to_user_library",
+    "section": "Product Library",
+    "args": {},
+    "text": "Save to Library"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_details.create_detail",
+    "section": "2D Details",
+    "args": {},
+    "text": "New Detail"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_line",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Line"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_rectangle",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Rectangle"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_circle",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Circle"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.add_text",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Add Text"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.add_dimension_3d",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Add Dimension"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_annotations.apply_settings_to_all",
+    "section": "Annotations › Annotation Settings",
+    "args": {},
+    "text": "Apply to All Annotations"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_stairs.place_stairs",
+    "section": "Room Layout › Stairs",
+    "args": {},
+    "text": "Place Stairs"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.module_open_folder",
+    "section": "Propriedades › Biblioteca de módulos",
+    "args": {},
+    "text": "Abrir pasta"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.import_model",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.aggregate_convert",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.leaf_convert",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_collisions",
+    "section": "Colisões",
+    "args": {
+     "scope": "ALL"
+    },
+    "text": "Verificar colisões"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_collisions",
+    "section": "Colisões",
+    "args": {
+     "scope": "SELECTED"
+    },
+    "text": "Selecionado"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_walls",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Desenhar Paredes"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.wall_editor",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Editor de Paredes"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.adjust_floor",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Ajustar Piso"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.floor_builder",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Piso Manual"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_ceiling",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Criar Teto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Porta Simples"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_double_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Porta Dupla"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_window",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Janela"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_open_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Vão Livre"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.cabinet_builder",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Módulo Rápido"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.standards_configurator",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Config. Dimensões"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_room_lights",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Luzes do Quarto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_obstacles.place_obstacle",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Inserir Obstáculo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_create",
+    "section": "CAFFMob Draw",
+    "args": {
+     "kind": "PLACA"
+    },
+    "text": "Placa"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_create",
+    "section": "CAFFMob Draw",
+    "args": {
+     "kind": "CAIXA"
+    },
+    "text": "Caixa"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.inspect_fronts",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Abrir Portas e Gavetas"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "OPEN_90"
+    },
+    "text": "Abrir tudo 90°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "OPEN_45"
+    },
+    "text": "45°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "CLOSE"
+    },
+    "text": "Fechar tudo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_front_interference",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Verificar Interferência"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.calculate_nesting",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Calcular Plano de Corte"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.export_cut_plan_json",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Exportar JSON Global"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.export_parts_csv",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Exportar Peças (CSV)"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.set_recommended_settings",
+    "section": "Project",
+    "args": {},
+    "text": "Open Recommended Settings"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.scene_navigator",
+    "section": "Project",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.switch_room",
+    "section": "Project › Rooms",
+    "args": {
+     "scene_name": "Scene"
+    },
+    "text": "Scene"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.create_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Add"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.rename_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Rename"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.duplicate_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Duplicate"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_walls",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": "Draw Walls"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.update_wall_height",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.update_wall_thickness",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.apply_wall_material",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Single Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_double_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Double Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_open_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Open Passage"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_window",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Window"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_floor",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_floor_cutter",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_ceiling",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_room_lights",
+    "section": "Room Layout › Lighting",
+    "args": {},
+    "text": "Add Room Lights"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.setup_world_lighting",
+    "section": "Room Layout › Lighting",
+    "args": {},
+    "text": "Setup World Lighting"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_closets.place_starter",
+    "section": "Product Library",
+    "args": {
+     "starter_name": "Base"
+    },
+    "text": "Base"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_closets.place_starter",
+    "section": "Product Library",
+    "args": {
+     "starter_name": "Tall"
+    },
+    "text": "Tall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_closets.place_starter",
+    "section": "Product Library",
+    "args": {
+     "starter_name": "Hanging"
+    },
+    "text": "Hanging"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_closets.place_starter",
+    "section": "Product Library",
+    "args": {
+     "starter_name": "L Shelf Base"
+    },
+    "text": "Base"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_closets.place_starter",
+    "section": "Product Library",
+    "args": {
+     "starter_name": "L Shelf Tall"
+    },
+    "text": "Tall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_closets.place_starter",
+    "section": "Product Library",
+    "args": {
+     "starter_name": "L Shelf Upper"
+    },
+    "text": "Hanging"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_closets.place_starter",
+    "section": "Product Library",
+    "args": {
+     "starter_name": "Island"
+    },
+    "text": "Single"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_closets.place_starter",
+    "section": "Product Library",
+    "args": {
+     "starter_name": "Island Double"
+    },
+    "text": "Double"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_closets.randomize_hangers",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_closets.install_model_pack",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_closets.add_molding",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_closets.delete_molding",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_details.create_detail",
+    "section": "2D Details",
+    "args": {},
+    "text": "New Detail"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_line",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Line"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_rectangle",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Rectangle"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_circle",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Circle"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.add_text",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Add Text"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.add_dimension_3d",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Add Dimension"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_annotations.apply_settings_to_all",
+    "section": "Annotations › Annotation Settings",
+    "args": {},
+    "text": "Apply to All Annotations"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_stairs.place_stairs",
+    "section": "Room Layout › Stairs",
+    "args": {},
+    "text": "Place Stairs"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.module_open_folder",
+    "section": "Propriedades › Biblioteca de módulos",
+    "args": {},
+    "text": "Abrir pasta"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.import_model",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.aggregate_convert",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.leaf_convert",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_collisions",
+    "section": "Colisões",
+    "args": {
+     "scope": "ALL"
+    },
+    "text": "Verificar colisões"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_collisions",
+    "section": "Colisões",
+    "args": {
+     "scope": "SELECTED"
+    },
+    "text": "Selecionado"
+   }
+  ],
+  "parede": [
+   {
+    "kind": "operator",
+    "name": "caffmob.wall_editor",
+    "section": "Propriedades",
+    "args": {},
+    "text": "Abrir editor de paredes"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.wall_lower",
+    "section": "Propriedades",
+    "args": {},
+    "text": "Rebaixar"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.wall_visibility",
+    "section": "Propriedades",
+    "args": {},
+    "text": "Visibilidade"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.wall_remove",
+    "section": "Propriedades",
+    "args": {},
+    "text": "Remover Parede…"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.set_insertion_plane",
+    "section": "Propriedades › Movimentação",
+    "args": {},
+    "text": "Plano de inserção"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_walls",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Desenhar Paredes"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.wall_editor",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Editor de Paredes"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.adjust_floor",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Ajustar Piso"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.floor_builder",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Piso Manual"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_ceiling",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Criar Teto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Porta Simples"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_double_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Porta Dupla"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_window",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Janela"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_open_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Vão Livre"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.cabinet_builder",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Módulo Rápido"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.standards_configurator",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Config. Dimensões"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_room_lights",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Luzes do Quarto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_obstacles.place_obstacle",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Inserir Obstáculo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_create",
+    "section": "CAFFMob Draw",
+    "args": {
+     "kind": "PLACA"
+    },
+    "text": "Placa"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_create",
+    "section": "CAFFMob Draw",
+    "args": {
+     "kind": "CAIXA"
+    },
+    "text": "Caixa"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.inspect_fronts",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Abrir Portas e Gavetas"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "OPEN_90"
+    },
+    "text": "Abrir tudo 90°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "OPEN_45"
+    },
+    "text": "45°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "CLOSE"
+    },
+    "text": "Fechar tudo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_front_interference",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Verificar Interferência"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.calculate_nesting",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Calcular Plano de Corte"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.export_cut_plan_json",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Exportar JSON Global"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.export_parts_csv",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Exportar Peças (CSV)"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.set_recommended_settings",
+    "section": "Project",
+    "args": {},
+    "text": "Open Recommended Settings"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.scene_navigator",
+    "section": "Project",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.switch_room",
+    "section": "Project › Rooms",
+    "args": {
+     "scene_name": "Scene"
+    },
+    "text": "Scene"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.create_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Add"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.rename_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Rename"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.duplicate_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Duplicate"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_walls",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": "Draw Walls"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.update_wall_height",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.update_wall_thickness",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.apply_wall_material",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Single Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_double_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Double Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_open_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Open Passage"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_window",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Window"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_floor",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_floor_cutter",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_ceiling",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_room_lights",
+    "section": "Room Layout › Lighting",
+    "args": {},
+    "text": "Add Room Lights"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.setup_world_lighting",
+    "section": "Room Layout › Lighting",
+    "args": {},
+    "text": "Setup World Lighting"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.update_cabinet_sizes",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Door"
+    },
+    "text": "Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Door Drw"
+    },
+    "text": "Door Drw"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Drawer"
+    },
+    "text": "Drawer"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Lap Drawer"
+    },
+    "text": "Lap Drawer"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper"
+    },
+    "text": "Upper"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper Stacked"
+    },
+    "text": "Upper Stacked"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall"
+    },
+    "text": "Tall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall Stacked"
+    },
+    "text": "Tall Stacked"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Base"
+    },
+    "text": "Base"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Tall"
+    },
+    "text": "Tall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Upper"
+    },
+    "text": "Upper"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Refrigerator Cabinet"
+    },
+    "text": "Fridge Cabinet"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Dishwasher"
+    },
+    "text": "Dishwasher"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Refrigerator"
+    },
+    "text": "Refrigerator"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Range"
+    },
+    "text": "Range"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Range Hood"
+    },
+    "text": "Range Hood"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Floating Shelves"
+    },
+    "text": "Floating Shelves"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Valance"
+    },
+    "text": "Valance"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Support Frame"
+    },
+    "text": "Support Frame"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Half Wall"
+    },
+    "text": "Half Wall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Misc Part"
+    },
+    "text": "Misc Part"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Leg"
+    },
+    "text": "Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall Leg"
+    },
+    "text": "Tall Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper Leg"
+    },
+    "text": "Upper Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Panel"
+    },
+    "text": "Panel"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.refresh_user_library",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.open_user_library_folder",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.create_cabinet_group",
+    "section": "Product Library",
+    "args": {},
+    "text": "Create Cabinet Group"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.save_cabinet_group_to_user_library",
+    "section": "Product Library",
+    "args": {},
+    "text": "Save to Library"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_details.create_detail",
+    "section": "2D Details",
+    "args": {},
+    "text": "New Detail"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_line",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Line"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_rectangle",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Rectangle"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_circle",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Circle"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.add_text",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Add Text"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.add_dimension_3d",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Add Dimension"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_annotations.apply_settings_to_all",
+    "section": "Annotations › Annotation Settings",
+    "args": {},
+    "text": "Apply to All Annotations"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_stairs.place_stairs",
+    "section": "Room Layout › Stairs",
+    "args": {},
+    "text": "Place Stairs"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.module_open_folder",
+    "section": "Propriedades › Biblioteca de módulos",
+    "args": {},
+    "text": "Abrir pasta"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.import_model",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.aggregate_convert",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.leaf_convert",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.stick_to_face",
+    "section": "Propriedades › Elemento filho",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_collisions",
+    "section": "Colisões",
+    "args": {
+     "scope": "ALL"
+    },
+    "text": "Verificar colisões"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_collisions",
+    "section": "Colisões",
+    "args": {
+     "scope": "SELECTED"
+    },
+    "text": "Selecionado"
+   }
+  ],
+  "frameless": [
+   {
+    "kind": "operator",
+    "name": "caffmob.cabinet_editor",
+    "section": "Propriedades",
+    "args": {},
+    "text": "Abrir editor de armário"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "Propriedades",
+    "args": {
+     "scope": "ACTIVE_MODULE",
+     "mode": "OPEN_90"
+    },
+    "text": "Abrir 90°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "Propriedades",
+    "args": {
+     "scope": "ACTIVE_MODULE",
+     "mode": "OPEN_45"
+    },
+    "text": "45°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "Propriedades",
+    "args": {
+     "scope": "ACTIVE_MODULE",
+     "mode": "CLOSE"
+    },
+    "text": "Fechar"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.set_insertion_plane",
+    "section": "Propriedades › Movimentação",
+    "args": {},
+    "text": "Plano de inserção"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_walls",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Desenhar Paredes"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.wall_editor",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Editor de Paredes"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.adjust_floor",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Ajustar Piso"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.floor_builder",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Piso Manual"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_ceiling",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Criar Teto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Porta Simples"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_double_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Porta Dupla"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_window",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Janela"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_open_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Vão Livre"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.cabinet_builder",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Módulo Rápido"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.standards_configurator",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Config. Dimensões"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_room_lights",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Luzes do Quarto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_obstacles.place_obstacle",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Inserir Obstáculo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_create",
+    "section": "CAFFMob Draw",
+    "args": {
+     "kind": "PLACA"
+    },
+    "text": "Placa"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_create",
+    "section": "CAFFMob Draw",
+    "args": {
+     "kind": "CAIXA"
+    },
+    "text": "Caixa"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.inspect_fronts",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Abrir Portas e Gavetas"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "OPEN_90"
+    },
+    "text": "Abrir tudo 90°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "OPEN_45"
+    },
+    "text": "45°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "CLOSE"
+    },
+    "text": "Fechar tudo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_front_interference",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Verificar Interferência"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.calculate_nesting",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Calcular Plano de Corte"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.export_cut_plan_json",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Exportar JSON Global"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.export_parts_csv",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Exportar Peças (CSV)"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.set_recommended_settings",
+    "section": "Project",
+    "args": {},
+    "text": "Open Recommended Settings"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.scene_navigator",
+    "section": "Project",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.switch_room",
+    "section": "Project › Rooms",
+    "args": {
+     "scene_name": "Scene"
+    },
+    "text": "Scene"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.create_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Add"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.rename_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Rename"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.duplicate_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Duplicate"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_walls",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": "Draw Walls"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.update_wall_height",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.update_wall_thickness",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.apply_wall_material",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Single Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_double_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Double Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_open_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Open Passage"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_window",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Window"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_floor",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_floor_cutter",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_ceiling",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_room_lights",
+    "section": "Room Layout › Lighting",
+    "args": {},
+    "text": "Add Room Lights"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.setup_world_lighting",
+    "section": "Room Layout › Lighting",
+    "args": {},
+    "text": "Setup World Lighting"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.update_cabinet_sizes",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Door"
+    },
+    "text": "Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Door Drw"
+    },
+    "text": "Door Drw"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Drawer"
+    },
+    "text": "Drawer"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Lap Drawer"
+    },
+    "text": "Lap Drawer"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper"
+    },
+    "text": "Upper"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper Stacked"
+    },
+    "text": "Upper Stacked"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall"
+    },
+    "text": "Tall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall Stacked"
+    },
+    "text": "Tall Stacked"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Base"
+    },
+    "text": "Base"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Tall"
+    },
+    "text": "Tall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Upper"
+    },
+    "text": "Upper"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Refrigerator Cabinet"
+    },
+    "text": "Fridge Cabinet"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Dishwasher"
+    },
+    "text": "Dishwasher"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Refrigerator"
+    },
+    "text": "Refrigerator"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Range"
+    },
+    "text": "Range"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Range Hood"
+    },
+    "text": "Range Hood"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Floating Shelves"
+    },
+    "text": "Floating Shelves"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Valance"
+    },
+    "text": "Valance"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Support Frame"
+    },
+    "text": "Support Frame"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Half Wall"
+    },
+    "text": "Half Wall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Misc Part"
+    },
+    "text": "Misc Part"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Leg"
+    },
+    "text": "Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall Leg"
+    },
+    "text": "Tall Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper Leg"
+    },
+    "text": "Upper Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Panel"
+    },
+    "text": "Panel"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.refresh_user_library",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.open_user_library_folder",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.create_cabinet_group",
+    "section": "Product Library",
+    "args": {},
+    "text": "Create Cabinet Group"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.save_cabinet_group_to_user_library",
+    "section": "Product Library",
+    "args": {},
+    "text": "Save to Library"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_details.create_detail",
+    "section": "2D Details",
+    "args": {},
+    "text": "New Detail"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_line",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Line"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_rectangle",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Rectangle"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_circle",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Circle"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.add_text",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Add Text"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.add_dimension_3d",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Add Dimension"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_annotations.apply_settings_to_all",
+    "section": "Annotations › Annotation Settings",
+    "args": {},
+    "text": "Apply to All Annotations"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_stairs.place_stairs",
+    "section": "Room Layout › Stairs",
+    "args": {},
+    "text": "Place Stairs"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_clear",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "bay0/opening0"
+    },
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_front",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "bay0/opening0"
+    },
+    "text": "Frente"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_style",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "bay0/opening0"
+    },
+    "text": "Estilo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_pull",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "bay0/opening0"
+    },
+    "text": "Puxador: do projeto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_material",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "target": "FRONTS",
+     "path": "bay0/opening0"
+    },
+    "text": "Material das frentes: do módulo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_interior",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "bay0/opening0"
+    },
+    "text": "Interior: 1 prat., 0 div., 0 gav."
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_material",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "target": "GROUP",
+     "group": "CAIXA"
+    },
+    "text": "Caixa: do módulo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_material",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "target": "GROUP",
+     "group": "FRENTES"
+    },
+    "text": "Frentes: do módulo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_material",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "target": "GROUP",
+     "group": "FUNDO"
+    },
+    "text": "Fundo: do módulo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_material",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "target": "GROUP",
+     "group": "INTERNO"
+    },
+    "text": "Interno: do módulo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.module_save",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.module_open_folder",
+    "section": "Propriedades › Biblioteca de módulos",
+    "args": {},
+    "text": "Abrir pasta"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.import_model",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.aggregate_convert",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.leaf_convert",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.stick_to_face",
+    "section": "Propriedades › Elemento filho",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_collisions",
+    "section": "Colisões",
+    "args": {
+     "scope": "ALL"
+    },
+    "text": "Verificar colisões"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_collisions",
+    "section": "Colisões",
+    "args": {
+     "scope": "SELECTED"
+    },
+    "text": "Selecionado"
+   }
+  ],
+  "face_frame": [
+   {
+    "kind": "operator",
+    "name": "caffmob.cabinet_editor",
+    "section": "Propriedades",
+    "args": {},
+    "text": "Abrir editor de armário"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.set_insertion_plane",
+    "section": "Propriedades › Movimentação",
+    "args": {},
+    "text": "Plano de inserção"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_walls",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Desenhar Paredes"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.wall_editor",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Editor de Paredes"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.adjust_floor",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Ajustar Piso"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.floor_builder",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Piso Manual"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_ceiling",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Criar Teto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Porta Simples"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_double_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Porta Dupla"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_window",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Janela"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_open_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Vão Livre"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.cabinet_builder",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Módulo Rápido"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.standards_configurator",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Config. Dimensões"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_room_lights",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Luzes do Quarto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_obstacles.place_obstacle",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Inserir Obstáculo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_create",
+    "section": "CAFFMob Draw",
+    "args": {
+     "kind": "PLACA"
+    },
+    "text": "Placa"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_create",
+    "section": "CAFFMob Draw",
+    "args": {
+     "kind": "CAIXA"
+    },
+    "text": "Caixa"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.inspect_fronts",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Abrir Portas e Gavetas"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "OPEN_90"
+    },
+    "text": "Abrir tudo 90°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "OPEN_45"
+    },
+    "text": "45°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "CLOSE"
+    },
+    "text": "Fechar tudo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_front_interference",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Verificar Interferência"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.calculate_nesting",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Calcular Plano de Corte"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.export_cut_plan_json",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Exportar JSON Global"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.export_parts_csv",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Exportar Peças (CSV)"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.set_recommended_settings",
+    "section": "Project",
+    "args": {},
+    "text": "Open Recommended Settings"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.scene_navigator",
+    "section": "Project",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.switch_room",
+    "section": "Project › Rooms",
+    "args": {
+     "scene_name": "Scene"
+    },
+    "text": "Scene"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.create_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Add"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.rename_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Rename"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.duplicate_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Duplicate"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_walls",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": "Draw Walls"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.update_wall_height",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.update_wall_thickness",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.apply_wall_material",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Single Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_double_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Double Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_open_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Open Passage"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_window",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Window"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_floor",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_floor_cutter",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_ceiling",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_room_lights",
+    "section": "Room Layout › Lighting",
+    "args": {},
+    "text": "Add Room Lights"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.setup_world_lighting",
+    "section": "Room Layout › Lighting",
+    "args": {},
+    "text": "Setup World Lighting"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.update_cabinet_sizes",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Door"
+    },
+    "text": "Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Door Drw"
+    },
+    "text": "Door Drw"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Drawer"
+    },
+    "text": "Drawer"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Lap Drawer"
+    },
+    "text": "Lap Drawer"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper"
+    },
+    "text": "Upper"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper Stacked"
+    },
+    "text": "Upper Stacked"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall"
+    },
+    "text": "Tall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall Stacked"
+    },
+    "text": "Tall Stacked"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Base"
+    },
+    "text": "Base"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Tall"
+    },
+    "text": "Tall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Upper"
+    },
+    "text": "Upper"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Refrigerator Cabinet"
+    },
+    "text": "Fridge Cabinet"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Dishwasher"
+    },
+    "text": "Dishwasher"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Refrigerator"
+    },
+    "text": "Refrigerator"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Range"
+    },
+    "text": "Range"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Range Hood"
+    },
+    "text": "Range Hood"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Floating Shelves"
+    },
+    "text": "Floating Shelves"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Valance"
+    },
+    "text": "Valance"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Support Frame"
+    },
+    "text": "Support Frame"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Half Wall"
+    },
+    "text": "Half Wall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Misc Part"
+    },
+    "text": "Misc Part"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Leg"
+    },
+    "text": "Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall Leg"
+    },
+    "text": "Tall Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper Leg"
+    },
+    "text": "Upper Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Panel"
+    },
+    "text": "Panel"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.refresh_user_library",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.open_user_library_folder",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.create_cabinet_group",
+    "section": "Product Library",
+    "args": {},
+    "text": "Create Cabinet Group"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.save_cabinet_group_to_user_library",
+    "section": "Product Library",
+    "args": {},
+    "text": "Save to Library"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_details.create_detail",
+    "section": "2D Details",
+    "args": {},
+    "text": "New Detail"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_line",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Line"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_rectangle",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Rectangle"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_circle",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Circle"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.add_text",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Add Text"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.add_dimension_3d",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Add Dimension"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_annotations.apply_settings_to_all",
+    "section": "Annotations › Annotation Settings",
+    "args": {},
+    "text": "Apply to All Annotations"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_stairs.place_stairs",
+    "section": "Room Layout › Stairs",
+    "args": {},
+    "text": "Place Stairs"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_clear",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "opening0"
+    },
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_front",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "opening0"
+    },
+    "text": "Frente"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_style",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "opening0"
+    },
+    "text": "Estilo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_pull",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "opening0"
+    },
+    "text": "Puxador: do projeto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_material",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "target": "FRONTS",
+     "path": "opening0"
+    },
+    "text": "Material das frentes: do módulo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_interior",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "opening0"
+    },
+    "text": "Interior: 0 prat., 0 div., 0 gav."
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_material",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "target": "GROUP",
+     "group": "CAIXA"
+    },
+    "text": "Caixa: do módulo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_material",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "target": "GROUP",
+     "group": "FRENTES"
+    },
+    "text": "Frentes: do módulo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_material",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "target": "GROUP",
+     "group": "FUNDO"
+    },
+    "text": "Fundo: do módulo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_material",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "target": "GROUP",
+     "group": "INTERNO"
+    },
+    "text": "Interno: do módulo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.module_save",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.module_open_folder",
+    "section": "Propriedades › Biblioteca de módulos",
+    "args": {},
+    "text": "Abrir pasta"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.import_model",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.aggregate_convert",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.leaf_convert",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.stick_to_face",
+    "section": "Propriedades › Elemento filho",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_collisions",
+    "section": "Colisões",
+    "args": {
+     "scope": "ALL"
+    },
+    "text": "Verificar colisões"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_collisions",
+    "section": "Colisões",
+    "args": {
+     "scope": "SELECTED"
+    },
+    "text": "Selecionado"
+   }
+  ],
+  "closets": [
+   {
+    "kind": "operator",
+    "name": "caffmob.cabinet_editor",
+    "section": "Propriedades",
+    "args": {},
+    "text": "Abrir editor de armário"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.set_insertion_plane",
+    "section": "Propriedades › Movimentação",
+    "args": {},
+    "text": "Plano de inserção"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_walls",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Desenhar Paredes"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.wall_editor",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Editor de Paredes"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.adjust_floor",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Ajustar Piso"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.floor_builder",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Piso Manual"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_ceiling",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Criar Teto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Porta Simples"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_double_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Porta Dupla"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_window",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Janela"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_open_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Vão Livre"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.cabinet_builder",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Módulo Rápido"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.standards_configurator",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Config. Dimensões"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_room_lights",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Luzes do Quarto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_obstacles.place_obstacle",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Inserir Obstáculo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_create",
+    "section": "CAFFMob Draw",
+    "args": {
+     "kind": "PLACA"
+    },
+    "text": "Placa"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_create",
+    "section": "CAFFMob Draw",
+    "args": {
+     "kind": "CAIXA"
+    },
+    "text": "Caixa"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.inspect_fronts",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Abrir Portas e Gavetas"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "OPEN_90"
+    },
+    "text": "Abrir tudo 90°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "OPEN_45"
+    },
+    "text": "45°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "CLOSE"
+    },
+    "text": "Fechar tudo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_front_interference",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Verificar Interferência"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.calculate_nesting",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Calcular Plano de Corte"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.export_cut_plan_json",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Exportar JSON Global"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.export_parts_csv",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Exportar Peças (CSV)"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.set_recommended_settings",
+    "section": "Project",
+    "args": {},
+    "text": "Open Recommended Settings"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.scene_navigator",
+    "section": "Project",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.switch_room",
+    "section": "Project › Rooms",
+    "args": {
+     "scene_name": "Scene"
+    },
+    "text": "Scene"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.create_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Add"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.rename_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Rename"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.duplicate_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Duplicate"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_walls",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": "Draw Walls"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.update_wall_height",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.update_wall_thickness",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.apply_wall_material",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Single Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_double_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Double Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_open_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Open Passage"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_window",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Window"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_floor",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_floor_cutter",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_ceiling",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_room_lights",
+    "section": "Room Layout › Lighting",
+    "args": {},
+    "text": "Add Room Lights"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.setup_world_lighting",
+    "section": "Room Layout › Lighting",
+    "args": {},
+    "text": "Setup World Lighting"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.update_cabinet_sizes",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Door"
+    },
+    "text": "Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Door Drw"
+    },
+    "text": "Door Drw"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Drawer"
+    },
+    "text": "Drawer"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Lap Drawer"
+    },
+    "text": "Lap Drawer"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper"
+    },
+    "text": "Upper"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper Stacked"
+    },
+    "text": "Upper Stacked"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall"
+    },
+    "text": "Tall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall Stacked"
+    },
+    "text": "Tall Stacked"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Base"
+    },
+    "text": "Base"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Tall"
+    },
+    "text": "Tall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Upper"
+    },
+    "text": "Upper"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Refrigerator Cabinet"
+    },
+    "text": "Fridge Cabinet"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Dishwasher"
+    },
+    "text": "Dishwasher"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Refrigerator"
+    },
+    "text": "Refrigerator"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Range"
+    },
+    "text": "Range"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Range Hood"
+    },
+    "text": "Range Hood"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Floating Shelves"
+    },
+    "text": "Floating Shelves"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Valance"
+    },
+    "text": "Valance"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Support Frame"
+    },
+    "text": "Support Frame"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Half Wall"
+    },
+    "text": "Half Wall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Misc Part"
+    },
+    "text": "Misc Part"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Leg"
+    },
+    "text": "Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall Leg"
+    },
+    "text": "Tall Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper Leg"
+    },
+    "text": "Upper Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Panel"
+    },
+    "text": "Panel"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.refresh_user_library",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.open_user_library_folder",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.create_cabinet_group",
+    "section": "Product Library",
+    "args": {},
+    "text": "Create Cabinet Group"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.save_cabinet_group_to_user_library",
+    "section": "Product Library",
+    "args": {},
+    "text": "Save to Library"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_details.create_detail",
+    "section": "2D Details",
+    "args": {},
+    "text": "New Detail"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_line",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Line"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_rectangle",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Rectangle"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_circle",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Circle"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.add_text",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Add Text"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.add_dimension_3d",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Add Dimension"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_annotations.apply_settings_to_all",
+    "section": "Annotations › Annotation Settings",
+    "args": {},
+    "text": "Apply to All Annotations"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_stairs.place_stairs",
+    "section": "Room Layout › Stairs",
+    "args": {},
+    "text": "Place Stairs"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_clear",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "opening0"
+    },
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_front",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "opening0"
+    },
+    "text": "Frente"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_style",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "opening0"
+    },
+    "text": "Estilo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_pull",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "opening0"
+    },
+    "text": "Puxador: do projeto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_material",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "target": "FRONTS",
+     "path": "opening0"
+    },
+    "text": "Material das frentes: do módulo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_interior",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "opening0"
+    },
+    "text": "Interior: 0 prat., 0 div., 0 gav."
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_clear",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "opening1"
+    },
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_front",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "opening1"
+    },
+    "text": "Frente"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_style",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "opening1"
+    },
+    "text": "Estilo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_pull",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "opening1"
+    },
+    "text": "Puxador: do projeto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_material",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "target": "FRONTS",
+     "path": "opening1"
+    },
+    "text": "Material das frentes: do módulo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_interior",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "opening1"
+    },
+    "text": "Interior: 0 prat., 0 div., 0 gav."
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_material",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "target": "GROUP",
+     "group": "CAIXA"
+    },
+    "text": "Caixa: do módulo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_material",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "target": "GROUP",
+     "group": "FRENTES"
+    },
+    "text": "Frentes: do módulo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_material",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "target": "GROUP",
+     "group": "FUNDO"
+    },
+    "text": "Fundo: do módulo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_material",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "target": "GROUP",
+     "group": "INTERNO"
+    },
+    "text": "Interno: do módulo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.module_save",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.module_open_folder",
+    "section": "Propriedades › Biblioteca de módulos",
+    "args": {},
+    "text": "Abrir pasta"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.import_model",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.aggregate_convert",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.leaf_convert",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.stick_to_face",
+    "section": "Propriedades › Elemento filho",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_collisions",
+    "section": "Colisões",
+    "args": {
+     "scope": "ALL"
+    },
+    "text": "Verificar colisões"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_collisions",
+    "section": "Colisões",
+    "args": {
+     "scope": "SELECTED"
+    },
+    "text": "Selecionado"
+   }
+  ],
+  "btm": [
+   {
+    "kind": "operator",
+    "name": "caffmob.cabinet_editor",
+    "section": "Propriedades",
+    "args": {},
+    "text": "Abrir editor de armário"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "Propriedades",
+    "args": {
+     "scope": "ACTIVE_MODULE",
+     "mode": "OPEN_90"
+    },
+    "text": "Abrir 90°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "Propriedades",
+    "args": {
+     "scope": "ACTIVE_MODULE",
+     "mode": "OPEN_45"
+    },
+    "text": "45°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "Propriedades",
+    "args": {
+     "scope": "ACTIVE_MODULE",
+     "mode": "CLOSE"
+    },
+    "text": "Fechar"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.set_insertion_plane",
+    "section": "Propriedades › Movimentação",
+    "args": {},
+    "text": "Plano de inserção"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_walls",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Desenhar Paredes"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.wall_editor",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Editor de Paredes"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.adjust_floor",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Ajustar Piso"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.floor_builder",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Piso Manual"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_ceiling",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Criar Teto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Porta Simples"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_double_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Porta Dupla"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_window",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Janela"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_open_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Vão Livre"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.cabinet_builder",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Módulo Rápido"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.standards_configurator",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Config. Dimensões"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_room_lights",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Luzes do Quarto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_obstacles.place_obstacle",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Inserir Obstáculo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_create",
+    "section": "CAFFMob Draw",
+    "args": {
+     "kind": "PLACA"
+    },
+    "text": "Placa"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_create",
+    "section": "CAFFMob Draw",
+    "args": {
+     "kind": "CAIXA"
+    },
+    "text": "Caixa"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.inspect_fronts",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Abrir Portas e Gavetas"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "OPEN_90"
+    },
+    "text": "Abrir tudo 90°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "OPEN_45"
+    },
+    "text": "45°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "CLOSE"
+    },
+    "text": "Fechar tudo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_front_interference",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Verificar Interferência"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.calculate_nesting",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Calcular Plano de Corte"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.export_cut_plan_json",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Exportar JSON Global"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.export_parts_csv",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Exportar Peças (CSV)"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.set_recommended_settings",
+    "section": "Project",
+    "args": {},
+    "text": "Open Recommended Settings"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.scene_navigator",
+    "section": "Project",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.switch_room",
+    "section": "Project › Rooms",
+    "args": {
+     "scene_name": "Scene"
+    },
+    "text": "Scene"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.create_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Add"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.rename_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Rename"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.duplicate_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Duplicate"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_walls",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": "Draw Walls"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.update_wall_height",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.update_wall_thickness",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.apply_wall_material",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Single Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_double_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Double Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_open_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Open Passage"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_window",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Window"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_floor",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_floor_cutter",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_ceiling",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_room_lights",
+    "section": "Room Layout › Lighting",
+    "args": {},
+    "text": "Add Room Lights"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.setup_world_lighting",
+    "section": "Room Layout › Lighting",
+    "args": {},
+    "text": "Setup World Lighting"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.update_cabinet_sizes",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Door"
+    },
+    "text": "Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Door Drw"
+    },
+    "text": "Door Drw"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Drawer"
+    },
+    "text": "Drawer"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Lap Drawer"
+    },
+    "text": "Lap Drawer"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper"
+    },
+    "text": "Upper"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper Stacked"
+    },
+    "text": "Upper Stacked"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall"
+    },
+    "text": "Tall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall Stacked"
+    },
+    "text": "Tall Stacked"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Base"
+    },
+    "text": "Base"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Tall"
+    },
+    "text": "Tall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Upper"
+    },
+    "text": "Upper"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Refrigerator Cabinet"
+    },
+    "text": "Fridge Cabinet"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Dishwasher"
+    },
+    "text": "Dishwasher"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Refrigerator"
+    },
+    "text": "Refrigerator"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Range"
+    },
+    "text": "Range"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Range Hood"
+    },
+    "text": "Range Hood"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Floating Shelves"
+    },
+    "text": "Floating Shelves"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Valance"
+    },
+    "text": "Valance"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Support Frame"
+    },
+    "text": "Support Frame"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Half Wall"
+    },
+    "text": "Half Wall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Misc Part"
+    },
+    "text": "Misc Part"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Leg"
+    },
+    "text": "Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall Leg"
+    },
+    "text": "Tall Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper Leg"
+    },
+    "text": "Upper Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Panel"
+    },
+    "text": "Panel"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.refresh_user_library",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.open_user_library_folder",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.create_cabinet_group",
+    "section": "Product Library",
+    "args": {},
+    "text": "Create Cabinet Group"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.save_cabinet_group_to_user_library",
+    "section": "Product Library",
+    "args": {},
+    "text": "Save to Library"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_details.create_detail",
+    "section": "2D Details",
+    "args": {},
+    "text": "New Detail"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_line",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Line"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_rectangle",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Rectangle"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_circle",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Circle"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.add_text",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Add Text"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.add_dimension_3d",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Add Dimension"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_annotations.apply_settings_to_all",
+    "section": "Annotations › Annotation Settings",
+    "args": {},
+    "text": "Apply to All Annotations"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_stairs.place_stairs",
+    "section": "Room Layout › Stairs",
+    "args": {},
+    "text": "Place Stairs"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_clear",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "module"
+    },
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_front",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "module"
+    },
+    "text": "Frente"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_pull",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "module"
+    },
+    "text": "Puxador: do projeto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_material",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "target": "FRONTS",
+     "path": "module"
+    },
+    "text": "Material das frentes: do módulo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_interior",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "path": "module"
+    },
+    "text": "Interior: 0 prat., 0 div., 0 gav."
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_material",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "target": "GROUP",
+     "group": "CAIXA"
+    },
+    "text": "Caixa: do módulo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_material",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "target": "GROUP",
+     "group": "FRENTES"
+    },
+    "text": "Frentes: do módulo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_material",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "target": "GROUP",
+     "group": "FUNDO"
+    },
+    "text": "Fundo: do módulo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.customize_set_material",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {
+     "target": "GROUP",
+     "group": "INTERNO"
+    },
+    "text": "Interno: do módulo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.module_save",
+    "section": "Propriedades › Modelos — Personalizar módulo",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.module_open_folder",
+    "section": "Propriedades › Biblioteca de módulos",
+    "args": {},
+    "text": "Abrir pasta"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.import_model",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.aggregate_convert",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.leaf_convert",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.stick_to_face",
+    "section": "Propriedades › Elemento filho",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_collisions",
+    "section": "Colisões",
+    "args": {
+     "scope": "ALL"
+    },
+    "text": "Verificar colisões"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_collisions",
+    "section": "Colisões",
+    "args": {
+     "scope": "SELECTED"
+    },
+    "text": "Selecionado"
+   }
+  ],
+  "geometria": [
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_duplicate",
+    "section": "Propriedades",
+    "args": {},
+    "text": "Duplicar"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_mirror",
+    "section": "Propriedades",
+    "args": {},
+    "text": "Espelhar"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_delete",
+    "section": "Propriedades",
+    "args": {},
+    "text": "Excluir"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.set_insertion_plane",
+    "section": "Propriedades › Movimentação",
+    "args": {},
+    "text": "Plano de inserção"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_walls",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Desenhar Paredes"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.wall_editor",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Editor de Paredes"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.adjust_floor",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Ajustar Piso"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.floor_builder",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Piso Manual"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_ceiling",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Criar Teto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Porta Simples"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_double_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Porta Dupla"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_window",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Janela"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_open_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Vão Livre"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.cabinet_builder",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Módulo Rápido"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.standards_configurator",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Config. Dimensões"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_room_lights",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Luzes do Quarto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_obstacles.place_obstacle",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Inserir Obstáculo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_create",
+    "section": "CAFFMob Draw",
+    "args": {
+     "kind": "PLACA"
+    },
+    "text": "Placa"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_create",
+    "section": "CAFFMob Draw",
+    "args": {
+     "kind": "CAIXA"
+    },
+    "text": "Caixa"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.inspect_fronts",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Abrir Portas e Gavetas"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "OPEN_90"
+    },
+    "text": "Abrir tudo 90°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "OPEN_45"
+    },
+    "text": "45°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "CLOSE"
+    },
+    "text": "Fechar tudo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_front_interference",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Verificar Interferência"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.calculate_nesting",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Calcular Plano de Corte"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.export_cut_plan_json",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Exportar JSON Global"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.export_parts_csv",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Exportar Peças (CSV)"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.set_recommended_settings",
+    "section": "Project",
+    "args": {},
+    "text": "Open Recommended Settings"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.scene_navigator",
+    "section": "Project",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.switch_room",
+    "section": "Project › Rooms",
+    "args": {
+     "scene_name": "Scene"
+    },
+    "text": "Scene"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.create_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Add"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.rename_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Rename"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.duplicate_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Duplicate"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_walls",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": "Draw Walls"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.update_wall_height",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.update_wall_thickness",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.apply_wall_material",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Single Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_double_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Double Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_open_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Open Passage"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_window",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Window"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_floor",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_floor_cutter",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_ceiling",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_room_lights",
+    "section": "Room Layout › Lighting",
+    "args": {},
+    "text": "Add Room Lights"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.setup_world_lighting",
+    "section": "Room Layout › Lighting",
+    "args": {},
+    "text": "Setup World Lighting"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.update_cabinet_sizes",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Door"
+    },
+    "text": "Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Door Drw"
+    },
+    "text": "Door Drw"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Drawer"
+    },
+    "text": "Drawer"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Lap Drawer"
+    },
+    "text": "Lap Drawer"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper"
+    },
+    "text": "Upper"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper Stacked"
+    },
+    "text": "Upper Stacked"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall"
+    },
+    "text": "Tall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall Stacked"
+    },
+    "text": "Tall Stacked"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Base"
+    },
+    "text": "Base"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Tall"
+    },
+    "text": "Tall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Upper"
+    },
+    "text": "Upper"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Refrigerator Cabinet"
+    },
+    "text": "Fridge Cabinet"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Dishwasher"
+    },
+    "text": "Dishwasher"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Refrigerator"
+    },
+    "text": "Refrigerator"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Range"
+    },
+    "text": "Range"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Range Hood"
+    },
+    "text": "Range Hood"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Floating Shelves"
+    },
+    "text": "Floating Shelves"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Valance"
+    },
+    "text": "Valance"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Support Frame"
+    },
+    "text": "Support Frame"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Half Wall"
+    },
+    "text": "Half Wall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Misc Part"
+    },
+    "text": "Misc Part"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Leg"
+    },
+    "text": "Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall Leg"
+    },
+    "text": "Tall Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper Leg"
+    },
+    "text": "Upper Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Panel"
+    },
+    "text": "Panel"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.refresh_user_library",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.open_user_library_folder",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.create_cabinet_group",
+    "section": "Product Library",
+    "args": {},
+    "text": "Create Cabinet Group"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.save_cabinet_group_to_user_library",
+    "section": "Product Library",
+    "args": {},
+    "text": "Save to Library"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_details.create_detail",
+    "section": "2D Details",
+    "args": {},
+    "text": "New Detail"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_line",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Line"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_rectangle",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Rectangle"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_circle",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Circle"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.add_text",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Add Text"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.add_dimension_3d",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Add Dimension"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_annotations.apply_settings_to_all",
+    "section": "Annotations › Annotation Settings",
+    "args": {},
+    "text": "Apply to All Annotations"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_stairs.place_stairs",
+    "section": "Room Layout › Stairs",
+    "args": {},
+    "text": "Place Stairs"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.module_open_folder",
+    "section": "Propriedades › Biblioteca de módulos",
+    "args": {},
+    "text": "Abrir pasta"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.import_model",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.aggregate_convert",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.leaf_convert",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.stick_to_face",
+    "section": "Propriedades › Elemento filho",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_collisions",
+    "section": "Colisões",
+    "args": {
+     "scope": "ALL"
+    },
+    "text": "Verificar colisões"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_collisions",
+    "section": "Colisões",
+    "args": {
+     "scope": "SELECTED"
+    },
+    "text": "Selecionado"
+   }
+  ],
+  "grudado": [
+   {
+    "kind": "operator",
+    "name": "caffmob.set_insertion_plane",
+    "section": "Propriedades › Movimentação",
+    "args": {},
+    "text": "Plano de inserção"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_walls",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Desenhar Paredes"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.wall_editor",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Editor de Paredes"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.adjust_floor",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Ajustar Piso"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.floor_builder",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Piso Manual"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_ceiling",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Criar Teto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Porta Simples"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_double_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Porta Dupla"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_window",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Janela"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_open_door",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Vão Livre"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.cabinet_builder",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Módulo Rápido"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.standards_configurator",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Config. Dimensões"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_room_lights",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Luzes do Quarto"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_obstacles.place_obstacle",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Inserir Obstáculo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_create",
+    "section": "CAFFMob Draw",
+    "args": {
+     "kind": "PLACA"
+    },
+    "text": "Placa"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.geometry_create",
+    "section": "CAFFMob Draw",
+    "args": {
+     "kind": "CAIXA"
+    },
+    "text": "Caixa"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.inspect_fronts",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Abrir Portas e Gavetas"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "OPEN_90"
+    },
+    "text": "Abrir tudo 90°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "OPEN_45"
+    },
+    "text": "45°"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.fronts_set_open",
+    "section": "CAFFMob Draw",
+    "args": {
+     "scope": "ALL",
+     "mode": "CLOSE"
+    },
+    "text": "Fechar tudo"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_front_interference",
+    "section": "CAFFMob Draw",
+    "args": {},
+    "text": "Verificar Interferência"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.calculate_nesting",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Calcular Plano de Corte"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.export_cut_plan_json",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Exportar JSON Global"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.export_parts_csv",
+    "section": "Plano de Corte (Nesting)",
+    "args": {},
+    "text": "Exportar Peças (CSV)"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.set_recommended_settings",
+    "section": "Project",
+    "args": {},
+    "text": "Open Recommended Settings"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.scene_navigator",
+    "section": "Project",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.switch_room",
+    "section": "Project › Rooms",
+    "args": {
+     "scene_name": "Scene"
+    },
+    "text": "Scene"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.create_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Add"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.rename_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Rename"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.duplicate_room",
+    "section": "Project › Rooms",
+    "args": {},
+    "text": "Duplicate"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_walls",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": "Draw Walls"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.update_wall_height",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.update_wall_thickness",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.apply_wall_material",
+    "section": "Room Layout › Walls",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Single Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_double_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Double Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_open_door",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Open Passage"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_doors_windows.place_window",
+    "section": "Room Layout › Doors & Windows",
+    "args": {},
+    "text": "Window"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_floor",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.draw_floor_cutter",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_ceiling",
+    "section": "Room Layout › Floor & Ceiling",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.add_room_lights",
+    "section": "Room Layout › Lighting",
+    "args": {},
+    "text": "Add Room Lights"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_walls.setup_world_lighting",
+    "section": "Room Layout › Lighting",
+    "args": {},
+    "text": "Setup World Lighting"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.update_cabinet_sizes",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Door"
+    },
+    "text": "Door"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Door Drw"
+    },
+    "text": "Door Drw"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Base Drawer"
+    },
+    "text": "Drawer"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Lap Drawer"
+    },
+    "text": "Lap Drawer"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper"
+    },
+    "text": "Upper"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper Stacked"
+    },
+    "text": "Upper Stacked"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall"
+    },
+    "text": "Tall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall Stacked"
+    },
+    "text": "Tall Stacked"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Base"
+    },
+    "text": "Base"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Tall"
+    },
+    "text": "Tall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Pie Cut Corner Upper"
+    },
+    "text": "Upper"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Refrigerator Cabinet"
+    },
+    "text": "Fridge Cabinet"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Dishwasher"
+    },
+    "text": "Dishwasher"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Refrigerator"
+    },
+    "text": "Refrigerator"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Range"
+    },
+    "text": "Range"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Range Hood"
+    },
+    "text": "Range Hood"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Floating Shelves"
+    },
+    "text": "Floating Shelves"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Valance"
+    },
+    "text": "Valance"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Support Frame"
+    },
+    "text": "Support Frame"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Half Wall"
+    },
+    "text": "Half Wall"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Misc Part"
+    },
+    "text": "Misc Part"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Leg"
+    },
+    "text": "Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Tall Leg"
+    },
+    "text": "Tall Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Upper Leg"
+    },
+    "text": "Upper Leg"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.draw_cabinet",
+    "section": "Product Library",
+    "args": {
+     "cabinet_name": "Panel"
+    },
+    "text": "Panel"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.refresh_user_library",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.open_user_library_folder",
+    "section": "Product Library",
+    "args": {},
+    "text": ""
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.create_cabinet_group",
+    "section": "Product Library",
+    "args": {},
+    "text": "Create Cabinet Group"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_frameless.save_cabinet_group_to_user_library",
+    "section": "Product Library",
+    "args": {},
+    "text": "Save to Library"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_details.create_detail",
+    "section": "2D Details",
+    "args": {},
+    "text": "New Detail"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_line",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Line"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_rectangle",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Rectangle"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.draw_circle",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Draw Circle"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.add_text",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Add Text"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_layouts.add_dimension_3d",
+    "section": "Annotations › Drawing Tools",
+    "args": {},
+    "text": "Add Dimension"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_annotations.apply_settings_to_all",
+    "section": "Annotations › Annotation Settings",
+    "args": {},
+    "text": "Apply to All Annotations"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob_stairs.place_stairs",
+    "section": "Room Layout › Stairs",
+    "args": {},
+    "text": "Place Stairs"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.module_open_folder",
+    "section": "Propriedades › Biblioteca de módulos",
+    "args": {},
+    "text": "Abrir pasta"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.import_model",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.aggregate_convert",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.leaf_convert",
+    "section": "Propriedades › Agregados e folhas",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.stick_move",
+    "section": "Propriedades › Elemento filho",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.stick_release",
+    "section": "Propriedades › Elemento filho",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_collisions",
+    "section": "Colisões",
+    "args": {
+     "scope": "ALL"
+    },
+    "text": "Verificar colisões"
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.check_collisions",
+    "section": "Colisões",
+    "args": {
+     "scope": "SELECTED"
+    },
+    "text": "Selecionado"
+   }
+  ]
+ },
+ "paths": {
+  "nada": [
+   {
+    "kind": "operator",
+    "name": "caffmob.set_insertion_plane",
+    "section": "[menu]",
+    "args": {},
+    "text": null
+   }
+  ],
+  "parede": [
+   {
+    "kind": "operator",
+    "name": "caffmob.set_insertion_plane",
+    "section": "[menu]",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.stick_to_face",
+    "section": "[menu]",
+    "args": {},
+    "text": null
+   }
+  ],
+  "frameless": [
+   {
+    "kind": "operator",
+    "name": "caffmob.set_insertion_plane",
+    "section": "[menu]",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.cabinet_editor",
+    "section": "[menu]",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.stick_to_face",
+    "section": "[menu]",
+    "args": {},
+    "text": null
+   }
+  ],
+  "face_frame": [
+   {
+    "kind": "operator",
+    "name": "caffmob.set_insertion_plane",
+    "section": "[menu]",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.cabinet_editor",
+    "section": "[menu]",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.stick_to_face",
+    "section": "[menu]",
+    "args": {},
+    "text": null
+   }
+  ],
+  "closets": [
+   {
+    "kind": "operator",
+    "name": "caffmob.set_insertion_plane",
+    "section": "[menu]",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.cabinet_editor",
+    "section": "[menu]",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.stick_to_face",
+    "section": "[menu]",
+    "args": {},
+    "text": null
+   }
+  ],
+  "btm": [
+   {
+    "kind": "operator",
+    "name": "caffmob.set_insertion_plane",
+    "section": "[menu]",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.cabinet_editor",
+    "section": "[menu]",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.stick_to_face",
+    "section": "[menu]",
+    "args": {},
+    "text": null
+   }
+  ],
+  "geometria": [
+   {
+    "kind": "operator",
+    "name": "caffmob.set_insertion_plane",
+    "section": "[menu]",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.stick_to_face",
+    "section": "[menu]",
+    "args": {},
+    "text": null
+   }
+  ],
+  "grudado": [
+   {
+    "kind": "operator",
+    "name": "caffmob.set_insertion_plane",
+    "section": "[menu]",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.stick_move",
+    "section": "[menu]",
+    "args": {},
+    "text": null
+   },
+   {
+    "kind": "operator",
+    "name": "caffmob.stick_release",
+    "section": "[menu]",
+    "args": {},
+    "text": null
+   }
+  ]
+ },
+ "errors": []
+}

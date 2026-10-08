@@ -2385,7 +2385,7 @@ class Frameless_Scene_Props(PropertyGroup):
         row.scale_y = 1.3
         row.operator('caffmob_frameless.countertop_boolean_cut', text="Cut Hole (Select 2)", icon='MOD_BOOLEAN')
 
-    def draw_library_ui(self,layout,context):
+    def draw_library_ui(self,layout,context,include_user=True):
 
         col = layout.column(align=True)
         row = col.row(align=True)
@@ -2429,12 +2429,13 @@ class Frameless_Scene_Props(PropertyGroup):
             if self.show_part_library:
                 self.draw_part_library_ui(box,context)
 
-            box = col.box()
-            row = box.row()
-            row.alignment = 'LEFT'
-            row.prop(self,'show_user_library',text="User",icon='TRIA_DOWN' if self.show_user_library else 'TRIA_RIGHT',emboss=False)
-            if self.show_user_library:
-                self.draw_user_library_ui(box,context)
+            if include_user:      # sem a biblioteca do usuário, ela aparece em Inserir › Meus módulos (feature 005)
+                box = col.box()
+                row = box.row()
+                row.alignment = 'LEFT'
+                row.prop(self,'show_user_library',text="User",icon='TRIA_DOWN' if self.show_user_library else 'TRIA_RIGHT',emboss=False)
+                if self.show_user_library:
+                    self.draw_user_library_ui(box,context)
 
             box = col.box()
             row = box.row()

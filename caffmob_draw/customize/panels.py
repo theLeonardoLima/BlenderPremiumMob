@@ -139,7 +139,8 @@ class BTM_PT_ModuleLibrary(bpy.types.Panel):
         draw_library(self.layout, context)
 
 
-classes = (BTM_PT_CustomizeModule, BTM_PT_ModuleLibrary)
+# Desenhados na barra lateral única (feature 005) pelas funções de desenho e pelo proxy; não registrados.
+classes = ()
 
 
 def register():

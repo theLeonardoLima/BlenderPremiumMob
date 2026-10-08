@@ -63,9 +63,13 @@ def clamp(parent_box, agg_size, face, u, v, offset):
     return fit(u, lim['u']), fit(v, lim['v']), fit(offset, lim['offset'])
 
 
-def box_for(parent_box, agg_size, face, u, v, offset):
-    """Caixa do agregado (já com clamp) no espaço do pai."""
-    u, v, offset = clamp(parent_box, agg_size, face, u, v, offset)
+def box_for(parent_box, agg_size, face, u, v, offset, clamp_to_face=True):
+    """Caixa do agregado no espaço do pai; com `clamp_to_face` (padrão) os valores passam antes pelo `clamp`.
+
+    O grudar da feature 004 usa `clamp_to_face=False`: o item segue no plano da face sem limite de contorno.
+    """
+    if clamp_to_face:
+        u, v, offset = clamp(parent_box, agg_size, face, u, v, offset)
     lo, hi = parent_box
     n, sign, ua, va = face_axes(face)
     new_lo = [0.0, 0.0, 0.0]

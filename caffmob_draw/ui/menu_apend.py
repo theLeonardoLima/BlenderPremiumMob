@@ -1,20 +1,13 @@
-import bpy
+"""Antiga inserção do submenu `MENU_ID` no menu do botão direito.
 
-def draw_object_mode_right_click_menu(self, context):
-    layout = self.layout
-    layout.operator_context = 'INVOKE_AREA'
-    obj = context.object
-    menu_id = ""
-    if obj and "MENU_ID" in obj and obj["MENU_ID"] != "":
-        menu_id = obj["MENU_ID"]
-
-    if menu_id and hasattr(bpy.types, menu_id):
-        layout.menu(menu_id)
-        layout.separator()
+Desde a feature 005 o menu de contexto é desenhado por `ui/context_menu.py` (uma inserção só, com o submenu do objeto e
+as ações frequentes). Este módulo continua registrável para não quebrar o registro legado, mas não insere nada.
+"""
 
 
 def register():
-    bpy.types.VIEW3D_MT_object_context_menu.prepend(draw_object_mode_right_click_menu)
+    pass
+
 
 def unregister():
-    bpy.types.VIEW3D_MT_object_context_menu.remove(draw_object_mode_right_click_menu)
+    pass

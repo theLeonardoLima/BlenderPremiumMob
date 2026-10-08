@@ -82,12 +82,6 @@ def draw_inspection_box(layout, context):
     row.scale_y = 1.2
     row.operator("caffmob.inspect_fronts", text="Sair do Modo de Abrir" if state.active else "Abrir Portas e Gavetas",
                  icon='CANCEL' if state.active else 'RESTRICT_SELECT_OFF', depress=state.active)
-    move_over = getattr(context.window_manager, 'btm_move_over', None)
-    if move_over is not None:
-        row = box.row()
-        row.scale_y = 1.2
-        row.prop(move_over, "enabled", toggle=True, icon='ORIENTATION_GIMBAL',
-                 text="Sair do Mover Sobre" if move_over.enabled else "Mover Sobre (botão direito)")
     row = box.row(align=True)
     op = row.operator("caffmob.fronts_set_open", text="Abrir tudo 90°", icon='TRIA_RIGHT_BAR')
     op.scope, op.mode = 'ALL', 'OPEN_90'
@@ -174,6 +168,40 @@ def draw_cut_plan(layout, context, compact=False):
 # ==========================================================================
 # PAINEL PRINCIPAL: Criador de Ambientes (Blender to Mob)
 # ==========================================================================
+
+def draw_settings(layout, context):
+    """Configurações do projeto (feature 005, seção Produção/Projeto): unidade e snap, Evitar Sobreposição, padrão de
+    dimensões e chapa MDF. O gerenciador de ambientes fica em Produção/Projeto › Ambientes (uma vez só)."""
+    settings = context.scene.btm_settings
+    box_unit = layout.box()
+    box_unit.label(text="Unidade & Precisão", icon='SCENE_DATA')
+    col = box_unit.column(align=True)
+    col.prop(settings, "btm_unit", text="Unidade do Projeto")
+    col.prop(settings, "snap_grid", text="Atrair ao Grid (Snap)")
+    if settings.snap_grid:
+        col.prop(settings, "snap_increment", text="Incremento do Snap")
+    col.prop(settings, "collision_global", text="Evitar Sobreposição")
+
+    draw_standards_box(layout, context)
+
+    box_mdf = layout.box()
+    box_mdf.label(text="Limites & Configurações de Chapas MDF", icon='STICKY_UVS_DISABLE')
+    mdf = settings.mdf_config
+    col_mdf = box_mdf.column(align=True)
+    col_mdf.prop(mdf, "sheet_format", text="Formato")
+    col_mdf.prop(mdf, "sheet_width", text="Largura")
+    col_mdf.prop(mdf, "sheet_height", text="Comprimento/Altura")
+    box_refilo = box_mdf.box()
+    box_refilo.label(text="Refilos (Descarte de Bordas)", icon='ARROW_LEFTRIGHT')
+    grid_ref = box_refilo.grid_flow(columns=2, align=True)
+    grid_ref.prop(mdf, "refilo_top", text="Superior")
+    grid_ref.prop(mdf, "refilo_bottom", text="Inferior")
+    grid_ref.prop(mdf, "refilo_left", text="Esquerdo")
+    grid_ref.prop(mdf, "refilo_right", text="Direito")
+    col_mdf.prop(mdf, "kerf", text="Lâmina de Serra (Kerf)")
+    col_mdf.prop(mdf, "allow_rotation", text="Permitir Rotação de Peças")
+    col_mdf.prop(mdf, "respect_grain", text="Respeitar Veio da Madeira")
+
 
 class BTM_PT_EnvironmentBuilder(bpy.types.Panel):
     bl_label = "CAFFMob Draw"
@@ -351,10 +379,9 @@ class BTM_PT_NestingPanel(bpy.types.Panel):
 # Registro
 # ==========================================================================
 
-classes = (
-    BTM_PT_EnvironmentBuilder,
-    BTM_PT_NestingPanel,
-)
+# Conteúdo redistribuído na barra lateral única (feature 005): as funções `draw_*` são usadas pelas seções;
+# as classes antigas não são mais registradas.
+classes = ()
 
 
 def register():
