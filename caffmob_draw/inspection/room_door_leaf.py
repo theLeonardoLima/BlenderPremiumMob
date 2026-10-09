@@ -28,8 +28,25 @@ def swing_of(door):
     return None
 
 
+def has_real_door(door):
+    """A porta já tem a porta real da feature 010: as folhas dela são as que abrem (adaptador `aggregate_leaf`)."""
+    real = getattr(door, 'btm_opening_real', None)
+    try:
+        return real is not None and real.assembly is not None and real.assembly.name in bpy.data.objects
+    except ReferenceError:
+        return False
+
+
 def is_room_door(obj):
-    return obj is not None and bool(obj.get(DOOR_TAG)) and swing_of(obj) is not None
+    return (obj is not None and bool(obj.get(DOOR_TAG)) and swing_of(obj) is not None
+            and not has_real_door(obj))
+
+
+def remove_leaves(door):
+    """Apaga os pivôs e as folhas cinzas criados por `ensure_leaves` (a porta real os substitui)."""
+    for pivot in pivots_of(door):
+        _remove(pivot)
+    door.pop('btm_open', None)
 
 
 def pivots_of(door):

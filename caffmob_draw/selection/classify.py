@@ -132,14 +132,26 @@ def classify(obj):
     return Classified(OTHER, obj, obj, '')
 
 
+def free_group(obj):
+    """Grupo de peças de topo (`btm_group`) que contém `obj`: SketchUp importado, item da biblioteca de objetos."""
+    top = None
+    for node in _ancestors(obj):
+        data = getattr(node, 'btm_group', None)
+        if data is not None and getattr(data, 'is_group', False):
+            top = node
+    return top
+
+
 def movable_root(obj):
-    """Objeto que se move no "Mover Sobre" (RN-05): o módulo para frentes e peças; geometria e obstáculo; None
-    para parede, piso, teto, cota e objetos não reconhecidos."""
+    """Objeto que se move no "Mover Sobre" (RN-05): o módulo para frentes e peças; geometria e obstáculo; o grupo
+    de peças solto (SketchUp, biblioteca de objetos); None para parede, piso, teto, cota e objetos não reconhecidos."""
     info = classify(obj)
     if info is None:
         return None
     if info.kind in (FRONT, PART, MODULE, GEOMETRY, OBSTACLE):
         return info.root
+    if info.kind == OTHER:
+        return free_group(obj)
     return None
 
 

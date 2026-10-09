@@ -20,7 +20,7 @@ METHODS = ('create_placed_object', 'set_position_on_wall', 'get_placed_object', 
            'set_placed_object_width', 'get_placed_object_height', 'set_placed_object_height',
            'set_placed_object_depth', 'get_two_point_z_offset')
 CONFIG = ('OBJECT_NAME', 'OBJECT_LABEL', 'BP_FLAG', 'MENU_ID', 'WIDTH_PROP_NAME', 'HEIGHT_PROP_NAME',
-          'Z_OFFSET_PROP_NAME', 'TEXT_KIND', 'TEXT_NAME', 'HAS_SWING', 'SWING_LIST', 'INITIAL_SWING_INPUTS')
+          'Z_OFFSET_PROP_NAME', 'TEXT_KIND', 'TEXT_NAME', 'HAS_SWING', 'SWING_LIST', 'INITIAL_SWING_INPUTS', 'OPENING_KIND')
 
 
 def placer(op_class):

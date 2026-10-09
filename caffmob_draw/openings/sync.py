@@ -19,6 +19,7 @@ from mathutils import Matrix  # type: ignore
 
 from .. import hb_types
 from ..aggregates import apply, collision, group, leaf
+from ..inspection import room_door_leaf
 from . import build, door_core, props, window_core
 
 DOOR_FLAG, WINDOW_FLAG = 'IS_ENTRY_DOOR_BP', 'IS_WINDOW_BP'
@@ -151,6 +152,7 @@ def sync(context, cage, force=False):
     kind = kind_of(cage)
     opens, production = _remember(data.assembly)
     clear(cage)
+    room_door_leaf.remove_leaves(cage)      # folha cinza da porta de ambiente (005) de arquivos antigos
     collection = cage.users_collection[0] if cage.users_collection else context.scene.collection
     context.view_layer.update()
     built = build.build(_parts(cage, kind), collection)
