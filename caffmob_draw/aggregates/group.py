@@ -23,6 +23,17 @@ def _world_corners(obj, depsgraph):
     return [evaluated.matrix_world @ Vector(c) for c in evaluated.bound_box]
 
 
+def object_corners(obj, depsgraph):
+    """Cantos da caixa do objeto no espaço local dele. Um Empty (grupo de peças do SketchUp ou da biblioteca de
+    objetos) não tem volume: a caixa é a das malhas dentro dele."""
+    if obj.type != 'EMPTY':
+        return [Vector(c) for c in obj.evaluated_get(depsgraph).bound_box]
+    to_local = obj.matrix_world.inverted_safe()
+    corners = [to_local @ p for child in obj.children_recursive if child.type == 'MESH'
+               for p in _world_corners(child, depsgraph)]
+    return corners or [Vector()] * 8
+
+
 def world_box(objs):
     depsgraph = bpy.context.evaluated_depsgraph_get()
     pts = [p for o in objs if o.type == 'MESH' for p in _world_corners(o, depsgraph)]

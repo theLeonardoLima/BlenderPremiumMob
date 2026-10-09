@@ -12,6 +12,7 @@ import math
 
 from mathutils import Matrix, Vector  # type: ignore
 
+from ..aggregates import group
 from ..data.i18n import tr
 from ..selection import classify
 from . import align, reposition
@@ -22,21 +23,10 @@ def _frame(obj):
     return Matrix.LocRotScale(loc, rot, None)
 
 
-def _corners(obj, depsgraph):
-    """Cantos da caixa do objeto no espaço local dele. Um Empty (grupo de peças do SketchUp ou da biblioteca de
-    objetos) não tem volume: a caixa é a das malhas dentro dele."""
-    if obj.type != 'EMPTY':
-        return [Vector(c) for c in obj.evaluated_get(depsgraph).bound_box]
-    to_local = obj.matrix_world.inverted_safe()
-    corners = [to_local @ (child.matrix_world @ Vector(c)) for child in obj.children_recursive
-               if child.type == 'MESH' for c in child.evaluated_get(depsgraph).bound_box]
-    return corners or [Vector()] * 8
-
-
 def _local_box(obj, depsgraph):
     """Caixa do objeto no seu espaço local, já com a escala do objeto."""
     _loc, _rot, scale = obj.matrix_world.decompose()
-    corners = [Vector((c[0] * scale.x, c[1] * scale.y, c[2] * scale.z)) for c in _corners(obj, depsgraph)]
+    corners = [Vector((c[0] * scale.x, c[1] * scale.y, c[2] * scale.z)) for c in group.object_corners(obj, depsgraph)]
     return (tuple(min(c[i] for c in corners) for i in range(3)), tuple(max(c[i] for c in corners) for i in range(3)))
 
 
@@ -82,7 +72,7 @@ class MoveOver:
     def original_box_a(self):
         """Caixa de A como está antes de mexer (rotação original), no referencial de B — para a tela inicial."""
         depsgraph = self.context.evaluated_depsgraph_get()
-        corners = [self.b_frame_inv @ (self.original_matrix @ c) for c in _corners(self.a, depsgraph)]
+        corners = [self.b_frame_inv @ (self.original_matrix @ c) for c in group.object_corners(self.a, depsgraph)]
         return (tuple(min(c[i] for c in corners) for i in range(3)), tuple(max(c[i] for c in corners) for i in range(3)))
 
     # Alinhar --------------------------------------------------------------------------------------------
@@ -171,7 +161,7 @@ class MoveOver:
     def overlapping(self):
         """Módulos (fora A) cuja caixa no mundo cruza a de A na posição atual (RN-11)."""
         depsgraph = self.context.evaluated_depsgraph_get()
-        corners = [self._target_matrix() @ c for c in _corners(self.a, depsgraph)]
+        corners = [self._target_matrix() @ c for c in group.object_corners(self.a, depsgraph)]
         box = (tuple(min(c[i] for c in corners) for i in range(3)), tuple(max(c[i] for c in corners) for i in range(3)))
         found = []
         for obj in self.context.scene.objects:

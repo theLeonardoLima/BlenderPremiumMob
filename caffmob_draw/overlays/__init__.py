@@ -1,6 +1,6 @@
-from . import draw_handlers, selection_cotas
+from . import draw_handlers, element_toast, selection_cotas
 
-_MODULES = (draw_handlers, selection_cotas)
+_MODULES = (draw_handlers, selection_cotas, element_toast)
 
 
 def register():

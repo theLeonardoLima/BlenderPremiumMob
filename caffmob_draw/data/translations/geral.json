@@ -882,5 +882,29 @@
  "Ângulo do clique": {
   "pt_BR": "Ângulo do clique",
   "en_US": "Click angle"
+ },
+ "Redimensionar": {
+  "en_US": "Resize",
+  "pt_BR": "Redimensionar"
+ },
+ "Muda a largura do elemento selecionado; os agregados dele se adaptam à nova largura": {
+  "en_US": "Changes the width of the selected element; its aggregates adapt to the new width",
+  "pt_BR": "Muda a largura do elemento selecionado; os agregados dele se adaptam à nova largura"
+ },
+ "Valor Inválido: o objeto não tem largura para redimensionar.": {
+  "en_US": "Invalid Value: the object has no width to resize.",
+  "pt_BR": "Valor Inválido: o objeto não tem largura para redimensionar."
+ },
+ "Valor Inválido: este elemento não pode ser redimensionado por aqui.": {
+  "en_US": "Invalid Value: this element cannot be resized here.",
+  "pt_BR": "Valor Inválido: este elemento não pode ser redimensionado por aqui."
+ },
+ "Valor Inválido: a largura deve estar entre {} e {} m.": {
+  "en_US": "Invalid Value: the width must be between {} and {} m.",
+  "pt_BR": "Valor Inválido: a largura deve estar entre {} e {} m."
+ },
+ "{} {}   L {} × A {} × P {}": {
+  "en_US": "{} {}   W {} × H {} × D {}",
+  "pt_BR": "{} {}   L {} × A {} × P {}"
  }
 }

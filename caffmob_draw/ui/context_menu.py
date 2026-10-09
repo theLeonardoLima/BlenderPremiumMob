@@ -46,6 +46,9 @@ def draw_context_menu(self, context):
         layout.menu(menu_id)
         layout.separator()
     layout.operator_context = 'INVOKE_DEFAULT'
+    from .ops_resize import BTM_OT_ResizeWidth
+    if BTM_OT_ResizeWidth.poll(context):
+        draw_action(layout, 'RESIZE')
     actions = item_actions(context)
     for key, props in actions:
         draw_action(layout, key, **props)

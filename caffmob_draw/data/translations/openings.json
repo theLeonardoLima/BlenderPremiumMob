@@ -30,5 +30,17 @@
  "{} porta(s) ou janela(s) em caixa": {
   "en_US": "{} door(s) or window(s) shown as a box",
   "pt_BR": "{} porta(s) ou janela(s) em caixa"
+ },
+ "Inverter giro da porta": {
+  "en_US": "Invert door swing",
+  "pt_BR": "Inverter giro da porta"
+ },
+ "Giro da porta invertido": {
+  "en_US": "Door swing inverted",
+  "pt_BR": "Giro da porta invertido"
+ },
+ "Troca a dobradiça da porta de lado: inverte o giro (horário ↔ anti-horário)": {
+  "en_US": "Moves the door hinge to the other side: inverts the swing (clockwise ↔ counterclockwise)",
+  "pt_BR": "Troca a dobradiça da porta de lado: inverte o giro (horário ↔ anti-horário)"
  }
 }
