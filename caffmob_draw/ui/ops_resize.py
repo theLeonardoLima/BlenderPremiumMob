@@ -22,7 +22,7 @@ class BTM_OT_ResizeWidth(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     width: bpy.props.FloatProperty(name="Largura", subtype='DISTANCE', unit='LENGTH', min=0.01, max=100.0,
-                                   precision=1)  # type: ignore
+                                   precision=5)  # type: ignore
 
     @classmethod
     def poll(cls, context):
