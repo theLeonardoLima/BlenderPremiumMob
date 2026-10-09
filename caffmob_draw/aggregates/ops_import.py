@@ -6,6 +6,10 @@ Chama o importador do próprio Blender pelo tipo do arquivo (OBJ, FBX, glTF/GLB)
 Feature 007 (T014; RN-01, D-01, D-02): **Unidade** do arquivo (Automática, mm, cm, m, pol) e **Eixo vertical** (Z, Y).
 O OBJ e o FBX recebem o eixo no importador; a escala é aplicada depois, sobre as raízes importadas, para a Automática
 poder medir o modelo em escala 1 (mais de 50 unidades = mm). O glTF já é métrico e Y-up por especificação.
+
+Feature 009 (T033-T034; RN-13, RN-14, D-16): **SketchUp (.skp)** pelo OpenSKP (`aggregates/skp.py`), em qualquer
+plataforma. A montagem (`skp_build`) já entrega metros e Z para cima, com um grupo de peças por instância e os
+materiais do SketchUp; a unidade e o eixo acima não se aplicam. Um arquivo que não abre não cria nada e diz o motivo.
 """
 
 import os
@@ -27,12 +31,12 @@ FORMATS = {'.obj': ('wm', 'obj_import'), '.fbx': ('import_scene', 'fbx'), '.glb'
 
 
 class BTM_OT_ImportModel(bpy.types.Operator, ImportHelper):
-    """Importa um modelo 3D (OBJ, FBX, glTF/GLB) para converter em agregado ou folha de porta"""
+    """Importa um modelo 3D (OBJ, FBX, glTF/GLB ou SketchUp) para converter em agregado ou folha de porta"""
     bl_idname = "caffmob.import_model"
     bl_label = "Importar modelo 3D"
     bl_options = {'REGISTER', 'UNDO'}
 
-    filter_glob: bpy.props.StringProperty(default="*.obj;*.fbx;*.glb;*.gltf", options={'HIDDEN'})  # type: ignore
+    filter_glob: bpy.props.StringProperty(default="*.obj;*.fbx;*.glb;*.gltf;*.skp", options={'HIDDEN'})  # type: ignore
     unit: bpy.props.EnumProperty(name="Unidade do arquivo", items=UNIT_ITEMS, default='AUTO')  # type: ignore
     up_axis: bpy.props.EnumProperty(name="Eixo vertical", items=UP_ITEMS, default='Z')  # type: ignore
 
@@ -43,11 +47,49 @@ class BTM_OT_ImportModel(bpy.types.Operator, ImportHelper):
             return {'axis_up': self.up_axis, 'axis_forward': 'Y' if self.up_axis == 'Z' else '-Z'}
         return {}
 
+    def _import_skp(self, context):
+        """SketchUp pelo OpenSKP: lê, monta e seleciona; nada fica pela metade se falhar (RF-12)."""
+        from . import skp, skp_build, skp_core
+        name = os.path.basename(self.filepath)
+        wm = context.window_manager
+        wm.progress_begin(0, 2)
+        before = set(bpy.data.objects)
+        try:
+            try:
+                model, scene = skp.read(self.filepath)
+            except ValueError as exc:
+                self.report({'ERROR'}, skp_core.failure_message(exc))
+                return {'CANCELLED'}
+            wm.progress_update(1)
+            try:
+                groups, skipped = skp_build.build(context, model, scene)
+            except Exception as exc:          # falha na montagem: desfaz o que foi criado
+                for obj in [o for o in bpy.data.objects if o not in before]:
+                    bpy.data.objects.remove(obj, do_unlink=True)
+                self.report({'ERROR'}, skp_core.failure_message(exc))
+                return {'CANCELLED'}
+        finally:
+            wm.progress_end()
+        for obj in context.selected_objects:
+            obj.select_set(False)
+        for root in groups:
+            root.select_set(True)
+        if groups:
+            context.view_layer.objects.active = groups[0]
+        message = tr("SketchUp importado: {} grupo(s) de peças de {}").format(len(groups), name)
+        if skipped:
+            message += tr("; {} figura(s) de escala ignorada(s)").format(skipped)
+        self.report({'INFO'}, message)
+        return {'FINISHED'}
+
     def execute(self, context):
         ext = os.path.splitext(self.filepath)[1].lower()
+        if ext == '.skp':
+            return self._import_skp(context)
         target = FORMATS.get(ext)
         if target is None:
-            self.report({'ERROR'}, tr("Formato não suportado: {} (use OBJ, FBX, glTF ou GLB)").format(ext or tr("sem extensão")))
+            self.report({'ERROR'}, tr("Formato não suportado: {} (use OBJ, FBX, glTF, GLB ou SKP)").format(
+                ext or tr("sem extensão")))
             return {'CANCELLED'}
         before = set(bpy.data.objects)
         operator = getattr(getattr(bpy.ops, target[0]), target[1])

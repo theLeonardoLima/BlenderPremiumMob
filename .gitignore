@@ -23,6 +23,8 @@ parts/
 sdist/
 var/
 wheels/
+# wheels da extensão (feature 009: leitor de SketchUp) vão no pacote
+!caffmob_draw/wheels/
 share/python-wheels/
 *.egg-info/
 .installed.cfg
@@ -179,3 +181,9 @@ blendertomob.zip
 docs/rag/blender-api/index/.bm25.cache.pickle
 blender_python_reference_*.zip
 caffmob_draw.zip
+
+# Porta realista do projeto (feature 010): só o gerador e o LEIA-ME entram; os arquivos gerados ficam fora
+docs/porta_realista_080x210/*
+!docs/porta_realista_080x210/gerar_porta.py
+!docs/porta_realista_080x210/LEIA-ME.md
+docs/porta_realista_080x210_OBJ.zip

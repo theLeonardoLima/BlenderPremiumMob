@@ -1,4 +1,12 @@
 {
+ "\"{}\" fora do lugar": {
+  "pt_BR": "\"{}\" fora do lugar",
+  "en_US": "\"{}\" out of place"
+ },
+ "\"{}\" não é uma medida": {
+  "pt_BR": "\"{}\" não é uma medida",
+  "en_US": "\"{}\" is not a measurement"
+ },
  "1830 x 1830 mm (Quadrada)": {
   "pt_BR": "1830 x 1830 mm (Quadrada)",
   "en_US": "1830 x 1830 mm (Square)"
@@ -682,6 +690,42 @@
  "Vidro": {
   "pt_BR": "Vidro",
   "en_US": "Glass"
+ },
+ "a medida passa de 1 km": {
+  "pt_BR": "a medida passa de 1 km",
+  "en_US": "the measurement exceeds 1 km"
+ },
+ "a medida precisa ser maior que zero": {
+  "pt_BR": "a medida precisa ser maior que zero",
+  "en_US": "the measurement must be greater than zero"
+ },
+ "conta incompleta": {
+  "pt_BR": "conta incompleta",
+  "en_US": "incomplete expression"
+ },
+ "divisor com unidade": {
+  "pt_BR": "divisor com unidade",
+  "en_US": "divisor with a unit"
+ },
+ "divisão por zero": {
+  "pt_BR": "divisão por zero",
+  "en_US": "division by zero"
+ },
+ "medida vazia": {
+  "pt_BR": "medida vazia",
+  "en_US": "empty measurement"
+ },
+ "parêntese sem par": {
+  "pt_BR": "parêntese sem par",
+  "en_US": "unmatched parenthesis"
+ },
+ "só um fator pode ter unidade": {
+  "pt_BR": "só um fator pode ter unidade",
+  "en_US": "only one factor can have a unit"
+ },
+ "texto com mais de {} caracteres": {
+  "pt_BR": "texto com mais de {} caracteres",
+  "en_US": "text longer than {} characters"
  },
  "Ângulo Absoluto (°)": {
   "pt_BR": "Ângulo Absoluto (°)",

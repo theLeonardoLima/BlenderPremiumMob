@@ -38,6 +38,8 @@ class BTM_PG_CustomSpec(bpy.types.PropertyGroup):
     front_material: bpy.props.StringProperty(name="Material das frentes")  # type: ignore
     material: bpy.props.StringProperty(name="Material da peça", description="Vence o material do grupo")  # type: ignore
     group_materials: bpy.props.CollectionProperty(type=BTM_PG_GroupMaterial)  # type: ignore
+    slide_kind: bpy.props.StringProperty(
+        name="Corrediça", description="Corrediça das gavetas do vão: vazio = padrão; BLUM (feature 008)")  # type: ignore
     interior: bpy.props.StringProperty(
         name="Divisões internas",
         description="JSON {shelves, dividers, drawers, heights}; vazio = interior da biblioteca")  # type: ignore

@@ -60,12 +60,55 @@ class GlobalJsonTest(unittest.TestCase):
     def test_payload_valido(self):
         payload = sample_payload()
         self.assertEqual(json_exporter.validate_global_json(payload), [])
-        self.assertEqual(payload["schema_version"], "2.1.0")      # 2.1: `machining` (feature 003)
+        self.assertEqual(payload["schema_version"], "2.2.0")      # 2.2: `hardware` e `drilling` (feature 008)
         self.assertEqual(payload["unit"], "mm")
         part = payload["parts"][0]
         self.assertEqual(part["edges"][0], {"side": 1, "material_id": None, "thickness_mm": 0.4})
         self.assertIn(part["material_id"], {m["id"] for m in payload["materials"]})
         self.assertEqual(part["machining"], [])
+
+    def test_hardware_ordenado_e_idempotente(self):
+        rows = [{"code": "PISTAO", "name": "Pistão", "quantity": 2, "module_uid": "M2"},
+                {"code": "PE_PLASTICO", "name": "Pé plástico", "quantity": 4, "module_uid": None},
+                {"code": "CORREDICA", "name": "Corrediça (par)", "quantity": 4, "module_uid": "M1"},
+                {"code": "PE_PLASTICO", "name": "Pé plástico", "quantity": 4, "module_uid": "M1"}]
+        first = json_exporter.build_global_payload(project={"name": "P"}, standard={}, parts=sample_parts(),
+                                                   hardware=rows)
+        second = json_exporter.build_global_payload(project={"name": "P"}, standard={}, parts=sample_parts(),
+                                                    hardware=list(reversed(rows)))
+        self.assertEqual(json_exporter.validate_global_json(first), [])
+        self.assertEqual([(h["module_uid"], h["code"]) for h in first["hardware"]],
+                         [("M1", "CORREDICA"), ("M1", "PE_PLASTICO"), ("M2", "PISTAO"), (None, "PE_PLASTICO")])
+        self.assertEqual(first["hardware"], second["hardware"])
+
+    def test_drilling_de_uma_movel(self):
+        from caffmob_draw.cutting import drilling
+        parts = sample_parts()
+        line = drilling.pin_lines(((0.015, 0.0, 0.1), (0.585, 0.55, 0.7)), 'HORIZONTAL')[0]
+        entry, clipped = drilling.part_entry(line, ((0.0, 0.0, 0.0), (0.015, 0.55, 0.72)), 'TOP', "Prateleira 1")
+        parts[0].drilling = [entry]
+        payload = json_exporter.build_global_payload(project={"name": "P"}, standard={}, parts=parts)
+        self.assertEqual(json_exporter.validate_global_json(payload), [])
+        hole = payload["parts"][0]["drilling"][0]
+        self.assertFalse(clipped)
+        self.assertEqual((hole["kind"], hole["face"], hole["x_mm"], hole["y_start_mm"], hole["y_end_mm"]),
+                         ("SHELF_PIN_LINE", "TOP", 37.0, 100.0, 700.0))
+        self.assertEqual(hole["pitch_mm"], 32.0)
+
+    def test_drilling_maior_que_a_peca_e_recortado(self):
+        from caffmob_draw.cutting import drilling
+        line = drilling.pin_lines(((0.015, 0.0, 0.0), (0.585, 0.55, 0.9)), 'HORIZONTAL')[0]
+        entry, clipped = drilling.part_entry(line, ((0.0, 0.0, 0.0), (0.015, 0.55, 0.72)), 'TOP', "P")
+        self.assertTrue(clipped)
+        self.assertEqual(entry["y_end_mm"], 720.0)
+
+    def test_leitura_2_1_sem_hardware(self):
+        payload = sample_payload()
+        payload["schema_version"] = "2.1.0"
+        del payload["hardware"]
+        for part in payload["parts"]:
+            part["drilling"] = []
+        self.assertEqual(json_exporter.validate_global_json(payload), [])
 
     def test_versao_2_0_continua_valida(self):
         payload = sample_payload()

@@ -1,0 +1,34 @@
+{
+ "Atualizar portas e janelas": {
+  "en_US": "Update doors and windows",
+  "pt_BR": "Atualizar portas e janelas"
+ },
+ "Caixa antiga, sem a porta real": {
+  "en_US": "Old box, without the real door",
+  "pt_BR": "Caixa antiga, sem a porta real"
+ },
+ "Porta dupla": {
+  "en_US": "Double door",
+  "pt_BR": "Porta dupla"
+ },
+ "Todas as portas e janelas já estão atualizadas": {
+  "en_US": "All doors and windows are already up to date",
+  "pt_BR": "Todas as portas e janelas já estão atualizadas"
+ },
+ "Troca as portas e janelas em caixa deste arquivo pelas portas e janelas reais": {
+  "en_US": "Replaces the box doors and windows in this file with real doors and windows",
+  "pt_BR": "Troca as portas e janelas em caixa deste arquivo pelas portas e janelas reais"
+ },
+ "Vão aberto": {
+  "en_US": "Open doorway",
+  "pt_BR": "Vão aberto"
+ },
+ "{} porta(s) e janela(s) atualizada(s)": {
+  "en_US": "{} door(s) and window(s) updated",
+  "pt_BR": "{} porta(s) e janela(s) atualizada(s)"
+ },
+ "{} porta(s) ou janela(s) em caixa": {
+  "en_US": "{} door(s) or window(s) shown as a box",
+  "pt_BR": "{} porta(s) ou janela(s) em caixa"
+ }
+}

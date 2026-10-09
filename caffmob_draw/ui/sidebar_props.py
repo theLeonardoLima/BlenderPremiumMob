@@ -13,11 +13,11 @@ GROUPS = (
     ('walls', False), ('openings', False), ('floor', False), ('obstacles', False), ('lights', False),
     ('stairs', False), ('reference', False), ('geometry', False),
     # Inserir
-    ('my_modules', False),
+    ('my_modules', False), ('objects', False),
     # Selecionado (módulo: 4 abertos)
     ('sel_dimensions', True), ('sel_customize', True), ('sel_position', True), ('sel_open', True),
     ('sel_aggregates', False), ('sel_collision', False), ('sel_arrangement', False), ('sel_actions', False),
-    ('sel_library', False),
+    ('sel_library', False), ('sel_retexture', False),
     # Verificar
     ('check_fronts', True), ('check_collisions', True),
     # Produção/Projeto

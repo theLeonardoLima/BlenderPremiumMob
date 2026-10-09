@@ -1,0 +1,25 @@
+{
+ "format": "caffmob_draw.object_item",
+ "version": 1,
+ "item_id": "quadro-60x80",
+ "name": "Quadro 60 x 80",
+ "category": "DECOR",
+ "root": "Quadro 60 x 80",
+ "source": "CAFFMob Draw",
+ "author": "",
+ "license": "GPL-3.0-or-later",
+ "size_mm": [
+  600.0,
+  30.0,
+  800.0
+ ],
+ "features": [
+  "GROUP"
+ ],
+ "materials": [
+  "Preto",
+  "Tela"
+ ],
+ "created_at": "2026-10-09T00:54:54-03:00",
+ "addon_version": ""
+}

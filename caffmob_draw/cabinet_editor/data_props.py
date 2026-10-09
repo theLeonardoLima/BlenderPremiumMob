@@ -6,6 +6,10 @@
   filho da raiz (D-03); o objeto é desenhado e lido como qualquer peça.
 
 Medidas em metros. Espessura 0 e material vazio = segue o Configurador de Dimensões.
+
+Feature 008 (T001, T002): `Object.btm_extra` (peças das abas novas: extras da Estrutura, internos, deslizantes);
+`btm_structure` ganha o fundo (inteiro/recuado, automático) e o estado da árvore de extras; `btm_division` ganha `bay`
+(Número de vãos), `kind` (fixa, móvel, distanciador) e `follow` (distanciador p/ divisão).
 """
 
 import bpy  # type: ignore
@@ -30,6 +34,30 @@ MATERIAL_ITEMS = [('', "Do Configurador", "Segue o Configurador de Dimensões")]
     (m, m, "") for m in ('MDF', 'MDP', 'COMPENSADO', 'OSB', 'VIDRO', 'OUTRO')]
 
 
+EXTRA_KIND_ITEMS = [(k, k, "") for k in (
+    'BASE_TOP_RECESSED', 'FOOT', 'KICK_FRONT', 'KICK_LEFT', 'KICK_RIGHT', 'KICK_GRANITE', 'CLOSURE', 'VIEW_FRONT',
+    'VIEW_LEFT', 'VIEW_RIGHT', 'VIEW_TALL_LEFT', 'VIEW_TALL_RIGHT', 'VIEW_TALL_FRONT', 'APPLIANCE_PANEL', 'APPLIANCE',
+    'APPLIANCE_SUPPORT', 'PISTON', 'SLIDE_TRACK', 'SLIDE_LEAF')]
+DIVISION_KIND_ITEMS = [('FIXED', "Fixa", ""), ('MOVABLE', "Móvel", "Regulável, com furação nas peças vizinhas"),
+                       ('SPACER', "Distanciador", "Ocupa a faixa sem dividir o vão")]
+BACK_MODE_ITEMS = [('FULL', "Inteiro", ""), ('RECESSED', "Inteiro Recuado", "")]
+
+
+class BTM_PG_Extra(bpy.types.PropertyGroup):
+    is_extra: bpy.props.BoolProperty(default=False)  # type: ignore
+    kind: bpy.props.EnumProperty(items=EXTRA_KIND_ITEMS)  # type: ignore
+    catalog_id: bpy.props.StringProperty()  # type: ignore
+    space: bpy.props.StringProperty()  # type: ignore
+    slot: bpy.props.IntProperty()  # type: ignore
+    params: bpy.props.StringProperty()  # type: ignore        # JSON
+
+
+class BTM_PG_StructureExtra(bpy.types.PropertyGroup):
+    kind: bpy.props.StringProperty()  # type: ignore          # chave da árvore (catalog.TREE)
+    enabled: bpy.props.BoolProperty(default=False)  # type: ignore
+    value: bpy.props.FloatProperty(subtype='DISTANCE', unit='LENGTH')  # type: ignore
+
+
 class BTM_PG_StructureItem(bpy.types.PropertyGroup):
     role: bpy.props.EnumProperty(name="Componente", items=ROLE_ITEMS)  # type: ignore
     removed: bpy.props.BoolProperty(name="Removido", default=False)  # type: ignore
@@ -42,6 +70,39 @@ class BTM_PG_StructureItem(bpy.types.PropertyGroup):
 
 class BTM_PG_Structure(bpy.types.PropertyGroup):
     components: bpy.props.CollectionProperty(type=BTM_PG_StructureItem)  # type: ignore
+    back_mode: bpy.props.EnumProperty(name="Fundo", items=BACK_MODE_ITEMS, default='FULL')  # type: ignore
+    back_setback: bpy.props.FloatProperty(name="Recuo do fundo", subtype='DISTANCE', unit='LENGTH', default=0.02,
+                                          min=0.0)  # type: ignore
+    auto_back: bpy.props.BoolProperty(name="Inserir automaticamente", default=True)  # type: ignore
+    extras: bpy.props.CollectionProperty(type=BTM_PG_StructureExtra)  # type: ignore
+
+    def extra(self, kind, create=False):
+        for entry in self.extras:
+            if entry.kind == kind:
+                return entry
+        if not create:
+            return None
+        entry = self.extras.add()
+        entry.kind = kind
+        return entry
+
+    def extras_dict(self):
+        return {e.kind: {"enabled": bool(e.enabled), "value": float(e.value)} for e in self.extras}
+
+    def extras_from_dict(self, data):
+        self.extras.clear()
+        for kind, values in sorted((data or {}).items()):
+            entry = self.extras.add()
+            entry.kind, entry.enabled, entry.value = kind, bool(values.get("enabled")), float(values.get("value", 0.0))
+
+    def backs_dict(self):
+        return {"mode": self.back_mode, "setback": float(self.back_setback), "auto": bool(self.auto_back)}
+
+    def backs_from_dict(self, data):
+        data = data or {}
+        self.back_mode = data.get("mode", 'FULL') or 'FULL'
+        self.back_setback = float(data.get("setback", 0.02))
+        self.auto_back = bool(data.get("auto", True))
 
     def item(self, role, create=False):
         for entry in self.components:
@@ -84,9 +145,12 @@ class BTM_PG_Division(bpy.types.PropertyGroup):
                                        description="0 = segue o Configurador")  # type: ignore
     material: bpy.props.StringProperty(name="Material da chapa",
                                        description="Vazio = segue o Configurador")  # type: ignore
+    bay: bpy.props.BoolProperty(default=False)  # type: ignore            # gerada pelo Número de vãos (008)
+    kind: bpy.props.EnumProperty(items=DIVISION_KIND_ITEMS, default='FIXED')  # type: ignore
+    follow: bpy.props.StringProperty()  # type: ignore                    # uid da divisória seguida (008)
 
     FIELDS = ('uid', 'space', 'orientation', 'offset', 'use_front', 'front', 'use_back', 'back', 'thickness',
-              'material')
+              'material', 'bay', 'kind', 'follow')
 
     def to_dict(self):
         return {name: getattr(self, name) for name in self.FIELDS}
@@ -98,7 +162,7 @@ class BTM_PG_Division(bpy.types.PropertyGroup):
         self.is_division = True
 
 
-classes = (BTM_PG_StructureItem, BTM_PG_Structure, BTM_PG_Division)
+classes = (BTM_PG_Extra, BTM_PG_StructureExtra, BTM_PG_StructureItem, BTM_PG_Structure, BTM_PG_Division)
 
 
 def register():
@@ -106,10 +170,11 @@ def register():
         bpy.utils.register_class(cls)
     bpy.types.Object.btm_structure = bpy.props.PointerProperty(type=BTM_PG_Structure)
     bpy.types.Object.btm_division = bpy.props.PointerProperty(type=BTM_PG_Division)
+    bpy.types.Object.btm_extra = bpy.props.PointerProperty(type=BTM_PG_Extra)
 
 
 def unregister():
-    for name in ('btm_division', 'btm_structure'):
+    for name in ('btm_extra', 'btm_division', 'btm_structure'):
         if hasattr(bpy.types.Object, name):
             delattr(bpy.types.Object, name)
     for cls in reversed(classes):

@@ -28,8 +28,9 @@ import bpy
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import _blender_env as env  # noqa: E402
 from caffmob_draw import compat, hb_utils  # noqa: E402
-from caffmob_draw.cabinet_editor import (bridge, panels, panels_divisions, panels_structure, props,  # noqa: E402
-                                         scene_divisions)
+from caffmob_draw.cabinet_editor import (bridge, panels, panels_backs, panels_divisions,  # noqa: E402
+                                         panels_doors, panels_drawers, panels_interior, panels_sliding,
+                                         panels_structure, props, scene_divisions)
 from caffmob_draw.cabinet_editor import window as cew  # noqa: E402
 from caffmob_draw.customize.adapters import common  # noqa: E402
 from caffmob_draw.cutting import part_extractor  # noqa: E402
@@ -45,9 +46,15 @@ TABS = {
                   'ops': {'caffmob.cabinet_editor_part_remove', 'caffmob.cabinet_editor_part_edit'}},
     'DIVISIONS': {'panels': (panels_divisions.BTM_PT_CabinetEditorDivisionNew,
                              panels_divisions.BTM_PT_CabinetEditorDivisionList),
-                  'ops': {'caffmob.cabinet_editor_division_add'}},
-    'FINISH': {'panels': (panels.BTM_PT_CabinetEditorComponents, panels.BTM_PT_CabinetEditorCustomize),
-               'ops': set()},
+                  'ops': {'caffmob.cabinet_editor_insert'}},
+    # Feature 008 (T050): a aba Acabamento saiu; cada aba nova tem o seu painel e o Inserir no mesmo lugar.
+    'DRAWERS': {'panels': (panels_drawers.BTM_PT_CabinetEditorDrawers,), 'ops': {'caffmob.cabinet_editor_insert'}},
+    'INTERIOR': {'panels': (panels_interior.BTM_PT_CabinetEditorInterior,),
+                 'ops': {'caffmob.cabinet_editor_insert', 'caffmob.cabinet_editor_pick'}},
+    'DOORS': {'panels': (panels_doors.BTM_PT_CabinetEditorDoors,), 'ops': {'caffmob.cabinet_editor_insert'}},
+    'SLIDING': {'panels': (panels_sliding.BTM_PT_CabinetEditorSliding,),
+                'ops': {'caffmob.cabinet_editor_insert', 'caffmob.cabinet_editor_pick'}},
+    'BACKS': {'panels': (panels_backs.BTM_PT_CabinetEditorBacks,), 'ops': {'caffmob.cabinet_editor_insert'}},
 }
 FOOTER = (panels.BTM_PT_CabinetEditorTabs, panels.BTM_PT_CabinetEditorMessages, panels.BTM_PT_CabinetEditorConfirm)
 

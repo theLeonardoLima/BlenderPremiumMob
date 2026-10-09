@@ -392,3 +392,8 @@ def set_part_thickness(context, root, role, value):
 
 def reaffirm(context, root):
     return common.reaffirm_parts(context, root, _self(), drop_driver=True)
+
+
+def set_back_recess(context, root, setback):
+    """Fundo recuado (feature 008, T063; D-11): desloca a peça do fundo para dentro."""
+    return common.set_back_recess(context, root, _self(), setback)

@@ -38,12 +38,20 @@ def structure_of(cab):
             for role in STRUCTURE_ROLES}
 
 
+def back_setback_of(obj):
+    """Recuo do fundo "Inteiro Recuado" gravado em `btm_structure` (feature 008, D-11); 0 = fundo inteiro."""
+    structure = getattr(obj, 'btm_structure', None)
+    if structure is None or structure.back_mode != 'RECESSED':
+        return 0.0
+    return float(structure.back_setback)
+
+
 def update_cabinet_geom(self, context):
     obj = self.id_data
     if obj and obj.type == 'MESH':
         from ..geometry.mesh_gen import generate_cabinet_mesh
         generate_cabinet_mesh(obj, self.width, self.height, self.depth, self.thickness, self.shelves,
-                              structure=structure_of(self))
+                              structure=structure_of(self), back_setback=back_setback_of(obj))
 
         # Atualiza a geometria da porta e o controlador vazio
         from ..geometry import door_controller

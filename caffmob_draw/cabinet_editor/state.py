@@ -20,6 +20,10 @@ class EditorState:
     spec: dict = field(default_factory=dict)
     structure: dict = field(default_factory=dict)     # papel → {removed, mode, thickness, material} (feature 006)
     divisions: list = field(default_factory=list)     # [{uid, space, orientation, offset, …}] (feature 006)
+    extras: dict = field(default_factory=dict)        # árvore de extras da Estrutura {kind: {enabled, value}} (008)
+    slides: dict = field(default_factory=dict)        # deslizantes {family, style, leaves, invert, opens} (008)
+    interiors: list = field(default_factory=list)     # internos [{catalog_id, space, …}] (008)
+    backs: dict = field(default_factory=dict)         # fundo {mode, setback, auto} (008)
 
     def copy(self):
         return copy.deepcopy(self)
@@ -38,7 +42,9 @@ def _rounded(value):
 def signature(state):
     dims = [round(float(v), PRECISION) for v in state.dimensions]
     return json.dumps({"dims": dims, "spec": state.spec, "structure": _rounded(state.structure),
-                       "divisions": _rounded(state.divisions)}, sort_keys=True, default=str)
+                       "divisions": _rounded(state.divisions), "extras": _rounded(state.extras),
+                       "slides": _rounded(state.slides), "interiors": _rounded(state.interiors),
+                       "backs": _rounded(state.backs)}, sort_keys=True, default=str)
 
 
 class Draft:
@@ -67,3 +73,8 @@ class Draft:
 
     def dirty(self):
         return signature(self.current) != signature(self.initial)
+
+    def apply_point(self):
+        """Aplicar (feature 008, D-04): o estado atual vira a referência do Cancelar e o histórico recomeça dele."""
+        self.initial = self.current.copy()
+        self.history = _history.History(self.current, signature=signature)

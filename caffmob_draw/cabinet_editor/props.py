@@ -35,6 +35,10 @@ class Session:
         self.spaces = {}                  # caminho → caixa (lo, hi) dos subvãos-folha, no referencial da vista
         self.space_labels = {}            # caminho → rótulo
         self.removed_parts = []           # elevation.Part das peças removidas (desenhadas tracejadas)
+        self.library_path = None          # vão da biblioteca que contém o vão alvo (feature 008)
+        self.library_box = None
+        self.last_moved = None            # divisória movida pela última seta (Passo inicial)
+        self.applied = False              # houve Aplicar nesta sessão
 
     def root(self):
         return bpy.data.objects.get(self.root_name)
@@ -120,11 +124,41 @@ class BTM_PG_CabinetEditorAdjustment(bpy.types.PropertyGroup):
     change: bpy.props.StringProperty()  # type: ignore
 
 
+# Feature 008 (T003; D-02): as 7 abas do Construtor de Armários. O número de cada item continua estável: o antigo
+# FINISH (2) da 006 não existe mais e um editor salvo nele cai em STRUCTURE.
 TAB_ITEMS = [
-    ('STRUCTURE', "Estrutura", "Medidas externas e componentes externos", 'MOD_BUILD', 0),
-    ('DIVISIONS', "Divisão", "Chapas de divisão vertical e horizontal", 'MOD_LATTICE', 1),
-    ('FINISH', "Acabamento", "Frentes, puxadores e materiais", 'MATERIAL', 2),
+    ('STRUCTURE', "Estrutura", "Tipo, medidas e componentes do armário", 'MOD_BUILD', 0),
+    ('DIVISIONS', "Divisões", "Divisórias, distanciadores e inserção múltipla", 'MOD_LATTICE', 1),
+    ('DRAWERS', "Gavetas", "Gavetas, gavetões, internas e Blum", 'NLA_PUSHDOWN', 3),
+    ('INTERIOR', "Internos", "Painéis para eletros, apoios e pistões", 'OUTLINER_OB_LIGHTPROBE', 4),
+    ('DOORS', "Portas", "Portas e puxadores", 'MESH_PLANE', 5),
+    ('SLIDING', "Deslizantes", "Portas de correr", 'ARROW_LEFTRIGHT', 6),
+    ('BACKS', "Fundos", "Fundo inteiro ou recuado", 'MOD_SOLIDIFY', 7),
 ]
+DIV_MODE_ITEMS = [('VERTICAL', "Vertical", ""), ('HORIZONTAL', "Horizontal", ""),
+                  ('MULTIPLE', "Inserção múltipla", "Várias chapas iguais de uma vez")]
+DIV_KIND_ITEMS = [('MOVABLE', "Divisórias Móveis", "Reguláveis, com furação nas peças vizinhas"),
+                  ('FIXED', "Divisórias Fixas", ""), ('SPACER', "Distanciador", "Ocupa a faixa sem dividir o vão"),
+                  ('NONE', "Sem Divisória", "Remove a divisória do vão")]
+DRAWER_TAB_ITEMS = [('DRAWERS', "Gavetas", ""), ('TALL', "Gavetões", "Gavetas de frente alta"),
+                    ('INTERNAL', "Internas", "Gaveta atrás da porta"), ('BLUM', "Blum", "Corrediça Blum")]
+DOOR_REGION_ITEMS = [('LOWER', "Inferior", ""), ('UPPER', "Superior", ""), ('TALL', "Alta", ""),
+                     ('FLIP', "Basculante", "")]
+DOOR_SCOPE_ITEMS = [('BOTH', "Ambas", "Duas portas"), ('WHOLE', "Inteira", "Uma porta no vão"),
+                    ('LEFT', "Esquerda", "Dobradiça à esquerda"), ('RIGHT', "Direita", "Dobradiça à direita")]
+INTERIOR_GROUP_ITEMS = [('PANELS', "Painel p/ Eletros", ""), ('LIBRARY', "Biblioteca", ""),
+                        ('SUPPORTS', "Apoios", ""), ('PISTONS', "Pistões", "")]
+INTERIOR_FILTER_ITEMS = [('EXTERNAL', "Externos", ""), ('BUILT_IN', "Embutidos", "")]
+SLIDE_FAMILY_ITEMS = [('WOOD', "Madeira", ""), ('ALUMINIUM', "Alumínio", "")]
+BACK_TAB_ITEMS = [('FULL', "Inteiro", ""), ('RECESSED', "Inteiro Recuado", "")]
+
+
+def _dynamic(name):
+    """Itens de enum vindos dos operadores (estilos e puxadores da biblioteca do módulo em edição)."""
+    def items(self, context):
+        from . import ops_actions
+        return getattr(ops_actions, name)(self, context)
+    return items
 _SPACE_CACHE = []
 
 
@@ -173,6 +207,136 @@ class BTM_PG_CabinetEditorDivisionRow(bpy.types.PropertyGroup):
     flagged: bpy.props.BoolProperty()  # type: ignore
 
 
+# Campos virtuais da Estrutura e das cotas (feature 008, T033; D-07, D-15, D-16) ----------------------------------
+def _root():
+    s = session()
+    return s.root() if s is not None else None
+
+
+def _extra_enabled(root, key):
+    from . import catalog
+    holder = getattr(root, 'btm_structure', None)
+    if holder is None:
+        return False
+    if key in catalog.TREE_GROUPS and key not in ('FEET',):
+        return any(_extra_enabled(root, child) for child in catalog.CHILDREN[key])
+    entry = holder.extra(key)
+    return bool(entry.enabled) if entry is not None else key in catalog.DEFAULT_ON
+
+
+def _tree_get(key):
+    def get(_self):
+        root = _root()
+        return _extra_enabled(root, key) if root is not None else False
+    return get
+
+
+def _tree_set(key):
+    def set_(_self, value):
+        from . import catalog
+        s = session()
+        if s is None:
+            return
+        keys = catalog.CHILDREN[key] if key in catalog.TREE_GROUPS and key != 'FEET' else [key]
+        for k in keys:
+            s.push('edit', ('TOGGLE_EXTRA', {'key': k, 'enabled': bool(value), 'targets': []}))
+    return set_
+
+
+def _value_get(key):
+    def get(_self):
+        from . import extras
+        root = _root()
+        entry = root.btm_structure.extra(key) if root is not None else None
+        return float(entry.value) if entry is not None and entry.value else extras.DEFAULTS.get(key, 0.0)
+    return get
+
+
+def _value_set(key):
+    def set_(_self, value):
+        s = session()
+        if s is not None:
+            s.push('edit', ('TOGGLE_EXTRA', {'key': key, 'value': float(value), 'targets': []}))
+    return set_
+
+
+def _comp_get(role):
+    def get(_self):
+        root = _root()
+        entry = root.btm_structure.item(role) if root is not None else None
+        return not (entry is not None and entry.removed)
+    return get
+
+
+def _comp_set(role):
+    def set_(_self, value):
+        s = session()
+        if s is not None:
+            action = 'RESTORE_PART' if value else 'REMOVE_PART'
+            s.push('edit', (action, {'role': role, 'mode': 'KEEP', 'targets': []}))
+    return set_
+
+
+def _bays_get(_self):
+    from . import bays, scene_divisions
+    root = _root()
+    if root is None:
+        return 1
+    return bays.count(scene_divisions.core(bpy.context.scene, root))
+
+
+def _bays_set(_self, value):
+    s = session()
+    if s is not None:
+        s.push('edit', ('SET_BAYS', {'count': int(value), 'targets': []}))
+
+
+def _selected_division():
+    from . import divisions as dv, scene_divisions
+    s, root = session(), _root()
+    if s is None or root is None or not s.selected:
+        return None, None
+    obj = bpy.data.objects.get(s.selected)
+    if obj is None or obj.parent != root or not obj.btm_division.is_division:
+        return None, None
+    roots = scene_divisions.roots(bpy.context, root)
+    core = scene_divisions.core(bpy.context.scene, root)
+    _leaves, cuts, _o = dv.resolve(roots, core)
+    division = next((d for d in core if d.uid == obj.btm_division.uid), None)
+    if division is None or division.uid not in cuts:
+        return None, None
+    return division, cuts[division.uid][0]
+
+
+def _pos_get(which):
+    def get(_self):
+        from . import position
+        division, space = _selected_division()
+        return position.cotas(space, division)[which] if division is not None else 0.0
+    return get
+
+
+def _pos_set(which):
+    def set_(_self, value):
+        from . import position
+        s = session()
+        division, space = _selected_division()
+        if s is None or division is None:
+            return
+        if which == 'front':
+            data = {'use_front': value > 0.0, 'front': float(value) or division.front}
+        elif which == 'back':
+            data = {'use_back': value > 0.0, 'back': float(value) or division.back}
+        else:
+            data = {'offset': position.offset_from_cota(space, division, which, value)}
+        s.push('edit', ('EDIT_DIVISION', dict(data, uid=division.uid, targets=[])))
+    return set_
+
+
+def has_position():
+    return _selected_division()[0] is not None
+
+
 class BTM_PG_CabinetEditorState(bpy.types.PropertyGroup):
     width: bpy.props.FloatProperty(name="Largura", subtype='DISTANCE', unit='LENGTH',
                                    get=_dim_get('width'), set=_dim_set('width'))  # type: ignore
@@ -201,7 +365,52 @@ class BTM_PG_CabinetEditorState(bpy.types.PropertyGroup):
     structure_index: bpy.props.IntProperty(default=-1)  # type: ignore
     divisions: bpy.props.CollectionProperty(type=BTM_PG_CabinetEditorDivisionRow)  # type: ignore
     division_index: bpy.props.IntProperty(default=-1)  # type: ignore
+    # Feature 008: opções das abas do Construtor (data-delta §1.4)
+    catalog_item: bpy.props.StringProperty(name="Item")  # type: ignore
+    invert: bpy.props.BoolProperty(name="Inserir invertido", default=False)  # type: ignore
+    div_mode: bpy.props.EnumProperty(name="Modo", items=DIV_MODE_ITEMS, default='VERTICAL')  # type: ignore
+    div_kind: bpy.props.EnumProperty(name="Tipo", items=DIV_KIND_ITEMS, default='FIXED')  # type: ignore
+    div_count: bpy.props.IntProperty(name="Quantidade", default=2, min=1, max=10)  # type: ignore
+    drawer_tab: bpy.props.EnumProperty(name="Gavetas", items=DRAWER_TAB_ITEMS, default='DRAWERS')  # type: ignore
+    drawer_count: bpy.props.IntProperty(name="Número de gavetas", default=4, min=1, max=8)  # type: ignore
+    drawer_style: bpy.props.EnumProperty(name="Frente", items=_dynamic('_style_items'))  # type: ignore
+    drawer_pull: bpy.props.EnumProperty(name="Puxador", items=_dynamic('_pull_items'))  # type: ignore
+    door_region: bpy.props.EnumProperty(name="Região", items=DOOR_REGION_ITEMS, default='LOWER')  # type: ignore
+    door_scope: bpy.props.EnumProperty(name="Portas", items=DOOR_SCOPE_ITEMS, default='BOTH')  # type: ignore
+    door_style: bpy.props.EnumProperty(name="Estilo", items=_dynamic('_style_items'))  # type: ignore
+    door_pull: bpy.props.EnumProperty(name="Puxador", items=_dynamic('_pull_items'))  # type: ignore
+    interior_group: bpy.props.EnumProperty(name="Internos", items=INTERIOR_GROUP_ITEMS,
+                                           default='PANELS')  # type: ignore
+    interior_filter: bpy.props.EnumProperty(name="Filtro", items=INTERIOR_FILTER_ITEMS,
+                                            default='EXTERNAL')  # type: ignore
+    slide_family: bpy.props.EnumProperty(name="Família", items=SLIDE_FAMILY_ITEMS, default='WOOD')  # type: ignore
+    slide_leaves: bpy.props.IntProperty(name="Folhas", default=2, min=2, max=3)  # type: ignore
+    back_tab: bpy.props.EnumProperty(name="Fundo", items=BACK_TAB_ITEMS, default='FULL')  # type: ignore
+    step: bpy.props.FloatProperty(name="Passo", subtype='DISTANCE', unit='LENGTH', default=0.01,
+                                  min=0.0001)  # type: ignore
+    step_initial: bpy.props.FloatProperty(name="Passo inicial", subtype='DISTANCE', unit='LENGTH',
+                                          default=0.0, min=0.0)  # type: ignore
 
+
+def _add_virtual_fields():
+    """Campos da árvore (um por chave do catálogo e por papel da estrutura), vãos e cotas, criados antes do registro."""
+    from . import catalog
+    notes = BTM_PG_CabinetEditorState.__annotations__
+    for key, label, _parent, default in catalog.TREE:
+        notes['tree_' + key] = bpy.props.BoolProperty(name=label, get=_tree_get(key), set=_tree_set(key))
+        if default is not None:
+            notes['value_' + key] = bpy.props.FloatProperty(
+                name=label, subtype='DISTANCE', unit='LENGTH', min=0.0, get=_value_get(key), set=_value_set(key))
+    for role in ('TOP', 'BOTTOM', 'BACK', 'LEFT', 'RIGHT'):
+        notes['comp_' + role] = bpy.props.BoolProperty(get=_comp_get(role), set=_comp_set(role))
+    notes['bays'] = bpy.props.IntProperty(name="Número de vãos", min=1, max=10, get=_bays_get, set=_bays_set)
+    for which, label in (('front', "Cota anterior"), ('low', "Cota inferior"), ('back', "Cota posterior"),
+                         ('high', "Cota superior")):
+        notes['pos_' + which] = bpy.props.FloatProperty(name=label, subtype='DISTANCE', unit='LENGTH',
+                                                        get=_pos_get(which), set=_pos_set(which))
+
+
+_add_virtual_fields()
 
 classes = (BTM_PG_CabinetEditorComponent, BTM_PG_CabinetEditorMessage, BTM_PG_CabinetEditorAdjustment,
            BTM_PG_CabinetEditorStructureRow, BTM_PG_CabinetEditorDivisionRow, BTM_PG_CabinetEditorState)

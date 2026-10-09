@@ -38,6 +38,8 @@ from . import stick
 from .stick import migrate as _stick_migrate  # noqa: F401
 from . import collision
 from . import cabinet_editor
+from . import object_library
+from . import openings
 from . import compat_identity
 from . import ui
 from . import overlays
@@ -283,6 +285,8 @@ def register():
     stick.register()
     collision.register()
     cabinet_editor.register()
+    object_library.register()
+    openings.register()
 
     # Register legacy UI
     view3d_sidebar.register()
@@ -331,6 +335,8 @@ def unregister():
     view3d_sidebar.unregister()
 
     # Unregister modern UI, operators & draw handlers
+    openings.unregister()
+    object_library.unregister()
     cabinet_editor.unregister()
     collision.unregister()
     stick.unregister()

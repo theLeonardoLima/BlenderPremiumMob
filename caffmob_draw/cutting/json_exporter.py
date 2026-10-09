@@ -18,7 +18,7 @@ from .nesting import NestingPart
 FORMAT = "caffmob_draw.project"
 # Arquivos exportados antes da identidade CAFFMob Draw continuam válidos na leitura (BUG-20261006-QAVK).
 ACCEPTED_FORMATS = (FORMAT, "blendertomob.project")
-SCHEMA_VERSION = "2.1.0"     # 2.1: `machining` por peça (feature 003); leitores 2.0 continuam válidos
+SCHEMA_VERSION = "2.2.0"     # 2.1: `machining` por peça (003); 2.2: `hardware[]` e `drilling` (008); leitores 2.x valem
 SUPPORTED_MAJOR = 2
 ALGORITHM = "guillotine-shelf-nfd"
 
@@ -109,7 +109,8 @@ def _part_entry(part, precision):
         "source": part.source,
         "limit_status": ("MACHINING_CLIPPED" if getattr(part, 'machining_clipped', False)
                          and part.limit_status == "OK" else part.limit_status),
-        "drilling": [],
+        "drilling": sorted((dict(e) for e in getattr(part, 'drilling', [])),
+                           key=lambda e: (e.get("source_name", ""), e.get("x_mm", 0.0), e.get("y_start_mm", 0.0))),
         "machining": [dict(entry) for entry in getattr(part, 'machining', [])],
     }
 
@@ -190,7 +191,8 @@ def _warnings(parts, nesting_result):
 
 
 def build_global_payload(project, standard, parts, modules=None, nesting_result=None, nesting_settings=None,
-                         include_client=True, precision=1, stale=False, version=None, extra_warnings=()):
+                         include_client=True, precision=1, stale=False, version=None, extra_warnings=(),
+                         hardware=()):
     """Monta o dicionário do JSON v2 (ordem estável: módulos e peças por `uid`)."""
     parts = sorted(parts, key=lambda p: p.uid)
     standard = dict(standard or {})
@@ -207,6 +209,8 @@ def build_global_payload(project, standard, parts, modules=None, nesting_result=
         "materials": _materials(parts, nesting_result),
         "modules": sorted([dict(m) for m in modules or []], key=lambda m: str(m.get("uid", ""))),
         "parts": [_part_entry(p, precision) for p in parts],
+        "hardware": sorted((dict(h) for h in hardware),
+                           key=lambda h: (h.get("module_uid") is None, h.get("module_uid") or "", h["code"])),
         "warnings": list(extra_warnings) + _warnings(parts, nesting_result),
     }
     if nesting_result is not None:
@@ -305,6 +309,20 @@ def validate_global_json(payload):
                 need(cut, m, "kind", str, lambda v: v in ("POCKET", "THROUGH_CUT"))
                 for key in ("x_mm", "y_mm", "end_x_mm", "end_y_mm", "depth_mm"):
                     need(cut, m, key, 'number', lambda v: v >= 0)
+        for j, hole in enumerate(need(part, p, "drilling", list) or [] if "drilling" in part else []):
+            d = f"{p}drilling[{j}]."            # 2.2 (feature 008); outras formas são ignoradas pelo leitor
+            if isinstance(hole, dict) and hole.get("kind") == "SHELF_PIN_LINE":
+                need(hole, d, "face", str, lambda v: v in ("TOP", "BOTTOM"))
+                for key in ("x_mm", "y_start_mm", "y_end_mm", "pitch_mm", "diameter_mm", "depth_mm"):
+                    need(hole, d, key, 'number', lambda v: v >= 0)
+
+    for i, item in enumerate(need(payload, "", "hardware", list) or [] if "hardware" in payload else []):
+        h = f"hardware[{i}]."                  # 2.2 (feature 008); ausente = lista vazia
+        need(item, h, "code", str)
+        need(item, h, "name", str)
+        need(item, h, "quantity", int, lambda v: v >= 1)
+        if not isinstance(item, dict) or not (item.get("module_uid") is None or isinstance(item["module_uid"], str)):
+            errors.append(tr("{}module_uid: tipo inválido").format(h))
 
     plan = payload.get("cut_plan")
     if plan is not None:

@@ -8,6 +8,9 @@
     clique no ponto inicial pergunta se deve fechar;
   - Inverter Sentido, Adicionar Vértice e Remover Vértice por clique; Delete remove o trecho selecionado;
   - botão do meio arrasta a vista, a roda aproxima, Home enquadra tudo.
+- Feature 009 (RN-01 a RN-07): mira em cruz que trava por alinhamento X/Y com os vértices (8 px na tela; Shift
+  desliga), cadeia única de travas (`resolve_point`), medida com conta (`data/expr.py`) e direção travada no lápis:
+  o Enter segue a direção atual, que só muda por clique ou pelas setas do teclado.
 - `caffmob.wall_editor_ok` / `caffmob.wall_editor_cancel`: o OK aplica o rascunho como um passo de desfazer (avisa antes se
   algum item não couber); Cancelar ou Esc descarta.
 """
@@ -18,14 +21,18 @@ import bpy  # type: ignore
 
 from ..canvas2d import draw
 from ..canvas2d.view import View2D, distance_point_point, distance_point_segment, ortho_snap, snap_to_grid
-from ..data import units
+from ..data import expr, units
 from ..data.i18n import N_, tr
-from . import model, props, window
+from . import direction as dr
+from . import inference, model, props, window
 
 NODE_HIT_PX = 9
 LINE_HIT_PX = 7
 SNAP_CLOSE_PX = 15          # ímã do ponto inicial, em pixels de tela (D-33)
 CLOSE_TOLERANCE = 0.01      # fim a até 10 mm do início conta como chegar nele (D-34)
+ALIGN_PX = 8                # mira: alinhamento X/Y com os vértices a até 8 px na tela (009, RN-02)
+TYPING_CHARS = "0123456789,.+-*/() "
+UNIT_CHARS = "mMcC"         # sufixo de unidade: só depois de um dígito (009, R-05)
 TIMER_STEP = 0.1
 
 COLORS = {
@@ -113,12 +120,20 @@ def draw_plan(context):
 
     if s.drawing is None and s.typed and s.cursor is not None:      # digitação direta (D-27)
         q = view.to_screen(s.cursor)
-        draw.text(q[0] + 12, q[1] + 12, tr("Medida: {}▏  (Enter aplica, Esc limpa)").format(s.typed), COLORS['selected'])
+        draw.text(q[0] + 12, q[1] + 12, tr("Medida: {}▏ {} (Enter aplica, Esc limpa)").format(
+            s.typed, s.typed_preview), COLORS['selected'])
+
+    if s.cursor is not None and state.tool in ('DRAW', 'SELECT') and s.prompt not in PROMPTS:
+        _draw_crosshair(sh, view, region, s)
 
     if s.drawing is not None and s.cursor is not None and s.drawing.nodes:
         start = s.drawing.nodes[-1]
-        snapped = close_snap(s, view, view.to_screen(s.cursor))
-        end, locked = (s.drawing.nodes[0], True) if snapped else preview_point(context, start, s.cursor)
+        end, kind = s.snap_point or (s.cursor, 'free')
+        snapped = kind == 'close'
+        locked = kind != 'free'
+        typed_length = _typed_length(s)
+        if typed_length is not None and s.direction is not None:      # com digitação, a prévia segue a direção (D-06)
+            end, locked = dr.next_point(start, s.direction, typed_length), True
         a, b = view.to_screen(start), view.to_screen(end)
         draw.lines(sh, [a, b] if locked else draw.dashed(a, b), COLORS['preview_locked'] if locked
                    else COLORS['preview'])
@@ -127,8 +142,10 @@ def draw_plan(context):
             draw.lines(sh, [p for k in range(16) for p in (ring[k], ring[k + 1])], COLORS['selected'])
             draw.text(b[0] + 14, b[1] - 18, "Fechar", COLORS['selected'])
         length = math.hypot(end[0] - start[0], end[1] - start[1])
-        text = f"{s.typed}▏" if s.typed else draw.length_label(length)
+        text = f"{s.typed}▏ {s.typed_preview}".rstrip() if s.typed else draw.length_label(length)
         draw.text(b[0] + 10, b[1] + 10, tr("Comprimento: {}").format(text), COLORS['preview'])
+        if s.direction_locked and s.direction is not None:          # direção atual no último ponto (RN-06)
+            _draw_direction(sh, a, s.direction)
 
     hint = {'SELECT': N_("Clique numa face (interna tracejada / externa) ou num vértice e digite a medida + Enter; "
                          "arraste os vértices. Delete remove o trecho."),
@@ -142,6 +159,56 @@ def draw_plan(context):
     if s.prompt in PROMPTS:
         _draw_prompt(sh, region, PROMPTS[s.prompt])
     draw.end()
+
+
+def _draw_crosshair(sh, view, region, s):
+    """Mira em cruz (009, RN-01, D-03): linhas finas e neutras; o eixo travado em acento, com guia tracejada até a
+    referência e um anel nela."""
+    point = (s.snap_point or (s.cursor, 'free'))[0]
+    p = view.to_screen(point)
+    draw.lines(sh, [(0, p[1]), (region.width, p[1])], COLORS['selected'] if s.lock_y else COLORS['grid_axis'])
+    draw.lines(sh, [(p[0], 0), (p[0], region.height)], COLORS['selected'] if s.lock_x else COLORS['grid_axis'])
+    for lock in (s.lock_x, s.lock_y):
+        if lock is None:
+            continue
+        q = view.to_screen(lock[1])
+        ring = [(q[0] + 7 * math.cos(t * math.pi / 8), q[1] + 7 * math.sin(t * math.pi / 8)) for t in range(17)]
+        draw.lines(sh, draw.dashed(p, q) + [r for k in range(16) for r in (ring[k], ring[k + 1])], COLORS['selected'])
+
+
+def _draw_direction(sh, origin, angle):
+    """Seta e texto da direção atual no último ponto do lápis ("→ 0°")."""
+    ux, uy = math.cos(angle), math.sin(angle)
+    tip = (origin[0] + ux * 26, origin[1] + uy * 26)
+    left = (tip[0] - ux * 8 - uy * 5, tip[1] - uy * 8 + ux * 5)
+    right = (tip[0] - ux * 8 + uy * 5, tip[1] - uy * 8 - ux * 5)
+    draw.lines(sh, [origin, tip, tip, left, tip, right], COLORS['selected'])
+    draw.text(tip[0] + 6, tip[1] + 6, dr.label(angle), COLORS['selected'], size=11)
+
+
+def _typed_length(s):
+    """Comprimento da digitação atual em metros, ou None se vazio ou inválido."""
+    if not s.typed:
+        return None
+    try:
+        return units.parse_length(s.typed, units.get_scene_length_unit(), allow_zero=False)
+    except ValueError:
+        return None
+
+
+def accept_typing(s, char):
+    """Acrescenta um caractere à digitação se ele cabe numa medida com conta; devolve se aceitou."""
+    if not char:
+        return False
+    if char in UNIT_CHARS and not any(ch.isdigit() for ch in s.typed):
+        return False
+    if char not in TYPING_CHARS and char not in UNIT_CHARS:
+        return False
+    if len(s.typed) >= expr.MAX_LENGTH:
+        return False
+    s.typed += char
+    s.typed_preview = expr.preview(s.typed, units.get_scene_length_unit())
+    return True
 
 
 def _draw_arrow(sh, view, chain, i):
@@ -178,12 +245,44 @@ def _draw_prompt(sh, region, message):
 
 # Geometria da interação ----------------------------------------------------------------------------------------
 
-def preview_point(context, start, cursor):
-    point, locked = ortho_snap(start, cursor)
-    state = _state(context)
-    if state.magnetic and not locked:
-        point = snap_to_grid(point, state.grid_size)
-    return point, locked
+def _index(s):
+    """Índice do alinhamento, refeito só quando o plano muda (009, D-01)."""
+    signature = model.plan_signature(s.plan)
+    if s.inference_index is None or s.inference_signature != signature:
+        s.inference_index = inference.Index(inference.plan_points(s.plan))
+        s.inference_signature = signature
+    return s.inference_index
+
+
+def resolve_point(context, s, view, cursor, origin=None, shift=False, exclude=()):
+    """Ponto travado do cursor, na ordem da RN-03 (009, D-02): ímã do início → vértice → alinhamento X/Y →
+    trava ortogonal → grade. A trava ortogonal fixa um eixo e o alinhamento ainda pode fixar o outro (ponto pareado
+    numa parede reta). Com Shift, o alinhamento sai da cadeia. Grava as travas da mira em `s.lock_x` e `s.lock_y`.
+    Devolve (ponto, tipo da trava: 'close', 'node', 'align', 'ortho', 'grid' ou 'free')."""
+    s.lock_x = s.lock_y = None
+    pixel = view.to_screen(cursor)
+    if s.drawing is not None and close_snap(s, view, pixel):
+        return s.drawing.nodes[0], 'close'
+    node = hit_node(s, pixel)
+    if node is not None and s.plan.chains[node[0]].nodes[node[1]] not in exclude:
+        return s.plan.chains[node[0]].nodes[node[1]], 'node'
+    point, fixed = tuple(cursor), None
+    if origin is not None:
+        point, locked = ortho_snap(origin, cursor)
+        if locked:
+            fixed = 1 if abs(point[1] - origin[1]) < 1e-12 else 0      # eixo que a trava ortogonal fixou
+    kind = 'ortho' if fixed is not None else 'free'
+    if not shift:
+        x, ref_x, y, ref_y = _index(s).query(cursor, ALIGN_PX / view.scale, exclude=exclude)
+        point = list(point)
+        if x is not None and fixed != 0:
+            point[0], s.lock_x, kind = x, (x, ref_x), 'align'
+        if y is not None and fixed != 1:
+            point[1], s.lock_y, kind = y, (y, ref_y), 'align'
+        point = tuple(point)
+    if kind == 'free' and _state(context).magnetic:
+        point, kind = snap_to_grid(point, _state(context).grid_size), 'grid'
+    return point, kind
 
 
 def hit_node(s, pixel):
@@ -369,11 +468,30 @@ class BTM_OT_WallEditorModal(bpy.types.Operator):
         _win, area, _region = window.editor_area(context)
         view = ensure_view(region, area)
         s.cursor = view.to_world(pixel)
+        self.shift = event.shift
+        self._update_snap(context, s, view)
         handled = self._handle(context, event, s, view, pixel)
         if handled and self.dragging is None:
             s.checkpoint()                    # um passo por ação concluída; o arraste grava ao soltar
         s.redraw()
         return {'RUNNING_MODAL'} if handled else {'PASS_THROUGH'}
+
+    def _update_snap(self, context, s, view):
+        """Ponto travado da mira para o desenho e para o próximo clique (009, D-02)."""
+        state = _state(context)
+        origin, exclude = None, ()
+        if self.dragging is not None:
+            ci, k = self.dragging
+            chain = s.plan.chains[ci]
+            prev = k - 1 if k > 0 else (len(chain.nodes) - 1 if chain.closed else None)
+            origin = chain.nodes[prev] if prev is not None else None
+            exclude = (chain.nodes[k],)
+        elif state.tool == 'DRAW' and s.drawing is not None and s.drawing.nodes:
+            origin = s.drawing.nodes[-1]
+        if state.tool in ('DRAW', 'SELECT'):
+            s.snap_point = resolve_point(context, s, view, s.cursor, origin, getattr(self, 'shift', False), exclude)
+        else:
+            s.snap_point, s.lock_x, s.lock_y = None, None, None
 
     def _handle_undo(self, event, s):
         """Ctrl+Z desfaz e Ctrl+Shift+Z / Ctrl+Y refaz no rascunho (BUG-20261007-ZZUK)."""
@@ -426,12 +544,7 @@ class BTM_OT_WallEditorModal(bpy.types.Operator):
         if event.type == 'MOUSEMOVE' and self.dragging is not None:
             ci, k = self.dragging
             chain = s.plan.chains[ci]
-            prev = k - 1 if k > 0 else (len(chain.nodes) - 1 if chain.closed else None)
-            point = s.cursor
-            if prev is not None:
-                point, _locked = preview_point(context, chain.nodes[prev], point)
-            elif state.magnetic:
-                point = snap_to_grid(point, state.grid_size)
+            point = (s.snap_point or (s.cursor, 'free'))[0]      # cadeia de travas da mira (009, D-02)
             if (not chain.closed and k == len(chain.nodes) - 1 and chain.segment_count() >= 3
                     and distance_point_point(pixel, view.to_screen(chain.nodes[0])) <= SNAP_CLOSE_PX):
                 point = chain.nodes[0]                       # ímã também no arraste (D-33)
@@ -492,13 +605,14 @@ class BTM_OT_WallEditorModal(bpy.types.Operator):
         """Digitação direta da medida na face ou no vértice selecionado (D-27, RF-39)."""
         if event.value != 'PRESS' or (s.selected is None and s.selected_node is None):
             return False
-        if event.unicode and event.unicode in "0123456789,.":
-            s.typed += event.unicode
+        if accept_typing(s, event.unicode):                 # conta na medida (009, D-07)
             return True
         if event.type == 'BACK_SPACE' and s.typed:
             s.typed = s.typed[:-1]
+            s.typed_preview = expr.preview(s.typed, units.get_scene_length_unit())
             return True
         if event.type in {'RET', 'NUMPAD_ENTER'} and s.typed:
+            s.typed_preview = ""
             try:
                 value = units.parse_length(s.typed, units.get_scene_length_unit(), allow_zero=False)
                 if s.selected_node is not None:
@@ -528,20 +642,27 @@ class BTM_OT_WallEditorModal(bpy.types.Operator):
             return True
         if event.type == 'BACK_SPACE':
             s.typed = s.typed[:-1]
+            s.typed_preview = expr.preview(s.typed, units.get_scene_length_unit())
             return True
-        if event.unicode and event.unicode in "0123456789,.":
-            s.typed += event.unicode
+        if s.drawing is not None and dr.arrow_direction(event.type) is not None:
+            s.direction, s.direction_locked = dr.arrow_direction(event.type), True     # setas (RN-06)
+            return True
+        if accept_typing(s, event.unicode):
             return True
         if event.type in {'RET', 'NUMPAD_ENTER'} and s.drawing is not None and s.typed:
             try:
                 length = units.parse_length(s.typed, units.get_scene_length_unit(), allow_zero=False)
             except ValueError as exc:
-                s.error = str(exc)
+                s.error, s.typed, s.typed_preview = str(exc), "", ""
                 return True
             start = s.drawing.nodes[-1]
-            end, _locked = preview_point(context, start, s.cursor)
-            d = math.atan2(end[1] - start[1], end[0] - start[0]) if end != start else 0.0
-            target = (start[0] + math.cos(d) * length, start[1] + math.sin(d) * length)
+            if not s.direction_locked:                      # primeiro trecho: direção do mouse (RN-05)
+                s.direction = dr.initial_direction(start, s.cursor)
+                if s.direction is None:
+                    s.error = tr("Mova o mouse na direção da parede ou use as setas do teclado")
+                    return True
+                s.direction_locked = True
+            target = dr.next_point(start, s.direction, length)       # o mouse não conta (RN-05)
             if s.drawing.segment_count() >= 2 and s.drawing.touches_start(target, CLOSE_TOLERANCE):
                 s.typed, s.prompt = "", 'close'           # chegou ao início pelo teclado: pergunta (D-34)
                 s.pending_point = target                  # "Não" mantém o trecho digitado
@@ -550,24 +671,25 @@ class BTM_OT_WallEditorModal(bpy.types.Operator):
             return True
         if event.type != 'LEFTMOUSE':
             return False
-        point = s.cursor
-        node = hit_node(s, pixel)
+        origin = s.drawing.nodes[-1] if s.drawing is not None and s.drawing.nodes else None
+        point, kind = resolve_point(context, s, view, view.to_world(pixel), origin, getattr(self, 'shift', False))
         if s.drawing is None:
-            if node is not None:
-                point = s.plan.chains[node[0]].nodes[node[1]]
-            elif state.magnetic:
-                point = snap_to_grid(point, state.grid_size)
+            s.reset_direction()
             s.drawing = model.Chain([point], [], False, state.new_direction)
             s.plan.chains.append(s.drawing)
             return True
-        if close_snap(s, view, pixel):
+        if kind == 'close':
             s.prompt = 'close'
             return True
-        end, _locked = preview_point(context, s.drawing.nodes[-1], point)
-        self._append(s, state, end)
+        if point == s.drawing.nodes[-1]:
+            return True
+        self._append(s, state, point)          # o clique fixa a direção deste trecho (RN-06)
         return True
 
     def _append(self, s, state, point):
+        start = s.drawing.nodes[-1]
+        s.direction, s.direction_locked = dr.segment_direction(start, point), True
+        s.typed_preview = ""
         s.drawing.nodes.append((float(point[0]), float(point[1])))
         s.drawing.segments.append(model.Segment(thickness=state.new_thickness, height=state.new_height))
         s.typed = ""
@@ -576,6 +698,7 @@ class BTM_OT_WallEditorModal(bpy.types.Operator):
         if s.drawing is not None and s.drawing.segment_count() == 0:
             s.plan.chains.remove(s.drawing)
         s.drawing, s.typed = None, ""
+        s.reset_direction()
 
     def _answer_no(self, context, s):
         if s.prompt == 'close' and getattr(s, 'pending_point', None) is not None and s.drawing is not None:

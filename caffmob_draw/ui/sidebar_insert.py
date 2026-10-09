@@ -30,3 +30,7 @@ def draw(layout, context):
     with group_scope(layout, context, 'my_modules', N_("Meus módulos"), 'USER') as body:
         if body is not None:
             my_modules.draw(body, context)
+    with group_scope(layout, context, 'objects', N_("Objetos"), 'ASSET_MANAGER') as body:   # feature 009 (D-14)
+        if body is not None:
+            from ..object_library import panels as object_panels
+            object_panels.draw_insert(body, context)

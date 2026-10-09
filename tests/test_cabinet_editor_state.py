@@ -48,6 +48,18 @@ class StateTest(unittest.TestCase):
         nudged.divisions = [{"uid": "a1", "space": "s0", "orientation": "VERTICAL", "offset": 0.4 + 1e-8}]
         self.assertEqual(st.signature(nudged), st.signature(with_division))
 
+    # Feature 008 (T012): ponto de Aplicar ------------------------------------------------------------------------
+    def test_aplicar_vira_referencia(self):
+        draft = st.Draft(make(0.8))
+        draft.checkpoint(make(0.7))
+        draft.apply_point()
+        self.assertFalse(draft.dirty())
+        self.assertEqual(draft.initial.dimensions[0], 0.7)
+        draft.checkpoint(make(0.6))
+        self.assertTrue(draft.dirty())
+        self.assertEqual(draft.undo().dimensions[0], 0.7)
+        self.assertIsNone(draft.undo())                     # não passa do ponto aplicado
+
 
 if __name__ == "__main__":
     unittest.main()

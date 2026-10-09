@@ -14,7 +14,7 @@ from ..customize import spec
 from ..customize.props import PULL_POSITION_ITEMS
 from ..data import units
 from ..data.i18n import N_, tr
-from . import bridge, props
+from . import bridge, catalog, props
 from .data_props import MATERIAL_ITEMS, MODE_ITEMS as REMOVE_MODE_ITEMS
 from .structure import ROLE_LABELS
 
@@ -33,10 +33,11 @@ def _adapter():
 
 
 def selected_path():
+    """Vão da biblioteca da peça selecionada ou, sem peça, o do vão alvo (feature 008, D-05)."""
     s, root = _session_root()
     if root is None:
         return None
-    return bridge.opening_of(root, s.selected)
+    return bridge.opening_of(root, s.selected) or getattr(s, 'library_path', None)
 
 
 def _front_items(self, context):
@@ -382,9 +383,158 @@ class BTM_OT_CabinetEditorPartEdit(_SessionOperator, bpy.types.Operator):
         return {'FINISHED'}
 
 
+# Feature 008 (T032; D-21) ---------------------------------------------------------------------------------------
+NO_SPACE = N_("Selecione um vão na vista")
+NO_LIBRARY = N_("Este vão não pertence a um vão da biblioteca")
+INSERT_TABS = [('DIVISIONS', "Divisões", ""), ('DRAWERS', "Gavetas", ""), ('INTERIOR', "Internos", ""),
+               ('DOORS', "Portas", ""), ('SLIDING', "Deslizantes", ""), ('BACKS', "Fundos", "")]
+
+
+def insert_reason(context, tab):
+    """Motivo de o Inserir da aba estar desabilitado, ou None (D-21)."""
+    s = props.session()
+    if s is None:
+        return tr(NO_SPACE)
+    if tab in ('DIVISIONS', 'DRAWERS', 'INTERIOR', 'DOORS') and (not s.space or s.space not in s.spaces):
+        return tr(NO_SPACE)
+    if tab in ('DRAWERS', 'DOORS') and not s.library_path:
+        return tr(NO_LIBRARY)
+    ui = context.window_manager.btm_cabinet_editor
+    if tab in ('INTERIOR', 'SLIDING') and not catalog.get(ui.catalog_item):
+        return tr("Escolha um item do catálogo")
+    return None
+
+
+def _division_payload(ui, s):
+    from . import divisions as dv
+    base = {'space': s.space, 'use_front': ui.new_use_front, 'front': ui.new_front, 'use_back': ui.new_use_back,
+            'back': ui.new_back}
+    item = catalog.get(ui.catalog_item)
+    if ui.div_kind == 'NONE':
+        return 'REMOVE_IN_SPACE', {'space': s.space}
+    if ui.div_kind == 'SPACER':
+        item = item if item is not None and item.group == 'SPACER' else catalog.get('SPACER_15')
+        orientation = ui.new_orientation if ui.div_mode == 'MULTIPLE' else ui.div_mode
+        return 'ADD_DIVISION', {'space': s.space, 'orientation': orientation, 'kind': dv.SPACER,
+                                'thickness': item.param('thickness') / 1000.0, 'follow': bool(item.param('follow'))}
+    if item is not None and item.group == 'RECESS':
+        base.update(use_front=item.param('front') > 0, front=item.param('front') / 1000.0 or ui.new_front)
+    kind = dv.MOVABLE if ui.div_kind == 'MOVABLE' else dv.FIXED
+    if ui.div_mode == 'MULTIPLE':
+        return 'ADD_MANY', dict(base, orientation=ui.new_orientation, count=ui.div_count, kind=kind)
+    return 'ADD_DIVISION', dict(base, orientation=ui.div_mode, kind=kind)
+
+
+def insert_payload(context, tab):
+    s = props.session()
+    ui = context.window_manager.btm_cabinet_editor
+    if tab == 'DIVISIONS':
+        return _division_payload(ui, s)
+    if tab == 'DRAWERS':
+        return 'INSERT_DRAWERS', {'space': s.space, 'count': ui.drawer_count, 'variant': ui.drawer_tab,
+                                  'style': ui.drawer_style, 'pull': ui.drawer_pull}
+    if tab == 'DOORS':
+        scope = 'FLIP' if ui.door_region == 'FLIP' else ui.door_scope
+        return 'INSERT_DOORS', {'space': s.space, 'scope': scope, 'region': ui.door_region, 'style': ui.door_style,
+                                'invert': ui.invert, 'pull': ui.door_pull}
+    if tab == 'INTERIOR':
+        return 'INSERT_INTERIOR', {'catalog_id': ui.catalog_item, 'space': s.space}
+    if tab == 'SLIDING':
+        return 'INSERT_SLIDES', {'item': ui.catalog_item, 'leaves': ui.slide_leaves, 'invert': ui.invert}
+    root = s.root()
+    holder = root.btm_structure if root is not None else None
+    return 'SET_BACK', {'mode': ui.back_tab, 'setback': holder.back_setback if holder else 0.02,
+                        'auto': holder.auto_back if holder else True, 'insert': True}
+
+
+class BTM_OT_CabinetEditorInsert(_SessionOperator, bpy.types.Operator):
+    """Insere no vão escolhido o item da aba, com as opções marcadas"""
+    bl_idname = "caffmob.cabinet_editor_insert"
+    bl_label = "Inserir"
+
+    tab: bpy.props.EnumProperty(items=INSERT_TABS, options={'HIDDEN'})  # type: ignore
+
+    @classmethod
+    def poll(cls, context):
+        s = props.session()
+        if s is None or s.root() is None:
+            return False
+        return True
+
+    @classmethod
+    def description(cls, context, properties):
+        return insert_reason(context, properties.tab) or tr("Insere no vão escolhido o item da aba")
+
+    def execute(self, context):
+        reason = insert_reason(context, self.tab)
+        if reason:
+            self.report({'WARNING'}, reason)
+            return {'CANCELLED'}
+        action, data = insert_payload(context, self.tab)
+        _push(action, data)
+        return {'FINISHED'}
+
+
+class BTM_OT_CabinetEditorApply(_SessionOperator, bpy.types.Operator):
+    """Grava as alterações no armário sem fechar o editor (um passo de desfazer)"""
+    bl_idname = "caffmob.cabinet_editor_apply"
+    bl_label = "Aplicar"
+
+    @classmethod
+    def poll(cls, context):
+        s = props.session()
+        if s is None or s.root() is None:
+            return False
+        if s.blocking():
+            cls.poll_message_set(tr("Corrija os erros para aplicar"))
+            return False
+        if not s.draft.dirty():
+            cls.poll_message_set(tr("Nada para aplicar"))
+            return False
+        return True
+
+    def execute(self, context):
+        props.session().push('apply')
+        return {'FINISHED'}
+
+
+class BTM_OT_CabinetEditorPick(_SessionOperator, bpy.types.Operator):
+    """Escolhe o item do catálogo"""
+    bl_idname = "caffmob.cabinet_editor_pick"
+    bl_label = "Escolher item"
+
+    item: bpy.props.StringProperty(options={'HIDDEN'})  # type: ignore
+
+    @classmethod
+    def description(cls, context, properties):
+        found = catalog.get(properties.item)
+        return found.description or found.label if found is not None else ""
+
+    def execute(self, context):
+        context.window_manager.btm_cabinet_editor.catalog_item = self.item
+        props.session().redraw()
+        return {'FINISHED'}
+
+
+class BTM_OT_CabinetEditorRemoveItem(_SessionOperator, bpy.types.Operator):
+    """Remove o interno ou as portas deslizantes"""
+    bl_idname = "caffmob.cabinet_editor_remove_item"
+    bl_label = "Remover"
+
+    kind: bpy.props.EnumProperty(items=[('INTERIOR', "Interno", ""), ('SLIDES', "Deslizantes", "")],
+                                 options={'HIDDEN'})  # type: ignore
+    slot: bpy.props.IntProperty(options={'HIDDEN'})  # type: ignore
+
+    def execute(self, context):
+        _push('REMOVE_INTERIOR' if self.kind == 'INTERIOR' else 'REMOVE_SLIDES', {'slot': self.slot})
+        return {'FINISHED'}
+
+
 classes = (BTM_OT_CabinetEditorEdit, BTM_OT_CabinetEditorHistory, BTM_OT_CabinetEditorSaveModule,
            BTM_OT_CabinetEditorDivisionAdd, BTM_OT_CabinetEditorDivisionEdit, BTM_OT_CabinetEditorDivisionRemove,
-           BTM_OT_CabinetEditorPartRemove, BTM_OT_CabinetEditorPartRestore, BTM_OT_CabinetEditorPartEdit)
+           BTM_OT_CabinetEditorPartRemove, BTM_OT_CabinetEditorPartRestore, BTM_OT_CabinetEditorPartEdit,
+           BTM_OT_CabinetEditorInsert, BTM_OT_CabinetEditorApply, BTM_OT_CabinetEditorPick,
+           BTM_OT_CabinetEditorRemoveItem)
 
 
 def register():

@@ -337,3 +337,38 @@ def default_structure_info(context, root):
 
 def default_elevation_parts(context, root):
     return []
+
+
+# Feature 008 (T021, T063; D-05, D-11) --------------------------------------------------------------------------
+def default_opening_boxes(context, root):
+    """{caminho do vão da biblioteca: divisions.Box} no referencial da raiz (o módulo inteiro = o vão interno)."""
+    from ...cabinet_editor.divisions import Box
+    from . import for_root
+    adapter = for_root(root)
+    depsgraph = context.evaluated_depsgraph_get()
+    out = {}
+    for path, opening in adapter.openings(root):
+        if opening == root:
+            spaces = call(adapter, 'inner_spaces', context, root)
+            if spaces:
+                out[path] = spaces[min(spaces)]
+            continue
+        box = local_box(root, opening, depsgraph)
+        if box is not None:
+            out[path] = Box(*box)
+    return out
+
+
+def set_back_recess(context, root, adapter, setback):
+    """Fundo recuado nas bibliotecas de peças: a peça do fundo anda `setback` para dentro (para a frente, −Y da
+    raiz) pelo `delta_location`, que drivers e recálculos das bibliotecas não sobrescrevem."""
+    from mathutils import Vector  # type: ignore
+    for obj in call(adapter, 'structure_parts', root).get('BACK', ()):
+        to_parent = obj.parent.matrix_world.inverted_safe() if obj.parent is not None else None
+        world_dir = root.matrix_world.to_3x3() @ Vector((0.0, -1.0, 0.0))
+        local_dir = (to_parent.to_3x3() @ world_dir) if to_parent is not None else world_dir
+        if local_dir.length > 1e-9:
+            local_dir.normalize()
+        obj.delta_location = local_dir * float(setback)
+        obj.update_tag()
+    return []

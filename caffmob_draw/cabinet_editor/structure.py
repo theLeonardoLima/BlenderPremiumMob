@@ -86,8 +86,11 @@ def _neighbor_thickness(role, thick, states):
     return thick[role]
 
 
-def layout(width, height, depth, thick, states):
-    """(chapas {papel: (lo, hi)} só das presentes, vão interno (lo, hi)) do módulo `btm`."""
+def layout(width, height, depth, thick, states, back_setback=0.0):
+    """(chapas {papel: (lo, hi)} só das presentes, vão interno (lo, hi)) do módulo `btm`.
+
+    `back_setback` (feature 008, D-11): fundo "Inteiro Recuado"; o fundo anda para dentro e o vão termina nele.
+    """
     w2 = width / 2.0
     t = {role: _neighbor_thickness(role, thick, states) for role in ROLES}
     x0, x1 = -w2 + t['LEFT'], w2 - t['RIGHT']
@@ -97,10 +100,10 @@ def layout(width, height, depth, thick, states):
         'RIGHT': ((w2 - thick['RIGHT'], -depth, 0.0), (w2, 0.0, height)),
         'BOTTOM': ((x0, -depth, 0.0), (x1, 0.0, thick['BOTTOM'])),
         'TOP': ((x0, -depth, height - thick['TOP']), (x1, 0.0, height)),
-        'BACK': ((x0, -thick['BACK'], z0), (x1, 0.0, z1)),
+        'BACK': ((x0, -thick['BACK'] - back_setback, z0), (x1, -back_setback, z1)),
     }
     present = {role: box for role, box in boxes.items() if not states.get(role, RoleState()).removed}
-    inner = ((x0, -depth, z0), (x1, -t['BACK'], z1))
+    inner = ((x0, -depth, z0), (x1, -t['BACK'] - (back_setback if t['BACK'] > 0.0 else 0.0), z1))
     return present, inner
 
 

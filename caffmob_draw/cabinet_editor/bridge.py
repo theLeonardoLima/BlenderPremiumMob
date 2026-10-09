@@ -21,7 +21,9 @@ from ..customize.adapters import common
 from ..cutting import part_roles
 from ..selection import classify, editing
 from . import divisions as dv
-from . import elevation, scene_divisions, state as _state
+from . import bays as _bays
+from . import catalog, elevation, scene_divisions, scene_extras, scene_interiors, scene_slides
+from . import state as _state
 from . import structure as st
 
 CUSTOM_FIELDS = ('door_style', 'drawer_style', 'pull_model', 'pull_position', 'front_material', 'interior')
@@ -58,8 +60,12 @@ def read_state(root):
     data = spec.to_dict(adapter.read(root)) if adapter is not None else {}
     if adapter is not None:
         data["_raw"] = _raw(root, adapter)
-    structure = root.btm_structure.to_dict() if getattr(root, 'btm_structure', None) is not None else {}
-    return _state.EditorState(dims, data, structure, scene_divisions.read(root))
+    holder = getattr(root, 'btm_structure', None)
+    structure = holder.to_dict() if holder is not None else {}
+    return _state.EditorState(dims, data, structure, scene_divisions.read(root),
+                              extras=holder.extras_dict() if holder is not None else {},
+                              slides=scene_slides.state_of(root), interiors=scene_interiors.entries(root),
+                              backs=holder.backs_dict() if holder is not None else {})
 
 
 def library_limits(root, library):
@@ -129,17 +135,39 @@ def apply_state(context, root, target):
             obj.btm_custom.material = parts.get(obj.name, "")
     messages += reapply.reapply(context, root)
     messages += _apply_structure(context, root, current.structure, target.structure)
+    if target.backs != current.backs:
+        messages += set_back(context, root, dict(target.backs or {'mode': 'FULL', 'setback': 0.02, 'auto': True}))
     if target.divisions != scene_divisions.read(root):
         scene_divisions.apply(context, root, target.divisions)
     else:
         scene_divisions.reflow(context, root, force=True)
+    if target.extras != current.extras:
+        root.btm_structure.extras_from_dict(target.extras)
+    scene_extras.sync(context, root)
+    scene_interiors.apply(context, root, target.interiors)
+    if _slides_key(target.slides) != _slides_key(current.slides) or target.slides:
+        scene_slides.apply(context, root, target.slides)
     return messages
+
+
+def _slides_key(state):
+    return {k: v for k, v in (state or {}).items() if k != 'opens'}
+
+
+def reflow_all(context, root):
+    """Depois de mudar medidas, estrutura ou divisões: divisões, extras, internos e deslizantes no lugar novo."""
+    scene_divisions.reflow(context, root, force=True)
+    scene_extras.sync(context, root)
+    scene_interiors.reflow(context, root)
+    scene_slides.reflow(context, root)
 
 
 def edit(context, root, action, data):
     """Uma edição do editor sobre o vão `data['path']`; devolve os avisos da biblioteca."""
     if action in EDIT_006:
         return EDIT_006[action](context, root, data)
+    if action in EDIT_008:
+        return EDIT_008[action](context, root, data)
     adapter = adapter_of(root)
     if adapter is None:
         return []
@@ -380,14 +408,30 @@ def division_context(context, root):
             scene_divisions.names(root))
 
 
+def _raw_entry(division, own_thickness=False):
+    """Dicionário cru (006) da divisão: espessura 0 = do Configurador, salvo distanciador (espessura própria)."""
+    return dict(dv.to_dict(division), thickness=division.thickness if own_thickness else 0.0, material="")
+
+
 def add_division(context, root, data):
     roots, core, raw, _names = division_context(context, root)
     _material, thickness = scene_divisions.configured(context.scene, root)
-    added = dv.add(roots, core, data['space'], data['orientation'], thickness,
+    kind = data.get('kind', dv.FIXED)
+    own = float(data.get('thickness') or 0.0)
+    space = data['space']
+    follow = ""
+    if data.get('follow'):                           # distanciador p/ divisão: logo depois da divisória do vão
+        parent = space.rsplit(".", 1)[0] if "." in space else ""
+        followed = next((d for d in core if d.space == parent and d.kind != dv.SPACER), None)
+        if followed is None:
+            raise ValueError(common.tr("Escolha o vão logo à direita (ou acima) de uma divisória"))
+        follow = followed.uid
+    added = dv.add(roots, core, space, data['orientation'], own or thickness,
                    use_front=data.get('use_front', False), front=data.get('front', dv.DEFAULT_SETBACK),
-                   use_back=data.get('use_back', False), back=data.get('back', dv.DEFAULT_SETBACK))[-1]
-    entry = dict(dv.to_dict(added), thickness=0.0, material="")
-    scene_divisions.apply(context, root, raw + [entry])
+                   use_back=data.get('use_back', False), back=data.get('back', dv.DEFAULT_SETBACK),
+                   kind=kind, follow=follow)[-1]
+    scene_divisions.apply(context, root, raw + [_raw_entry(added, own_thickness=bool(own))])
+    reflow_all(context, root)
     return []
 
 
@@ -402,7 +446,193 @@ def remove_division(context, root, data):
     _roots, core, raw, _names = division_context(context, root)
     _rest, removed = dv.remove(core, data['uid'])
     scene_divisions.apply(context, root, [d for d in raw if d['uid'] not in removed])
+    reflow_all(context, root)
     return []
+
+
+# Feature 008 (T028, T029, T056) --------------------------------------------------------------------------------
+def toggle_extra(context, root, data):
+    """Caixa da árvore da Estrutura (extras): liga/desliga e valor (D-07). Base Superior Recuada troca o tampo."""
+    key = data['key']
+    entry = root.btm_structure.extra(key, create=True)
+    if 'value' in data:
+        entry.value = float(data['value'])
+    messages = []
+    if 'enabled' in data and bool(data['enabled']) != entry.enabled:
+        entry.enabled = bool(data['enabled'])
+        if key == 'BASE_TOP_RECESSED':
+            action = remove_part if entry.enabled else restore_part
+            messages += action(context, root, {'role': 'TOP', 'mode': st.KEEP})
+    scene_extras.sync(context, root)
+    return messages
+
+
+def set_bays(context, root, data):
+    roots, core, raw, _names = division_context(context, root)
+    _material, thickness = scene_divisions.configured(context.scene, root)
+    new = _bays.apply(roots, core, int(data['count']), thickness)
+    by_uid = {d['uid']: d for d in raw}
+    out = []
+    for division in new:
+        base = by_uid.get(division.uid)
+        out.append(dict(base, space=division.space, offset=division.offset) if base is not None
+                   else _raw_entry(division))
+    scene_divisions.apply(context, root, out)
+    reflow_all(context, root)
+    removed = _bays.removed(core, new)
+    return [common.tr("{} divisória(s) de vão removida(s)").format(len(removed))] if removed else []
+
+
+def set_back(context, root, data):
+    """Aba Fundos: inteiro/recuado, recuo, inserir automaticamente; "insert" devolve o fundo removido (D-11)."""
+    adapter = adapter_of(root)
+    if adapter is not None and adapter.LIBRARY != 'BTM' and not common.call(adapter, 'structure_parts', root).get('BACK'):
+        return [common.tr("Este armário não tem fundo")]
+    holder = root.btm_structure
+    holder.backs_from_dict(dict(holder.backs_dict(), **{k: v for k, v in data.items()
+                                                        if k in ('mode', 'setback', 'auto')}))
+    messages = []
+    entry = holder.item('BACK')
+    if data.get('insert') and entry is not None and entry.removed:
+        messages += restore_part(context, root, {'role': 'BACK'})
+    setback = holder.back_setback if holder.back_mode == 'RECESSED' else 0.0
+    messages += common.call(adapter_of(root), 'set_back_recess', context, root, setback)
+    reflow_all(context, root)
+    return messages
+
+
+def add_many(context, root, data):
+    roots, core, raw, _names = division_context(context, root)
+    _material, thickness = scene_divisions.configured(context.scene, root)
+    new = dv.add_many(roots, core, data['space'], data['orientation'], int(data['count']), thickness,
+                      use_front=data.get('use_front', False), front=data.get('front', dv.DEFAULT_SETBACK),
+                      use_back=data.get('use_back', False), back=data.get('back', dv.DEFAULT_SETBACK),
+                      kind=data.get('kind', dv.FIXED))
+    known = {d['uid'] for d in raw}
+    scene_divisions.apply(context, root, raw + [_raw_entry(d) for d in new if d.uid not in known])
+    reflow_all(context, root)
+    return []
+
+
+def remove_in_space(context, root, data):
+    """Sem Divisória: tira a divisória que criou o vão alvo (e as de dentro dela)."""
+    _roots, core, raw, _names = division_context(context, root)
+    _rest, removed = dv.remove_in_space(core, data['space'])
+    if not removed:
+        return [common.tr("Este vão não tem divisória para remover")]
+    scene_divisions.apply(context, root, [d for d in raw if d['uid'] not in removed])
+    reflow_all(context, root)
+    return []
+
+
+def library_opening(context, root, space_path):
+    """Caminho do vão da biblioteca que contém o centro do subvão `space_path` (D-05), ou None."""
+    adapter = adapter_of(root)
+    if adapter is None or not space_path:
+        return None
+    roots, core, _raw, _names = division_context(context, root)
+    box = dv.resolve(roots, core)[0].get(space_path)
+    if box is None:
+        return None
+    center = [(box.lo[i] + box.hi[i]) / 2.0 for i in range(3)]
+    inside = [(path, b) for path, b in common.call(adapter, 'opening_boxes', context, root).items()
+              if all(b.lo[i] - 1e-4 <= center[i] <= b.hi[i] + 1e-4 for i in range(3))]
+    if not inside:
+        return None
+    return min(inside, key=lambda item: item[1].size(0) * item[1].size(2))[0]
+
+
+DOOR_FRONTS = {('BOTH', False): 'DOUBLE_DOORS', ('BOTH', True): 'DOUBLE_DOORS',
+               ('WHOLE', False): 'DOOR_LEFT', ('WHOLE', True): 'DOOR_RIGHT',
+               ('LEFT', False): 'DOOR_LEFT', ('LEFT', True): 'DOOR_RIGHT',
+               ('RIGHT', False): 'DOOR_RIGHT', ('RIGHT', True): 'DOOR_LEFT'}
+
+
+def _front_steps(context, root, path, front, count, kind, style, pull):
+    messages = edit(context, root, 'FRONT', {'path': path, 'front': front, 'drawer_count': count})
+    if style:
+        messages += edit(context, root, 'STYLE', {'path': path, 'kind': kind, 'style': style})
+    if pull:
+        messages += edit(context, root, 'PULL', {'path': path, 'model': pull, 'position': 'DEFAULT',
+                                                 'all_fronts': False})
+    return messages
+
+
+def insert_doors(context, root, data):
+    path = library_opening(context, root, data['space'])
+    if path is None:
+        return [common.tr("Este vão não pertence a um vão da biblioteca")]
+    if data.get('scope') == 'FLIP' or data.get('region') == 'FLIP':
+        front = 'FLIP_UP'
+    else:
+        front = DOOR_FRONTS[(data.get('scope', 'BOTH'), bool(data.get('invert')))]
+    return _front_steps(context, root, path, front, 1, 'DOOR', data.get('style', ""), data.get('pull', ""))
+
+
+def insert_drawers(context, root, data):
+    """Gavetas, Gavetões, Internas e Blum no vão da biblioteca do alvo (D-23)."""
+    path = library_opening(context, root, data['space'])
+    if path is None:
+        return [common.tr("Este vão não pertence a um vão da biblioteca")]
+    variant = data.get('variant', 'DRAWERS')
+    count = int(data.get('count', 4))
+    if variant == 'TALL':
+        count = max(2, min(4, count))
+    adapter = adapter_of(root)
+    opening = _openings(root, adapter).get(path)
+    if variant == 'INTERNAL':
+        if adapter.LIBRARY != 'FRAMELESS':
+            return [common.tr("Gaveta interna só existe no frameless")]
+        messages = adapter.set_interior(context, root, opening, spec.Interior(drawers=count))
+        return messages + reapply.reapply(context, root)
+    if opening is not None:
+        opening.btm_custom.slide_kind = 'BLUM' if variant == 'BLUM' else ""
+    return _front_steps(context, root, path, 'DRAWERS', count, 'DRAWER', data.get('style', ""), data.get('pull', ""))
+
+
+def insert_interior(context, root, data):
+    item = catalog.get(data['catalog_id'])
+    roots, core, _raw, _names = division_context(context, root)
+    box = dv.resolve(roots, core)[0].get(data['space'])
+    if item is None or box is None:
+        return [common.tr("Escolha um vão livre")]
+    from . import appliances
+    need = appliances.missing(box, item.id)
+    if need is not None:
+        return [common.tr("{} precisa de um vão de {:.0f} × {:.0f} mm").format(item.label, need[0], need[1])]
+    current = scene_interiors.entries(root)
+    slot = 1 + max([e["slot"] for e in current] or [0])
+    scene_interiors.apply(context, root, current + [{"catalog_id": item.id, "space": data['space'], "slot": slot}])
+    return []
+
+
+def remove_interior(context, root, data):
+    rest = [e for e in scene_interiors.entries(root) if e["slot"] != data.get('slot')]
+    scene_interiors.apply(context, root, rest)
+    return []
+
+
+def insert_slides(context, root, data):
+    warnings = scene_slides.apply(context, root, {"item": data['item'], "leaves": int(data.get('leaves', 2)),
+                                                  "invert": bool(data.get('invert'))})
+    out = []
+    for warning in warnings:
+        if isinstance(warning, tuple) and warning[0] == 'BLOCKED':
+            out.append(common.tr("{} não corre: esbarra em {}").format(warning[1], warning[2] or "—"))
+        else:
+            out.append(common.tr("Os trilhos precisam de mais profundidade ({})").format(warning))
+    return out
+
+
+def remove_slides(context, root, data):
+    scene_slides.apply(context, root, {})
+    return []
+
+
+EDIT_008 = {'TOGGLE_EXTRA': toggle_extra, 'SET_BAYS': set_bays, 'SET_BACK': set_back, 'ADD_MANY': add_many,
+            'REMOVE_IN_SPACE': remove_in_space, 'INSERT_DOORS': insert_doors, 'INSERT_DRAWERS': insert_drawers,
+            'INSERT_INTERIOR': insert_interior, 'REMOVE_INTERIOR': remove_interior, 'INSERT_SLIDES': insert_slides,
+            'REMOVE_SLIDES': remove_slides}
 
 
 EDIT_006 = {'ADD_DIVISION': add_division, 'EDIT_DIVISION': edit_division, 'REMOVE_DIVISION': remove_division,

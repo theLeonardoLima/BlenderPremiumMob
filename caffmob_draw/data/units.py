@@ -160,10 +160,17 @@ def parse_length(text, default_unit='MM', allow_negative=False, allow_zero=True)
     """Interpreta uma medida digitada e devolve o valor em METROS.
 
     Aceita vírgula ou ponto decimal e sufixos `mm`, `cm` ou `m` (sem sufixo vale `default_unit`).
-    Não aceita frações nem pés/polegadas (decisão PL-03). Levanta `ValueError` com mensagem em português.
+    Não aceita pés/polegadas (decisão PL-03). Uma conta (`2*8`, `200/2`) vai para `data/expr.py` (feature 009).
+    Levanta `ValueError` com mensagem em português.
     """
     if text is None:
         raise ValueError(tr("Valor Inválido: medida vazia."))
+    from . import expr          # feature 009 (RN-04): conta na medida; import tardio, o `expr` importa este módulo
+    if expr.has_operator(text):
+        value = expr.evaluate(text, default_unit)
+        if value == 0 and not allow_zero:
+            raise ValueError(tr("Valor Inválido: a medida não pode ser zero."))
+        return value
     match = _NUMBER_RE.match(str(text))
     if not match:
         raise ValueError(tr('Valor Inválido: "{}" não é uma medida (use números com mm, cm ou m).').format(text))

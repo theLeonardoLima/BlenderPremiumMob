@@ -8,6 +8,10 @@ quando qualquer outro objeto muda (`depsgraph_update_post`).
 Feature 007 (T017; D-05, D-07): a folha pode ser um grupo de peças (a caixa é a união delas). Quando o pai é uma
 esquadria (grupo FRAME), as peças da esquadria **contam** como obstáculo; saem do teste só a própria folha (pivô e
 peças) e as outras folhas da mesma esquadria, cujo batente é o dos montantes (`slide_limits`).
+
+Feature 010 (D-10): nas portas e janelas reais da parede, o marco montado (`openings/sync.py`, marcado com
+`btm_opening_frame`) não conta para as folhas dele: a folha fechada encosta nas dobradiças e na contratesta. Paredes,
+móveis e outros objetos continuam contando.
 """
 
 import bpy  # type: ignore
@@ -19,6 +23,7 @@ from ..inspection import fronts
 from . import leaf
 
 SHRINK = 0.001
+OPENING_FRAME_PROP = 'btm_opening_frame'     # feature 010: peça do marco de uma porta/janela real
 _SKIP_DISPLAY = {'WIRE', 'BOUNDS'}
 _BOX_FACES = ((0, 1, 2, 3), (4, 7, 6, 5), (0, 4, 5, 1), (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0))
 _cache = {}          # nome da folha → lista de (objeto, (lo, hi), BVH ou None)
@@ -73,12 +78,16 @@ def _targets(obj):
         return _cache[key]
     depsgraph = bpy.context.evaluated_depsgraph_get()
     skip = _excluded(obj)
+    parent = getattr(getattr(obj, 'btm_aggregate', None), 'parent_ref', None)
+    own_frame = parent.name if parent is not None else None
     items = []
     for other in bpy.context.scene.objects:
         if other.name in skip or other.type != 'MESH' or other.display_type in _SKIP_DISPLAY:
             continue
         if other.get('IS_CUTTING_OBJ') or other.get('IS_2D_ANNOTATION') or not other.visible_get():
             continue
+        if own_frame and other.get(OPENING_FRAME_PROP) == own_frame:
+            continue              # marco da porta/janela real da própria folha: ela encosta nele fechada (010)
         evaluated = other.evaluated_get(depsgraph)
         corners = [evaluated.matrix_world @ Vector(c) for c in evaluated.bound_box]
         items.append([other, _aabb(corners), None])

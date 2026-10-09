@@ -43,6 +43,8 @@ class PartRecord:
     material: str = ""
     machining: list = field(default_factory=list)   # recortes de agregados (feature 003, `machining.entries`)
     machining_clipped: bool = False
+    drilling: list = field(default_factory=list)    # furação das divisórias móveis (feature 008, `drilling`)
+    key: str = ""                                   # peça na cena: nome do objeto ou "synthetic:<nome>" (008)
 
 
 @dataclass
@@ -72,8 +74,11 @@ def _is_btm_module(obj):
     return plane is not None and getattr(plane, 'object_kind', '') == 'MODULE'
 
 
-def iter_modules(scene):
-    """Módulos do projeto: gabinetes frameless, starters do closets e módulos `btm_*`."""
+def iter_modules(scene, ensure_uid=True):
+    """Módulos do projeto: gabinetes frameless, starters do closets e módulos `btm_*`.
+
+    `ensure_uid=False` só lê (para o `draw` da interface, que não pode gravar): sem `btm_uid`, usa o nome.
+    """
     modules = []
     for obj in scene.objects:
         if obj.get(FRAMELESS_TAG):
@@ -86,7 +91,8 @@ def iter_modules(scene):
             library, line, kind = "BTM", obj.get(LINE_PROP) or "COZ", "MODULE"
         else:
             continue
-        modules.append(ModuleRecord(ensure_module_uid(obj), obj.name, str(line), library, str(kind), obj))
+        uid = ensure_module_uid(obj) if ensure_uid else str(obj.get(UID_PROP) or obj.name)
+        modules.append(ModuleRecord(uid, obj.name, str(line), library, str(kind), obj))
     modules.sort(key=lambda m: m.uid)
     return modules
 
@@ -132,9 +138,14 @@ def aggregate_machining(obj, length, width, thickness):
 
 def cutpart_records(module):
     """Peças reais (GeoNodeCutpart visíveis) de um módulo frameless/closets."""
+    return _assign_uids(module, _cutpart_found(module))
+
+
+def _cutpart_found(module):
+    """[(componente, nome do objeto, PartRecord sem uid)] das peças reais do módulo."""
     found = []
     for obj in module.obj.children_recursive:
-        if obj.type != 'MESH' or not _visible(obj):
+        if obj.type != 'MESH' or not _visible(obj) or obj.get('btm_hardware'):
             continue
         mod = _cutpart_modifier(obj)
         if mod is None:
@@ -157,8 +168,9 @@ def cutpart_records(module):
             uid="", module_uid=module.uid, module_name=module.name, line=module.line,
             name=part_roles.base_name(obj.name), component=component,
             length=length, width=width, thickness=thickness, finish=finish, edges_present=edges,
-            machining=cuts, machining_clipped=clipped, material=str(obj.get(RAW_MATERIAL_PROP, "") or ""))))
-    return _assign_uids(module, found)
+            machining=cuts, machining_clipped=clipped, material=str(obj.get(RAW_MATERIAL_PROP, "") or ""),
+            key=obj.name)))
+    return found
 
 
 def _assign_uids(module, found):
@@ -240,8 +252,10 @@ def synthetic_records(module, thickness_for):
         found.append((component, f"{i:02d}", PartRecord(
             uid="", module_uid=module.uid, module_name=module.name, line=module.line, name=name,
             component=component, length=length, width=part_width, thickness=thickness,
-            edges_present=edges, source="SYNTHETIC", material=material)))
-    return _assign_uids(module, found) + cutpart_records(module)
+            edges_present=edges, source="SYNTHETIC", material=material, key="synthetic:" + name)))
+    # Numeração única com as peças reais (feature 008: portas e prateleiras nossas no `btm` repetiam POR/0, PRAT/0);
+    # os nomes sintéticos ("00", "01"…) ordenam antes dos objetos, e os uids de antes não mudam.
+    return _assign_uids(module, found + _cutpart_found(module))
 
 
 def module_has_cutparts(module):

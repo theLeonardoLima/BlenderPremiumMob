@@ -5,7 +5,7 @@ Primeiro a ação principal (Editor de Paredes); depois grupos recolhidos com o 
 de referência e Geometrias. Sem nenhuma parede, Aberturas e Piso e teto ficam desabilitados com o motivo (R-01 da UI).
 """
 
-from ..data.i18n import N_
+from ..data.i18n import N_, tr
 from . import sidebar_proxy, view3d_sidebar
 from .sidebar import empty_state, group_scope
 
@@ -18,11 +18,32 @@ def has_walls(scene):
     return bool(hb or layer)
 
 
+def draw_view_mode(layout, context):
+    """Modo de vista (feature 010, D-06): Sólido · Textura e o interruptor Linhas, com o estado escrito."""
+    from . import view_mode_core
+    scene = context.scene
+    if not hasattr(scene, 'btm_view_mode'):
+        return
+    row = layout.row(align=True)
+    row.prop(scene, "btm_view_mode", expand=True)
+    row.prop(scene, "btm_view_lines", text="", icon='MOD_WIREFRAME', toggle=True)
+    hint = layout.row()
+    hint.active = False
+    hint.label(text=tr("Vista: {}").format(view_mode_core.label(scene.btm_view_mode, scene.btm_view_lines)))
+
+
 def draw(layout, context):
     walls = has_walls(context.scene)
     row = layout.row(align=True)
     row.scale_y = 1.3
     row.operator("caffmob.wall_editor", text=N_("Editor de Paredes"), icon='MESH_GRID')
+    draw_view_mode(layout, context)
+    from ..openings import sync as openings_sync           # feature 010: caixas antigas de portas e janelas
+    old = openings_sync.outdated(context.scene)
+    if old:
+        box = layout.box()
+        box.label(text=tr("{} porta(s) ou janela(s) em caixa").format(len(old)), icon='INFO')
+        box.operator("caffmob.openings_update", icon='FILE_REFRESH')
 
     vs = view3d_sidebar
     if not sidebar_proxy.visible(vs.HOME_BUILDER_PT_room_layout, context):

@@ -36,3 +36,8 @@ def draw(layout, context):
     object_properties.draw_selected(layout, context)
     if context.active_object is not None:
         _draw_face_frame(layout, context)
+    if any(o.type == 'MESH' for o in context.selected_objects):        # feature 009 (RN-12)
+        with group_scope(layout, context, 'sel_retexture', N_("Retexturizar"), 'MATERIAL') as body:
+            if body is not None:
+                from ..object_library import panels as object_panels
+                object_panels.draw_retexture(body, context)

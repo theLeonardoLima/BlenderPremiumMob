@@ -160,6 +160,12 @@ def update_auto_scale(self, context):
 
 def update_show_entry_door_and_window_cages(self, context):
     for obj in context.scene.objects:
+        real = getattr(obj, 'btm_opening_real', None)
+        if real is not None and real.assembly is not None:    # porta/janela real (010): a caixa é só referência
+            obj.display_type = 'WIRE'
+            obj.show_in_front = False
+            obj.hide_set(not self.show_entry_door_and_window_cages)
+            continue
         if obj.get('IS_ENTRY_DOOR_BP'):
             obj.display_type = 'TEXTURED' if self.show_entry_door_and_window_cages else 'WIRE'
             obj.show_in_front = True if self.show_entry_door_and_window_cages else False
@@ -479,9 +485,12 @@ class Home_Builder_Scene_Props(PropertyGroup):
     exterior_wall_thickness: FloatProperty(name="Exterior Wall Thickness", default=inch(6),subtype='DISTANCE',precision=5)# type: ignore
     interior_wall_thickness: FloatProperty(name="Interior Wall Thickness", default=inch(4.5),subtype='DISTANCE',precision=5)# type: ignore
 
-    door_single_width: FloatProperty(name="Door Single Width", default=inch(36),subtype='DISTANCE',precision=5)  # type: ignore
-    door_double_width: FloatProperty(name="Door Double Width", default=inch(72),subtype='DISTANCE',precision=5)  # type: ignore
-    door_height: FloatProperty(name="Door Height", default=inch(84),subtype='DISTANCE',precision=5)  # type: ignore
+    door_single_width: FloatProperty(name="Door Single Width", default=0.80,  # 80 cm (feature 010, RN-02)
+                                  subtype='DISTANCE',precision=5)  # type: ignore
+    door_double_width: FloatProperty(name="Door Double Width", default=1.60,  # 160 cm (feature 010)
+                                  subtype='DISTANCE',precision=5)  # type: ignore
+    door_height: FloatProperty(name="Door Height", default=2.10,  # 210 cm (feature 010)
+                            subtype='DISTANCE',precision=5)  # type: ignore
     window_width: FloatProperty(name="Window Width", default=inch(34),subtype='DISTANCE',precision=5)  # type: ignore
     window_height: FloatProperty(name="Window Height", default=inch(34),subtype='DISTANCE',precision=5)  # type: ignore
     window_height_from_floor: FloatProperty(name="Window Height From Floor", default=inch(36),subtype='DISTANCE',precision=5)  # type: ignore

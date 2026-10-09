@@ -25,6 +25,35 @@ def missing_node_files(source_dir):
     return sorted(path for path in wanted if not os.path.exists(os.path.join(source_dir, path)))
 
 
+def package_problems(source_dir):
+    """Feature 009 (T035): wheels do manifesto presentes e biblioteca embutida completa e sem modelos do 3D
+    Warehouse (a licença deles proíbe redistribuir, RN-09)."""
+    import json
+    problems = []
+    manifest = open(os.path.join(source_dir, "blender_manifest.toml"), encoding="utf-8").read()
+    for wheel in re.findall(r'"\./(wheels/[^"]+\.whl)"', manifest):
+        if not os.path.isfile(os.path.join(source_dir, wheel)):
+            problems.append(f"falta {wheel} (rode python3 tools/fetch_wheels.py)")
+    for asset in ("nogueira_cor.jpg", "nogueira_rugosidade.jpg"):          # feature 010: textura da porta real
+        if not os.path.isfile(os.path.join(source_dir, "openings", "assets", asset)):
+            problems.append(f"falta openings/assets/{asset} (rode tools/build_openings_assets.py no Blender)")
+    items = os.path.join(source_dir, "object_library", "items")
+    if not os.path.isdir(items):
+        problems.append("falta object_library/items (rode tools/build_object_library.py no Blender)")
+        return problems
+    for root, _dirs, files in os.walk(items):
+        for file in files:
+            if not file.endswith(".json"):
+                continue
+            path = os.path.join(root, file)
+            data = json.load(open(path, encoding="utf-8"))
+            if not os.path.isfile(path[:-len(".json")] + ".blend"):
+                problems.append(f"falta o .blend de {os.path.relpath(path, source_dir)}")
+            if str(data.get("source", "")).strip().lower().startswith("3d warehouse"):
+                problems.append(f"{os.path.relpath(path, source_dir)}: modelo do 3D Warehouse não pode ir no pacote")
+    return problems
+
+
 def build_zip():
     zip_filename = "caffmob_draw.zip"
     source_dir = "caffmob_draw"
@@ -40,6 +69,13 @@ def build_zip():
         for path in missing:
             print(f"  - {source_dir}/{path}")
         print("Atualize o repositório (git pull) ou copie os arquivos antes de empacotar.")
+        sys.exit(1)
+
+    problems = package_problems(source_dir)
+    if problems:
+        print("Error: o pacote não está pronto:")
+        for problem in problems:
+            print(f"  - {problem}")
         sys.exit(1)
 
     print(f"Packaging {source_dir}/ into {zip_filename}...")

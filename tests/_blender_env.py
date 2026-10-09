@@ -14,7 +14,7 @@ import bpy
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-USER_DIR = tempfile.mkdtemp(prefix="caffmob_user_")
+USER_DIR = os.environ.get("CAFFMOB_TEST_USER_DIR") or tempfile.mkdtemp(prefix="caffmob_user_")   # 009: compartilhada com um 2º Blender
 _original = bpy.utils.extension_path_user
 
 
@@ -29,6 +29,28 @@ def _extension_path_user(package, path="", create=False):
 
 
 bpy.utils.extension_path_user = _extension_path_user
+
+
+def _install_wheels():
+    """Feature 009: o Blender instala as wheels do manifesto ao instalar a extensão; aqui, sem instalar, as da
+    plataforma são descompactadas numa pasta temporária no `sys.path` (o `openskp` e as dependências dele)."""
+    import platform
+    import zipfile
+    machine = platform.machine().lower()
+    marks = {'linux': ('manylinux',), 'win32': ('win_amd64',), 'darwin': ('macosx',)}.get(sys.platform, ())
+    arch = 'arm64' if machine in ('arm64', 'aarch64') and sys.platform == 'darwin' else (
+        'aarch64' if machine in ('arm64', 'aarch64') else ('x86_64' if sys.platform != 'win32' else 'amd64'))
+    target = tempfile.mkdtemp(prefix="caffmob_wheels_")
+    for wheel in sorted((ROOT / "caffmob_draw" / "wheels").glob("*.whl")):
+        name = wheel.name
+        pure = name.endswith("-none-any.whl")
+        if pure or (any(m in name for m in marks) and arch in name):
+            with zipfile.ZipFile(wheel) as archive:
+                archive.extractall(target)
+    sys.path.insert(0, target)
+
+
+_install_wheels()
 
 # Os smokes conferem comportamento com as mensagens em português; o Blender de fábrica abre em inglês e, com a
 # tradução da interface (BUG-20261007-FLZO), as mensagens seguiriam o inglês. O idioma é testado à parte

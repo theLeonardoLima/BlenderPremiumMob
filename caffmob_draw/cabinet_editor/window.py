@@ -8,6 +8,10 @@ componente selecionado destacado, os componentes com mensagem marcados em vermel
 
 Feature 006 (T024): na aba Divisão, os subvãos livres aparecem tracejados e o escolhido em destaque, com o nome em
 texto; as chapas removidas aparecem tracejadas com "removido" (o estado nunca só na cor).
+
+Feature 008 (T034; D-05, D-06, D-09): o vão escolhido aparece em todas as abas; barra "Selecionado: …" no rodapé da
+vista; linhas de abertura tracejadas nas portas (do lado da dobradiça ao meio do lado oposto); nas abas Gavetas e
+Portas, o vão da biblioteca que vai receber a frente fica contornado, com aviso quando é maior que o vão escolhido.
 """
 
 import bpy  # type: ignore
@@ -37,6 +41,9 @@ BACKGROUND = (0.13, 0.13, 0.14, 1.0)
 SPACE_EDGE = (0.45, 0.75, 1.0, 0.55)
 SPACE_FILL = (0.45, 0.75, 1.0, 0.18)
 REMOVED_EDGE = (0.85, 0.55, 0.45, 0.8)
+SWING = (0.45, 0.75, 0.35, 0.95)
+LIBRARY_EDGE = (0.45, 0.9, 0.55, 0.95)
+STATUS_BG = (0.09, 0.09, 0.10, 0.92)
 
 
 def session():
@@ -105,8 +112,6 @@ def _draw_006(sh, view, s, divisions_tab):
         x0, z0, x1, z1 = part.rect
         a, b = _dashed_rect(sh, view, x0, z0, x1, z1, REMOVED_EDGE)
         labels.append(((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0, tr("removido"), REMOVED_EDGE))
-    if not divisions_tab:
-        return labels
     for path, box in s.spaces.items():
         x0, z0, x1, z1 = box.lo[0], box.lo[2], box.hi[0], box.hi[2]
         if path == s.space:
@@ -115,9 +120,67 @@ def _draw_006(sh, view, s, divisions_tab):
             a, b = view.to_screen((x0, z0)), view.to_screen((x1, z1))
             label = s.space_labels.get(path, path)
             labels.append(((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0, label, SELECTED))
-        else:
+        elif divisions_tab:
             _dashed_rect(sh, view, x0, z0, x1, z1, SPACE_EDGE)
     return labels
+
+
+def _hinge(name):
+    low = name.lower()
+    if 'flip' in low or 'bascul' in low:
+        return 'TOP'
+    if 'right' in low or '_r' in low[-4:] or 'direit' in low:
+        return 'RIGHT'
+    return 'LEFT'
+
+
+def _swing_lines(sh, view, s):
+    """Linhas de abertura das portas (D-09): do lado da dobradiça até o meio do lado oposto."""
+    pts = []
+    for part in s.parts:
+        if part.kind != elevation.FRONT or 'drawer' in part.name.lower() or 'gaveta' in part.name.lower():
+            continue
+        x0, z0, x1, z1 = part.rect
+        xm, zm = (x0 + x1) / 2.0, (z0 + z1) / 2.0
+        hinge = _hinge(part.name)
+        if hinge == 'TOP':
+            segs = (((x0, z1), (xm, z0)), ((x1, z1), (xm, z0)))
+        elif hinge == 'RIGHT':
+            segs = (((x1, z1), (x0, zm)), ((x1, z0), (x0, zm)))
+        else:
+            segs = (((x0, z1), (x1, zm)), ((x0, z0), (x1, zm)))
+        for a, b in segs:
+            pts += draw.dashed(view.to_screen(a), view.to_screen(b))
+    if pts:
+        draw.lines(sh, pts, SWING)
+
+
+def _library_outline(sh, view, s, labels):
+    box = s.library_box
+    if box is None:
+        return
+    a, b = view.to_screen((box.lo[0], box.lo[2])), view.to_screen((box.hi[0], box.hi[2]))
+    draw.outline(sh, (a[0] - 3, a[1] - 3, b[0] - a[0] + 6, b[1] - a[1] + 6), LIBRARY_EDGE)
+    space = s.spaces.get(s.space)
+    if space is not None and (box.size(0) > space.size(0) + 1e-4 or box.size(2) > space.size(2) + 1e-4):
+        labels.append(((a[0] + b[0]) / 2.0, a[1] + 8, tr("A frente ocupa o vão inteiro da biblioteca"),
+                       LIBRARY_EDGE))
+
+
+def status_text(s):
+    """Texto da barra "Selecionado: …" (D-06)."""
+    if s.selected:
+        return tr("Selecionado: {}").format(s.selected)
+    if s.space and s.space in s.spaces:
+        return tr("Selecionado: {}").format(s.space_labels.get(s.space, s.space))
+    return tr("Selecionado: (nenhum)")
+
+
+def _status_bar(region, s):
+    sh = draw.begin()
+    draw.rect(sh, (0, 0, region.width, 24), STATUS_BG)
+    draw.end()
+    draw.text(10, 7, status_text(s))
 
 
 def draw_editor(context):
@@ -141,9 +204,13 @@ def draw_editor(context):
             continue
         color = FLAGGED if part.name in flagged else EDGE
         draw.box(sh, view, (x0, z0), (x1, z1), color, fill=FILL.get(part.kind, FILL[elevation.PART]))
-    divisions_tab = context.window_manager.btm_cabinet_editor.tab == 'DIVISIONS'
+    tab = context.window_manager.btm_cabinet_editor.tab
+    divisions_tab = tab == 'DIVISIONS'
     labels = _draw_006(sh, view, s, divisions_tab)
-    if s.selected and not divisions_tab:
+    _swing_lines(sh, view, s)
+    if tab in ('DRAWERS', 'DOORS'):
+        _library_outline(sh, view, s, labels)
+    if s.selected:
         part = next((p for p in s.parts if p.name == s.selected), None)
         if part is not None:
             x0, z0, x1, z1 = part.rect
@@ -153,6 +220,7 @@ def draw_editor(context):
     for x, y, text, color in labels:
         draw.text(x - draw.text_width(text) / 2.0, y, text, color=color)
     _labels(view, s)
+    _status_bar(region, s)
 
 
 def _labels(view, s):

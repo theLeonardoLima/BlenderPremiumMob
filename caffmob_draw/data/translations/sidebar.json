@@ -75,6 +75,10 @@
   "pt_BR": "Ligue em Produção/Projeto › Configurações",
   "en_US": "Turn it on in Production/Project › Settings"
  },
+ "Linhas": {
+  "pt_BR": "Linhas",
+  "en_US": "Lines"
+ },
  "Luzes": {
   "pt_BR": "Luzes",
   "en_US": "Lights"
@@ -87,6 +91,14 @@
   "pt_BR": "Meus módulos",
   "en_US": "My modules"
  },
+ "Modo de vista": {
+  "pt_BR": "Modo de vista",
+  "en_US": "View mode"
+ },
+ "Mostra as arestas de todos os objetos sobre a vista": {
+  "pt_BR": "Mostra as arestas de todos os objetos sobre a vista",
+  "en_US": "Shows the edges of all objects over the view"
+ },
  "Módulos salvos": {
   "pt_BR": "Módulos salvos",
   "en_US": "Saved modules"
@@ -94,6 +106,10 @@
  "Módulos salvos pelo Personalizar módulo": {
   "pt_BR": "Módulos salvos pelo Personalizar módulo",
   "en_US": "Modules saved with Customize module"
+ },
+ "Objetos": {
+  "pt_BR": "Objetos",
+  "en_US": "Objects"
  },
  "Obstáculos": {
   "pt_BR": "Obstáculos",
@@ -131,9 +147,29 @@
   "pt_BR": "Produção/Projeto",
   "en_US": "Production/Project"
  },
+ "Retexturizar": {
+  "pt_BR": "Retexturizar",
+  "en_US": "Retexture"
+ },
  "Selecione um objeto na viewport": {
   "pt_BR": "Selecione um objeto na viewport",
   "en_US": "Select an object in the viewport"
+ },
+ "Sólido": {
+  "pt_BR": "Sólido",
+  "en_US": "Solid"
+ },
+ "Sólido com linha": {
+  "pt_BR": "Sólido com linha",
+  "en_US": "Solid with lines"
+ },
+ "Textura": {
+  "pt_BR": "Textura",
+  "en_US": "Texture"
+ },
+ "Textura com linha": {
+  "pt_BR": "Textura com linha",
+  "en_US": "Texture with lines"
  },
  "Todas": {
   "pt_BR": "Todas",
@@ -146,5 +182,9 @@
  "Verificar": {
   "pt_BR": "Verificar",
   "en_US": "Check"
+ },
+ "Vista: {}": {
+  "pt_BR": "Vista: {}",
+  "en_US": "View: {}"
  }
 }

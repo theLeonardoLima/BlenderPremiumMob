@@ -243,7 +243,7 @@ SHELF_SETBACK = 0.02      # recuo frontal das prateleiras (m)
 MAT_CARCASS, MAT_SHELF, MAT_BACK = 0, 1, 2
 
 
-def generate_cabinet_mesh(obj, w, h, d, t, shelves=0, structure=None):
+def generate_cabinet_mesh(obj, w, h, d, t, shelves=0, structure=None, back_setback=0.0):
     """Gera uma caixa de armário paramétrico (laterais, base, tampo, fundo e prateleiras) em metros.
 
     `shelves` prateleiras com vãos iguais entre a base e o tampo (feature 003, D-09). As faces recebem índices de
@@ -284,7 +284,7 @@ def generate_cabinet_mesh(obj, w, h, d, t, shelves=0, structure=None):
     thick = {role: float(structure.get(role, (True, 'KEEP', t))[2] or t) for role in st.ROLES}
     states = {role: st.RoleState(removed=not present, mode=mode)
               for role, (present, mode, _th) in structure.items() if not present}
-    panels, inner = st.layout(w, h, d, thick, states)
+    panels, inner = st.layout(w, h, d, thick, states, back_setback)
 
     # Laterais, base, tampo e fundo (na ordem de sempre)
     for role in ('LEFT', 'RIGHT', 'BOTTOM', 'TOP', 'BACK'):

@@ -425,8 +425,12 @@ s.view = View2D((0, 0, 1000, 800))
 s.view.fit(((-1, -1), (4, 3)), margin=0.1)
 state.tool = 'DRAW'
 at((0.0, 0.0), event('LEFTMOUSE'))
-for target, text in (((1.0, 0.0), "3000"), ((3.0, 1.0), "2000"), ((2.0, 2.0), "3000"), ((0.0, 1.0), "2000")):
+# Feature 009 (RN-06): o mouse não muda a direção travada; depois do primeiro trecho, as setas mudam.
+for target, arrow, text in (((1.0, 0.0), None, "3000"), ((3.0, 1.0), 'UP_ARROW', "2000"),
+                            ((2.0, 2.0), 'LEFT_ARROW', "3000"), ((0.0, 1.0), 'DOWN_ARROW', "2000")):
     s.cursor = target
+    if arrow:
+        op._handle(ctx, event(arrow), s, s.view, s.view.to_screen(target))
     for char in text:
         op._handle(ctx, event('ONE', char=char), s, s.view, s.view.to_screen(target))
     op._handle(ctx, event('RET'), s, s.view, s.view.to_screen(target))

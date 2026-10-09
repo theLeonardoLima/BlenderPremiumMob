@@ -107,6 +107,14 @@
   "pt_BR": "Medida: {}▏  (Enter aplica, Esc limpa)",
   "en_US": "Measure: {}▏  (Enter applies, Esc clears)"
  },
+ "Medida: {}▏ {} (Enter aplica, Esc limpa)": {
+  "pt_BR": "Medida: {}▏ {} (Enter aplica, Esc limpa)",
+  "en_US": "Measurement: {}▏ {} (Enter applies, Esc clears)"
+ },
+ "Mova o mouse na direção da parede ou use as setas do teclado": {
+  "pt_BR": "Mova o mouse na direção da parede ou use as setas do teclado",
+  "en_US": "Move the mouse toward the wall or use the arrow keys"
+ },
  "Nada para desfazer.": {
   "pt_BR": "Nada para desfazer.",
   "en_US": "Nothing to undo."

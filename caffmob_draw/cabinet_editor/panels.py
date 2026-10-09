@@ -1,21 +1,18 @@
 """Painéis do Editor de Armário (feature 004, T048; RF-02, RF-03, RF-04, RF-06, RF-07, RF-09, RF-10).
 
-Na região lateral do Image Editor, aba "Editor de Armário". Feature 006 (T026; D-01, D-02, brief
-`_reversa_forward/006-editor-armario-abas/design/editor-abas.md`): um cabeçalho com o módulo, o estado do rascunho e as
-abas **Estrutura · Divisão · Acabamento**; os painéis aparecem conforme a aba:
-- Estrutura: Medidas (com a faixa permitida) e Componentes externos (`panels_structure.py`);
-- Divisão: Nova divisão e Divisões (`panels_divisions.py`);
-- Acabamento: Componentes (lista da 004) e Personalizar (seções da 003 para o vão selecionado; as que a biblioteca
-  não tem aparecem desabilitadas com o motivo).
-O rodapé é igual em todas as abas: Mensagens, Ajustes automáticos, Desfazer/Refazer, Confirmar / Cancelar / Fechar e
-Salvar como módulo.
+Na região lateral do Image Editor, aba "Editor de Armário". Feature 008 (T037; D-02, D-03, brief `_reversa_forward/008-editor-armario-construtor/design/construtor-abas.md`):
+cabeçalho com tipo, estado do rascunho, as 7 abas do Construtor só com ícone e o nome da aba ativa; Definições
+(Número de vãos e medidas) na Estrutura; blocos comuns às abas de inserção (Alvo, catálogo em grade, propriedades com
+"Não há propriedades disponíveis", Inserir); rodapé com mensagens, ajustes, Desfazer/Refazer e OK / Cancelar /
+Aplicar. A aba Acabamento da 006 saiu: Materiais foi para a Estrutura e o Interior da biblioteca para Divisões.
+Cada aba tem o seu arquivo (`panels_structure`, `panels_divisions`, `panels_drawers`, `panels_interior`,
+`panels_doors`, `panels_sliding`, `panels_backs`).
 """
 
 import bpy  # type: ignore
 
-from ..customize import spec
 from ..data import units
-from ..data.i18n import tr
+from ..data.i18n import N_, tr
 from ..selection import classify
 from . import bridge, props, window
 from .ops_actions import selected_path
@@ -43,6 +40,123 @@ class _TabPanel(_EditorPanel):
         return window.is_editor_area(context) and context.window_manager.btm_cabinet_editor.tab == cls.TAB
 
 
+TAB_NAMES = {key: label for key, label, _d, _i, _n in props.TAB_ITEMS}
+_TYPE_LABELS = {'BASE': N_("Balcão"), 'UPPER': N_("Aéreo"), 'TALL': N_("Alto"), 'CORNER': N_("Canto"),
+                'WALL': N_("Aéreo")}
+
+
+def cabinet_type(root, library):
+    """Tipo do armário pela biblioteca (D-25); sem tipo conhecido, o nome da biblioteca."""
+    code = root.get('CABINET_TYPE') if root is not None else None
+    if library == 'CLOSETS' and getattr(root, 'hb_closet_starter', None) is not None:
+        return str(root.hb_closet_starter.closet_type).title()
+    if library == 'BTM' and getattr(root, 'btm_cabinet', None) is not None:
+        prop = root.btm_cabinet.bl_rna.properties['cabinet_type']
+        return tr(prop.enum_items[root.btm_cabinet.cabinet_type].name)
+    if code and str(code).upper() in _TYPE_LABELS:
+        return tr(_TYPE_LABELS[str(code).upper()])
+    return tr(classify.LIBRARY_LABELS.get(library, library or ""))
+
+
+# Blocos comuns às abas de inserção (brief `design/construtor-abas.md`) --------------------------------------------
+def target_box(layout, context, tab):
+    """Bloco "Alvo": em qual vão a aba vai inserir; sem vão, a dica de como escolher (D-21)."""
+    s = props.session()
+    col = layout.column(align=True)
+    if s.space and s.space in s.spaces:
+        col.label(text=tr("Vão: {}").format(s.space_labels.get(s.space, s.space)), icon='RESTRICT_SELECT_OFF')
+    else:
+        row = col.row()
+        row.active = False
+        row.label(text=tr("Clique num vão na vista"), icon='RESTRICT_SELECT_ON')
+    if tab in ('DRAWERS', 'DOORS'):
+        row = col.row()
+        row.active = bool(s.library_path)
+        row.label(text=tr("Vão da biblioteca: {}").format(s.library_path) if s.library_path
+                  else tr("Este vão não pertence a um vão da biblioteca"), icon='MOD_WIREFRAME')
+
+
+def catalog_grid(layout, context, items, space_mm=None):
+    """Grade de 2 colunas com miniatura e nome; o item escolhido fica pressionado; o que não cabe, apagado."""
+    from . import previews
+    ui = context.window_manager.btm_cabinet_editor
+    if not items:
+        row = layout.row()
+        row.active = False
+        row.label(text=tr("Nenhum item nesta categoria"))
+        return
+    grid = layout.grid_flow(row_major=True, columns=2, even_columns=True, align=False)
+    for item in items:
+        cell = grid.column(align=True)
+        need = item.too_small(space_mm) if space_mm is not None else None
+        cell.enabled = need is None
+        cell.scale_y = 2.6
+        icon = previews.icon_id(item.thumb)
+        kwargs = {'icon_value': icon} if icon else {'icon': 'MESH_PLANE'}
+        cell.operator("caffmob.cabinet_editor_pick", text=tr(item.label), depress=ui.catalog_item == item.id,
+                      **kwargs).item = item.id
+
+
+def properties_box(layout, item):
+    """Área de propriedades do item escolhido; sem propriedade, o estado vazio do Construtor (RN-06)."""
+    box = layout.box()
+    rows = []
+    if item is not None:
+        if item.description:
+            rows.append(tr(item.description))
+        if item.size_mm:
+            rows.append(tr("Medidas: {:.0f} × {:.0f} mm").format(item.size_mm[0], item.size_mm[1]))
+        for name, value in item.params:
+            if isinstance(value, float) and value:
+                rows.append("{}: {:.0f} mm".format(tr(name), value))
+    if not rows:
+        row = box.row()
+        row.active = False
+        row.alignment = 'CENTER'
+        row.label(text=tr("Não há propriedades disponíveis"))
+        return
+    for text in rows:
+        box.label(text=text)
+
+
+def insert_button(layout, context, tab):
+    """Inserir largo, no mesmo lugar em todas as abas; apagado com o motivo (D-21)."""
+    from .ops_actions import insert_reason
+    s = props.session()
+    reason = insert_reason(context, tab)
+    row = layout.row()
+    row.scale_y = 1.5
+    row.enabled = reason is None
+    label = tr("Inserir em {}").format(s.space_labels.get(s.space, "")) if reason is None and s.space else tr("Inserir")
+    row.operator("caffmob.cabinet_editor_insert", text=label, icon='ADD').tab = tab
+    if reason:
+        hint = layout.row()
+        hint.active = False
+        hint.label(text=reason, icon='INFO')
+
+
+def draw_materials(layout, context):
+    """Materiais por grupo e das frentes do vão (da 003), agora na Estrutura (D-03)."""
+    col = layout.column(align=True)
+    _edit(col, 'MATERIAL', tr("Material de um grupo…"), 'MATERIAL', target='GROUP')
+    sub = col.row(align=True)
+    sub.enabled = bool(selected_path())
+    _edit(sub, 'MATERIAL', tr("Material das frentes do vão…"), 'MATERIAL', target='FRONTS')
+
+
+def draw_library_interior(layout, context):
+    """Divisões internas da biblioteca por quantidade (da 003), agora em Divisões (D-03)."""
+    s = props.session()
+    root = s.root()
+    adapter = bridge.adapter_of(root) if root is not None else None
+    reason = adapter.capabilities(root).get('INTERIOR') if adapter is not None else tr("Sem biblioteca")
+    row = layout.row()
+    row.enabled = reason is None and bool(selected_path())
+    _edit(row, 'INTERIOR', tr("Interior da biblioteca…"), 'MOD_LATTICE')
+    if reason:
+        layout.label(text=reason, icon='CANCEL')
+
+
 class BTM_PT_CabinetEditorTabs(_EditorPanel, bpy.types.Panel):
     bl_label = "Editor de Armário"
     bl_idname = "BTM_PT_cabinet_editor_tabs"
@@ -54,12 +168,17 @@ class BTM_PT_CabinetEditorTabs(_EditorPanel, bpy.types.Panel):
         ui = context.window_manager.btm_cabinet_editor
         layout = self.layout
         col = layout.column(align=True)
+        root = s.root()
         library = tr(classify.LIBRARY_LABELS.get(s.library, s.library or ""))
-        col.label(text="{}  ·  {}".format(s.root_name, library) if library else s.root_name, icon='MOD_BUILD')
+        col.label(text=tr("Tipo: {}").format(cabinet_type(root, s.library)) + "  ·  " + library, icon='MOD_BUILD')
         status = col.row()
         status.active = False
-        status.label(text=tr("Rascunho alterado") if s.draft.dirty() else tr("Sem alterações"))
-        layout.row().prop_tabs_enum(ui, "tab")
+        if s.draft.dirty():
+            status.label(text=tr("Rascunho alterado"))
+        else:
+            status.label(text=tr("Aplicado") if s.applied else tr("Sem alterações"))
+        layout.row().prop_tabs_enum(ui, "tab", icon_only=True)
+        layout.label(text=tr(TAB_NAMES.get(ui.tab, ui.tab)))
         if s.error:
             box = layout.box()
             box.alert = True
@@ -67,7 +186,7 @@ class BTM_PT_CabinetEditorTabs(_EditorPanel, bpy.types.Panel):
 
 
 class BTM_PT_CabinetEditorDimensions(_TabPanel, bpy.types.Panel):
-    bl_label = "Medidas"
+    bl_label = "Definições"
     bl_idname = "BTM_PT_cabinet_editor_dimensions"
     bl_order = 1
     TAB = 'STRUCTURE'
@@ -77,6 +196,7 @@ class BTM_PT_CabinetEditorDimensions(_TabPanel, bpy.types.Panel):
         ui = context.window_manager.btm_cabinet_editor
         layout = self.layout
         unit = units.get_scene_length_unit(context.scene)
+        layout.prop(ui, "bays")
         col = layout.column(align=True)
         for field in ('width', 'height', 'depth'):
             row = col.row(align=True)
@@ -88,76 +208,12 @@ class BTM_PT_CabinetEditorDimensions(_TabPanel, bpy.types.Panel):
             hint.label(text=tr("faixa: {} – {}").format(units.format_length(lo, unit), units.format_length(hi, unit)))
 
 
-class BTM_UL_CabinetEditorComponents(bpy.types.UIList):
-    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-        icon = 'ERROR' if item.flagged else ('MESH_PLANE' if item.kind == 'OPENING' else 'MESH_CUBE')
-        layout.label(text=item.label, icon=icon)
-
-
-class BTM_PT_CabinetEditorComponents(_TabPanel, bpy.types.Panel):
-    bl_label = "Componentes"
-    bl_idname = "BTM_PT_cabinet_editor_components"
-    bl_order = 2
-    TAB = 'FINISH'
-
-    def draw(self, context):
-        ui = context.window_manager.btm_cabinet_editor
-        self.layout.template_list("BTM_UL_CabinetEditorComponents", "", ui, "components", ui, "component_index",
-                                  rows=6)
-
-
 def _edit(layout, action, text, icon, **values):
     op = layout.operator("caffmob.cabinet_editor_edit", text=text, icon=icon)
     op.action = action
     for name, value in values.items():
         setattr(op, name, value)
     return op
-
-
-class BTM_PT_CabinetEditorCustomize(_TabPanel, bpy.types.Panel):
-    bl_label = "Personalizar"
-    bl_idname = "BTM_PT_cabinet_editor_customize"
-    bl_order = 3
-    TAB = 'FINISH'
-
-    def draw(self, context):
-        s = props.session()
-        root = s.root()
-        adapter = bridge.adapter_of(root) if root is not None else None
-        layout = self.layout
-        if adapter is None:
-            layout.label(text=tr("Esta biblioteca não tem personalização"), icon='INFO')
-            return
-        caps = adapter.capabilities(root)
-        path = selected_path()
-        layout.label(text=tr("Vão: {}").format(path) if path else tr("Selecione um vão ou uma frente na vista"),
-                     icon='RESTRICT_SELECT_OFF')
-        for section in spec.SECTIONS:
-            box = layout.box()
-            box.label(text=tr(spec.SECTION_LABELS[section]))
-            reason = caps.get(section)
-            if reason:
-                row = box.row()
-                row.enabled = False
-                row.label(text=reason, icon='CANCEL')
-                continue
-            col = box.column(align=True)
-            col.enabled = bool(path) or section == 'MATERIALS'
-            if section == 'FRONTS':
-                grid = col.grid_flow(columns=2, align=True)
-                for front in spec.FRONT_TYPES:
-                    if front in adapter.front_types(root):
-                        _edit(grid, 'FRONT', tr(spec.FRONT_LABELS[front]), 'NONE', front=front)
-                _edit(col, 'STYLE', tr("Estilo da frente…"), 'MATERIAL')
-            elif section == 'PULLS':
-                _edit(col, 'PULL', tr("Puxador…"), 'MOD_ARRAY')
-            elif section == 'MATERIALS':
-                sub = col.row(align=True)
-                sub.enabled = bool(path)
-                _edit(sub, 'MATERIAL', tr("Material das frentes do vão…"), 'MATERIAL', target='FRONTS')
-                _edit(col, 'MATERIAL', tr("Material de um grupo…"), 'MATERIAL', target='GROUP')
-            elif section == 'INTERIOR':
-                _edit(col, 'INTERIOR', tr("Divisões internas…"), 'MOD_LATTICE')
 
 
 class BTM_PT_CabinetEditorMessages(_EditorPanel, bpy.types.Panel):
@@ -223,16 +279,18 @@ class BTM_PT_CabinetEditorConfirm(_EditorPanel, bpy.types.Panel):
             box.label(text=tr("Corrija os erros para confirmar"), icon='ERROR')
         row = layout.row(align=True)
         row.scale_y = 1.3
-        row.operator("caffmob.cabinet_editor_confirm", text=tr("Confirmar"), icon='CHECKMARK')
+        ok = row.row(align=True)
+        ok.scale_x = 1.4
+        ok.operator("caffmob.cabinet_editor_confirm", text=tr("OK"), icon='CHECKMARK')
         row.operator("caffmob.cabinet_editor_cancel", text=tr("Cancelar"), icon='X')
+        row.operator("caffmob.cabinet_editor_apply", text=tr("Aplicar"), icon='FILE_REFRESH')
         row = layout.row(align=True)
         row.operator("caffmob.cabinet_editor_close", text=tr("Fechar"), icon='PANEL_CLOSE')
         row.operator("caffmob.cabinet_editor_save_module", text=tr("Salvar como módulo"), icon='FILE_TICK')
 
 
-classes = (BTM_PT_CabinetEditorTabs, BTM_PT_CabinetEditorDimensions, BTM_UL_CabinetEditorComponents, BTM_PT_CabinetEditorComponents,
-           BTM_PT_CabinetEditorCustomize, BTM_PT_CabinetEditorMessages, BTM_PT_CabinetEditorAdjustments,
-           BTM_PT_CabinetEditorConfirm)
+classes = (BTM_PT_CabinetEditorTabs, BTM_PT_CabinetEditorDimensions, BTM_PT_CabinetEditorMessages,
+           BTM_PT_CabinetEditorAdjustments, BTM_PT_CabinetEditorConfirm)
 
 
 def register():

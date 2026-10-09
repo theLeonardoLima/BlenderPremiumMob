@@ -1,0 +1,44 @@
+{"ts": "2026-10-09T03:51:37Z", "action": "T001", "status": "done", "files": ["caffmob_draw/object_library/props.py"]}
+{"ts": "2026-10-09T03:51:37Z", "action": "T002", "status": "done", "files": ["caffmob_draw/walls2d/props.py"]}
+{"ts": "2026-10-09T03:51:37Z", "action": "T042", "status": "done", "files": ["tools/fetch_wheels.py", "caffmob_draw/wheels/", "caffmob_draw/blender_manifest.toml"]}
+{"ts": "2026-10-09T03:51:37Z", "action": "T003", "status": "done", "files": ["caffmob_draw/library_common.py", "caffmob_draw/customize/library_io.py"]}
+{"ts": "2026-10-09T03:51:37Z", "action": "T043", "status": "done", "files": ["tests/test_skp_core.py"]}
+{"ts": "2026-10-09T03:51:37Z", "action": "T005", "status": "done", "files": ["tests/test_measure_expr.py"]}
+{"ts": "2026-10-09T03:51:37Z", "action": "T006", "status": "done", "files": ["tests/test_wall_inference.py"]}
+{"ts": "2026-10-09T03:51:37Z", "action": "T007", "status": "done", "files": ["tests/test_wall_direction.py"]}
+{"ts": "2026-10-09T03:51:37Z", "action": "T008", "status": "done", "files": ["tests/test_object_library.py", "tests/_bootstrap.py"]}
+{"ts": "2026-10-09T03:51:37Z", "action": "T010", "status": "done", "files": ["caffmob_draw/data/expr.py"]}
+{"ts": "2026-10-09T03:51:37Z", "action": "T011", "status": "done", "files": ["caffmob_draw/data/units.py"]}
+{"ts": "2026-10-09T03:51:38Z", "action": "T012", "status": "done", "files": ["caffmob_draw/walls2d/inference.py"]}
+{"ts": "2026-10-09T03:51:38Z", "action": "T013", "status": "done", "files": ["caffmob_draw/walls2d/direction.py"]}
+{"ts": "2026-10-09T03:51:38Z", "action": "T014", "status": "done", "files": ["caffmob_draw/object_library/catalog.py"]}
+{"ts": "2026-10-09T03:51:38Z", "action": "T015", "status": "done", "files": ["caffmob_draw/object_library/store.py"]}
+{"ts": "2026-10-09T03:51:38Z", "action": "T016", "status": "done", "files": ["caffmob_draw/aggregates/skp.py"]}
+{"ts": "2026-10-09T03:51:38Z", "action": "T044", "status": "done", "files": ["caffmob_draw/aggregates/skp_core.py"]}
+{"ts": "2026-10-09T03:52:43Z", "action": "T045", "status": "done", "files": ["caffmob_draw/aggregates/skp_build.py", "tests/_blender_env.py"]}
+{"ts": "2026-10-09T03:52:43Z", "action": "T046", "status": "done", "files": ["tools/make_skp_fixture.py", "tests/fixtures/porta_teste.skp"]}
+{"ts": "2026-10-09T03:55:08Z", "action": "T018", "status": "done", "files": ["caffmob_draw/object_library/item_io.py"]}
+{"ts": "2026-10-09T03:55:08Z", "action": "T019", "status": "done", "files": ["caffmob_draw/object_library/item_io.py"]}
+{"ts": "2026-10-09T03:55:08Z", "action": "T020", "status": "done", "files": ["caffmob_draw/object_library/retexture.py"]}
+{"ts": "2026-10-09T03:55:08Z", "action": "T021", "status": "done", "files": ["tools/build_object_library.py"]}
+{"ts": "2026-10-09T03:55:08Z", "action": "T022", "status": "done", "files": ["caffmob_draw/object_library/items/"]}
+{"ts": "2026-10-09T03:58:59Z", "action": "T023", "status": "done", "files": ["caffmob_draw/walls2d/ops_editor.py", "caffmob_draw/walls2d/props.py", "tests/blender_002_smoke.py", "tests/blender_002_ui_events.py"]}
+{"ts": "2026-10-09T03:58:59Z", "action": "T024", "status": "done", "files": ["caffmob_draw/walls2d/ops_editor.py", "caffmob_draw/walls2d/props.py", "tests/blender_002_smoke.py", "tests/blender_002_ui_events.py"]}
+{"ts": "2026-10-09T03:58:59Z", "action": "T025", "status": "done", "files": ["caffmob_draw/walls2d/ops_editor.py", "caffmob_draw/walls2d/props.py", "tests/blender_002_smoke.py", "tests/blender_002_ui_events.py"]}
+{"ts": "2026-10-09T03:58:59Z", "action": "T026", "status": "done", "files": ["caffmob_draw/walls2d/ops_editor.py", "caffmob_draw/walls2d/props.py", "tests/blender_002_smoke.py", "tests/blender_002_ui_events.py"]}
+{"ts": "2026-10-09T04:01:32Z", "action": "T027", "status": "done", "files": ["caffmob_draw/object_library/ops.py"]}
+{"ts": "2026-10-09T04:01:32Z", "action": "T028", "status": "done", "files": ["caffmob_draw/object_library/ops.py"]}
+{"ts": "2026-10-09T04:01:32Z", "action": "T029", "status": "done", "files": ["caffmob_draw/object_library/ops.py"]}
+{"ts": "2026-10-09T04:01:32Z", "action": "T030", "status": "done", "files": ["caffmob_draw/object_library/panels.py", "caffmob_draw/object_library/previews.py", "caffmob_draw/object_library/props.py"]}
+{"ts": "2026-10-09T04:01:32Z", "action": "T031", "status": "done", "files": ["caffmob_draw/ui/sidebar_insert.py", "caffmob_draw/ui/sidebar_selected.py", "caffmob_draw/ui/sidebar_props.py"]}
+{"ts": "2026-10-09T04:01:32Z", "action": "T032", "status": "done", "files": ["caffmob_draw/object_library/__init__.py", "caffmob_draw/__init__.py"]}
+{"ts": "2026-10-09T04:01:32Z", "action": "T033", "status": "done", "files": ["caffmob_draw/aggregates/ops_import.py"]}
+{"ts": "2026-10-09T04:01:32Z", "action": "T034", "status": "done", "files": ["caffmob_draw/aggregates/ops_import.py"]}
+{"ts": "2026-10-09T04:01:32Z", "action": "T035", "status": "done", "files": ["build.py"]}
+{"ts": "2026-10-09T04:03:39Z", "action": "T038", "status": "done", "files": ["tests/blender_009_library_smoke.py", "tests/_blender_env.py"]}
+{"ts": "2026-10-09T04:03:39Z", "action": "T039", "status": "done", "files": ["tests/blender_009_skp_smoke.py"]}
+{"ts": "2026-10-09T04:03:39Z", "action": "T046", "status": "corrected", "files": ["tools/make_skp_fixture.py", "tests/fixtures/porta_teste.skp"]}
+{"ts": "2026-10-09T04:04:17Z", "action": "T037", "status": "done", "files": ["tests/blender_009_walls_smoke.py"]}
+{"ts": "2026-10-09T04:04:51Z", "action": "T036", "status": "done", "files": ["caffmob_draw/data/translations/object_library.json", "caffmob_draw/data/translations/aggregates.json", "caffmob_draw/data/translations/data.json", "caffmob_draw/data/translations/sidebar.json", "caffmob_draw/data/translations/walls2d.json"]}
+{"ts": "2026-10-09T04:05:26Z", "action": "T040", "status": "done", "files": ["docs/usuario/editor-paredes-e-mover-sobre.md"]}
+{"ts": "2026-10-09T04:05:26Z", "action": "T041", "status": "done", "files": ["docs/usuario/biblioteca-de-objetos.md"]}

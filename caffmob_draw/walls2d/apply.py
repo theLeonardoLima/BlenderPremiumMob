@@ -172,6 +172,10 @@ def apply_plan(context, plan, remove_modules=False, project_height=None):
     context.view_layer.update()
     walls_ops.update_all_wall_miters()
     report['floors'], report['ceilings'] = refresh_floors_and_ceilings(context)
+    from ..openings import sync as openings_sync        # feature 010: portas e janelas reais acompanham a parede
+    context.view_layer.update()
+    report['openings'] = sum(1 for cage in openings_sync.openings(context.scene)
+                             if cage.btm_opening_real.assembly is not None and openings_sync.sync(context, cage))
     return report
 
 

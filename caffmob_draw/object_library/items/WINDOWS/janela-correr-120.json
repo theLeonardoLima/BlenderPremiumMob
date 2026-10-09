@@ -1,0 +1,28 @@
+{
+ "format": "caffmob_draw.object_item",
+ "version": 1,
+ "item_id": "janela-correr-120",
+ "name": "Janela de correr 120",
+ "category": "WINDOWS",
+ "root": "Janela de correr 120",
+ "source": "CAFFMob Draw",
+ "author": "",
+ "license": "GPL-3.0-or-later",
+ "size_mm": [
+  1200.0,
+  60.0,
+  1000.0
+ ],
+ "features": [
+  "GROUP",
+  "FRAME",
+  "LEAF_SLIDE",
+  "AGGREGATE"
+ ],
+ "materials": [
+  "Alumínio",
+  "Vidro"
+ ],
+ "created_at": "2026-10-09T00:54:53-03:00",
+ "addon_version": ""
+}

@@ -106,6 +106,43 @@ class DivisionsTest(unittest.TestCase):
         d = dv.add(ROOT, [], 's0', dv.HORIZONTAL, T, use_back=True, back=0.01)[0]
         self.assertEqual(dv.from_dict(dv.to_dict(d)), d)
 
+    # Feature 008 (T010, T053) ---------------------------------------------------------------------------------
+    def test_insercao_multipla(self):
+        divs = dv.add_many(ROOT, [], 's0', dv.VERTICAL, 3, T)
+        leaves, _c, _o = dv.resolve(ROOT, divs)
+        self.assertEqual(len(leaves), 4)
+        for box in leaves.values():
+            self.assertAlmostEqual(box.size(0), (0.768 - 3 * T) / 4)
+        many = dv.add_many(ROOT, [], 's0', dv.VERTICAL, 10, 0.07)
+        self.assertIn('DIV-001', [m.code for m in dv.validate(ROOT, many)])
+
+    def test_distanciador_ocupa_sem_dividir(self):
+        divs = dv.add(ROOT, [], 's0', dv.VERTICAL, 0.030, kind=dv.SPACER)
+        leaves, cuts, _o = dv.resolve(ROOT, divs)
+        self.assertEqual(sorted(leaves), ['s0'])
+        self.assertAlmostEqual(leaves['s0'].size(0), 0.738)
+        self.assertAlmostEqual(cuts[divs[0].uid][1].lo[0], 0.0)
+
+    def test_distanciador_segue_a_divisoria(self):
+        divs = dv.add(ROOT, [], 's0', dv.VERTICAL, T)
+        first = divs[0]
+        divs = dv.add(ROOT, divs, 's0.b', dv.VERTICAL, T, kind=dv.SPACER, follow=first.uid)
+        moved = dv.update(divs, first.uid, offset=0.200)
+        _l, cuts, _o = dv.resolve(ROOT, moved)
+        self.assertAlmostEqual(cuts[divs[1].uid][1].lo[0], 0.200 + T)
+
+    def test_sem_divisoria_junta(self):
+        divs = dv.add(ROOT, [], 's0', dv.VERTICAL, T)
+        rest, removed = dv.remove_in_space(divs, 's0.a')
+        self.assertEqual(rest, [])
+        self.assertEqual(removed, [divs[0].uid])
+        self.assertEqual(dv.remove_in_space(divs, 's0'), (divs, []))
+
+    def test_movel_igual_a_fixa(self):
+        fixed = dv.add(ROOT, [], 's0', dv.HORIZONTAL, T, uid="x")
+        movable = dv.add(ROOT, [], 's0', dv.HORIZONTAL, T, uid="x", kind=dv.MOVABLE)
+        self.assertEqual(dv.resolve(ROOT, fixed)[1], dv.resolve(ROOT, movable)[1])
+
 
 if __name__ == '__main__':
     unittest.main()

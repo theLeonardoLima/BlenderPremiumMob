@@ -4,7 +4,7 @@ Plano de corte, Ambientes, Configurações, Projeto e, recolhido, Desenhos 2D (v
 que somem com a preferência "Ocultar Painéis 2D"). Os conteúdos legados vêm pelo proxy; cada um aparece uma vez.
 """
 
-from ..data.i18n import N_
+from ..data.i18n import N_, tr
 from . import sidebar_proxy, view3d_sidebar
 from .sidebar import group_scope
 
@@ -45,11 +45,34 @@ def draw_drawings(layout, context):
             sidebar_proxy.draw_panel(child, sub, context)
 
 
+def draw_hardware(layout, context):
+    """Ferragens do projeto (feature 008, T062; D-24): nome, quantidade e módulo; varre a cena só se aberta."""
+    header, body = layout.panel('btm_hardware_list', default_closed=True)
+    header.label(text=tr("Ferragens"), icon='TOOL_SETTINGS')
+    if body is None:
+        return
+    from ..cutting import hardware, part_sources
+    rows = hardware.collect(context.scene, ensure_uid=False)
+    if not rows:
+        hint = body.row()
+        hint.active = False
+        hint.label(text=tr("Nenhuma ferragem no projeto"))
+        return
+    names = {m.uid: m.name for m in part_sources.iter_modules(context.scene, ensure_uid=False)}
+    col = body.column(align=True)
+    for row in rows:
+        line = col.row(align=True)
+        line.label(text=row["name"])
+        line.label(text="× {}".format(row["quantity"]))
+        line.label(text=names.get(row["module_uid"], tr("Sem módulo")))
+
+
 def draw(layout, context):
     from . import panels
     with group_scope(layout, context, 'cut_plan', N_("Plano de corte"), 'ALIGN_JUSTIFY') as body:
         if body is not None:
             panels.draw_cut_plan(body, context)
+            draw_hardware(body, context)
     project_panel = view3d_sidebar.HOME_BUILDER_PT_project
     in_room = sidebar_proxy.visible(project_panel, context)     # fora de vistas de layout e de detalhe
     with group_scope(layout, context, 'rooms', N_("Ambientes"), 'HOME') as body:

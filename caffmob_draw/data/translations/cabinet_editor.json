@@ -11,6 +11,14 @@
   "en_US": "0 = back to the Dimension Configurator value",
   "pt_BR": "0 = volta ao valor do Configurador de Dimensões"
  },
+ "A frente ocupa o vão da biblioteca contornado na vista": {
+  "en_US": "The front fills the library opening outlined in the view",
+  "pt_BR": "A frente ocupa o vão da biblioteca contornado na vista"
+ },
+ "A frente ocupa o vão inteiro da biblioteca": {
+  "en_US": "The front fills the whole library opening",
+  "pt_BR": "A frente ocupa o vão inteiro da biblioteca"
+ },
  "Aba": {
   "en_US": "Tab",
   "pt_BR": "Aba"
@@ -31,9 +39,45 @@
   "en_US": "Add in {}",
   "pt_BR": "Adicionar em {}"
  },
+ "Almofada": {
+  "en_US": "Raised panel",
+  "pt_BR": "Almofada"
+ },
+ "Alta": {
+  "en_US": "Tall",
+  "pt_BR": "Alta"
+ },
+ "Altero — Pux Integrados": {
+  "en_US": "Altero — Integrated pulls",
+  "pt_BR": "Altero — Pux Integrados"
+ },
+ "Alto": {
+  "en_US": "Tall",
+  "pt_BR": "Alto"
+ },
+ "Alumínio": {
+  "en_US": "Aluminium",
+  "pt_BR": "Alumínio"
+ },
+ "Ambas": {
+  "en_US": "Both",
+  "pt_BR": "Ambas"
+ },
  "Ao remover": {
   "en_US": "When removing",
   "pt_BR": "Ao remover"
+ },
+ "Aplicado": {
+  "en_US": "Applied",
+  "pt_BR": "Aplicado"
+ },
+ "Apoio de eletro": {
+  "en_US": "Appliance support",
+  "pt_BR": "Apoio de eletro"
+ },
+ "Apoios": {
+  "en_US": "Supports",
+  "pt_BR": "Apoios"
  },
  "As chapas vizinhas avançam até a borda; o vão interno cresce": {
   "en_US": "The neighbouring panels reach the edge; the inner space grows",
@@ -43,9 +87,21 @@
   "en_US": "The outer size shrinks by the panel thickness; the inner space stays the same",
   "pt_BR": "As medidas externas diminuem pela espessura da chapa; o vão interno fica igual"
  },
+ "Atual: {}": {
+  "en_US": "Current: {}",
+  "pt_BR": "Atual: {}"
+ },
+ "Balcão": {
+  "en_US": "Base cabinet",
+  "pt_BR": "Balcão"
+ },
  "Base": {
   "en_US": "Bottom",
   "pt_BR": "Base"
+ },
+ "Base Superior Recuada": {
+  "en_US": "Recessed top base",
+  "pt_BR": "Base Superior Recuada"
  },
  "Base: ao remover": {
   "en_US": "Bottom: when removing",
@@ -54,6 +110,42 @@
  "Base: espessura": {
   "en_US": "Bottom: thickness",
   "pt_BR": "Base: espessura"
+ },
+ "Bicolor": {
+  "en_US": "Two-tone",
+  "pt_BR": "Bicolor"
+ },
+ "Blum": {
+  "en_US": "Blum",
+  "pt_BR": "Blum"
+ },
+ "Borda Alumínio": {
+  "en_US": "Aluminium edge",
+  "pt_BR": "Borda Alumínio"
+ },
+ "Cafeteira": {
+  "en_US": "Coffee machine",
+  "pt_BR": "Cafeteira"
+ },
+ "Cafeteira de referência (fora do corte)": {
+  "en_US": "Reference coffee machine (not in the cut list)",
+  "pt_BR": "Cafeteira de referência (fora do corte)"
+ },
+ "Caixa Gaveta c/ Contra Frente": {
+  "en_US": "Drawer box with inner front",
+  "pt_BR": "Caixa Gaveta c/ Contra Frente"
+ },
+ "Canto": {
+  "en_US": "Corner",
+  "pt_BR": "Canto"
+ },
+ "Cava Vertical": {
+  "en_US": "Vertical recessed pull",
+  "pt_BR": "Cava Vertical"
+ },
+ "Chanfrada": {
+  "en_US": "Chamfered",
+  "pt_BR": "Chanfrada"
  },
  "Chapa de baixo": {
   "en_US": "Bottom panel",
@@ -75,6 +167,10 @@
   "en_US": "Upright panel: splits left and right",
   "pt_BR": "Chapa em pé: separa esquerda e direita"
  },
+ "Chapa frontal sem recorte": {
+  "en_US": "Front panel without cutout",
+  "pt_BR": "Chapa frontal sem recorte"
+ },
  "Chapa: {} {} (Configurador › {})": {
   "en_US": "Sheet: {} {} (Configurator › {})",
   "pt_BR": "Chapa: {} {} (Configurador › {})"
@@ -83,13 +179,53 @@
   "en_US": "Vertical and horizontal division panels",
   "pt_BR": "Chapas de divisão vertical e horizontal"
  },
+ "Clique num vão na vista": {
+  "en_US": "Click an opening in the view",
+  "pt_BR": "Clique num vão na vista"
+ },
+ "Colonial": {
+  "en_US": "Colonial",
+  "pt_BR": "Colonial"
+ },
  "Componentes externos": {
   "en_US": "External parts",
   "pt_BR": "Componentes externos"
  },
+ "Contatto — Pux Integrados": {
+  "en_US": "Contatto — Integrated pulls",
+  "pt_BR": "Contatto — Pux Integrados"
+ },
+ "Corrediça": {
+  "en_US": "Drawer slide",
+  "pt_BR": "Corrediça"
+ },
+ "Corrediça Blum": {
+  "en_US": "Blum slide",
+  "pt_BR": "Corrediça Blum"
+ },
+ "Corrediça das gavetas do vão: vazio = padrão; BLUM (feature 008)": {
+  "en_US": "Drawer slide of the opening: empty = default; BLUM (feature 008)",
+  "pt_BR": "Corrediça das gavetas do vão: vazio = padrão; BLUM (feature 008)"
+ },
+ "Corrija os erros para aplicar": {
+  "en_US": "Fix the errors to apply",
+  "pt_BR": "Corrija os erros para aplicar"
+ },
+ "Country": {
+  "en_US": "Country",
+  "pt_BR": "Country"
+ },
+ "Definições": {
+  "en_US": "Settings",
+  "pt_BR": "Definições"
+ },
  "Deixe pelo menos {} de cada lado": {
   "en_US": "Leave at least {} on each side",
   "pt_BR": "Deixe pelo menos {} de cada lado"
+ },
+ "Deslizantes": {
+  "en_US": "Sliding",
+  "pt_BR": "Deslizantes"
  },
  "Devolve o componente removido (e desfaz o ajuste de medidas do modo usado)": {
   "en_US": "Brings the removed part back (and undoes the size change of the mode used)",
@@ -99,6 +235,22 @@
   "en_US": "Reduce the setbacks",
   "pt_BR": "Diminua os recuos"
  },
+ "Distanciador": {
+  "en_US": "Spacer",
+  "pt_BR": "Distanciador"
+ },
+ "Distanciador 15mm": {
+  "en_US": "Spacer 15mm",
+  "pt_BR": "Distanciador 15mm"
+ },
+ "Distanciador Duplo 30mm": {
+  "en_US": "Double spacer 30mm",
+  "pt_BR": "Distanciador Duplo 30mm"
+ },
+ "Distanciador p/ Divisão 15mm": {
+  "en_US": "Divider spacer 15mm",
+  "pt_BR": "Distanciador p/ Divisão 15mm"
+ },
  "Distância da face esquerda (vertical) ou de baixo (horizontal) do vão até a chapa": {
   "en_US": "Distance from the left face (vertical) or the bottom face (horizontal) of the space to the panel",
   "pt_BR": "Distância da face esquerda (vertical) ou de baixo (horizontal) do vão até a chapa"
@@ -107,6 +259,26 @@
   "en_US": "Divisions",
   "pt_BR": "Divisão"
  },
+ "Divisória com recuo frontal": {
+  "en_US": "Divider with front setback",
+  "pt_BR": "Divisória com recuo frontal"
+ },
+ "Divisória sem recuo frontal": {
+  "en_US": "Divider without front setback",
+  "pt_BR": "Divisória sem recuo frontal"
+ },
+ "Divisórias Fixas": {
+  "en_US": "Fixed dividers",
+  "pt_BR": "Divisórias Fixas"
+ },
+ "Divisórias Móveis": {
+  "en_US": "Adjustable dividers",
+  "pt_BR": "Divisórias Móveis"
+ },
+ "Divisórias, distanciadores e inserção múltipla": {
+  "en_US": "Dividers, spacers and multiple insertion",
+  "pt_BR": "Divisórias, distanciadores e inserção múltipla"
+ },
  "Divisões": {
   "en_US": "Divisions",
   "pt_BR": "Divisões"
@@ -114,6 +286,14 @@
  "Do Configurador": {
   "en_US": "From the Configurator",
   "pt_BR": "Do Configurador"
+ },
+ "Dobradiça à direita": {
+  "en_US": "Hinge on the right",
+  "pt_BR": "Dobradiça à direita"
+ },
+ "Dobradiça à esquerda": {
+  "en_US": "Hinge on the left",
+  "pt_BR": "Dobradiça à esquerda"
  },
  "Edita a posição, os recuos, o material e a espessura da divisão": {
   "en_US": "Edits the position, setbacks, material and thickness of the division",
@@ -127,6 +307,26 @@
   "en_US": "Edit division",
   "pt_BR": "Editar divisão"
  },
+ "Editor de armário: Aplicar": {
+  "en_US": "Cabinet editor: Apply",
+  "pt_BR": "Editor de armário: Aplicar"
+ },
+ "Embutidos": {
+  "en_US": "Built-in",
+  "pt_BR": "Embutidos"
+ },
+ "Escolha o vão logo à direita (ou acima) de uma divisória": {
+  "en_US": "Pick the opening right (or above) a divider",
+  "pt_BR": "Escolha o vão logo à direita (ou acima) de uma divisória"
+ },
+ "Escolha um item do catálogo": {
+  "en_US": "Pick a catalog item",
+  "pt_BR": "Escolha um item do catálogo"
+ },
+ "Escolha um vão livre": {
+  "en_US": "Pick an empty opening",
+  "pt_BR": "Escolha um vão livre"
+ },
  "Escolha um vão livre para a divisão": {
   "en_US": "Choose a free space for the division",
   "pt_BR": "Escolha um vão livre para a divisão"
@@ -134,6 +334,14 @@
  "Escolha um vão livre: clique nele na vista ou escolha na lista": {
   "en_US": "Choose a free space: click it in the view or pick it from the list",
   "pt_BR": "Escolha um vão livre: clique nele na vista ou escolha na lista"
+ },
+ "Escolhe o item do catálogo": {
+  "en_US": "Picks the catalog item",
+  "pt_BR": "Escolhe o item do catálogo"
+ },
+ "Escolher item": {
+  "en_US": "Pick item",
+  "pt_BR": "Escolher item"
  },
  "Esta biblioteca não ajusta as chapas vizinhas; use Manter tudo": {
   "en_US": "This library does not adjust neighbouring panels; use Keep everything",
@@ -143,6 +351,22 @@
   "en_US": "This library has no editable structure",
   "pt_BR": "Esta biblioteca não tem estrutura editável"
  },
+ "Esta biblioteca não tem gavetas": {
+  "en_US": "This library has no drawers",
+  "pt_BR": "Esta biblioteca não tem gavetas"
+ },
+ "Este armário não tem fundo": {
+  "en_US": "This cabinet has no back",
+  "pt_BR": "Este armário não tem fundo"
+ },
+ "Este vão não pertence a um vão da biblioteca": {
+  "en_US": "This opening is not inside a library opening",
+  "pt_BR": "Este vão não pertence a um vão da biblioteca"
+ },
+ "Este vão não tem divisória para remover": {
+  "en_US": "This opening has no divider to remove",
+  "pt_BR": "Este vão não tem divisória para remover"
+ },
  "Estender as vizinhas": {
   "en_US": "Extend the neighbours",
   "pt_BR": "Estender as vizinhas"
@@ -151,13 +375,93 @@
   "en_US": "Structure",
   "pt_BR": "Estrutura"
  },
+ "Externos": {
+  "en_US": "External",
+  "pt_BR": "Externos"
+ },
  "Face frame ainda não entra no plano de corte": {
   "en_US": "Face frame is not in the cut plan yet",
   "pt_BR": "Face frame ainda não entra no plano de corte"
  },
+ "Família": {
+  "en_US": "Family",
+  "pt_BR": "Família"
+ },
+ "Fechamentos": {
+  "en_US": "Fillers",
+  "pt_BR": "Fechamentos"
+ },
+ "Filtro": {
+  "en_US": "Filter",
+  "pt_BR": "Filtro"
+ },
+ "Fixa": {
+  "en_US": "Fixed",
+  "pt_BR": "Fixa"
+ },
+ "Folha com quadro de alumínio": {
+  "en_US": "Leaf with an aluminium frame",
+  "pt_BR": "Folha com quadro de alumínio"
+ },
+ "Folhas": {
+  "en_US": "Leaves",
+  "pt_BR": "Folhas"
+ },
+ "Forno": {
+  "en_US": "Oven",
+  "pt_BR": "Forno"
+ },
+ "Forno de referência (fora do corte)": {
+  "en_US": "Reference oven (not in the cut list)",
+  "pt_BR": "Forno de referência (fora do corte)"
+ },
+ "Frente Reta": {
+  "en_US": "Straight front",
+  "pt_BR": "Frente Reta"
+ },
  "Frentes, puxadores e materiais": {
   "en_US": "Fronts, pulls and materials",
   "pt_BR": "Frentes, puxadores e materiais"
+ },
+ "Fresada": {
+  "en_US": "Routed",
+  "pt_BR": "Fresada"
+ },
+ "Frontal": {
+  "en_US": "Front",
+  "pt_BR": "Frontal"
+ },
+ "Frontal Embutido": {
+  "en_US": "Front (built-in)",
+  "pt_BR": "Frontal Embutido"
+ },
+ "Frontal Externo": {
+  "en_US": "Front (external)",
+  "pt_BR": "Frontal Externo"
+ },
+ "Fundo Inteiro": {
+  "en_US": "Full back",
+  "pt_BR": "Fundo Inteiro"
+ },
+ "Fundo Inteiro Recuado": {
+  "en_US": "Full recessed back",
+  "pt_BR": "Fundo Inteiro Recuado"
+ },
+ "Fundo Inteiro {}": {
+  "en_US": "Full back {}",
+  "pt_BR": "Fundo Inteiro {}"
+ },
+ "Fundo de chapa inteira": {
+  "en_US": "Full panel back",
+  "pt_BR": "Fundo de chapa inteira"
+ },
+ "Fundo inteiro ou recuado": {
+  "en_US": "Full or recessed back",
+  "pt_BR": "Fundo inteiro ou recuado"
+ },
+ "Fundo recuado para dentro": {
+  "en_US": "Back set inward",
+  "pt_BR": "Fundo recuado para dentro"
  },
  "Fundo: ao remover": {
   "en_US": "Back: when removing",
@@ -167,9 +471,149 @@
   "en_US": "Back: thickness",
   "pt_BR": "Fundo: espessura"
  },
+ "Fundos": {
+  "en_US": "Backs",
+  "pt_BR": "Fundos"
+ },
+ "Gaveta Blum": {
+  "en_US": "Blum drawer",
+  "pt_BR": "Gaveta Blum"
+ },
+ "Gaveta atrás da porta": {
+  "en_US": "Drawer behind the door",
+  "pt_BR": "Gaveta atrás da porta"
+ },
+ "Gaveta atrás da porta, sem puxador": {
+  "en_US": "Drawer behind the door, no pull",
+  "pt_BR": "Gaveta atrás da porta, sem puxador"
+ },
+ "Gaveta c/ CF": {
+  "en_US": "Drawer with inner front",
+  "pt_BR": "Gaveta c/ CF"
+ },
+ "Gaveta com corrediça Blum": {
+  "en_US": "Drawer with Blum slide",
+  "pt_BR": "Gaveta com corrediça Blum"
+ },
+ "Gaveta de frente alta (2 a 4 por vão)": {
+  "en_US": "Tall-front drawer (2 to 4 per opening)",
+  "pt_BR": "Gaveta de frente alta (2 a 4 por vão)"
+ },
+ "Gaveta interna": {
+  "en_US": "Internal drawer",
+  "pt_BR": "Gaveta interna"
+ },
+ "Gaveta interna só existe no frameless": {
+  "en_US": "Internal drawers exist only in the frameless library",
+  "pt_BR": "Gaveta interna só existe no frameless"
+ },
+ "Gavetas de frente alta": {
+  "en_US": "Drawers with tall fronts",
+  "pt_BR": "Gavetas de frente alta"
+ },
+ "Gavetas, gavetões, internas e Blum": {
+  "en_US": "Drawers, tall drawers, internal and Blum",
+  "pt_BR": "Gavetas, gavetões, internas e Blum"
+ },
+ "Gavetão": {
+  "en_US": "Tall drawer",
+  "pt_BR": "Gavetão"
+ },
+ "Gavetões": {
+  "en_US": "Tall drawers",
+  "pt_BR": "Gavetões"
+ },
+ "Gavetões: de 2 a 4 por vão": {
+  "en_US": "Tall drawers: 2 to 4 per opening",
+  "pt_BR": "Gavetões: de 2 a 4 por vão"
+ },
+ "Gola Vertical": {
+  "en_US": "Vertical J-pull",
+  "pt_BR": "Gola Vertical"
+ },
+ "Gola Vertical 2L": {
+  "en_US": "Vertical J-pull 2S",
+  "pt_BR": "Gola Vertical 2L"
+ },
+ "Grava as alterações no armário sem fechar o editor (um passo de desfazer)": {
+  "en_US": "Writes the changes to the cabinet without closing the editor (one undo step)",
+  "pt_BR": "Grava as alterações no armário sem fechar o editor (um passo de desfazer)"
+ },
  "Indisponível": {
   "en_US": "Unavailable",
   "pt_BR": "Indisponível"
+ },
+ "Insere no vão escolhido o item da aba": {
+  "en_US": "Inserts the tab item in the chosen opening",
+  "pt_BR": "Insere no vão escolhido o item da aba"
+ },
+ "Insere no vão escolhido o item da aba, com as opções marcadas": {
+  "en_US": "Inserts the tab item in the chosen opening, with the checked options",
+  "pt_BR": "Insere no vão escolhido o item da aba, com as opções marcadas"
+ },
+ "Inseridos": {
+  "en_US": "Inserted",
+  "pt_BR": "Inseridos"
+ },
+ "Inserir automaticamente": {
+  "en_US": "Insert automatically",
+  "pt_BR": "Inserir automaticamente"
+ },
+ "Inserir divisão": {
+  "en_US": "Insert divider",
+  "pt_BR": "Inserir divisão"
+ },
+ "Inserir em {}": {
+  "en_US": "Insert in {}",
+  "pt_BR": "Inserir em {}"
+ },
+ "Inserir invertido": {
+  "en_US": "Insert inverted",
+  "pt_BR": "Inserir invertido"
+ },
+ "Inserção múltipla": {
+  "en_US": "Multiple insertion",
+  "pt_BR": "Inserção múltipla"
+ },
+ "Inteira": {
+  "en_US": "Single",
+  "pt_BR": "Inteira"
+ },
+ "Inteiro": {
+  "en_US": "Full",
+  "pt_BR": "Inteiro"
+ },
+ "Inteiro Recuado": {
+  "en_US": "Full recessed",
+  "pt_BR": "Inteiro Recuado"
+ },
+ "Interior da biblioteca": {
+  "en_US": "Library interior",
+  "pt_BR": "Interior da biblioteca"
+ },
+ "Interior da biblioteca…": {
+  "en_US": "Library interior…",
+  "pt_BR": "Interior da biblioteca…"
+ },
+ "Interna c/ Recuo — Tras 15mm": {
+  "en_US": "Internal, with setback — Back 15mm",
+  "pt_BR": "Interna c/ Recuo — Tras 15mm"
+ },
+ "Interna s/ Recuo — Tras 15mm": {
+  "en_US": "Internal, no setback — Back 15mm",
+  "pt_BR": "Interna s/ Recuo — Tras 15mm"
+ },
+ "Internas": {
+  "en_US": "Internal",
+  "pt_BR": "Internas"
+ },
+ "Interno": {
+  "en_US": "Internal",
+  "pt_BR": "Interno"
+ },
+ "Internos": {
+  "en_US": "Interior",
+  "pt_BR": "Internos"
  },
  "Lateral direita": {
   "en_US": "Right side",
@@ -195,6 +639,18 @@
   "en_US": "Left side: thickness",
   "pt_BR": "Lateral esquerda: espessura"
  },
+ "Lisa": {
+  "en_US": "Plain",
+  "pt_BR": "Lisa"
+ },
+ "Livre": {
+  "en_US": "Free",
+  "pt_BR": "Livre"
+ },
+ "Madeira": {
+  "en_US": "Wood",
+  "pt_BR": "Madeira"
+ },
  "Manter tudo": {
   "en_US": "Keep everything",
   "pt_BR": "Manter tudo"
@@ -211,9 +667,37 @@
   "en_US": "Outer sizes and external parts",
   "pt_BR": "Medidas externas e componentes externos"
  },
+ "Medidas: {:.0f} × {:.0f} mm": {
+  "en_US": "Size: {:.0f} × {:.0f} mm",
+  "pt_BR": "Medidas: {:.0f} × {:.0f} mm"
+ },
+ "Microondas": {
+  "en_US": "Microwave",
+  "pt_BR": "Microondas"
+ },
+ "Microondas de referência (fora do corte)": {
+  "en_US": "Reference microwave (not in the cut list)",
+  "pt_BR": "Microondas de referência (fora do corte)"
+ },
+ "Modo": {
+  "en_US": "Mode",
+  "pt_BR": "Modo"
+ },
  "Modo desconhecido": {
   "en_US": "Unknown mode",
   "pt_BR": "Modo desconhecido"
+ },
+ "Móvel": {
+  "en_US": "Adjustable",
+  "pt_BR": "Móvel"
+ },
+ "Nada para aplicar": {
+  "en_US": "Nothing to apply",
+  "pt_BR": "Nada para aplicar"
+ },
+ "Nenhum item nesta categoria": {
+  "en_US": "No items in this category",
+  "pt_BR": "Nenhum item nesta categoria"
  },
  "Nenhuma divisão. Escolha um vão e clique em Adicionar.": {
   "en_US": "No divisions. Choose a space and click Add.",
@@ -222,6 +706,170 @@
  "Nova divisão": {
   "en_US": "New division",
   "pt_BR": "Nova divisão"
+ },
+ "Não há propriedades disponíveis": {
+  "en_US": "No properties available",
+  "pt_BR": "Não há propriedades disponíveis"
+ },
+ "Número de gavetas": {
+  "en_US": "Number of drawers",
+  "pt_BR": "Número de gavetas"
+ },
+ "Número de vãos": {
+  "en_US": "Number of bays",
+  "pt_BR": "Número de vãos"
+ },
+ "Obispa — Pux Integrados": {
+  "en_US": "Obispa — Integrated pulls",
+  "pt_BR": "Obispa — Pux Integrados"
+ },
+ "Ocupa a faixa sem dividir o vão": {
+  "en_US": "Fills the strip without splitting the opening",
+  "pt_BR": "Ocupa a faixa sem dividir o vão"
+ },
+ "Opções de frentes": {
+  "en_US": "Front options",
+  "pt_BR": "Opções de frentes"
+ },
+ "Opções de gavetas": {
+  "en_US": "Drawer options",
+  "pt_BR": "Opções de gavetas"
+ },
+ "Opções de inserção": {
+  "en_US": "Insertion options",
+  "pt_BR": "Opções de inserção"
+ },
+ "Os módulos salvos ficam em Inserir › Meus módulos": {
+  "en_US": "Saved modules are in Insert › My modules",
+  "pt_BR": "Os módulos salvos ficam em Inserir › Meus módulos"
+ },
+ "Os trilhos precisam de mais profundidade ({})": {
+  "en_US": "The tracks need more depth ({})",
+  "pt_BR": "Os trilhos precisam de mais profundidade ({})"
+ },
+ "Os trilhos precisam de {:.0f} mm de profundidade": {
+  "en_US": "The tracks need {:.0f} mm of depth",
+  "pt_BR": "Os trilhos precisam de {:.0f} mm de profundidade"
+ },
+ "Painel Cafeteira Embutido": {
+  "en_US": "Coffee machine panel (built-in)",
+  "pt_BR": "Painel Cafeteira Embutido"
+ },
+ "Painel Cafeteira Externo": {
+  "en_US": "Coffee machine panel (external)",
+  "pt_BR": "Painel Cafeteira Externo"
+ },
+ "Painel Forno Embutido": {
+  "en_US": "Oven panel (built-in)",
+  "pt_BR": "Painel Forno Embutido"
+ },
+ "Painel Forno Externo": {
+  "en_US": "Oven panel (external)",
+  "pt_BR": "Painel Forno Externo"
+ },
+ "Painel Forno/Micro Embutido": {
+  "en_US": "Oven/Microwave panel (built-in)",
+  "pt_BR": "Painel Forno/Micro Embutido"
+ },
+ "Painel Forno/Micro Externo": {
+  "en_US": "Oven/Microwave panel (external)",
+  "pt_BR": "Painel Forno/Micro Externo"
+ },
+ "Painel Micro Embutido": {
+  "en_US": "Microwave panel (built-in)",
+  "pt_BR": "Painel Micro Embutido"
+ },
+ "Painel Micro Externo": {
+  "en_US": "Microwave panel (external)",
+  "pt_BR": "Painel Micro Externo"
+ },
+ "Painel com rasgo de ventilação": {
+  "en_US": "Panel with a ventilation slot",
+  "pt_BR": "Painel com rasgo de ventilação"
+ },
+ "Painel com recorte para eletro": {
+  "en_US": "Panel with an appliance cutout",
+  "pt_BR": "Painel com recorte para eletro"
+ },
+ "Painel p/ Eletros": {
+  "en_US": "Appliance panel",
+  "pt_BR": "Painel p/ Eletros"
+ },
+ "Painéis para eletros, apoios e pistões": {
+  "en_US": "Appliance panels, supports and pistons",
+  "pt_BR": "Painéis para eletros, apoios e pistões"
+ },
+ "Passo inicial": {
+  "en_US": "Initial step",
+  "pt_BR": "Passo inicial"
+ },
+ "Perfil Y Vertical": {
+  "en_US": "Vertical Y profile",
+  "pt_BR": "Perfil Y Vertical"
+ },
+ "Perfil Y Vertical 2L": {
+  "en_US": "Vertical Y profile 2S",
+  "pt_BR": "Perfil Y Vertical 2L"
+ },
+ "Pistão para porta basculante (ferragem)": {
+  "en_US": "Piston for a flip-up door (hardware)",
+  "pt_BR": "Pistão para porta basculante (ferragem)"
+ },
+ "Pistões": {
+  "en_US": "Pistons",
+  "pt_BR": "Pistões"
+ },
+ "Porta de correr em madeira": {
+  "en_US": "Wooden sliding door",
+  "pt_BR": "Porta de correr em madeira"
+ },
+ "Portas de correr": {
+  "en_US": "Sliding doors",
+  "pt_BR": "Portas de correr"
+ },
+ "Portas deslizantes": {
+  "en_US": "Sliding doors",
+  "pt_BR": "Portas deslizantes"
+ },
+ "Portas e puxadores": {
+  "en_US": "Doors and pulls",
+  "pt_BR": "Portas e puxadores"
+ },
+ "Posição 01": {
+  "en_US": "Position 01",
+  "pt_BR": "Posição 01"
+ },
+ "Posição 02": {
+  "en_US": "Position 02",
+  "pt_BR": "Posição 02"
+ },
+ "Posição 03": {
+  "en_US": "Position 03",
+  "pt_BR": "Posição 03"
+ },
+ "Posição 04": {
+  "en_US": "Position 04",
+  "pt_BR": "Posição 04"
+ },
+ "Prateleira de apoio": {
+  "en_US": "Support shelf",
+  "pt_BR": "Prateleira de apoio"
+ },
+ "Puxador integrado à folha": {
+  "en_US": "Pull integrated into the leaf",
+  "pt_BR": "Puxador integrado à folha"
+ },
+ "Pés Plásticos": {
+  "en_US": "Plastic feet",
+  "pt_BR": "Pés Plásticos"
+ },
+ "Quadro Alumínio": {
+  "en_US": "Aluminium frame",
+  "pt_BR": "Quadro Alumínio"
+ },
+ "Quantidade": {
+  "en_US": "Quantity",
+  "pt_BR": "Quantidade"
  },
  "Recuo atrás": {
   "en_US": "Back setback",
@@ -235,6 +883,10 @@
   "en_US": "Back setback size",
   "pt_BR": "Recuo de trás"
  },
+ "Recuo do fundo": {
+  "en_US": "Back setback",
+  "pt_BR": "Recuo do fundo"
+ },
  "Recuo na frente": {
   "en_US": "Front setback",
   "pt_BR": "Recuo na frente"
@@ -242,6 +894,18 @@
  "Reduzir o armário": {
   "en_US": "Shrink the cabinet",
   "pt_BR": "Reduzir o armário"
+ },
+ "Região": {
+  "en_US": "Region",
+  "pt_BR": "Região"
+ },
+ "Reguláveis, com furação nas peças vizinhas": {
+  "en_US": "Adjustable, with holes drilled in the neighboring parts",
+  "pt_BR": "Reguláveis, com furação nas peças vizinhas"
+ },
+ "Regulável, com furação nas peças vizinhas": {
+  "en_US": "Adjustable, with holes drilled in the neighboring parts",
+  "pt_BR": "Regulável, com furação nas peças vizinhas"
  },
  "Remova a divisão ou escolha outro vão": {
   "en_US": "Remove the division or choose another space",
@@ -251,13 +915,29 @@
   "en_US": "Removes the division (and the ones inside its spaces)",
   "pt_BR": "Remove a divisão (e as que estão dentro dos vãos dela)"
  },
+ "Remove a divisória do vão": {
+  "en_US": "Removes the opening's divider",
+  "pt_BR": "Remove a divisória do vão"
+ },
+ "Remove a divisória do vão escolhido e junta os vãos": {
+  "en_US": "Removes the chosen opening's divider and merges the openings",
+  "pt_BR": "Remove a divisória do vão escolhido e junta os vãos"
+ },
  "Remove o componente externo do armário": {
   "en_US": "Removes the external part from the cabinet",
   "pt_BR": "Remove o componente externo do armário"
  },
+ "Remove o interno ou as portas deslizantes": {
+  "en_US": "Removes the interior item or the sliding doors",
+  "pt_BR": "Remove o interno ou as portas deslizantes"
+ },
  "Remover componente": {
   "en_US": "Remove part",
   "pt_BR": "Remover componente"
+ },
+ "Remover deslizantes": {
+  "en_US": "Remove sliding doors",
+  "pt_BR": "Remover deslizantes"
  },
  "Remover divisão": {
   "en_US": "Remove division",
@@ -271,6 +951,10 @@
   "en_US": "Removed",
   "pt_BR": "Removido"
  },
+ "Respiro": {
+  "en_US": "Vent",
+  "pt_BR": "Respiro"
+ },
  "Restaurar": {
   "en_US": "Restore",
   "pt_BR": "Restaurar"
@@ -279,13 +963,57 @@
   "en_US": "Restore part",
   "pt_BR": "Restaurar componente"
  },
+ "Reta": {
+  "en_US": "Straight",
+  "pt_BR": "Reta"
+ },
+ "Rodapés": {
+  "en_US": "Plinths",
+  "pt_BR": "Rodapés"
+ },
+ "Rodapés Granito": {
+  "en_US": "Granite plinths",
+  "pt_BR": "Rodapés Granito"
+ },
  "Segue o Configurador de Dimensões": {
   "en_US": "Follows the Dimension Configurator",
   "pt_BR": "Segue o Configurador de Dimensões"
  },
+ "Selecionado: (nenhum)": {
+  "en_US": "Selected: (none)",
+  "pt_BR": "Selecionado: (nenhum)"
+ },
+ "Selecionado: {}": {
+  "en_US": "Selected: {}",
+  "pt_BR": "Selecionado: {}"
+ },
+ "Selecione um vão na vista": {
+  "en_US": "Select an opening in the view",
+  "pt_BR": "Selecione um vão na vista"
+ },
+ "Selecione uma divisória na vista": {
+  "en_US": "Select a divider in the view",
+  "pt_BR": "Selecione uma divisória na vista"
+ },
+ "Selecione uma divisória na vista para mover com as setas": {
+  "en_US": "Select a divider in the view to move it with the arrows",
+  "pt_BR": "Selecione uma divisória na vista para mover com as setas"
+ },
+ "Sem Divisória": {
+  "en_US": "No divider",
+  "pt_BR": "Sem Divisória"
+ },
+ "Sem biblioteca": {
+  "en_US": "No library",
+  "pt_BR": "Sem biblioteca"
+ },
  "Sem vão interno": {
   "en_US": "No inner space",
   "pt_BR": "Sem vão interno"
+ },
+ "Setas movem a divisória selecionada": {
+  "en_US": "Arrows move the selected divider",
+  "pt_BR": "Setas movem a divisória selecionada"
  },
  "Subvão": {
   "en_US": "Sub-space",
@@ -303,6 +1031,22 @@
   "en_US": "Top: thickness",
   "pt_BR": "Tampo: espessura"
  },
+ "Tipo, medidas e componentes do armário": {
+  "en_US": "Cabinet type, size and components",
+  "pt_BR": "Tipo, medidas e componentes do armário"
+ },
+ "Tipo: {}": {
+  "en_US": "Type: {}",
+  "pt_BR": "Tipo: {}"
+ },
+ "Torralba — Pux Integrados": {
+  "en_US": "Torralba — Integrated pulls",
+  "pt_BR": "Torralba — Pux Integrados"
+ },
+ "Uma porta no vão": {
+  "en_US": "One door in the opening",
+  "pt_BR": "Uma porta no vão"
+ },
  "Use uma espessura dentro da faixa": {
   "en_US": "Use a thickness within the range",
   "pt_BR": "Use uma espessura dentro da faixa"
@@ -311,9 +1055,25 @@
   "en_US": "Empty = follows the Configurator",
   "pt_BR": "Vazio = segue o Configurador"
  },
+ "Vistas": {
+  "en_US": "End panels",
+  "pt_BR": "Vistas"
+ },
+ "Vistas (alto)": {
+  "en_US": "End panels (tall)",
+  "pt_BR": "Vistas (alto)"
+ },
+ "Várias chapas iguais de uma vez": {
+  "en_US": "Several equal panels at once",
+  "pt_BR": "Várias chapas iguais de uma vez"
+ },
  "Vão": {
   "en_US": "Space",
   "pt_BR": "Vão"
+ },
+ "Vão da biblioteca: {}": {
+  "en_US": "Library opening: {}",
+  "pt_BR": "Vão da biblioteca: {}"
  },
  "Vão {}": {
   "en_US": "Space {}",
@@ -378,5 +1138,17 @@
  "vão mal formado: {!r}": {
   "en_US": "malformed space: {!r}",
   "pt_BR": "vão mal formado: {!r}"
+ },
+ "{} divisória(s) de vão removida(s)": {
+  "en_US": "{} bay divider(s) removed",
+  "pt_BR": "{} divisória(s) de vão removida(s)"
+ },
+ "{} não corre: esbarra em {}": {
+  "en_US": "{} does not slide: it hits {}",
+  "pt_BR": "{} não corre: esbarra em {}"
+ },
+ "{} precisa de um vão de {:.0f} × {:.0f} mm": {
+  "en_US": "{} needs an opening of {:.0f} × {:.0f} mm",
+  "pt_BR": "{} precisa de um vão de {:.0f} × {:.0f} mm"
  }
 }

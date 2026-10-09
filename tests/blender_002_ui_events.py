@@ -197,10 +197,16 @@ def script():
 
     yield from tap(ewin, *scr((0.0, 0.0)))
     yield 0.2
-    for target, length in (((1.0, 0.0), "3000"), ((3.0, 1.0), "2000"), ((2.0, 2.0), "3000")):
+    # Feature 009 (RN-06): mover o mouse não muda a direção travada; a primeira vem do mouse, as outras das setas.
+    for target, arrow, length in (((1.0, 0.0), None, "3000"), ((3.0, 1.0), 'UP_ARROW', "2000"),
+                                  ((2.0, 2.0), 'LEFT_ARROW', "3000")):
         tx, ty = scr(target)
         ev(ewin, 'MOUSEMOVE', 'NOTHING', tx, ty)
         yield 0.1
+        if arrow:
+            ev(ewin, arrow, 'PRESS', tx, ty)
+            ev(ewin, arrow, 'RELEASE', tx, ty)
+            yield 0.1
         type_number(ewin, length, tx, ty)
         yield 0.2
     yield from tap(ewin, *scr(s.drawing.nodes[0]))

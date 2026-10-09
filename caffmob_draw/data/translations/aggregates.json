@@ -470,5 +470,41 @@
  "{}: esquadria com {} peça(s) e {} folha(s)": {
   "pt_BR": "{}: esquadria com {} peça(s) e {} folha(s)",
   "en_US": "{}: frame with {} part(s) and {} sash(es)"
+ },
+ "Importa um modelo 3D (OBJ, FBX, glTF/GLB ou SketchUp) para converter em agregado ou folha de porta": {
+  "pt_BR": "Importa um modelo 3D (OBJ, FBX, glTF/GLB ou SketchUp) para converter em agregado ou folha de porta",
+  "en_US": "Imports a 3D model (OBJ, FBX, glTF/GLB or SketchUp) to turn into an add-on part or a door leaf"
+ },
+ "SketchUp importado: {} grupo(s) de peças de {}": {
+  "pt_BR": "SketchUp importado: {} grupo(s) de peças de {}",
+  "en_US": "SketchUp imported: {} part group(s) from {}"
+ },
+ "Formato não suportado: {} (use OBJ, FBX, glTF, GLB ou SKP)": {
+  "pt_BR": "Formato não suportado: {} (use OBJ, FBX, glTF, GLB ou SKP)",
+  "en_US": "Unsupported format: {} (use OBJ, FBX, glTF, GLB or SKP)"
+ },
+ "Não foi possível ler o SketchUp: {}. Salve numa versão recente do SketchUp ou exporte em glTF, OBJ ou FBX.": {
+  "pt_BR": "Não foi possível ler o SketchUp: {}. Salve numa versão recente do SketchUp ou exporte em glTF, OBJ ou FBX.",
+  "en_US": "Could not read the SketchUp file: {}. Save it in a recent SketchUp version or export it as glTF, OBJ or FBX."
+ },
+ "SketchUp padrão": {
+  "pt_BR": "SketchUp padrão",
+  "en_US": "SketchUp default"
+ },
+ "leitor de SketchUp indisponível nesta instalação ({})": {
+  "pt_BR": "leitor de SketchUp indisponível nesta instalação ({})",
+  "en_US": "SketchUp reader unavailable in this installation ({})"
+ },
+ "arquivo não encontrado": {
+  "pt_BR": "arquivo não encontrado",
+  "en_US": "file not found"
+ },
+ "o arquivo não tem geometria": {
+  "pt_BR": "o arquivo não tem geometria",
+  "en_US": "the file has no geometry"
+ },
+ "; {} figura(s) de escala ignorada(s)": {
+  "pt_BR": "; {} figura(s) de escala ignorada(s)",
+  "en_US": "; {} scale figure(s) skipped"
  }
 }

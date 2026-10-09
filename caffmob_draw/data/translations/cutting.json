@@ -3,6 +3,14 @@
   "pt_BR": "$: o documento deve ser um objeto JSON",
   "en_US": "$: the document must be a JSON object"
  },
+ "Corrediça (par)": {
+  "pt_BR": "Corrediça (par)",
+  "en_US": "Drawer slide (pair)"
+ },
+ "Corrediça Blum (par)": {
+  "pt_BR": "Corrediça Blum (par)",
+  "en_US": "Blum drawer slide (pair)"
+ },
  "Dimensões ({}x{}mm) excedem a área útil ({}x{}mm)": {
   "pt_BR": "Dimensões ({}x{}mm) excedem a área útil ({}x{}mm)",
   "en_US": "Dimensions ({}x{}mm) exceed the usable area ({}x{}mm)"
@@ -11,17 +19,45 @@
   "pt_BR": "Espaço insuficiente para inicializar chapa",
   "en_US": "Not enough space to start a sheet"
  },
+ "Ferragens": {
+  "pt_BR": "Ferragens",
+  "en_US": "Hardware"
+ },
  "JSON global inválido.": {
   "pt_BR": "JSON global inválido.",
   "en_US": "Invalid global JSON."
+ },
+ "Nenhuma ferragem no projeto": {
+  "pt_BR": "Nenhuma ferragem no projeto",
+  "en_US": "No hardware in the project"
  },
  "O arquivo não é um JSON global válido do CAFFMob Draw.": {
   "pt_BR": "O arquivo não é um JSON global válido do CAFFMob Draw.",
   "en_US": "The file is not a valid CAFFMob Draw global JSON."
  },
+ "Pistão": {
+  "pt_BR": "Pistão",
+  "en_US": "Gas piston"
+ },
  "Plano de corte do arquivo v1 não convertido: gere o plano novamente.": {
   "pt_BR": "Plano de corte do arquivo v1 não convertido: gere o plano novamente.",
   "en_US": "Cut plan from the v1 file not converted: generate the plan again."
+ },
+ "Pé plástico": {
+  "pt_BR": "Pé plástico",
+  "en_US": "Plastic foot"
+ },
+ "Sem módulo": {
+  "pt_BR": "Sem módulo",
+  "en_US": "No module"
+ },
+ "Trilho inferior deslizante": {
+  "pt_BR": "Trilho inferior deslizante",
+  "en_US": "Sliding door bottom track"
+ },
+ "Trilho superior deslizante": {
+  "pt_BR": "Trilho superior deslizante",
+  "en_US": "Sliding door top track"
  },
  "cut_plan: tipo inválido": {
   "pt_BR": "cut_plan: tipo inválido",
@@ -46,6 +82,10 @@
  "{}: peça sem componente do padrão de dimensões.": {
   "pt_BR": "{}: peça sem componente do padrão de dimensões.",
   "en_US": "{}: part without a dimension standard component."
+ },
+ "{}module_uid: tipo inválido": {
+  "pt_BR": "{}module_uid: tipo inválido",
+  "en_US": "{}module_uid: invalid type"
  },
  "{}uid: duplicado ({})": {
   "pt_BR": "{}uid: duplicado ({})",

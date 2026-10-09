@@ -10,6 +10,14 @@ RN-04, D-21, D-22, D-26).
 
 Feature 006 (T023): o `refresh` calcula os subvãos (vista e lista), valida divisões (`DIV-*`) e espessuras (`STR-*`) e
 espelha as listas de componentes externos e de divisões; na aba Divisão, o clique na vista escolhe o subvão (D-13).
+
+Feature 008 (T030, T031; D-04 a D-06, D-16):
+- **Aplicar** (`apply`): `ed.undo_push` + `Draft.apply_point`; o Cancelar passa a voltar ao estado aplicado; **OK** é o
+  Confirmar (aplica e fecha);
+- o clique escolhe a **peça** quando cai numa chapa e o **vão** quando cai em área livre ou numa frente (frentes cobrem
+  o vão, como no Construtor); vale em qualquer aba;
+- o vão da biblioteca que contém o vão alvo (`library_path`, `library_box`) alimenta Gavetas e Portas;
+- setas movem a divisória selecionada pelo Passo (o primeiro toque usa o Passo inicial).
 """
 
 import bpy  # type: ignore
@@ -121,7 +129,24 @@ def _divisions_refresh(context, s, root):
             removed.update(o.name for o in parts.get(role, ()))
             removed.add(tr(st.ROLE_LABELS[role]))
     s.removed_parts = [p for p in s.initial_parts if p.name in removed]
+    _library_refresh(context, s, root, shift)
     return messages
+
+
+def _library_refresh(context, s, root, shift):
+    """Vão da biblioteca que contém o vão alvo, no referencial da vista (D-05)."""
+    s.library_path, s.library_box = None, None
+    if not s.space:
+        return
+    path = bridge.library_opening(context, root, s.space)
+    if path is None:
+        return
+    adapter = bridge.adapter_of(root)
+    from ..customize.adapters import common
+    box = common.call(adapter, 'opening_boxes', context, root).get(path)
+    s.library_path = path
+    if box is not None:
+        s.library_box = dv.Box(tuple(box.lo[i] - shift[i] for i in range(3)), tuple(box.hi[i] - shift[i] for i in range(3)))
 
 
 def refresh(context, s, library_messages=(), checkpoint=True):
@@ -174,6 +199,10 @@ def process(context, s):
                 action, payload = data
                 s.edited.update(n for n in payload.get('targets', ()) if n)
                 refresh(context, s, bridge.edit(context, root, action, payload))
+            elif kind == 'apply':
+                _apply_now(context, s)
+            elif kind == 'arrow':
+                _arrow(context, s, root, *data)
             elif kind in ('undo', 'redo'):
                 target = s.draft.undo() if kind == 'undo' else s.draft.redo()
                 if target is None:
@@ -187,6 +216,60 @@ def process(context, s):
             s.error = str(exc)
         changed = True
     return changed
+
+
+def _apply_now(context, s):
+    """Aplicar (D-04): grava um passo de desfazer na cena e o estado vira a referência do Cancelar."""
+    if s.blocking() or not s.draft.dirty():
+        return
+    bpy.ops.ed.undo_push(message=tr("Editor de armário: Aplicar"))
+    s.draft.apply_point()
+    s.initial_parts = list(s.parts)
+    s.edited.clear()
+    s.applied = True
+    refresh(context, s, checkpoint=False)
+
+
+def _selected_division(s, root):
+    obj = bpy.data.objects.get(s.selected) if s.selected else None
+    if obj is None or obj.parent != root or not obj.btm_division.is_division:
+        return None
+    return obj
+
+
+def _arrow(context, s, root, axis, direction):
+    """Seta: move a divisória selecionada pelo Passo, se a orientação dela andar nesse eixo (D-16)."""
+    from . import position, scene_divisions
+    obj = _selected_division(s, root)
+    if obj is None:
+        s.error = N_("Selecione uma divisória na vista para mover com as setas")
+        return
+    data = obj.btm_division
+    if (axis == 'X') != (data.orientation == dv.VERTICAL):
+        return
+    roots, core, _raw, _names = bridge.division_context(context, root)
+    _leaves, cuts, _orphans = dv.resolve(roots, core)
+    division = next((d for d in core if d.uid == data.uid), None)
+    if division is None or division.uid not in cuts:
+        return
+    ui = context.window_manager.btm_cabinet_editor
+    first = s.last_moved != data.uid
+    offset = position.step_move(cuts[division.uid][0], division, direction, ui.step, ui.step_initial, first=first)
+    s.last_moved = data.uid
+    refresh(context, s, bridge.edit(context, root, 'EDIT_DIVISION', {'uid': data.uid, 'offset': offset}))
+    scene_divisions.reflow(context, root, force=True)
+
+
+def _boards(s, x, z):
+    """Chapas que o clique pode escolher: não frentes nem vãos, nem as que cobrem o vão inteiro sob o clique (o fundo,
+    na vista frontal, fica atrás de tudo e não pode roubar a escolha do vão)."""
+    space = s.spaces.get(dv.space_at(s.spaces, x, z) or "")
+
+    def covers(part):
+        x0, z0, x1, z1 = part.rect
+        return (space is not None and x0 <= space.lo[0] + 1e-6 and x1 >= space.hi[0] - 1e-6
+                and z0 <= space.lo[2] + 1e-6 and z1 >= space.hi[2] - 1e-6)
+    return [p for p in s.parts if p.kind not in (elevation.FRONT, elevation.OPENING) and not covers(p)]
 
 
 def rollback(context, s):
@@ -207,6 +290,7 @@ def start_session(context, root):
     s.parts = bridge.parts(context, root)
     s.initial_parts = list(s.parts)
     s.space, s.spaces, s.space_labels, s.removed_parts = "", {}, {}, []
+    s.library_path, s.library_box, s.last_moved, s.applied = None, None, None, False
     context.window_manager.btm_cabinet_editor.tab = 'STRUCTURE'       # abre sempre na Estrutura (RF-01)
     _divisions_refresh(context, s, root)
     _sync_ui(context, s)
@@ -319,7 +403,20 @@ class BTM_OT_CabinetEditorModal(bpy.types.Operator):
             return {'PASS_THROUGH'}
         if self._handle_undo(event, s):
             return {'RUNNING_MODAL'}
+        if self._handle_arrows(context, event, s):
+            return {'RUNNING_MODAL'}
         return self._handle_click(context, event, s)
+
+    _ARROWS = {'LEFT_ARROW': ('X', -1), 'RIGHT_ARROW': ('X', +1), 'DOWN_ARROW': ('Z', -1), 'UP_ARROW': ('Z', +1)}
+
+    def _handle_arrows(self, context, event, s):
+        if event.value != 'PRESS' or event.type not in self._ARROWS:
+            return False
+        _win, area, region = window.editor_area(context)
+        if region is None or window.over_side_panel(area, event.mouse_x, event.mouse_y):
+            return False
+        s.push('arrow', self._ARROWS[event.type])
+        return True
 
     def _handle_undo(self, event, s):
         if event.value != 'PRESS' or event.type not in {'Z', 'Y'} or not (event.ctrl or event.oskey):
@@ -341,10 +438,15 @@ class BTM_OT_CabinetEditorModal(bpy.types.Operator):
             view.zoom(1 / 1.15, pixel)
         elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
             x, z = view.to_world(pixel)
-            if context.window_manager.btm_cabinet_editor.tab == 'DIVISIONS':
-                s.space = dv.space_at(s.spaces, x, z) or s.space          # escolhe o subvão (D-13)
+            board = elevation.hit(_boards(s, x, z), x, z)
+            if board is not None:
+                s.selected = board                                         # peça: chapa sob o clique (D-06)
             else:
-                s.selected = elevation.hit(s.parts, x, z)
+                s.selected = None
+                s.space = dv.space_at(s.spaces, x, z) or s.space          # vão: área livre ou frente
+                root = s.root()
+                if root is not None:
+                    _library_refresh(context, s, root, bridge.view_shift(context, root))
             _sync_ui(context, s)
         elif event.type == 'ESC' and event.value == 'PRESS':
             bpy.ops.caffmob.cabinet_editor_close('INVOKE_DEFAULT')

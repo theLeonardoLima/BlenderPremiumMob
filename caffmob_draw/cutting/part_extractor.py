@@ -67,7 +67,7 @@ def record_to_part(record, values):
         thickness=record.thickness, quantity=record.quantity, material=material,
         grain_direction=record.grain, module_ref=record.module_name, module_uid=record.module_uid,
         component=component, edges=edges, finish=record.finish, source=record.source, limit_status=status,
-        machining=record.machining, machining_clipped=record.machining_clipped)
+        machining=record.machining, machining_clipped=record.machining_clipped, drilling=record.drilling)
 
 
 def _active_values(scene):
@@ -81,6 +81,16 @@ def _active_values(scene):
     return _schema_values('BR')
 
 
+def _attach_drilling(context, module, records):
+    """Furação das divisórias móveis nas peças vizinhas (feature 008, D-22)."""
+    from . import drilling
+    found = drilling.scene_drilling(context, module)
+    for record in records:
+        entries, clipped = found.get(record.key, ([], False))
+        record.drilling = entries
+        record.machining_clipped = record.machining_clipped or clipped
+
+
 def extract_production_parts(context, scene=None):
     """Peças de produção da cena e a lista das incompatíveis com o limite de chapa (`limit_status` ≠ OK)."""
     scene = scene or context.scene
@@ -91,6 +101,7 @@ def extract_production_parts(context, scene=None):
             records = part_sources.synthetic_records(module, thickness_lookup(values, module.line))
         else:
             records = part_sources.cutpart_records(module)
+        _attach_drilling(context, module, records)
         parts.extend(record_to_part(r, values) for r in records)
     parts.extend(record_to_part(r, values) for r in part_sources.geometry_records(scene))
     parts.sort(key=lambda p: (p.module_uid or "", p.uid))

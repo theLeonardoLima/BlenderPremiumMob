@@ -43,9 +43,13 @@ class ParseLengthTest(unittest.TestCase):
             units.parse_length("0", allow_zero=False)
 
     def test_fracoes_e_imperial_rejeitados(self):
-        for text in ("1 1/2", "2'6\"", "3/4", "12 in", "abc", "", "1,2,3"):
+        for text in ("1 1/2", "2'6\"", "12 in", "abc", "", "1,2,3"):
             with self.subTest(text=text), self.assertRaises(ValueError):
                 units.parse_length(text)
+
+    def test_divisao_e_conta(self):
+        """Feature 009 (RN-04): "3/4" deixou de ser fração de polegada recusada (PL-03) e virou conta: 0,75 mm."""
+        self.assertAlmostEqual(units.parse_length("3/4"), 0.00075)
 
 
 class FormatLengthTest(unittest.TestCase):

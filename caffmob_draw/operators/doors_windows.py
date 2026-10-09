@@ -188,6 +188,39 @@ def _draw_placement_dimensions(op):
     gpu.state.blend_set('NONE')
 
 
+def _sync_opening(context, obj):
+    """Feature 010 (RN-01, RN-10): monta ou refaz a porta/janela real dentro da caixa."""
+    from ..openings import sync
+    try:
+        return sync.sync(context, obj)
+    except Exception as exc:              # a caixa e o furo continuam valendo mesmo se a montagem falhar
+        print(f"CAFFMob Draw: porta/janela real não montada ({exc})")
+        return False
+
+
+def _leaf_to_hole(kind, axis, value):
+    """Feature 010 (RN-02): a medida digitada da porta é a da folha; a caixa ganha o marco e a folga."""
+    from ..openings import door_core
+    if kind not in ('DOOR', 'DOUBLE_DOOR', 'OPEN_DOOR'):
+        return value
+    double = kind == 'DOUBLE_DOOR'
+    if axis == 'X':
+        leaf = value / 2.0 if double else value
+        return door_core.hole_size(leaf, 0.0, double=double)[0]
+    return door_core.hole_size(0.0, value)[1]
+
+
+def _hole_to_leaf(kind, axis, value):
+    from ..openings import door_core
+    if kind not in ('DOOR', 'DOUBLE_DOOR', 'OPEN_DOOR'):
+        return value
+    double = kind == 'DOUBLE_DOOR'
+    if axis == 'X':
+        leaf = door_core.leaf_size(value, 0.0, double=double)[0]
+        return leaf * 2.0 if double else leaf
+    return door_core.leaf_size(0.0, value)[1]
+
+
 def cut_wall(wall_obj, cutting_obj):
     """Corta o vão na parede com um boolean DIFFERENCE (EXACT) pelo objeto cortador; devolve o modificador.
 
@@ -364,14 +397,14 @@ class WallObjectPlacementMixin(hb_placement.PlacementMixin):
             self.position_locked = True  # Lock position after explicit input
 
         elif self.typing_target == hb_placement.TypingTarget.WIDTH:
-            self.set_placed_object_width(parsed)
+            self.set_placed_object_width(_leaf_to_hole(self.OPENING_KIND, 'X', parsed))
             # Recalculate position if offset from right
             if self.offset_from_right and self.selected_wall:
                 # Keep right edge in same place
                 self.update_position_for_width_change()
 
         elif self.typing_target == hb_placement.TypingTarget.HEIGHT:
-            self.set_placed_object_height(parsed)
+            self.set_placed_object_height(_leaf_to_hole(self.OPENING_KIND, 'Z', parsed))
 
         self.stop_typing()
 
@@ -420,10 +453,10 @@ class WallObjectPlacementMixin(hb_placement.PlacementMixin):
                 obj.location.x = self.placement_x
 
         elif self.typing_target == hb_placement.TypingTarget.WIDTH:
-            self.set_placed_object_width(parsed)
+            self.set_placed_object_width(_leaf_to_hole(self.OPENING_KIND, 'X', parsed))
 
         elif self.typing_target == hb_placement.TypingTarget.HEIGHT:
-            self.set_placed_object_height(parsed)
+            self.set_placed_object_height(_leaf_to_hole(self.OPENING_KIND, 'Z', parsed))
 
         # Refresh dimensions after value change
         self.refresh_placement_dimensions()
@@ -668,6 +701,7 @@ class _PlaceWallObjectBase(bpy.types.Operator, WallObjectPlacementMixin):
 
     # ===== Per-type configuration (override in subclasses) =====
     OBJECT_NAME = "Object"           # passed to GeoNodeCage.create()
+    OPENING_KIND = 'DOOR'            # feature 010: 'DOOR' / 'DOUBLE_DOOR' / 'OPEN_DOOR' / 'WINDOW'
     OBJECT_LABEL = N_("object")          # human label for headers/messages
     BP_FLAG = ""                     # 'IS_ENTRY_DOOR_BP' / 'IS_WINDOW_BP'
     MENU_ID = ""                     # menu shown when clicking the placed object
@@ -742,9 +776,10 @@ class _PlaceWallObjectBase(bpy.types.Operator, WallObjectPlacementMixin):
             self.placed_obj.obj[self.BP_FLAG] = True
         if self.MENU_ID:
             self.placed_obj.obj['MENU_ID'] = self.MENU_ID
-        self.placed_obj.set_input('Dim X', getattr(props, self.WIDTH_PROP_NAME))
+        self.placed_obj.set_input('Dim X', _leaf_to_hole(self.OPENING_KIND, 'X', getattr(props, self.WIDTH_PROP_NAME)))
         self.placed_obj.set_input('Dim Y', props.wall_thickness)
-        self.placed_obj.set_input('Dim Z', getattr(props, self.HEIGHT_PROP_NAME))
+        self.placed_obj.set_input('Dim Z', _leaf_to_hole(self.OPENING_KIND, 'Z', getattr(props, self.HEIGHT_PROP_NAME)))
+        self.placed_obj.obj.btm_opening_real.kind = self.OPENING_KIND
         self.placed_obj.obj.color = add_on_prefs.door_window_color
         if props.show_entry_door_and_window_cages:
             self.placed_obj.obj.display_type = 'TEXTURED'
@@ -990,6 +1025,7 @@ class _PlaceWallObjectBase(bpy.types.Operator, WallObjectPlacementMixin):
                     self.placement_objects.remove(self.placed_obj.obj)
                 self.delete_placement_dimensions()
                 self.cut_wall(self.selected_wall, self.placed_obj.obj)
+                _sync_opening(context, self.placed_obj.obj)          # porta/janela real (feature 010)
                 hb_placement.clear_header_text(context)
                 context.window.cursor_set('DEFAULT')
                 return {'FINISHED'}
@@ -1042,6 +1078,7 @@ class home_builder_doors_windows_OT_place_double_door(_PlaceWallObjectBase):
     bl_description = "Place a double door on a wall. Arrow keys for offset direction, W for width, Up/Down for swing type, Escape to cancel"
 
     OBJECT_NAME = "Double Door"
+    OPENING_KIND = 'DOUBLE_DOOR'
     OBJECT_LABEL = N_("double door")
     BP_FLAG = "IS_ENTRY_DOOR_BP"
     MENU_ID = "HOME_BUILDER_MT_door_commands"
@@ -1060,6 +1097,7 @@ class home_builder_doors_windows_OT_place_open_door(_PlaceWallObjectBase):
     bl_description = "Place an open doorway on a wall. Arrow keys for offset direction, W for width, Escape to cancel"
 
     OBJECT_NAME = "Open Door"
+    OPENING_KIND = 'OPEN_DOOR'
     OBJECT_LABEL = N_("open door")
     BP_FLAG = "IS_ENTRY_DOOR_BP"
     MENU_ID = "HOME_BUILDER_MT_door_commands"
@@ -1075,6 +1113,7 @@ class home_builder_doors_windows_OT_place_window(_PlaceWallObjectBase):
     bl_description = "Place a window on a wall. Arrow keys for offset direction, W for width, Escape to cancel"
 
     OBJECT_NAME = "Window"
+    OPENING_KIND = 'WINDOW'
     OBJECT_LABEL = N_("window")
     BP_FLAG = "IS_WINDOW_BP"
     MENU_ID = "HOME_BUILDER_MT_window_commands"
@@ -1101,15 +1140,21 @@ class home_builder_doors_windows_OT_door_prompts(bpy.types.Operator):
     def poll(cls, context):
         return context.object and context.object.get('IS_ENTRY_DOOR_BP')
 
+    def _kind(self):
+        from ..openings import sync
+        return sync.kind_of(self.door.obj)
+
     def check(self, context):
-        self.door.set_input('Dim X', self.door_width)
-        self.door.set_input('Dim Z', self.door_height)
+        # feature 010: largura e altura da folha; a caixa ganha o marco, e a porta real é refeita
+        self.door.set_input('Dim X', _leaf_to_hole(self._kind(), 'X', self.door_width))
+        self.door.set_input('Dim Z', _leaf_to_hole(self._kind(), 'Z', self.door_height))
+        _sync_opening(context, self.door.obj)
         return True
 
     def invoke(self, context, event):
         self.door = hb_types.GeoNodeCage(context.object)
-        self.door_width = self.door.get_input('Dim X')
-        self.door_height = self.door.get_input('Dim Z')
+        self.door_width = _hole_to_leaf(self._kind(), 'X', self.door.get_input('Dim X'))
+        self.door_height = _hole_to_leaf(self._kind(), 'Z', self.door.get_input('Dim Z'))
         wm = context.window_manager
         return wm.invoke_props_dialog(self, width=300)
 
@@ -1153,6 +1198,7 @@ class home_builder_doors_windows_OT_window_prompts(bpy.types.Operator):
         self.window.set_input('Dim X', self.window_width)
         self.window.set_input('Dim Z', self.window_height)
         self.window.obj.location.z = self.height_from_floor
+        _sync_opening(context, self.window.obj)              # janela real (feature 010)
         return True
 
     def invoke(self, context, event):
@@ -1206,6 +1252,7 @@ class home_builder_doors_windows_OT_flip_door_swing(bpy.types.Operator):
                 try:
                     current = door_swing.get_input('Swing Inside')
                     door_swing.set_input('Swing Inside', not current)
+                    _sync_opening(context, door_obj)
                     self.report({'INFO'}, "Door swing flipped")
                 except Exception:
                     self.report({'WARNING'}, "Could not find Swing Inside input")
@@ -1232,6 +1279,7 @@ class home_builder_doors_windows_OT_flip_door_hand(bpy.types.Operator):
                 try:
                     current = door_swing.get_input('Is Left')
                     door_swing.set_input('Is Left', not current)
+                    _sync_opening(context, door_obj)
                     self.report({'INFO'}, "Door hand flipped")
                 except Exception:
                     self.report({'WARNING'}, "Could not find Is Left input")
@@ -1377,6 +1425,9 @@ class _DuplicateWallObjectBase(_PlaceWallObjectBase):
         self.HAS_SWING = self._source_has_swing
         super().create_placed_object(context)
         _copy_geo_value_inputs(self._source, self.placed_obj)
+        source_kind = self._source.obj.btm_opening_real.kind
+        if source_kind != 'NONE':
+            self.placed_obj.obj.btm_opening_real.kind = source_kind
         if self.HAS_SWING and self.swing_obj is not None:
             src_swing = _find_door_swing_child(self._source.obj)
             if src_swing is not None:
@@ -1400,6 +1451,7 @@ class home_builder_doors_windows_OT_duplicate_window(_DuplicateWallObjectBase):
     bl_description = "Duplicate the selected window and place the copy on a wall"
 
     OBJECT_NAME = "Window"
+    OPENING_KIND = 'WINDOW'
     OBJECT_LABEL = N_("window")
     BP_FLAG = "IS_WINDOW_BP"
     MENU_ID = "HOME_BUILDER_MT_window_commands"

@@ -44,6 +44,20 @@ class Session:
         self.equalize_height = True       # "Igualar ao pé-direito do projeto" (D-37)
         self.height_mismatches = []
         self.history = history.History(plan)   # Ctrl+Z / Ctrl+Shift+Z no rascunho (BUG-20261007-ZZUK)
+        # Feature 009 (T002; RN-02, RN-05, RN-06): direção atual do lápis e mira com alinhamento
+        self.direction = None             # radianos; None até o primeiro trecho
+        self.direction_locked = False     # só o clique e as setas mudam; o movimento do mouse, nunca
+        self.lock_x = None                # (x travado, ponto de referência) da linha vertical da mira
+        self.lock_y = None                # (y travado, ponto de referência) da linha horizontal
+        self.typed_preview = ""           # "= 16 mm" ou "Valor Inválido"
+        self.inference_index = None       # índice do alinhamento; refeito quando o plano muda
+        self.inference_signature = None
+        self.snap_point = None            # (ponto travado, tipo da trava) da mira para o próximo clique
+
+    def reset_direction(self):
+        self.direction, self.direction_locked = None, False
+        self.lock_x = self.lock_y = None
+        self.typed_preview = ""
 
     def dirty(self):
         return model.plan_signature(self.plan) != self.signature
@@ -67,6 +81,7 @@ class Session:
         self.plan = plan
         self.drawing, self.selected_node, self.typed = None, None, ""
         self.prompt, self.prompt_chain, self.pending_point = None, None, None
+        self.reset_direction()
         self.segment()                    # descarta a seleção que não existe mais
         return True
 

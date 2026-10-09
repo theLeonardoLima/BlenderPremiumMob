@@ -11,7 +11,7 @@ import bpy  # type: ignore
 from bpy_extras.io_utils import ExportHelper, ImportHelper  # type: ignore
 
 from ..data.i18n import tr
-from ..cutting import csv_exporter, json_exporter
+from ..cutting import csv_exporter, hardware, json_exporter
 from ..cutting.nesting import optimize_nesting
 from ..cutting.part_extractor import extract_production_parts, module_entries
 
@@ -155,7 +155,7 @@ class BTM_OT_ExportCutPlanJSON(bpy.types.Operator, ExportHelper):
                 stale = False
         payload = json_exporter.build_global_payload(
             project=project_info(scene), standard=standard_info(scene), parts=parts,
-            modules=module_entries(scene), nesting_result=result,
+            modules=module_entries(scene), nesting_result=result, hardware=hardware.collect(scene),
             nesting_settings={"kerf_mm": (result or {}).get("settings", {}).get("kerf", 4.0),
                               "allow_rotation": (result or {}).get("settings", {}).get("allow_rotation", True),
                               "respect_grain": (result or {}).get("settings", {}).get("respect_grain", True)},

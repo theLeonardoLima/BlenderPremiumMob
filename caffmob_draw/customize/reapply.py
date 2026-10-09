@@ -6,6 +6,10 @@ sai sem custo.
 
 Feature 006 (T029; D-07, D-10): módulo com estrutura editada (`btm_structure`) ou com divisões também conta como
 personalizado; depois de reaplicar, o adaptador reafirma remoções e espessuras e as divisões são reposicionadas.
+
+Feature 008 (T045; D-11, D-12): peças das abas novas (extras, internos, deslizantes) e o fundo recuado também contam;
+com "Inserir automaticamente", o recuo do fundo é reafirmado, e as peças novas voltam ao lugar. Um fundo removido
+pelo projetista continua removido (a remoção é uma escolha explícita).
 """
 
 from . import adapters
@@ -18,7 +22,10 @@ DIVISION_SIGNATURE = 'btm_division_sig'     # = cabinet_editor.scene_divisions.S
 
 def has_structure(root):
     structure = getattr(root, 'btm_structure', None)
-    return bool(structure is not None and structure.components) or DIVISION_SIGNATURE in root
+    if structure is not None and (structure.components or structure.back_mode == 'RECESSED'):
+        return True
+    return DIVISION_SIGNATURE in root or any(getattr(o, 'btm_extra', None) is not None and o.btm_extra.is_extra
+                                             for o in root.children)
 
 
 def has_custom(root):
@@ -57,10 +64,17 @@ def after_rebuild(context, obj):
     if has_structure(root) and root.name not in _running:
         _running.add(root.name)
         try:
-            from ..cabinet_editor import scene_divisions
+            from ..cabinet_editor import scene_divisions, scene_extras, scene_interiors, scene_slides
             from .adapters import common
-            messages += common.call(adapters.for_root(root), 'reaffirm', context, root)
+            adapter = adapters.for_root(root)
+            messages += common.call(adapter, 'reaffirm', context, root)
+            holder = root.btm_structure
+            if holder.auto_back and holder.back_mode == 'RECESSED':
+                messages += common.call(adapter, 'set_back_recess', context, root, holder.back_setback)
             scene_divisions.reflow(context, root)
+            scene_extras.sync(context, root)
+            scene_interiors.reflow(context, root)
+            scene_slides.reflow(context, root)
         finally:
             _running.discard(root.name)
     return messages

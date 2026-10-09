@@ -9,6 +9,14 @@ Referencial: o da raiz do módulo, em metros. X = largura, Y = profundidade com 
   Quando o espaço-raiz muda de tamanho, o `offset` fica igual e o resto se ajusta (RN-16).
 - Os recuos só reduzem a profundidade da chapa (RN-13).
 
+Feature 008 (T018, T055; D-10, D-22):
+- `add_many`: N chapas iguais de uma vez (inserção múltipla), em cadeia pelos subvãos da direita/de cima;
+- `kind`: `FIXED` (padrão), `MOVABLE` (mesma geometria; a furação sai nas peças vizinhas, `cutting/drilling`) e
+  `SPACER` (distanciador: ocupa a faixa a partir da face esquerda/de baixo e **não** divide o vão; o subvão continua
+  com o mesmo caminho, menor);
+- `follow`: distanciador "p/ Divisão", posto no subvão logo depois da divisória seguida (offset 0), acompanha-a;
+- `remove_in_space`: "Sem Divisória" no subvão-folha tira a divisória que o criou e junta as metades.
+
 Códigos de mensagem: `DIV-001` subvão menor que o mínimo; `DIV-002` chapa com profundidade menor que o mínimo;
 `DIV-003` o subvão da divisão não existe mais (todos erro: impedem o Confirmar).
 """
@@ -25,6 +33,7 @@ MIN_DEPTH = 0.05        # m (RN-14)
 DEFAULT_SETBACK = 0.02  # m (RN-13)
 VERTICAL = 'VERTICAL'
 HORIZONTAL = 'HORIZONTAL'
+FIXED, MOVABLE, SPACER = 'FIXED', 'MOVABLE', 'SPACER'
 _AXIS = {VERTICAL: 0, HORIZONTAL: 2}
 
 
@@ -52,6 +61,9 @@ class Division:
     use_back: bool = False
     back: float = DEFAULT_SETBACK
     material: str = ""
+    kind: str = FIXED
+    follow: str = ""
+    bay: bool = False
 
 
 def new_uid():
@@ -103,9 +115,13 @@ def resolve(roots, divisions):
             orphans.append(division.uid)
             continue
         a, b, plate = _split(box, division)
-        del spaces[division.space]
-        first, second = children(division.space)
-        spaces[first], spaces[second] = a, b
+        if division.kind == SPACER:            # ocupa a faixa; o subvão continua inteiro do lado maior
+            axis = _AXIS[division.orientation]
+            spaces[division.space] = b if b.size(axis) >= a.size(axis) else a
+        else:
+            del spaces[division.space]
+            first, second = children(division.space)
+            spaces[first], spaces[second] = a, b
         cuts[division.uid] = (box, plate)
     return spaces, cuts, orphans
 
@@ -126,15 +142,46 @@ def middle_offset(space, orientation, thickness):
 
 
 def add(roots, divisions, space, orientation, thickness, *, use_front=False, front=DEFAULT_SETBACK, use_back=False,
-        back=DEFAULT_SETBACK, uid=None):
-    """Nova divisão no meio do subvão-folha `space`. Erro (ValueError) se o subvão não for uma folha."""
+        back=DEFAULT_SETBACK, uid=None, kind=FIXED, follow="", bay=False, offset=None):
+    """Nova divisão no subvão-folha `space`: no meio, ou encostada na face esquerda/de baixo se for distanciador.
+
+    Erro (ValueError) se o subvão não for uma folha.
+    """
     leaves, _cuts, _orphans = resolve(roots, divisions)
     box = leaves.get(space)
     if box is None:
         raise ValueError(tr("Escolha um vão livre para a divisão"))
-    division = Division(uid or new_uid(), space, orientation, middle_offset(box, orientation, thickness),
-                        float(thickness), bool(use_front), float(front), bool(use_back), float(back))
+    if offset is None:
+        offset = 0.0 if kind == SPACER else middle_offset(box, orientation, thickness)
+    division = Division(uid or new_uid(), space, orientation, float(offset), float(thickness), bool(use_front),
+                        float(front), bool(use_back), float(back), kind=kind, follow=follow, bay=bay)
     return list(divisions) + [division]
+
+
+def add_many(roots, divisions, space, orientation, count, thickness, **options):
+    """`count` chapas iguais no subvão (inserção múltipla): `count + 1` subvãos de mesma medida."""
+    leaves, _cuts, _orphans = resolve(roots, divisions)
+    box = leaves.get(space)
+    if box is None:
+        raise ValueError(tr("Escolha um vão livre para a divisão"))
+    gap = (box.size(_AXIS[orientation]) - count * thickness) / (count + 1)
+    out = list(divisions)
+    target = space
+    for _index in range(int(count)):
+        out = add(roots, out, target, orientation, thickness, offset=max(gap, 0.0), **options)
+        target = children(target)[1]
+    return out
+
+
+def remove_in_space(divisions, leaf):
+    """"Sem Divisória": tira a divisória que criou o subvão `leaf` (e as de dentro dela)."""
+    if "." not in leaf:
+        return list(divisions), []
+    parent = leaf.rsplit(".", 1)[0]
+    target = next((d for d in divisions if d.space == parent and d.kind != SPACER), None)
+    if target is None:
+        return list(divisions), []
+    return remove(divisions, target.uid)
 
 
 def update(divisions, uid, **changes):
@@ -153,8 +200,10 @@ def remove(divisions, uid):
 
 
 def offset_range(space, division):
-    """(mínimo, máximo) do `offset` que deixa os dois lados com o subvão mínimo."""
+    """(mínimo, máximo) do `offset` que deixa os dois lados com o subvão mínimo (distanciador: pode encostar)."""
     size = space.size(_AXIS[division.orientation])
+    if division.kind == SPACER:
+        return 0.0, max(0.0, size - division.thickness)
     return MIN_SPACE, size - division.thickness - MIN_SPACE
 
 

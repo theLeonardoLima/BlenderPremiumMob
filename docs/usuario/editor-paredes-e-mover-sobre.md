@@ -21,6 +21,18 @@ a espessura das paredes. Tudo o que você digita vale para a linha interna, salv
 **Navegar:** arraste com o botão do meio para mover a vista. A roda aproxima e afasta. **Home** ou **Enquadrar Tudo** mostram todas as paredes.
 
 **Ferramentas** (painel da direita):
+- **Mira:** nos modos Selecionar/Mover e Construir Parede, duas linhas finas atravessam a vista pelo cursor, uma
+  horizontal e uma vertical. Quando o cursor chega a uns **8 px** da altura (Y) ou do alinhamento (X) de um vértice de
+  qualquer parede, a linha correspondente **trava** nele:
+  - a linha fica destacada;
+  - uma guia tracejada vai até o vértice, que ganha um anel.
+
+  O clique sai **pareado**: a mesma coordenada exata do vértice, mesmo que ele esteja do outro lado da planta. As
+  duas linhas podem travar juntas. Segure **Shift** para desenhar sem o alinhamento (a trava reta e o ímã continuam).
+- **Contas na medida:** em qualquer lugar onde você digita uma medida, dá para escrever uma conta com `+ - * /` e
+  parênteses: `2*8`, `200/2`, `(3000-150)/2`. O resultado aparece ao lado (`= 16 mm`) antes do Enter. Cada número
+  pode ter unidade (`1,5m+20`); sem unidade, vale a do projeto. Uma conta inválida (`10/0`) mostra **Valor Inválido**
+  e não muda nada.
 - **Selecionar/Mover:**
   - Clique na linha **interna** (tracejada) ou na **externa** de uma parede e **digite a nova medida** em mm, depois **Enter**. Exemplo: clique na interna de 2.400, digite `3000` e Enter; a interna vira 3.000 e a externa 3.000 + espessuras.
   - Clique num **vértice** (quadrado) e digite: muda o trecho que termina nele.
@@ -29,9 +41,18 @@ a espessura das paredes. Tudo o que você digita vale para a linha interna, salv
   - **Delete** remove o trecho selecionado.
 - **Construir Parede** (lápis):
   1. Clique no ponto inicial.
-  2. Digite o comprimento (por exemplo `3000`) e tecle **Enter**, ou clique no ponto final.
-  3. Para fechar a sala, volte ao ponto inicial: perto dele (15 px) o cursor **gruda** no ponto, que fica destacado com "Fechar". Clique e responda **Sim** a "Deseja fechar a parede?". Chegar ao início digitando a medida, ou arrastando o último vértice até ele, faz a mesma pergunta; **Não** mantém o desenho aberto. A espessura vai sozinha para o lado de fora, qualquer que seja o sentido em que você desenhou.
-  4. **Esc** termina o desenho aberto.
+  2. Mova o mouse na direção da parede e digite o comprimento (por exemplo `3000`) e **Enter**, ou clique no ponto
+     final.
+  3. A direção fica **travada**: a seta no último ponto mostra qual é ("→ 0°"). Os próximos Enter seguem nela, e mover
+     o mouse **não** muda a direção. Por exemplo, `100` Enter, `285` Enter, `2*8` Enter, `200/2` Enter e `2000` Enter
+     criam cinco paredes seguidas, de 100, 285, 16, 100 e 2000 mm, para o mesmo lado. Cada Enter é uma parede
+     separada, também depois do OK.
+  4. Para mudar de direção:
+     - **setas do teclado:** → 0°, ↑ 90°, ← 180°, ↓ 270°, sem criar parede;
+     - **clique na nova direção:** cria a parede até o ponto clicado, e a direção dela passa a valer para os próximos
+       Enter.
+  5. Para fechar a sala, volte ao ponto inicial: perto dele (15 px) o cursor **gruda** no ponto, que fica destacado com "Fechar". Clique e responda **Sim** a "Deseja fechar a parede?". Chegar ao início digitando a medida, ou arrastando o último vértice até ele, faz a mesma pergunta; **Não** mantém o desenho aberto. A espessura vai sozinha para o lado de fora, qualquer que seja o sentido em que você desenhou.
+  6. **Esc** termina o desenho aberto.
 - **Inverter Sentido**, **Adicionar Vértice** (divide o trecho clicado) e **Remover Vértice** (une os dois trechos do vértice clicado).
 
 **Painel** (trecho selecionado):
@@ -56,6 +77,45 @@ Pisos e tetos que já existem são refeitos com o contorno novo. Uma sala cujo �
 **Mudar o pé-direito em Construir › Paredes** atualiza sozinho todas as paredes de altura cheia do projeto (Mureta, meia-parede e parede falsa ficam como estão). Ctrl+Z desfaz.
 
 **"Desenhar Paredes" (3D)** tem o mesmo ímã: perto do ponto inicial o cursor gruda e aparece "Deseja fechar a parede?"; **Enter** ou clique fecha, **Esc** continua desenhando. Digitar a medida que termina no início também pergunta. A tecla **C** fecha direto.
+
+## 1a. Portas e janelas reais
+
+Em **Construir › Aberturas**, a porta e a janela entram como peças reais, não como uma caixa com o texto "DOOR" ou
+"WINDOW":
+- **Porta** (simples, 80 × 210 cm por padrão), com:
+  - marco com a profundidade da parede e guarnições nos dois lados;
+  - folha de nogueira de 40 mm com duas almofadas;
+  - maçanetas de alavanca, fechadura e três dobradiças.
+- **Porta dupla** (160 × 210): duas folhas que se encontram no meio.
+- **Vão aberto**: só marco e guarnições.
+- **Janela de correr**, com:
+  - marco de alumínio;
+  - duas folhas de vidro em trilhos;
+  - puxadores e peitoril de granito.
+
+Como funciona:
+- **Medida:** a largura e a altura que você digita ao colocar a porta, ou nos prompts, são as da **folha**. O furo na
+  parede fica um pouco maior, para caber o marco (com 80, o furo tem 89,8 cm).
+- **Abertura:** na seção **Selecionado**, a barra de abertura gira a folha até 90° (e corre a folha da janela até o
+  batente). A folha para se esbarrar numa parede ou num móvel. O lado e o sentido seguem o símbolo de giro: **Inverter
+  giro** e **Inverter mão** refazem a porta.
+- **Medidas e espessura:** mudar a largura, a altura ou a espessura da parede (no editor de paredes) refaz a porta e
+  a janela, sem distorcer maçanetas e dobradiças.
+- **Caixa de referência:** a caixa da abertura continua cortando a parede, mas aparece só em arame. "Mostrar caixas
+  de portas e janelas" mostra ou esconde essa caixa.
+- **Arquivo antigo:** as portas e janelas em caixa continuam como estavam. A seção **Construir** avisa quantas são e
+  oferece **Atualizar portas e janelas**, que troca todas pela versão real nas mesmas posições e medidas.
+- **Plano de corte:** as peças da porta ficam fora por padrão. Para uma folha entrar no corte, marque-a como peça de
+  produção na seção Selecionado.
+
+## 1b. Modo de vista
+
+No topo da seção **Construir**:
+- **Sólido · Textura:** Textura mostra as texturas dos materiais (a madeira, o granito) na vista sólida;
+- **Linhas** (o botão ao lado): desenha as arestas de todos os objetos, finas e escuras, por cima da vista.
+
+"Textura com linha" é Textura com Linhas ligado. O estado escrito embaixo mostra o modo atual. O modo vai salvo no
+arquivo e volta ao abri-lo.
 
 ## 2. Remover, rebaixar e esconder paredes
 

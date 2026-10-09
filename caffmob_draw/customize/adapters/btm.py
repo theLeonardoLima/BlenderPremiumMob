@@ -112,12 +112,19 @@ def reapply(context, root):
 # Estrutura e divisões (feature 006) ---------------------------------------------------------------------------
 def _layout(cab, full=False):
     from ...cabinet_editor import structure as st
-    from ...data.properties import structure_of
+    from ...data.properties import back_setback_of, structure_of
     data = structure_of(cab)
     thick = {role: data[role][2] for role in st.ROLES}
     states = {} if full else {role: st.RoleState(removed=not present, mode=mode)
                               for role, (present, mode, _t) in data.items() if not present}
-    return st.layout(cab.width, cab.height, cab.depth, thick, states), thick
+    return st.layout(cab.width, cab.height, cab.depth, thick, states, back_setback_of(cab.id_data)), thick
+
+
+def set_back_recess(context, root, setback):
+    """Fundo recuado (feature 008, T023): o valor já está em `btm_structure`; basta refazer a malha."""
+    from ...data.properties import update_cabinet_geom
+    update_cabinet_geom(root.btm_cabinet, context)
+    return []
 
 
 def inner_spaces(context, root):

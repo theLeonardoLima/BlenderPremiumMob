@@ -1,0 +1,218 @@
+{
+ "A seleção não tem malhas": {
+  "en_US": "The selection has no meshes",
+  "pt_BR": "A seleção não tem malhas"
+ },
+ "Acrescenta a seleção (ou um arquivo 3D) à sua biblioteca de objetos, com a folha, as chapas e as texturas": {
+  "en_US": "Adds the selection (or a 3D file) to your object library, with its leaf, panels and textures",
+  "pt_BR": "Acrescenta a seleção (ou um arquivo 3D) à sua biblioteca de objetos, com a folha, as chapas e as texturas"
+ },
+ "Acrescentar à biblioteca": {
+  "en_US": "Add to library",
+  "pt_BR": "Acrescentar à biblioteca"
+ },
+ "Apaga o objeto da sua biblioteca (os objetos que vêm com o plugin não saem)": {
+  "en_US": "Deletes the object from your library (objects that ship with the add-on stay)",
+  "pt_BR": "Apaga o objeto da sua biblioteca (os objetos que vêm com o plugin não saem)"
+ },
+ "Apagar este objeto da sua biblioteca?": {
+  "en_US": "Delete this object from your library?",
+  "pt_BR": "Apagar este objeto da sua biblioteca?"
+ },
+ "Aplica uma imagem sua como textura, em escala real (projeção em caixa, não precisa de UV)": {
+  "en_US": "Applies your own image as a texture at real scale (box projection, no UV needed)",
+  "pt_BR": "Aplica uma imagem sua como textura, em escala real (projeção em caixa, não precisa de UV)"
+ },
+ "Arquivo": {
+  "en_US": "File",
+  "pt_BR": "Arquivo"
+ },
+ "Autor": {
+  "en_US": "Author",
+  "pt_BR": "Autor"
+ },
+ "Cadeiras e assentos": {
+  "en_US": "Chairs and seating",
+  "pt_BR": "Cadeiras e assentos"
+ },
+ "Cooktops e eletros": {
+  "en_US": "Cooktops and appliances",
+  "pt_BR": "Cooktops e eletros"
+ },
+ "De onde veio o modelo (ex.: 3D Warehouse: autor)": {
+  "en_US": "Where the model came from (e.g. 3D Warehouse: author)",
+  "pt_BR": "De onde veio o modelo (ex.: 3D Warehouse: autor)"
+ },
+ "Decoração": {
+  "en_US": "Decor",
+  "pt_BR": "Decoração"
+ },
+ "Dê um nome ao objeto": {
+  "en_US": "Give the object a name",
+  "pt_BR": "Dê um nome ao objeto"
+ },
+ "Escolha uma imagem": {
+  "en_US": "Choose an image",
+  "pt_BR": "Escolha uma imagem"
+ },
+ "Id do item": {
+  "en_US": "Item id",
+  "pt_BR": "Id do item"
+ },
+ "Imagem": {
+  "en_US": "Image",
+  "pt_BR": "Imagem"
+ },
+ "Insere o objeto da biblioteca: ele acompanha o mouse, um clique solta e Esc cancela": {
+  "en_US": "Inserts the library object: it follows the mouse, a click places it and Esc cancels",
+  "pt_BR": "Insere o objeto da biblioteca: ele acompanha o mouse, um clique solta e Esc cancela"
+ },
+ "Inserir objeto": {
+  "en_US": "Insert object",
+  "pt_BR": "Inserir objeto"
+ },
+ "Item corrompido: {}": {
+  "en_US": "Corrupted item: {}",
+  "pt_BR": "Item corrompido: {}"
+ },
+ "Item inteiro": {
+  "en_US": "Whole item",
+  "pt_BR": "Item inteiro"
+ },
+ "Janelas": {
+  "en_US": "Windows",
+  "pt_BR": "Janelas"
+ },
+ "Licença": {
+  "en_US": "License",
+  "pt_BR": "Licença"
+ },
+ "Mesas": {
+  "en_US": "Tables",
+  "pt_BR": "Mesas"
+ },
+ "Mova para posicionar · Clique solta · Esc cancela": {
+  "en_US": "Move to position · Click places · Esc cancels",
+  "pt_BR": "Mova para posicionar · Clique solta · Esc cancela"
+ },
+ "Nada mudou: acabamento ausente ou seleção sem malhas": {
+  "en_US": "Nothing changed: missing finish or no meshes selected",
+  "pt_BR": "Nada mudou: acabamento ausente ou seleção sem malhas"
+ },
+ "Nenhum acabamento": {
+  "en_US": "No finish",
+  "pt_BR": "Nenhum acabamento"
+ },
+ "Nenhum objeto com esse nome": {
+  "en_US": "No object with that name",
+  "pt_BR": "Nenhum objeto com esse nome"
+ },
+ "Nenhum objeto nesta categoria": {
+  "en_US": "No objects in this category",
+  "pt_BR": "Nenhum objeto nesta categoria"
+ },
+ "Nome repetido": {
+  "en_US": "Repeated name",
+  "pt_BR": "Nome repetido"
+ },
+ "Não foi possível abrir a imagem: {}": {
+  "en_US": "Could not open the image: {}",
+  "pt_BR": "Não foi possível abrir a imagem: {}"
+ },
+ "Não foi possível gravar o item em {}: {}": {
+  "en_US": "Could not save the item in {}: {}",
+  "pt_BR": "Não foi possível gravar o item em {}: {}"
+ },
+ "Objeto não encontrado na biblioteca": {
+  "en_US": "Object not found in the library",
+  "pt_BR": "Objeto não encontrado na biblioteca"
+ },
+ "Os objetos que vêm com o plugin não podem ser removidos": {
+  "en_US": "Objects that ship with the add-on cannot be removed",
+  "pt_BR": "Os objetos que vêm com o plugin não podem ser removidos"
+ },
+ "Outros": {
+  "en_US": "Other",
+  "pt_BR": "Outros"
+ },
+ "Parte do nome do objeto": {
+  "en_US": "Part of the object name",
+  "pt_BR": "Parte do nome do objeto"
+ },
+ "Parte selecionada": {
+  "en_US": "Selected part",
+  "pt_BR": "Parte selecionada"
+ },
+ "Quanto a imagem mede de verdade": {
+  "en_US": "How big the image really is",
+  "pt_BR": "Quanto a imagem mede de verdade"
+ },
+ "Regrava o objeto": {
+  "en_US": "Overwrites the object",
+  "pt_BR": "Regrava o objeto"
+ },
+ "Remover da biblioteca": {
+  "en_US": "Remove from library",
+  "pt_BR": "Remover da biblioteca"
+ },
+ "Retexturizar com acabamento": {
+  "en_US": "Retexture with a finish",
+  "pt_BR": "Retexturizar com acabamento"
+ },
+ "Retexturizar com imagem": {
+  "en_US": "Retexture with an image",
+  "pt_BR": "Retexturizar com imagem"
+ },
+ "Salva como \"<nome> 2\"": {
+  "en_US": "Saves as \"<name> 2\"",
+  "pt_BR": "Salva como \"<nome> 2\""
+ },
+ "Selecione o objeto ou escolha um arquivo": {
+  "en_US": "Select the object or choose a file",
+  "pt_BR": "Selecione o objeto ou escolha um arquivo"
+ },
+ "Só as peças selecionadas": {
+  "en_US": "Only the selected parts",
+  "pt_BR": "Só as peças selecionadas"
+ },
+ "Tamanho da imagem (mm)": {
+  "en_US": "Image size (mm)",
+  "pt_BR": "Tamanho da imagem (mm)"
+ },
+ "Todas as peças do item do objeto ativo": {
+  "en_US": "All parts of the active object's item",
+  "pt_BR": "Todas as peças do item do objeto ativo"
+ },
+ "Troca o material pelo acabamento escolhido (das bibliotecas do plugin ou do arquivo)": {
+  "en_US": "Replaces the material with the chosen finish (from the add-on libraries or the file)",
+  "pt_BR": "Troca o material pelo acabamento escolhido (das bibliotecas do plugin ou do arquivo)"
+ },
+ "Vazio = usa a seleção atual": {
+  "en_US": "Empty = uses the current selection",
+  "pt_BR": "Vazio = usa a seleção atual"
+ },
+ "{} acrescentado à biblioteca em {}": {
+  "en_US": "{} added to the library in {}",
+  "pt_BR": "{} acrescentado à biblioteca em {}"
+ },
+ "{} arquivo(s) da biblioteca ignorado(s)": {
+  "en_US": "{} library file(s) skipped",
+  "pt_BR": "{} arquivo(s) da biblioteca ignorado(s)"
+ },
+ "{} inserido": {
+  "en_US": "{} inserted",
+  "pt_BR": "{} inserido"
+ },
+ "{} peça(s) com a textura {}": {
+  "en_US": "{} part(s) with the texture {}",
+  "pt_BR": "{} peça(s) com a textura {}"
+ },
+ "{} peça(s) com {}": {
+  "en_US": "{} part(s) with {}",
+  "pt_BR": "{} peça(s) com {}"
+ },
+ "{} removido da biblioteca": {
+  "en_US": "{} removed from the library",
+  "pt_BR": "{} removido da biblioteca"
+ }
+}

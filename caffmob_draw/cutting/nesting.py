@@ -38,6 +38,7 @@ class NestingPart:
         module_uid=None,
         machining=None,
         machining_clipped=False,
+        drilling=None,
     ):
         self.id = id
         self.uid = str(uid) if uid else str(id)
@@ -59,6 +60,7 @@ class NestingPart:
         self.limit_status = limit_status
         self.machining = list(machining or [])          # feature 003: recortes de agregados (JSON `machining`)
         self.machining_clipped = bool(machining_clipped)
+        self.drilling = list(drilling or [])            # feature 008: furação das divisórias móveis (JSON `drilling`)
 
     # Aliases dos nomes antigos (v1)
     @property
